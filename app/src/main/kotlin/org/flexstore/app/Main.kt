@@ -1,4 +1,4 @@
-package org.example
+package org.flexstore.app
 
 import org.flexstore.domain.Domain
 
