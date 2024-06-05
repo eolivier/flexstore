@@ -1,6 +1,6 @@
 
 
-group = "org.example"
+group = "org.flexstore"
 
 repositories {
     mavenCentral()
