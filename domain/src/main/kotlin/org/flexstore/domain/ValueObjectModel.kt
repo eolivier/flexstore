@@ -2,7 +2,7 @@ package org.flexstore.domain
 
 import java.math.BigDecimal
 
-data class Command(val items: MutableList<Item>)
+data class OneItem(val itemId: ItemId, val product: Product)
 data class Item(val itemId: ItemId, val product: Product, val quantity: Quantity) {
     fun increase() = Item(itemId, product, quantity.increase())
     fun decrease() = Item(itemId, product, quantity.decrease())
@@ -20,7 +20,7 @@ data class Amount(val value: BigDecimal)
 data class Quantity(val value: Int) {
     fun increase() = Quantity(value + 1)
     fun decrease() = Quantity(value - 1)
-    fun changeQuantity(newQuantity: Quantity) = Quantity(value + newQuantity.value)
+    fun changeQuantity(newQuantity: Quantity) = Quantity(newQuantity.value)
 }
 data class Identity(val value: String)
 enum class Currency { EUR, USD }
