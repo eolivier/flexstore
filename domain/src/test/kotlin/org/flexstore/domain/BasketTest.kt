@@ -13,8 +13,8 @@ class BasketTest : WithAssertions {
         val item2 = createItem2()
         val basket = Basket()
         // when
-        basket.addItem(item1)
-        basket.addItem(item2)
+        basket.addOrReplaceItem(item1)
+        basket.addOrReplaceItem(item2)
         // then
         val items = basket.getItems()
         assertThat(items).containsExactly(item1, item2)
@@ -26,8 +26,8 @@ class BasketTest : WithAssertions {
         val item1 = createItem1()
         val basket = Basket()
         // when
-        basket.addItem(item1)
-        basket.addItem(item1)
+        basket.addOrReplaceItem(item1)
+        basket.addOrReplaceItem(item1)
         // then
         val items = basket.getItems()
         assertThat(items).containsExactly(item1)
@@ -38,7 +38,7 @@ class BasketTest : WithAssertions {
         // given
         val item1 = createItem1()
         val basket = Basket()
-        basket.addItem(item1)
+        basket.addOrReplaceItem(item1)
         // when
         basket.removeItem(item1)
         // then
@@ -50,7 +50,7 @@ class BasketTest : WithAssertions {
         // given
         val item1 = createItem1()
         val basket = Basket()
-        basket.addItem(item1)
+        basket.addOrReplaceItem(item1)
         val newQuantity = Quantity(12)
         // when
         basket.changeQuantity(item1.itemId, newQuantity)

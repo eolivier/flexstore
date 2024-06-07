@@ -6,7 +6,7 @@ class Basket {
 
     fun getItems() = items.toList()
 
-    fun addItem(newItem: Item) {
+    fun addOrReplaceItem(newItem: Item) {
         if (items.contains(newItem)) {
             items.remove(newItem)
         }

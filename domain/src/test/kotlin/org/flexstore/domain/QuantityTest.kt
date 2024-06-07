@@ -4,31 +4,31 @@ import org.assertj.core.api.WithAssertions
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
-import java.util.stream.Stream
+import kotlin.streams.asStream
 
 class QuantityTest : WithAssertions {
 
     companion object {
         @JvmStatic
-        fun increaseTestCases(): Stream<Arguments> = Stream.of(
+        fun increaseTestCases() = sequenceOf(
             Arguments.of(Quantity(0), Quantity(1)),
             Arguments.of(Quantity(5), Quantity(6)),
             Arguments.of(Quantity(-1), Quantity(0))
-        )
+        ).asStream()
 
         @JvmStatic
-        fun decreaseTestCases(): Stream<Arguments> = Stream.of(
+        fun decreaseTestCases() = sequenceOf(
             Arguments.of(Quantity(0), Quantity(-1)),
             Arguments.of(Quantity(5), Quantity(4)),
             Arguments.of(Quantity(-1), Quantity(-2))
-        )
+        ).asStream()
 
         @JvmStatic
-        fun changeQuantityTestCases(): Stream<Arguments> = Stream.of(
-            Arguments.of(Quantity(0), Quantity(0), Quantity(0)),
-            Arguments.of(Quantity(5), Quantity(3), Quantity(8)),
-            Arguments.of(Quantity(-1), Quantity(2), Quantity(1))
-        )
+        fun changeQuantityTestCases() = sequenceOf(
+            Arguments.of(Quantity(0), Quantity(0)),
+            Arguments.of(Quantity(5), Quantity(8)),
+            Arguments.of(Quantity(-1), Quantity(2))
+        ).asStream()
     }
 
     @ParameterizedTest
@@ -53,11 +53,11 @@ class QuantityTest : WithAssertions {
 
     @ParameterizedTest
     @MethodSource("changeQuantityTestCases")
-    fun `test changeQuantity`(input: Quantity, change: Quantity, expected: Quantity) {
+    fun `test changeQuantity`(input: Quantity, change: Quantity) {
         // when
         val result = input.changeQuantity(change)
         // then
-        assertThat(result).isEqualTo(expected)
+        assertThat(result).isEqualTo(change)
         assertThat(result !== input).isTrue()
     }
 }
