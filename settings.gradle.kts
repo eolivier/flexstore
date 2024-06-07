@@ -5,5 +5,4 @@ rootProject.name = "flexstore"
 
 include("app")
 include("domain")
-include("domain")
-include("app")
+include("spring-infra")
