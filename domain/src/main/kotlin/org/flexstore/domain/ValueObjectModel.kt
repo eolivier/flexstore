@@ -21,6 +21,7 @@ data class Quantity(val value: Int) {
     fun increase() = Quantity(value + 1)
     fun decrease() = Quantity(value - 1)
     fun changeQuantity(newQuantity: Quantity) = Quantity(newQuantity.value)
+    fun isNegative() = value < 0
 }
 data class Identity(val value: String)
 enum class Currency { EUR, USD }
