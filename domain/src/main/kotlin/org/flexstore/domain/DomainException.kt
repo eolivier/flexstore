@@ -1,6 +1,15 @@
 package org.flexstore.domain
 
-class NominalException(message: String) : Exception(message)
-class PreConditionException(message: String) : Exception(message)
-class PostConditionException(message: String) : Exception(message)
-class AlternativeException(message: String) : Exception(message)
+data class StepException(val nonEmptyMessage: NonEmptyString) : Exception(nonEmptyMessage.value)
+data class NominalException(val nonEmptyMessage: NonEmptyString) : Exception(nonEmptyMessage.value)
+data class PreConditionException(val nonEmptyMessage: NonEmptyString) : Exception(nonEmptyMessage.value)
+data class PostConditionException(val nonEmptyMessage: NonEmptyString) : Exception(nonEmptyMessage.value)
+data class AlternativeException(val nonEmptyMessage: NonEmptyString) : Exception(nonEmptyMessage.value)
+
+data class NonEmptyString(val value: String) {
+    init {
+        if (value.isEmpty()) {
+            throw IllegalArgumentException("Value must not be empty")
+        }
+    }
+}

@@ -4,7 +4,7 @@ class BuyItemUseCase(private val item: Item) : UseCase<Item> {
 
     override fun preConditions() {
         if (item.quantity.isNegative()) {
-            throw PreConditionException("Quantity must be positive")
+            throw PreConditionException(NonEmptyString("Quantity must be positive"))
         }
     }
 
@@ -17,6 +17,8 @@ class BuyItemUseCase(private val item: Item) : UseCase<Item> {
     }
 
     override fun postConditions() {
-        TODO("Not yet implemented")
+        if (item.quantity.isNotZero()) {
+            throw PostConditionException(NonEmptyString("Quantity must be zero"))
+        }
     }
 }
