@@ -18,8 +18,10 @@ interface UseCase<T> {
     }
 }
 
-data class NominalFlow(val steps: List<Step>)
-data class AlternativeFlow(val steps: List<Step>)
+interface Flow
+
+data class NominalFlow(val steps: List<Step>, val nextUseCase: IUserCase = NoUseCase()):Flow
+data class AlternativeFlow(val steps: List<Step>):Flow
 
 data class Step(val name: NonEmptyString, val action: () -> Unit)
 
@@ -46,3 +48,19 @@ data class Actor(val name: NonEmptyString) {
     }
 }
 
+interface IUserCase
+
+data class EffectiveUseCase(val actor: Actor, val nominalFlow: NominalFlow, val alternativeFlow: AlternativeFlow):IUserCase {
+    fun execute() {
+        try {
+            actor.perform(nominalFlow)
+            if(nominalFlow.nextUseCase is EffectiveUseCase) {
+                nominalFlow.nextUseCase.execute()
+            }
+        } catch (ne: NominalException) {
+            actor.perform(alternativeFlow)
+        }
+    }
+}
+
+class NoUseCase: IUserCase
