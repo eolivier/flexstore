@@ -8,19 +8,19 @@ class UseCaseTest {
     fun `scenario`() {
         // given
         val actor = Actor(NonEmptyString("authenticated user"))
-        val nominalFlow = NominalFlow(listOf(
-            Step(NonEmptyString("step1")) { println("step1") },
-            Step(NonEmptyString("step2")) { throw StepException(NonEmptyString("step2")) }
+        val nominalScenario = NominalScenario(listOf(
+            Step(NonEmptyString("step1")),
+            Step(NonEmptyString("step2"))
         ))
-        val alternativeFlow = AlternativeFlow(listOf(
-            Step(NonEmptyString("alternative1")) { println("alternative1") },
-            Step(NonEmptyString("alternative2")) { println("alternative2") }
+        val alternativeScenario = AlternativeScenario(listOf(
+            Step(NonEmptyString("alternative1")),
+            Step(NonEmptyString("alternative2"))
         ))
         // when / then
         try {
-            actor.perform(nominalFlow)
+            actor.perform(nominalScenario)
         } catch (ne: NominalException) {
-            actor.perform(alternativeFlow)
+            actor.perform(alternativeScenario)
         }
     }
 }
