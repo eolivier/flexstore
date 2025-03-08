@@ -1,6 +1,6 @@
 package org.flexstore.domain
 
-class BuyItemUseCase(private val item: Item) : UseCase<Item> {
+/*class BuyItemUseCase(private val item: Item) : UseCase<Item> {
 
     override fun preConditions() {
         if (item.quantity.isNegative()) {
@@ -21,4 +21,4 @@ class BuyItemUseCase(private val item: Item) : UseCase<Item> {
             throw PostConditionException(NonEmptyString("Quantity must be zero"))
         }
     }
-}
+}*/

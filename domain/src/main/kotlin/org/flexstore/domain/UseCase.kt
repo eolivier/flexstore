@@ -1,70 +1,51 @@
 package org.flexstore.domain
 
-interface UseCase<T> {
+data class PreCondition<T>(val validate: (T) -> Unit)
+data class PostCondition<T>(val validate: (T) -> Unit)
+data class Step<T>(val run: (T) -> Unit)
 
-    fun preConditions()
-    fun nominal()
-    fun alternative()
-    fun postConditions()
+interface Scenario<T> {
+    val steps: List<Step<T>>
+    fun run(t: T) {
+        steps.forEach { it.run(t) }
+    }
+}
 
-    fun scenario(t: T) {
-        preConditions()
+data class NominalScenario<T>(override val steps: List<Step<T>>) : Scenario<T> {
+    override fun run(t: T) {
         try {
-            nominal()
-        } catch (ne: NominalException) {
-            alternative()
+            steps.forEach { it.run(t) }
+        } catch (se: StepException) {
+            throw NominalException(se.nonEmptyMessage)
         }
-        postConditions()
     }
 }
 
-data class Precondition(val name: NonEmptyString){
-    fun execute() {
-        println("[PRECONDITION] $name")
-    }
-}
-data class Postcondition(val name: NonEmptyString){
-    fun execute() {
-        println("[POSTCONDITION] $name")
-    }
-}
+data class AlternativeScenario<T>(override val steps: List<Step<T>>) : Scenario<T>
 
-data class NewUseCase(
-    val precConditions: List<Precondition>,
-    val nominalScenario: NominalScenario,
-    val postConditions: List<Postcondition>
+data class UseCase<T>(
+    val preConditions: List<PreCondition<T>>,
+    val nominalScenario: NominalScenario<T>,
+    val postConditions: List<PostCondition<T>>
 ) {
-    fun execute() {
-        precConditions.forEach { it.execute() }
-        nominalScenario.execute()
-        postConditions.forEach { it.execute() }
+    fun run(t: T) {
+        preConditions.forEach { it.validate(t) }
+        nominalScenario.run(t)
+        postConditions.forEach { it.validate(t) }
     }
 }
 
-interface Scenario
-
-data class NominalScenario(val steps: List<Step>, val nextUseCase: UserCase = NoUseCase()):Scenario {
+/*data class NominalScenario(val steps: List<Step<*>>, val nextUseCase: UserCase = NoUseCase()):Scenario {
     fun execute() {
         println("[NOMINAL SCENARIO : BEGIN]")
         steps.forEach { step ->
-            try {
-                step.execute()
-            } catch (se: StepException) {
-                throw NominalException(se.nonEmptyMessage)
-            }
+
         }
         println("[NOMINAL SCENARIO : END]")
     }
-}
-data class AlternativeScenario(val steps: List<Step>): Scenario
+}*/
 
-data class Step(val name: NonEmptyString) {
-    fun execute() {
-        println("[STEP] Step $name")
-    }
-}
-
-data class Actor(val name: NonEmptyString) {
+/*data class Actor(val name: NonEmptyString) {
     fun perform(nominalScenario: NominalScenario) {
         nominalScenario.execute()
     }
@@ -79,11 +60,11 @@ data class Actor(val name: NonEmptyString) {
             println("[ALTERNATIVE SCENARIO : END] Actor $name has performed step ${step.name}")
         }
     }
-}
+}*/
 
 interface UserCase
 
-data class EffectiveUseCase(val actor: Actor, val nominalScenario: NominalScenario, val alternativeScenario: AlternativeScenario):UserCase {
+/*data class EffectiveUseCase(val actor: Actor, val nominalScenario: NominalScenario, val alternativeScenario: AlternativeScenario):UserCase {
     fun execute() {
         try {
             actor.perform(nominalScenario)
@@ -94,6 +75,6 @@ data class EffectiveUseCase(val actor: Actor, val nominalScenario: NominalScenar
             actor.perform(alternativeScenario)
         }
     }
-}
+}*/
 
 class NoUseCase: UserCase
