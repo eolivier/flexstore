@@ -1,18 +1,25 @@
 package org.flexstore.domain.entity
 
+import org.flexstore.domain.AlternativeException
 import org.flexstore.domain.Name
 import org.flexstore.domain.NominalException
 import org.flexstore.domain.StepException
+import kotlin.reflect.KClass
 
 open class Actor(val name: Name)
 
-data class PreCondition<T>(val validate: (T) -> Unit)
+open class PreCondition<T>(val validate: (T) -> Unit)
+class EmptyPreCondition<T> : PreCondition<T>({ /* No validation */ })
+
 data class PreConditions(val preConditions: List<PreCondition<Any>>) {
     fun <T> validate(t: T) {
         preConditions.forEach { (it as PreCondition<T>).validate(t) }
     }
 }
-data class PostCondition<T>(val validate: (T) -> Unit)
+
+open class PostCondition<T>(val validate: (T) -> Unit)
+class EmptyPostCondition<T> : PostCondition<T>({ /* No validation */ })
+
 data class Step<T>(val run: (T) -> Unit)
 
 interface Scenario<T> {
@@ -32,7 +39,15 @@ data class NominalScenario<T>(override val steps: List<Step<T>>) : Scenario<T> {
     }
 }
 
-data class AlternativeScenario<T>(override val steps: List<Step<T>>) : Scenario<T>
+data class AlternativeScenario<T>(override val steps: List<Step<T>>) : Scenario<T> {
+    override fun run(t: T) {
+        try {
+            steps.forEach { it.run(t) }
+        } catch (se: StepException) {
+            throw AlternativeException(se.nonEmptyMessage)
+        }
+    }
+}
 
 data class UseCase<T>(
     val preConditions: List<PreCondition<T>>,
@@ -44,6 +59,37 @@ data class UseCase<T>(
         nominalScenario.run(t)
         postConditions.forEach { it.validate(t) }
     }
+}
+
+interface NewUseCase<T> {
+
+    fun getPreConditions():List<PreCondition<T>>
+    fun getNominalScenario():NominalScenario<T>
+    fun getPostConditions():List<PostCondition<T>>
+
+    fun getAlternativeScenarii():Map<KClass<out NominalException>, AlternativeScenario<T>> = emptyMap()
+
+    fun run(t: T) {
+        try {
+            getPreConditions().forEach { it.validate(t) }
+            getNominalScenario().run(t)
+            getPostConditions().forEach { it.validate(t) }
+        } catch (ne: NominalException) {
+            getAlternativeScenarii().forEach { (_, value) -> value.run(t) }
+        }
+    }
+}
+
+class EmptyUseCase<T> : NewUseCase<T> {
+
+    override fun getPreConditions(): List<PreCondition<T>> = listOf(EmptyPreCondition())
+
+    override fun getNominalScenario(): NominalScenario<T> = NominalScenario(listOf())
+
+    override fun getPostConditions(): List<PostCondition<T>> = listOf(EmptyPostCondition())
+
+    override fun getAlternativeScenarii(): Map<KClass<out NominalException>, AlternativeScenario<T>> = emptyMap()
+
 }
 
 /*data class NominalScenario(val steps: List<Step<*>>, val nextUseCase: UserCase = NoUseCase()):Scenario {
