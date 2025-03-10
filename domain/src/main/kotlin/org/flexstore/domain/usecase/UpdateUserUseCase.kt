@@ -12,14 +12,14 @@ class UpdateUserUseCase(private val userRepository: UserRepository) : NewUseCase
         return listOf(userDoExistCondition)
     }
 
-    override fun getPostConditions(): List<PostCondition<User>> {
-        return listOf(EmptyPostCondition())
-    }
-
     override fun getNominalScenario(): NominalScenario<User> {
         // Steps
         val updateUserStep = Step<User> { user -> userRepository.save(user) }
         // Nominal scenario
         return NominalScenario(listOf(updateUserStep))
+    }
+
+    override fun getPostConditions(): List<PostCondition<User>> {
+        return listOf(EmptyPostCondition())
     }
 }

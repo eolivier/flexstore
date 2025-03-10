@@ -14,18 +14,18 @@ class NewCreateUserUseCase(private val userRepository: UserRepository) : NewUseC
         return listOf(userDoesNotExistCondition)
     }
 
-    override fun getPostConditions(): List<PostCondition<User>> {
-        val userExistsCondition = PostCondition<User> {
-                user -> assert(userRepository.exists(user.id)) { "User with ID ${user.id.value} was not created." }
-        }
-        return listOf(userExistsCondition)
-    }
-
     override fun getNominalScenario(): NominalScenario<User> {
         // Steps
         val createUserStep = Step<User> { user -> userRepository.save(user) }
         // Nominal scenario
         return NominalScenario(listOf(createUserStep))
+    }
+
+    override fun getPostConditions(): List<PostCondition<User>> {
+        val userExistsCondition = PostCondition<User> {
+                user -> assert(userRepository.exists(user.id)) { "User with ID ${user.id.value} was not created." }
+        }
+        return listOf(userExistsCondition)
     }
 
     override fun getAlternativeScenarii(): Map<KClass<out NominalException>, AlternativeScenario<User>> {
