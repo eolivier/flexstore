@@ -1,6 +1,7 @@
-package org.flexstore.domain.uc
+package org.flexstore.domain.usecase
 
 import org.flexstore.domain.*
+import org.flexstore.domain.entity.Basket
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 
@@ -18,7 +19,7 @@ class AddItemToBasketUseCaseTest {
         currentBasket.addOrReplaceItem(item)
         val addItemToBasketUseCase = AddItemToBasketUseCase(currentBasket)
         // when
-        addItemToBasketUseCase.execute(item, quantityToAdd)
+        addItemToBasketUseCase.perform(item, quantityToAdd)
     }
 
     // TODO : add scenario modify quantity where item is unknown

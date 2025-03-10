@@ -1,5 +1,6 @@
 package org.flexstore.domain
 
+import org.flexstore.domain.entity.*
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 

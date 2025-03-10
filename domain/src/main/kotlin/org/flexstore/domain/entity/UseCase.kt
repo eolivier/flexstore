@@ -1,6 +1,17 @@
-package org.flexstore.domain
+package org.flexstore.domain.entity
+
+import org.flexstore.domain.Name
+import org.flexstore.domain.NominalException
+import org.flexstore.domain.StepException
+
+open class Actor(val name: Name)
 
 data class PreCondition<T>(val validate: (T) -> Unit)
+data class PreConditions(val preConditions: List<PreCondition<Any>>) {
+    fun <T> validate(t: T) {
+        preConditions.forEach { (it as PreCondition<T>).validate(t) }
+    }
+}
 data class PostCondition<T>(val validate: (T) -> Unit)
 data class Step<T>(val run: (T) -> Unit)
 
