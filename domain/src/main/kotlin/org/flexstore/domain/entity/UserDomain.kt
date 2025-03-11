@@ -1,8 +1,9 @@
 package org.flexstore.domain.entity
 
-import org.flexstore.domain.Name
-import org.flexstore.domain.NominalException
-import org.flexstore.domain.NonEmptyString
+import org.ucop.domain.NominalException
+import org.ucop.domain.NonEmptyString
+import org.ucop.domain.entity.Actor
+import org.ucop.domain.entity.Name
 
 data class User(val id: UserId, val name: Name, val email: Email)
 data class UserId(val value: String)

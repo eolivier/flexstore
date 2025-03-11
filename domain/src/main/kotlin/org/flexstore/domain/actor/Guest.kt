@@ -3,11 +3,11 @@ package org.flexstore.domain.actor
 import org.flexstore.domain.Item
 import org.flexstore.domain.Quantity
 import org.flexstore.domain.entity.User
-import org.flexstore.domain.usecase.CreateUserUseCase
 import org.flexstore.domain.usecase.AddItemToBasketUseCase
+import org.flexstore.domain.usecase.DeprecatedCreateUserUseCase
 
 class Guest(
-    private val createUserUseCase: CreateUserUseCase,
+    private val createUserUseCase: DeprecatedCreateUserUseCase,
     private val addItemToBasketUseCase: AddItemToBasketUseCase
 ) {
 

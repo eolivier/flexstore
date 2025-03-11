@@ -1,10 +1,11 @@
-package org.flexstore.domain
+package org.ucop.domain.entity
 
+import org.flexstore.domain.*
 import org.flexstore.domain.entity.*
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 
-class UseCaseTest {
+class DeprecatedUseCaseTest {
 
     @Test
     fun `should return hello from domain`() {
@@ -44,12 +45,12 @@ class UseCaseTest {
 
         val addOneItemToBasketScenario = NominalScenario(listOf(addOneItemToBasketStep))
 
-        val addOneItemToBasketUseCase = UseCase(
+        val addOneItemToBasketDeprecatedUseCase = DeprecatedUseCase(
             preConditions = listOf(basketIsEmptyCondition),
             nominalScenario = addOneItemToBasketScenario,
             postConditions = listOf(basketHasOneItemCondition)
         )
 
-        addOneItemToBasketUseCase.run(myBasket)
+        addOneItemToBasketDeprecatedUseCase.run(myBasket)
     }
 }

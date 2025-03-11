@@ -3,9 +3,10 @@ package org.flexstore.domain.usecase
 import org.flexstore.domain.*
 import org.flexstore.domain.entity.Basket
 import org.junit.jupiter.api.Test
+import org.ucop.domain.entity.Name
 import java.math.BigDecimal
 
-class AddItemToBasketUseCaseTest {
+class AddItemToBasketDeprecatedUseCaseTest {
 
     @Test
     fun `should add one item to basket`() {

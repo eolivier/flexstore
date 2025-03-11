@@ -1,5 +1,6 @@
 package org.flexstore.domain
 
+import org.ucop.domain.entity.Name
 import java.math.BigDecimal
 
 data class OneItem(val itemId: ItemId, val product: Product)
@@ -14,7 +15,6 @@ data class ItemId(val id: Identity)
 class UnknownItemException(message : String) : Exception(message)
 data class Product(val productId: ProductId, val name: Name, val price: Price)
 data class ProductId(val id: Identity)
-data class Name(val value: String)
 data class Price(val amount: Amount, val currency: Currency)
 data class Amount(val value: BigDecimal)
 data class Quantity(val value: Int) {

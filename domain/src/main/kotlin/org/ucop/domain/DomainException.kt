@@ -1,4 +1,4 @@
-package org.flexstore.domain
+package org.ucop.domain
 
 data class StepException(val nonEmptyMessage: NonEmptyString) : Exception(nonEmptyMessage.value)
 open class NominalException(open val nonEmptyMessage: NonEmptyString) : Exception(nonEmptyMessage.value)

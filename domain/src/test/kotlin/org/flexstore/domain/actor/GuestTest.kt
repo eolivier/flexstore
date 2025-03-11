@@ -10,8 +10,10 @@ import org.flexstore.domain.entity.UserId
 import org.flexstore.domain.repository.UserRepository
 import org.flexstore.domain.usecase.CreateUserUseCase
 import org.flexstore.domain.usecase.AddItemToBasketUseCase
+import org.flexstore.domain.usecase.DeprecatedCreateUserUseCase
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*
+import org.ucop.domain.entity.Name
 import java.math.BigDecimal
 
 class GuestTest {
@@ -19,7 +21,7 @@ class GuestTest {
     @Test
     fun `should perform create user use case`() {
         val userRepository = mock(UserRepository::class.java)
-        val createUserUseCase = CreateUserUseCase(userRepository)
+        val createUserUseCase = DeprecatedCreateUserUseCase(userRepository)
         val guest = Guest(createUserUseCase, mock(AddItemToBasketUseCase::class.java))
         val user = User(UserId("user1"), Name("John Doe"), Email("1@1.fr"))
 
@@ -33,7 +35,7 @@ class GuestTest {
         //val basketRepository = mock(BasketRepository::class.java)
         val basket = Basket()
         val addItemToBasketUseCase = AddItemToBasketUseCase(basket)
-        val guest = Guest(mock(CreateUserUseCase::class.java), addItemToBasketUseCase)
+        val guest = Guest(mock(DeprecatedCreateUserUseCase::class.java), addItemToBasketUseCase)
         //val basketId = BasketId(Identity("basket1"))
         val item = Item(ItemId(Identity("item1")), Product(ProductId(Identity("product1")), Name("product1"), Price(Amount(
             BigDecimal(10)

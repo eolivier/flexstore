@@ -2,6 +2,7 @@ package org.flexstore.domain.usecase
 
 import org.flexstore.domain.*
 import org.flexstore.domain.entity.*
+import org.ucop.domain.entity.*
 
 private const val ONE_ITEM = 1
 
@@ -23,12 +24,12 @@ class AddItemToBasketUseCase(private val currentBasket: Basket) {
         // Nominal scenario
         val addOneItemToBasketScenario = NominalScenario(listOf(addOneItemToBasketStep))
         // Use case
-        val addOneItemToBasketUseCase = UseCase(
+        val addOneItemToBasketDeprecatedUseCase = DeprecatedUseCase(
             preConditions = listOf(basketIsEmptyCondition),
             nominalScenario = addOneItemToBasketScenario,
             postConditions = listOf(basketHasOneItemCondition)
         )
         // Run use case
-        addOneItemToBasketUseCase.run(currentBasket)
+        addOneItemToBasketDeprecatedUseCase.run(currentBasket)
     }
 }

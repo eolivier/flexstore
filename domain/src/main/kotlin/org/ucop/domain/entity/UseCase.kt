@@ -1,9 +1,8 @@
-package org.flexstore.domain.entity
+package org.ucop.domain.entity
 
-import org.flexstore.domain.AlternativeException
-import org.flexstore.domain.Name
-import org.flexstore.domain.NominalException
-import org.flexstore.domain.StepException
+import org.ucop.domain.AlternativeException
+import org.ucop.domain.NominalException
+import org.ucop.domain.StepException
 import kotlin.reflect.KClass
 
 open class Actor(val name: Name)
@@ -49,7 +48,7 @@ data class AlternativeScenario<T>(override val steps: List<Step<T>>) : Scenario<
     }
 }
 
-data class UseCase<T>(
+data class DeprecatedUseCase<T>(
     val preConditions: List<PreCondition<T>>,
     val nominalScenario: NominalScenario<T>,
     val postConditions: List<PostCondition<T>>
@@ -61,10 +60,10 @@ data class UseCase<T>(
     }
 }
 
-interface NewUseCase<T> {
+interface UseCase<T> {
 
     fun getPreConditions():List<PreCondition<T>>
-    fun getNominalScenario():NominalScenario<T>
+    fun getNominalScenario(): NominalScenario<T>
     fun getPostConditions():List<PostCondition<T>>
 
     fun getAlternativeScenarii():Map<KClass<out NominalException>, AlternativeScenario<T>> = emptyMap()
@@ -80,7 +79,7 @@ interface NewUseCase<T> {
     }
 }
 
-class EmptyUseCase<T> : NewUseCase<T> {
+class EmptyUseCase<T> : UseCase<T> {
 
     override fun getPreConditions(): List<PreCondition<T>> = listOf(EmptyPreCondition())
 
@@ -92,46 +91,4 @@ class EmptyUseCase<T> : NewUseCase<T> {
 
 }
 
-/*data class NominalScenario(val steps: List<Step<*>>, val nextUseCase: UserCase = NoUseCase()):Scenario {
-    fun execute() {
-        println("[NOMINAL SCENARIO : BEGIN]")
-        steps.forEach { step ->
-
-        }
-        println("[NOMINAL SCENARIO : END]")
-    }
-}*/
-
-/*data class Actor(val name: NonEmptyString) {
-    fun perform(nominalScenario: NominalScenario) {
-        nominalScenario.execute()
-    }
-    fun perform(alternativeScenario: AlternativeScenario) {
-        alternativeScenario.steps.forEach { step ->
-            println("[ALTERNATIVE SCENARIO : BEGIN] Actor $name performs step ${step.name}")
-            try {
-                step.execute()
-            } catch (se: StepException) {
-                throw AlternativeException(se.nonEmptyMessage)
-            }
-            println("[ALTERNATIVE SCENARIO : END] Actor $name has performed step ${step.name}")
-        }
-    }
-}*/
-
-interface UserCase
-
-/*data class EffectiveUseCase(val actor: Actor, val nominalScenario: NominalScenario, val alternativeScenario: AlternativeScenario):UserCase {
-    fun execute() {
-        try {
-            actor.perform(nominalScenario)
-            if(nominalScenario.nextUseCase is EffectiveUseCase) {
-                nominalScenario.nextUseCase.execute()
-            }
-        } catch (ne: NominalException) {
-            actor.perform(alternativeScenario)
-        }
-    }
-}*/
-
-class NoUseCase: UserCase
+data class Name(val value: String)

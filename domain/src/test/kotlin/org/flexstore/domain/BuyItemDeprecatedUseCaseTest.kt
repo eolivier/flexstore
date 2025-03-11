@@ -1,10 +1,10 @@
 package org.flexstore.domain
 
-import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.ucop.domain.entity.Name
 import java.math.BigDecimal
 import kotlin.test.Test
 
-class BuyItemUseCaseTest {
+class BuyItemDeprecatedUseCaseTest {
 
     @Test
     fun `preConditions should throw exception for invalid item`() {
