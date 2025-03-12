@@ -3,20 +3,18 @@ package org.ucop.domain
 import org.ucop.domain.entity.UseCase
 
 interface UseCaseHandler<T> {
-
     fun setNext(useCaseHandler: UseCaseHandler<T>)
     fun handle(t : T)
     fun canHandle(t: T): Boolean
 }
 
 class EmptyUseCaseHandler<T> : UseCaseHandler<T> {
-
     override fun setNext(useCaseHandler: UseCaseHandler<T>) {}
     override fun handle(t: T) {}
     override fun canHandle(t: T) = false
 }
 
-class BaseUseCaseHandler<T>(val useCase: UseCase<T>, private var nextUseCaseHandler: UseCaseHandler<T> = EmptyUseCaseHandler<T>()) : UseCaseHandler<T> {
+class DefaultUseCaseHandler<T>(val useCase: UseCase<T>, private var nextUseCaseHandler: UseCaseHandler<T> = EmptyUseCaseHandler()) : UseCaseHandler<T> {
 
     override fun setNext(useCaseHandler: UseCaseHandler<T>) {
         nextUseCaseHandler = useCaseHandler

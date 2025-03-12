@@ -7,4 +7,6 @@ interface UserRepository {
     fun exists(userId: UserId): Boolean
     fun notExists(userId: UserId): Boolean
     fun save(user: User)
+    fun findById(id: UserId):User
+    fun delete(id: UserId):Boolean
 }

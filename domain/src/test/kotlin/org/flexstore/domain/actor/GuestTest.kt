@@ -6,7 +6,9 @@ import org.flexstore.domain.*
 import org.flexstore.domain.entity.Basket
 import org.flexstore.domain.entity.Email
 import org.flexstore.domain.entity.User
+import org.flexstore.domain.entity.User.DefinedUser
 import org.flexstore.domain.entity.UserId
+import org.flexstore.domain.entity.UserId.ValidUserId
 import org.flexstore.domain.repository.UserRepository
 import org.flexstore.domain.usecase.CreateUserUseCase
 import org.flexstore.domain.usecase.AddItemToBasketUseCase
@@ -23,7 +25,7 @@ class GuestTest {
         val userRepository = mock(UserRepository::class.java)
         val createUserUseCase = DeprecatedCreateUserUseCase(userRepository)
         val guest = Guest(createUserUseCase, mock(AddItemToBasketUseCase::class.java))
-        val user = User(UserId("user1"), Name("John Doe"), Email("1@1.fr"))
+        val user = DefinedUser(ValidUserId("user1"), Name("John Doe"), Email("1@1.fr"))
 
         guest.performCreateUser(user)
 

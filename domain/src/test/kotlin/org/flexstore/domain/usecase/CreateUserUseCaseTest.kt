@@ -4,10 +4,10 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.flexstore.domain.entity.Email
-import org.flexstore.domain.entity.User
-import org.flexstore.domain.entity.UserId
+import org.flexstore.domain.entity.User.DefinedUser
+import org.flexstore.domain.entity.UserId.ValidUserId
 import org.flexstore.domain.repository.UserRepository
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.assertThrows
 import org.ucop.domain.entity.Name
 import kotlin.test.Test
@@ -17,7 +17,7 @@ class CreateUserUseCaseTest {
     @Test
     fun `should create user successfully`() {
         val userRepository = mockk<UserRepository>()
-        val user = User(UserId("123"), Name("John Doe"), Email("john.doe@example.com"))
+        val user = DefinedUser(ValidUserId("123"), Name("John Doe"), Email("john.doe@example.com"))
 
         every { userRepository.notExists(user.id) } returns true
         every { userRepository.save(user) } returns Unit
@@ -34,7 +34,7 @@ class CreateUserUseCaseTest {
     @Test
     fun `should fail if user already exists`() {
         val userRepository = mockk<UserRepository>()
-        val user = User(UserId("123"), Name("John Doe"), Email("john.doe@example.com"))
+        val user = DefinedUser(ValidUserId("123"), Name("John Doe"), Email("john.doe@example.com"))
 
         every { userRepository.notExists(user.id) } returns false
 
@@ -49,7 +49,7 @@ class CreateUserUseCaseTest {
     @Test
     fun `should fail if user is not created`() {
         val userRepository = mockk<UserRepository>()
-        val user = User(UserId("123"), Name("John Doe"), Email("john.doe@example.com"))
+        val user = DefinedUser(ValidUserId("123"), Name("John Doe"), Email("john.doe@example.com"))
 
         every { userRepository.notExists(user.id) } returns true
         every { userRepository.save(user) } returns Unit
