@@ -56,3 +56,4 @@ dkms.conf
 .idea
 .gradle
 /spring-infra/build/
+/infra/build/

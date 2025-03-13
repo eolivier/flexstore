@@ -1,46 +1,47 @@
 package org.flexstore.domain.usecase
 
-import org.flexstore.domain.entity.User
 import org.flexstore.domain.entity.UserNotFoundException
 import org.flexstore.domain.entity.UserDeletionFailed
+import org.flexstore.domain.entity.UserId
 import org.flexstore.domain.repository.UserRepository
 import org.ucop.domain.NominalException
+import org.ucop.domain.NonEmptyString
 import org.ucop.domain.entity.*
 import kotlin.reflect.KClass
 
-class DeleteUserUseCase(private val userRepository: UserRepository) : UseCase<User> {
+class DeleteUserUseCase(private val userRepository: UserRepository) : UseCase<UserId> {
 
-    override fun getPreConditions(): List<PreCondition<User>> {
+    override fun getPreConditions(): List<PreCondition<UserId>> {
         println("#[BEGIN] DeleteUserUseCase.getPreConditions")
-        val userExistsCondition = PreCondition<User> { user ->
-            assert(userRepository.exists(user.id)) { "User with ID ${user.id.value} does not exist." }
+        val userExistsCondition = PreCondition<UserId> { userId ->
+            assert(userRepository.exists(userId)) { throw UserNotFoundException(NonEmptyString("User with ID ${userId.value} does not exist.")) }
         }
         val preConditions = listOf(userExistsCondition)
         println("#[END] DeleteUserUseCase.getPreConditions")
         return preConditions
     }
 
-    override fun getNominalScenario(): NominalScenario<User> {
+    override fun getNominalScenario(): NominalScenario<UserId> {
         println("#[BEGIN] DeleteUserUseCase.getNominalScenario")
         // Steps
-        val deleteUserStep = Step<User> { user -> userRepository.delete(user.id) }
+        val deleteUserStep = Step<UserId> { userId -> userRepository.delete(userId) }
         // Nominal scenario
         val nominalScenario = NominalScenario(listOf(deleteUserStep))
         println("#[END] DeleteUserUseCase.getNominalScenario")
         return nominalScenario
     }
 
-    override fun getPostConditions(): List<PostCondition<User>> {
+    override fun getPostConditions(): List<PostCondition<UserId>> {
         println("#[BEGIN] DeleteUserUseCase.getPostConditions")
-        val userDeletedCondition = PostCondition<User> { user ->
-            assert(userRepository.notExists(user.id)) { "User with ID ${user.id.value} was not deleted." }
+        val userDeletedCondition = PostCondition<UserId> { userId ->
+            assert(userRepository.notExists(userId)) { "User with ID ${userId.value} was not deleted." }
         }
         val postConditions = listOf(userDeletedCondition)
         println("#[END] DeleteUserUseCase.getPostConditions")
         return postConditions
     }
 
-    override fun getAlternativeScenarii(): Map<KClass<out NominalException>, AlternativeScenario<User>> {
+    override fun getAlternativeScenarii(): Map<KClass<out NominalException>, AlternativeScenario<UserId>> {
         return mapOf(
             UserNotFoundException::class to AlternativeScenario(listOf()),
             UserDeletionFailed::class to AlternativeScenario(listOf())

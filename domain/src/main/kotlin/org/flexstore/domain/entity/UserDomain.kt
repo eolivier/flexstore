@@ -6,18 +6,49 @@ import org.ucop.domain.entity.Actor
 import org.ucop.domain.entity.Name
 
 sealed class User(open val id: UserId) {
-    data class DefinedUser(override val id: UserId, val name: Name, val email: Email) : User(id)
-    data class UndefinedUser(override val id: UserId, val reason: String) : User(id)
+    abstract fun user(userId: UserId):User
+
+    data class DefinedUser(override val id: UserId, val name: Name, val email: Email) : User(id) {
+        override fun user(userId: UserId) = DefinedUser(userId, name, email)
+    }
+
+    data class UndefinedUser(override val id: UserId, val reason: String) : User(id) {
+        override fun user(userId: UserId): User = UndefinedUser(userId, reason)
+    }
+
+    companion object
 }
+
+fun User.Companion.of(userId: UserId, name: Name, email: Email): User {
+    return when (userId.isValid()) {
+        true -> User.DefinedUser(userId, name, email)
+        false -> User.UndefinedUser(userId, "Invalid user id")
+    }
+}
+
 sealed class UserId(open val value: String) {
+
     abstract fun isValid(): Boolean
-    data class ValidUserId(override val value: String) : UserId(value) {
-        override fun isValid() = value.isNotEmpty()
+
+    data class ValidUserId(override val value: String) : UserId(value){
+        override fun isValid() = UserId.isValid(value)
     }
     data class InvalidUserId(override val value: String) : UserId(value) {
         override fun isValid() = false
     }
+
+    companion object
 }
+
+fun UserId.Companion.isValid(value: String) = value.isNotEmpty()
+
+fun UserId.Companion.of(value: String): UserId {
+    return when (UserId.isValid(value)) {
+        true -> UserId.ValidUserId(value)
+        false -> UserId.InvalidUserId(value)
+    }
+}
+
 data class Email(val value: String)
 
 class Guest(name: Name) : Actor(name)
