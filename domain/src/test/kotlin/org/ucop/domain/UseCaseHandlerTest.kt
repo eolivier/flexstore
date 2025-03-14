@@ -6,8 +6,8 @@ import org.flexstore.domain.entity.Email
 import org.flexstore.domain.entity.User.DefinedUser
 import org.flexstore.domain.entity.UserId.ValidUserId
 import org.flexstore.domain.repository.UserRepository
-import org.flexstore.domain.usecase.CreateUserUseCase
-import org.flexstore.domain.usecase.UpdateUserUseCase
+import org.flexstore.domain.usecase.user.CreateUserUseCase
+import org.flexstore.domain.usecase.user.UpdateUserUseCase
 import org.ucop.domain.entity.Name
 
 class UseCaseHandlerTest {

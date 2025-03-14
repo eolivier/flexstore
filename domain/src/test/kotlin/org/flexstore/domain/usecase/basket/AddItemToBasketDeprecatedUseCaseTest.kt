@@ -1,7 +1,7 @@
-package org.flexstore.domain.usecase
+package org.flexstore.domain.usecase.basket
 
-import org.flexstore.domain.*
 import org.flexstore.domain.entity.Basket
+import org.flexstore.domain.valueobject.*
 import org.junit.jupiter.api.Test
 import org.ucop.domain.entity.Name
 import java.math.BigDecimal

@@ -1,6 +1,6 @@
 package org.flexstore.domain.entity
 
-import org.flexstore.domain.*
+import org.flexstore.domain.valueobject.*
 
 class Basket {
 

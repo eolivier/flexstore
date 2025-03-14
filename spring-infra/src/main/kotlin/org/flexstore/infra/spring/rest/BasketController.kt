@@ -1,7 +1,7 @@
 package org.flexstore.infra.spring.rest
 
 import org.flexstore.domain.entity.Basket
-import org.flexstore.domain.Item
+import org.flexstore.domain.valueobject.Item
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 

@@ -1,4 +1,4 @@
-package org.flexstore.domain
+package org.flexstore.domain.valueobject
 
 import org.assertj.core.api.WithAssertions
 import org.junit.jupiter.params.ParameterizedTest

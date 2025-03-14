@@ -74,7 +74,11 @@ interface UseCase<T> {
             getNominalScenario().run(t)
             getPostConditions().forEach { it.validate(t) }
         } catch (ne: NominalException) {
-            getAlternativeScenarii().forEach { (_, value) -> value.run(t) }
+            if (getAlternativeScenarii().containsKey(ne::class)) {
+                getAlternativeScenarii()[ne::class]?.run(t)
+            } else {
+                throw ne
+            }
         }
     }
 }

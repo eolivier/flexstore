@@ -1,4 +1,4 @@
-package org.flexstore.domain.usecase
+package org.flexstore.domain.usecase.user
 
 import io.mockk.every
 import io.mockk.mockk
@@ -16,16 +16,16 @@ class CreateUserUseCaseTest {
 
     @Test
     fun `should create user successfully`() {
+        // Arrange
         val userRepository = mockk<UserRepository>()
         val user = DefinedUser(ValidUserId("123"), Name("John Doe"), Email("john.doe@example.com"))
-
         every { userRepository.notExists(user.id) } returns true
         every { userRepository.save(user) } returns Unit
         every { userRepository.exists(user.id) } returns true
-
         val createUserUseCase = CreateUserUseCase(userRepository)
+        // Act
         createUserUseCase.run(user)
-
+        // Assert
         verify { userRepository.notExists(user.id) }
         verify { userRepository.save(user) }
         verify { userRepository.exists(user.id) }
@@ -33,33 +33,33 @@ class CreateUserUseCaseTest {
 
     @Test
     fun `should fail if user already exists`() {
+        // Arrange
         val userRepository = mockk<UserRepository>()
         val user = DefinedUser(ValidUserId("123"), Name("John Doe"), Email("john.doe@example.com"))
-
         every { userRepository.notExists(user.id) } returns false
-
         val createUserUseCase = CreateUserUseCase(userRepository)
-
         val exception = assertThrows<AssertionError> {
+            // Act
             createUserUseCase.run(user)
         }
+        // Assert
         assertEquals("User with ID 123 already exists.", exception.message)
     }
 
     @Test
     fun `should fail if user is not created`() {
+        // Arrange
         val userRepository = mockk<UserRepository>()
         val user = DefinedUser(ValidUserId("123"), Name("John Doe"), Email("john.doe@example.com"))
-
         every { userRepository.notExists(user.id) } returns true
         every { userRepository.save(user) } returns Unit
         every { userRepository.exists(user.id) } returns false
-
+        // Act
         val createUserUseCase = CreateUserUseCase(userRepository)
-
         val exception = assertThrows<AssertionError> {
             createUserUseCase.run(user)
         }
+        // Assert
         assertEquals("User with ID 123 was not created.", exception.message)
     }
 }

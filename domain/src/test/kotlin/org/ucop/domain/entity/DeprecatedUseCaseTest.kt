@@ -1,7 +1,7 @@
 package org.ucop.domain.entity
 
-import org.flexstore.domain.*
 import org.flexstore.domain.entity.*
+import org.flexstore.domain.valueobject.*
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 

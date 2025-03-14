@@ -3,10 +3,10 @@ package org.flexstore.domain.service
 import org.flexstore.domain.entity.User
 import org.flexstore.domain.entity.UserId
 import org.flexstore.domain.repository.UserRepository
-import org.flexstore.domain.usecase.CreateUserUseCase
-import org.flexstore.domain.usecase.DeleteUserUseCase
-import org.flexstore.domain.usecase.ReadUserUseCase
-import org.flexstore.domain.usecase.UpdateUserUseCase
+import org.flexstore.domain.usecase.user.CreateUserUseCase
+import org.flexstore.domain.usecase.user.DeleteUserUseCase
+import org.flexstore.domain.usecase.user.ReadUserUseCase
+import org.flexstore.domain.usecase.user.UpdateUserUseCase
 
 class UserService(private val userRepository: UserRepository) {
 

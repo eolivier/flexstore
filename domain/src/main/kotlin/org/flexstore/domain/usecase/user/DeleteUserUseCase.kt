@@ -1,4 +1,4 @@
-package org.flexstore.domain.usecase
+package org.flexstore.domain.usecase.user
 
 import org.flexstore.domain.entity.UserNotFoundException
 import org.flexstore.domain.entity.UserDeletionFailed
@@ -34,7 +34,7 @@ class DeleteUserUseCase(private val userRepository: UserRepository) : UseCase<Us
     override fun getPostConditions(): List<PostCondition<UserId>> {
         println("#[BEGIN] DeleteUserUseCase.getPostConditions")
         val userDeletedCondition = PostCondition<UserId> { userId ->
-            assert(userRepository.notExists(userId)) { "User with ID ${userId.value} was not deleted." }
+            assert(userRepository.notExists(userId)) { throw UserDeletionFailed(NonEmptyString("User with ID ${userId.value} was not deleted.")) }
         }
         val postConditions = listOf(userDeletedCondition)
         println("#[END] DeleteUserUseCase.getPostConditions")
@@ -42,9 +42,6 @@ class DeleteUserUseCase(private val userRepository: UserRepository) : UseCase<Us
     }
 
     override fun getAlternativeScenarii(): Map<KClass<out NominalException>, AlternativeScenario<UserId>> {
-        return mapOf(
-            UserNotFoundException::class to AlternativeScenario(listOf()),
-            UserDeletionFailed::class to AlternativeScenario(listOf())
-        )
+        return emptyMap()
     }
 }

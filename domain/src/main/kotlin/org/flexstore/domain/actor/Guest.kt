@@ -1,18 +1,18 @@
 package org.flexstore.domain.actor
 
-import org.flexstore.domain.Item
-import org.flexstore.domain.Quantity
+import org.flexstore.domain.valueobject.Item
+import org.flexstore.domain.valueobject.Quantity
 import org.flexstore.domain.entity.User
-import org.flexstore.domain.usecase.AddItemToBasketUseCase
-import org.flexstore.domain.usecase.DeprecatedCreateUserUseCase
+import org.flexstore.domain.usecase.basket.AddItemToBasketUseCase
+import org.flexstore.domain.usecase.user.CreateUserUseCase
 
 class Guest(
-    private val createUserUseCase: DeprecatedCreateUserUseCase,
+    private val createUserUseCase: CreateUserUseCase,
     private val addItemToBasketUseCase: AddItemToBasketUseCase
 ) {
 
     fun performCreateUser(user: User) {
-        createUserUseCase.perform(user)
+        createUserUseCase.run(user)
     }
 
     fun performAddItemToBasket(newItem: Item, quantity: Quantity) {

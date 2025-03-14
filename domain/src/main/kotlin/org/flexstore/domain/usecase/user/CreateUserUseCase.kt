@@ -1,4 +1,4 @@
-package org.flexstore.domain.usecase
+package org.flexstore.domain.usecase.user
 
 import org.ucop.domain.NominalException
 import org.flexstore.domain.entity.*

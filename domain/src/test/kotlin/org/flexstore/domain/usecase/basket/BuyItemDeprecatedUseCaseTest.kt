@@ -1,5 +1,6 @@
-package org.flexstore.domain
+package org.flexstore.domain.usecase.basket
 
+import org.flexstore.domain.valueobject.*
 import org.ucop.domain.entity.Name
 import java.math.BigDecimal
 import kotlin.test.Test

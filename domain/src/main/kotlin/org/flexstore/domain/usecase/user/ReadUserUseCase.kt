@@ -1,4 +1,4 @@
-package org.flexstore.domain.usecase
+package org.flexstore.domain.usecase.user
 
 import org.flexstore.domain.entity.User
 import org.flexstore.domain.entity.User.DefinedUser

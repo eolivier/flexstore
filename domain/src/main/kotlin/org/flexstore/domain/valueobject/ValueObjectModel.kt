@@ -1,4 +1,4 @@
-package org.flexstore.domain
+package org.flexstore.domain.valueobject
 
 import org.ucop.domain.entity.Name
 import java.math.BigDecimal

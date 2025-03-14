@@ -1,7 +1,8 @@
-package org.flexstore.domain
+package org.flexstore.domain.usecase.basket
 
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.entity.Basket
+import org.flexstore.domain.valueobject.*
 import org.junit.jupiter.api.Test
 import org.ucop.domain.entity.Name
 import java.math.BigDecimal
@@ -69,6 +70,6 @@ class BasketTest : WithAssertions {
     private fun createItem2(): Item {
         val price2 = Price(Amount(BigDecimal(11)), Currency.EUR)
         val product2 = Product(ProductId(Identity("2")), Name("Product2"), price2)
-        return Item(ItemId(Identity("2")), product2,Quantity(1))
+        return Item(ItemId(Identity("2")), product2, Quantity(1))
     }
 }

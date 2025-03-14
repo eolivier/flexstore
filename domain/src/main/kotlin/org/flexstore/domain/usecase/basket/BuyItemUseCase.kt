@@ -1,4 +1,4 @@
-package org.flexstore.domain
+package org.flexstore.domain.usecase.basket
 
 /*class BuyItemUseCase(private val item: Item) : UseCase<Item> {
 
