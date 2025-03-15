@@ -57,6 +57,7 @@ class Guest(name: Name) : Actor(name)
 data class UserAlreadyExists(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
 data class UserCreationFailed(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
 // read
+data class InvalidUserIdException(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
 data class UserNotFoundException(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
 data class UserRetrievalFailed(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
 // delete

@@ -5,6 +5,8 @@ import io.mockk.mockk
 import io.mockk.verify
 import org.flexstore.domain.entity.Email
 import org.flexstore.domain.entity.User.DefinedUser
+import org.flexstore.domain.entity.UserAlreadyExists
+import org.flexstore.domain.entity.UserCreationFailed
 import org.flexstore.domain.entity.UserId.ValidUserId
 import org.flexstore.domain.repository.UserRepository
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -38,7 +40,7 @@ class CreateUserUseCaseTest {
         val user = DefinedUser(ValidUserId("123"), Name("John Doe"), Email("john.doe@example.com"))
         every { userRepository.notExists(user.id) } returns false
         val createUserUseCase = CreateUserUseCase(userRepository)
-        val exception = assertThrows<AssertionError> {
+        val exception = assertThrows<UserAlreadyExists> {
             // Act
             createUserUseCase.run(user)
         }
@@ -56,7 +58,7 @@ class CreateUserUseCaseTest {
         every { userRepository.exists(user.id) } returns false
         // Act
         val createUserUseCase = CreateUserUseCase(userRepository)
-        val exception = assertThrows<AssertionError> {
+        val exception = assertThrows<UserCreationFailed> {
             createUserUseCase.run(user)
         }
         // Assert

@@ -3,6 +3,7 @@ package org.flexstore.domain.usecase.user
 import org.ucop.domain.NominalException
 import org.flexstore.domain.entity.*
 import org.flexstore.domain.repository.UserRepository
+import org.ucop.domain.NonEmptyString
 import org.ucop.domain.entity.*
 import kotlin.reflect.KClass
 
@@ -11,7 +12,7 @@ class CreateUserUseCase(private val userRepository: UserRepository) : UseCase<Us
     override fun getPreConditions(): List<PreCondition<User>> {
         println("#[BEGIN] CreateUserUseCase.getPreConditions")
         val userDoesNotExistCondition = PreCondition<User> {
-                user -> assert(userRepository.notExists(user.id)) { "User with ID ${user.id.value} already exists." }
+                user -> assert(userRepository.notExists(user.id)) { throw UserAlreadyExists(NonEmptyString("User with ID ${user.id.value} already exists.")) }
         }
         val preConditions = listOf(userDoesNotExistCondition)
         println("#[END] CreateUserUseCase.getPreConditions")
@@ -31,7 +32,7 @@ class CreateUserUseCase(private val userRepository: UserRepository) : UseCase<Us
     override fun getPostConditions(): List<PostCondition<User>> {
         println("#[BEGIN] CreateUserUseCase.getPostConditions")
         val userExistsCondition = PostCondition<User> {
-                user -> assert(userRepository.exists(user.id)) { "User with ID ${user.id.value} was not created." }
+            user -> assert(userRepository.exists(user.id)) { throw UserCreationFailed(NonEmptyString("User with ID ${user.id.value} was not created.")) }
         }
         val postConditions = listOf(userExistsCondition)
         println("#[END] CreateUserUseCase.getPostConditions")
@@ -39,9 +40,6 @@ class CreateUserUseCase(private val userRepository: UserRepository) : UseCase<Us
     }
 
     override fun getAlternativeScenarii(): Map<KClass<out NominalException>, AlternativeScenario<User>> {
-        return mapOf(
-            UserAlreadyExists::class to AlternativeScenario(listOf()),
-            UserCreationFailed::class to AlternativeScenario(listOf())
-        )
+        return emptyMap()
     }
 }

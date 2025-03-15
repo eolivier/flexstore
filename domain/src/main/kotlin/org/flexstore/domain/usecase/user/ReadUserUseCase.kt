@@ -1,12 +1,10 @@
 package org.flexstore.domain.usecase.user
 
-import org.flexstore.domain.entity.User
+import org.flexstore.domain.entity.*
 import org.flexstore.domain.entity.User.DefinedUser
-import org.flexstore.domain.entity.UserId
-import org.flexstore.domain.entity.UserNotFoundException
-import org.flexstore.domain.entity.UserRetrievalFailed
 import org.flexstore.domain.repository.UserRepository
 import org.ucop.domain.NominalException
+import org.ucop.domain.NonEmptyString
 import org.ucop.domain.entity.*
 import kotlin.reflect.KClass
 
@@ -17,10 +15,10 @@ class ReadUserUseCase(private val userRepository: UserRepository) : UseCase<User
     override fun getPreConditions(): List<PreCondition<UserId>> {
         println("#[BEGIN] ReadUserUseCase.getPreConditions")
         val isValidUserIdCondition = PreCondition<UserId> { userId ->
-            assert(userId.isValid()) { "User ID ${userId.value} is invalid." }
+            assert(userId.isValid()) { throw InvalidUserIdException(NonEmptyString("User ID ${userId.value} is invalid.")) }
         }
         val userExistsCondition = PreCondition<UserId> { userId ->
-            assert(userRepository.exists(userId)) { "User with ID ${userId.value} does not exist." }
+            assert(userRepository.exists(userId)) { throw UserNotFoundException(NonEmptyString("User with ID ${userId.value} does not exist.")) }
         }
         val preConditions = listOf(isValidUserIdCondition, userExistsCondition)
         println("#[END] ReadUserUseCase.getPreConditions")
@@ -40,7 +38,7 @@ class ReadUserUseCase(private val userRepository: UserRepository) : UseCase<User
     override fun getPostConditions(): List<PostCondition<UserId>> {
         println("#[BEGIN] ReadUserUseCase.getPostConditions")
         val userRetrievedCondition = PostCondition<UserId> { userId ->
-            assert(retrievedUser is DefinedUser) { "User with ID ${userId.value} does not exist." }
+            assert(retrievedUser is DefinedUser) { throw UserNotFoundException(NonEmptyString("User with ID ${userId.value} does not exist.")) }
         }
         val postConditions = listOf(userRetrievedCondition)
         println("#[END] ReadUserUseCase.getPostConditions")
@@ -48,10 +46,7 @@ class ReadUserUseCase(private val userRepository: UserRepository) : UseCase<User
     }
 
     override fun getAlternativeScenarii(): Map<KClass<out NominalException>, AlternativeScenario<UserId>> {
-        return mapOf(
-            UserNotFoundException::class to AlternativeScenario(listOf()),
-            UserRetrievalFailed::class to AlternativeScenario(listOf())
-        )
+        return emptyMap()
     }
 
 }
