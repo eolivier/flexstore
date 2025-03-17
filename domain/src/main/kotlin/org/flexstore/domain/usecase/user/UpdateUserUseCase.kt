@@ -2,16 +2,20 @@ package org.flexstore.domain.usecase.user
 
 import org.flexstore.domain.entity.*
 import org.flexstore.domain.repository.UserRepository
+import org.ucop.domain.NonEmptyString
 import org.ucop.domain.entity.*
 
 class UpdateUserUseCase(private val userRepository: UserRepository) : UseCase<User> {
 
     override fun getPreConditions(): List<PreCondition<User>> {
         println("#[BEGIN] UpdateUserUseCase.getPreConditions")
-        val userDoExistCondition = PreCondition<User> {
-                user -> assert(userRepository.exists(user.id)) { "User with ID ${user.id.value} does not exist." }
+        val isValidUserIdCondition = PreCondition<User> { user ->
+            assert(user.id.isValid()) { throw InvalidUserIdException(NonEmptyString("User ID ${user.id.value} is invalid.")) }
         }
-        val preConditions = listOf(userDoExistCondition)
+        val userDoExistCondition = PreCondition<User> {
+                user -> assert(userRepository.exists(user.id)) { throw UserNotFoundException(NonEmptyString("User with ID ${user.id.value} does not exist.")) }
+        }
+        val preConditions = listOf(isValidUserIdCondition, userDoExistCondition)
         println("#[END] UpdateUserUseCase.getPreConditions")
         return preConditions
     }
