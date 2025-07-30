@@ -22,7 +22,7 @@ class DefaultUseCaseHandler<T>(val useCase: UseCase<T>, private var nextUseCaseH
 
     override fun handle(t: T) {
         if (canHandle(t)) {
-            useCase.run(t)
+            useCase.unfold(t)
         }
         nextUseCaseHandler.handle(t)
     }

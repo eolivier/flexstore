@@ -25,7 +25,7 @@ class UpdateUserUseCaseTest {
         every { userRepository.save(user) } returns Unit
         val updateUserUseCase = UpdateUserUseCase(userRepository)
         // Act
-        updateUserUseCase.run(user)
+        updateUserUseCase.unfold(user)
         // Assert
         verify { userRepository.save(user) }
     }
@@ -39,7 +39,7 @@ class UpdateUserUseCaseTest {
         val updateUserUseCase = UpdateUserUseCase(userRepository)
         val exception = assertThrows<InvalidUserIdException> {
             // Act
-            updateUserUseCase.run(user)
+            updateUserUseCase.unfold(user)
         }
         // Assert
         assertEquals("User ID @ is invalid.", exception.message)
@@ -56,7 +56,7 @@ class UpdateUserUseCaseTest {
         val updateUserUseCase = UpdateUserUseCase(userRepository)
         val exception = assertThrows<UserNotFoundException> {
             // Act
-            updateUserUseCase.run(user)
+            updateUserUseCase.unfold(user)
         }
         // Assert
         assertEquals("User with ID 123 does not exist.", exception.message)

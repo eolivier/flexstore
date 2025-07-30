@@ -22,7 +22,7 @@ class DeleteUserUseCaseTest {
         every { userRepository.notExists(validUserId) } returns true
         val deleteUserUseCase = DeleteUserUseCase(userRepository)
         // Act
-        deleteUserUseCase.run(validUserId)
+        deleteUserUseCase.unfold(validUserId)
         // Assert
         verify { userRepository.delete(validUserId) }
     }
@@ -37,7 +37,7 @@ class DeleteUserUseCaseTest {
         // Act & Assert
         deleteUserUseCase.getAlternativeScenarii()
         assertThrows(UserNotFoundException::class.java) {
-            deleteUserUseCase.run(validUserId)
+            deleteUserUseCase.unfold(validUserId)
         }
     }
 
@@ -52,7 +52,7 @@ class DeleteUserUseCaseTest {
         val deleteUserUseCase = DeleteUserUseCase(userRepository)
         // Act & Assert
         assertThrows(UserDeletionFailed::class.java) {
-            deleteUserUseCase.run(validUserId)
+            deleteUserUseCase.unfold(validUserId)
         }
     }
 }

@@ -26,7 +26,7 @@ class CreateUserUseCaseTest {
         every { userRepository.exists(user.id) } returns true
         val createUserUseCase = CreateUserUseCase(userRepository)
         // Act
-        createUserUseCase.run(user)
+        createUserUseCase.unfold(user)
         // Assert
         verify { userRepository.notExists(user.id) }
         verify { userRepository.save(user) }
@@ -42,7 +42,7 @@ class CreateUserUseCaseTest {
         val createUserUseCase = CreateUserUseCase(userRepository)
         val exception = assertThrows<UserAlreadyExists> {
             // Act
-            createUserUseCase.run(user)
+            createUserUseCase.unfold(user)
         }
         // Assert
         assertEquals("User with ID 123 already exists.", exception.message)
@@ -59,7 +59,7 @@ class CreateUserUseCaseTest {
         // Act
         val createUserUseCase = CreateUserUseCase(userRepository)
         val exception = assertThrows<UserCreationFailed> {
-            createUserUseCase.run(user)
+            createUserUseCase.unfold(user)
         }
         // Assert
         assertEquals("User with ID 123 was not created.", exception.message)

@@ -12,7 +12,7 @@ class Guest(
 ) {
 
     fun performCreateUser(user: User) {
-        createUserUseCase.run(user)
+        createUserUseCase.unfold(user)
     }
 
     fun performAddItemToBasket(newItem: Item, quantity: Quantity) {

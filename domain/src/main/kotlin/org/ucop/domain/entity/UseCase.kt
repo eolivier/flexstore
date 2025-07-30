@@ -23,13 +23,13 @@ data class Step<T>(val run: (T) -> Unit)
 
 interface Scenario<T> {
     val steps: List<Step<T>>
-    fun run(t: T) {
+    fun unfold(t: T) {
         steps.forEach { it.run(t) }
     }
 }
 
 data class NominalScenario<T>(override val steps: List<Step<T>>) : Scenario<T> {
-    override fun run(t: T) {
+    override fun unfold(t: T) {
         try {
             steps.forEach { it.run(t) }
         } catch (se: StepException) {
@@ -39,7 +39,7 @@ data class NominalScenario<T>(override val steps: List<Step<T>>) : Scenario<T> {
 }
 
 data class AlternativeScenario<T>(override val steps: List<Step<T>>) : Scenario<T> {
-    override fun run(t: T) {
+    override fun unfold(t: T) {
         try {
             steps.forEach { it.run(t) }
         } catch (se: StepException) {
@@ -55,7 +55,7 @@ data class DeprecatedUseCase<T>(
 ) {
     fun run(t: T) {
         preConditions.forEach { it.validate(t) }
-        nominalScenario.run(t)
+        nominalScenario.unfold(t)
         postConditions.forEach { it.validate(t) }
     }
 }
@@ -68,14 +68,14 @@ interface UseCase<T> {
 
     fun getAlternativeScenarii():Map<KClass<out NominalException>, AlternativeScenario<T>> = emptyMap()
 
-    fun run(t: T) {
+    fun unfold(t: T) {
         try {
             getPreConditions().forEach { it.validate(t) }
-            getNominalScenario().run(t)
+            getNominalScenario().unfold(t)
             getPostConditions().forEach { it.validate(t) }
         } catch (ne: NominalException) {
             if (getAlternativeScenarii().containsKey(ne::class)) {
-                getAlternativeScenarii()[ne::class]?.run(t)
+                getAlternativeScenarii()[ne::class]?.unfold(t)
             } else {
                 throw ne
             }

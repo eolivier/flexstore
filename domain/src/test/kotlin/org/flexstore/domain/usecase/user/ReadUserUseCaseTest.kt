@@ -27,7 +27,7 @@ class ReadUserUseCaseTest {
         every { userRepository.exists(userId) } returns true
         val readUserUseCase = ReadUserUseCase(userRepository)
         // Act
-        readUserUseCase.run(userId)
+        readUserUseCase.unfold(userId)
         // Assert
         val retrievedUser = readUserUseCase.retrievedUser
         assertEquals(user, retrievedUser)
@@ -42,7 +42,7 @@ class ReadUserUseCaseTest {
         val readUserUseCase = ReadUserUseCase(userRepository)
         val exception = assertThrows<InvalidUserIdException> {
             // Act
-            readUserUseCase.run(invalidUerId)
+            readUserUseCase.unfold(invalidUerId)
         }
         // Assert
         assertEquals("User ID @ is invalid.", exception.message)
@@ -58,7 +58,7 @@ class ReadUserUseCaseTest {
         val readUserUseCase = ReadUserUseCase(userRepository)
         val exception = assertThrows<UserNotFoundException> {
             // Act
-            readUserUseCase.run(userId)
+            readUserUseCase.unfold(userId)
         }
         // Assert
         assertEquals("User with ID 123 does not exist.", exception.message)
