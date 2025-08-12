@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.flexstore.domain.entity.UserId
 import org.flexstore.domain.entity.of
+import org.flexstore.domain.repository.UserRepository
 import org.flexstore.domain.service.UserService
+import org.junit.jupiter.api.AfterEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -29,6 +31,14 @@ class UserRestControllerTest {
 
     @Autowired
     private lateinit var userService: UserService
+
+    @Autowired
+    private lateinit var userRepository: UserRepository
+
+    @AfterEach
+    fun cleanUp() {
+        userRepository.delete(UserId.of(USER_ID))
+    }
 
     @Test
     fun `should create user`() {
