@@ -42,5 +42,10 @@ export const useUsersStore = defineStore('users', () => {
         await fetchUsers()
     }
 
-    return { users, fetchUsers, addUser }
+    async function deleteUser(id: number) {
+        await fetch(`/api/users/${id}`, { method: 'DELETE' })
+        await fetchUsers()
+    }
+
+    return { users, fetchUsers, addUser, deleteUser }
 })
