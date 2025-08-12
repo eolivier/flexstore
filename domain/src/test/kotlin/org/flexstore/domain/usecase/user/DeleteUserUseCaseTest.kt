@@ -17,9 +17,9 @@ class DeleteUserUseCaseTest {
         // Arrange
         val userRepository = mockk<UserRepository>()
         val validUserId = ValidUserId("123")
-        every { userRepository.exists(validUserId) } returns true
+        every { userRepository.notExists(validUserId) } returns false
+        every { userRepository.exists(validUserId) } returns false
         every { userRepository.delete(validUserId) } returns true
-        every { userRepository.notExists(validUserId) } returns true
         val deleteUserUseCase = DeleteUserUseCase(userRepository)
         // Act
         deleteUserUseCase.unfold(validUserId)
@@ -32,7 +32,7 @@ class DeleteUserUseCaseTest {
         // Arrange
         val userRepository = mockk<UserRepository>()
         val validUserId = ValidUserId("123")
-        every { userRepository.exists(validUserId) } returns false
+        every { userRepository.notExists(validUserId) } returns true
         val deleteUserUseCase = DeleteUserUseCase(userRepository)
         // Act & Assert
         deleteUserUseCase.getAlternativeScenarii()

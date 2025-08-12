@@ -13,10 +13,7 @@ class DeleteUserUseCase(private val userRepository: UserRepository) : UseCase<Us
 
     override fun getPreConditions(): List<PreCondition<UserId>> {
         println("#[BEGIN] DeleteUserUseCase.getPreConditions")
-        val userExistsCondition = PreCondition<UserId> { userId ->
-            assert(userRepository.exists(userId)) { throw UserNotFoundException(NonEmptyString("User with ID ${userId.value} does not exist.")) }
-        }
-        val preConditions = listOf(userExistsCondition)
+        val preConditions = listOf(userExistsCondition())
         println("#[END] DeleteUserUseCase.getPreConditions")
         return preConditions
     }
@@ -33,15 +30,24 @@ class DeleteUserUseCase(private val userRepository: UserRepository) : UseCase<Us
 
     override fun getPostConditions(): List<PostCondition<UserId>> {
         println("#[BEGIN] DeleteUserUseCase.getPostConditions")
-        val userDeletedCondition = PostCondition<UserId> { userId ->
-            assert(userRepository.notExists(userId)) { throw UserDeletionFailed(NonEmptyString("User with ID ${userId.value} was not deleted.")) }
-        }
-        val postConditions = listOf(userDeletedCondition)
+        val postConditions = listOf(userDeletedCondition())
         println("#[END] DeleteUserUseCase.getPostConditions")
         return postConditions
     }
 
     override fun getAlternativeScenarii(): Map<KClass<out NominalException>, AlternativeScenario<UserId>> {
         return emptyMap()
+    }
+
+    private fun userExistsCondition() = PreCondition<UserId> { userId ->
+        if (userRepository.notExists(userId)) {
+            throw UserNotFoundException(NonEmptyString("User with ID ${userId.value} does not exist."))
+        }
+    }
+
+    private fun userDeletedCondition() = PostCondition<UserId> { userId ->
+        if (userRepository.exists(userId)) {
+            throw UserDeletionFailed(NonEmptyString("User with ID ${userId.value} was not deleted."))
+        }
     }
 }
