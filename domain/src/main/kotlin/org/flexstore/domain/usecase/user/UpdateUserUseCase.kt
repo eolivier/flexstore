@@ -9,13 +9,7 @@ class UpdateUserUseCase(private val userRepository: UserRepository) : UseCase<Us
 
     override fun getPreConditions(): List<PreCondition<User>> {
         println("#[BEGIN] UpdateUserUseCase.getPreConditions")
-        val isValidUserIdCondition = PreCondition<User> { user ->
-            assert(user.id.isValid()) { throw InvalidUserIdException(NonEmptyString("User ID ${user.id.value} is invalid.")) }
-        }
-        val userDoExistCondition = PreCondition<User> {
-                user -> assert(userRepository.exists(user.id)) { throw UserNotFoundException(NonEmptyString("User with ID ${user.id.value} does not exist.")) }
-        }
-        val preConditions = listOf(isValidUserIdCondition, userDoExistCondition)
+        val preConditions = listOf(isValidUserIdCondition(), userDoExistCondition())
         println("#[END] UpdateUserUseCase.getPreConditions")
         return preConditions
     }
@@ -35,5 +29,17 @@ class UpdateUserUseCase(private val userRepository: UserRepository) : UseCase<Us
         val postConditions = listOf<EmptyPostCondition<User>>(EmptyPostCondition())
         println("#[END] UpdateUserUseCase.getPostConditions")
         return postConditions
+    }
+
+    private fun isValidUserIdCondition() = PreCondition<User> { user ->
+        if (user.id.isInvalid()) {
+            throw InvalidUserIdException(NonEmptyString("User ID ${user.id.value} is invalid."))
+        }
+    }
+
+    private fun userDoExistCondition() = PreCondition<User> { user ->
+        if (userRepository.notExists(user.id)) {
+            throw UserNotFoundException(NonEmptyString("User with ID ${user.id.value} does not exist."))
+        }
     }
 }
