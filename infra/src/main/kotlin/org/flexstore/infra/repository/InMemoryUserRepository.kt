@@ -23,6 +23,6 @@ class InMemoryUserRepository : UserRepository {
     }
 
     override fun findById(id: UserId): User = users[id] ?: throw IllegalArgumentException("User not found")
-
+    override fun findAll(): List<User> = users.values.toList()
     override fun delete(id: UserId): Boolean = users.remove(id) != null
 }

@@ -30,4 +30,6 @@ class UserService(private val userRepository: UserRepository) {
     fun deleteUser(userId: UserId) {
         DeleteUserUseCase(userRepository).unfold(userId)
     }
+
+    fun readAllUsers(): List<User>  = userRepository.findAll()
 }

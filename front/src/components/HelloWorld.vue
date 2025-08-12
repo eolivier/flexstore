@@ -2,6 +2,7 @@
 import {ref, watch} from 'vue'
 import { useCounterStore } from '../stores/counter'
 import { createUser } from './CreateUser.ts'
+import ReadAllUsers from "./ReadAllUsers.vue";
 
 defineProps<{ msg: string }>()
 
@@ -26,6 +27,7 @@ watch(inputValue, (val) => {
     <button @click="counter.increment">Compteur: {{ counter.count }}</button>
     <input v-model="inputValue" />
     <button @click="createUser">Créer utilisateur</button>
+    <ReadAllUsers />
   </div>
 
   <p>

@@ -16,6 +16,9 @@ import org.ucop.domain.entity.Name
 @RequestMapping("/api/users")
 class UserRestController(val userService: UserService) {
 
+    @GetMapping
+    fun getAllUsers(): List<JsonUser> = userService.readAllUsers().toJsonUsers()
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun createUser(@RequestBody jsonUser: JsonUser): User {
@@ -39,6 +42,14 @@ class UserRestController(val userService: UserService) {
     fun deleteUser(@PathVariable id: String) {
         val userId = ValidUserId(id)
         userService.deleteUser(userId)
+    }
+}
+
+private fun <E> List<E>.toJsonUsers() = this.map {
+    when (it) {
+        is User.DefinedUser -> JsonUser(it.id.value, it.name.value, it.email.value)
+        is User.UndefinedUser -> JsonUser(it.id.value, "Undefined User", "${it.reason}")
+        else -> throw IllegalArgumentException("Unknown user type: ${it!!::class.java}")
     }
 }
 

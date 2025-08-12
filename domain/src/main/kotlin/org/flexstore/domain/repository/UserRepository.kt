@@ -10,5 +10,6 @@ interface UserRepository {
     fun notExistsBasedOn(email: Email): Boolean
     fun save(user: User): User
     fun findById(id: UserId):User
+    fun findAll(): List<User>
     fun delete(id: UserId):Boolean
 }
