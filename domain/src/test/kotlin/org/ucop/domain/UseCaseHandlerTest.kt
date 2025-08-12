@@ -20,7 +20,7 @@ class UseCaseHandlerTest {
         // Define the behavior of the mock
         val user = DefinedUser(ValidUserId("123"), Name("Jane Doe"), Email("jane.doe@example.com"))
         every { userRepository.notExists(user.id) } returns true
-        every { userRepository.save(user) } returns Unit
+        every { userRepository.save(user) } returns user
         every { userRepository.exists(user.id) } returns true
 
         // Create an instance of CreateUserUseCase with the mock repository

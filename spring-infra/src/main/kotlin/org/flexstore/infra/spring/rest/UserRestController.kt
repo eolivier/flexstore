@@ -18,12 +18,12 @@ class UserRestController(val userService: UserService) {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    fun createUser(@RequestBody jsonUser: JsonUser) {
-        userService.createUser(jsonUser.toUser())
+    fun createUser(@RequestBody jsonUser: JsonUser): User {
+        return userService.createUser(jsonUser.toUser())
     }
 
     @GetMapping("/{id}")
-    fun getUser(@PathVariable id: String): User? {
+    fun getUser(@PathVariable id: String): User {
         val userId = ValidUserId(id)
         return userService.readUser(userId)
     }

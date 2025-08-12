@@ -9,37 +9,45 @@ import kotlin.reflect.KClass
 
 class CreateUserUseCase(private val userRepository: UserRepository) : UseCase<User> {
 
+    lateinit var createdUser: User
+
     override fun getPreConditions(): List<PreCondition<User>> {
         println("#[BEGIN] CreateUserUseCase.getPreConditions")
-        val userDoesNotExistCondition = PreCondition<User> {
-                user -> assert(userRepository.notExists(user.id)) { throw UserAlreadyExists(NonEmptyString("User with ID ${user.id.value} already exists.")) }
-        }
-        val preConditions = listOf(userDoesNotExistCondition)
+        val preConditions = listOf(userDoesNotExistCondition())
         println("#[END] CreateUserUseCase.getPreConditions")
         return preConditions
     }
 
     override fun getNominalScenario(): NominalScenario<User> {
-        println("#[BEGIN] CreateUserUseCase.getNominalScenario")
+        println("##[BEGIN] CreateUserUseCase.getNominalScenario")
         // Steps
-        val createUserStep = Step<User> { user -> userRepository.save(user) }
+        val createUserStep = Step<User> { user -> createdUser = userRepository.save(user) }
         // Nominal scenario
         val nominalScenario = NominalScenario(listOf(createUserStep))
-        println("#[END] CreateUserUseCase.getNominalScenario")
+        println("##[END] CreateUserUseCase.getNominalScenario")
         return nominalScenario
     }
 
     override fun getPostConditions(): List<PostCondition<User>> {
         println("#[BEGIN] CreateUserUseCase.getPostConditions")
-        val userExistsCondition = PostCondition<User> {
-            user -> assert(userRepository.exists(user.id)) { throw UserCreationFailed(NonEmptyString("User with ID ${user.id.value} was not created.")) }
-        }
-        val postConditions = listOf(userExistsCondition)
+        val postConditions = listOf(userExistsCondition())
         println("#[END] CreateUserUseCase.getPostConditions")
         return postConditions
     }
 
     override fun getAlternativeScenarii(): Map<KClass<out NominalException>, AlternativeScenario<User>> {
         return emptyMap()
+    }
+
+    private fun userDoesNotExistCondition() = PreCondition<User> { user ->
+        if (userRepository.exists(user.id)) {
+            throw UserAlreadyExists(NonEmptyString("User with ID ${user.id.value} already exists."))
+        }
+    }
+
+    private fun userExistsCondition(): PostCondition<User> = PostCondition<User> { user ->
+        if (userRepository.notExists(user.id)) {
+            throw UserCreationFailed(NonEmptyString("User with ID ${user.id.value} was not created."))
+        }
     }
 }

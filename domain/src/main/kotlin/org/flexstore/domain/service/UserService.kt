@@ -10,8 +10,10 @@ import org.flexstore.domain.usecase.user.UpdateUserUseCase
 
 class UserService(private val userRepository: UserRepository) {
 
-    fun createUser(user: User) {
-        CreateUserUseCase(userRepository).unfold(user)
+    fun createUser(user: User): User {
+        val createUserUseCase = CreateUserUseCase(userRepository)
+        createUserUseCase.unfold(user)
+        return createUserUseCase.createdUser
     }
 
     fun readUser(userId: UserId): User {

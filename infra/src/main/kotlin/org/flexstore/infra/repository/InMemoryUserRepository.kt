@@ -1,5 +1,6 @@
 package org.flexstore.infra.repository
 
+import org.flexstore.domain.entity.Email
 import org.flexstore.domain.entity.User
 import org.flexstore.domain.entity.UserId
 import org.flexstore.domain.repository.UserRepository
@@ -12,8 +13,13 @@ class InMemoryUserRepository : UserRepository {
 
     override fun notExists(userId: UserId): Boolean = !exists(userId)
 
-    override fun save(user: User) {
+    override fun notExistsBasedOn(email: Email): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override fun save(user: User): User {
         users[user.id] = user
+        return user
     }
 
     override fun findById(id: UserId): User = users[id] ?: throw IllegalArgumentException("User not found")

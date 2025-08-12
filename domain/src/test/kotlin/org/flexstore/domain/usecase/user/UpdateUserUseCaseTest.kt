@@ -22,7 +22,7 @@ class UpdateUserUseCaseTest {
         val userId = ValidUserId("123")
         val user = DefinedUser(userId, Name("John Doe"), Email("john.doe@example.com"))
         every { userRepository.exists(userId) } returns true
-        every { userRepository.save(user) } returns Unit
+        every { userRepository.save(user) } returns user
         val updateUserUseCase = UpdateUserUseCase(userRepository)
         // Act
         updateUserUseCase.unfold(user)

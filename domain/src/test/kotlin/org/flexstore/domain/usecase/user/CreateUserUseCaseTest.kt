@@ -21,9 +21,9 @@ class CreateUserUseCaseTest {
         // Arrange
         val userRepository = mockk<UserRepository>()
         val user = DefinedUser(ValidUserId("123"), Name("John Doe"), Email("john.doe@example.com"))
-        every { userRepository.notExists(user.id) } returns true
-        every { userRepository.save(user) } returns Unit
-        every { userRepository.exists(user.id) } returns true
+        every { userRepository.save(user) } returns user
+        every { userRepository.exists(user.id) } returns false
+        every { userRepository.notExists(user.id) } returns false
         val createUserUseCase = CreateUserUseCase(userRepository)
         // Act
         createUserUseCase.unfold(user)
@@ -38,7 +38,7 @@ class CreateUserUseCaseTest {
         // Arrange
         val userRepository = mockk<UserRepository>()
         val user = DefinedUser(ValidUserId("123"), Name("John Doe"), Email("john.doe@example.com"))
-        every { userRepository.notExists(user.id) } returns false
+        every { userRepository.exists(user.id) } returns true
         val createUserUseCase = CreateUserUseCase(userRepository)
         val exception = assertThrows<UserAlreadyExists> {
             // Act
@@ -54,7 +54,7 @@ class CreateUserUseCaseTest {
         val userRepository = mockk<UserRepository>()
         val user = DefinedUser(ValidUserId("123"), Name("John Doe"), Email("john.doe@example.com"))
         every { userRepository.notExists(user.id) } returns true
-        every { userRepository.save(user) } returns Unit
+        every { userRepository.save(user) } returns user
         every { userRepository.exists(user.id) } returns false
         // Act
         val createUserUseCase = CreateUserUseCase(userRepository)
