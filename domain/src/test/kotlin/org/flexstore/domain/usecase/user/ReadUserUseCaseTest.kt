@@ -24,7 +24,7 @@ class ReadUserUseCaseTest {
         val userId = ValidUserId("123")
         val user = User.DefinedUser(userId, Name("John Doe"), Email("john.doe@example.com"))
         every { userRepository.findById(userId) } returns user
-        every { userRepository.exists(userId) } returns true
+        every { userRepository.notExists(userId) } returns false
         val readUserUseCase = ReadUserUseCase(userRepository)
         // Act
         readUserUseCase.unfold(userId)
@@ -54,7 +54,7 @@ class ReadUserUseCaseTest {
         // Arrange
         val userRepository = mockk<UserRepository>()
         val userId = ValidUserId("123")
-        every { userRepository.exists(userId) } returns false
+        every { userRepository.notExists(userId) } returns true
         val readUserUseCase = ReadUserUseCase(userRepository)
         val exception = assertThrows<UserNotFoundException> {
             // Act
@@ -62,6 +62,6 @@ class ReadUserUseCaseTest {
         }
         // Assert
         assertEquals("User with ID 123 does not exist.", exception.message)
-        verify { userRepository.exists(userId) }
+        verify { userRepository.notExists(userId) }
     }
 }

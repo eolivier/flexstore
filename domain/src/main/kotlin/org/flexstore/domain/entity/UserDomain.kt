@@ -29,6 +29,7 @@ fun User.Companion.of(userId: UserId, name: Name, email: Email): User {
 sealed class UserId(open val value: String) {
 
     abstract fun isValid(): Boolean
+    fun isInvalid() = !isValid()
 
     data class ValidUserId(override val value: String) : UserId(value){
         override fun isValid() = UserId.isValid(value)

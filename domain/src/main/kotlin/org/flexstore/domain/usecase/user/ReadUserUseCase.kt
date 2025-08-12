@@ -14,13 +14,7 @@ class ReadUserUseCase(private val userRepository: UserRepository) : UseCase<User
 
     override fun getPreConditions(): List<PreCondition<UserId>> {
         println("#[BEGIN] ReadUserUseCase.getPreConditions")
-        val isValidUserIdCondition = PreCondition<UserId> { userId ->
-            assert(userId.isValid()) { throw InvalidUserIdException(NonEmptyString("User ID ${userId.value} is invalid.")) }
-        }
-        val userExistsCondition = PreCondition<UserId> { userId ->
-            assert(userRepository.exists(userId)) { throw UserNotFoundException(NonEmptyString("User with ID ${userId.value} does not exist.")) }
-        }
-        val preConditions = listOf(isValidUserIdCondition, userExistsCondition)
+        val preConditions = listOf(isValidUserIdCondition(), userExistsCondition())
         println("#[END] ReadUserUseCase.getPreConditions")
         return preConditions
     }
@@ -37,10 +31,7 @@ class ReadUserUseCase(private val userRepository: UserRepository) : UseCase<User
 
     override fun getPostConditions(): List<PostCondition<UserId>> {
         println("#[BEGIN] ReadUserUseCase.getPostConditions")
-        val userRetrievedCondition = PostCondition<UserId> { userId ->
-            assert(retrievedUser is DefinedUser) { throw UserNotFoundException(NonEmptyString("User with ID ${userId.value} does not exist.")) }
-        }
-        val postConditions = listOf(userRetrievedCondition)
+        val postConditions = listOf(userRetrievedCondition())
         println("#[END] ReadUserUseCase.getPostConditions")
         return postConditions
     }
@@ -49,4 +40,21 @@ class ReadUserUseCase(private val userRepository: UserRepository) : UseCase<User
         return emptyMap()
     }
 
+    private fun userExistsCondition() = PreCondition<UserId> { userId ->
+        if (userRepository.notExists(userId)) {
+            throw UserNotFoundException(NonEmptyString("User with ID ${userId.value} does not exist."))
+        }
+    }
+
+    private fun isValidUserIdCondition() = PreCondition<UserId> { userId ->
+        if (userId.isInvalid()) {
+            throw InvalidUserIdException(NonEmptyString("User ID ${userId.value} is invalid."))
+        }
+    }
+
+    private fun userRetrievedCondition() = PostCondition<UserId> { userId ->
+        if (retrievedUser is User.UndefinedUser) {
+            throw UserNotFoundException(NonEmptyString("User with ID ${userId.value} does not exist."))
+        }
+    }
 }
