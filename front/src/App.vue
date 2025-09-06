@@ -3,7 +3,9 @@ import Home from './components/Home.vue'
 </script>
 
 <template>
-  <Home msg="Gestion des utilisateurs" />
+  <v-app>
+      <Home msg="Gestion des utilisateurs" />
+  </v-app>
 </template>
 
 <style scoped>
