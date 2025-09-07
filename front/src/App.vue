@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import Home from './components/Home.vue'
+import NavigationMenu from "./components/menu/NavigationMenu.vue";
 </script>
 
 <template>
   <v-app>
-      <Home msg="Gestion des utilisateurs" />
+      <NavigationMenu />
   </v-app>
 </template>
 

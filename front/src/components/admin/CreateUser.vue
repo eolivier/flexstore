@@ -1,5 +1,5 @@
 <script setup>
-import {useUsersStore} from "../stores/users.ts";
+import {useUsersStore} from "../../stores/users.ts";
 import {nextTick, ref} from 'vue'
 
 const name = ref('')
