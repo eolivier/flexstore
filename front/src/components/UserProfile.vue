@@ -3,9 +3,7 @@
     <v-main>
       <v-container class="py-10">
         <v-card class="mx-auto" max-width="400" elevation="4">
-          <v-card-title class="text-h6 font-weight-bold">
-            User Profile
-          </v-card-title>
+          <v-card-title class="text-h6 font-weight-bold"> User Profile </v-card-title>
           <v-divider />
 
           <v-card-text>
@@ -28,8 +26,8 @@
 </template>
 
 <script setup>
-const user = {
-  name: "John Doe",
-  email: "john.doe@example.com"
-}
+  const user = {
+    name: 'John Doe',
+    email: 'john.doe@example.com',
+  };
 </script>

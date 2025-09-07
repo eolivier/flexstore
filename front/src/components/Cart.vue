@@ -1,19 +1,18 @@
 <script setup>
+  import { onMounted } from 'vue';
+  import { useCartStore } from '../stores/cart.ts';
 
-import {onMounted} from "vue";
-import { useCartStore } from '../stores/cart.ts'
+  const cartStore = useCartStore();
 
-const cartStore = useCartStore()
+  onMounted(() => {
+    cartStore.fetchItems();
+  });
 
-onMounted(() => {
-  cartStore.fetchItems()
-})
-
-const headers = [
-  { title: "Item id", key: "itemId" },
-  { title: "Product name", key: "productName" },
-  { title: "Product quantity", key: "productQuantity", align: "end" },
-]
+  const headers = [
+    { title: 'Item id', key: 'itemId' },
+    { title: 'Product name', key: 'productName' },
+    { title: 'Product quantity', key: 'productQuantity', align: 'end' },
+  ];
 </script>
 <template>
   <v-app>
@@ -22,10 +21,10 @@ const headers = [
         <h1 class="text-h5 font-weight-bold mb-6">My Cart</h1>
 
         <v-data-table
-            :headers="headers"
-            :items="cartStore.items"
-            class="elevation-2"
-            hide-default-footer
+          :headers="headers"
+          :items="cartStore.items"
+          class="elevation-2"
+          hide-default-footer
         >
           <template #item.productQuantity="{ item }">
             <v-row align="center" no-gutters>
@@ -33,13 +32,13 @@ const headers = [
                 <v-icon>mdi-minus</v-icon>
               </v-btn>
               <v-text-field
-                  v-model="item.productQuantity"
-                  type="number"
-                  min="1"
-                  class="mx-2"
-                  style="width: 60px"
-                  hide-details
-                  dense
+                v-model="item.productQuantity"
+                type="number"
+                min="1"
+                class="mx-2"
+                style="width: 60px"
+                hide-details
+                dense
               />
               <v-btn icon @click="item.productQuantity++">
                 <v-icon>mdi-plus</v-icon>
