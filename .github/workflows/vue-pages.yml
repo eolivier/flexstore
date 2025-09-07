@@ -1,0 +1,42 @@
+name: Deploy Vue front to Cloudflare Pages
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "front/**"
+      - ".github/workflows/vue-pages.yml"
+  workflow_dispatch:
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+          cache-dependency-path: front/package-lock.json
+
+      - name: Install deps
+        working-directory: front
+        run: npm ci
+
+      - name: Build
+        working-directory: front
+        run: npm run build
+
+      # Publie le dossier 'front/dist' sur Cloudflare Pages
+      - name: Publish to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          projectName: flexstore-front         # créez le projet Pages avec ce nom (ou changez-le ici)
+          directory: front/dist                # sortie du build Vue
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
