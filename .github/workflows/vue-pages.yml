@@ -23,6 +23,10 @@ jobs:
           cache: "npm"
           cache-dependency-path: front/package-lock.json
 
+      - name: Clean npm cache
+        working-directory: front
+        run: npm cache clean --force
+
       - name: Install deps
         working-directory: front
         run: npm ci
