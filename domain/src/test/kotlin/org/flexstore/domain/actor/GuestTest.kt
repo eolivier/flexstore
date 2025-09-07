@@ -1,7 +1,6 @@
 package org.flexstore.domain.actor
 
-import org.flexstore.domain.*
-import org.flexstore.domain.entity.Basket
+import org.flexstore.domain.entity.Cart
 import org.flexstore.domain.entity.Email
 import org.flexstore.domain.entity.User.DefinedUser
 import org.flexstore.domain.entity.UserId.ValidUserId
@@ -32,8 +31,8 @@ class GuestTest {
     @Test
     fun `should perform add item to basket use case`() {
         // Arrange
-        val basket = Basket()
-        val addItemToBasketUseCase = AddItemToBasketUseCase(basket)
+        val cart = Cart()
+        val addItemToBasketUseCase = AddItemToBasketUseCase(cart)
         val guest = Guest(mock(CreateUserUseCase::class.java), addItemToBasketUseCase)
         val item = Item(
             ItemId(Identity("item1")), Product(

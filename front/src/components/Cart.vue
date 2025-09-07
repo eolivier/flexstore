@@ -1,3 +1,20 @@
+<script setup>
+
+import {onMounted} from "vue";
+import { useCartStore } from '../stores/cart.ts'
+
+const cartStore = useCartStore()
+
+onMounted(() => {
+  cartStore.fetchItems()
+})
+
+const headers = [
+  { title: "Item id", key: "itemId" },
+  { title: "Product name", key: "productName" },
+  { title: "Product quantity", key: "productQuantity", align: "end" },
+]
+</script>
 <template>
   <v-app>
     <v-main>
@@ -6,51 +23,31 @@
 
         <v-data-table
             :headers="headers"
-            :items="cartItems"
+            :items="cartStore.items"
             class="elevation-2"
             hide-default-footer
         >
-          <template #item.subtotal="{ item }">
-            <strong>{{ item.subtotal }}</strong>
-          </template>
-
-          <!-- Custom footer for total -->
-          <template #bottom>
-            <v-divider />
-            <div class="d-flex justify-end pa-4">
-              <strong class="text-h6">Total: {{ total }}</strong>
-            </div>
+          <template #item.productQuantity="{ item }">
+            <v-row align="center" no-gutters>
+              <v-btn icon @click="item.productQuantity = Math.max(1, item.productQuantity - 1)">
+                <v-icon>mdi-minus</v-icon>
+              </v-btn>
+              <v-text-field
+                  v-model="item.productQuantity"
+                  type="number"
+                  min="1"
+                  class="mx-2"
+                  style="width: 60px"
+                  hide-details
+                  dense
+              />
+              <v-btn icon @click="item.productQuantity++">
+                <v-icon>mdi-plus</v-icon>
+              </v-btn>
+            </v-row>
           </template>
         </v-data-table>
       </v-container>
     </v-main>
   </v-app>
 </template>
-
-<script setup>
-const headers = [
-  { title: "Product", key: "name" },
-  { title: "Details", key: "details" },
-  { title: "Subtotal", key: "subtotal", align: "end" },
-]
-
-const cartItems = [
-  {
-    name: "T-shirt",
-    details: "2 × 20€",
-    subtotal: "40€",
-  },
-  {
-    name: "Headphones",
-    details: "1 × 50€",
-    subtotal: "50€",
-  },
-  {
-    name: "Watch",
-    details: "1 × 80€",
-    subtotal: "80€",
-  },
-]
-
-const total = "170€"
-</script>

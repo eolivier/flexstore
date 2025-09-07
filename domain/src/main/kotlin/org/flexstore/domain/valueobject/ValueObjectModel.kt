@@ -3,14 +3,23 @@ package org.flexstore.domain.valueobject
 import org.ucop.domain.entity.Name
 import java.math.BigDecimal
 
-data class OneItem(val itemId: ItemId, val product: Product)
-data class Item(val itemId: ItemId, val product: Product, val quantity: Quantity) {
-    fun increase() = Item(itemId, product, quantity.increase())
-    fun decrease() = Item(itemId, product, quantity.decrease())
-    fun changeQuantity(newQuantity: Quantity) =
-        Item(itemId, product, quantity.changeQuantity(newQuantity))
+sealed interface Item {
+    fun increase(): Item = this
+    fun decrease(): Item = this
+    fun changeQuantity(newQuantity: Quantity): Item = this
 }
-data object NoItem
+
+data class OneItem(
+    val itemId: ItemId,
+    val product: Product,
+    val quantity: Quantity
+) : Item {
+    override fun increase() = copy(quantity = quantity.increase())
+    override fun decrease() = copy(quantity = quantity.decrease())
+    override fun changeQuantity(newQuantity: Quantity) = copy(quantity = newQuantity)
+}
+data object NoItem : Item
+
 data class ItemId(val id: Identity)
 class UnknownItemException(message : String) : Exception(message)
 data class Product(val productId: ProductId, val name: Name, val price: Price)

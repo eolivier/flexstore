@@ -2,6 +2,7 @@ package org.flexstore.domain.usecase.basket
 
 import org.flexstore.domain.entity.*
 import org.flexstore.domain.valueobject.Item
+import org.flexstore.domain.valueobject.OneItem
 import org.flexstore.domain.valueobject.Quantity
 import org.ucop.domain.entity.*
 
@@ -9,28 +10,28 @@ private const val ONE_ITEM = 1
 
 private const val BASKET_IS_NOT_EMPTY = "Basket is not empty."
 
-class AddItemToBasketUseCase(private val currentBasket: Basket) {
+class AddItemToBasketUseCase(private val currentCart: Cart) {
 
     fun perform(newItem: Item, quantity: Quantity) {
         // Preconditions
-        val basketIsEmptyCondition = PreCondition<Basket> {
+        val cartIsEmptyCondition = PreCondition<Cart> {
             basket -> assert(basket.getItems().isEmpty()) { BASKET_IS_NOT_EMPTY }
         }
         // Steps
-        val addOneItemToBasketStep = Step<Basket> { basket -> basket.changeQuantity(newItem.itemId, quantity) }
+        val addOneItemToCartStep = Step<Cart> { basket -> basket.changeQuantity(newItem, quantity) }
         // Postconditions
-        val basketHasOneItemCondition = PostCondition<Basket> {
+        val cartHasOneItemCondition = PostCondition<Cart> {
             basket -> assert(basket.getItems().size == ONE_ITEM) { "Basket does not contain exactly one item. Found ${basket.getItems().size}" }
         }
         // Nominal scenario
-        val addOneItemToBasketScenario = NominalScenario(listOf(addOneItemToBasketStep))
+        val addOneItemToBasketScenario = NominalScenario(listOf(addOneItemToCartStep))
         // Use case
         val addOneItemToBasketDeprecatedUseCase = DeprecatedUseCase(
-            preConditions = listOf(basketIsEmptyCondition),
+            preConditions = listOf(cartIsEmptyCondition),
             nominalScenario = addOneItemToBasketScenario,
-            postConditions = listOf(basketHasOneItemCondition)
+            postConditions = listOf(cartHasOneItemCondition)
         )
         // Run use case
-        addOneItemToBasketDeprecatedUseCase.run(currentBasket)
+        addOneItemToBasketDeprecatedUseCase.run(currentCart)
     }
 }

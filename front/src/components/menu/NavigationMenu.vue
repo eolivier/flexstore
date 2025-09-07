@@ -40,7 +40,7 @@ const drawer = ref(false)
 
         <AdminSubMenu />
 
-        <v-list-item to="/about">
+        <v-list-item to="/about" prepend-icon="mdi-information">
           <v-list-item-title>About</v-list-item-title>
         </v-list-item>
       </v-list>

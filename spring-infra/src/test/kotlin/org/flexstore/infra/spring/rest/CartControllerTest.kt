@@ -18,7 +18,7 @@ import java.math.BigDecimal
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class BasketControllerTest {
+class CartControllerTest {
 
     @Autowired
     private lateinit var mockMvc: MockMvc
@@ -27,7 +27,7 @@ class BasketControllerTest {
     private lateinit var objectMapper: ObjectMapper
 
     @MockBean
-    private lateinit var basketController: BasketController
+    private lateinit var basketController: CartController
 
     @Test
     fun `should return empty basket items`() {

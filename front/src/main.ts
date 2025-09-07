@@ -11,7 +11,7 @@ import App from './App.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
 import Home from './components/Home.vue'
-import ReadAllUsers from './components/admin/ReadAllUsers.vue'
+import Users from './components/admin/Users.vue'
 import Cart from "./components/Cart.vue";
 import About from "./components/About.vue";
 import CreateUser from "./components/admin/CreateUser.vue";
@@ -34,7 +34,7 @@ const routes = [
     { path: '/products/accessories', component: Accessories },
     { path: '/products/electronics', component: Electronics },
     { path: '/admin', component: AdminSubMenu },
-    { path: '/admin/users', component: ReadAllUsers },
+    { path: '/admin/users', component: Users },
     { path: '/admin/create-user', component: CreateUser },
     { path: '/about', component: About },
 ]

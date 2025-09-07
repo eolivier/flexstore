@@ -30,9 +30,9 @@ class DeprecatedUseCaseTest {
 
     @Test
     fun `should add to basket`() {
-        val myBasket = Basket()
-        val basketIsEmptyCondition = PreCondition<Basket> { basket -> assert(basket.getItems().isEmpty()) }
-        val addOneItemToBasketStep = Step<Basket>(
+        val myCart = Cart()
+        val cartIsEmptyCondition = PreCondition<Cart> { basket -> assert(basket.getItems().isEmpty()) }
+        val addOneItemToCartStep = Step<Cart>(
             run = {
                 basket -> run {
                 val itemId = ItemId(Identity("item1"))
@@ -41,16 +41,16 @@ class DeprecatedUseCaseTest {
                 basket.addOrReplaceItem(newItem)
             }
         })
-        val basketHasOneItemCondition = PostCondition<Basket> { basket -> assert(basket.getItems().size == 1) }
+        val cartHasOneItemCondition = PostCondition<Cart> { basket -> assert(basket.getItems().size == 1) }
 
-        val addOneItemToBasketScenario = NominalScenario(listOf(addOneItemToBasketStep))
+        val addOneItemToBasketScenario = NominalScenario(listOf(addOneItemToCartStep))
 
         val addOneItemToBasketDeprecatedUseCase = DeprecatedUseCase(
-            preConditions = listOf(basketIsEmptyCondition),
+            preConditions = listOf(cartIsEmptyCondition),
             nominalScenario = addOneItemToBasketScenario,
-            postConditions = listOf(basketHasOneItemCondition)
+            postConditions = listOf(cartHasOneItemCondition)
         )
 
-        addOneItemToBasketDeprecatedUseCase.run(myBasket)
+        addOneItemToBasketDeprecatedUseCase.run(myCart)
     }
 }

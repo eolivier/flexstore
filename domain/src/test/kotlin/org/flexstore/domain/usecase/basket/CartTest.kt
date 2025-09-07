@@ -1,25 +1,25 @@
 package org.flexstore.domain.usecase.basket
 
 import org.assertj.core.api.WithAssertions
-import org.flexstore.domain.entity.Basket
+import org.flexstore.domain.entity.Cart
 import org.flexstore.domain.valueobject.*
 import org.junit.jupiter.api.Test
 import org.ucop.domain.entity.Name
 import java.math.BigDecimal
 
-class BasketTest : WithAssertions {
+class CartTest : WithAssertions {
 
     @Test
     fun `addItem should add multiple items to the list`() {
         // given
         val item1 = createItem1()
         val item2 = createItem2()
-        val basket = Basket()
+        val cart = Cart()
         // when
-        basket.addOrReplaceItem(item1)
-        basket.addOrReplaceItem(item2)
+        cart.addOrReplaceItem(item1)
+        cart.addOrReplaceItem(item2)
         // then
-        val items = basket.getItems()
+        val items = cart.getItems()
         assertThat(items).containsExactly(item1, item2)
     }
 
@@ -27,12 +27,12 @@ class BasketTest : WithAssertions {
     fun `addItem should not add the same item twice`() {
         // given
         val item1 = createItem1()
-        val basket = Basket()
+        val cart = Cart()
         // when
-        basket.addOrReplaceItem(item1)
-        basket.addOrReplaceItem(item1)
+        cart.addOrReplaceItem(item1)
+        cart.addOrReplaceItem(item1)
         // then
-        val items = basket.getItems()
+        val items = cart.getItems()
         assertThat(items).containsExactly(item1)
     }
 
@@ -40,25 +40,25 @@ class BasketTest : WithAssertions {
     fun `should remove item`() {
         // given
         val item1 = createItem1()
-        val basket = Basket()
-        basket.addOrReplaceItem(item1)
+        val cart = Cart()
+        cart.addOrReplaceItem(item1)
         // when
-        basket.removeItem(item1)
+        cart.removeItem(item1)
         // then
-        assertThat(basket.getItems()).isEmpty()
+        assertThat(cart.getItems()).isEmpty()
     }
 
     @Test
     fun `should change quantity`() {
         // given
         val item1 = createItem1()
-        val basket = Basket()
-        basket.addOrReplaceItem(item1)
+        val cart = Cart()
+        cart.addOrReplaceItem(item1)
         val newQuantity = Quantity(12)
         // when
-        basket.changeQuantity(item1.itemId, newQuantity)
+        cart.changeQuantity(item1.itemId, newQuantity)
         // then
-        assertThat(basket.getItems()[0].quantity).isEqualTo(newQuantity)
+        assertThat(cart.getItems()[0].quantity).isEqualTo(newQuantity)
     }
 
     private fun createItem1(): Item {
