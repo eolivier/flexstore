@@ -4,7 +4,7 @@ import { ref } from 'vue';
 interface Item {
   itemId: string;
   productName: string;
-  productQuantity: integer;
+  productQuantity: number;
 }
 
 export const useCartStore = defineStore('cart', () => {
