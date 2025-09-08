@@ -51,7 +51,7 @@ class CartControllerTest {
     private fun createItem(): Item {
         val price1 = Price(Amount(BigDecimal(10)), Currency.EUR)
         val product1 = Product(ProductId(Identity("1")), Name("Product1"), price1)
-        return Item(ItemId(Identity("1")), product1, Quantity(1))
+        return OneItem(ItemId(Identity("1")), product1, Quantity(1))
     }
 
 }
