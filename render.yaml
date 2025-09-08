@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: flexstore-back
+    env: docker
+    plan: starter
+    repo: https://github.com/eolivier/flexstore
+    branch: main
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: 8080
