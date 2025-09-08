@@ -11,6 +11,9 @@ on:
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write  # pour créer une entrée Deployments (optionnel)
 
     steps:
       - name: Checkout
@@ -35,7 +38,7 @@ jobs:
         working-directory: front
         run: npm run build
 
-      # Publie le dossier 'front/dist' sur Cloudflare Pages
+
       - name: Publish to Cloudflare Pages
         uses: cloudflare/pages-action@v1
         with:
@@ -44,3 +47,12 @@ jobs:
           projectName: flexstore-front         # créez le projet Pages avec ce nom (ou changez-le ici)
           directory: front/dist                # sortie du build Vue
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+
+      # Publie le dossier 'front/dist' sur Cloudflare Pages
+      - name: Publish to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_FLEXSTORE_VUE_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          command: pages deploy front/dist --project-name=flexstore-front
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}  # seulement si tu veux une entrée Deployments
