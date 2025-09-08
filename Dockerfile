@@ -15,7 +15,7 @@ FROM eclipse-temurin:17-jre
 WORKDIR /app
 
 # Copie le jar généré
-COPY --from=build /app/build/libs/*.jar app.jar
+COPY --from=build /app/spring-infra/build/libs/*.jar app.jar
 
 # Expose le port (modifie selon ton app)
 EXPOSE 8080
