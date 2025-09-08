@@ -1,5 +1,6 @@
 package org.flexstore.domain.usecase.basket
 
+import io.mockk.mockk
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.entity.Cart
 import org.flexstore.domain.valueobject.*
@@ -14,7 +15,7 @@ class CartTest : WithAssertions {
         // given
         val item1 = createItem1()
         val item2 = createItem2()
-        val cart = Cart()
+        val cart = Cart(mockk())
         // when
         cart.addOrReplaceItem(item1)
         cart.addOrReplaceItem(item2)
@@ -27,7 +28,7 @@ class CartTest : WithAssertions {
     fun `addItem should not add the same item twice`() {
         // given
         val item1 = createItem1()
-        val cart = Cart()
+        val cart = Cart(mockk())
         // when
         cart.addOrReplaceItem(item1)
         cart.addOrReplaceItem(item1)
@@ -40,7 +41,7 @@ class CartTest : WithAssertions {
     fun `should remove item`() {
         // given
         val item1 = createItem1()
-        val cart = Cart()
+        val cart = Cart(mockk())
         cart.addOrReplaceItem(item1)
         // when
         cart.removeItem(item1)
@@ -52,24 +53,24 @@ class CartTest : WithAssertions {
     fun `should change quantity`() {
         // given
         val item1 = createItem1()
-        val cart = Cart()
+        val cart = Cart(mockk())
         cart.addOrReplaceItem(item1)
         val newQuantity = Quantity(12)
         // when
-        cart.changeQuantity(item1.itemId, newQuantity)
+        cart.changeQuantity(item1, newQuantity)
         // then
-        assertThat(cart.getItems()[0].quantity).isEqualTo(newQuantity)
+        assertThat((cart.getItems()[0] as OneItem).quantity).isEqualTo(newQuantity)
     }
 
     private fun createItem1(): Item {
         val price1 = Price(Amount(BigDecimal(10)), Currency.EUR)
         val product1 = Product(ProductId(Identity("1")), Name("Product1"), price1)
-        return Item(ItemId(Identity("1")), product1, Quantity(1))
+        return OneItem(ItemId(Identity("1")), product1, Quantity(1))
     }
 
     private fun createItem2(): Item {
         val price2 = Price(Amount(BigDecimal(11)), Currency.EUR)
         val product2 = Product(ProductId(Identity("2")), Name("Product2"), price2)
-        return Item(ItemId(Identity("2")), product2, Quantity(1))
+        return OneItem(ItemId(Identity("2")), product2, Quantity(1))
     }
 }

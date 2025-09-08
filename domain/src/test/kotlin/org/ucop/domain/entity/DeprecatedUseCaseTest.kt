@@ -1,5 +1,6 @@
 package org.ucop.domain.entity
 
+import io.mockk.mockk
 import org.flexstore.domain.entity.*
 import org.flexstore.domain.valueobject.*
 import org.junit.jupiter.api.Test
@@ -30,14 +31,14 @@ class DeprecatedUseCaseTest {
 
     @Test
     fun `should add to basket`() {
-        val myCart = Cart()
+        val myCart = Cart(mockk())
         val cartIsEmptyCondition = PreCondition<Cart> { basket -> assert(basket.getItems().isEmpty()) }
         val addOneItemToCartStep = Step<Cart>(
             run = {
                 basket -> run {
                 val itemId = ItemId(Identity("item1"))
                 val product = Product(ProductId(Identity("product1")), Name("product1"), Price(Amount(BigDecimal(10)), Currency.EUR))
-                val newItem = Item(itemId, product, Quantity(10))
+                val newItem = OneItem(itemId, product, Quantity(10))
                 basket.addOrReplaceItem(newItem)
             }
         })

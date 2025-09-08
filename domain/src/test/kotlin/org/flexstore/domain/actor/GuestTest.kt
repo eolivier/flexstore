@@ -1,5 +1,6 @@
 package org.flexstore.domain.actor
 
+import io.mockk.mockk
 import org.flexstore.domain.entity.Cart
 import org.flexstore.domain.entity.Email
 import org.flexstore.domain.entity.User.DefinedUser
@@ -31,10 +32,10 @@ class GuestTest {
     @Test
     fun `should perform add item to basket use case`() {
         // Arrange
-        val cart = Cart()
+        val cart = Cart(mockk())
         val addItemToBasketUseCase = AddItemToBasketUseCase(cart)
         val guest = Guest(mock(CreateUserUseCase::class.java), addItemToBasketUseCase)
-        val item = Item(
+        val item = OneItem(
             ItemId(Identity("item1")), Product(
                 ProductId(Identity("product1")), Name("product1"), Price(
                     Amount(
