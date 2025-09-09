@@ -10,7 +10,7 @@ COPY . .
 RUN ./gradlew build --no-daemon -x test
 
 # Utilise une image JRE légère pour l'exécution
-FROM eclipse-temurin:17-jre
+FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 
