@@ -9,9 +9,10 @@ interface User {
 
 export const useUsersStore = defineStore('users', () => {
   const users = ref<User[]>([]);
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   async function fetchUsers() {
-    const response = await fetch('/api/users');
+    const response = await fetch(`${apiUrl}/api/users`);
     if (response.ok) {
       users.value = await response.json();
     } else {
@@ -20,7 +21,7 @@ export const useUsersStore = defineStore('users', () => {
   }
 
   async function addUser(user: User) {
-    const response = await fetch('/api/users', {
+    const response = await fetch(`${apiUrl}/api/users`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(user),
@@ -42,7 +43,7 @@ export const useUsersStore = defineStore('users', () => {
   }
 
   async function deleteUser(id: number) {
-    await fetch(`/api/users/${id}`, { method: 'DELETE' });
+    await fetch(`${apiUrl}/api/users/${id}`, { method: 'DELETE' });
     await fetchUsers();
   }
 

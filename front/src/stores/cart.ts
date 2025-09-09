@@ -9,9 +9,10 @@ interface Item {
 
 export const useCartStore = defineStore('cart', () => {
   const items = ref<Item[]>([]);
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   async function fetchItems() {
-    const response = await fetch('/api/cart/items');
+    const response = await fetch(`${apiUrl}api/cart/items`);
     if (response.ok) {
       items.value = await response.json();
     } else {
