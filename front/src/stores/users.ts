@@ -12,7 +12,7 @@ export const useUsersStore = defineStore('users', () => {
 
   async function fetchUsers() {
     const apiUrl = import.meta.env.VITE_API_URL;
-    const response = await fetch(`${apiUrl}/api/users`);
+    const response = await fetch(`https://flexstore.onrender.com/api/users`);
     if (apiUrl) {
        console.info('apiUrl :', apiUrl);
     } else {
