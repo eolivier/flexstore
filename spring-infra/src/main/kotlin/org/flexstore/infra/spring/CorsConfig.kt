@@ -11,7 +11,7 @@ open class CorsConfig {
     open fun corsConfigurer(): WebMvcConfigurer = object : WebMvcConfigurer {
         override fun addCorsMappings(registry: CorsRegistry) {
             registry.addMapping("/api/**")
-                .allowedOriginPatterns("https://*.flexstore-front.pages.dev")
+                .allowedOriginPatterns("https://*.flexstore-front.pages.dev", "http://localhost:5174")
                 .allowedMethods("GET", "POST", "PUT", "DELETE")
         }
     }
