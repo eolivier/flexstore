@@ -9,15 +9,10 @@ interface User {
 
 export const useUsersStore = defineStore('users', () => {
   const users = ref<User[]>([]);
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   async function fetchUsers() {
-    const apiUrl = import.meta.env.VITE_API_URL;
-    const response = await fetch(`${apiUrl}/api/users`);
-    if (apiUrl) {
-       console.info('apiUrl :', apiUrl);
-    } else {
-       console.error('VITE_API_URL non définie');
-    }
+      const response = await fetch(`${apiUrl}/api/users`);
     if (response.ok) {
       users.value = await response.json();
     } else {
@@ -26,7 +21,6 @@ export const useUsersStore = defineStore('users', () => {
   }
 
   async function addUser(user: User) {
-    const apiUrl = import.meta.env.VITE_API_URL;
     const response = await fetch(`${apiUrl}/api/users`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -49,7 +43,6 @@ export const useUsersStore = defineStore('users', () => {
   }
 
   async function deleteUser(id: number) {
-    const apiUrl = import.meta.env.VITE_API_URL;
     await fetch(`${apiUrl}/api/users/${id}`, { method: 'DELETE' });
     await fetchUsers();
   }
