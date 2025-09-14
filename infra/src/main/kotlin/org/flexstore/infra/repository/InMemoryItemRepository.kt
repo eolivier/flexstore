@@ -25,6 +25,8 @@ class InMemoryItemRepository: ItemRepository {
         return items.firstOrNull { it.itemId == itemId } ?: NoItem
     }
 
+    override fun clear() = items.clear()
+
     private val items = mutableListOf<OneItem>(
         OneItem(
             itemId = ItemId(Identity("item-1")),

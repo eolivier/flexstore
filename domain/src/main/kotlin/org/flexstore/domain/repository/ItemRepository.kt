@@ -10,4 +10,5 @@ interface ItemRepository {
     fun remove(newItem: Item)
     fun add(newItem: Item)
     fun findById(itemId: ItemId): Item
+    fun clear()
 }

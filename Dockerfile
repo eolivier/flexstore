@@ -6,8 +6,8 @@ WORKDIR /app
 # Copie les fichiers de build
 COPY . .
 
-# Compile le projet / désactive les tests temporairement
-RUN ./gradlew build --no-daemon -x test
+# Compile le projet
+RUN ./gradlew build --no-daemon
 
 # Utilise une image JRE légère pour l'exécution
 FROM eclipse-temurin:21-jre

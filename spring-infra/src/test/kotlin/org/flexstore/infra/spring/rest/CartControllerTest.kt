@@ -1,7 +1,7 @@
 package org.flexstore.infra.spring.rest
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.flexstore.domain.valueobject.*
+import org.flexstore.domain.valueobject.Currency
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -13,7 +13,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import org.ucop.domain.entity.Name
 import java.math.BigDecimal
 
 @SpringBootTest
@@ -27,31 +26,28 @@ class CartControllerTest {
     private lateinit var objectMapper: ObjectMapper
 
     @MockBean
-    private lateinit var basketController: CartController
+    private lateinit var cartController: CartController
 
     @Test
-    fun `should return empty basket items`() {
-        mockMvc.perform(get("/api/basket/items"))
+    fun `should return empty cart items`() {
+        mockMvc.perform(get("/api/cart/items"))
             .andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
     }
 
     @Test
-    fun `should add item to basket`() {
-        val item = createItem()
+    fun `should add item to cart`() {
+        val jsonItemToAdd = createJsonItemToAdd()
 
         mockMvc.perform(
-            post("/api/basket/add")
+            post("/api/cart/add")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(item))
+                .content(objectMapper.writeValueAsString(jsonItemToAdd))
         )
             .andExpect(status().isCreated)
     }
 
-    private fun createItem(): Item {
-        val price1 = Price(Amount(BigDecimal(10)), Currency.EUR)
-        val product1 = Product(ProductId(Identity("1")), Name("Product1"), price1)
-        return OneItem(ItemId(Identity("1")), product1, Quantity(1))
+    private fun createJsonItemToAdd(): JsonItemToAdd {
+        return JsonItemToAdd("1", BigDecimal(10), Currency.EUR, "1", "Product1", 10)
     }
-
 }
