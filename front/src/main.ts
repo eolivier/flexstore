@@ -21,6 +21,7 @@ import Electronics from './components/products/Electronics.vue';
 import AdminSubMenu from './components/menu/submenu/AdminSubMenu.vue';
 import UserProfile from './components/UserProfile.vue';
 import Orders from './components/Orders.vue';
+import Products from "./components/products/Products.vue";
 
 const vuetify = createVuetify({ components, directives });
 const pinia = createPinia();
@@ -30,6 +31,7 @@ const routes = [
   { path: '/cart', component: Cart },
   { path: '/orders', component: Orders },
   { path: '/user-profile', component: UserProfile },
+  { path: '/products/', component: Products },
   { path: '/products/clothing', component: Clothing },
   { path: '/products/accessories', component: Accessories },
   { path: '/products/electronics', component: Electronics },

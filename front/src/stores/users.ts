@@ -16,7 +16,7 @@ export const useUsersStore = defineStore('users', () => {
     if (response.ok) {
       users.value = await response.json();
     } else {
-      console.error('Erreur lors du chargement des utilisateurs');
+      console.error('Error when loading users');
     }
   }
 
@@ -30,14 +30,14 @@ export const useUsersStore = defineStore('users', () => {
       const text = await response.text();
       if (text) {
         const data = JSON.parse(text);
-        console.log('Utilisateur créé:', data);
+        console.log('User created:', data);
       } else {
-        console.log('Utilisateur créé, mais pas de contenu retourné');
+        console.log('User created, but no content returned');
       }
     } else {
       // Gérer l’erreur
       const error = await response.text();
-      console.error('Erreur lors de la création', error);
+      console.error('Error when creating user', error);
     }
     await fetchUsers();
   }

@@ -8,6 +8,9 @@
     <template #activator="{ props }">
       <v-list-item v-bind="props">Products</v-list-item>
     </template>
+    <v-list-item to="/products/" prepend-icon="mdi-package-variant">
+      <v-list-item-title>All products</v-list-item-title>
+    </v-list-item>
     <v-list-item to="/products/clothing" prepend-icon="mdi-tshirt-crew">
       <v-list-item-title>Clothes</v-list-item-title>
     </v-list-item>
