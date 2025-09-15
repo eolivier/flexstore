@@ -5,7 +5,6 @@ import org.flexstore.domain.entity.Cart
 import org.flexstore.domain.valueobject.*
 import org.flexstore.infra.repository.InMemoryItemRepository
 import org.junit.jupiter.api.Test
-import org.ucop.domain.entity.Name
 import java.math.BigDecimal
 
 private const val ITEM_ID = "1"

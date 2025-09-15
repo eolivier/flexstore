@@ -7,9 +7,9 @@ import org.flexstore.domain.entity.User.DefinedUser
 import org.flexstore.domain.entity.UserId.ValidUserId
 import org.flexstore.domain.usecase.user.CreateUserUseCase
 import org.flexstore.domain.usecase.user.UpdateUserUseCase
+import org.flexstore.domain.valueobject.Name
 import org.flexstore.infra.repository.InMemoryUserRepository
 import org.junit.jupiter.api.Test
-import org.ucop.domain.entity.Name
 
 class UseCaseHandlerTest {
 

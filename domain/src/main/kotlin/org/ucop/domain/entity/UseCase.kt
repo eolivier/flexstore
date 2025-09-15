@@ -1,5 +1,6 @@
 package org.ucop.domain.entity
 
+import org.flexstore.domain.valueobject.Name
 import org.ucop.domain.AlternativeException
 import org.ucop.domain.NominalException
 import org.ucop.domain.StepException
@@ -94,5 +95,3 @@ class EmptyUseCase<T> : UseCase<T> {
     override fun getAlternativeScenarii(): Map<KClass<out NominalException>, AlternativeScenario<T>> = emptyMap()
 
 }
-
-data class Name(val value: String)

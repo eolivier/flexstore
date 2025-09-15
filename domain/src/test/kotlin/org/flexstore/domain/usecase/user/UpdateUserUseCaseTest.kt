@@ -8,9 +8,9 @@ import org.flexstore.domain.entity.User.DefinedUser
 import org.flexstore.domain.entity.UserId.InvalidUserId
 import org.flexstore.domain.entity.UserId.ValidUserId
 import org.flexstore.domain.repository.UserRepository
+import org.flexstore.domain.valueobject.Name
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.assertThrows
-import org.ucop.domain.entity.Name
 import kotlin.test.Test
 
 class UpdateUserUseCaseTest {

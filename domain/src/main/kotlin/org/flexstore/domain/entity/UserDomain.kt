@@ -1,9 +1,9 @@
 package org.flexstore.domain.entity
 
+import org.flexstore.domain.valueobject.Name
 import org.ucop.domain.NominalException
 import org.ucop.domain.NonEmptyString
 import org.ucop.domain.entity.Actor
-import org.ucop.domain.entity.Name
 
 sealed class User(open val id: UserId) {
     abstract fun user(userId: UserId):User

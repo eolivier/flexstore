@@ -1,6 +1,5 @@
 package org.flexstore.domain.valueobject
 
-import org.ucop.domain.entity.Name
 import java.math.BigDecimal
 
 sealed interface Item {
@@ -22,7 +21,14 @@ data object NoItem : Item
 
 data class ItemId(val id: Identity)
 class UnknownItemException(message : String) : Exception(message)
-data class Product(val productId: ProductId, val name: Name, val price: Price)
+data class Product(
+    val productId: ProductId,
+    val name: Name,
+    val description: Description,
+    val category: Category,
+    val price: Price) {
+    constructor(productId: ProductId, name: Name, price: Price) : this(productId, name, Description("No description"), Category.NOT_DEFINED, price)
+}
 data class ProductId(val id: Identity)
 data class Price(val amount: Amount, val currency: Currency)
 data class Amount(val value: BigDecimal)
@@ -36,3 +42,17 @@ data class Quantity(val value: Int) {
 }
 data class Identity(val value: String)
 enum class Currency { EUR, USD }
+
+data class Name(val value: String) {
+    init {
+        require(value.isNotBlank()) { "Name must not ne empty nor null" }
+    }
+}
+
+data class Description(val value: String) {
+    init {
+        require(value.isNotBlank()) { "Description must not ne empty nor null" }
+    }
+}
+
+enum class Category { ELECTRONICS, BOOKS, CLOTHING, HOME, BEAUTY, TOYS, SPORTS, AUTOMOTIVE, GROCERY, HEALTH, ACCESSORIES, NOT_DEFINED }

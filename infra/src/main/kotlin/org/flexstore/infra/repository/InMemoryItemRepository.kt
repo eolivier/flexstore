@@ -2,7 +2,6 @@ package org.flexstore.infra.repository
 
 import org.flexstore.domain.repository.ItemRepository
 import org.flexstore.domain.valueobject.*
-import org.ucop.domain.entity.Name
 import java.math.BigDecimal
 
 class InMemoryItemRepository: ItemRepository {

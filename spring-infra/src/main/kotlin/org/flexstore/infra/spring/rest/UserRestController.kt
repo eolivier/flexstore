@@ -8,9 +8,9 @@ import org.flexstore.domain.entity.UserId
 import org.flexstore.domain.entity.UserId.ValidUserId
 import org.flexstore.domain.entity.of
 import org.flexstore.domain.service.UserService
+import org.flexstore.domain.valueobject.Name
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
-import org.ucop.domain.entity.Name
 
 @RestController
 @RequestMapping("/api/users")

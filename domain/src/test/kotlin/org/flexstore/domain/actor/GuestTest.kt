@@ -11,7 +11,6 @@ import org.flexstore.infra.repository.InMemoryItemRepository
 import org.flexstore.infra.repository.InMemoryUserRepository
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*
-import org.ucop.domain.entity.Name
 import java.math.BigDecimal
 
 class GuestTest {

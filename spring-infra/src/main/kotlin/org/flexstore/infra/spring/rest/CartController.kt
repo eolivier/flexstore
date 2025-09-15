@@ -7,7 +7,6 @@ import org.flexstore.domain.repository.ItemRepository
 import org.flexstore.domain.valueobject.*
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
-import org.ucop.domain.entity.Name
 import java.math.BigDecimal
 
 @RestController

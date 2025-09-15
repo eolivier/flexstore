@@ -4,7 +4,7 @@ import org.flexstore.domain.entity.Email
 import org.flexstore.domain.entity.User
 import org.flexstore.domain.entity.UserId
 import org.flexstore.domain.repository.UserRepository
-import org.ucop.domain.entity.Name
+import org.flexstore.domain.valueobject.Name
 
 class InMemoryUserRepository : UserRepository {
 
