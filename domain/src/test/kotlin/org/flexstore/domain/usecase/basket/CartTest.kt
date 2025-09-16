@@ -14,41 +14,41 @@ class CartTest : WithAssertions {
     @Test
     fun `addItem should add multiple items to the list`() {
         // given
-        val item1 = createItem1()
-        val item2 = createItem2()
+        val item1 = createNewItem1()
+        val item2 = createNewItem2()
         val cart = Cart(InMemoryItemRepository())
+        val initialSize = cart.getItems().size
         // when
-        cart.addOrReplaceItem(item1)
-        cart.addOrReplaceItem(item2)
+        cart.add(item1)
+        cart.add(item2)
         // then
         val items = cart.getItems()
-        assertThat(items).containsOnlyOnceElementsOf(listOf(item1, item2))
+        assertThat(items).hasSize(initialSize + 2)
     }
 
     @Test
     fun `addItem should not add the same item twice`() {
         // given
-        val item1 = createItem1()
+        val item1 = createNewItem1()
         val cart = Cart(InMemoryItemRepository())
         val initialSize = cart.getItems().size
         // when
-        cart.addOrReplaceItem(item1)
-        cart.addOrReplaceItem(item1)
+        cart.add(item1)
+        cart.add(item1)
         // then
         val items = cart.getItems()
         assertThat(items).hasSize(initialSize + 1)
-        assertThat(items).containsOnlyOnce(item1)
     }
 
     @Test
     fun `should remove item`() {
         // given
-        val item1 = createItem1()
+        val newItem = createNewItem1()
         val cart = Cart(InMemoryItemRepository())
-        cart.addOrReplaceItem(item1)
+        val oneItem = cart.add(newItem)
         val initialSize = cart.getItems().size
         // when
-        cart.removeItem(item1)
+        cart.removeItem(oneItem)
         // then
         assertThat(cart.getItems()).hasSize(initialSize - 1)
     }
@@ -56,27 +56,27 @@ class CartTest : WithAssertions {
     @Test
     fun `should change quantity`() {
         // given
-        val item1 = createItem1()
+        val newItem = createNewItem1()
         val cart = Cart(InMemoryItemRepository())
-        cart.addOrReplaceItem(item1)
+        val oneItem = cart.add(newItem)
         val newQuantity = Quantity(12)
         // when
-        cart.changeQuantity(item1, newQuantity)
+        cart.changeQuantity(oneItem, newQuantity)
         // then
-        val itemFound = cart.getItems().find { it is OneItem && it.itemId.id.value == ITEM_ID } as OneItem
+        val itemFound = cart.getItems().find { it is OneItem && it.itemId == oneItem.itemId } as OneItem
         assertThat(itemFound).isNotNull
         assertThat(itemFound.quantity).isEqualTo(newQuantity)
     }
 
-    private fun createItem1(): Item {
+    private fun createNewItem1(): NewItem {
         val price1 = Price(Amount(BigDecimal(10)), Currency.EUR)
-        val product1 = Product(ProductId(Identity(ITEM_ID)), Name("Product1"), price1)
-        return OneItem(ItemId(Identity(ITEM_ID)), product1, Quantity(1))
+        val product1 = Product(ProductId(Identity("productId-1")), Name("Product1"), price1)
+        return NewItem(product1, Quantity(1))
     }
 
-    private fun createItem2(): Item {
+    private fun createNewItem2(): NewItem {
         val price2 = Price(Amount(BigDecimal(11)), Currency.EUR)
-        val product2 = Product(ProductId(Identity("2")), Name("Product2"), price2)
-        return OneItem(ItemId(Identity("2")), product2, Quantity(1))
+        val product2 = Product(ProductId(Identity("productId-2")), Name("Product2"), price2)
+        return NewItem(product2, Quantity(1))
     }
 }

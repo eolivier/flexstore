@@ -17,6 +17,15 @@ data class OneItem(
     override fun decrease() = copy(quantity = quantity.decrease())
     override fun changeQuantity(newQuantity: Quantity) = copy(quantity = newQuantity)
 }
+data class NewItem(
+    val product: Product,
+    val quantity: Quantity
+) : Item {
+    override fun increase() = copy(quantity = quantity.increase())
+    override fun decrease() = copy(quantity = quantity.decrease())
+    override fun changeQuantity(newQuantity: Quantity) = copy(quantity = newQuantity)
+}
+
 data object NoItem : Item
 
 data class ItemId(val id: Identity)
@@ -41,7 +50,7 @@ data class Quantity(val value: Int) {
     fun isNotZero() = !isZero()
 }
 data class Identity(val value: String)
-enum class Currency { EUR, USD }
+enum class Currency(val symbol: String) { EUR("€"), USD("$") }
 
 data class Name(val value: String) {
     init {

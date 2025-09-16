@@ -21,8 +21,7 @@ class DeprecatedUseCaseTest {
         val addOneItemToCartStep = Step<Cart>(
             run = {
                 basket -> run {
-
-                basket.addOrReplaceItem(item1)
+                basket.add(item1)
             }
         })
         val cartHasOneItemCondition = PostCondition<Cart> { basket -> assert(basket.getItems().size == 1) }
@@ -40,9 +39,8 @@ class DeprecatedUseCaseTest {
         verify(itemRepository).add(item1)
     }
 
-    fun createItem1(): OneItem {
-        val itemId = ItemId(Identity("item1"))
+    fun createItem1(): NewItem {
         val product = Product(ProductId(Identity("product1")), Name("product1"), Price(Amount(BigDecimal(10)), Currency.EUR))
-        return OneItem(itemId, product, Quantity(10))
+        return NewItem(product, Quantity(10))
     }
 }

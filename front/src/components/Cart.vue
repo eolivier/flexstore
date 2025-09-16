@@ -11,6 +11,7 @@
   const headers = [
     { title: 'Item id', key: 'itemId' },
     { title: 'Product name', key: 'productName' },
+    { title: 'Product description', key: 'productDescription' },
     { title: 'Product quantity', key: 'productQuantity', align: 'end' },
   ];
 </script>

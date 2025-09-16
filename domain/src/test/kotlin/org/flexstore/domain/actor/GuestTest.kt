@@ -36,18 +36,17 @@ class GuestTest {
         val cart = Cart(itemRepository)
         val addItemToBasketUseCase = AddItemToBasketUseCase(cart)
         val guest = Guest(mock(CreateUserUseCase::class.java), addItemToBasketUseCase)
-        val item = OneItem(
-            ItemId(Identity("item1")), Product(
-                ProductId(Identity("product1")), Name("product1"), Price(
-                    Amount(
-                        BigDecimal(10)
-                    ), Currency.EUR
-                )
-            ), Quantity(1)
+        val newItem = NewItem(
+            product = Product(
+                productId = ProductId(Identity("product1")),
+                name = Name("product1"),
+                price = Price(Amount(BigDecimal(10)), Currency.EUR)
+            ),
+            quantity = Quantity(1)
         )
         // Act
-        guest.performAddItemToBasket(item, Quantity(1))
+        guest.performAddItemToBasket(newItem, Quantity(1))
         // Assert
-        verify(itemRepository).add(item)
+        verify(itemRepository).add(newItem)
     }
 }

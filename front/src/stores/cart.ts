@@ -4,6 +4,7 @@ import { ref } from 'vue';
 interface Item {
   itemId: string;
   productName: string;
+  productDescription: string;
   productQuantity: number;
 }
 

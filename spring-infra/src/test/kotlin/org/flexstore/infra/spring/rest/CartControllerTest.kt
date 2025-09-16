@@ -37,17 +37,24 @@ class CartControllerTest {
 
     @Test
     fun `should add item to cart`() {
-        val jsonItemToAdd = createJsonItemToAdd()
+        val jsonDraftItem = createJsonDraftItem()
 
         mockMvc.perform(
             post("/api/cart/add")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(jsonItemToAdd))
+                .content(objectMapper.writeValueAsString(jsonDraftItem))
         )
             .andExpect(status().isCreated)
     }
 
-    private fun createJsonItemToAdd(): JsonItemToAdd {
-        return JsonItemToAdd("1", BigDecimal(10), Currency.EUR, "1", "Product1", 10)
+    private fun createJsonDraftItem(): JsonDraftItem {
+        return JsonDraftItem(
+            productId = "1",
+            productName = "Product1",
+            productDescription = "Product1 description",
+            productPrice = BigDecimal(10),
+            productCurrency =  Currency.EUR.symbol,
+            productQuantity = 10
+        )
     }
 }

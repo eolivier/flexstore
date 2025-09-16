@@ -16,37 +16,48 @@ class CartController(itemRepository: ItemRepository) {
     private val cart = Cart(itemRepository)
 
     @GetMapping("/items")
-    fun getItems(): List<JsonItem> = cart.getItems().toJsonItems()
+    fun getItems(): List<JsonCartItem> = cart.getItems().toJsonCartItems()
 
     @PostMapping("/add")
     @ResponseStatus(HttpStatus.CREATED)
-    fun addItem(@RequestBody newJsonItemToAdd: JsonItemToAdd) = cart.addOrReplaceItem(newJsonItemToAdd.toItem())
+    fun addItem(@RequestBody jsonDraftItem: JsonDraftItem) = cart.add(jsonDraftItem.toNewItem())
 
-    private fun <E> List<E>.toJsonItems() = this.map {
+    private fun <E> List<E>.toJsonCartItems() = this.map {
         when (it) {
-            is OneItem -> JsonItem(it.itemId.id.value, it.product.name.value, it.quantity.value)
+            is OneItem -> JsonCartItem(
+                it.itemId.id.value,
+                it.product.productId.id.value,
+                it.product.name.value,
+                it.product.description.value,
+                it.product.price.amount.value,
+                it.product.price.currency.symbol,
+                it.quantity.value)
             else -> throw IllegalArgumentException("Unknown item type: ${it!!::class.java}")
         }
     }
 }
-data class JsonItem @JsonCreator constructor(
-    @JsonProperty("itemId") val itemId: String,
-    @JsonProperty("productName") val productName: String,
-    @JsonProperty("productQuantity") val productQuantity: Int
-)
 
-data class JsonItemToAdd @JsonCreator constructor(
-    @JsonProperty("itemId") val itemId: String,
-    @JsonProperty("price") val price: BigDecimal,
-    @JsonProperty("currency") val currency: Currency,
+data class JsonDraftItem @JsonCreator constructor(
     @JsonProperty("productId") val productId: String,
     @JsonProperty("productName") val productName: String,
+    @JsonProperty("productDescription") val productDescription: String,
+    @JsonProperty("productPrice") val productPrice: BigDecimal,
+    @JsonProperty("productCurrency") val productCurrency: String,
     @JsonProperty("productQuantity") val productQuantity: Int
 ) {
-    fun toItem(): Item {
-        val price = Price(Amount(price), currency)
+    fun toNewItem(): NewItem {
+        val price = Price(Amount(productPrice), Currency.valueOf(productCurrency))
         val product = Product(ProductId(Identity(productId)), Name(productName), price)
-        return OneItem(ItemId(Identity(itemId)), product, Quantity(productQuantity))
+        return NewItem(product, Quantity(productQuantity))
     }
-
 }
+
+data class JsonCartItem @JsonCreator constructor(
+    @JsonProperty("itemId") val itemId: String,
+    @JsonProperty("productId") val productId: String,
+    @JsonProperty("productName") val productName: String,
+    @JsonProperty("productDescription") val productDescription: String,
+    @JsonProperty("productPrice") val productPrice: BigDecimal,
+    @JsonProperty("productCurrency") val productCurrency: String,
+    @JsonProperty("productQuantity") val productQuantity: Int
+)

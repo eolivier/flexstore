@@ -7,12 +7,9 @@ class Cart(private val itemRepository: ItemRepository) {
 
     fun getItems() = itemRepository.findAll()
 
-    fun addOrReplaceItem(newItem: Item) {
-        if (itemRepository.contains(newItem)) {
-            itemRepository.remove(newItem)
-        }
-        itemRepository.add(newItem)
-    }
+    fun add(newItem: NewItem) = itemRepository.add(newItem)
+
+    fun update(oneItem: OneItem) = itemRepository.update(oneItem)
 
     fun removeItem(item: Item) = itemRepository.remove(item)
 
@@ -26,7 +23,8 @@ class Cart(private val itemRepository: ItemRepository) {
 
     fun modifyQuantity(item: Item, operation: (Item) -> Item) {
         when (item) {
-            is OneItem -> addOrReplaceItem(operation(item))
+            is NewItem -> add(operation(item) as NewItem)
+            is OneItem -> update(operation(item) as OneItem)
             is NoItem -> throw UnknownItemException("Unknown item : $item")
         }
     }
