@@ -1,7 +1,7 @@
 <script setup>
   import { onMounted } from 'vue';
   import { useCartStore } from '../stores/cart.ts';
-  import type { Item } from "../stores/cart";
+  import { Item } from "../stores/cart.ts";
 
   const cartStore = useCartStore();
 
