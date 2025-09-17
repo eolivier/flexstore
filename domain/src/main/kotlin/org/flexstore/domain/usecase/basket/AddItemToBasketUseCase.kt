@@ -2,7 +2,6 @@ package org.flexstore.domain.usecase.basket
 
 import org.flexstore.domain.entity.*
 import org.flexstore.domain.valueobject.Item
-import org.flexstore.domain.valueobject.OneItem
 import org.flexstore.domain.valueobject.Quantity
 import org.ucop.domain.entity.*
 

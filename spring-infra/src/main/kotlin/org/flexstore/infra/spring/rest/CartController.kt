@@ -18,13 +18,13 @@ class CartController(itemRepository: ItemRepository) {
     @GetMapping("/items")
     fun getItems(): List<JsonCartItem> = cart.getItems().toJsonCartItems()
 
-    @PostMapping("/add")
+    @PostMapping("/save")
     @ResponseStatus(HttpStatus.CREATED)
-    fun addItem(@RequestBody jsonDraftItem: JsonDraftItem) = cart.add(jsonDraftItem.toNewItem())
+    fun addItem(@RequestBody jsonItem: JsonItem) = cart.save(jsonItem.toItem())
 
     private fun <E> List<E>.toJsonCartItems() = this.map {
         when (it) {
-            is OneItem -> JsonCartItem(
+            is CartItem -> JsonCartItem(
                 it.itemId.id.value,
                 it.product.productId.id.value,
                 it.product.name.value,
@@ -37,7 +37,8 @@ class CartController(itemRepository: ItemRepository) {
     }
 }
 
-data class JsonDraftItem @JsonCreator constructor(
+data class JsonItem @JsonCreator constructor(
+    @JsonProperty("itemId") val itemId: String? = "",
     @JsonProperty("productId") val productId: String,
     @JsonProperty("productName") val productName: String,
     @JsonProperty("productDescription") val productDescription: String,
@@ -45,10 +46,13 @@ data class JsonDraftItem @JsonCreator constructor(
     @JsonProperty("productCurrency") val productCurrency: String,
     @JsonProperty("productQuantity") val productQuantity: Int
 ) {
-    fun toNewItem(): NewItem {
+    fun toItem(): Item {
         val price = Price(Amount(productPrice), Currency.valueOf(productCurrency))
         val product = Product(ProductId(Identity(productId)), Name(productName), price)
-        return NewItem(product, Quantity(productQuantity))
+        if (ItemId.isValid(itemId)) {
+            return CartItem(ItemId(Identity(itemId!!)), product, Quantity(productQuantity))
+        }
+        return DraftItem(product, Quantity(productQuantity))
     }
 }
 

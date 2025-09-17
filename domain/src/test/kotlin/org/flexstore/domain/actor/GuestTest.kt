@@ -36,7 +36,7 @@ class GuestTest {
         val cart = Cart(itemRepository)
         val addItemToBasketUseCase = AddItemToBasketUseCase(cart)
         val guest = Guest(mock(CreateUserUseCase::class.java), addItemToBasketUseCase)
-        val newItem = NewItem(
+        val draftItem = DraftItem(
             product = Product(
                 productId = ProductId(Identity("product1")),
                 name = Name("product1"),
@@ -45,8 +45,8 @@ class GuestTest {
             quantity = Quantity(1)
         )
         // Act
-        guest.performAddItemToBasket(newItem, Quantity(1))
+        guest.performAddItemToBasket(draftItem, Quantity(1))
         // Assert
-        verify(itemRepository).add(newItem)
+        verify(itemRepository).add(draftItem)
     }
 }

@@ -50,7 +50,7 @@ class BuyItemDeprecatedUseCaseTest {
     }
 
     private fun createInvalidItem(): Item {
-        return OneItem(TestData.itemId1, TestData.product1, TestData.quantity4)
+        return CartItem(TestData.itemId1, TestData.product1, TestData.quantity4)
     }
 
     private fun createItem1(): Item {
@@ -67,9 +67,9 @@ class BuyItemDeprecatedUseCaseTest {
         val quantity3 = Quantity(0)
         val quantity4 = Quantity(-1)
 
-        val item1 = OneItem(itemId1, product1, quantity1)
-        val item2 = OneItem(itemId2, product2, quantity2)
-        val item3 = OneItem(itemId1, product1, quantity3)
-        val item4 = OneItem(itemId2, product2, quantity4)
+        val item1 = CartItem(itemId1, product1, quantity1)
+        val item2 = CartItem(itemId2, product2, quantity2)
+        val item3 = CartItem(itemId1, product1, quantity3)
+        val item4 = CartItem(itemId2, product2, quantity4)
     }
 }

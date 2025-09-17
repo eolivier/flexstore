@@ -8,7 +8,7 @@ sealed interface Item {
     fun changeQuantity(newQuantity: Quantity): Item = this
 }
 
-data class OneItem(
+data class CartItem(
     val itemId: ItemId,
     val product: Product,
     val quantity: Quantity
@@ -17,7 +17,7 @@ data class OneItem(
     override fun decrease() = copy(quantity = quantity.decrease())
     override fun changeQuantity(newQuantity: Quantity) = copy(quantity = newQuantity)
 }
-data class NewItem(
+data class DraftItem(
     val product: Product,
     val quantity: Quantity
 ) : Item {
@@ -28,7 +28,12 @@ data class NewItem(
 
 data object NoItem : Item
 
-data class ItemId(val id: Identity)
+data class ItemId(val id: Identity) {
+    companion object {
+        fun isValid(value: String?) = !value.isNullOrBlank()
+    }
+}
+
 class UnknownItemException(message : String) : Exception(message)
 data class Product(
     val productId: ProductId,

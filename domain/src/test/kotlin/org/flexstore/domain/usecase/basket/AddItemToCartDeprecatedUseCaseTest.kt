@@ -17,14 +17,14 @@ class AddItemToCartDeprecatedUseCaseTest {
         // given
         val price = Price(Amount(BigDecimal(10)), Currency.EUR)
         val product = Product(ProductId(Identity("product1")), Name("product1"), price)
-        val newItem = NewItem(product, Quantity(10))
+        val draftItem = DraftItem(product, Quantity(10))
         val quantityToAdd = Quantity(1)
         val itemRepository = spy(InMemoryItemRepository())
         itemRepository.clear()
         val currentCart = Cart(itemRepository)
         val addItemToBasketUseCase = AddItemToBasketUseCase(currentCart)
         // when
-        addItemToBasketUseCase.perform(newItem, quantityToAdd)
+        addItemToBasketUseCase.perform(draftItem, quantityToAdd)
         // then
         val items = currentCart.getItems()
         assertThat(items).hasSize(1)

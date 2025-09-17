@@ -12,35 +12,35 @@ class InMemoryItemRepository: ItemRepository {
     override fun findAll(): List<Item> = items.toMutableList()
 
     override fun contains(newItem: Item): Boolean {
-        return items.any { newItem is OneItem && it.itemId == newItem.itemId }
+        return items.any { newItem is CartItem && it.itemId == newItem.itemId }
     }
 
     override fun remove(newItem: Item) {
-        items.removeIf { newItem is OneItem && it.itemId == newItem.itemId }
+        items.removeIf { newItem is CartItem && it.itemId == newItem.itemId }
     }
 
-    override fun add(newItem: NewItem): OneItem {
-        items.find { it.product.productId == newItem.product.productId }?.let {
-            val oneItem = OneItem(it.itemId, newItem.product, newItem.quantity)
-            update(oneItem)
-            return oneItem
+    override fun add(draftItem: DraftItem): CartItem {
+        items.find { it.product.productId == draftItem.product.productId }?.let {
+            val cartItem = CartItem(it.itemId, draftItem.product, draftItem.quantity)
+            update(cartItem)
+            return cartItem
         }
-        val oneItemToAdd = OneItem(
+        val cartItemToAdd = CartItem(
             itemId = ItemId(Identity("item-" + counter.incrementAndGet())),
-            product = newItem.product,
-            quantity = newItem.quantity
+            product = draftItem.product,
+            quantity = draftItem.quantity
         )
-        items.add(oneItemToAdd)
-        return oneItemToAdd
+        items.add(cartItemToAdd)
+        return cartItemToAdd
     }
 
-    override fun update(oneItem: OneItem) {
-        val index = items.indexOfFirst { it.itemId == oneItem.itemId }
+    override fun update(cartItem: CartItem) {
+        val index = items.indexOfFirst { it.itemId == cartItem.itemId }
         if (index != -1) {
-            if (oneItem.quantity.isNegative() || oneItem.quantity.isZero()) {
+            if (cartItem.quantity.isNegative() || cartItem.quantity.isZero()) {
                 items.removeAt(index)
             } else {
-                items[index] = oneItem
+                items[index] = cartItem
             }
         }
     }
@@ -51,8 +51,8 @@ class InMemoryItemRepository: ItemRepository {
 
     override fun clear() = items.clear()
 
-    private val items = mutableListOf<OneItem>(
-        OneItem(
+    private val items = mutableListOf<CartItem>(
+        CartItem(
             itemId = ItemId(Identity("item-" + counter.incrementAndGet())),
             product = Product(
                 productId = ProductId(Identity("prod-1")),
@@ -63,7 +63,7 @@ class InMemoryItemRepository: ItemRepository {
             ),
             quantity = Quantity(2)
         ),
-        OneItem(
+        CartItem(
             itemId = ItemId(Identity("item-" + counter.incrementAndGet())),
             product = Product(
                 productId = ProductId(Identity("prod-2")),

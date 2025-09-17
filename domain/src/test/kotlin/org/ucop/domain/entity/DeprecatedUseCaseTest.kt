@@ -39,8 +39,8 @@ class DeprecatedUseCaseTest {
         verify(itemRepository).add(item1)
     }
 
-    fun createItem1(): NewItem {
+    fun createItem1(): DraftItem {
         val product = Product(ProductId(Identity("product1")), Name("product1"), Price(Amount(BigDecimal(10)), Currency.EUR))
-        return NewItem(product, Quantity(10))
+        return DraftItem(product, Quantity(10))
     }
 }

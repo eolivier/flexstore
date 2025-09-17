@@ -63,20 +63,20 @@ class CartTest : WithAssertions {
         // when
         cart.changeQuantity(oneItem, newQuantity)
         // then
-        val itemFound = cart.getItems().find { it is OneItem && it.itemId == oneItem.itemId } as OneItem
+        val itemFound = cart.getItems().find { it is CartItem && it.itemId == oneItem.itemId } as CartItem
         assertThat(itemFound).isNotNull
         assertThat(itemFound.quantity).isEqualTo(newQuantity)
     }
 
-    private fun createNewItem1(): NewItem {
+    private fun createNewItem1(): DraftItem {
         val price1 = Price(Amount(BigDecimal(10)), Currency.EUR)
         val product1 = Product(ProductId(Identity("productId-1")), Name("Product1"), price1)
-        return NewItem(product1, Quantity(1))
+        return DraftItem(product1, Quantity(1))
     }
 
-    private fun createNewItem2(): NewItem {
+    private fun createNewItem2(): DraftItem {
         val price2 = Price(Amount(BigDecimal(11)), Currency.EUR)
         val product2 = Product(ProductId(Identity("productId-2")), Name("Product2"), price2)
-        return NewItem(product2, Quantity(1))
+        return DraftItem(product2, Quantity(1))
     }
 }

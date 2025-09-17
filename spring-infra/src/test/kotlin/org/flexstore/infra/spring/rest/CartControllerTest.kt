@@ -36,19 +36,19 @@ class CartControllerTest {
     }
 
     @Test
-    fun `should add item to cart`() {
+    fun `should save item to cart`() {
         val jsonDraftItem = createJsonDraftItem()
 
         mockMvc.perform(
-            post("/api/cart/add")
+            post("/api/cart/save")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(jsonDraftItem))
         )
             .andExpect(status().isCreated)
     }
 
-    private fun createJsonDraftItem(): JsonDraftItem {
-        return JsonDraftItem(
+    private fun createJsonDraftItem(): JsonItem {
+        return JsonItem(
             productId = "1",
             productName = "Product1",
             productDescription = "Product1 description",

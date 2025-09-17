@@ -7,9 +7,17 @@ class Cart(private val itemRepository: ItemRepository) {
 
     fun getItems() = itemRepository.findAll()
 
-    fun add(newItem: NewItem) = itemRepository.add(newItem)
+    fun save(item: Item)  {
+        when (item) {
+            is DraftItem -> add(item)
+            is CartItem -> update(item)
+            is NoItem -> throw UnknownItemException("Unknown item : $item")
+        }
+    }
 
-    fun update(oneItem: OneItem) = itemRepository.update(oneItem)
+    fun add(draftItem: DraftItem) = itemRepository.add(draftItem)
+
+    fun update(cartItem: CartItem) = itemRepository.update(cartItem)
 
     fun removeItem(item: Item) = itemRepository.remove(item)
 
@@ -23,8 +31,8 @@ class Cart(private val itemRepository: ItemRepository) {
 
     fun modifyQuantity(item: Item, operation: (Item) -> Item) {
         when (item) {
-            is NewItem -> add(operation(item) as NewItem)
-            is OneItem -> update(operation(item) as OneItem)
+            is DraftItem -> add(operation(item) as DraftItem)
+            is CartItem -> update(operation(item) as CartItem)
             is NoItem -> throw UnknownItemException("Unknown item : $item")
         }
     }
