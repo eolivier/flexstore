@@ -1,7 +1,7 @@
 import {defineStore} from 'pinia';
 import {ref} from 'vue';
 
-interface Item {
+export interface Item {
     itemId: string;
     productId: string;
     productName: string;

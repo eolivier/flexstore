@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
   import { useUsersStore } from '../../stores/users.ts';
   import { nextTick, ref } from 'vue';
 

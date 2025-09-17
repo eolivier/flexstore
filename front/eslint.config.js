@@ -4,6 +4,7 @@ import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 import vue from "eslint-plugin-vue";
 import prettier from "eslint-config-prettier";
+import unusedImports from "eslint-plugin-unused-imports";
 
 export default [
     // Recos JS et TS
@@ -30,6 +31,9 @@ export default [
     // Règles communes + unused vars/imports via TS
     {
         files: ["**/*.{js,ts,vue}"],
+        plugins: {
+            "unused-imports": unusedImports,
+        },
         rules: {
             "no-unused-vars": "off",
             'vue/multi-word-component-names': 'off',
@@ -44,7 +48,18 @@ export default [
                     varsIgnorePattern: "^_",
                 },
             ],
+            "unused-imports/no-unused-imports": "error",
         },
+    },
+
+    {
+        ignores: [
+            'node_modules/',
+            'dist/',
+            'build/',
+            'public/',
+        ],
+        // ...autres options de config
     },
 
     // Désactive les règles en conflit avec Prettier (à garder en dernier)
