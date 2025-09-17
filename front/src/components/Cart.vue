@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
   import { onMounted } from 'vue';
   import { useCartStore } from '../stores/cart.ts';
   import type { Item } from "../stores/cart";
