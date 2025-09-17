@@ -16,12 +16,12 @@
     { title: 'Product quantity', key: 'productQuantity', align: 'end' },
   ];
 
-  function incrementQuantityAndSave(item: Item) {
+  function incrementQuantityAndSave(item) {
     item.productQuantity++;
     cartStore.saveItem(item);
   }
 
-  function decrementQuantityAndSave(item: Item) {
+  function decrementQuantityAndSave(item) {
     item.productQuantity--;
     if (item.productQuantity === 0) {
       cartStore.removeItem(item);
