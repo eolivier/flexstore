@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import {onMounted} from "vue";
-import {useProductsStore, Product} from "../../stores/products.ts";
-import {useCartStore, Item} from "../../stores/cart.ts";
+import {useProductsStore} from "../../stores/products.ts";
+import type { Product } from "../../stores/products.ts";
+import {useCartStore} from "../../stores/cart.ts";
+import type { Item } from "../stores/cart";
 
 const headers = [
   { title: 'Name', key: 'name' },
