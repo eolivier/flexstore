@@ -24,9 +24,10 @@ private fun <E> List<E>.toJsonProducts(): List<JsonProduct> {
             is Product -> JsonProduct(
                 it.productId.id.value,
                 it.name.value,
-                it.description?.value ?: "",
+                it.description.value,
+                it.category.name,
                 it.price.amount.value,
-                it.price.currency
+                it.price.currency.symbol
             )
             else -> throw IllegalArgumentException("Unknown product type: ${it!!::class.java}")
         }
@@ -37,6 +38,7 @@ data class JsonProduct @JsonCreator constructor(
     @JsonProperty("id") val id: String,
     @JsonProperty("name") val name: String,
     @JsonProperty("description") val description: String,
+    @JsonProperty("category") val category: String,
     @JsonProperty("price") val price: BigDecimal,
-    @JsonProperty("currency") val currency: Currency
+    @JsonProperty("currency") val currency: String
 )

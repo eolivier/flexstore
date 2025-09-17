@@ -1,24 +1,44 @@
-<script setup>
+<script setup lang="ts">
 import {onMounted} from "vue";
-import {useProductsStore} from "../../stores/products.js";
+import {useProductsStore, Product} from "../../stores/products.ts";
+import {useCartStore, Item} from "../../stores/cart.ts";
 
 const headers = [
   { title: 'Name', key: 'name' },
   { title: 'Description', key: 'description' },
+  { title: 'Category', key: 'category' },
   { title: 'Price', key: 'price' },
-  { title: 'Currency', key: 'currency'},
   { title: 'Actions', key: 'actions', sortable: false },
 ];
 
 const productsStore = useProductsStore();
+const cartStore = useCartStore();
 
 onMounted(() => {
   productsStore.fetchProducts();
 });
 
-function addToCart(item) {
-  // Ajoute le produit au panier ici
-  console.log('Ajouté au panier:', item);
+function addToCart(product: Product) {
+  const existingItem = cartStore.items.find(i => i.productId === product.id);
+  if (existingItem) {
+    const updatedItem = { ...existingItem, productQuantity: existingItem.productQuantity + 1 };
+    cartStore.saveItem(updatedItem);
+  } else {
+    cartStore.saveItem(productToCartItem(product));
+  }
+}
+
+function productToCartItem(product: Product): Item {
+  return {
+    itemId: '',
+    productId: product.id,
+    productName: product.name,
+    productDescription: product.description,
+    productCategory: product.category,
+    productPrice: product.price,
+    productCurrency: product.currency,
+    productQuantity: 1, // valeur par défaut ou à adapter
+  };
 }
 
 </script>
@@ -30,7 +50,7 @@ function addToCart(item) {
 
         <v-data-table :headers="headers" :items="productsStore.products" class="elevation-2 text-left">
           <template #item.price="{ item }">
-            <strong>{{ item.price }}</strong>
+            <strong>{{ item.price }} {{ item.currency }}</strong>
           </template>
           <template #item.actions="{ item }">
             <v-btn color="primary" @click="addToCart(item)">

@@ -1,6 +1,7 @@
 package org.flexstore.infra.spring.rest
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.flexstore.domain.valueobject.Category
 import org.flexstore.domain.valueobject.Currency
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -52,6 +53,7 @@ class CartControllerTest {
             productId = "1",
             productName = "Product1",
             productDescription = "Product1 description",
+            productCategory = Category.CLOTHING.name,
             productPrice = BigDecimal(10),
             productCurrency =  Currency.EUR.symbol,
             productQuantity = 10

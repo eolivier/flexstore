@@ -40,7 +40,7 @@ class InMemoryItemRepository: ItemRepository {
             if (cartItem.quantity.isNegative() || cartItem.quantity.isZero()) {
                 items.removeAt(index)
             } else {
-                items[index] = cartItem
+                items[index] = CartItem(cartItem.itemId, cartItem.product, cartItem.quantity)
             }
         }
     }

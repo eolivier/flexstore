@@ -47,6 +47,7 @@ data class ProductId(val id: Identity)
 data class Price(val amount: Amount, val currency: Currency)
 data class Amount(val value: BigDecimal)
 data class Quantity(val value: Int) {
+    fun addNewQuantity(newQuantity: Quantity) = Quantity(this.value + newQuantity.value)
     fun increase() = Quantity(value + 1)
     fun decrease() = Quantity(value - 1)
     fun changeQuantity(newQuantity: Quantity) = Quantity(newQuantity.value)
@@ -55,7 +56,14 @@ data class Quantity(val value: Int) {
     fun isNotZero() = !isZero()
 }
 data class Identity(val value: String)
-enum class Currency(val symbol: String) { EUR("€"), USD("$") }
+enum class Currency(val symbol: String) {
+    EUR("€"), USD("$");
+    companion object {
+        fun fromSymbol(symbol: String): Currency =
+            entries.find { it.symbol == symbol }
+                ?: throw IllegalArgumentException("Unknown currency for symbol : $symbol")
+    }
+}
 
 data class Name(val value: String) {
     init {

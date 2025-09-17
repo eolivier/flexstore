@@ -1,6 +1,6 @@
-<script setup>
+<script setup lang="ts">
   import { onMounted } from 'vue';
-  import { useCartStore } from '../stores/cart.ts';
+  import { useCartStore, Item } from '../stores/cart.ts';
 
   const cartStore = useCartStore();
 
@@ -14,6 +14,20 @@
     { title: 'Product description', key: 'productDescription' },
     { title: 'Product quantity', key: 'productQuantity', align: 'end' },
   ];
+
+  function incrementQuantityAndSave(item: Item) {
+    item.productQuantity++;
+    cartStore.saveItem(item);
+  }
+
+  function decrementQuantityAndSave(item: Item) {
+    item.productQuantity--;
+    if (item.productQuantity === 0) {
+      cartStore.removeItem(item);
+    } else {
+      cartStore.saveItem(item);
+    }
+  }
 </script>
 <template>
   <v-app>
@@ -29,7 +43,7 @@
         >
           <template #item.productQuantity="{ item }">
             <v-row align="center" no-gutters>
-              <v-btn icon @click="item.productQuantity = Math.max(1, item.productQuantity - 1)">
+              <v-btn icon @click="decrementQuantityAndSave(item)">
                 <v-icon>mdi-minus</v-icon>
               </v-btn>
               <v-text-field
@@ -41,7 +55,7 @@
                 hide-details
                 dense
               />
-              <v-btn icon @click="item.productQuantity++">
+              <v-btn icon @click="incrementQuantityAndSave(item)">
                 <v-icon>mdi-plus</v-icon>
               </v-btn>
             </v-row>
