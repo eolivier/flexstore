@@ -6,10 +6,7 @@
   const cartStore = useCartStore();
 
   onMounted(() => {
-    cartStore.fetchItems();
-    cartStore.items.forEach(item => {
-      item.price = item.productQuantity * item.productPrice;
-    });
+    cartStore.fetchCartItems();
   });
 
   const headers = [
@@ -23,6 +20,7 @@
   function incrementQuantityAndSave(item) {
     item.productQuantity++;
     item.itemPrice = item.productQuantity * item.productPrice;
+    cartStore.cartItems.totalItemsPrice = calculateTotal();
     cartStore.saveItem(item);
   }
 
@@ -34,6 +32,11 @@
     } else {
       cartStore.saveItem(item);
     }
+    cartStore.cartItems.totalItemsPrice = calculateTotal();
+  }
+
+  function calculateTotal() {
+    return cartStore.cartItems.items.reduce((total, item) => total + item.itemPrice, 0);
   }
 </script>
 <template>
@@ -44,7 +47,7 @@
 
         <v-data-table
           :headers="headers"
-          :items="cartStore.items"
+          :items="cartStore.cartItems?.items || []"
           class="elevation-2"
           hide-default-footer
         >
@@ -67,10 +70,17 @@
               </v-btn>
             </v-row>
           </template>
-          <template #item.itemPrice="{ item }">
+          <template #item.itemPrice="{ item }" class="text-right">
             <strong>{{ item.itemPrice.toFixed(2) }} {{ item.productCurrency }}</strong>
           </template>
         </v-data-table>
+        <v-card class="mt-4 pa-4 text-right" outlined>
+          <span class="font-weight-bold">Total&nbsp;:&nbsp;</span>
+          <strong>
+            {{ cartStore.cartItems?.totalItemsPrice?.toFixed(2) ?? '0.00' }}
+            {{ cartStore.cartItems?.itemsCurrency ?? '' }}
+          </strong>
+        </v-card>
       </v-container>
     </v-main>
   </v-app>

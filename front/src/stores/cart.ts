@@ -1,6 +1,12 @@
 import {defineStore} from 'pinia';
 import {ref} from 'vue';
 
+export interface CartItems {
+    items: Item[];
+    totalItemsPrice: number;
+    itemsCurrency: string;
+}
+
 export interface Item {
     itemId: string;
     productId: string;
@@ -14,14 +20,13 @@ export interface Item {
 }
 
 export const useCartStore = defineStore('cart', () => {
-    const items = ref<Item[]>([]);
+    const cartItems = ref<CartItems | null>(null);
     const apiUrl = import.meta.env.VITE_API_URL;
 
-    async function fetchItems() {
-        const response = await fetch(`${apiUrl}/api/cart/items`);
+    async function fetchCartItems() {
+        const response = await fetch(`${apiUrl}/api/cart/cart-items`);
         if (response.ok) {
-            const data = await response.json();
-            items.value = Array.isArray(data) ? data : [];
+            cartItems.value = await response.json();
         } else {
             console.error('Failed to load cart items');
         }
@@ -46,9 +51,11 @@ export const useCartStore = defineStore('cart', () => {
 
     async function removeItem(item: Item) {
         const itemId = item.itemId;
-        items.value = items.value.filter(item => item.itemId !== itemId);
+        if (cartItems.value) {
+            cartItems.value.items = cartItems.value.items.filter(item => item.itemId !== itemId);
+        }
         await saveItem(item);
     }
 
-    return { items, fetchItems, saveItem, removeItem }
+    return { cartItems, fetchCartItems, saveItem, removeItem }
 });

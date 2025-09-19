@@ -5,7 +5,7 @@ import org.flexstore.domain.valueobject.*
 
 class Cart(private val itemRepository: ItemRepository) {
 
-    fun getItems() = itemRepository.findAll()
+    fun getItems() = itemRepository.getItems()
 
     fun save(item: Item)  {
         when (item) {

@@ -9,6 +9,8 @@ class InMemoryItemRepository: ItemRepository {
 
     val counter = AtomicInteger(0)
 
+    override fun getItems(): Items = Items(findAll())
+
     override fun findAll(): List<Item> = items.toMutableList()
 
     override fun contains(newItem: Item): Boolean {

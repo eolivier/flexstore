@@ -14,13 +14,13 @@ class AddItemToBasketUseCase(private val currentCart: Cart) {
     fun perform(newItem: Item, quantity: Quantity) {
         // Preconditions
         val cartIsEmptyCondition = PreCondition<Cart> {
-            basket -> assert(basket.getItems().isEmpty()) { BASKET_IS_NOT_EMPTY }
+            basket -> assert(basket.getItems().items.isEmpty()) { BASKET_IS_NOT_EMPTY }
         }
         // Steps
         val addOneItemToCartStep = Step<Cart> { basket -> basket.changeQuantity(newItem, quantity) }
         // Postconditions
         val cartHasOneItemCondition = PostCondition<Cart> {
-            basket -> assert(basket.getItems().size == ONE_ITEM) { "Basket does not contain exactly one item. Found ${basket.getItems().size}" }
+            basket -> assert(basket.getItems().items.size == ONE_ITEM) { "Basket does not contain exactly one item. Found ${basket.getItems().items.size}" }
         }
         // Nominal scenario
         val addOneItemToBasketScenario = NominalScenario(listOf(addOneItemToCartStep))

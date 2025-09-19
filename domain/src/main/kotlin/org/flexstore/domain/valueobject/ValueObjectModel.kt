@@ -2,6 +2,31 @@ package org.flexstore.domain.valueobject
 
 import java.math.BigDecimal
 
+data class Items(val items: List<Item>) {
+    fun totalPrice(): Price {
+
+        val totalAmount = items.fold(BigDecimal.ZERO) { acc, item ->
+            when (item) {
+                is CartItem -> acc.add(item.itemPrice().amount.value)
+                is DraftItem -> acc.add(item.itemPrice().amount.value)
+                else -> acc
+            }
+        }
+        return Price(Amount(totalAmount), currency())
+    }
+    fun currency(): Currency {
+        return if (items.isNotEmpty()) {
+            when (val firstItem = items.first()) {
+                is CartItem -> firstItem.product.price.currency
+                is DraftItem -> firstItem.product.price.currency
+                else -> Currency.EUR
+            }
+        } else {
+            Currency.EUR
+        }
+    }
+}
+
 sealed interface Item {
     fun increase(): Item = this
     fun decrease(): Item = this

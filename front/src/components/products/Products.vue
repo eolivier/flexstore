@@ -21,7 +21,7 @@ onMounted(() => {
 });
 
 function addToCart(product: Product) {
-  const existingItem = cartStore.items.find(i => i.productId === product.id);
+  const existingItem = cartStore.cartItems?.items.find(i => i.productId === product.id);
   if (existingItem) {
     const updatedItem = { ...existingItem, productQuantity: existingItem.productQuantity + 1 };
     cartStore.saveItem(updatedItem);
@@ -40,6 +40,7 @@ function productToCartItem(product: Product): Item {
     productPrice: product.price,
     productCurrency: product.currency,
     productQuantity: 1, // valeur par défaut ou à adapter
+    itemPrice: product.price,
   };
 }
 

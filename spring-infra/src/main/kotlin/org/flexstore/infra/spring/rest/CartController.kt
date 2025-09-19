@@ -16,8 +16,8 @@ class CartController(itemRepository: ItemRepository) {
 
     private val cart = Cart(itemRepository)
 
-    @GetMapping("/items")
-    fun getItems(): List<JsonCartItem> = cart.getItems().toJsonCartItems()
+    @GetMapping("/cart-items")
+    fun getItems(): JsonCartItems = cart.getItems().toJsonCartItems()
 
     @PostMapping("/save")
     @ResponseStatus(HttpStatus.CREATED)
@@ -26,22 +26,16 @@ class CartController(itemRepository: ItemRepository) {
         return ResponseEntity.ok(mapOf("status" to "ok"))
     }
 
-    private fun <E> List<E>.toJsonCartItems() = this.map {
-        when (it) {
-            is CartItem -> JsonCartItem(
-                it.itemId.id.value,
-                it.product.productId.id.value,
-                it.product.name.value,
-                it.product.description.value,
-                it.product.category.name,
-                it.product.price.amount.value,
-                it.product.price.currency.symbol,
-                it.quantity.value,
-                it.itemPrice().amount.value
-            )
-            else -> throw IllegalArgumentException("Unknown item type: ${it!!::class.java}")
-        }
-    }
+    private fun Items.toJsonCartItems() = JsonCartItems(
+        this.items.map {
+            when (it) {
+                is CartItem -> JsonCartItem(it)
+                else -> throw IllegalArgumentException("Unknown item type: ${it::class.java}")
+            }
+        },
+        this.totalPrice().amount.value,
+        this.currency().symbol
+    )
 }
 
 data class JsonItem @JsonCreator constructor(
@@ -74,9 +68,22 @@ data class JsonCartItem @JsonCreator constructor(
     @JsonProperty("productCurrency") val productCurrency: String,
     @JsonProperty("productQuantity") val productQuantity: Int,
     @JsonProperty("itemPrice") val itemPrice: BigDecimal
-)
+) {
+    constructor(cartItem: CartItem) : this(
+        cartItem.itemId.id.value,
+        cartItem.product.productId.id.value,
+        cartItem.product.name.value,
+        cartItem.product.description.value,
+        cartItem.product.category.name,
+        cartItem.product.price.amount.value,
+        cartItem.product.price.currency.symbol,
+        cartItem.quantity.value,
+        cartItem.itemPrice().amount.value
+    )
+}
 
 data class JsonCartItems @JsonCreator constructor(
     @JsonProperty("items") val items: List<JsonCartItem>,
-    @JsonProperty("total") val total: BigDecimal
+    @JsonProperty("totalItemsPrice") val totalItemsPrice: BigDecimal,
+    @JsonProperty("itemsCurrency") val itemsCurrency: String
 )
