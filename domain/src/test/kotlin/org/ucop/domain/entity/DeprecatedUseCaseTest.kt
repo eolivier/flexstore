@@ -16,7 +16,7 @@ class DeprecatedUseCaseTest {
         val itemRepository = spy(InMemoryItemRepository())
         itemRepository.clear()
         val myCart = Cart(itemRepository)
-        val cartIsEmptyCondition = PreCondition<Cart> { basket -> assert(basket.getItems().isEmpty()) }
+        val cartIsEmptyCondition = PreCondition<Cart> { basket -> assert(basket.getItems().items.isEmpty()) }
         val item1 = createItem1()
         val addOneItemToCartStep = Step<Cart>(
             run = {
@@ -24,7 +24,7 @@ class DeprecatedUseCaseTest {
                 basket.add(item1)
             }
         })
-        val cartHasOneItemCondition = PostCondition<Cart> { basket -> assert(basket.getItems().size == 1) }
+        val cartHasOneItemCondition = PostCondition<Cart> { basket -> assert(basket.getItems().items.size == 1) }
 
         val addOneItemToBasketScenario = NominalScenario(listOf(addOneItemToCartStep))
 

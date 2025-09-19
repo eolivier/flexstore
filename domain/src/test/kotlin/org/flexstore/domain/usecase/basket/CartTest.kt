@@ -17,13 +17,13 @@ class CartTest : WithAssertions {
         val item1 = createNewItem1()
         val item2 = createNewItem2()
         val cart = Cart(InMemoryItemRepository())
-        val initialSize = cart.getItems().size
+        val initialSize = cart.getItems().items.size
         // when
         cart.add(item1)
         cart.add(item2)
         // then
         val items = cart.getItems()
-        assertThat(items).hasSize(initialSize + 2)
+        assertThat(items.items).hasSize(initialSize + 2)
     }
 
     @Test
@@ -31,13 +31,13 @@ class CartTest : WithAssertions {
         // given
         val item1 = createNewItem1()
         val cart = Cart(InMemoryItemRepository())
-        val initialSize = cart.getItems().size
+        val initialSize = cart.getItems().items.size
         // when
         cart.add(item1)
         cart.add(item1)
         // then
         val items = cart.getItems()
-        assertThat(items).hasSize(initialSize + 1)
+        assertThat(items.items).hasSize(initialSize + 1)
     }
 
     @Test
@@ -46,11 +46,11 @@ class CartTest : WithAssertions {
         val newItem = createNewItem1()
         val cart = Cart(InMemoryItemRepository())
         val oneItem = cart.add(newItem)
-        val initialSize = cart.getItems().size
+        val initialSize = cart.getItems().items.size
         // when
         cart.removeItem(oneItem)
         // then
-        assertThat(cart.getItems()).hasSize(initialSize - 1)
+        assertThat(cart.getItems().items).hasSize(initialSize - 1)
     }
 
     @Test
@@ -63,7 +63,7 @@ class CartTest : WithAssertions {
         // when
         cart.changeQuantity(oneItem, newQuantity)
         // then
-        val itemFound = cart.getItems().find { it is CartItem && it.itemId == oneItem.itemId } as CartItem
+        val itemFound = cart.getItems().items.find { it is CartItem && it.itemId == oneItem.itemId } as CartItem
         assertThat(itemFound).isNotNull
         assertThat(itemFound.quantity).isEqualTo(newQuantity)
     }

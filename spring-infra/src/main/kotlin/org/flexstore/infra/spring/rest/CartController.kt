@@ -17,7 +17,7 @@ class CartController(itemRepository: ItemRepository) {
     private val cart = Cart(itemRepository)
 
     @GetMapping("/cart-items")
-    fun getItems(): JsonCartItems = cart.getItems().toJsonCartItems()
+    fun getCartItems() = cart.getItems().toJsonCartItems()
 
     @PostMapping("/save")
     @ResponseStatus(HttpStatus.CREATED)
@@ -50,7 +50,11 @@ data class JsonItem @JsonCreator constructor(
 ) {
     fun toItem(): Item {
         val price = Price(Amount(productPrice), Currency.fromSymbol(productCurrency))
-        val product = Product(ProductId(Identity(productId)), Name(productName), Description(productDescription), Category.valueOf(productCategory), price)
+        val productId = ProductId(Identity(productId))
+        val name = Name(productName)
+        val description = Description(productDescription)
+        val category = Category.valueOf(productCategory)
+        val product = Product(productId, name, description, category, price)
         if (ItemId.isValid(itemId)) {
             return CartItem(ItemId(Identity(itemId!!)), product, Quantity(productQuantity))
         }

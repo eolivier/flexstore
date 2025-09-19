@@ -27,7 +27,7 @@ class AddItemToCartDeprecatedUseCaseTest {
         addItemToBasketUseCase.perform(draftItem, quantityToAdd)
         // then
         val items = currentCart.getItems()
-        assertThat(items).hasSize(1)
+        assertThat(items.items).hasSize(1)
     }
 
     // TODO : add scenario modify quantity where item is unknown

@@ -1,6 +1,7 @@
 package org.flexstore.infra.spring.rest
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.assertj.core.api.Assertions.assertThat
 import org.flexstore.domain.valueobject.Category
 import org.flexstore.domain.valueobject.Currency
 import org.junit.jupiter.api.Test
@@ -31,9 +32,10 @@ class CartControllerTest {
 
     @Test
     fun `should return empty cart items`() {
-        mockMvc.perform(get("/api/cart/items"))
+        var result = mockMvc.perform(get("/api/cart/cart-items"))
             .andExpect(status().isOk)
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andReturn()
+        assertThat(result.response.contentAsString).isEmpty()
     }
 
     @Test
