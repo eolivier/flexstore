@@ -36,7 +36,9 @@ class CartController(itemRepository: ItemRepository) {
                 it.product.category.name,
                 it.product.price.amount.value,
                 it.product.price.currency.symbol,
-                it.quantity.value)
+                it.quantity.value,
+                it.itemPrice().amount.value
+            )
             else -> throw IllegalArgumentException("Unknown item type: ${it!!::class.java}")
         }
     }
@@ -70,5 +72,11 @@ data class JsonCartItem @JsonCreator constructor(
     @JsonProperty("productCategory") val productCategory: String,
     @JsonProperty("productPrice") val productPrice: BigDecimal,
     @JsonProperty("productCurrency") val productCurrency: String,
-    @JsonProperty("productQuantity") val productQuantity: Int
+    @JsonProperty("productQuantity") val productQuantity: Int,
+    @JsonProperty("itemPrice") val itemPrice: BigDecimal
+)
+
+data class JsonCartItems @JsonCreator constructor(
+    @JsonProperty("items") val items: List<JsonCartItem>,
+    @JsonProperty("total") val total: BigDecimal
 )

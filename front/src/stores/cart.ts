@@ -10,6 +10,7 @@ export interface Item {
     productPrice: number;
     productCurrency: string;
     productQuantity: number;
+    itemPrice: number;
 }
 
 export const useCartStore = defineStore('cart', () => {

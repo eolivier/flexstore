@@ -11,19 +11,21 @@ sealed interface Item {
 data class CartItem(
     val itemId: ItemId,
     val product: Product,
-    val quantity: Quantity
+    val quantity: Quantity,
 ) : Item {
     override fun increase() = copy(quantity = quantity.increase())
     override fun decrease() = copy(quantity = quantity.decrease())
     override fun changeQuantity(newQuantity: Quantity) = copy(quantity = newQuantity)
+    fun itemPrice() = product.price.multiply(quantity)
 }
 data class DraftItem(
     val product: Product,
-    val quantity: Quantity
+    val quantity: Quantity,
 ) : Item {
     override fun increase() = copy(quantity = quantity.increase())
     override fun decrease() = copy(quantity = quantity.decrease())
     override fun changeQuantity(newQuantity: Quantity) = copy(quantity = newQuantity)
+    fun itemPrice() = product.price.multiply(quantity)
 }
 
 data object NoItem : Item
@@ -44,8 +46,12 @@ data class Product(
     constructor(productId: ProductId, name: Name, price: Price) : this(productId, name, Description("No description"), Category.NOT_DEFINED, price)
 }
 data class ProductId(val id: Identity)
-data class Price(val amount: Amount, val currency: Currency)
-data class Amount(val value: BigDecimal)
+data class Price(val amount: Amount, val currency: Currency) {
+    fun multiply(quantity: Quantity) = Price(amount.multiply(quantity), currency)
+}
+data class Amount(val value: BigDecimal) {
+    fun multiply(quantity: Quantity) = Amount(this.value.multiply(BigDecimal(quantity.value)))
+}
 data class Quantity(val value: Int) {
     fun addNewQuantity(newQuantity: Quantity) = Quantity(this.value + newQuantity.value)
     fun increase() = Quantity(value + 1)

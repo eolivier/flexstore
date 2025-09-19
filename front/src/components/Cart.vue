@@ -1,28 +1,34 @@
 <script setup>
   import { onMounted } from 'vue';
   import { useCartStore } from '../stores/cart.ts';
-  import { Item } from "../stores/cart.ts";
+  //import { Item } from "../stores/cart.ts";
 
   const cartStore = useCartStore();
 
   onMounted(() => {
     cartStore.fetchItems();
+    cartStore.items.forEach(item => {
+      item.price = item.productQuantity * item.productPrice;
+    });
   });
 
   const headers = [
     { title: 'Item id', key: 'itemId' },
     { title: 'Product name', key: 'productName' },
     { title: 'Product description', key: 'productDescription' },
-    { title: 'Product quantity', key: 'productQuantity', align: 'end' },
+    { title: 'Product quantity', key: 'productQuantity' },
+    { title: 'Price', key: 'itemPrice' },
   ];
 
   function incrementQuantityAndSave(item) {
     item.productQuantity++;
+    item.itemPrice = item.productQuantity * item.productPrice;
     cartStore.saveItem(item);
   }
 
   function decrementQuantityAndSave(item) {
     item.productQuantity--;
+    item.itemPrice = item.productQuantity * item.productPrice;
     if (item.productQuantity === 0) {
       cartStore.removeItem(item);
     } else {
@@ -60,6 +66,9 @@
                 <v-icon>mdi-plus</v-icon>
               </v-btn>
             </v-row>
+          </template>
+          <template #item.itemPrice="{ item }">
+            <strong>{{ item.itemPrice.toFixed(2) }} {{ item.productCurrency }}</strong>
           </template>
         </v-data-table>
       </v-container>
