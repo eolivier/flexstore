@@ -1,4 +1,4 @@
-package org.flexstore.infra.spring
+package org.flexstore.infra.spring.config
 
 import org.flexstore.domain.repository.ItemRepository
 import org.flexstore.domain.repository.ProductRepository

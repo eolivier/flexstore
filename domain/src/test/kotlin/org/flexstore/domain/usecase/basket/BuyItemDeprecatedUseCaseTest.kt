@@ -60,8 +60,8 @@ class BuyItemDeprecatedUseCaseTest {
     object TestData {
         val itemId1 = ItemId(Identity("item1"))
         val itemId2 = ItemId(Identity("item2"))
-        val product1 = Product(ProductId(Identity("product1")), Name("Product 1"), Price(Amount(BigDecimal("10.00")), Currency.EUR))
-        val product2 = Product(ProductId(Identity("product2")), Name("Product 2"), Price(Amount(BigDecimal("20.00")), Currency.USD))
+        val product1 = DefinedProduct(ProductId(Identity("product1")), Name("Product 1"), Price(Amount(BigDecimal("10.00")), Currency.EUR))
+        val product2 = DefinedProduct(ProductId(Identity("product2")), Name("Product 2"), Price(Amount(BigDecimal("20.00")), Currency.USD))
         val quantity1 = Quantity(5)
         val quantity2 = Quantity(10)
         val quantity3 = Quantity(0)

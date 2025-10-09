@@ -70,13 +70,13 @@ class CartTest : WithAssertions {
 
     private fun createNewItem1(): DraftItem {
         val price1 = Price(Amount(BigDecimal(10)), Currency.EUR)
-        val product1 = Product(ProductId(Identity("productId-1")), Name("Product1"), price1)
+        val product1 = DefinedProduct(ProductId(Identity("productId-1")), Name("Product1"), price1)
         return DraftItem(product1, Quantity(1))
     }
 
     private fun createNewItem2(): DraftItem {
         val price2 = Price(Amount(BigDecimal(11)), Currency.EUR)
-        val product2 = Product(ProductId(Identity("productId-2")), Name("Product2"), price2)
+        val product2 = DefinedProduct(ProductId(Identity("productId-2")), Name("Product2"), price2)
         return DraftItem(product2, Quantity(1))
     }
 }

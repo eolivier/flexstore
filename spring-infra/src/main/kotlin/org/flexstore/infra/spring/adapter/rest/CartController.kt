@@ -1,4 +1,4 @@
-package org.flexstore.infra.spring.rest
+package org.flexstore.infra.spring.adapter.rest
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
@@ -54,7 +54,7 @@ data class JsonItem @JsonCreator constructor(
         val name = Name(productName)
         val description = Description(productDescription)
         val category = Category.valueOf(productCategory)
-        val product = Product(productId, name, description, category, price)
+        val product = DefinedProduct(productId, name, description, category, price)
         if (ItemId.isValid(itemId)) {
             return CartItem(ItemId(Identity(itemId!!)), product, Quantity(productQuantity))
         }

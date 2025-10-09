@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.flexstore.domain.valueobject.Category
 import org.flexstore.domain.valueobject.Currency
+import org.flexstore.infra.spring.adapter.rest.CartController
+import org.flexstore.infra.spring.adapter.rest.JsonItem
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc

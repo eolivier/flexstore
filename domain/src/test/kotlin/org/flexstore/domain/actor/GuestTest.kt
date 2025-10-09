@@ -37,7 +37,7 @@ class GuestTest {
         val addItemToBasketUseCase = AddItemToBasketUseCase(cart)
         val guest = Guest(mock(CreateUserUseCase::class.java), addItemToBasketUseCase)
         val draftItem = DraftItem(
-            product = Product(
+            product = DefinedProduct(
                 productId = ProductId(Identity("product1")),
                 name = Name("product1"),
                 price = Price(Amount(BigDecimal(10)), Currency.EUR)

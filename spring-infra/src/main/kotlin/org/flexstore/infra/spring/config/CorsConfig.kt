@@ -1,4 +1,4 @@
-package org.flexstore.infra.spring
+package org.flexstore.infra.spring.config
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -11,7 +11,7 @@ open class CorsConfig {
     open fun corsConfigurer(): WebMvcConfigurer = object : WebMvcConfigurer {
         override fun addCorsMappings(registry: CorsRegistry) {
             registry.addMapping("/api/**")
-                .allowedOriginPatterns("https://*flexstore-front.pages.dev", "http://localhost:5174")
+                .allowedOriginPatterns("https://*flexstore-front.pages.dev", "http://localhost:5173")
                 .allowedMethods("GET", "POST", "PUT", "DELETE")
         }
     }

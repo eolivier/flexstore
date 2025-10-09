@@ -16,7 +16,7 @@ class AddItemToCartDeprecatedUseCaseTest {
     fun `should add one item to basket`() {
         // given
         val price = Price(Amount(BigDecimal(10)), Currency.EUR)
-        val product = Product(ProductId(Identity("product1")), Name("product1"), price)
+        val product = DefinedProduct(ProductId(Identity("product1")), Name("product1"), price)
         val draftItem = DraftItem(product, Quantity(10))
         val quantityToAdd = Quantity(1)
         val itemRepository = spy(InMemoryItemRepository())

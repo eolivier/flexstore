@@ -35,7 +35,7 @@ sealed interface Item {
 
 data class CartItem(
     val itemId: ItemId,
-    val product: Product,
+    val product: DefinedProduct,
     val quantity: Quantity,
 ) : Item {
     override fun increase() = copy(quantity = quantity.increase())
@@ -44,7 +44,7 @@ data class CartItem(
     fun itemPrice() = product.price.multiply(quantity)
 }
 data class DraftItem(
-    val product: Product,
+    val product: DefinedProduct,
     val quantity: Quantity,
 ) : Item {
     override fun increase() = copy(quantity = quantity.increase())
@@ -62,12 +62,18 @@ data class ItemId(val id: Identity) {
 }
 
 class UnknownItemException(message : String) : Exception(message)
-data class Product(
+
+sealed interface Product
+data class DraftProduct(val name: Name,
+                        val description: Description,
+                        val category: Category,
+                        val price: Price): Product
+data class DefinedProduct(
     val productId: ProductId,
     val name: Name,
     val description: Description,
     val category: Category,
-    val price: Price) {
+    val price: Price): Product {
     constructor(productId: ProductId, name: Name, price: Price) : this(productId, name, Description("No description"), Category.NOT_DEFINED, price)
 }
 data class ProductId(val id: Identity)

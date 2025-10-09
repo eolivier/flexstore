@@ -56,7 +56,7 @@ class InMemoryItemRepository: ItemRepository {
     private val items = mutableListOf<CartItem>(
         CartItem(
             itemId = ItemId(Identity("item-" + counter.incrementAndGet())),
-            product = Product(
+            product = DefinedProduct(
                 productId = ProductId(Identity("prod-1")),
                 name = Name("Mechanical Keyboard"),
                 description = Description("A mechanical keyboard with RGB lighting"),
@@ -67,7 +67,7 @@ class InMemoryItemRepository: ItemRepository {
         ),
         CartItem(
             itemId = ItemId(Identity("item-" + counter.incrementAndGet())),
-            product = Product(
+            product = DefinedProduct(
                 productId = ProductId(Identity("prod-2")),
                 description = Description("A high-precision optical mouse"),
                 category = Category.ELECTRONICS,

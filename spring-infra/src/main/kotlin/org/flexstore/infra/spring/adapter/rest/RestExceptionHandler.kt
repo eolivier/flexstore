@@ -1,4 +1,4 @@
-package org.flexstore.infra.spring.rest
+package org.flexstore.infra.spring.adapter.rest
 
 import org.flexstore.domain.entity.UserAlreadyExists
 import org.springframework.http.ResponseEntity
@@ -14,10 +14,10 @@ class RestExceptionHandler {
         if (ex is UserAlreadyExists) {
             return ResponseEntity
                 .status(409)
-                .body(ex.message ?: "Utilisateur déjà existant")
+                .body(ex.message ?: "User already exits")
         }
         return ResponseEntity
             .status(422)
-            .body(ex.message ?: "Erreur nominale")
+            .body(ex.message ?: "Nominal exception")
     }
 }

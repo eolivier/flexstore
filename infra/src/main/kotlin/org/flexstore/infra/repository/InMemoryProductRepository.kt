@@ -6,11 +6,19 @@ import java.math.BigDecimal
 
 class InMemoryProductRepository : ProductRepository {
 
-    override fun findAll(): List<Product> {
-        return clothes + electronics + accessories
+    private val products: MutableList<Product> = (clothes + electronics + accessories).toMutableList()
+
+    override fun save(product: Product): Product {
+        products.add(product)
+        return product
     }
 
-    override fun findAllBy(category: Category): List<Product> {
+    override fun findAll(): List<Product> {
+
+        return products
+    }
+
+    override fun findAllBy(category: Category): List<DefinedProduct> {
         return when (category) {
             Category.CLOTHING -> clothes
             Category.ELECTRONICS -> electronics
@@ -26,24 +34,30 @@ class InMemoryProductRepository : ProductRepository {
             Category.NOT_DEFINED -> emptyList()
         }
     }
+
+    override fun exists(product: Product): Boolean = products.any {
+        it == product
+    }
+
+    override fun notExists(product: Product): Boolean = products.find { it == product } == null
 }
 
 val clothes = listOf(
-    Product(
+    DefinedProduct(
         productId = ProductId(Identity("1")),
         name = Name("Organic Cotton T-shirt"),
         description = Description("Comfortable and eco-friendly"),
         category = Category.CLOTHING,
         price = Price(Amount(BigDecimal(25)), Currency.EUR),
     ),
-    Product(
+    DefinedProduct(
         productId = ProductId(Identity("2")),
         name = Name("Waterproof Jacket"),
         description = Description("Resists rain and wind"),
         category = Category.CLOTHING,
         price = Price(Amount(BigDecimal(79)), Currency.EUR),
     ),
-    Product(
+    DefinedProduct(
         productId = ProductId(Identity("3")),
         name = Name("Slim Jeans"),
         description = Description("Modern fit, stretch"),
@@ -53,21 +67,21 @@ val clothes = listOf(
 )
 
 val electronics = listOf(
-    Product(
+    DefinedProduct(
         productId = ProductId(Identity("4")),
         name = Name("5G Smartphone"),
         description = Description("OLED display, 128 GB"),
         category = Category.ELECTRONICS,
         price = Price(Amount(BigDecimal(399)), Currency.EUR),
     ),
-    Product(
+    DefinedProduct(
         productId = ProductId(Identity("5")),
         name = Name("10\" Tablet"),
         description = Description("Ideal for multimedia"),
         category = Category.ELECTRONICS,
         price = Price(Amount(BigDecimal(249)), Currency.EUR),
     ),
-    Product(
+    DefinedProduct(
         productId = ProductId(Identity("6")),
         name = Name("Laptop"),
         description = Description("512 GB SSD, 16 GB RAM"),
@@ -77,21 +91,21 @@ val electronics = listOf(
 )
 
 val accessories = listOf(
-    Product(
+    DefinedProduct(
         productId = ProductId(Identity("7")),
         name = Name("Smartwatch"),
         description = Description("Activity tracking and notifications"),
         category = Category.ACCESSORIES,
         price = Price(Amount(BigDecimal(99)), Currency.EUR),
     ),
-    Product(
+    DefinedProduct(
         productId = ProductId(Identity("8")),
         name = Name("Bluetooth Headphones"),
         description = Description("High-quality sound, 20h battery life"),
         category = Category.ACCESSORIES,
         price = Price(Amount(BigDecimal(59)), Currency.EUR),
     ),
-    Product(
+    DefinedProduct(
         productId = ProductId(Identity("9")),
         name = Name("Urban Backpack"),
         description = Description("Laptop compartment, modern design"),

@@ -1,4 +1,4 @@
-package org.flexstore.infra.spring.rest
+package org.flexstore.infra.spring.adapter.rest
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty

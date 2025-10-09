@@ -40,7 +40,7 @@ class DeprecatedUseCaseTest {
     }
 
     fun createItem1(): DraftItem {
-        val product = Product(ProductId(Identity("product1")), Name("product1"), Price(Amount(BigDecimal(10)), Currency.EUR))
+        val product = DefinedProduct(ProductId(Identity("product1")), Name("product1"), Price(Amount(BigDecimal(10)), Currency.EUR))
         return DraftItem(product, Quantity(10))
     }
 }
