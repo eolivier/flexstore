@@ -21,8 +21,11 @@ class CreateProductUseCase(private val productRepository: ProductRepository) : U
     }
 
     override fun getNominalScenario(): NominalScenario<Product> {
+        println("##[BEGIN] CreateProductUseCase.getNominalScenario")
         val createProductStep = Step<Product> { product -> createdProduct = productRepository.save(product) }
-        return NominalScenario(listOf(createProductStep))
+        val nominalScenario = NominalScenario(listOf(createProductStep))
+        println("##[END] CreateProductUseCase.getNominalScenario")
+        return nominalScenario
     }
 
     override fun getPostConditions(): List<PostCondition<Product>> {

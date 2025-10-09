@@ -22,6 +22,7 @@ import AdminSubMenu from './components/menu/submenu/AdminSubMenu.vue';
 import UserProfile from './components/UserProfile.vue';
 import Orders from './components/Orders.vue';
 import Products from "./components/products/Products.vue";
+import CreateProduct from './components/admin/CreateProduct.vue';
 
 const vuetify = createVuetify({ components, directives });
 const pinia = createPinia();
@@ -38,6 +39,7 @@ const routes = [
   { path: '/admin', component: AdminSubMenu },
   { path: '/admin/users', component: Users },
   { path: '/admin/create-user', component: CreateUser },
+  { path: '/admin/create-product', component: CreateProduct },
   { path: '/about', component: About },
 ];
 const router = createRouter({

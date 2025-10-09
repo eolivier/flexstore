@@ -17,7 +17,8 @@ class ProductController(private val readProductUseCase: ReadProductUseCase,
     @PostMapping
     fun create(@RequestBody draftJsonProduct: DraftJsonProduct): JsonProduct {
         createProductUseCase.unfold(mapper.toDomain(draftJsonProduct))
-        return mapper.toJson(createProductUseCase.createdProduct)
+        val toJson = mapper.toJson(createProductUseCase.createdProduct)
+        return toJson
     }
 
     @GetMapping("/")
