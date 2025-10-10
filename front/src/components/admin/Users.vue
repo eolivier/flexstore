@@ -20,9 +20,10 @@
 
 <template>
   <v-container>
+    <h1 class="text-h5 font-weight-bold mb-6">Users</h1>
     <v-data-table :headers="headers" :items="usersStore.users" class="elevation-1">
       <template #item.actions="{ item }">
-        <v-btn color="error" @click="handleDelete(item.id)"> Supprimer </v-btn>
+        <v-btn color="error" @click="handleDelete(item.id)"> Delete </v-btn>
       </template>
     </v-data-table>
   </v-container>

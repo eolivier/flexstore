@@ -7,6 +7,7 @@ import * as directives from 'vuetify/directives';
 
 import 'vuetify/styles';
 import '@mdi/font/css/materialdesignicons.css';
+import { createI18n } from 'vue-i18n';
 import App from './App.vue';
 import { createRouter, createWebHistory } from 'vue-router';
 
@@ -23,6 +24,7 @@ import UserProfile from './components/UserProfile.vue';
 import Orders from './components/Orders.vue';
 import Products from "./components/products/Products.vue";
 import CreateProduct from './components/admin/CreateProduct.vue';
+import messages from './i18n/messages';
 
 const vuetify = createVuetify({ components, directives });
 const pinia = createPinia();
@@ -47,8 +49,14 @@ const router = createRouter({
   routes,
 });
 
+const i18n = createI18n({
+  locale: 'fr', // ou 'en'
+  messages,
+});
+
 const app = createApp(App);
 app.use(pinia);
 app.use(vuetify);
 app.use(router);
+app.use(i18n);
 app.mount('#app');

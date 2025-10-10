@@ -11,17 +11,17 @@ const formRef = ref(null);
 const productsStore = useProductsStore();
 
 const rules = {
-  required: v => !!v || 'Champ obligatoire',
-  number: v => !isNaN(parseFloat(v)) || 'Doit être un nombre',
+  required: v => !!v || 'Mandatory field',
+  number: v => !isNaN(parseFloat(v)) || 'Must be a number',
 };
 
 const createProduct = async (name, description, price) => {
   const newProduct = {
     name,
     description,
-    category: 'CLOTHING', // Valeur par défaut, à adapter si nécessaire
+    category: 'CLOTHING',
     price: parseFloat(price),
-    currency: 'EUR', // Valeur par défaut, à adapter si nécessaire
+    currency: 'EUR',
   };
   await productsStore.addProduct(newProduct);
   resetForm();
@@ -46,10 +46,11 @@ const resetForm = () => {
 
 <template>
   <v-container class="pa-4" max-width="400">
+    <h1 class="text-h5 font-weight-bold mb-6">Create product</h1>
     <v-form ref="formRef" v-model="valid" @submit.prevent="submitForm">
       <v-text-field
         v-model="name"
-        label="Nom du produit"
+        label="Product Name"
         :rules="[rules.required]"
         required
       />
@@ -61,12 +62,12 @@ const resetForm = () => {
       />
       <v-text-field
         v-model="price"
-        label="Prix"
+        label="Price"
         :rules="[rules.required, rules.number]"
         required
         type="number"
       />
-      <v-btn type="submit" color="primary" class="mt-2">Créer le produit</v-btn>
+      <v-btn type="submit" color="primary" class="mt-2">Create product</v-btn>
     </v-form>
   </v-container>
 </template>

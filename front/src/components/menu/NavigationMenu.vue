@@ -2,6 +2,7 @@
   import { ref } from 'vue';
   import ProductsSubMenu from './submenu/ProductsSubMenu.vue';
   import AdminSubMenu from './submenu/AdminSubMenu.vue';
+  import Language from '../Language.vue';
 
   const drawer = ref(false);
 </script>
@@ -9,7 +10,10 @@
 <template>
   <v-app-bar app color="primary" dark>
     <v-app-bar-nav-icon @click="drawer = !drawer" />
-    <v-toolbar-title>Flexstore</v-toolbar-title>
+    <v-toolbar-title>
+      Flexstore
+    </v-toolbar-title>
+    <Language />
   </v-app-bar>
 
   <v-navigation-drawer
