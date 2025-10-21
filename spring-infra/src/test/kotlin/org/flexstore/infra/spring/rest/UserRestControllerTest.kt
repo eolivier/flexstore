@@ -6,7 +6,7 @@ import org.flexstore.domain.entity.UserId
 import org.flexstore.domain.entity.of
 import org.flexstore.domain.repository.UserRepository
 import org.flexstore.domain.service.UserService
-import org.flexstore.infra.spring.adapter.rest.JsonUser
+import org.flexstore.infra.spring.adapter.rest.json.JsonUser
 import org.junit.jupiter.api.AfterEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
