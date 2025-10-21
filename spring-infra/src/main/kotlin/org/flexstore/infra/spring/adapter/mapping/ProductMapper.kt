@@ -41,7 +41,6 @@ fun <E> List<E>.toJsonProducts(): List<JsonProduct> {
                 it.price.amount.value,
                 it.price.currency.symbol
             )
-
             else -> throw IllegalArgumentException("Unknown product type: ${it!!::class.java}")
         }
     }

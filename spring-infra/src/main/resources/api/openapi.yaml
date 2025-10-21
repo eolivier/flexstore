@@ -1,0 +1,257 @@
+openapi: 3.0.1
+info:
+  title: Flexstore API
+  description: REST contracts for Flexstore (hexagonal architecture online store sample project)
+  contact:
+    name: Emmanuel Olivier
+    url: https://github.com/eolivier
+  version: v0.1.0
+servers:
+- url: http://localhost:8080
+  description: Generated server url
+paths:
+  /api/users/{id}:
+    get:
+      tags:
+      - Users
+      summary: Retrieve a user by ID
+      operationId: getUser
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successfully retrieved the user
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/JsonUser"
+    put:
+      tags:
+      - Users
+      summary: Update a user by ID
+      operationId: updateUser
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonUser"
+        required: true
+      responses:
+        "200":
+          description: Successfully updated the user
+    delete:
+      tags:
+      - Users
+      summary: Delete a user by ID
+      operationId: deleteUser
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: Successfully deleted the user
+  /api/users:
+    get:
+      tags:
+      - Users
+      summary: Retrieve all users
+      description: Returns the full list of users
+      operationId: getAllUsers
+      responses:
+        "200":
+          description: Successfully retrieved the list of users
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/JsonUser"
+    post:
+      tags:
+      - Users
+      summary: Create a user
+      operationId: createUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonUser"
+        required: true
+      responses:
+        "201":
+          description: User created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/JsonUser"
+  /api/products:
+    post:
+      tags:
+      - Products
+      summary: Create a product
+      operationId: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DraftJsonProduct"
+        required: true
+      responses:
+        "201":
+          description: Product created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/JsonProduct"
+  /api/cart/save:
+    post:
+      tags:
+      - Cart
+      summary: Add an item to the cart
+      operationId: addItem
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonItem"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/products/:
+    get:
+      tags:
+      - Products
+      summary: Retrieve all products
+      description: Returns the full list of available products
+      operationId: getProducts
+      responses:
+        "200":
+          description: Successfully retrieved the list of products
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/JsonProduct"
+  /api/cart/cart-items:
+    get:
+      tags:
+      - Cart
+      summary: Retrieve all cart items
+      description: Returns the full list of items in the cart
+      operationId: getCartItems
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/JsonCartItems"
+components:
+  schemas:
+    JsonUser:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+    DraftJsonProduct:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        price:
+          type: number
+        currency:
+          type: string
+    JsonProduct:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        price:
+          type: number
+        currency:
+          type: string
+    JsonItem:
+      type: object
+      properties:
+        itemId:
+          type: string
+        productId:
+          type: string
+        productName:
+          type: string
+        productDescription:
+          type: string
+        productCategory:
+          type: string
+        productPrice:
+          type: number
+        productCurrency:
+          type: string
+        productQuantity:
+          type: integer
+          format: int32
+    JsonCartItem:
+      type: object
+      properties:
+        itemId:
+          type: string
+        productId:
+          type: string
+        productName:
+          type: string
+        productDescription:
+          type: string
+        productCategory:
+          type: string
+        productPrice:
+          type: number
+        productCurrency:
+          type: string
+        productQuantity:
+          type: integer
+          format: int32
+        itemPrice:
+          type: number
+    JsonCartItems:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/JsonCartItem"
+        totalItemsPrice:
+          type: number
+        itemsCurrency:
+          type: string

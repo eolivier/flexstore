@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import {onMounted} from "vue";
 import {useProductsStore} from "../../stores/products.ts";
-import type { Product } from "../../stores/products.ts";
 import {useCartStore} from "../../stores/cart.ts";
 import type { Item } from "../../stores/cart.ts";
+import type { JsonProduct } from '../../generated';
 
 const headers = [
   { title: 'Name', key: 'name' },
@@ -17,30 +17,30 @@ const productsStore = useProductsStore();
 const cartStore = useCartStore();
 
 onMounted(() => {
-  productsStore.fetchProducts();
+  productsStore.fetchJsonProducts();
 });
 
-function addToCart(product: Product) {
-  const existingItem = cartStore.cartItems?.items.find(i => i.productId === product.id);
+function addToCart(jsonProduct: JsonProduct) {
+  const existingItem = cartStore.cartItems?.items.find(i => i.productId === jsonProduct.id);
   if (existingItem) {
     const updatedItem = { ...existingItem, productQuantity: existingItem.productQuantity + 1 };
     cartStore.saveItem(updatedItem);
   } else {
-    cartStore.saveItem(productToCartItem(product));
+    cartStore.saveItem(jsonProductToCartItem(jsonProduct));
   }
 }
 
-function productToCartItem(product: Product): Item {
+function jsonProductToCartItem(jsonProduct: JsonProduct): Item {
   return {
     itemId: '',
-    productId: product.id,
-    productName: product.name,
-    productDescription: product.description,
-    productCategory: product.category,
-    productPrice: product.price,
-    productCurrency: product.currency,
+    productId: jsonProduct.id,
+    productName: jsonProduct.name,
+    productDescription: jsonProduct.description,
+    productCategory: jsonProduct.category,
+    productPrice: jsonProduct.price,
+    productCurrency: jsonProduct.currency,
     productQuantity: 1, // valeur par défaut ou à adapter
-    itemPrice: product.price,
+    itemPrice: jsonProduct.price,
   };
 }
 
@@ -51,7 +51,7 @@ function productToCartItem(product: Product): Item {
       <v-container class="py-10">
         <h1 class="text-h5 font-weight-bold mb-6">All products</h1>
 
-        <v-data-table :headers="headers" :items="productsStore.products" class="elevation-2 text-left">
+        <v-data-table :headers="headers" :items="productsStore.jsonProducts" class="elevation-2 text-left">
           <template #item.price="{ item }">
             <strong>{{ item.price }} {{ item.currency }}</strong>
           </template>

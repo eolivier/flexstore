@@ -9,10 +9,12 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier -w ."
+    "format": "prettier -w .",
+    "gen:api": "npx @openapitools/openapi-generator-cli generate -i ../spring-infra/src/main/resources/api/openapi.yaml -g typescript-axios -o ./src/generated"
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
+    "axios": "^1.12.2",
     "lint": "^0.8.19",
     "pinia": "^3.0.3",
     "sass": "^1.91.0",
@@ -23,6 +25,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.35.0",
+    "@openapitools/openapi-generator-cli": "^2.25.0",
     "@typescript-eslint/eslint-plugin": "^8.42.0",
     "@vitejs/plugin-vue": "^6.0.1",
     "@vue/eslint-config-typescript": "^14.6.0",

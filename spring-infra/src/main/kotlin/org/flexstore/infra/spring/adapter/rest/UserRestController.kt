@@ -1,63 +1,93 @@
 package org.flexstore.infra.spring.adapter.rest
 
-import com.fasterxml.jackson.annotation.JsonCreator
-import com.fasterxml.jackson.annotation.JsonProperty
-import org.flexstore.domain.entity.Email
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.domain.entity.User
-import org.flexstore.domain.entity.UserId
 import org.flexstore.domain.entity.UserId.ValidUserId
-import org.flexstore.domain.entity.of
 import org.flexstore.domain.service.UserService
-import org.flexstore.domain.valueobject.Name
+import org.flexstore.infra.spring.adapter.mapping.toJsonUsers
+import org.flexstore.infra.spring.adapter.rest.json.JsonUser
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
+@Tag(name = "Users")
 @RestController
 @RequestMapping("/api/users")
 class UserRestController(val userService: UserService) {
 
-    @GetMapping
-    fun getAllUsers(): List<JsonUser> = userService.readAllUsers().toJsonUsers()
-
+    @Operation(summary = "Create a user")
+    @ApiResponse(responseCode = "201", description = "User created",
+        content = [Content(schema = Schema(implementation = JsonUser::class))]
+    )
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun createUser(@RequestBody jsonUser: JsonUser): User {
         return userService.createUser(jsonUser.toUser())
     }
+    @Operation(
+        summary = "Retrieve all users",
+        description = "Returns the full list of users",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Successfully retrieved the list of users",
+                content = [
+                    Content(
+                        schema = Schema(implementation = JsonUser::class)
+                    )
+                ]
+            )
+        ]
+    )
+    @GetMapping
+    fun getAllUsers(): List<JsonUser> = userService.readAllUsers().toJsonUsers()
 
+    @Operation(summary = "Retrieve a user by ID",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Successfully retrieved the user",
+                content = [
+                    Content(schema = Schema(implementation = JsonUser::class))
+                ]
+            )
+        ]
+    )
     @GetMapping("/{id}")
     fun getUser(@PathVariable id: String): User {
         val userId = ValidUserId(id)
         return userService.readUser(userId)
     }
 
+    @Operation(summary = "Update a user by ID",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Successfully updated the user"
+            )
+        ]
+    )
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     fun updateUser(@PathVariable id: String, @RequestBody jsonUser: JsonUser) {
         userService.updateUser(jsonUser.toUser(id))
     }
 
+    @Operation(summary = "Delete a user by ID",
+        responses = [
+            ApiResponse(
+                responseCode = "204",
+                description = "Successfully deleted the user"
+            )
+        ]
+    )
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteUser(@PathVariable id: String) {
         val userId = ValidUserId(id)
         userService.deleteUser(userId)
     }
-}
-
-private fun <E> List<E>.toJsonUsers() = this.map {
-    when (it) {
-        is User.DefinedUser -> JsonUser(it.id.value, it.name.value, it.email.value)
-        is User.UndefinedUser -> JsonUser(it.id.value, "Undefined User", "${it.reason}")
-        else -> throw IllegalArgumentException("Unknown user type: ${it!!::class.java}")
-    }
-}
-
-data class JsonUser @JsonCreator constructor(
-    @JsonProperty("id") val id: String,
-    @JsonProperty("name") val name: String,
-    @JsonProperty("email") val email: String
-) {
-    fun toUser() = User.of(UserId.of(id), Name(name), Email(email))
-    fun toUser(userId: String) = User.of(UserId.of(userId), Name(name), Email(email))
 }
