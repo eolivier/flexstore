@@ -3,6 +3,7 @@ import { onMounted } from "vue";
 import { useProductsStore } from "@/stores/products.store.ts";
 import { useCartStore } from "@/stores/cart.store.ts";
 import type { Item } from "@/models/cart.ts";
+import type { Product } from '@/models/product.ts';
 
 const headers = [
   { title: 'Name', key: 'name' },
