@@ -1,23 +1,6 @@
-import {defineStore} from 'pinia';
-import {ref} from 'vue';
-
-export interface CartItems {
-    items: Item[];
-    totalItemsPrice: number;
-    itemsCurrency: string;
-}
-
-export interface Item {
-    itemId: string;
-    productId?: string;
-    productName?: string;
-    productDescription?: string;
-    productCategory?: string;
-    productPrice?: number;
-    productCurrency?: string;
-    productQuantity: number;
-    itemPrice?: number;
-}
+import type { CartItems, Item } from '@/models/cart';
+import { defineStore } from 'pinia';
+import { ref } from 'vue';
 
 export const useCartStore = defineStore('cart', () => {
     const cartItems = ref<CartItems | null>(null);

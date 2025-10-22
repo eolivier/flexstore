@@ -1,5 +1,5 @@
 <script setup>
-  import { useUsersStore } from '../../stores/users.ts';
+  import { useUsersStore } from '@/stores/users.store.ts';
   import { nextTick, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
 

@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import {onMounted} from "vue";
-import {useProductsStore} from "../../stores/products.ts";
-import {useCartStore} from "../../stores/cart.ts";
-import type { Item } from "../../stores/cart.ts";
-import type { JsonProduct } from '../../generated';
+import { onMounted } from "vue";
+import { useProductsStore } from "@/stores/products.store.ts";
+import { useCartStore } from "@/stores/cart.store.ts";
+import type { Item } from "@/models/cart.ts";
 
 const headers = [
   { title: 'Name', key: 'name' },
@@ -17,30 +16,30 @@ const productsStore = useProductsStore();
 const cartStore = useCartStore();
 
 onMounted(() => {
-  productsStore.fetchJsonProducts();
+  productsStore.fetchProducts();
 });
 
-function addToCart(jsonProduct: JsonProduct) {
-  const existingItem = cartStore.cartItems?.items.find(i => i.productId === jsonProduct.id);
+function addToCart(product: Product) {
+  const existingItem = cartStore.cartItems?.items.find(i => i.productId === product.id);
   if (existingItem) {
     const updatedItem = { ...existingItem, productQuantity: existingItem.productQuantity + 1 };
     cartStore.saveItem(updatedItem);
   } else {
-    cartStore.saveItem(jsonProductToCartItem(jsonProduct));
+    cartStore.saveItem(productToCartItem(product));
   }
 }
 
-function jsonProductToCartItem(jsonProduct: JsonProduct): Item {
+function productToCartItem(product: Product): Item {
   return {
     itemId: '',
-    productId: jsonProduct.id,
-    productName: jsonProduct.name,
-    productDescription: jsonProduct.description,
-    productCategory: jsonProduct.category,
-    productPrice: jsonProduct.price,
-    productCurrency: jsonProduct.currency,
+    productId: product.id,
+    productName: product.name,
+    productDescription: product.description,
+    productCategory: product.category,
+    productPrice: product.price,
+    productCurrency: product.currency,
     productQuantity: 1, // valeur par défaut ou à adapter
-    itemPrice: jsonProduct.price,
+    itemPrice: product.price,
   };
 }
 
@@ -51,7 +50,7 @@ function jsonProductToCartItem(jsonProduct: JsonProduct): Item {
       <v-container class="py-10">
         <h1 class="text-h5 font-weight-bold mb-6">All products</h1>
 
-        <v-data-table :headers="headers" :items="productsStore.jsonProducts" class="elevation-2 text-left">
+        <v-data-table :headers="headers" :items="productsStore.products" class="elevation-2 text-left">
           <template #item.price="{ item }">
             <strong>{{ item.price }} {{ item.currency }}</strong>
           </template>

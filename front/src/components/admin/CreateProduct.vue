@@ -1,6 +1,6 @@
 <script setup>
 import { ref, nextTick } from 'vue';
-import { useProductsStore } from '../../stores/products.ts';
+import { useProductsStore } from '@/stores/products.store.ts';
 
 const name = ref('');
 const description = ref('');

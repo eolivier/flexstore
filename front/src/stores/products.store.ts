@@ -1,22 +1,12 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { productsApi } from '@/api.ts';
-import type { JsonProduct } from '../generated';
-
-export interface Product {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  price: number;
-  currency: string;
-}
+import type { Product } from '@/models/product';
+import { getAllProducts } from '@/services/product.service';
 
 export const useProductsStore = defineStore('products', () => {
-  const products = ref<Product[]>([]);
   const apiUrl = import.meta.env.VITE_API_URL;
 
-  const jsonProducts = ref<JsonProduct[]>([]);
+  const products = ref<Product[]>([]);
   const loading = ref(false);
   const error = ref<string | null>(null);
 
@@ -42,28 +32,16 @@ export const useProductsStore = defineStore('products', () => {
   }
 
   async function fetchProducts() {
-    const response = await fetch(`${apiUrl}/api/products/`);
-    if (response.ok) {
-      products.value = await response.json();
-    } else {
-      console.error('Error when loading products');
-    }
-  }
-
-  async function fetchJsonProducts() {
     loading.value = true;
     error.value = null;
     try {
-      const res = await productsApi.getProducts();
-      jsonProducts.value = res.data;
+      products.value = await getAllProducts();
     } catch (e: any) {
-      console.error('Error when loading products', e);
-      error.value =
-        e?.response?.data?.title || e?.message || 'Unknown error while loading products';
+      error.value = e?.message ?? 'Unknown error while loading products';
     } finally {
       loading.value = false;
     }
   }
 
-  return { products, jsonProducts, fetchProducts, fetchJsonProducts, addProduct };
+  return { products, fetchProducts, addProduct };
 });
