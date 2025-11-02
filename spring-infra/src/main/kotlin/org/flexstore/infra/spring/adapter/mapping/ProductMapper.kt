@@ -25,7 +25,7 @@ class ProductMapper {
                 product.price.amount.value,
                 product.price.currency.symbol
             )
-            else -> throw IllegalArgumentException("Unknown product type: ${product!!::class.java}")
+            else -> throw IllegalArgumentException("Unknown product type: ${product::class.java}")
         }
     }
 }

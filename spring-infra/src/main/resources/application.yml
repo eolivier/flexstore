@@ -10,6 +10,9 @@ management:
         enabled: true
       show-details: when_authorized
   metrics:
+    export:
+      prometheus:
+        enabled: true
     tags:
       application: flexstore
       region: local

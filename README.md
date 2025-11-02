@@ -40,7 +40,7 @@ spring-infra/       # Spring adapters (REST controllers, JPA, HTTP clients)
 ```bash
 ./gradlew clean build
 ./gradlew test
-./gradlew :app:bootRun
+./gradlew :spring-infra:bootRun
 ```
 
 Server starts on [http://localhost:8080](http://localhost:8080)
