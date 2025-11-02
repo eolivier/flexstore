@@ -1,26 +1,27 @@
 package org.flexstore.infra.spring.adapter.rest
 
+import io.micrometer.core.annotation.Timed
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.flexstore.domain.usecase.product.CreateProductUseCase
-import org.flexstore.domain.usecase.product.ReadProductUseCase
+import org.flexstore.domain.usecase.product.ProductUseCaseFacade
 import org.flexstore.infra.spring.adapter.mapping.ProductMapper
 import org.flexstore.infra.spring.adapter.mapping.toJsonProducts
 import org.flexstore.infra.spring.adapter.rest.json.DraftJsonProduct
 import org.flexstore.infra.spring.adapter.rest.json.JsonProduct
+import org.flexstore.infra.spring.metrics.ProductMetrics
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
 @Tag(name = "Products")
 @RestController
 @RequestMapping("/api/products")
-class ProductController(private val readProductUseCase: ReadProductUseCase,
-                        private val createProductUseCase: CreateProductUseCase,
-                        private val mapper: ProductMapper) {
+class ProductController(private val productUseCaseFacade: ProductUseCaseFacade,
+                        private val mapper: ProductMapper,
+                        private val productMetrics: ProductMetrics) {
 
     @Operation(summary = "Create a product")
     @ApiResponse(responseCode = "201", description = "Product created",
@@ -29,8 +30,9 @@ class ProductController(private val readProductUseCase: ReadProductUseCase,
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun create(@RequestBody draftJsonProduct: DraftJsonProduct): JsonProduct {
-        createProductUseCase.unfold(mapper.toDomain(draftJsonProduct))
-        val toJson = mapper.toJson(createProductUseCase.createdProduct)
+        val createProduct = productUseCaseFacade.createProduct(mapper.toDomain(draftJsonProduct))
+        val toJson = mapper.toJson(createProduct)
+        productMetrics.incrementCreated()
         return toJson
     }
 
@@ -51,7 +53,22 @@ class ProductController(private val readProductUseCase: ReadProductUseCase,
             )
         ]
     )
+    @Timed(
+        value = "flexstore.products.list.timer",
+        description = "Time taken to retrieve and map all products",
+        percentiles = [0.5, 0.95, 0.99]
+    )
     @GetMapping("/")
-    fun getProducts(): List<JsonProduct> = readProductUseCase.getProducts().toJsonProducts()
+    fun getProducts(): List<JsonProduct> {
+        val start = System.nanoTime()
+        val jsonProducts = productUseCaseFacade.getProducts().toJsonProducts()
+        // --- Observability metrics ---
+        val businessDuration = System.nanoTime() - start
+        productMetrics.recordList(businessDuration)
+        productMetrics.setInventory(jsonProducts.size)
+        // --------------------------------
+        return jsonProducts
+    }
 }
+
 

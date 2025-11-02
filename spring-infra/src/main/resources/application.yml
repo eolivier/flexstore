@@ -1,0 +1,22 @@
+# src/main/resources/application.yml
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: when_authorized
+  metrics:
+    tags:
+      application: flexstore
+      region: local
+  observations:
+    key-values:
+      service: flexstore
+server:
+# (optionnel) séparer le management path/port
+# port: 8080
+# management.server.port: 8081
