@@ -57,7 +57,8 @@ Server starts on [http://localhost:8080](http://localhost:8080)
 ## 🧪 Developer Experience
 
 - Static analysis: ktlint, detekt
-- Simple CI (GitHub Actions)
+- Simple CI (GitHub Actions) and Render deployment for back end
+- Test the following URL : https://flexstore-front.pages.dev/ (Free use of Render makes deploy back-end on the fly and could create a latency initially)
 
 ---
 

@@ -1,13 +1,9 @@
 plugins {
-    id("java")
+    kotlin("jvm")
 }
 
-group = "org.example"
-version = "unspecified"
-
-repositories {
-    mavenCentral()
-}
+group = "org.flexstore"
+version = "infra"
 
 dependencies {
     implementation(project(":domain"))

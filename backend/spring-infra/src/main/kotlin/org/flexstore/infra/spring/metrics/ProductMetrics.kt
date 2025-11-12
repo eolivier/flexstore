@@ -5,7 +5,6 @@ import io.micrometer.core.instrument.Gauge
 import org.springframework.stereotype.Component
 
 import io.micrometer.core.instrument.MeterRegistry
-import io.micrometer.core.instrument.Tag
 import io.micrometer.core.instrument.Timer
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger

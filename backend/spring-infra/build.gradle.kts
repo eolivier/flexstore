@@ -1,6 +1,6 @@
 plugins {
     kotlin("jvm")
-    kotlin("kapt")
+    //kotlin("kapt")
     id("org.springframework.boot") version "3.3.0"
     id("io.spring.dependency-management") version "1.1.5"
 }
@@ -16,8 +16,8 @@ dependencies {
     implementation(project(":domain"))
     implementation(project(":infra"))
     implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.mapstruct:mapstruct:1.5.5.Final")
-    kapt("org.mapstruct:mapstruct-processor:1.5.5.Final")
+    //implementation("org.mapstruct:mapstruct:1.5.5.Final")
+    //kapt("org.mapstruct:mapstruct-processor:1.5.5.Final")
 
     // observability
     implementation("org.springframework.boot:spring-boot-starter-actuator")
