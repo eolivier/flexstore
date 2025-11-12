@@ -3,8 +3,8 @@ FROM eclipse-temurin:21-jdk AS build
 
 WORKDIR /app
 
-# Copie les fichiers de build
-COPY . .
+# Copie les fichiers de backend
+COPY backend .
 
 # Compile le projet
 RUN ./gradlew build --no-daemon
