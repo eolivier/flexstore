@@ -7,7 +7,7 @@ services:
     branch: main
     rootDir: backend
     dockerContext: .
-    dockerfilePath: Dockerfile
+    dockerfilePath: ./Dockerfile
     autoDeploy: true
     healthCheckPath: /actuator/health
     envVars:
