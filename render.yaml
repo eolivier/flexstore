@@ -5,8 +5,27 @@ services:
     plan: starter
     repo: https://github.com/eolivier/flexstore
     branch: main
-    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    dockerfilePath: backend/Dockerfile
     autoDeploy: true
+    healthCheckPath: /actuator/health
     envVars:
+      - key: SPRING_DATASOURCE_URL
+        fromDatabase:
+          name: flexstore-db
+          property: connectionString
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: flexstore-db
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: flexstore-db
+          property: password
       - key: PORT
-        value: 8080
+        value: "8080"
+
+databases:
+  - name: flexstore-db
+    databaseName: flexstore
+    plan: free

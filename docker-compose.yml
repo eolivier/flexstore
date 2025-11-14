@@ -1,0 +1,80 @@
+services:
+  db:
+    image: postgres:16
+    container_name: flexstore-db
+    restart: unless-stopped
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL","pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  flyway:
+    image: flyway/flyway:10.20.0
+    container_name: flexstore-flyway
+    depends_on:
+      db:
+        condition: service_healthy
+    # Flyway s’exécute puis s’arrête (parfait pour CI ou démarrage local)
+    command: >
+      -url=jdbc:postgresql://db:5432/${POSTGRES_DB}
+      -user=${POSTGRES_USER}
+      -password=${POSTGRES_PASSWORD}
+      -connectRetries=60
+      -locations=filesystem:/flyway/sql
+      migrate
+    volumes:
+      # Monte tes migrations SQL (adapter le chemin si différent)
+      - ./backend/migrations/src/main/resources/db/migration:/flyway/sql:ro
+    environment:
+      FLYWAY_BASELINE_ON_MIGRATE: "true"   # pratique si la BDD existe déjà
+    restart: "no"
+
+  app:
+    build:
+      context: .
+      dockerfile: ./backend/Dockerfile
+    image: flexstore-app:latest
+    container_name: flexstore-app
+    depends_on:
+      db:
+        condition: service_healthy
+      flyway:
+        condition: service_completed_successfully
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-flexstore}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-flex}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-flex}
+    ports:
+      - "8080:8080"
+
+  integrationTests:
+    image: gradle:8.10-jdk21
+    container_name: flexstore-integration-tests
+    working_dir: /src/backend
+    volumes:
+      - .:/src                       # le code complet
+    env_file:
+      - ./.env                       # 👈 charge ton .env racine
+    environment:
+      SPRING_PROFILES_ACTIVE: test   # profil Spring "test"
+    depends_on:
+      db:
+        condition: service_healthy
+      flyway:
+        condition: service_completed_successfully
+    command: ./gradlew integrationTest --no-daemon
+    # 👇 pour que les logs s’affichent clairement
+    tty: true
+    stdin_open: true
+volumes:
+  pgdata:

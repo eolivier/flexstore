@@ -59,8 +59,10 @@ Server starts on [http://localhost:8080](http://localhost:8080)
 - Static analysis: ktlint, detekt
 - Simple CI (GitHub Actions) and Render deployment for back end
 - Test the following URL : https://flexstore-front.pages.dev/ (Free use of Render makes deploy back-end on the fly and could create a latency initially)
-
----
+- In order to access postgres database :
+```bash
+- docker exec -it flexstore-db psql -U flex -d flexstore
+```
 
 ## 📄 License
 

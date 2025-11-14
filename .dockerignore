@@ -1,0 +1,10 @@
+.git
+.gitignore
+**/.gradle
+**/build
+**/out
+**/.idea
+**/*.iml
+**/node_modules
+**/.DS_Store
+docker/logs
