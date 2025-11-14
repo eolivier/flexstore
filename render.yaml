@@ -5,8 +5,9 @@ services:
     plan: starter
     repo: https://github.com/eolivier/flexstore
     branch: main
+    rootDir: backend
     dockerContext: .
-    dockerfilePath: backend/Dockerfile
+    dockerfilePath: Dockerfile
     autoDeploy: true
     healthCheckPath: /actuator/health
     envVars:
