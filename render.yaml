@@ -5,7 +5,6 @@ services:
     plan: starter
     repo: https://github.com/eolivier/flexstore
     branch: main
-    rootDir: backend
     dockerContext: .
     dockerfilePath: ./Dockerfile
     autoDeploy: true
