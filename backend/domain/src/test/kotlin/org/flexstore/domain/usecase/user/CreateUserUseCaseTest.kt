@@ -3,10 +3,8 @@ package org.flexstore.domain.usecase.user
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.flexstore.domain.entity.Email
+import org.flexstore.domain.entity.*
 import org.flexstore.domain.entity.User.DefinedUser
-import org.flexstore.domain.entity.UserAlreadyExists
-import org.flexstore.domain.entity.UserCreationFailed
 import org.flexstore.domain.entity.UserId.ValidUserId
 import org.flexstore.domain.repository.UserRepository
 import org.flexstore.domain.valueobject.Name
@@ -20,7 +18,7 @@ class CreateUserUseCaseTest {
     fun `should create user successfully`() {
         // Arrange
         val userRepository = mockk<UserRepository>()
-        val user = DefinedUser(ValidUserId("123"), Name("John Doe"), Email("john.doe@example.com"))
+        val user = DefinedUser(ValidUserId("123"), Name("John Doe"), Email("john.doe@example.com"), Password("password123"))
         every { userRepository.save(user) } returns user
         every { userRepository.exists(user.id) } returns false
         every { userRepository.notExists(user.id) } returns false
@@ -37,7 +35,7 @@ class CreateUserUseCaseTest {
     fun `should fail if user already exists`() {
         // Arrange
         val userRepository = mockk<UserRepository>()
-        val user = DefinedUser(ValidUserId("123"), Name("John Doe"), Email("john.doe@example.com"))
+        val user = DefinedUser(ValidUserId("123"), Name("John Doe"), Email("john.doe@example.com"), Password("password123"))
         every { userRepository.exists(user.id) } returns true
         val createUserUseCase = CreateUserUseCase(userRepository)
         val exception = assertThrows<UserAlreadyExists> {
@@ -52,7 +50,7 @@ class CreateUserUseCaseTest {
     fun `should fail if user is not created`() {
         // Arrange
         val userRepository = mockk<UserRepository>()
-        val user = DefinedUser(ValidUserId("123"), Name("John Doe"), Email("john.doe@example.com"))
+        val user = DefinedUser(ValidUserId("123"), Name("John Doe"), Email("john.doe@example.com"), Password("password123"))
         every { userRepository.notExists(user.id) } returns true
         every { userRepository.save(user) } returns user
         every { userRepository.exists(user.id) } returns false

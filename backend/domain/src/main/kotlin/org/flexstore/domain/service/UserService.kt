@@ -3,10 +3,7 @@ package org.flexstore.domain.service
 import org.flexstore.domain.entity.User
 import org.flexstore.domain.entity.UserId
 import org.flexstore.domain.repository.UserRepository
-import org.flexstore.domain.usecase.user.CreateUserUseCase
-import org.flexstore.domain.usecase.user.DeleteUserUseCase
-import org.flexstore.domain.usecase.user.ReadUserUseCase
-import org.flexstore.domain.usecase.user.UpdateUserUseCase
+import org.flexstore.domain.usecase.user.*
 
 class UserService(private val userRepository: UserRepository) {
 
@@ -32,4 +29,10 @@ class UserService(private val userRepository: UserRepository) {
     }
 
     fun readAllUsers(): List<User>  = userRepository.findAll()
+
+    fun login(loginRequest: LoginRequest): User {
+        val loginUseCase = LoginUseCase(userRepository)
+        loginUseCase.unfold(loginRequest)
+        return loginUseCase.authenticatedUser
+    }
 }

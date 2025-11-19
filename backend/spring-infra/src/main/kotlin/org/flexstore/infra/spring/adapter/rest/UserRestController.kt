@@ -90,4 +90,21 @@ class UserRestController(val userService: UserService) {
         val userId = ValidUserId(id)
         userService.deleteUser(userId)
     }
+
+    @Operation(summary = "Login with email and password",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Successfully authenticated",
+                content = [
+                    Content(schema = Schema(implementation = JsonUser::class))
+                ]
+            )
+        ]
+    )
+    @PostMapping("/login")
+    @ResponseStatus(HttpStatus.OK)
+    fun login(@RequestBody jsonLoginRequest: org.flexstore.infra.spring.adapter.rest.json.JsonLoginRequest): User {
+        return userService.login(jsonLoginRequest.toLoginRequest())
+    }
 }
