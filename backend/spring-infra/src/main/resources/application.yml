@@ -1,4 +1,11 @@
 # src/main/resources/application.yml
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+  flyway:
+    enabled: true
 management:
   endpoints:
     web:
@@ -23,4 +30,3 @@ server:
 # (optionnel) séparer le management path/port
 # port: 8080
 # management.server.port: 8081
-
