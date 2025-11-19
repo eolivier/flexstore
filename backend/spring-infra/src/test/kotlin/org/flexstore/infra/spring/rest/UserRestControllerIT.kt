@@ -75,7 +75,7 @@ class UserRestControllerIT {
         val jsonUser = createJsonUser()
         userService.createUser(jsonUser.toUser())
         // Act - Assert
-        val updatedJsonUser = JsonUser("1", "Jane Doe", "jane.doe@example.com")
+        val updatedJsonUser = JsonUser("1", "Jane Doe", "jane.doe@example.com", "testpassword")
         mockMvc.perform(
             put("/api/users/1")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -96,7 +96,23 @@ class UserRestControllerIT {
             .andExpect(status().isNoContent)
     }
 
+    @Test
+    fun `should login with valid credentials`() {
+        // Arrange
+        val jsonUser = createJsonUser()
+        userService.createUser(jsonUser.toUser())
+        val loginRequest = """{"email": "john.doe@example.com", "password": "testpassword"}"""
+        // Act - Assert
+        mockMvc.perform(
+            post("/api/users/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(loginRequest)
+        )
+            .andExpect(status().isOk)
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+    }
+
     private fun createJsonUser(): JsonUser {
-        return JsonUser(USER_ID,"John Doe", "john.doe@example.com")
+        return JsonUser(USER_ID,"John Doe", "john.doe@example.com", "testpassword")
     }
 }
