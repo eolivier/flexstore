@@ -1,8 +1,6 @@
 package org.flexstore.infra.spring.adapter.jpa
 
-import org.flexstore.domain.entity.Email
-import org.flexstore.domain.entity.User
-import org.flexstore.domain.entity.UserId
+import org.flexstore.domain.entity.*
 import org.flexstore.domain.repository.UserRepository
 import org.flexstore.domain.valueobject.Name
 import org.springframework.context.annotation.Primary
@@ -12,6 +10,7 @@ import org.springframework.stereotype.Repository
 @Repository
 interface JpaUserRepository : JpaRepository<UserEntity, String> {
     fun existsByEmail(email: String): Boolean
+    fun findByEmail(email: String): UserEntity?
 }
 
 @Repository
@@ -33,7 +32,8 @@ class PostgresUserRepositoryAdapter(
                 val entity = UserEntity(
                     id = user.id.value,
                     name = user.name.value,
-                    email = user.email.value
+                    email = user.email.value,
+                    password = user.password.value
                 )
                 val saved = jpaRepo.save(entity)
                 savedUser = saved.toDomain()
@@ -47,6 +47,11 @@ class PostgresUserRepositoryAdapter(
         jpaRepo.findById(id.value)
             .orElseThrow { NoSuchElementException("User ${id.value} not found") }
             .toDomain()
+
+    override fun findByEmail(email: Email): User {
+        val entity = jpaRepo.findByEmail(email.value)
+        return entity?.toDomain() ?: User.UndefinedUser(UserId.InvalidUserId(""), "User not found with email ${email.value}")
+    }
 
     override fun findAll(): List<User> = jpaRepo.findAll().map { it.toDomain() }
 
@@ -63,6 +68,7 @@ class PostgresUserRepositoryAdapter(
     private fun UserEntity.toDomain() = User.DefinedUser(
         id = UserId.ValidUserId(this.id),
         name = Name(this.name),
-        email = Email(this.email)
+        email = Email(this.email),
+        password = Password(this.password)
     )
 }

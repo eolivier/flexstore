@@ -3,12 +3,9 @@ package org.flexstore.domain.usecase.user
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.flexstore.domain.entity.Email
-import org.flexstore.domain.entity.InvalidUserIdException
-import org.flexstore.domain.entity.User
+import org.flexstore.domain.entity.*
 import org.flexstore.domain.entity.UserId.InvalidUserId
 import org.flexstore.domain.entity.UserId.ValidUserId
-import org.flexstore.domain.entity.UserNotFoundException
 import org.flexstore.domain.repository.UserRepository
 import org.flexstore.domain.valueobject.Name
 import org.junit.jupiter.api.Assertions.*
@@ -22,7 +19,7 @@ class ReadUserUseCaseTest {
         // Arrange
         val userRepository = mockk<UserRepository>()
         val userId = ValidUserId("123")
-        val user = User.DefinedUser(userId, Name("John Doe"), Email("john.doe@example.com"))
+        val user = User.DefinedUser(userId, Name("John Doe"), Email("john.doe@example.com"), Password("password123"))
         every { userRepository.findById(userId) } returns user
         every { userRepository.notExists(userId) } returns false
         val readUserUseCase = ReadUserUseCase(userRepository)
