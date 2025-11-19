@@ -27,6 +27,7 @@ description: this IA agent will produce new features in order to make this proje
 - Add or update tests when implementing new features or fixes.
 - Update documentation or README if relevant.
 - Update CHANGE.md with significant changes.
+- Pull requests must remain small and readable. If a PR becomes too large, the agent must split it into smaller, focused PRs.
 
 **Code Quality**
 - Use `ktlint` and `detekt` if configuration files are present.
