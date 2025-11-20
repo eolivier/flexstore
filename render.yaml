@@ -29,7 +29,7 @@ services:
       - key: FLEXSTORE_DATASOURCE_PASSWORD
         fromDatabase:
           name: flexstore-db
-          property: connectionString
+          property: password
 
 databases:
   - name: flexstore-db
