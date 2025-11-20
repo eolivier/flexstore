@@ -2,7 +2,7 @@ services:
   - type: web
     name: flexstore-back
     env: docker
-    plan: starter
+    plan: free
     repo: https://github.com/eolivier/flexstore
     branch: main
     dockerContext: .
