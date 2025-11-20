@@ -10,26 +10,10 @@ services:
     autoDeploy: true
     healthCheckPath: /actuator/health
     envVars:
-      - key: FLEXSTORE_DATASOURCE_INTERNAL_HOST
-        fromDatabase:
-          name: flexstore-db
-          property: internal_host
-      - key: FLEXSTORE_DATASOURCE_PORT
-        fromDatabase:
-          name: flexstore-db
-          property: port
-      - key: FLEXSTORE_DATASOURCE_DATABASE
-        fromDatabase:
-          name: flexstore-db
-          property: database
-      - key: FLEXSTORE_DATASOURCE_USERNAME
-        fromDatabase:
-          name: flexstore-db
-          property: user
-      - key: FLEXSTORE_DATASOURCE_PASSWORD
-        fromDatabase:
-          name: flexstore-db
-          property: password
+      - key: FLEXSTORE_DATABASE_URL
+          fromDatabase:
+            name: flexstore-db
+            property: connectionString
 
 databases:
   - name: flexstore-db
