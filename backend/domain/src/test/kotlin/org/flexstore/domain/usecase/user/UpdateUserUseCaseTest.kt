@@ -20,7 +20,7 @@ class UpdateUserUseCaseTest {
         // Arrange
         val userRepository = mockk<UserRepository>()
         val userId = ValidUserId("123")
-        val user = DefinedUser(userId, Name("John Doe"), Email("john.doe@example.com"))
+        val user = DefinedUser(userId, Name("John Doe"), Email("john.doe@example.com"), Password("password123"))
         every { userRepository.notExists(userId) } returns false
         every { userRepository.save(user) } returns user
         val updateUserUseCase = UpdateUserUseCase(userRepository)
@@ -35,7 +35,7 @@ class UpdateUserUseCaseTest {
         // Arrange
         val userRepository = mockk<UserRepository>()
         val invalidUserId = InvalidUserId("@")
-        val user = DefinedUser(invalidUserId, Name("John Doe"), Email("john.doe@example.com"))
+        val user = DefinedUser(invalidUserId, Name("John Doe"), Email("john.doe@example.com"), Password("password123"))
         val updateUserUseCase = UpdateUserUseCase(userRepository)
         val exception = assertThrows<InvalidUserIdException> {
             // Act
@@ -51,7 +51,7 @@ class UpdateUserUseCaseTest {
         // Arrange
         val userRepository = mockk<UserRepository>()
         val userId = ValidUserId("123")
-        val user = DefinedUser(userId, Name("John Doe"), Email("john.doe@example.com"))
+        val user = DefinedUser(userId, Name("John Doe"), Email("john.doe@example.com"), Password("password123"))
         every { userRepository.notExists(userId) } returns true
         val updateUserUseCase = UpdateUserUseCase(userRepository)
         val exception = assertThrows<UserNotFoundException> {

@@ -1,6 +1,6 @@
 package org.flexstore.infra.repository
 
-import org.flexstore.domain.entity.Email
+import org.flexstore.domain.entity.*
 import org.flexstore.domain.entity.User.DefinedUser
 import org.flexstore.domain.entity.UserId.ValidUserId
 import org.flexstore.domain.valueobject.Name
@@ -26,7 +26,7 @@ class InMemoryUserRepositoryTest {
     fun `should return true when user exists`() {
         // Arrange
         val userRepository = InMemoryUserRepository()
-        val user = DefinedUser(ValidUserId("123"), Name("Jane Doe"), Email("jane.doe@example.com"))
+        val user = DefinedUser(ValidUserId("123"), Name("Jane Doe"), Email("jane.doe@example.com"), Password("password123"))
         userRepository.save(user)
 
         // Act
@@ -40,7 +40,7 @@ class InMemoryUserRepositoryTest {
     fun `should save user successfully`() {
         // Arrange
         val userRepository = InMemoryUserRepository()
-        val user = DefinedUser(ValidUserId("123"), Name("Jane Doe"), Email("jane.doe@example.com"))
+        val user = DefinedUser(ValidUserId("123"), Name("Jane Doe"), Email("jane.doe@example.com"), Password("password123"))
 
         // Act
         userRepository.save(user)
@@ -53,7 +53,7 @@ class InMemoryUserRepositoryTest {
     fun `should find user by id`() {
         // Arrange
         val userRepository = InMemoryUserRepository()
-        val user = DefinedUser(ValidUserId("123"), Name("Jane Doe"), Email("jane.doe@example.com"))
+        val user = DefinedUser(ValidUserId("123"), Name("Jane Doe"), Email("jane.doe@example.com"), Password("password123"))
         userRepository.save(user)
 
         // Act
@@ -67,7 +67,7 @@ class InMemoryUserRepositoryTest {
     fun `should return true when user is deleted successfully`() {
         // Arrange
         val userRepository = InMemoryUserRepository()
-        val user = DefinedUser(ValidUserId("123"), Name("Jane Doe"), Email("jane.doe@example.com"))
+        val user = DefinedUser(ValidUserId("123"), Name("Jane Doe"), Email("jane.doe@example.com"), Password("password123"))
         userRepository.save(user)
 
         // Act

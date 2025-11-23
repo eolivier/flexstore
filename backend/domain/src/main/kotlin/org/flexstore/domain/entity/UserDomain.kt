@@ -8,8 +8,8 @@ import org.ucop.domain.entity.Actor
 sealed class User(open val id: UserId) {
     abstract fun user(userId: UserId):User
 
-    data class DefinedUser(override val id: UserId, val name: Name, val email: Email) : User(id) {
-        override fun user(userId: UserId) = DefinedUser(userId, name, email)
+    data class DefinedUser(override val id: UserId, val name: Name, val email: Email, val password: Password) : User(id) {
+        override fun user(userId: UserId) = DefinedUser(userId, name, email, password)
     }
 
     data class UndefinedUser(override val id: UserId, val reason: String) : User(id) {
@@ -19,9 +19,9 @@ sealed class User(open val id: UserId) {
     companion object
 }
 
-fun User.Companion.of(userId: UserId, name: Name, email: Email): User {
+fun User.Companion.of(userId: UserId, name: Name, email: Email, password: Password): User {
     return when (userId.isValid()) {
-        true -> User.DefinedUser(userId, name, email)
+        true -> User.DefinedUser(userId, name, email, password)
         false -> User.UndefinedUser(userId, "Invalid user id")
     }
 }
@@ -52,6 +52,8 @@ fun UserId.Companion.of(value: String): UserId {
 
 data class Email(val value: String)
 
+data class Password(val value: String)
+
 class Guest(name: Name) : Actor(name)
 
 // creation
@@ -63,4 +65,7 @@ data class UserNotFoundException(override val nonEmptyMessage: NonEmptyString) :
 data class UserRetrievalFailed(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
 // delete
 data class UserDeletionFailed(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
+// login
+data class InvalidCredentialsException(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
+data class UserNotFoundByEmailException(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
 
