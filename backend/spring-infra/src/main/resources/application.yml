@@ -1,7 +1,7 @@
 # src/main/resources/application.yml
 spring:
   datasource:
-    url:  jdbc:postgresql://${FLEXSTORE_DATASOURCE_HOST}.frankfurt-postgres.render.com:${FLEXSTORE_DATASOURCE_PORT}/${FLEXSTORE_DATASOURCE_DATABASE}
+    url:  jdbc:postgresql://${FLEXSTORE_DATASOURCE_HOST}${FLEXSTORE_DATASOURCE_HOST_SUFFIX}:${FLEXSTORE_DATASOURCE_PORT}/${FLEXSTORE_DATASOURCE_DB}
     username: ${FLEXSTORE_DATASOURCE_USERNAME}
     password: ${FLEXSTORE_DATASOURCE_PASSWORD}
   flyway:

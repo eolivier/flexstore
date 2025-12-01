@@ -14,6 +14,8 @@ services:
         fromDatabase:
           name: flexstore-db
           property: host
+      - key: FLEXSTORE_DATASOURCE_HOST_SUFFIX
+        value: .frankfurt-postgres.render.com
       - key: FLEXSTORE_DATASOURCE_PORT
         fromDatabase:
           name: flexstore-db
