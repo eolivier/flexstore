@@ -11,6 +11,8 @@ on:
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
+    env:
+      VITE_API_URL: ${{ secrets.VITE_API_URL }}
     permissions:
       contents: read
       deployments: write  # pour créer une entrée Deployments (optionnel)
