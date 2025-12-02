@@ -5,3 +5,6 @@ const config = new Configuration({
 });
 
 export const productsApi = new ProductsApi(config);
+
+console.log("API URL:", config.basePath);
+console.log("import.meta.env.VITE_API_URL:", import.meta.env.VITE_API_URL);
