@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     # Le job se lance SI et SEULEMENT SI le commentaire contient "@flex-bot create-pr"
-    if: contains(github.event.comment.body || '', '@flex-bot create-pr')
+    if: contains(github.event.issue.body || '', '@flex-bot create-pr')
 
     permissions:
       contents: write
