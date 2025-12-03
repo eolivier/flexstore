@@ -33,7 +33,7 @@ jobs:
       - name: Extract prompt (BASH ONLY)
         id: extract
         run: |
-          body="${{ github.event.comment.body }}"
+          body="${{ github.event.issue.body }}"
           marker='@flex-bot create-pr'
           echo "=== RAW BODY ==="
           printf '%s\n' "$body"
