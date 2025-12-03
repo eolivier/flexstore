@@ -1,7 +1,6 @@
 package org.flexstore.domain.actor
 
-import org.flexstore.domain.entity.Cart
-import org.flexstore.domain.entity.Email
+import org.flexstore.domain.entity.*
 import org.flexstore.domain.entity.User.DefinedUser
 import org.flexstore.domain.entity.UserId.ValidUserId
 import org.flexstore.domain.usecase.basket.AddItemToBasketUseCase
@@ -21,7 +20,7 @@ class GuestTest {
         val userRepository = spy(InMemoryUserRepository())
         val createUserUseCase = CreateUserUseCase(userRepository)
         val guest = Guest(createUserUseCase, mock(AddItemToBasketUseCase::class.java))
-        val user = DefinedUser(ValidUserId("user1"), Name("John Doe"), Email("1@1.fr"))
+        val user = DefinedUser(ValidUserId("user1"), Name("John Doe"), Email("1@1.fr"), Password("password123"))
         // Act
         guest.performCreateUser(user)
         // Assert

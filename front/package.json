@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier -w .",
-    "gen:api": "npx @openapitools/openapi-generator-cli generate -i ../spring-infra/src/main/resources/api/openapi.yaml -g typescript-axios -o ./src/generated"
+    "gen:api": "npx @openapitools/openapi-generator-cli generate -i ../backend/spring-infra/src/main/resources/api/openapi.yaml -g typescript-axios -o ./src/generated"
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",

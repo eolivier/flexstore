@@ -5,10 +5,11 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.flexstore.domain.entity.User
 import org.flexstore.domain.entity.UserId.ValidUserId
 import org.flexstore.domain.service.UserService
+import org.flexstore.infra.spring.adapter.mapping.toJsonUser
 import org.flexstore.infra.spring.adapter.mapping.toJsonUsers
+import org.flexstore.infra.spring.adapter.rest.json.JsonLoginRequest
 import org.flexstore.infra.spring.adapter.rest.json.JsonUser
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -24,8 +25,8 @@ class UserRestController(val userService: UserService) {
     )
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    fun createUser(@RequestBody jsonUser: JsonUser): User {
-        return userService.createUser(jsonUser.toUser())
+    fun createUser(@RequestBody jsonUser: JsonUser): JsonUser {
+        return userService.createUser(jsonUser.toUser()).toJsonUser()
     }
     @Operation(
         summary = "Retrieve all users",
@@ -57,9 +58,9 @@ class UserRestController(val userService: UserService) {
         ]
     )
     @GetMapping("/{id}")
-    fun getUser(@PathVariable id: String): User {
+    fun getUser(@PathVariable id: String): JsonUser {
         val userId = ValidUserId(id)
-        return userService.readUser(userId)
+        return userService.readUser(userId).toJsonUser()
     }
 
     @Operation(summary = "Update a user by ID",
@@ -89,5 +90,22 @@ class UserRestController(val userService: UserService) {
     fun deleteUser(@PathVariable id: String) {
         val userId = ValidUserId(id)
         userService.deleteUser(userId)
+    }
+
+    @Operation(summary = "Login with email and password",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Successfully authenticated",
+                content = [
+                    Content(schema = Schema(implementation = JsonUser::class))
+                ]
+            )
+        ]
+    )
+    @PostMapping("/login")
+    @ResponseStatus(HttpStatus.OK)
+    fun login(@RequestBody jsonLoginRequest: JsonLoginRequest): JsonUser {
+        return userService.login(jsonLoginRequest.toLoginRequest()).toJsonUser()
     }
 }
