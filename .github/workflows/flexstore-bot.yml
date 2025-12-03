@@ -22,8 +22,6 @@ jobs:
         run: |
           echo "=== EVENT NAME ==="
           echo "${{ github.event_name }}"
-          echo "=== FULL EVENT PAYLOAD (trunc) ==="
-          echo "${{ toJson(github.event) }}" | head -c 4000 || true
 
       - name: Debug bodies
         run: |
