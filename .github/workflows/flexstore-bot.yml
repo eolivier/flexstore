@@ -2,7 +2,9 @@ name: flex-bot
 
 on:
   issue_comment:
-    types: [created]
+    types: [ created ]
+  issues:
+    types: [ opened, edited ]
 
 jobs:
   reply:
@@ -105,7 +107,11 @@ jobs:
 
   create_pr:
     # Create a PR when comment contains "@flex-bot create-pr"
-    if: contains(github.event.comment.body, '@flex-bot create-pr')
+    if: >
+      (github.event_name == 'issue_comment' &&
+       contains(github.event.comment.body, '@flex-bot create-pr')) ||
+      (github.event_name == 'issues' &&
+       contains(github.event.issue.body, '@flex-bot create-pr'))
     runs-on: ubuntu-latest
 
     permissions:
