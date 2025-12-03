@@ -18,14 +18,19 @@ jobs:
       pull-requests: write
 
     steps:
-      - name: Extract user prompt
+      - name: Extract PR prompt
         id: extract
         run: |
-          body="${{ github.event.comment.body }}"
-          # Remove everything up to @flex-bot
-          prompt="${body#*@flex-bot}"
-          # Trim leading spaces
+          if [ "${{ github.event_name }}" = "issue_comment" ]; then
+            body="${{ github.event.comment.body }}"
+          else
+            body="${{ github.event.issue.body }}"
+          fi
+
+          # Keep text after "@flex-bot create-pr"
+          prompt="${body#*@flex-bot create-pr}"
           prompt="$(echo "$prompt" | sed 's/^[[:space:]]*//')"
+
           echo "prompt<<EOF" >> "$GITHUB_OUTPUT"
           echo "$prompt" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
