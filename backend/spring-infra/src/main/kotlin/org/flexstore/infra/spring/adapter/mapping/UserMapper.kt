@@ -10,3 +10,8 @@ fun <E> List<E>.toJsonUsers() = this.map {
         else -> throw IllegalArgumentException("Unknown user type: ${it!!::class.java}")
     }
 }
+
+fun User.toJsonUser(): JsonUser = when (this) {
+    is User.DefinedUser -> JsonUser(this.id.value, this.name.value, this.email.value)
+    is User.UndefinedUser -> JsonUser(this.id.value, "Undefined User", this.reason)
+}
