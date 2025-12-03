@@ -8,12 +8,18 @@ jobs:
   create_pr:
     runs-on: ubuntu-latest
 
-    # Run only when the issue body contains "@flex-bot create-pr"
+    # Run only when the issue body contains the command
     if: contains(github.event.issue.body || '', '@flex-bot create-pr')
 
     permissions:
       contents: write
       pull-requests: write
+
+    services:
+      ollama:
+        image: ollama/ollama:latest
+        ports:
+          - 11434:11434
 
     steps:
       - name: Debug issue body
@@ -65,10 +71,25 @@ jobs:
         with:
           ref: main
 
-      - name: Call OpenAI to generate content
-        id: openai
+      - name: Wait for Ollama and pull model
+        run: |
+          echo "Waiting for Ollama to be ready..."
+          for i in {1..30}; do
+            if curl -sSf http://localhost:11434/api/tags > /dev/null 2>&1; then
+              echo "Ollama is up."
+              break
+            fi
+            echo "Ollama not ready yet, retrying..."
+            sleep 2
+          done
+
+          echo "Pulling model llama3.1..."
+          curl -sS -X POST http://localhost:11434/api/pull \
+            -d '{"model":"llama3.1"}' || echo "Model pull finished (or already present)."
+
+      - name: Generate content with Ollama
+        id: ollama
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           PROMPT: ${{ steps.extract.outputs.prompt }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
@@ -76,14 +97,8 @@ jobs:
           const fs = require('fs');
           const path = require('path');
 
-          const apiKey = process.env.OPENAI_API_KEY;
           const prompt = process.env.PROMPT || '';
           const issueNumber = process.env.ISSUE_NUMBER;
-
-          if (!apiKey) {
-            console.error('Missing OPENAI_API_KEY');
-            process.exit(1);
-          }
 
           if (!prompt.trim()) {
             console.error('Prompt is empty. Nothing to do.');
@@ -91,45 +106,27 @@ jobs:
           }
 
           console.info('Issue number:', issueNumber);
-          console.info('Prompt for OpenAI:', prompt);
+          console.info('Prompt for Ollama:', prompt);
 
           async function main() {
-            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            const res = await fetch('http://localhost:11434/api/generate', {
               method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${apiKey}`,
-                'Content-Type': 'application/json'
-              },
+              headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                model: 'gpt-4.1-mini',
-                messages: [
-                  {
-                    role: 'system',
-                    content: [
-                      'You are an assistant generating a small, reviewable change for the flexstore project.',
-                      '- Prefer Markdown documentation or small code snippets.',
-                      '- Keep the change focused on the user request.',
-                      '- If you write code, explain briefly what it does in comments.',
-                    ].join('\n')
-                  },
-                  {
-                    role: 'user',
-                    content: `Create content for a pull request based on the following request from issue #${issueNumber}: ${prompt}`
-                  }
-                ]
-              })
+                model: 'llama3.1',
+                prompt,
+                stream: false
+              }),
             });
 
-            if (!response.ok) {
-              console.error('OpenAI API error:', response.status);
-              console.error(await response.text());
+            if (!res.ok) {
+              console.error('Ollama API error:', res.status);
+              console.error(await res.text());
               process.exit(1);
             }
 
-            const data = await response.json();
-            const content = data.choices?.[0]?.message?.content || '# flex-bot\n\nNo content generated.';
-
-            console.info('Received content length:', content.length);
+            const data = await res.json();
+            const content = data.response || '# flex-bot\n\nNo content generated.';
 
             const dir = path.join('docs', 'flex-bot');
             fs.mkdirSync(dir, { recursive: true });
