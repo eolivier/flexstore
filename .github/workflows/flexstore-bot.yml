@@ -18,6 +18,15 @@ jobs:
       pull-requests: write
 
     steps:
+      - name: Debug values
+        run: |
+          echo "==== EVENT NAME ===="
+          echo "${{ github.event_name }}"
+          echo "==== RAW COMMENT BODY ===="
+          echo "${{ github.event.comment.body }}"
+          echo "==== RAW ISSUE BODY ===="
+          echo "${{ github.event.issue.body }}"
+
       - name: Extract PR prompt
         id: extract
         run: |
@@ -28,7 +37,7 @@ jobs:
           fi
           
           echo "=== RAW BODY START ==="
-          printf '%s\n' "$body"
+          console.info("body : ", $body)
           echo "=== RAW BODY END ==="
 
           # Keep text after "@flex-bot create-pr"
