@@ -36,9 +36,9 @@ jobs:
             body="${{ github.event.issue.body }}"
           fi
           
-          echo "=== RAW BODY START ==="
-          console.info("body : ", $body)
-          echo "=== RAW BODY END ==="
+          console.error("=== RAW BODY START ===")
+          console.error("body : ", $body)
+          console.error("=== RAW BODY END ===")
 
           # Keep text after "@flex-bot create-pr"
           prompt="${body#*@flex-bot create-pr}"
