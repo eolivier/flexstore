@@ -1,3 +1,13 @@
+---
+# Fill in the fields below to create a basic custom agent for your repository.
+# The Copilot CLI can be used for local testing: https://gh.io/customagents/cli
+# To make this agent available, merge this file into the default repository branch.
+# For format details, see: https://gh.io/customagents/config
+
+name: initial flexstore IA agent
+description: this IA agent will produce new features in order to make this project to grow.
+---
+
 # Copilot Agent Instructions for Flexstore
 
 **Project overview**
@@ -17,6 +27,7 @@
 - Add or update tests when implementing new features or fixes.
 - Update documentation or README if relevant.
 - Update CHANGE.md with significant changes.
+- Pull requests must remain small and readable. If a PR becomes too large, the agent must split it into smaller, focused PRs.
 
 **Code Quality**
 - Use `ktlint` and `detekt` if configuration files are present.

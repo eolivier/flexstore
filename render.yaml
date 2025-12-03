@@ -2,7 +2,7 @@ services:
   - type: web
     name: flexstore-back
     env: docker
-    plan: starter
+    plan: free
     repo: https://github.com/eolivier/flexstore
     branch: main
     dockerContext: .
@@ -10,20 +10,28 @@ services:
     autoDeploy: true
     healthCheckPath: /actuator/health
     envVars:
-      - key: SPRING_DATASOURCE_URL
+      - key: FLEXSTORE_DATASOURCE_HOST
         fromDatabase:
           name: flexstore-db
-          property: connectionString
-      - key: SPRING_DATASOURCE_USERNAME
+          property: host
+      - key: FLEXSTORE_DATASOURCE_HOST_SUFFIX
+        value: .frankfurt-postgres.render.com
+      - key: FLEXSTORE_DATASOURCE_PORT
+        fromDatabase:
+          name: flexstore-db
+          property: port
+      - key: FLEXSTORE_DATASOURCE_DATABASE
+        fromDatabase:
+          name: flexstore-db
+          property: database
+      - key: FLEXSTORE_DATASOURCE_USERNAME
         fromDatabase:
           name: flexstore-db
           property: user
-      - key: SPRING_DATASOURCE_PASSWORD
+      - key: FLEXSTORE_DATASOURCE_PASSWORD
         fromDatabase:
           name: flexstore-db
           property: password
-      - key: PORT
-        value: "8080"
 
 databases:
   - name: flexstore-db

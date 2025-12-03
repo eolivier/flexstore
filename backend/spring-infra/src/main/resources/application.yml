@@ -1,4 +1,11 @@
 # src/main/resources/application.yml
+spring:
+  datasource:
+    url:  jdbc:postgresql://${FLEXSTORE_DATASOURCE_HOST}${FLEXSTORE_DATASOURCE_HOST_SUFFIX}:${FLEXSTORE_DATASOURCE_PORT}/${FLEXSTORE_DATASOURCE_DATABASE}
+    username: ${FLEXSTORE_DATASOURCE_USERNAME}
+    password: ${FLEXSTORE_DATASOURCE_PASSWORD}
+  flyway:
+    enabled: true
 management:
   endpoints:
     web:
@@ -23,4 +30,3 @@ server:
 # (optionnel) séparer le management path/port
 # port: 8080
 # management.server.port: 8081
-
