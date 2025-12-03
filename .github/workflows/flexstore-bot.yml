@@ -26,6 +26,10 @@ jobs:
           else
             body="${{ github.event.issue.body }}"
           fi
+          
+          echo "=== RAW BODY START ==="
+          printf '%s\n' "$body"
+          echo "=== RAW BODY END ==="
 
           # Keep text after "@flex-bot create-pr"
           prompt="${body#*@flex-bot create-pr}"
