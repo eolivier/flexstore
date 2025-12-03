@@ -1,0 +1,6 @@
+Auto PR test for issue #3
+
+Prompt was:
+--------------------
+: ceci est un test d'issue...
+--------------------
