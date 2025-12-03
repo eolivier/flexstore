@@ -24,7 +24,9 @@ import UserProfile from './components/UserProfile.vue';
 import Orders from './components/Orders.vue';
 import Products from "./components/products/Products.vue";
 import CreateProduct from './components/admin/CreateProduct.vue';
+import Login from './components/Login.vue';
 import messages from './i18n/messages';
+import { useAuthStore } from './stores/auth.store';
 
 const vuetify = createVuetify({ components, directives });
 const pinia = createPinia();
@@ -38,10 +40,11 @@ const routes = [
   { path: '/products/clothing', component: Clothing },
   { path: '/products/accessories', component: Accessories },
   { path: '/products/electronics', component: Electronics },
-  { path: '/admin', component: AdminSubMenu },
-  { path: '/admin/users', component: Users },
-  { path: '/admin/create-user', component: CreateUser },
-  { path: '/admin/create-product', component: CreateProduct },
+  { path: '/login', component: Login },
+  { path: '/admin', component: AdminSubMenu, meta: { requiresAuth: true } },
+  { path: '/admin/users', component: Users, meta: { requiresAuth: true } },
+  { path: '/admin/create-user', component: CreateUser, meta: { requiresAuth: true } },
+  { path: '/admin/create-product', component: CreateProduct, meta: { requiresAuth: true } },
   { path: '/about', component: About },
 ];
 const router = createRouter({
@@ -59,4 +62,14 @@ app.use(pinia);
 app.use(vuetify);
 app.use(router);
 app.use(i18n);
+
+router.beforeEach((to, _from, next) => {
+  const authStore = useAuthStore();
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+    next({ path: '/login', query: { redirect: to.fullPath } });
+  } else {
+    next();
+  }
+});
+
 app.mount('#app');

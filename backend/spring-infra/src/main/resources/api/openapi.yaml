@@ -95,6 +95,28 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/JsonUser"
+  /api/users/login:
+    post:
+      tags:
+      - Users
+      summary: Authenticate a user
+      description: Validates user credentials and returns user information on success
+      operationId: loginUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonLoginRequest"
+        required: true
+      responses:
+        "200":
+          description: Successfully authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonUser"
+        "401":
+          description: Invalid credentials
   /api/products:
     post:
       tags:
@@ -176,6 +198,18 @@ components:
           type: string
         password:
           type: string
+    JsonLoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          description: User's email address
+        password:
+          type: string
+          description: User's password (plain text)
     DraftJsonProduct:
       type: object
       properties:

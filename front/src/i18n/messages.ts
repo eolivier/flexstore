@@ -9,6 +9,15 @@ export default {
       email: "User's Email",
       label: "Create user",
       mandatoryField: "Mandatory field"
+    },
+    login: {
+      title: "Login",
+      email: "Email",
+      password: "Password",
+      submit: "Sign In",
+      error: "Invalid email or password",
+      mandatoryField: "Mandatory field",
+      invalidEmail: "Invalid email format"
     }
   },
   fr: {
@@ -21,6 +30,15 @@ export default {
       email: "Email de l'utilisateur",
       label: "Créer utilisateur",
       mandatoryField: "Champ obligatoire"
+    },
+    login: {
+      title: "Connexion",
+      email: "Email",
+      password: "Mot de passe",
+      submit: "Se connecter",
+      error: "Email ou mot de passe invalide",
+      mandatoryField: "Champ obligatoire",
+      invalidEmail: "Format d'email invalide"
     }
   }
 };
