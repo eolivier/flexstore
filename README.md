@@ -35,7 +35,7 @@ spring-infra/       # Spring adapters (REST controllers, JPA, HTTP clients)
 
 ## ⚙️ Quickstart
 
-**Prerequisites**: Java 21, Gradle 8.x (wrapper included)
+**Prerequisites for backend**: Java 21, Gradle 8.x (wrapper included)
 
 ```bash
 ./gradlew clean build
@@ -44,6 +44,14 @@ spring-infra/       # Spring adapters (REST controllers, JPA, HTTP clients)
 ```
 
 Server starts on [http://localhost:8080](http://localhost:8080)
+
+**Prerequisites for frontend**: node 18.x, npm 9.x, add .env file in front/ folder with the following content:
+
+```bash
+VITE_API_URL=http://localhost:8080
+```
+
+Vue starts on [http://localhost:5173](http://localhost:5173)
 
 ---
 
