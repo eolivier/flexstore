@@ -9,6 +9,7 @@ import org.flexstore.domain.entity.User
 import org.flexstore.domain.entity.UserId.ValidUserId
 import org.flexstore.domain.service.UserService
 import org.flexstore.infra.spring.adapter.mapping.toJsonUsers
+import org.flexstore.infra.spring.adapter.rest.json.JsonLoginRequest
 import org.flexstore.infra.spring.adapter.rest.json.JsonUser
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -104,7 +105,7 @@ class UserRestController(val userService: UserService) {
     )
     @PostMapping("/login")
     @ResponseStatus(HttpStatus.OK)
-    fun login(@RequestBody jsonLoginRequest: org.flexstore.infra.spring.adapter.rest.json.JsonLoginRequest): User {
+    fun login(@RequestBody jsonLoginRequest: JsonLoginRequest): User {
         return userService.login(jsonLoginRequest.toLoginRequest())
     }
 }

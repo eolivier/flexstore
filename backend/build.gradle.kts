@@ -17,4 +17,8 @@ subprojects {
         testImplementation(kotlin("test"))
         testImplementation("org.assertj:assertj-core:3.21.0")
     }
+
+    kotlin {
+        jvmToolchain(21)
+    }
 }

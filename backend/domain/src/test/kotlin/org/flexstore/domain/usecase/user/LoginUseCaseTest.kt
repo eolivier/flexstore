@@ -3,12 +3,12 @@ package org.flexstore.domain.usecase.user
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.assertj.core.api.Assertions.assertThat
 import org.flexstore.domain.entity.*
 import org.flexstore.domain.entity.User.DefinedUser
 import org.flexstore.domain.entity.UserId.ValidUserId
 import org.flexstore.domain.repository.UserRepository
 import org.flexstore.domain.valueobject.Name
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.Test
 
@@ -32,7 +32,7 @@ class LoginUseCaseTest {
         
         // Assert
         val authenticatedUser = loginUseCase.authenticatedUser
-        assertEquals(user, authenticatedUser)
+        assertThat(authenticatedUser).isEqualTo(user)
         verify { userRepository.findByEmail(email) }
     }
 
@@ -55,7 +55,7 @@ class LoginUseCaseTest {
         val exception = assertThrows<UserNotFoundByEmailException> {
             loginUseCase.unfold(loginRequest)
         }
-        assertEquals("User with email nonexistent@example.com does not exist.", exception.message)
+        assertThat(exception.message).isEqualTo("User with email nonexistent@example.com does not exist.")
     }
 
     @Test
@@ -76,6 +76,6 @@ class LoginUseCaseTest {
         val exception = assertThrows<InvalidCredentialsException> {
             loginUseCase.unfold(loginRequest)
         }
-        assertEquals("Invalid credentials.", exception.message)
+        assertThat(exception.message).isEqualTo("Invalid credentials.")
     }
 }
