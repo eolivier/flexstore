@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 import vue from '@vitejs/plugin-vue';
 import vuetify from 'vite-plugin-vuetify';
 import { resolve } from 'path';
@@ -9,6 +9,18 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src')
+    }
+  },
+  test: {
+    environment: 'happy-dom',
+    globals: true,
+    include: ['src/**/*.{test,spec}.{js,ts,vue}'],
+    setupFiles: ['src/test/setup.ts'],
+    css: true,
+    server: {
+      deps: {
+        inline: ['vuetify']
+      }
     }
   }
 });
