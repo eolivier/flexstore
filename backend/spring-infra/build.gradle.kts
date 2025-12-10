@@ -20,6 +20,10 @@ dependencies {
     implementation(project(":infra"))
     implementation("org.springframework.boot:spring-boot-starter-web")
 
+    // Security - Password Encryption
+    implementation("org.springframework.security:spring-security-crypto")
+    implementation("org.bouncycastle:bcprov-jdk18on:1.78")
+
     // JPA + Hibernate
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 

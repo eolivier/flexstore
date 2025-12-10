@@ -1,6 +1,7 @@
 package org.flexstore.domain.usecase.user
 
 import org.flexstore.domain.entity.*
+import org.flexstore.domain.port.PasswordEncoder
 import org.flexstore.domain.repository.UserRepository
 import org.ucop.domain.NominalException
 import org.ucop.domain.NonEmptyString
@@ -9,7 +10,10 @@ import kotlin.reflect.KClass
 
 data class LoginRequest(val email: Email, val password: Password)
 
-class LoginUseCase(private val userRepository: UserRepository) : UseCase<LoginRequest> {
+class LoginUseCase(
+    private val userRepository: UserRepository,
+    private val passwordEncoder: PasswordEncoder
+) : UseCase<LoginRequest> {
 
     lateinit var authenticatedUser: User
 
@@ -53,7 +57,7 @@ class LoginUseCase(private val userRepository: UserRepository) : UseCase<LoginRe
     private fun passwordMatchesCondition() = PreCondition<LoginRequest> { request ->
         val user = userRepository.findByEmail(request.email)
         if (user is User.DefinedUser) {
-            if (user.password.value != request.password.value) {
+            if (!passwordEncoder.matches(request.password.value, user.password.value)) {
                 throw InvalidCredentialsException(NonEmptyString("Invalid credentials."))
             }
         }

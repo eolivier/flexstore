@@ -2,13 +2,17 @@ package org.flexstore.domain.service
 
 import org.flexstore.domain.entity.User
 import org.flexstore.domain.entity.UserId
+import org.flexstore.domain.port.PasswordEncoder
 import org.flexstore.domain.repository.UserRepository
 import org.flexstore.domain.usecase.user.*
 
-class UserService(private val userRepository: UserRepository) {
+class UserService(
+    private val userRepository: UserRepository,
+    private val passwordEncoder: PasswordEncoder
+) {
 
     fun createUser(user: User): User {
-        val createUserUseCase = CreateUserUseCase(userRepository)
+        val createUserUseCase = CreateUserUseCase(userRepository, passwordEncoder)
         createUserUseCase.unfold(user)
         return createUserUseCase.createdUser
     }
@@ -31,7 +35,7 @@ class UserService(private val userRepository: UserRepository) {
     fun readAllUsers(): List<User>  = userRepository.findAll()
 
     fun login(loginRequest: LoginRequest): User {
-        val loginUseCase = LoginUseCase(userRepository)
+        val loginUseCase = LoginUseCase(userRepository, passwordEncoder)
         loginUseCase.unfold(loginRequest)
         return loginUseCase.authenticatedUser
     }
