@@ -55,24 +55,30 @@ class InMemoryUserRepository : UserRepository {
         }
     }
 
-    private val users = mutableMapOf<UserId, User>(
-        UserId.ValidUserId("u-1") to User.DefinedUser(
-            id = UserId.ValidUserId("u-1"),
-            name = Name("Alice Smith"),
-            email = Email("alice.smith@example.com"),
-            password = Password("password123")
-        ),
-        UserId.ValidUserId("u-2") to User.DefinedUser(
-            id = UserId.ValidUserId("u-2"),
-            name = Name("Bob Johnson"),
-            email = Email("bob.johnson@example.com"),
-            password = Password("password456")
-        ),
-        UserId.ValidUserId("u-3") to User.DefinedUser(
-            id = UserId.ValidUserId("u-3"),
-            name = Name("Charlie Brown"),
-            email = Email("charlie.brown@example.com"),
-            password = Password("password789")
+    private val users = mutableMapOf<UserId, User>()
+    
+    init {
+        // Initialize with pre-hashed passwords for demo users
+        val demoUsers = listOf(
+            User.DefinedUser(
+                id = UserId.ValidUserId("u-1"),
+                name = Name("Alice Smith"),
+                email = Email("alice.smith@example.com"),
+                password = Password(passwordEncoder.encode("password123"))
+            ),
+            User.DefinedUser(
+                id = UserId.ValidUserId("u-2"),
+                name = Name("Bob Johnson"),
+                email = Email("bob.johnson@example.com"),
+                password = Password(passwordEncoder.encode("password456"))
+            ),
+            User.DefinedUser(
+                id = UserId.ValidUserId("u-3"),
+                name = Name("Charlie Brown"),
+                email = Email("charlie.brown@example.com"),
+                password = Password(passwordEncoder.encode("password789"))
+            )
         )
-    )
+        demoUsers.forEach { users[it.id] = it }
+    }
 }
