@@ -5,6 +5,7 @@ import org.flexstore.domain.repository.UserRepository
 import org.flexstore.domain.valueobject.Name
 import org.springframework.context.annotation.Primary
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Repository
 
 @Repository
@@ -18,6 +19,8 @@ interface JpaUserRepository : JpaRepository<UserEntity, String> {
 class PostgresUserRepositoryAdapter(
     private val jpaRepo: JpaUserRepository
 ) : UserRepository {
+    
+    private val passwordEncoder = BCryptPasswordEncoder()
 
     override fun exists(userId: UserId): Boolean = jpaRepo.existsById(userId.value)
 
@@ -29,11 +32,18 @@ class PostgresUserRepositoryAdapter(
         var savedUser = user
         when(user) {
             is User.DefinedUser -> {
+                // Hash password if not already hashed
+                val hashedPassword = if (user.password.value.matches(Regex("^\\$2[aby]\\$.*"))) {
+                    user.password.value
+                } else {
+                    passwordEncoder.encode(user.password.value)
+                }
+                
                 val entity = UserEntity(
                     id = user.id.value,
                     name = user.name.value,
                     email = user.email.value,
-                    password = user.password.value
+                    password = hashedPassword
                 )
                 val saved = jpaRepo.save(entity)
                 savedUser = saved.toDomain()
@@ -61,6 +71,14 @@ class PostgresUserRepositoryAdapter(
             true
         } else {
            false
+        }
+    }
+    
+    override fun passwordMatches(email: Email, password: Password): Boolean {
+        val user = findByEmail(email)
+        return when (user) {
+            is User.DefinedUser -> passwordEncoder.matches(password.value, user.password.value)
+            else -> false
         }
     }
 

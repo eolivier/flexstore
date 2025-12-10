@@ -1,6 +1,5 @@
 package org.flexstore.infra.spring.config
 
-import org.flexstore.domain.port.PasswordEncoder
 import org.flexstore.domain.repository.ItemRepository
 import org.flexstore.domain.repository.ProductRepository
 import org.flexstore.domain.repository.UserRepository
@@ -15,8 +14,8 @@ import org.springframework.context.annotation.Configuration
 open class InfraConfiguration {
 
     @Bean
-    open fun userService(userRepository: UserRepository, passwordEncoder: PasswordEncoder): UserService {
-        return UserService(userRepository, passwordEncoder)
+    open fun userService(userRepository: UserRepository): UserService {
+        return UserService(userRepository)
     }
 
     @Bean

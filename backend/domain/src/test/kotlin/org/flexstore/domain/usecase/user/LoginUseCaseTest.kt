@@ -7,7 +7,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.flexstore.domain.entity.*
 import org.flexstore.domain.entity.User.DefinedUser
 import org.flexstore.domain.entity.UserId.ValidUserId
-import org.flexstore.domain.port.PasswordEncoder
 import org.flexstore.domain.repository.UserRepository
 import org.flexstore.domain.valueobject.Name
 import org.junit.jupiter.api.assertThrows
@@ -19,17 +18,15 @@ class LoginUseCaseTest {
     fun `should authenticate user successfully with valid credentials`() {
         // Arrange
         val userRepository = mockk<UserRepository>()
-        val passwordEncoder = mockk<PasswordEncoder>()
         val email = Email("john.doe@example.com")
-        val rawPassword = "password123"
-        val hashedPassword = "hashedPassword123"
-        val user = DefinedUser(ValidUserId("123"), Name("John Doe"), email, Password(hashedPassword))
-        val loginRequest = LoginRequest(email, Password(rawPassword))
+        val password = Password("password123")
+        val user = DefinedUser(ValidUserId("123"), Name("John Doe"), email, Password("hashedPassword123"))
+        val loginRequest = LoginRequest(email, password)
         
         every { userRepository.findByEmail(email) } returns user
-        every { passwordEncoder.matches(rawPassword, hashedPassword) } returns true
+        every { userRepository.passwordMatches(email, password) } returns true
         
-        val loginUseCase = LoginUseCase(userRepository, passwordEncoder)
+        val loginUseCase = LoginUseCase(userRepository)
         
         // Act
         loginUseCase.unfold(loginRequest)
@@ -38,14 +35,13 @@ class LoginUseCaseTest {
         val authenticatedUser = loginUseCase.authenticatedUser
         assertThat(authenticatedUser).isEqualTo(user)
         verify { userRepository.findByEmail(email) }
-        verify { passwordEncoder.matches(rawPassword, hashedPassword) }
+        verify { userRepository.passwordMatches(email, password) }
     }
 
     @Test
     fun `should fail when user does not exist`() {
         // Arrange
         val userRepository = mockk<UserRepository>()
-        val passwordEncoder = mockk<PasswordEncoder>()
         val email = Email("nonexistent@example.com")
         val password = Password("password123")
         val loginRequest = LoginRequest(email, password)
@@ -55,7 +51,7 @@ class LoginUseCaseTest {
             "User not found"
         )
         
-        val loginUseCase = LoginUseCase(userRepository, passwordEncoder)
+        val loginUseCase = LoginUseCase(userRepository)
         
         // Act & Assert
         val exception = assertThrows<UserNotFoundByEmailException> {
@@ -68,17 +64,15 @@ class LoginUseCaseTest {
     fun `should fail when password is incorrect`() {
         // Arrange
         val userRepository = mockk<UserRepository>()
-        val passwordEncoder = mockk<PasswordEncoder>()
         val email = Email("john.doe@example.com")
-        val correctPasswordHash = "hashedPassword123"
-        val incorrectPassword = "wrongpassword"
-        val user = DefinedUser(ValidUserId("123"), Name("John Doe"), email, Password(correctPasswordHash))
-        val loginRequest = LoginRequest(email, Password(incorrectPassword))
+        val incorrectPassword = Password("wrongpassword")
+        val user = DefinedUser(ValidUserId("123"), Name("John Doe"), email, Password("hashedPassword123"))
+        val loginRequest = LoginRequest(email, incorrectPassword)
         
         every { userRepository.findByEmail(email) } returns user
-        every { passwordEncoder.matches(incorrectPassword, correctPasswordHash) } returns false
+        every { userRepository.passwordMatches(email, incorrectPassword) } returns false
         
-        val loginUseCase = LoginUseCase(userRepository, passwordEncoder)
+        val loginUseCase = LoginUseCase(userRepository)
         
         // Act & Assert
         val exception = assertThrows<InvalidCredentialsException> {

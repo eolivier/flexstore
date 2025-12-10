@@ -2,15 +2,13 @@ package org.flexstore.domain.usecase.user
 
 import org.ucop.domain.NominalException
 import org.flexstore.domain.entity.*
-import org.flexstore.domain.port.PasswordEncoder
 import org.flexstore.domain.repository.UserRepository
 import org.ucop.domain.NonEmptyString
 import org.ucop.domain.entity.*
 import kotlin.reflect.KClass
 
 class CreateUserUseCase(
-    private val userRepository: UserRepository,
-    private val passwordEncoder: PasswordEncoder
+    private val userRepository: UserRepository
 ) : UseCase<User> {
 
     lateinit var createdUser: User
@@ -26,15 +24,8 @@ class CreateUserUseCase(
         println("##[BEGIN] CreateUserUseCase.getNominalScenario")
         // Steps
         val createUserStep = Step<User> { user -> 
-            // Hash the password before saving
-            val hashedUser = when (user) {
-                is User.DefinedUser -> {
-                    val hashedPassword = Password(passwordEncoder.encode(user.password.value))
-                    user.copy(password = hashedPassword)
-                }
-                else -> user
-            }
-            createdUser = userRepository.save(hashedUser)
+            // Repository will handle password hashing
+            createdUser = userRepository.save(user)
         }
         // Nominal scenario
         val nominalScenario = NominalScenario(listOf(createUserStep))

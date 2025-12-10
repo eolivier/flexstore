@@ -3,8 +3,11 @@ package org.flexstore.infra.repository
 import org.flexstore.domain.entity.*
 import org.flexstore.domain.repository.UserRepository
 import org.flexstore.domain.valueobject.Name
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 
 class InMemoryUserRepository : UserRepository {
+    
+    private val passwordEncoder = BCryptPasswordEncoder()
 
     override fun exists(userId: UserId): Boolean = users.containsKey(userId)
 
@@ -15,8 +18,21 @@ class InMemoryUserRepository : UserRepository {
     }
 
     override fun save(user: User): User {
-        users[user.id] = user
-        return user
+        // Hash password if it's a DefinedUser with a plain password
+        val userToSave = when (user) {
+            is User.DefinedUser -> {
+                // Only hash if password doesn't look already hashed (BCrypt hashes start with $2a$, $2b$, or $2y$)
+                val hashedPassword = if (user.password.value.matches(Regex("^\\$2[aby]\\$.*"))) {
+                    user.password
+                } else {
+                    Password(passwordEncoder.encode(user.password.value))
+                }
+                user.copy(password = hashedPassword)
+            }
+            else -> user
+        }
+        users[userToSave.id] = userToSave
+        return userToSave
     }
 
     override fun findById(id: UserId): User = users[id] ?: throw IllegalArgumentException("User not found")
@@ -28,7 +44,16 @@ class InMemoryUserRepository : UserRepository {
     }
     
     override fun findAll(): List<User> = users.values.toList()
+    
     override fun delete(id: UserId): Boolean = users.remove(id) != null
+    
+    override fun passwordMatches(email: Email, password: Password): Boolean {
+        val user = findByEmail(email)
+        return when (user) {
+            is User.DefinedUser -> passwordEncoder.matches(password.value, user.password.value)
+            else -> false
+        }
+    }
 
     private val users = mutableMapOf<UserId, User>(
         UserId.ValidUserId("u-1") to User.DefinedUser(
