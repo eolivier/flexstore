@@ -2,7 +2,7 @@ package org.flexstore.domain.entity
 
 import org.flexstore.domain.valueobject.Name
 import org.ucop.domain.NominalException
-import org.ucop.domain.NonEmptyString
+import org.ucop.domain.Reason
 import org.ucop.domain.entity.Actor
 
 sealed class User(open val id: UserId) {
@@ -57,15 +57,15 @@ data class Password(val value: String)
 class Guest(name: Name) : Actor(name)
 
 // creation
-data class UserAlreadyExists(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
-data class UserCreationFailed(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
+data class UserAlreadyExists(override val reason: Reason) : NominalException(reason)
+data class UserCreationFailed(override val reason: Reason) : NominalException(reason)
 // read
-data class InvalidUserIdException(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
-data class UserNotFoundException(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
-data class UserRetrievalFailed(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
+data class InvalidUserIdException(override val reason: Reason) : NominalException(reason)
+data class UserNotFoundException(override val reason: Reason) : NominalException(reason)
+data class UserRetrievalFailed(override val reason: Reason) : NominalException(reason)
 // delete
-data class UserDeletionFailed(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
+data class UserDeletionFailed(override val reason: Reason) : NominalException(reason)
 // login
-data class InvalidCredentialsException(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
-data class UserNotFoundByEmailException(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
+data class InvalidCredentialsException(override val reason: Reason) : NominalException(reason)
+data class UserNotFoundByEmailException(override val reason: Reason) : NominalException(reason)
 

@@ -3,7 +3,7 @@ package org.flexstore.domain.usecase.user
 import org.ucop.domain.NominalException
 import org.flexstore.domain.entity.*
 import org.flexstore.domain.repository.UserRepository
-import org.ucop.domain.NonEmptyString
+import org.ucop.domain.Reason
 import org.ucop.domain.entity.*
 import kotlin.reflect.KClass
 
@@ -41,13 +41,13 @@ class CreateUserUseCase(private val userRepository: UserRepository) : UseCase<Us
 
     private fun userDoesNotExistCondition() = PreCondition<User> { user ->
         if (userRepository.exists(user.id)) {
-            throw UserAlreadyExists(NonEmptyString("User with ID ${user.id.value} already exists."))
+            throw UserAlreadyExists(Reason("User with ID ${user.id.value} already exists."))
         }
     }
 
     private fun userExistsCondition(): PostCondition<User> = PostCondition<User> { user ->
         if (userRepository.notExists(user.id)) {
-            throw UserCreationFailed(NonEmptyString("User with ID ${user.id.value} was not created."))
+            throw UserCreationFailed(Reason("User with ID ${user.id.value} was not created."))
         }
     }
 }

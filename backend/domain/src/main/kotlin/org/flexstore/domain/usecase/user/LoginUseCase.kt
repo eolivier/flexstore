@@ -3,7 +3,7 @@ package org.flexstore.domain.usecase.user
 import org.flexstore.domain.entity.*
 import org.flexstore.domain.repository.UserRepository
 import org.ucop.domain.NominalException
-import org.ucop.domain.NonEmptyString
+import org.ucop.domain.Reason
 import org.ucop.domain.entity.*
 import kotlin.reflect.KClass
 
@@ -46,7 +46,7 @@ class LoginUseCase(private val userRepository: UserRepository) : UseCase<LoginRe
     private fun userExistsByEmailCondition() = PreCondition<LoginRequest> { request ->
         val user = userRepository.findByEmail(request.email)
         if (user is User.UndefinedUser) {
-            throw UserNotFoundByEmailException(NonEmptyString("User with email ${request.email.value} does not exist."))
+            throw UserNotFoundByEmailException(Reason("User with email ${request.email.value} does not exist."))
         }
     }
 
@@ -54,14 +54,14 @@ class LoginUseCase(private val userRepository: UserRepository) : UseCase<LoginRe
         val user = userRepository.findByEmail(request.email)
         if (user is User.DefinedUser) {
             if (user.password.value != request.password.value) {
-                throw InvalidCredentialsException(NonEmptyString("Invalid credentials."))
+                throw InvalidCredentialsException(Reason("Invalid credentials."))
             }
         }
     }
 
     private fun userAuthenticatedCondition() = PostCondition<LoginRequest> { request ->
         if (authenticatedUser is User.UndefinedUser) {
-            throw InvalidCredentialsException(NonEmptyString("User authentication failed."))
+            throw InvalidCredentialsException(Reason("User authentication failed."))
         }
     }
 }

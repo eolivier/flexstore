@@ -1,12 +1,12 @@
 package org.ucop.domain
 
-data class StepException(val nonEmptyMessage: NonEmptyString) : Exception(nonEmptyMessage.value)
-open class NominalException(open val nonEmptyMessage: NonEmptyString) : Exception(nonEmptyMessage.value)
-data class PreConditionException(val nonEmptyMessage: NonEmptyString) : Exception(nonEmptyMessage.value)
-data class PostConditionException(val nonEmptyMessage: NonEmptyString) : Exception(nonEmptyMessage.value)
-data class AlternativeException(val nonEmptyMessage: NonEmptyString) : Exception(nonEmptyMessage.value)
+data class StepException(val reason: Reason) : Exception(reason.value)
+open class NominalException(open val reason: Reason) : Exception(reason.value)
+data class PreConditionException(val reason: Reason) : Exception(reason.value)
+data class PostConditionException(val reason: Reason) : Exception(reason.value)
+data class AlternativeException(val reason: Reason) : Exception(reason.value)
 
-data class NonEmptyString(val value: String) {
+data class Reason(val value: String) {
     init {
         if (value.isEmpty()) {
             throw IllegalArgumentException("Value must not be empty")

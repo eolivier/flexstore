@@ -34,7 +34,7 @@ data class NominalScenario<T>(override val steps: List<Step<T>>) : Scenario<T> {
         try {
             steps.forEach { it.run(t) }
         } catch (se: StepException) {
-            throw NominalException(se.nonEmptyMessage)
+            throw NominalException(se.reason)
         }
     }
 }
@@ -44,7 +44,7 @@ data class AlternativeScenario<T>(override val steps: List<Step<T>>) : Scenario<
         try {
             steps.forEach { it.run(t) }
         } catch (se: StepException) {
-            throw AlternativeException(se.nonEmptyMessage)
+            throw AlternativeException(se.reason)
         }
     }
 }

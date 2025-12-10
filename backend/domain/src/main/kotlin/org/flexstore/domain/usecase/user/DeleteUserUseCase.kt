@@ -5,7 +5,7 @@ import org.flexstore.domain.entity.UserDeletionFailed
 import org.flexstore.domain.entity.UserId
 import org.flexstore.domain.repository.UserRepository
 import org.ucop.domain.NominalException
-import org.ucop.domain.NonEmptyString
+import org.ucop.domain.Reason
 import org.ucop.domain.entity.*
 import kotlin.reflect.KClass
 
@@ -41,13 +41,13 @@ class DeleteUserUseCase(private val userRepository: UserRepository) : UseCase<Us
 
     private fun userExistsCondition() = PreCondition<UserId> { userId ->
         if (userRepository.notExists(userId)) {
-            throw UserNotFoundException(NonEmptyString("User with ID ${userId.value} does not exist."))
+            throw UserNotFoundException(Reason("User with ID ${userId.value} does not exist."))
         }
     }
 
     private fun userDeletedCondition() = PostCondition<UserId> { userId ->
         if (userRepository.exists(userId)) {
-            throw UserDeletionFailed(NonEmptyString("User with ID ${userId.value} was not deleted."))
+            throw UserDeletionFailed(Reason("User with ID ${userId.value} was not deleted."))
         }
     }
 }

@@ -4,7 +4,7 @@ import org.flexstore.domain.entity.*
 import org.flexstore.domain.repository.ProductRepository
 import org.flexstore.domain.valueobject.Product
 import org.ucop.domain.NominalException
-import org.ucop.domain.NonEmptyString
+import org.ucop.domain.Reason
 import org.ucop.domain.entity.*
 import kotlin.reflect.KClass
 
@@ -41,13 +41,13 @@ class CreateProductUseCase(private val productRepository: ProductRepository) : U
 
     private fun productDoesNotExistCondition() = PreCondition<Product> { product ->
         if (productRepository.exists(product)) {
-            throw ProductAlreadyExists(NonEmptyString("Product ${product} already exists."))
+            throw ProductAlreadyExists(Reason("Product ${product} already exists."))
         }
     }
 
     private fun productExistsCondition() = PostCondition<Product> { product ->
         if (productRepository.notExists(product)) {
-            throw ProductCreationFailed(NonEmptyString("Product ${product} was not created."))
+            throw ProductCreationFailed(Reason("Product ${product} was not created."))
         }
     }
 }
