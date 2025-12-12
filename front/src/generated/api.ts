@@ -81,11 +81,10 @@ export interface JsonUser {
     'password'?: string;
 }
 export interface JsonUserCreate {
-    'id'?: string;
     'name': string;
     'email': string;
     /**
-     * User\'s password (plain text)
+     * User\'s password (will be hashed by the server)
      */
     'password': string;
 }

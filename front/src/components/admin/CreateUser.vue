@@ -18,7 +18,6 @@
 
   const createUser = async (name, email, password) => {
     const newUser = {
-      id: Date.now(),
       name: name,
       email: email,
       password: password,

@@ -205,15 +205,13 @@ components:
         - email
         - password
       properties:
-        id:
-          type: string
         name:
           type: string
         email:
           type: string
         password:
           type: string
-          description: User's password (plain text)
+          description: User's password (will be hashed by the server)
     JsonLoginRequest:
       type: object
       required:

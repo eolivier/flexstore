@@ -5,10 +5,9 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **string** |  | [optional] [default to undefined]
 **name** | **string** |  | [default to undefined]
 **email** | **string** |  | [default to undefined]
-**password** | **string** | User\&#39;s password (plain text) | [default to undefined]
+**password** | **string** | User\&#39;s password (will be hashed by the server) | [default to undefined]
 
 ## Example
 
@@ -16,7 +15,6 @@ Name | Type | Description | Notes
 import { JsonUserCreate } from './api';
 
 const instance: JsonUserCreate = {
-    id,
     name,
     email,
     password,
