@@ -9,7 +9,9 @@ import kotlin.reflect.KClass
 
 data class LoginRequest(val email: Email, val password: Password)
 
-class LoginUseCase(private val userRepository: UserRepository) : UseCase<LoginRequest> {
+class LoginUseCase(
+    private val userRepository: UserRepository
+) : UseCase<LoginRequest> {
 
     lateinit var authenticatedUser: User
 
@@ -51,11 +53,8 @@ class LoginUseCase(private val userRepository: UserRepository) : UseCase<LoginRe
     }
 
     private fun passwordMatchesCondition() = PreCondition<LoginRequest> { request ->
-        val user = userRepository.findByEmail(request.email)
-        if (user is User.DefinedUser) {
-            if (user.password.value != request.password.value) {
-                throw InvalidCredentialsException(NonEmptyString("Invalid credentials."))
-            }
+        if (!userRepository.passwordMatches(request.email, request.password)) {
+            throw InvalidCredentialsException(NonEmptyString("Invalid credentials."))
         }
     }
 

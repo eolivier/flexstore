@@ -5,7 +5,9 @@ import org.flexstore.domain.entity.UserId
 import org.flexstore.domain.repository.UserRepository
 import org.flexstore.domain.usecase.user.*
 
-class UserService(private val userRepository: UserRepository) {
+class UserService(
+    private val userRepository: UserRepository
+) {
 
     fun createUser(user: User): User {
         val createUserUseCase = CreateUserUseCase(userRepository)

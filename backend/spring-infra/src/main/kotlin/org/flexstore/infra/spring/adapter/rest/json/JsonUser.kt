@@ -11,6 +11,6 @@ data class JsonUser @JsonCreator constructor(
     @JsonProperty("email") val email: String,
     @JsonProperty("password") val password: String? = null
 ) {
-    fun toUser() = User.of(UserId.of(id), Name(name), Email(email), Password(password ?: ""))
-    fun toUser(userId: String) = User.of(UserId.of(userId), Name(name), Email(email), Password(password ?: ""))
+    fun toUser() = User.of(UserId.of(id), Name(name), Email(email), PlainPassword(password ?: ""))
+    fun toUser(userId: String) = User.of(UserId.of(userId), Name(name), Email(email), PlainPassword(password ?: ""))
 }

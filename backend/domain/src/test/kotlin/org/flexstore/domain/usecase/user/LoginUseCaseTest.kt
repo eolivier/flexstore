@@ -19,11 +19,12 @@ class LoginUseCaseTest {
         // Arrange
         val userRepository = mockk<UserRepository>()
         val email = Email("john.doe@example.com")
-        val password = Password("password123")
-        val user = DefinedUser(ValidUserId("123"), Name("John Doe"), email, password)
+        val password = PlainPassword("password123")
+        val user = DefinedUser(ValidUserId("123"), Name("John Doe"), email, HashedPassword("hashedPassword123"))
         val loginRequest = LoginRequest(email, password)
         
         every { userRepository.findByEmail(email) } returns user
+        every { userRepository.passwordMatches(email, password) } returns true
         
         val loginUseCase = LoginUseCase(userRepository)
         
@@ -34,6 +35,7 @@ class LoginUseCaseTest {
         val authenticatedUser = loginUseCase.authenticatedUser
         assertThat(authenticatedUser).isEqualTo(user)
         verify { userRepository.findByEmail(email) }
+        verify { userRepository.passwordMatches(email, password) }
     }
 
     @Test
@@ -41,7 +43,7 @@ class LoginUseCaseTest {
         // Arrange
         val userRepository = mockk<UserRepository>()
         val email = Email("nonexistent@example.com")
-        val password = Password("password123")
+        val password = PlainPassword("password123")
         val loginRequest = LoginRequest(email, password)
         
         every { userRepository.findByEmail(email) } returns User.UndefinedUser(
@@ -63,12 +65,12 @@ class LoginUseCaseTest {
         // Arrange
         val userRepository = mockk<UserRepository>()
         val email = Email("john.doe@example.com")
-        val correctPassword = Password("password123")
-        val incorrectPassword = Password("wrongpassword")
-        val user = DefinedUser(ValidUserId("123"), Name("John Doe"), email, correctPassword)
+        val incorrectPassword = PlainPassword("wrongpassword")
+        val user = DefinedUser(ValidUserId("123"), Name("John Doe"), email, HashedPassword("hashedPassword123"))
         val loginRequest = LoginRequest(email, incorrectPassword)
         
         every { userRepository.findByEmail(email) } returns user
+        every { userRepository.passwordMatches(email, incorrectPassword) } returns false
         
         val loginUseCase = LoginUseCase(userRepository)
         

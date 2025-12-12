@@ -7,7 +7,9 @@ import org.ucop.domain.NonEmptyString
 import org.ucop.domain.entity.*
 import kotlin.reflect.KClass
 
-class CreateUserUseCase(private val userRepository: UserRepository) : UseCase<User> {
+class CreateUserUseCase(
+    private val userRepository: UserRepository
+) : UseCase<User> {
 
     lateinit var createdUser: User
 
@@ -21,7 +23,10 @@ class CreateUserUseCase(private val userRepository: UserRepository) : UseCase<Us
     override fun getNominalScenario(): NominalScenario<User> {
         println("##[BEGIN] CreateUserUseCase.getNominalScenario")
         // Steps
-        val createUserStep = Step<User> { user -> createdUser = userRepository.save(user) }
+        val createUserStep = Step<User> { user -> 
+            // Repository will handle password hashing
+            createdUser = userRepository.save(user)
+        }
         // Nominal scenario
         val nominalScenario = NominalScenario(listOf(createUserStep))
         println("##[END] CreateUserUseCase.getNominalScenario")
