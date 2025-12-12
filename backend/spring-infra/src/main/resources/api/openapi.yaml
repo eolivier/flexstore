@@ -86,7 +86,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/JsonUser"
+              $ref: "#/components/schemas/JsonUserCreate"
         required: true
       responses:
         "201":
@@ -198,6 +198,20 @@ components:
           type: string
         password:
           type: string
+    JsonUserCreate:
+      type: object
+      required:
+        - name
+        - email
+        - password
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+          description: User's password (will be hashed by the server)
     JsonLoginRequest:
       type: object
       required:

@@ -8,10 +8,11 @@ All URIs are relative to *http://localhost:8080*
 |[**deleteUser**](#deleteuser) | **DELETE** /api/users/{id} | Delete a user by ID|
 |[**getAllUsers**](#getallusers) | **GET** /api/users | Retrieve all users|
 |[**getUser**](#getuser) | **GET** /api/users/{id} | Retrieve a user by ID|
+|[**loginUser**](#loginuser) | **POST** /api/users/login | Authenticate a user|
 |[**updateUser**](#updateuser) | **PUT** /api/users/{id} | Update a user by ID|
 
 # **createUser**
-> JsonUser createUser(jsonUser)
+> JsonUser createUser(jsonUserCreate)
 
 
 ### Example
@@ -20,16 +21,16 @@ All URIs are relative to *http://localhost:8080*
 import {
     UsersApi,
     Configuration,
-    JsonUser
+    JsonUserCreate
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new UsersApi(configuration);
 
-let jsonUser: JsonUser; //
+let jsonUserCreate: JsonUserCreate; //
 
 const { status, data } = await apiInstance.createUser(
-    jsonUser
+    jsonUserCreate
 );
 ```
 
@@ -37,7 +38,7 @@ const { status, data } = await apiInstance.createUser(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **jsonUser** | **JsonUser**|  | |
+| **jsonUserCreate** | **JsonUserCreate**|  | |
 
 
 ### Return type
@@ -202,6 +203,59 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | Successfully retrieved the user |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **loginUser**
+> JsonUser loginUser(jsonLoginRequest)
+
+Validates user credentials and returns user information on success
+
+### Example
+
+```typescript
+import {
+    UsersApi,
+    Configuration,
+    JsonLoginRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new UsersApi(configuration);
+
+let jsonLoginRequest: JsonLoginRequest; //
+
+const { status, data } = await apiInstance.loginUser(
+    jsonLoginRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **jsonLoginRequest** | **JsonLoginRequest**|  | |
+
+
+### Return type
+
+**JsonUser**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Successfully authenticated |  -  |
+|**401** | Invalid credentials |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

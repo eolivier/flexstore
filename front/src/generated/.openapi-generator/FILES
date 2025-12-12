@@ -9,8 +9,10 @@ docs/DraftJsonProduct.md
 docs/JsonCartItem.md
 docs/JsonCartItems.md
 docs/JsonItem.md
+docs/JsonLoginRequest.md
 docs/JsonProduct.md
 docs/JsonUser.md
+docs/JsonUserCreate.md
 docs/ProductsApi.md
 docs/UsersApi.md
 git_push.sh
