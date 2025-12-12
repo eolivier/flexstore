@@ -7,6 +7,7 @@ export default {
     createUser: {
       name: "User's Name",
       email: "User's Email",
+      password: "Password",
       label: "Create user",
       mandatoryField: "Mandatory field"
     },
@@ -28,6 +29,7 @@ export default {
     createUser: {
       name: "Nom de l'utilisateur",
       email: "Email de l'utilisateur",
+      password: "Mot de passe",
       label: "Créer utilisateur",
       mandatoryField: "Champ obligatoire"
     },

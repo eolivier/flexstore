@@ -5,6 +5,7 @@
 
   const name = ref('');
   const email = ref('');
+  const password = ref('');
   const valid = ref(false);
   const formRef = ref(null);
 
@@ -15,11 +16,12 @@
     required: (v) => !!v || t('createUser.mandatoryField'),
   };
 
-  const createUser = async (name, email) => {
+  const createUser = async (name, email, password) => {
     const newUser = {
       id: Date.now(),
       name: name,
       email: email,
+      password: password,
     };
     await usersStore.addUser(newUser);
     resetForm();
@@ -27,13 +29,14 @@
 
   const submitForm = () => {
     if (valid.value) {
-      createUser(name.value, email.value);
+      createUser(name.value, email.value, password.value);
     }
   };
 
   const resetForm = () => {
     name.value = '';
     email.value = '';
+    password.value = '';
     valid.value = false;
     nextTick(() => {
       if (formRef.value) {
@@ -58,6 +61,14 @@
         v-model="email"
         :label="t('createUser.email')"
         :rules="[rules.required]"
+        required
+      />
+
+      <v-text-field
+        v-model="password"
+        :label="t('createUser.password')"
+        :rules="[rules.required]"
+        type="password"
         required
       />
 
