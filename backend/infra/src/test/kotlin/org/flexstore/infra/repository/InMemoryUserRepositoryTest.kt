@@ -26,7 +26,7 @@ class InMemoryUserRepositoryTest {
     fun `should return true when user exists`() {
         // Arrange
         val userRepository = InMemoryUserRepository()
-        val user = DefinedUser(ValidUserId("123"), Name("Jane Doe"), Email("jane.doe@example.com"), Password("password123"))
+        val user = DefinedUser(ValidUserId("123"), Name("Jane Doe"), Email("jane.doe@example.com"), PlainPassword("password123"))
         userRepository.save(user)
 
         // Act
@@ -40,7 +40,7 @@ class InMemoryUserRepositoryTest {
     fun `should save user successfully`() {
         // Arrange
         val userRepository = InMemoryUserRepository()
-        val user = DefinedUser(ValidUserId("123"), Name("Jane Doe"), Email("jane.doe@example.com"), Password("password123"))
+        val user = DefinedUser(ValidUserId("123"), Name("Jane Doe"), Email("jane.doe@example.com"), PlainPassword("password123"))
 
         // Act
         userRepository.save(user)
@@ -53,21 +53,25 @@ class InMemoryUserRepositoryTest {
     fun `should find user by id`() {
         // Arrange
         val userRepository = InMemoryUserRepository()
-        val user = DefinedUser(ValidUserId("123"), Name("Jane Doe"), Email("jane.doe@example.com"), Password("password123"))
+        val user = DefinedUser(ValidUserId("123"), Name("Jane Doe"), Email("jane.doe@example.com"), PlainPassword("password123"))
         userRepository.save(user)
 
         // Act
         val result = userRepository.findById(user.id)
 
         // Assert
-        assertEquals(user, result)
+        assertEquals(user.id, result.id)
+        assertEquals(user.name, (result as DefinedUser).name)
+        assertEquals(user.email, result.email)
+        // Password will be hashed, so we can't directly compare
+        assertTrue(result.password is HashedPassword)
     }
 
     @Test
     fun `should return true when user is deleted successfully`() {
         // Arrange
         val userRepository = InMemoryUserRepository()
-        val user = DefinedUser(ValidUserId("123"), Name("Jane Doe"), Email("jane.doe@example.com"), Password("password123"))
+        val user = DefinedUser(ValidUserId("123"), Name("Jane Doe"), Email("jane.doe@example.com"), PlainPassword("password123"))
         userRepository.save(user)
 
         // Act
