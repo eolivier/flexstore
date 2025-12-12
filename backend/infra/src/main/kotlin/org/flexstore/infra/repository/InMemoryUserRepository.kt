@@ -18,21 +18,19 @@ class InMemoryUserRepository : UserRepository {
     }
 
     override fun save(user: User): User {
-        // Hash password if it's a DefinedUser with a plain password
         val userToSave = when (user) {
-            is User.DefinedUser -> {
-                // Only hash if password doesn't look already hashed (BCrypt hashes start with $2a$, $2b$, or $2y$)
-                val hashedPassword = if (user.password.value.matches(Regex("^\\$2[aby]\\$.*"))) {
-                    user.password
-                } else {
-                    Password(passwordEncoder.encode(user.password.value))
-                }
-                user.copy(password = hashedPassword)
-            }
+            is User.DefinedUser -> hashPasswordIfNeeded(user)
             else -> user
         }
         users[userToSave.id] = userToSave
         return userToSave
+    }
+    
+    private fun hashPasswordIfNeeded(user: User.DefinedUser): User.DefinedUser {
+        return when (user.password) {
+            is PlainPassword -> user.copy(password = HashedPassword(passwordEncoder.encode(user.password.value)))
+            is HashedPassword -> user
+        }
     }
 
     override fun findById(id: UserId): User = users[id] ?: throw IllegalArgumentException("User not found")
@@ -50,7 +48,10 @@ class InMemoryUserRepository : UserRepository {
     override fun passwordMatches(email: Email, password: Password): Boolean {
         val user = findByEmail(email)
         return when (user) {
-            is User.DefinedUser -> passwordEncoder.matches(password.value, user.password.value)
+            is User.DefinedUser -> when (user.password) {
+                is HashedPassword -> passwordEncoder.matches(password.value, user.password.value)
+                else -> false
+            }
             else -> false
         }
     }
@@ -64,19 +65,19 @@ class InMemoryUserRepository : UserRepository {
                 id = UserId.ValidUserId("u-1"),
                 name = Name("Alice Smith"),
                 email = Email("alice.smith@example.com"),
-                password = Password(passwordEncoder.encode("password123"))
+                password = HashedPassword(passwordEncoder.encode("password123"))
             ),
             User.DefinedUser(
                 id = UserId.ValidUserId("u-2"),
                 name = Name("Bob Johnson"),
                 email = Email("bob.johnson@example.com"),
-                password = Password(passwordEncoder.encode("password456"))
+                password = HashedPassword(passwordEncoder.encode("password456"))
             ),
             User.DefinedUser(
                 id = UserId.ValidUserId("u-3"),
                 name = Name("Charlie Brown"),
                 email = Email("charlie.brown@example.com"),
-                password = Password(passwordEncoder.encode("password789"))
+                password = HashedPassword(passwordEncoder.encode("password789"))
             )
         )
         demoUsers.forEach { users[it.id] = it }

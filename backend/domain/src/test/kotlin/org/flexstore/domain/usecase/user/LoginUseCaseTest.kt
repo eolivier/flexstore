@@ -19,8 +19,8 @@ class LoginUseCaseTest {
         // Arrange
         val userRepository = mockk<UserRepository>()
         val email = Email("john.doe@example.com")
-        val password = Password("password123")
-        val user = DefinedUser(ValidUserId("123"), Name("John Doe"), email, Password("hashedPassword123"))
+        val password = PlainPassword("password123")
+        val user = DefinedUser(ValidUserId("123"), Name("John Doe"), email, HashedPassword("hashedPassword123"))
         val loginRequest = LoginRequest(email, password)
         
         every { userRepository.findByEmail(email) } returns user
@@ -43,7 +43,7 @@ class LoginUseCaseTest {
         // Arrange
         val userRepository = mockk<UserRepository>()
         val email = Email("nonexistent@example.com")
-        val password = Password("password123")
+        val password = PlainPassword("password123")
         val loginRequest = LoginRequest(email, password)
         
         every { userRepository.findByEmail(email) } returns User.UndefinedUser(
@@ -65,8 +65,8 @@ class LoginUseCaseTest {
         // Arrange
         val userRepository = mockk<UserRepository>()
         val email = Email("john.doe@example.com")
-        val incorrectPassword = Password("wrongpassword")
-        val user = DefinedUser(ValidUserId("123"), Name("John Doe"), email, Password("hashedPassword123"))
+        val incorrectPassword = PlainPassword("wrongpassword")
+        val user = DefinedUser(ValidUserId("123"), Name("John Doe"), email, HashedPassword("hashedPassword123"))
         val loginRequest = LoginRequest(email, incorrectPassword)
         
         every { userRepository.findByEmail(email) } returns user

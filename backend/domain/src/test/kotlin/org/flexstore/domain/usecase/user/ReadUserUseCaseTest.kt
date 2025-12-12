@@ -19,7 +19,7 @@ class ReadUserUseCaseTest {
         // Arrange
         val userRepository = mockk<UserRepository>()
         val userId = ValidUserId("123")
-        val user = User.DefinedUser(userId, Name("John Doe"), Email("john.doe@example.com"), Password("password123"))
+        val user = User.DefinedUser(userId, Name("John Doe"), Email("john.doe@example.com"), PlainPassword("password123"))
         every { userRepository.findById(userId) } returns user
         every { userRepository.notExists(userId) } returns false
         val readUserUseCase = ReadUserUseCase(userRepository)

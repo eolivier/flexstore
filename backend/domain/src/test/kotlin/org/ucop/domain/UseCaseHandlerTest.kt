@@ -17,7 +17,7 @@ class UseCaseHandlerTest {
     fun `should create and update user`() {
         // Given
         val userRepository = spyk<InMemoryUserRepository>()
-        val user = DefinedUser(ValidUserId("123"), Name("Jane Doe"), Email("jane.doe@example.com"), Password("password123"))
+        val user = DefinedUser(ValidUserId("123"), Name("Jane Doe"), Email("jane.doe@example.com"), PlainPassword("password123"))
 
         val createUserUseCase = CreateUserUseCase(userRepository)
         val updateUserUseCase = UpdateUserUseCase(userRepository)

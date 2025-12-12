@@ -52,7 +52,13 @@ fun UserId.Companion.of(value: String): UserId {
 
 data class Email(val value: String)
 
-data class Password(val value: String)
+sealed class Password {
+    abstract val value: String
+}
+
+data class PlainPassword(override val value: String) : Password()
+
+data class HashedPassword(override val value: String) : Password()
 
 class Guest(name: Name) : Actor(name)
 

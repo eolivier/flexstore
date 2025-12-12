@@ -18,7 +18,7 @@ class CreateUserUseCaseTest {
     fun `should create user successfully`() {
         // Arrange
         val userRepository = mockk<UserRepository>()
-        val user = DefinedUser(ValidUserId("123"), Name("John Doe"), Email("john.doe@example.com"), Password("password123"))
+        val user = DefinedUser(ValidUserId("123"), Name("John Doe"), Email("john.doe@example.com"), PlainPassword("password123"))
         
         every { userRepository.save(ofType<User.DefinedUser>()) } answers { firstArg() }
         every { userRepository.exists(user.id) } returns false
@@ -39,7 +39,7 @@ class CreateUserUseCaseTest {
     fun `should fail if user already exists`() {
         // Arrange
         val userRepository = mockk<UserRepository>()
-        val user = DefinedUser(ValidUserId("123"), Name("John Doe"), Email("john.doe@example.com"), Password("password123"))
+        val user = DefinedUser(ValidUserId("123"), Name("John Doe"), Email("john.doe@example.com"), PlainPassword("password123"))
         every { userRepository.exists(user.id) } returns true
         val createUserUseCase = CreateUserUseCase(userRepository)
         val exception = assertThrows<UserAlreadyExists> {
@@ -54,7 +54,7 @@ class CreateUserUseCaseTest {
     fun `should fail if user is not created`() {
         // Arrange
         val userRepository = mockk<UserRepository>()
-        val user = DefinedUser(ValidUserId("123"), Name("John Doe"), Email("john.doe@example.com"), Password("password123"))
+        val user = DefinedUser(ValidUserId("123"), Name("John Doe"), Email("john.doe@example.com"), PlainPassword("password123"))
         
         every { userRepository.notExists(user.id) } returns true
         every { userRepository.save(ofType<User.DefinedUser>()) } returns user

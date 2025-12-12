@@ -23,14 +23,15 @@ class GuestTest {
         
         val createUserUseCase = CreateUserUseCase(userRepository)
         val guest = Guest(createUserUseCase, mock(AddItemToBasketUseCase::class.java))
-        val user = DefinedUser(ValidUserId("user1"), Name("John Doe"), Email("1@1.fr"), Password("password123"))
+        val user = DefinedUser(ValidUserId("user1"), Name("John Doe"), Email("1@1.fr"), PlainPassword("password123"))
         // Act
         guest.performCreateUser(user)
         // Assert
         // Verify the user was saved with hashed password by checking repository state
         val savedUser = userRepository.findById(user.id)
         assertThat(savedUser).isInstanceOf(User.DefinedUser::class.java)
-        assertThat((savedUser as User.DefinedUser).password.value).matches("^\\$2[aby]\\$.*")
+        assertThat((savedUser as User.DefinedUser).password).isInstanceOf(HashedPassword::class.java)
+        assertThat((savedUser.password as HashedPassword).value).matches("^\\$2[aby]\\$.*")
     }
 
     @Test
