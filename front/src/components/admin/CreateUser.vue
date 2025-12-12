@@ -14,6 +14,8 @@
 
   const rules = {
     required: (v) => !!v || t('createUser.mandatoryField'),
+    email: (v) => /.+@.+\..+/.test(v) || t('createUser.invalidEmail'),
+    passwordLength: (v) => v.length >= 8 || t('createUser.passwordTooShort'),
   };
 
   const createUser = async (name, email, password) => {
@@ -59,14 +61,15 @@
       <v-text-field
         v-model="email"
         :label="t('createUser.email')"
-        :rules="[rules.required]"
+        :rules="[rules.required, rules.email]"
+        type="email"
         required
       />
 
       <v-text-field
         v-model="password"
         :label="t('createUser.password')"
-        :rules="[rules.required]"
+        :rules="[rules.required, rules.passwordLength]"
         type="password"
         required
       />
