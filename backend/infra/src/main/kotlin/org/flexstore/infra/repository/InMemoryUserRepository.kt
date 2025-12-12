@@ -1,13 +1,14 @@
 package org.flexstore.infra.repository
 
+import at.favre.lib.crypto.bcrypt.BCrypt
 import org.flexstore.domain.entity.*
 import org.flexstore.domain.repository.UserRepository
 import org.flexstore.domain.valueobject.Name
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 
 class InMemoryUserRepository : UserRepository {
     
-    private val passwordEncoder = BCryptPasswordEncoder()
+    private val bcryptHasher = BCrypt.withDefaults()
+    private val bcryptVerifier = BCrypt.verifyer()
 
     override fun exists(userId: UserId): Boolean = users.containsKey(userId)
 
@@ -28,7 +29,10 @@ class InMemoryUserRepository : UserRepository {
     
     private fun hashPasswordIfNeeded(user: User.DefinedUser): User.DefinedUser {
         return when (user.password) {
-            is PlainPassword -> user.copy(password = HashedPassword(passwordEncoder.encode(user.password.value)))
+            is PlainPassword -> {
+                val hashedPassword = bcryptHasher.hashToString(12, user.password.value.toCharArray())
+                user.copy(password = HashedPassword(hashedPassword))
+            }
             is HashedPassword -> user
         }
     }
@@ -49,7 +53,10 @@ class InMemoryUserRepository : UserRepository {
         val user = findByEmail(email)
         return when (user) {
             is User.DefinedUser -> when (user.password) {
-                is HashedPassword -> passwordEncoder.matches(password.value, user.password.value)
+                is HashedPassword -> {
+                    val result = bcryptVerifier.verify(password.value.toCharArray(), user.password.value.toCharArray())
+                    result.verified
+                }
                 else -> false
             }
             else -> false
@@ -65,19 +72,19 @@ class InMemoryUserRepository : UserRepository {
                 id = UserId.ValidUserId("u-1"),
                 name = Name("Alice Smith"),
                 email = Email("alice.smith@example.com"),
-                password = HashedPassword(passwordEncoder.encode("password123"))
+                password = HashedPassword(bcryptHasher.hashToString(12, "password123".toCharArray()))
             ),
             User.DefinedUser(
                 id = UserId.ValidUserId("u-2"),
                 name = Name("Bob Johnson"),
                 email = Email("bob.johnson@example.com"),
-                password = HashedPassword(passwordEncoder.encode("password456"))
+                password = HashedPassword(bcryptHasher.hashToString(12, "password456".toCharArray()))
             ),
             User.DefinedUser(
                 id = UserId.ValidUserId("u-3"),
                 name = Name("Charlie Brown"),
                 email = Email("charlie.brown@example.com"),
-                password = HashedPassword(passwordEncoder.encode("password789"))
+                password = HashedPassword(bcryptHasher.hashToString(12, "password789".toCharArray()))
             )
         )
         demoUsers.forEach { users[it.id] = it }
