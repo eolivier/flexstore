@@ -19,11 +19,7 @@
   };
 
   const createUser = async (name, email, password) => {
-    const newUser = {
-      name: name,
-      email: email,
-      password: password,
-    };
+    const newUser = { name, email, password };
     await usersStore.addUser(newUser);
     resetForm();
   };
