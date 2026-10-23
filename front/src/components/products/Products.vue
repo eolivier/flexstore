@@ -18,13 +18,13 @@ const titles: Record<string, string> = {
 
 const title = computed(() => t(props.category ? titles[props.category] ?? 'nav.allProducts' : 'nav.allProducts'));
 
-const headers = [
-  { title: 'Name', key: 'name' },
-  { title: 'Description', key: 'description' },
-  { title: 'Category', key: 'category' },
-  { title: 'Price', key: 'price' },
-  { title: 'Actions', key: 'actions', sortable: false },
-];
+const headers = computed(() => [
+  { title: t('table.name'), key: 'name' },
+  { title: t('table.description'), key: 'description' },
+  { title: t('table.category'), key: 'category' },
+  { title: t('table.price'), key: 'price' },
+  { title: t('table.actions'), key: 'actions', sortable: false },
+]);
 
 const productsStore = useProductsStore();
 const cartStore = useCartStore();
@@ -74,7 +74,7 @@ function productToCartItem(product: Product): Item {
       </template>
       <template #item.actions="{ item }">
         <v-btn color="primary" @click="addToCart(item)">
-          Add to cart
+          {{ t('products.addToCart') }}
         </v-btn>
       </template>
     </v-data-table>

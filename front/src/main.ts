@@ -2,7 +2,7 @@ import { createApp } from 'vue';
 import './style.css';
 import { createPinia } from 'pinia';
 import vuetify from './plugins/vuetify';
-import { createI18n } from 'vue-i18n';
+import i18n from './plugins/i18n';
 import App from './App.vue';
 import { createRouter, createWebHistory } from 'vue-router';
 
@@ -17,7 +17,6 @@ import Orders from './components/Orders.vue';
 import Products from "./components/products/Products.vue";
 import CreateProduct from './components/admin/CreateProduct.vue';
 import Login from './components/Login.vue';
-import messages from './i18n/messages';
 import { useAuthStore } from './stores/auth.store';
 
 const pinia = createPinia();
@@ -42,11 +41,6 @@ const router = createRouter({
   history: createWebHistory(),
   routes,
   scrollBehavior: () => ({ top: 0 }),
-});
-
-const i18n = createI18n({
-  locale: 'fr', // ou 'en'
-  messages,
 });
 
 const app = createApp(App);

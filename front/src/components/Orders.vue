@@ -1,6 +1,6 @@
 <template>
   <v-container class="py-10">
-    <h1 class="text-h5 font-weight-bold mb-6">Orders</h1>
+    <h1 class="text-h5 font-weight-bold mb-6">{{ t('orders.title') }}</h1>
 
     <v-data-table :headers="headers" :items="orders" class="elevation-2" :items-per-page="5">
       <template #item.total="{ item }">
@@ -11,13 +11,18 @@
 </template>
 
 <script setup>
-  const headers = [
-    { title: 'Order ID', key: 'id' },
-    { title: 'Customer', key: 'customer' },
-    { title: 'Items', key: 'items' },
-    { title: 'Total', key: 'total', align: 'end' },
-    { title: 'Status', key: 'status' },
-  ];
+  import { computed } from 'vue';
+  import { useI18n } from 'vue-i18n';
+
+  const { t } = useI18n();
+
+  const headers = computed(() => [
+    { title: t('table.orderId'), key: 'id' },
+    { title: t('table.customer'), key: 'customer' },
+    { title: t('table.items'), key: 'items' },
+    { title: t('table.total'), key: 'total', align: 'end' },
+    { title: t('table.status'), key: 'status' },
+  ]);
 
   const orders = [
     {

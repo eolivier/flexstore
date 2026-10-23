@@ -1,5 +1,36 @@
 export default {
   en: {
+    table: {
+      id: "ID",
+      name: "Name",
+      email: "Email",
+      description: "Description",
+      category: "Category",
+      price: "Price",
+      actions: "Actions",
+      itemId: "Item",
+      product: "Product",
+      quantity: "Quantity",
+      orderId: "Order",
+      customer: "Customer",
+      items: "Items",
+      total: "Total",
+      status: "Status"
+    },
+    products: {
+      addToCart: "Add to cart"
+    },
+    cart: {
+      title: "My cart",
+      total: "Total"
+    },
+    orders: {
+      title: "Orders"
+    },
+    users: {
+      title: "Users",
+      delete: "Delete"
+    },
     nav: {
       home: "Home",
       shop: "Shop",
@@ -50,6 +81,37 @@ export default {
     }
   },
   fr: {
+    table: {
+      id: "ID",
+      name: "Nom",
+      email: "Email",
+      description: "Description",
+      category: "Catégorie",
+      price: "Prix",
+      actions: "Actions",
+      itemId: "Article",
+      product: "Produit",
+      quantity: "Quantité",
+      orderId: "Commande",
+      customer: "Client",
+      items: "Articles",
+      total: "Total",
+      status: "Statut"
+    },
+    products: {
+      addToCart: "Ajouter au panier"
+    },
+    cart: {
+      title: "Mon panier",
+      total: "Total"
+    },
+    orders: {
+      title: "Commandes"
+    },
+    users: {
+      title: "Utilisateurs",
+      delete: "Supprimer"
+    },
     nav: {
       home: "Accueil",
       shop: "Boutique",

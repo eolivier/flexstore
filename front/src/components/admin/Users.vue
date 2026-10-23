@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { onMounted, ref } from 'vue';
+  import { computed, onMounted, ref } from 'vue';
   import { useUsersStore } from '@/stores/users.store.ts';
   import ConfirmDialog from '@/components/ConfirmDialog.vue';
   import { useI18n } from 'vue-i18n';
@@ -25,20 +25,20 @@
     }
   }
 
-  const headers = [
-    { title: 'ID', value: 'id' },
-    { title: 'Nom', value: 'name' },
-    { title: 'Email', value: 'email' },
-    { title: 'Actions', value: 'actions', sortable: false },
-  ];
+  const headers = computed(() => [
+    { title: t('table.id'), value: 'id' },
+    { title: t('table.name'), value: 'name' },
+    { title: t('table.email'), value: 'email' },
+    { title: t('table.actions'), value: 'actions', sortable: false },
+  ]);
 </script>
 
 <template>
   <v-container>
-    <h1 class="text-h5 font-weight-bold mb-6">Users</h1>
+    <h1 class="text-h5 font-weight-bold mb-6">{{ t('users.title') }}</h1>
     <v-data-table :headers="headers" :items="usersStore.users" class="elevation-1">
       <template #item.actions="{ item }">
-        <v-btn color="error" @click="openDeleteDialog(item.id)"> Delete </v-btn>
+        <v-btn color="error" @click="openDeleteDialog(item.id)">{{ t('users.delete') }}</v-btn>
       </template>
     </v-data-table>
     <ConfirmDialog
