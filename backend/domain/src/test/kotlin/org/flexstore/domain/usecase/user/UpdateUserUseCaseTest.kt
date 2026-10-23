@@ -62,4 +62,22 @@ class UpdateUserUseCaseTest {
         assertEquals("User with ID 123 does not exist.", exception.message)
         verify(exactly = 0) { userRepository.save(user) }
     }
+
+    @Test
+    fun `should keep existing password if no password is provided`() {
+        // Arrange
+        val userRepository = mockk<UserRepository>()
+        val userId = ValidUserId("123")
+        val existingUser = DefinedUser(userId, Name("John Doe"), Email("john.doe@example.com"), HashedPassword("hashed"))
+        val user = DefinedUser(userId, Name("Jane Doe"), Email("jane.doe@example.com"), PlainPassword(""))
+        val expectedUser = user.copy(password = existingUser.password)
+        every { userRepository.notExists(userId) } returns false
+        every { userRepository.findById(userId) } returns existingUser
+        every { userRepository.save(expectedUser) } returns expectedUser
+        val updateUserUseCase = UpdateUserUseCase(userRepository)
+        // Act
+        updateUserUseCase.unfold(user)
+        // Assert
+        verify { userRepository.save(expectedUser) }
+    }
 }

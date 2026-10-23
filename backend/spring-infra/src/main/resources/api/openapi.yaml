@@ -207,7 +207,7 @@ components:
           type: string
         password:
           type: string
-          description: User's new password (will be hashed by the server)
+          description: User's new password (will be hashed by the server). Omit it or leave it blank to keep the current password
     JsonUserCreate:
       type: object
       required:
