@@ -1,12 +1,7 @@
 import { createApp } from 'vue';
 import './style.css';
 import { createPinia } from 'pinia';
-import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
-
-import 'vuetify/styles';
-import '@mdi/font/css/materialdesignicons.css';
+import vuetify from './plugins/vuetify';
 import { createI18n } from 'vue-i18n';
 import App from './App.vue';
 import { createRouter, createWebHistory } from 'vue-router';
@@ -28,7 +23,6 @@ import Login from './components/Login.vue';
 import messages from './i18n/messages';
 import { useAuthStore } from './stores/auth.store';
 
-const vuetify = createVuetify({ components, directives });
 const pinia = createPinia();
 
 const routes = [
@@ -50,6 +44,7 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+  scrollBehavior: () => ({ top: 0 }),
 });
 
 const i18n = createI18n({

@@ -1,21 +1,23 @@
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { useI18n } from 'vue-i18n';
+  import { adminLinks } from '../navigation';
+
+  const { t } = useI18n();
   const adminOpen = ref(false);
 </script>
 
 <template>
-  <v-list-group v-model="adminOpen" prepend-icon="mdi-cog">
+  <v-list-group v-model="adminOpen" value="admin">
     <template #activator="{ props }">
-      <v-list-item v-bind="props">Administration</v-list-item>
+      <v-list-item v-bind="props" prepend-icon="mdi-cog-outline" :title="t('nav.admin')" />
     </template>
-    <v-list-item to="/admin/users" prepend-icon="mdi-account-multiple" link>
-      Listes des utilisateurs
-    </v-list-item>
-    <v-list-item to="/admin/create-user" prepend-icon="mdi-account-plus" link>
-      Créer un utilisateur
-    </v-list-item>
-    <v-list-item to="/admin/create-product" prepend-icon="mdi-package-variant" link>
-      Créer un produit
-    </v-list-item>
+    <v-list-item
+      v-for="link in adminLinks"
+      :key="link.to"
+      :to="link.to"
+      :prepend-icon="link.icon"
+      :title="t(link.label)"
+    />
   </v-list-group>
 </template>

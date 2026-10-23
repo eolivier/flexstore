@@ -1,17 +1,13 @@
 <template>
-  <v-app>
-    <v-main>
-      <v-container class="py-10">
-        <h1 class="text-h5 font-weight-bold mb-6">Orders</h1>
+  <v-container class="py-10">
+    <h1 class="text-h5 font-weight-bold mb-6">Orders</h1>
 
-        <v-data-table :headers="headers" :items="orders" class="elevation-2" :items-per-page="5">
-          <template #item.total="{ item }">
-            <strong>{{ item.total }}</strong>
-          </template>
-        </v-data-table>
-      </v-container>
-    </v-main>
-  </v-app>
+    <v-data-table :headers="headers" :items="orders" class="elevation-2" :items-per-page="5">
+      <template #item.total="{ item }">
+        <strong>{{ item.total }}</strong>
+      </template>
+    </v-data-table>
+  </v-container>
 </template>
 
 <script setup>

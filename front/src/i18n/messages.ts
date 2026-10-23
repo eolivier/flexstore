@@ -1,5 +1,30 @@
 export default {
   en: {
+    nav: {
+      home: "Home",
+      shop: "Shop",
+      allProducts: "All products",
+      clothing: "Clothing",
+      electronics: "Electronics",
+      accessories: "Accessories",
+      cart: "Cart",
+      orders: "Orders",
+      profile: "Profile",
+      account: "My account",
+      admin: "Administration",
+      users: "Users",
+      createUser: "Create a user",
+      createProduct: "Create a product",
+      about: "About",
+      login: "Sign in",
+      logout: "Sign out",
+      language: "Language",
+      openMenu: "Open menu"
+    },
+    footer: {
+      tagline: "Everyday essentials, delivered fast.",
+      rights: "All rights reserved."
+    },
     confirmUserDeletion: "Are you sure you want to delete this user?",
     cancel : "Cancel",
     confirm : "Confirm",
@@ -24,6 +49,31 @@ export default {
     }
   },
   fr: {
+    nav: {
+      home: "Accueil",
+      shop: "Boutique",
+      allProducts: "Tous les produits",
+      clothing: "Vêtements",
+      electronics: "Électronique",
+      accessories: "Accessoires",
+      cart: "Panier",
+      orders: "Commandes",
+      profile: "Profil",
+      account: "Mon compte",
+      admin: "Administration",
+      users: "Utilisateurs",
+      createUser: "Créer un utilisateur",
+      createProduct: "Créer un produit",
+      about: "À propos",
+      login: "Se connecter",
+      logout: "Se déconnecter",
+      language: "Langue",
+      openMenu: "Ouvrir le menu"
+    },
+    footer: {
+      tagline: "L'essentiel du quotidien, livré rapidement.",
+      rights: "Tous droits réservés."
+    },
     confirmUserDeletion: "Voulez-vous vraiment supprimer cet utilisateur ?",
     cancel : "Annuler",
     confirm : "Confirmer",
