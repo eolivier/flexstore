@@ -1,9 +1,22 @@
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { computed, onMounted } from "vue";
+import { useI18n } from "vue-i18n";
 import { useProductsStore } from "@/stores/products.store.ts";
 import { useCartStore } from "@/stores/cart.store.ts";
 import type { Item } from "@/models/cart.ts";
 import type { Product } from '@/models/product.ts';
+
+const props = defineProps<{ category?: string }>();
+
+const { t } = useI18n();
+
+const titles: Record<string, string> = {
+  CLOTHING: 'nav.clothing',
+  ELECTRONICS: 'nav.electronics',
+  ACCESSORIES: 'nav.accessories',
+};
+
+const title = computed(() => t(props.category ? titles[props.category] ?? 'nav.allProducts' : 'nav.allProducts'));
 
 const headers = [
   { title: 'Name', key: 'name' },
@@ -15,6 +28,12 @@ const headers = [
 
 const productsStore = useProductsStore();
 const cartStore = useCartStore();
+
+const products = computed(() =>
+  props.category
+    ? productsStore.products.filter(product => product.category === props.category)
+    : productsStore.products
+);
 
 onMounted(() => {
   productsStore.fetchProducts();
@@ -47,9 +66,9 @@ function productToCartItem(product: Product): Item {
 </script>
 <template>
   <v-container class="py-10">
-    <h1 class="text-h5 font-weight-bold mb-6">All products</h1>
+    <h1 class="text-h5 font-weight-bold mb-6">{{ title }}</h1>
 
-    <v-data-table :headers="headers" :items="productsStore.products" class="elevation-2 text-left">
+    <v-data-table :headers="headers" :items="products" class="elevation-2 text-left">
       <template #item.price="{ item }">
         <strong>{{ item.price }} {{ item.currency }}</strong>
       </template>
