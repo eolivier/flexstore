@@ -1,5 +1,9 @@
 export default {
   en: {
+    home: {
+      title: "Welcome to Flexstore",
+      intro: "Your online destination for a seamless and secure shopping experience. Discover a wide selection of products including electronics, fashion, accessories, and home essentials. Our intuitive platform lets you explore new arrivals, enjoy exclusive offers, and benefit from fast delivery. Create your account to access personalized services and join a community of satisfied shoppers. Flexstore, where your shopping desires come to life!"
+    },
     table: {
       id: "ID",
       name: "Name",
@@ -81,6 +85,10 @@ export default {
     }
   },
   fr: {
+    home: {
+      title: "Bienvenue sur Flexstore",
+      intro: "Votre destination en ligne pour des achats simples et sécurisés. Découvrez une large sélection de produits : électronique, mode, accessoires et indispensables pour la maison. Notre plateforme intuitive vous permet d'explorer les nouveautés, de profiter d'offres exclusives et d'une livraison rapide. Créez votre compte pour accéder à des services personnalisés et rejoindre une communauté de clients satisfaits. Flexstore, là où vos envies shopping prennent vie !"
+    },
     table: {
       id: "ID",
       name: "Nom",
