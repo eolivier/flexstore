@@ -3,10 +3,9 @@ import { computed, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 import { useProductsStore } from "@/stores/products.store.ts";
-import { useCartStore } from "@/stores/cart.store.ts";
-import type { Item } from "@/models/cart.ts";
-import type { Product } from '@/models/product.ts';
 import ProductCard from './ProductCard.vue';
+import CartSnackbar from '@/components/cart/CartSnackbar.vue';
+import { useAddToCart } from '@/composables/useAddToCart';
 import { categoryInfo } from './categories';
 import { shopLinks } from '@/components/menu/navigation';
 
@@ -16,7 +15,7 @@ const { t } = useI18n();
 const route = useRoute();
 
 const productsStore = useProductsStore();
-const cartStore = useCartStore();
+const { addingProductId, feedback, addToCart } = useAddToCart();
 
 const title = computed(() => t(props.category ? categoryInfo(props.category).label : 'nav.allProducts'));
 
@@ -39,41 +38,10 @@ const products = computed(() => {
   });
 });
 
-const addingProductId = ref<string | undefined>();
-const snackbar = ref({ show: false, success: true, text: '' });
-
 onMounted(() => {
   productsStore.fetchProducts();
 });
 
-async function addToCart(product: Product) {
-  addingProductId.value = product.id;
-  const existingItem = cartStore.cartItems?.items.find(i => i.productId === product.id);
-  const item = existingItem
-    ? { ...existingItem, productQuantity: existingItem.productQuantity + 1 }
-    : productToCartItem(product);
-  const saved = await cartStore.saveItem(item);
-  addingProductId.value = undefined;
-  snackbar.value = {
-    show: true,
-    success: saved,
-    text: saved ? t('products.added', { name: product.name }) : t('products.addError'),
-  };
-}
-
-function productToCartItem(product: Product): Item {
-  return {
-    itemId: '',
-    productId: product.id,
-    productName: product.name,
-    productDescription: product.description,
-    productCategory: product.category,
-    productPrice: product.price,
-    productCurrency: product.currency,
-    productQuantity: 1,
-    itemPrice: product.price,
-  };
-}
 </script>
 
 <template>
@@ -133,13 +101,7 @@ function productToCartItem(product: Product): Item {
       </v-col>
     </v-row>
 
-    <v-snackbar v-model="snackbar.show" :color="snackbar.success ? 'primary' : 'error'" timeout="3000" location="bottom right">
-      <v-icon :icon="snackbar.success ? 'mdi-check-circle-outline' : 'mdi-alert-circle-outline'" class="mr-2" />
-      {{ snackbar.text }}
-      <template v-if="snackbar.success" #actions>
-        <v-btn to="/cart" variant="text" color="secondary">{{ t('products.viewCart') }}</v-btn>
-      </template>
-    </v-snackbar>
+    <CartSnackbar v-model="feedback" />
   </v-container>
 </template>
 

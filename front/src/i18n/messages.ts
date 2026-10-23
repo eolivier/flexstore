@@ -18,6 +18,10 @@ export default {
     home: {
       eyebrow: "Welcome to Flexstore",
       heroButton: "Browse products",
+      categoriesTitle: "Shop by category",
+      categoryLink: "Discover",
+      featuredTitle: "Our products",
+      seeAll: "See all products",
       title: "Shopping made simple, from click to doorstep",
       intro: "Flexstore was born from a simple idea: buying the things you need every day should be easy, transparent and pleasant. We bring together clothing, electronics and accessories in one place, carefully selected for their quality and their value for money.",
       valuesTitle: "What we stand for",
@@ -171,6 +175,10 @@ export default {
     home: {
       eyebrow: "Bienvenue sur Flexstore",
       heroButton: "Voir les produits",
+      categoriesTitle: "Acheter par catégorie",
+      categoryLink: "Découvrir",
+      featuredTitle: "Nos produits",
+      seeAll: "Voir tous les produits",
       title: "Des achats simples, du clic jusqu'à votre porte",
       intro: "Flexstore est né d'une idée simple : acheter ce dont on a besoin au quotidien doit être facile, transparent et agréable. Nous réunissons vêtements, électronique et accessoires au même endroit, sélectionnés avec soin pour leur qualité et leur bon rapport qualité-prix.",
       valuesTitle: "Ce qui nous anime",
