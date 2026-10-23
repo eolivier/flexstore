@@ -40,6 +40,7 @@ export default {
     },
     login: {
       title: "Login",
+      subtitle: "Sign in to access your account and administration.",
       email: "Email",
       password: "Password",
       submit: "Sign In",
@@ -89,6 +90,7 @@ export default {
     },
     login: {
       title: "Connexion",
+      subtitle: "Connectez-vous pour accéder à votre compte et à l'administration.",
       email: "Email",
       password: "Mot de passe",
       submit: "Se connecter",
