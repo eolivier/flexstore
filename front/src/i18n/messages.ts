@@ -116,7 +116,14 @@ export default {
       retry: "Retry",
       added: "{name} added to your cart",
       addError: "The product could not be added to your cart.",
-      viewCart: "View cart"
+      viewCart: "View cart",
+      shop: "Shop",
+      quantity: "Quantity",
+      inCart: "Not in your cart yet | 1 already in your cart | {n} already in your cart",
+      notFound: "Product not found",
+      notFoundText: "This product does not exist or is no longer available.",
+      backToShop: "Back to the shop",
+      similar: "In the same category"
     },
     cart: {
       title: "My cart",
@@ -317,7 +324,14 @@ export default {
       retry: "Réessayer",
       added: "{name} a été ajouté à votre panier",
       addError: "Le produit n'a pas pu être ajouté à votre panier.",
-      viewCart: "Voir le panier"
+      viewCart: "Voir le panier",
+      shop: "Boutique",
+      quantity: "Quantité",
+      inCart: "Pas encore dans votre panier | 1 déjà dans votre panier | {n} déjà dans votre panier",
+      notFound: "Produit introuvable",
+      notFoundText: "Ce produit n'existe pas ou n'est plus disponible.",
+      backToShop: "Retour à la boutique",
+      similar: "Dans la même catégorie"
     },
     cart: {
       title: "Mon panier",

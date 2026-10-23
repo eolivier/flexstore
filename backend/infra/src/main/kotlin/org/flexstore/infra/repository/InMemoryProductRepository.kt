@@ -28,6 +28,8 @@ class InMemoryProductRepository : ProductRepository {
 
     override fun findAll(): List<Product> = products
 
+    override fun findById(productId: ProductId): DefinedProduct? = products.firstOrNull { it.productId == productId }
+
     override fun findAllBy(category: Category): List<DefinedProduct> {
         return when (category) {
             Category.CLOTHING -> clothes

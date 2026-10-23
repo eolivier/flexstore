@@ -18,12 +18,12 @@ export function useAddToCart() {
   const addingProductId = ref<string | undefined>();
   const feedback = ref<CartFeedback>({ show: false, success: true, text: '' });
 
-  async function addToCart(product: Product) {
+  async function addToCart(product: Product, quantity = 1) {
     addingProductId.value = product.id;
     const existingItem = cartStore.cartItems?.items.find(i => i.productId === product.id);
     const item = existingItem
-      ? { ...existingItem, productQuantity: existingItem.productQuantity + 1 }
-      : productToCartItem(product);
+      ? { ...existingItem, productQuantity: existingItem.productQuantity + quantity }
+      : productToCartItem(product, quantity);
     const saved = await cartStore.saveItem(item);
     addingProductId.value = undefined;
     feedback.value = {
@@ -36,7 +36,7 @@ export function useAddToCart() {
   return { addingProductId, feedback, addToCart };
 }
 
-function productToCartItem(product: Product): Item {
+function productToCartItem(product: Product, quantity: number): Item {
   return {
     itemId: '',
     productId: product.id,
@@ -45,7 +45,7 @@ function productToCartItem(product: Product): Item {
     productCategory: product.category,
     productPrice: product.price,
     productCurrency: product.currency,
-    productQuantity: 1,
-    itemPrice: product.price,
+    productQuantity: quantity,
+    itemPrice: (product.price ?? 0) * quantity,
   };
 }

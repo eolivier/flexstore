@@ -3,6 +3,7 @@ package org.flexstore.infra.spring.adapter.rest
 import org.flexstore.domain.entity.InvalidCredentialsException
 import org.flexstore.domain.entity.UserAlreadyExists
 import org.flexstore.domain.entity.UserNotFoundByEmailException
+import org.flexstore.domain.usecase.product.ProductNotFoundException
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -23,6 +24,9 @@ class RestExceptionHandler {
             is UserNotFoundByEmailException -> ResponseEntity
                 .status(404)
                 .body(mapOf("error" to (ex.message ?: "User not found")))
+            is ProductNotFoundException -> ResponseEntity
+                .status(404)
+                .body(mapOf("error" to (ex.message ?: "Product not found")))
             else -> ResponseEntity
                 .status(422)
                 .body(mapOf("error" to (ex.message ?: "Nominal exception")))

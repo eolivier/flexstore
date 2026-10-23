@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.domain.usecase.product.ProductUseCaseFacade
+import org.flexstore.domain.valueobject.Identity
+import org.flexstore.domain.valueobject.ProductId
 import org.flexstore.infra.spring.adapter.mapping.ProductMapper
 import org.flexstore.infra.spring.adapter.mapping.toJsonProducts
 import org.flexstore.infra.spring.adapter.rest.json.DraftJsonProduct
@@ -69,6 +71,19 @@ class ProductController(private val productUseCaseFacade: ProductUseCaseFacade,
         // --------------------------------
         return jsonProducts
     }
+
+    @Operation(
+        summary = "Retrieve a product by ID",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Successfully retrieved the product",
+                content = [Content(schema = Schema(implementation = JsonProduct::class))]
+            ),
+            ApiResponse(responseCode = "404", description = "Product not found")
+        ]
+    )
+    @GetMapping("/{id}")
+    fun getProduct(@PathVariable id: String): JsonProduct =
+        mapper.toJson(productUseCaseFacade.getProduct(ProductId(Identity(id))))
 }
-
-
