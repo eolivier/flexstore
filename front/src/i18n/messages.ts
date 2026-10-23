@@ -1,7 +1,23 @@
 export default {
   en: {
     about: {
-      eyebrow: "About us",
+      title: "About Flexstore",
+      intro: "Flexstore is a demo online shop. It is an open source project that shows how to build an e-commerce application around use cases: each user journey (creating an account, signing in, adding a product to the cart…) is an explicit, tested use case.",
+      projectTitle: "The project",
+      projectText: "The back end is written in Kotlin with a hexagonal architecture: a pure domain with no framework, and Spring Boot adapters for the REST API and the database. It is meant to be a learning resource and a base that can be reused for real projects.",
+      stackTitle: "Built with",
+      stack: {
+        backend: "Kotlin and Spring Boot",
+        database: "PostgreSQL",
+        frontend: "Vue 3 and Vuetify"
+      },
+      sourceTitle: "Source code",
+      sourceText: "The code is available on GitHub.",
+      sourceButton: "View on GitHub"
+    },
+    home: {
+      eyebrow: "Welcome to Flexstore",
+      heroButton: "Browse products",
       title: "Shopping made simple, from click to doorstep",
       intro: "Flexstore was born from a simple idea: buying the things you need every day should be easy, transparent and pleasant. We bring together clothing, electronics and accessories in one place, carefully selected for their quality and their value for money.",
       valuesTitle: "What we stand for",
@@ -41,10 +57,6 @@ export default {
       ctaTitle: "Ready to explore the shop?",
       ctaText: "Discover our clothing, electronics and accessories.",
       ctaButton: "Browse products"
-    },
-    home: {
-      title: "Welcome to Flexstore",
-      intro: "Your online destination for a seamless and secure shopping experience. Discover a wide selection of products including electronics, fashion, accessories, and home essentials. Our intuitive platform lets you explore new arrivals, enjoy exclusive offers, and benefit from fast delivery. Create your account to access personalized services and join a community of satisfied shoppers. Flexstore, where your shopping desires come to life!"
     },
     table: {
       id: "ID",
@@ -128,7 +140,23 @@ export default {
   },
   fr: {
     about: {
-      eyebrow: "À propos",
+      title: "À propos de Flexstore",
+      intro: "Flexstore est une boutique en ligne de démonstration. C'est un projet open source qui montre comment construire une application e-commerce autour des cas d'utilisation : chaque parcours utilisateur (créer un compte, se connecter, ajouter un produit au panier…) est un cas d'utilisation explicite et testé.",
+      projectTitle: "Le projet",
+      projectText: "Le backend est écrit en Kotlin avec une architecture hexagonale : un domaine pur, sans framework, et des adaptateurs Spring Boot pour l'API REST et la base de données. Il se veut à la fois un support d'apprentissage et une base réutilisable pour de vrais projets.",
+      stackTitle: "Technologies",
+      stack: {
+        backend: "Kotlin et Spring Boot",
+        database: "PostgreSQL",
+        frontend: "Vue 3 et Vuetify"
+      },
+      sourceTitle: "Code source",
+      sourceText: "Le code est disponible sur GitHub.",
+      sourceButton: "Voir sur GitHub"
+    },
+    home: {
+      eyebrow: "Bienvenue sur Flexstore",
+      heroButton: "Voir les produits",
       title: "Des achats simples, du clic jusqu'à votre porte",
       intro: "Flexstore est né d'une idée simple : acheter ce dont on a besoin au quotidien doit être facile, transparent et agréable. Nous réunissons vêtements, électronique et accessoires au même endroit, sélectionnés avec soin pour leur qualité et leur bon rapport qualité-prix.",
       valuesTitle: "Ce qui nous anime",
@@ -168,10 +196,6 @@ export default {
       ctaTitle: "Prêt à découvrir la boutique ?",
       ctaText: "Parcourez nos vêtements, notre électronique et nos accessoires.",
       ctaButton: "Voir les produits"
-    },
-    home: {
-      title: "Bienvenue sur Flexstore",
-      intro: "Votre destination en ligne pour des achats simples et sécurisés. Découvrez une large sélection de produits : électronique, mode, accessoires et indispensables pour la maison. Notre plateforme intuitive vous permet d'explorer les nouveautés, de profiter d'offres exclusives et d'une livraison rapide. Créez votre compte pour accéder à des services personnalisés et rejoindre une communauté de clients satisfaits. Flexstore, là où vos envies shopping prennent vie !"
     },
     table: {
       id: "ID",
