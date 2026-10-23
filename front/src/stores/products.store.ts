@@ -43,5 +43,5 @@ export const useProductsStore = defineStore('products', () => {
     }
   }
 
-  return { products, fetchProducts, addProduct };
+  return { products, loading, error, fetchProducts, addProduct };
 });

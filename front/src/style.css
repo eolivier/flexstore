@@ -9,6 +9,8 @@ body {
   margin: 0;
 }
 
+/* body too: menus, dialogs and snackbars are rendered outside .v-application */
+body,
 .v-application {
   font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
@@ -18,6 +20,6 @@ body {
   letter-spacing: -0.01em !important;
 }
 
-.v-application .v-btn {
+.v-btn.v-btn {
   letter-spacing: 0;
 }
