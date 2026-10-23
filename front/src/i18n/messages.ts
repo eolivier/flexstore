@@ -76,7 +76,18 @@ export default {
       status: "Status"
     },
     products: {
-      addToCart: "Add to cart"
+      addToCart: "Add to cart",
+      count: "No products | 1 product | {n} products",
+      sort: "Sort by",
+      sortName: "Name",
+      sortPriceAsc: "Price: low to high",
+      sortPriceDesc: "Price: high to low",
+      empty: "No products in this category yet.",
+      error: "The products could not be loaded.",
+      retry: "Retry",
+      added: "{name} added to your cart",
+      addError: "The product could not be added to your cart.",
+      viewCart: "View cart"
     },
     cart: {
       title: "My cart",
@@ -218,7 +229,18 @@ export default {
       status: "Statut"
     },
     products: {
-      addToCart: "Ajouter au panier"
+      addToCart: "Ajouter au panier",
+      count: "Aucun produit | 1 produit | {n} produits",
+      sort: "Trier par",
+      sortName: "Nom",
+      sortPriceAsc: "Prix croissant",
+      sortPriceDesc: "Prix décroissant",
+      empty: "Aucun produit dans cette catégorie pour le moment.",
+      error: "Les produits n'ont pas pu être chargés.",
+      retry: "Réessayer",
+      added: "{name} a été ajouté à votre panier",
+      addError: "Le produit n'a pas pu être ajouté à votre panier.",
+      viewCart: "Voir le panier"
     },
     cart: {
       title: "Mon panier",
