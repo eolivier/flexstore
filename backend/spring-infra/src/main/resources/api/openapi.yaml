@@ -171,6 +171,27 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/JsonProduct"
+  /api/products/{id}:
+    get:
+      tags:
+      - Products
+      summary: Retrieve a product by ID
+      operationId: getProduct
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successfully retrieved the product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonProduct"
+        "404":
+          description: Product not found
   /api/cart/cart-items:
     get:
       tags:

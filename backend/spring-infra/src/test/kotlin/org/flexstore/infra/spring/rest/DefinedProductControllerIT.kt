@@ -13,6 +13,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @ActiveProfiles("test")
@@ -41,5 +42,20 @@ class DefinedProductControllerIT {
             objectMapper.typeFactory.constructCollectionType(List::class.java, JsonProduct::class.java)
         )
         assertThat(products).isNotEmpty
+    }
+
+    @Test
+    fun `should return a product by id`() {
+        mockMvc.perform(get("/api/products/1"))
+            .andExpect(status().isOk)
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.id").value("1"))
+            .andExpect(jsonPath("$.name").isNotEmpty)
+    }
+
+    @Test
+    fun `should return 404 for an unknown product`() {
+        mockMvc.perform(get("/api/products/unknown"))
+            .andExpect(status().isNotFound)
     }
 }

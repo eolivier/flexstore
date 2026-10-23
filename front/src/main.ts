@@ -15,6 +15,7 @@ import AdminHome from './components/admin/AdminHome.vue';
 import UserProfile from './components/UserProfile.vue';
 import Orders from './components/Orders.vue';
 import Products from "./components/products/Products.vue";
+import ProductDetail from './components/products/ProductDetail.vue';
 import CreateProduct from './components/admin/CreateProduct.vue';
 import Login from './components/Login.vue';
 import { useAuthStore } from './stores/auth.store';
@@ -30,6 +31,7 @@ const routes = [
   { path: '/products/clothing', component: Products, props: { category: 'CLOTHING' } },
   { path: '/products/accessories', component: Products, props: { category: 'ACCESSORIES' } },
   { path: '/products/electronics', component: Products, props: { category: 'ELECTRONICS' } },
+  { path: '/products/:id', component: ProductDetail, props: true },
   { path: '/login', component: Login },
   { path: '/admin', component: AdminHome, meta: { requiresAuth: true } },
   { path: '/admin/users', component: Users, meta: { requiresAuth: true } },

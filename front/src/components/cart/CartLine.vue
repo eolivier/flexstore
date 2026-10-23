@@ -13,18 +13,24 @@
 
   const category = computed(() => categoryInfo(props.item.productCategory));
   const unitPrice = computed(() => formatPrice(props.item.productPrice, props.item.productCurrency, locale.value));
+  const detailLink = computed(() => `/products/${props.item.productId}`);
   const linePrice = computed(() => formatPrice(props.item.itemPrice, props.item.productCurrency, locale.value));
 </script>
 
 <template>
   <div class="cart-line d-flex align-center ga-4 py-4">
-    <div class="line-visual d-flex align-center justify-center flex-shrink-0" :style="{ background: category.tint }">
+    <router-link
+      :to="detailLink"
+      class="line-visual d-flex align-center justify-center flex-shrink-0"
+      :style="{ background: category.tint }"
+      :aria-label="item.productName"
+    >
       <v-icon :icon="category.icon" size="32" color="primary" />
-    </div>
+    </router-link>
 
     <div class="flex-grow-1 line-info">
       <div class="text-caption text-secondary font-weight-bold text-uppercase">{{ t(category.label) }}</div>
-      <div class="text-subtitle-1 font-weight-bold">{{ item.productName }}</div>
+      <router-link :to="detailLink" class="line-link text-subtitle-1 font-weight-bold">{{ item.productName }}</router-link>
       <div class="text-body-2 text-medium-emphasis">{{ t('cart.unitPrice', { price: unitPrice }) }}</div>
     </div>
 
@@ -44,9 +50,18 @@
 
 <style scoped>
   .line-visual {
+    text-decoration: none;
     width: 72px;
     height: 72px;
     border-radius: 14px;
+  }
+  .line-link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+  }
+  .line-link:hover {
+    text-decoration: underline;
   }
   .line-info {
     min-width: 0;
