@@ -27,6 +27,8 @@ export const useCartStore = defineStore('cart', () => {
         if (response.ok) {
             const data = await response.json();
             console.info('Item saved : ', data);
+            // Reload the cart so that its items, totals and the header badge stay in sync with the server
+            await fetchCartItems();
         } else {
             console.error('Failed to save cart item');
         }

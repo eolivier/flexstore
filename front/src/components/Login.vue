@@ -35,11 +35,10 @@
 </script>
 
 <template>
-  <v-container class="pa-4 d-flex justify-center align-center" style="min-height: 80vh;">
-    <v-card max-width="400" class="pa-6" elevation="4">
-      <v-card-title class="text-h5 font-weight-bold mb-4">
-        {{ t('login.title') }}
-      </v-card-title>
+  <v-container class="py-12 d-flex justify-center align-center" style="min-height: 70vh;">
+    <v-card width="100%" max-width="420" class="pa-8">
+      <h1 class="text-h5 font-weight-bold mb-1">{{ t('login.title') }}</h1>
+      <p class="text-body-2 text-medium-emphasis mb-6">{{ t('login.subtitle') }}</p>
 
       <v-form ref="formRef" v-model="valid" @submit.prevent="submitForm">
         <v-text-field
@@ -47,7 +46,8 @@
           :label="t('login.email')"
           :rules="[rules.required, rules.email]"
           type="email"
-          prepend-inner-icon="mdi-email"
+          prepend-inner-icon="mdi-email-outline"
+          autocomplete="email"
           required
           class="mb-2"
         />
@@ -57,7 +57,8 @@
           :label="t('login.password')"
           :rules="[rules.required]"
           type="password"
-          prepend-inner-icon="mdi-lock"
+          prepend-inner-icon="mdi-lock-outline"
+          autocomplete="current-password"
           required
           class="mb-4"
         />
@@ -74,6 +75,7 @@
         <v-btn
           type="submit"
           color="primary"
+          size="large"
           block
           :loading="loading"
           :disabled="!valid"
