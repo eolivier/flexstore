@@ -56,6 +56,16 @@ export interface JsonItem {
     'productCurrency'?: string;
     'productQuantity'?: number;
 }
+export interface JsonLoginRequest {
+    /**
+     * User\'s email address
+     */
+    'email': string;
+    /**
+     * User\'s password (plain text)
+     */
+    'password': string;
+}
 export interface JsonProduct {
     'id'?: string;
     'name'?: string;
@@ -68,6 +78,22 @@ export interface JsonUser {
     'id'?: string;
     'name'?: string;
     'email'?: string;
+}
+export interface JsonUserCreate {
+    'name': string;
+    'email': string;
+    /**
+     * User\'s password (will be hashed by the server)
+     */
+    'password': string;
+}
+export interface JsonUserUpdate {
+    'id'?: string;
+    'name'?: string;
+    'email'?: string;
+    /**
+     * User\'s new password (will be hashed by the server)
+     */
     'password'?: string;
 }
 
@@ -407,13 +433,13 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
         /**
          * 
          * @summary Create a user
-         * @param {JsonUser} jsonUser 
+         * @param {JsonUserCreate} jsonUserCreate 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createUser: async (jsonUser: JsonUser, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'jsonUser' is not null or undefined
-            assertParamExists('createUser', 'jsonUser', jsonUser)
+        createUser: async (jsonUserCreate: JsonUserCreate, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'jsonUserCreate' is not null or undefined
+            assertParamExists('createUser', 'jsonUserCreate', jsonUserCreate)
             const localVarPath = `/api/users`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -433,7 +459,7 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(jsonUser, localVarRequestOptions, configuration)
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonUserCreate, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -539,18 +565,54 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
             };
         },
         /**
-         * 
-         * @summary Update a user by ID
-         * @param {string} id 
-         * @param {JsonUser} jsonUser 
+         * Validates user credentials and returns user information on success
+         * @summary Authenticate a user
+         * @param {JsonLoginRequest} jsonLoginRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateUser: async (id: string, jsonUser: JsonUser, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        loginUser: async (jsonLoginRequest: JsonLoginRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'jsonLoginRequest' is not null or undefined
+            assertParamExists('loginUser', 'jsonLoginRequest', jsonLoginRequest)
+            const localVarPath = `/api/users/login`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonLoginRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update a user by ID
+         * @param {string} id 
+         * @param {JsonUserUpdate} jsonUserUpdate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateUser: async (id: string, jsonUserUpdate: JsonUserUpdate, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('updateUser', 'id', id)
-            // verify required parameter 'jsonUser' is not null or undefined
-            assertParamExists('updateUser', 'jsonUser', jsonUser)
+            // verify required parameter 'jsonUserUpdate' is not null or undefined
+            assertParamExists('updateUser', 'jsonUserUpdate', jsonUserUpdate)
             const localVarPath = `/api/users/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -571,7 +633,7 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(jsonUser, localVarRequestOptions, configuration)
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonUserUpdate, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -590,12 +652,12 @@ export const UsersApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Create a user
-         * @param {JsonUser} jsonUser 
+         * @param {JsonUserCreate} jsonUserCreate 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async createUser(jsonUser: JsonUser, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonUser>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.createUser(jsonUser, options);
+        async createUser(jsonUserCreate: JsonUserCreate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonUser>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createUser(jsonUserCreate, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['UsersApi.createUser']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -639,15 +701,28 @@ export const UsersApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 
-         * @summary Update a user by ID
-         * @param {string} id 
-         * @param {JsonUser} jsonUser 
+         * Validates user credentials and returns user information on success
+         * @summary Authenticate a user
+         * @param {JsonLoginRequest} jsonLoginRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async updateUser(id: string, jsonUser: JsonUser, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.updateUser(id, jsonUser, options);
+        async loginUser(jsonLoginRequest: JsonLoginRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonUser>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.loginUser(jsonLoginRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UsersApi.loginUser']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update a user by ID
+         * @param {string} id 
+         * @param {JsonUserUpdate} jsonUserUpdate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async updateUser(id: string, jsonUserUpdate: JsonUserUpdate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateUser(id, jsonUserUpdate, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['UsersApi.updateUser']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -664,12 +739,12 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
         /**
          * 
          * @summary Create a user
-         * @param {JsonUser} jsonUser 
+         * @param {JsonUserCreate} jsonUserCreate 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createUser(jsonUser: JsonUser, options?: RawAxiosRequestConfig): AxiosPromise<JsonUser> {
-            return localVarFp.createUser(jsonUser, options).then((request) => request(axios, basePath));
+        createUser(jsonUserCreate: JsonUserCreate, options?: RawAxiosRequestConfig): AxiosPromise<JsonUser> {
+            return localVarFp.createUser(jsonUserCreate, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -701,15 +776,25 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
             return localVarFp.getUser(id, options).then((request) => request(axios, basePath));
         },
         /**
-         * 
-         * @summary Update a user by ID
-         * @param {string} id 
-         * @param {JsonUser} jsonUser 
+         * Validates user credentials and returns user information on success
+         * @summary Authenticate a user
+         * @param {JsonLoginRequest} jsonLoginRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateUser(id: string, jsonUser: JsonUser, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.updateUser(id, jsonUser, options).then((request) => request(axios, basePath));
+        loginUser(jsonLoginRequest: JsonLoginRequest, options?: RawAxiosRequestConfig): AxiosPromise<JsonUser> {
+            return localVarFp.loginUser(jsonLoginRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update a user by ID
+         * @param {string} id 
+         * @param {JsonUserUpdate} jsonUserUpdate 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateUser(id: string, jsonUserUpdate: JsonUserUpdate, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.updateUser(id, jsonUserUpdate, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -721,12 +806,12 @@ export class UsersApi extends BaseAPI {
     /**
      * 
      * @summary Create a user
-     * @param {JsonUser} jsonUser 
+     * @param {JsonUserCreate} jsonUserCreate 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public createUser(jsonUser: JsonUser, options?: RawAxiosRequestConfig) {
-        return UsersApiFp(this.configuration).createUser(jsonUser, options).then((request) => request(this.axios, this.basePath));
+    public createUser(jsonUserCreate: JsonUserCreate, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).createUser(jsonUserCreate, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -762,15 +847,26 @@ export class UsersApi extends BaseAPI {
     }
 
     /**
-     * 
-     * @summary Update a user by ID
-     * @param {string} id 
-     * @param {JsonUser} jsonUser 
+     * Validates user credentials and returns user information on success
+     * @summary Authenticate a user
+     * @param {JsonLoginRequest} jsonLoginRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public updateUser(id: string, jsonUser: JsonUser, options?: RawAxiosRequestConfig) {
-        return UsersApiFp(this.configuration).updateUser(id, jsonUser, options).then((request) => request(this.axios, this.basePath));
+    public loginUser(jsonLoginRequest: JsonLoginRequest, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).loginUser(jsonLoginRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update a user by ID
+     * @param {string} id 
+     * @param {JsonUserUpdate} jsonUserUpdate 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public updateUser(id: string, jsonUserUpdate: JsonUserUpdate, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).updateUser(id, jsonUserUpdate, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

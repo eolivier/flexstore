@@ -7,8 +7,11 @@ export default {
     createUser: {
       name: "User's Name",
       email: "User's Email",
+      password: "Password",
       label: "Create user",
-      mandatoryField: "Mandatory field"
+      mandatoryField: "Mandatory field",
+      invalidEmail: "Invalid email format",
+      passwordTooShort: "Password must be at least 8 characters"
     },
     login: {
       title: "Login",
@@ -28,8 +31,11 @@ export default {
     createUser: {
       name: "Nom de l'utilisateur",
       email: "Email de l'utilisateur",
+      password: "Mot de passe",
       label: "Créer utilisateur",
-      mandatoryField: "Champ obligatoire"
+      mandatoryField: "Champ obligatoire",
+      invalidEmail: "Format d'email invalide",
+      passwordTooShort: "Le mot de passe doit contenir au moins 8 caractères"
     },
     login: {
       title: "Connexion",

@@ -2,11 +2,16 @@ package org.flexstore.infra.spring.rest
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
+import org.flexstore.domain.entity.Email
+import org.flexstore.domain.entity.HashedPassword
+import org.flexstore.domain.entity.PlainPassword
+import org.flexstore.domain.entity.User
 import org.flexstore.domain.entity.UserId
 import org.flexstore.domain.entity.of
 import org.flexstore.domain.repository.UserRepository
 import org.flexstore.domain.service.UserService
-import org.flexstore.infra.spring.adapter.rest.json.JsonUser
+import org.flexstore.infra.spring.adapter.rest.json.DefinedJsonUser
+import org.flexstore.infra.spring.adapter.rest.json.DraftJsonUser
 import org.junit.jupiter.api.AfterEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -16,10 +21,12 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import kotlin.test.Test
 
 private const val USER_ID = "1"
+private const val DRAFT_USER_EMAIL = "draft.user@example.com"
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -41,32 +48,54 @@ class UserRestControllerIT {
     @AfterEach
     fun cleanUp() {
         userRepository.delete(UserId.of(USER_ID))
+        userRepository.findByEmail(Email(DRAFT_USER_EMAIL)).let { userRepository.delete(it.id) }
     }
 
     @Test
     fun `should create user`() {
         // Arrange
-        val jsonUser = createJsonUser()
+        val draftJsonUser = DraftJsonUser("Draft User", DRAFT_USER_EMAIL, "testpassword")
+        // Act
+        mockMvc.perform(
+            post("/api/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(draftJsonUser))
+        )
+            .andExpect(status().isCreated)
+            .andExpect(jsonPath("$.id").isNotEmpty)
+            .andExpect(jsonPath("$.password").doesNotExist())
+        // Assert
+        val savedUser = userRepository.findByEmail(Email(DRAFT_USER_EMAIL))
+        assertThat(savedUser).isInstanceOf(User.DefinedUser::class.java)
+        assertThat((savedUser as User.DefinedUser).password).isInstanceOf(HashedPassword::class.java)
+    }
+
+    @Test
+    fun `should not create user with an already used email`() {
+        // Arrange
+        val draftJsonUser = DraftJsonUser("Draft User", DRAFT_USER_EMAIL, "testpassword")
+        userService.createUser(draftJsonUser.toUser())
         // Act - Assert
         mockMvc.perform(
             post("/api/users")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(jsonUser))
+                .content(objectMapper.writeValueAsString(draftJsonUser))
         )
-            .andExpect(status().isCreated)
+            .andExpect(status().isConflict)
     }
 
     @Test
     fun `should return user by id`() {
         // Arrange
         userService.createUser(createJsonUser().toUser())
-        val jsonUser = createJsonUser()
-        val user = jsonUser.toUser()
         // Act - Assert
         mockMvc.perform(get("/api/users/$USER_ID"))
             .andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(content().json(objectMapper.writeValueAsString(user)))
+            .andExpect(jsonPath("$.id").value(USER_ID))
+            .andExpect(jsonPath("$.name").value("John Doe"))
+            .andExpect(jsonPath("$.email").value("john.doe@example.com"))
+            .andExpect(jsonPath("$.password").doesNotExist())
     }
 
     @Test
@@ -75,15 +104,18 @@ class UserRestControllerIT {
         val jsonUser = createJsonUser()
         userService.createUser(jsonUser.toUser())
         // Act - Assert
-        val updatedJsonUser = JsonUser("1", "Jane Doe", "jane.doe@example.com", "testpassword")
+        val updatedJsonUser = DefinedJsonUser("1", "Jane Doe", "jane.doe@example.com", "testpassword")
         mockMvc.perform(
             put("/api/users/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedJsonUser))
         )
             .andExpect(status().isOk)
-        val readUser = userService.readUser(UserId.of(USER_ID))
-        assertThat(readUser).isEqualTo(updatedJsonUser.toUser())
+        val readUser = userService.readUser(UserId.of(USER_ID)) as User.DefinedUser
+        assertThat(readUser.name.value).isEqualTo("Jane Doe")
+        assertThat(readUser.email.value).isEqualTo("jane.doe@example.com")
+        // The password is stored hashed, so it is checked through the repository
+        assertThat(userRepository.passwordMatches(readUser.email, PlainPassword("testpassword"))).isTrue()
     }
 
     @Test
@@ -112,7 +144,7 @@ class UserRestControllerIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
     }
 
-    private fun createJsonUser(): JsonUser {
-        return JsonUser(USER_ID,"John Doe", "john.doe@example.com", "testpassword")
+    private fun createJsonUser(): DefinedJsonUser {
+        return DefinedJsonUser(USER_ID,"John Doe", "john.doe@example.com", "testpassword")
     }
 }

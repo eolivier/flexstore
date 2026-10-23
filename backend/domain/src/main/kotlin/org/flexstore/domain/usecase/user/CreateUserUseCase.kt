@@ -15,7 +15,7 @@ class CreateUserUseCase(
 
     override fun getPreConditions(): List<PreCondition<User>> {
         println("#[BEGIN] CreateUserUseCase.getPreConditions")
-        val preConditions = listOf(userDoesNotExistCondition())
+        val preConditions = listOf(userDoesNotExistCondition(), passwordIsNotBlankCondition())
         println("#[END] CreateUserUseCase.getPreConditions")
         return preConditions
     }
@@ -45,14 +45,27 @@ class CreateUserUseCase(
     }
 
     private fun userDoesNotExistCondition() = PreCondition<User> { user ->
-        if (userRepository.exists(user.id)) {
-            throw UserAlreadyExists(NonEmptyString("User with ID ${user.id.value} already exists."))
+        when (user) {
+            // A draft user has no ID yet: uniqueness is checked on the email
+            is User.DraftUser -> if (!userRepository.notExistsBasedOn(user.email)) {
+                throw UserAlreadyExists(NonEmptyString("User with email ${user.email.value} already exists."))
+            }
+            else -> if (userRepository.exists(user.id)) {
+                throw UserAlreadyExists(NonEmptyString("User with ID ${user.id.value} already exists."))
+            }
         }
     }
 
-    private fun userExistsCondition(): PostCondition<User> = PostCondition<User> { user ->
-        if (userRepository.notExists(user.id)) {
-            throw UserCreationFailed(NonEmptyString("User with ID ${user.id.value} was not created."))
+    private fun passwordIsNotBlankCondition() = PreCondition<User> { user ->
+        if (user is User.DraftUser && user.password.value.isBlank()) {
+            throw InvalidPasswordException(NonEmptyString("Password must not be blank."))
+        }
+    }
+
+    // Checked on the saved user, since a draft user only gets its ID from the repository
+    private fun userExistsCondition(): PostCondition<User> = PostCondition<User> {
+        if (userRepository.notExists(createdUser.id)) {
+            throw UserCreationFailed(NonEmptyString("User with ID ${createdUser.id.value} was not created."))
         }
     }
 }

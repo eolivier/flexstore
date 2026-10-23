@@ -44,7 +44,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/JsonUser"
+              $ref: "#/components/schemas/JsonUserUpdate"
         required: true
       responses:
         "200":
@@ -86,7 +86,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/JsonUser"
+              $ref: "#/components/schemas/JsonUserCreate"
         required: true
       responses:
         "201":
@@ -196,8 +196,32 @@ components:
           type: string
         email:
           type: string
+    JsonUserUpdate:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
         password:
           type: string
+          description: User's new password (will be hashed by the server)
+    JsonUserCreate:
+      type: object
+      required:
+        - name
+        - email
+        - password
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+          description: User's password (will be hashed by the server)
     JsonLoginRequest:
       type: object
       required:
