@@ -2,7 +2,6 @@ package org.flexstore.infra.repository
 
 import org.flexstore.domain.repository.ItemRepository
 import org.flexstore.domain.valueobject.*
-import java.math.BigDecimal
 import java.util.concurrent.atomic.AtomicInteger
 
 class InMemoryItemRepository: ItemRepository {
@@ -53,27 +52,16 @@ class InMemoryItemRepository: ItemRepository {
 
     override fun clear() = items.clear()
 
+    // Demo cart made of catalog products, so that it has the same currency as the catalog
     private val items = mutableListOf<CartItem>(
         CartItem(
             itemId = ItemId(Identity("item-" + counter.incrementAndGet())),
-            product = DefinedProduct(
-                productId = ProductId(Identity("prod-1")),
-                name = Name("Mechanical Keyboard"),
-                description = Description("A mechanical keyboard with RGB lighting"),
-                category = Category.ELECTRONICS,
-                price = Price(Amount(BigDecimal("89.99")), Currency.USD)
-            ),
+            product = clothes.first(),
             quantity = Quantity(2)
         ),
         CartItem(
             itemId = ItemId(Identity("item-" + counter.incrementAndGet())),
-            product = DefinedProduct(
-                productId = ProductId(Identity("prod-2")),
-                description = Description("A high-precision optical mouse"),
-                category = Category.ELECTRONICS,
-                name = Name("Optical Mouse"),
-                price = Price(Amount(BigDecimal("29.99")), Currency.USD)
-            ),
+            product = electronics.first(),
             quantity = Quantity(1)
         )
     )

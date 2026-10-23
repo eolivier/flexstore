@@ -1,13 +1,17 @@
 <script setup lang="ts">
+  import { computed } from 'vue';
   import { useI18n } from 'vue-i18n';
 
-  const props = defineProps<{ modelValue: number }>();
+  // With min >= 1 the stepper cannot remove the item (the page offers its own remove button)
+  const props = withDefaults(defineProps<{ modelValue: number; min?: number }>(), { min: 0 });
   const emit = defineEmits<{ (e: 'update:modelValue', value: number): void }>();
 
   const { t } = useI18n();
 
+  const removes = computed(() => props.min === 0 && props.modelValue <= 1);
+
   function update(value: number) {
-    const quantity = Number.isFinite(value) ? Math.max(0, Math.floor(value)) : props.modelValue;
+    const quantity = Number.isFinite(value) ? Math.max(props.min, Math.floor(value)) : props.modelValue;
     if (quantity !== props.modelValue) {
       emit('update:modelValue', quantity);
     }
@@ -24,8 +28,9 @@
 <template>
   <div class="stepper d-inline-flex align-center">
     <v-btn
-      :icon="modelValue <= 1 ? 'mdi-trash-can-outline' : 'mdi-minus'"
-      :aria-label="modelValue <= 1 ? t('cart.remove') : t('cart.decrease')"
+      :icon="removes ? 'mdi-trash-can-outline' : 'mdi-minus'"
+      :aria-label="removes ? t('cart.remove') : t('cart.decrease')"
+      :disabled="modelValue <= min"
       size="x-small"
       variant="text"
       @click="update(modelValue - 1)"
@@ -33,7 +38,7 @@
     <input
       class="stepper-input"
       type="number"
-      min="0"
+      :min="min"
       inputmode="numeric"
       :value="modelValue"
       :aria-label="t('table.quantity')"

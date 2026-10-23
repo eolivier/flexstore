@@ -70,8 +70,6 @@ export default {
       category: "Category",
       price: "Price",
       actions: "Actions",
-      itemId: "Item",
-      product: "Product",
       quantity: "Quantity",
       orderId: "Order",
       customer: "Customer",
@@ -98,7 +96,13 @@ export default {
       total: "Total",
       increase: "Increase quantity",
       decrease: "Decrease quantity",
-      remove: "Remove from cart"
+      remove: "Remove from cart",
+      unitPrice: "{price} each",
+      summary: "Summary",
+      itemsCount: "No items | 1 item | {n} items",
+      continue: "Continue shopping",
+      empty: "Your cart is empty",
+      emptyText: "Browse the shop and add the products you like."
     },
     orders: {
       title: "Orders"
@@ -227,8 +231,6 @@ export default {
       category: "Catégorie",
       price: "Prix",
       actions: "Actions",
-      itemId: "Article",
-      product: "Produit",
       quantity: "Quantité",
       orderId: "Commande",
       customer: "Client",
@@ -255,7 +257,13 @@ export default {
       total: "Total",
       increase: "Augmenter la quantité",
       decrease: "Diminuer la quantité",
-      remove: "Retirer du panier"
+      remove: "Retirer du panier",
+      unitPrice: "{price} l'unité",
+      summary: "Récapitulatif",
+      itemsCount: "Aucun article | 1 article | {n} articles",
+      continue: "Continuer mes achats",
+      empty: "Votre panier est vide",
+      emptyText: "Parcourez la boutique et ajoutez les produits qui vous plaisent."
     },
     orders: {
       title: "Commandes"
