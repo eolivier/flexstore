@@ -4,6 +4,7 @@ import at.favre.lib.crypto.bcrypt.BCrypt
 import org.flexstore.domain.entity.*
 import org.flexstore.domain.repository.UserRepository
 import org.flexstore.domain.valueobject.Name
+import java.util.UUID
 
 class InMemoryUserRepository : UserRepository {
     
@@ -14,13 +15,14 @@ class InMemoryUserRepository : UserRepository {
 
     override fun notExists(userId: UserId): Boolean = !exists(userId)
 
-    override fun notExistsBasedOn(email: Email): Boolean {
-        TODO("Not yet implemented")
-    }
+    override fun notExistsBasedOn(email: Email): Boolean = findByEmail(email) !is User.DefinedUser
 
     override fun save(user: User): User {
         val userToSave = when (user) {
             is User.DefinedUser -> hashPasswordIfNeeded(user)
+            is User.DraftUser -> hashPasswordIfNeeded(
+                User.DefinedUser(UserId.ValidUserId(UUID.randomUUID().toString()), user.name, user.email, user.password)
+            )
             else -> user
         }
         users[userToSave.id] = userToSave

@@ -68,5 +68,55 @@ class CreateUserUseCaseTest {
         // Assert
         assertEquals("User with ID 123 was not created.", exception.message)
     }
-}
 
+    @Test
+    fun `should create draft user with the id assigned by the repository`() {
+        // Arrange
+        val userRepository = mockk<UserRepository>()
+        val draftUser = User.DraftUser(Name("John Doe"), Email("john.doe@example.com"), PlainPassword("password123"))
+        val savedUser = DefinedUser(ValidUserId("generated-id"), draftUser.name, draftUser.email, PlainPassword("password123"))
+
+        every { userRepository.notExistsBasedOn(draftUser.email) } returns true
+        every { userRepository.save(draftUser) } returns savedUser
+        every { userRepository.notExists(savedUser.id) } returns false
+
+        val createUserUseCase = CreateUserUseCase(userRepository)
+
+        // Act
+        createUserUseCase.unfold(draftUser)
+
+        // Assert
+        assertEquals(savedUser, createUserUseCase.createdUser)
+        verify { userRepository.notExists(savedUser.id) }
+    }
+
+    @Test
+    fun `should fail if draft user email is already used`() {
+        // Arrange
+        val userRepository = mockk<UserRepository>()
+        val draftUser = User.DraftUser(Name("John Doe"), Email("john.doe@example.com"), PlainPassword("password123"))
+        every { userRepository.notExistsBasedOn(draftUser.email) } returns false
+        val createUserUseCase = CreateUserUseCase(userRepository)
+        val exception = assertThrows<UserAlreadyExists> {
+            // Act
+            createUserUseCase.unfold(draftUser)
+        }
+        // Assert
+        assertEquals("User with email john.doe@example.com already exists.", exception.message)
+    }
+
+    @Test
+    fun `should fail if draft user password is blank`() {
+        // Arrange
+        val userRepository = mockk<UserRepository>()
+        val draftUser = User.DraftUser(Name("John Doe"), Email("john.doe@example.com"), PlainPassword(" "))
+        every { userRepository.notExistsBasedOn(draftUser.email) } returns true
+        val createUserUseCase = CreateUserUseCase(userRepository)
+        val exception = assertThrows<InvalidPasswordException> {
+            // Act
+            createUserUseCase.unfold(draftUser)
+        }
+        // Assert
+        assertEquals("Password must not be blank.", exception.message)
+    }
+}

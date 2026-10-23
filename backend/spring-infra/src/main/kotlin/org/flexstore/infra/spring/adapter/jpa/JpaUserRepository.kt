@@ -31,9 +31,19 @@ class PostgresUserRepositoryAdapter(
     override fun save(user: User): User {
         var savedUser = user
         when(user) {
+            is User.DraftUser -> {
+                val hashedPasswordValue = hashPasswordIfNeeded(user.password)
+                val entity = UserEntity(
+                    id = generateNewUserId(),
+                    name = user.name.value,
+                    email = user.email.value,
+                    password = hashedPasswordValue
+                )
+                val saved = jpaRepo.save(entity)
+                savedUser = saved.toDomain()
+            }
             is User.DefinedUser -> {
                 val hashedPasswordValue = hashPasswordIfNeeded(user.password)
-                
                 val entity = UserEntity(
                     id = user.id.value,
                     name = user.name.value,
@@ -43,11 +53,15 @@ class PostgresUserRepositoryAdapter(
                 val saved = jpaRepo.save(entity)
                 savedUser = saved.toDomain()
             }
-            else -> IllegalArgumentException("Cannot save undefined user with id ${user.id.value}")
+            else -> throw IllegalArgumentException("Cannot save undefined user with id ${user.id.value}")
         }
         return savedUser
     }
-    
+
+    private fun generateNewUserId(): String {
+        return java.util.UUID.randomUUID().toString()
+    }
+
     private fun hashPasswordIfNeeded(password: Password): String {
         return when (password) {
             is PlainPassword -> passwordEncoder.encode(password.value)

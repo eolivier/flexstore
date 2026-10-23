@@ -12,11 +12,19 @@ sealed class User(open val id: UserId) {
         override fun user(userId: UserId) = DefinedUser(userId, name, email, password)
     }
 
+    data class DraftUser(val name: Name, val email: Email, val password: Password) : User(UserId.InvalidUserId("")) {
+        override fun user(userId: UserId) = DraftUser(name, email, password)
+    }
+
     data class UndefinedUser(override val id: UserId, val reason: String) : User(id) {
         override fun user(userId: UserId): User = UndefinedUser(userId, reason)
     }
 
     companion object
+}
+
+fun User.Companion.of(name: Name, email: Email, password: Password): User {
+    return User.DraftUser(name, email, password)
 }
 
 fun User.Companion.of(userId: UserId, name: Name, email: Email, password: Password): User {
@@ -65,6 +73,7 @@ class Guest(name: Name) : Actor(name)
 // creation
 data class UserAlreadyExists(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
 data class UserCreationFailed(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
+data class InvalidPasswordException(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
 // read
 data class InvalidUserIdException(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
 data class UserNotFoundException(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)

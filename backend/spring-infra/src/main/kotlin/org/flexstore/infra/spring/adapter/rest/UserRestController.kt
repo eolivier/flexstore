@@ -9,7 +9,9 @@ import org.flexstore.domain.entity.UserId.ValidUserId
 import org.flexstore.domain.service.UserService
 import org.flexstore.infra.spring.adapter.mapping.toJsonUser
 import org.flexstore.infra.spring.adapter.mapping.toJsonUsers
+import org.flexstore.infra.spring.adapter.rest.json.DraftJsonUser
 import org.flexstore.infra.spring.adapter.rest.json.JsonLoginRequest
+import org.flexstore.infra.spring.adapter.rest.json.DefinedJsonUser
 import org.flexstore.infra.spring.adapter.rest.json.JsonUser
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -21,12 +23,12 @@ class UserRestController(val userService: UserService) {
 
     @Operation(summary = "Create a user")
     @ApiResponse(responseCode = "201", description = "User created",
-        content = [Content(schema = Schema(implementation = JsonUser::class))]
+        content = [Content(schema = Schema(implementation = DefinedJsonUser::class))]
     )
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    fun createUser(@RequestBody jsonUser: JsonUser): JsonUser {
-        return userService.createUser(jsonUser.toUser()).toJsonUser()
+    fun createUser(@RequestBody draftJsonUser: DraftJsonUser): JsonUser {
+        return userService.createUser(draftJsonUser.toUser()).toJsonUser()
     }
     @Operation(
         summary = "Retrieve all users",
@@ -37,7 +39,7 @@ class UserRestController(val userService: UserService) {
                 description = "Successfully retrieved the list of users",
                 content = [
                     Content(
-                        schema = Schema(implementation = JsonUser::class)
+                        schema = Schema(implementation = DefinedJsonUser::class)
                     )
                 ]
             )
@@ -52,7 +54,7 @@ class UserRestController(val userService: UserService) {
                 responseCode = "200",
                 description = "Successfully retrieved the user",
                 content = [
-                    Content(schema = Schema(implementation = JsonUser::class))
+                    Content(schema = Schema(implementation = DefinedJsonUser::class))
                 ]
             )
         ]
@@ -73,7 +75,7 @@ class UserRestController(val userService: UserService) {
     )
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    fun updateUser(@PathVariable id: String, @RequestBody jsonUser: JsonUser) {
+    fun updateUser(@PathVariable id: String, @RequestBody jsonUser: DefinedJsonUser) {
         userService.updateUser(jsonUser.toUser(id))
     }
 
@@ -98,7 +100,7 @@ class UserRestController(val userService: UserService) {
                 responseCode = "200",
                 description = "Successfully authenticated",
                 content = [
-                    Content(schema = Schema(implementation = JsonUser::class))
+                    Content(schema = Schema(implementation = DefinedJsonUser::class))
                 ]
             )
         ]
