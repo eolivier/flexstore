@@ -92,7 +92,7 @@ export interface JsonUserUpdate {
     'name'?: string;
     'email'?: string;
     /**
-     * User\'s new password (will be hashed by the server)
+     * User\'s new password (will be hashed by the server). Omit it or leave it blank to keep the current password
      */
     'password'?: string;
 }

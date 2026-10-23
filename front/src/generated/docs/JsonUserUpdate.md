@@ -8,7 +8,7 @@ Name | Type | Description | Notes
 **id** | **string** |  | [optional] [default to undefined]
 **name** | **string** |  | [optional] [default to undefined]
 **email** | **string** |  | [optional] [default to undefined]
-**password** | **string** | User\&#39;s new password (will be hashed by the server) | [optional] [default to undefined]
+**password** | **string** | User\&#39;s new password (will be hashed by the server). Omit it or leave it blank to keep the current password | [optional] [default to undefined]
 
 ## Example
 

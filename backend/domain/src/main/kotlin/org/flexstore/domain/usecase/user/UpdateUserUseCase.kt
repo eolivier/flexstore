@@ -17,7 +17,7 @@ class UpdateUserUseCase(private val userRepository: UserRepository) : UseCase<Us
     override fun getNominalScenario(): NominalScenario<User> {
         println("#[BEGIN] UpdateUserUseCase.getNominalScenario")
         // Steps
-        val updateUserStep = Step<User> { user -> userRepository.save(user) }
+        val updateUserStep = Step<User> { user -> userRepository.save(keepPasswordIfNotProvided(user)) }
         // Nominal scenario
         val nominalScenario = NominalScenario(listOf(updateUserStep))
         println("#[END] UpdateUserUseCase.getNominalScenario")
@@ -29,6 +29,17 @@ class UpdateUserUseCase(private val userRepository: UserRepository) : UseCase<Us
         val postConditions = listOf<EmptyPostCondition<User>>(EmptyPostCondition())
         println("#[END] UpdateUserUseCase.getPostConditions")
         return postConditions
+    }
+
+    // A blank password means the password is not updated: the stored (hashed) one is kept
+    private fun keepPasswordIfNotProvided(user: User): User {
+        if (user !is User.DefinedUser || user.password !is PlainPassword || user.password.value.isNotBlank()) {
+            return user
+        }
+        return when (val existingUser = userRepository.findById(user.id)) {
+            is User.DefinedUser -> user.copy(password = existingUser.password)
+            else -> user
+        }
     }
 
     private fun isValidUserIdCondition() = PreCondition<User> { user ->

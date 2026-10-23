@@ -119,6 +119,22 @@ class UserRestControllerIT {
     }
 
     @Test
+    fun `should keep password when updating user without password`() {
+        // Arrange
+        userService.createUser(createJsonUser().toUser())
+        val updatedUser = """{"id": "$USER_ID", "name": "Jane Doe", "email": "jane.doe@example.com"}"""
+        // Act
+        mockMvc.perform(
+            put("/api/users/$USER_ID")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(updatedUser)
+        )
+            .andExpect(status().isOk)
+        // Assert
+        assertThat(userRepository.passwordMatches(Email("jane.doe@example.com"), PlainPassword("testpassword"))).isTrue()
+    }
+
+    @Test
     fun `should delete user`() {
         // Arrange
         val jsonUser = createJsonUser()
