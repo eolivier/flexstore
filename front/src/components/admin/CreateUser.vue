@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
   import { useUsersStore } from '@/stores/users.store.ts';
   import { nextTick, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
@@ -6,28 +6,33 @@
   const name = ref('');
   const email = ref('');
   const password = ref('');
+  const showPassword = ref(false);
   const valid = ref(false);
-  const formRef = ref(null);
+  const saving = ref(false);
+  const formRef = ref<{ resetValidation: () => void } | null>(null);
+  const feedback = ref({ show: false, success: true, text: '' });
 
   const usersStore = useUsersStore();
   const { t } = useI18n();
 
   const rules = {
-    required: (v) => !!v || t('createUser.mandatoryField'),
-    email: (v) => /.+@.+\..+/.test(v) || t('createUser.invalidEmail'),
-    passwordLength: (v) => v.length >= 8 || t('createUser.passwordTooShort'),
+    required: (v: string) => !!v || t('createUser.mandatoryField'),
+    email: (v: string) => /.+@.+\..+/.test(v) || t('createUser.invalidEmail'),
+    passwordLength: (v: string) => v.length >= 8 || t('createUser.passwordTooShort'),
   };
 
-  const createUser = async (name, email, password) => {
-    const newUser = { name, email, password };
-    await usersStore.addUser(newUser);
-    resetForm();
-  };
-
-  const submitForm = () => {
-    if (valid.value) {
-      createUser(name.value, email.value, password.value);
-    }
+  const submitForm = async () => {
+    if (!valid.value) return;
+    saving.value = true;
+    const createdName = name.value;
+    const created = await usersStore.addUser({ name: name.value, email: email.value, password: password.value });
+    saving.value = false;
+    feedback.value = {
+      show: true,
+      success: created,
+      text: created ? t('createUser.success', { name: createdName }) : t('createUser.error'),
+    };
+    if (created) resetForm();
   };
 
   const resetForm = () => {
@@ -35,42 +40,60 @@
     email.value = '';
     password.value = '';
     valid.value = false;
-    nextTick(() => {
-      if (formRef.value) {
-        formRef.value.resetValidation();
-      }
-    });
+    nextTick(() => formRef.value?.resetValidation());
   };
 </script>
 
 <template>
-  <v-container class="pa-4" max-width="400">
-    <h1 class="text-h5 font-weight-bold mb-6">{{ t('createUser.label') }}</h1>
-    <v-form ref="formRef" v-model="valid" @submit.prevent="submitForm">
-      <v-text-field
-        v-model="name"
-        :label="t('createUser.name')"
-        :rules="[rules.required]"
-        required
-      />
-
-      <v-text-field
-        v-model="email"
-        :label="t('createUser.email')"
-        :rules="[rules.required, rules.email]"
-        type="email"
-        required
-      />
-
-      <v-text-field
-        v-model="password"
-        :label="t('createUser.password')"
-        :rules="[rules.required, rules.passwordLength]"
-        type="password"
-        required
-      />
-
-      <v-btn type="submit" color="primary" class="mt-2">{{ t('createUser.label') }}</v-btn>
-    </v-form>
+  <v-container class="page py-10">
+    <h1 class="text-h4 font-weight-bold mb-6">{{ t('createUser.label') }}</h1>
+    <v-card class="pa-6">
+      <v-form ref="formRef" v-model="valid" @submit.prevent="submitForm">
+        <v-text-field
+          v-model="name"
+          :label="t('createUser.name')"
+          :rules="[rules.required]"
+          prepend-inner-icon="mdi-account-outline"
+          class="mb-2"
+          required
+        />
+        <v-text-field
+          v-model="email"
+          :label="t('createUser.email')"
+          :rules="[rules.required, rules.email]"
+          type="email"
+          prepend-inner-icon="mdi-email-outline"
+          class="mb-2"
+          required
+        />
+        <v-text-field
+          v-model="password"
+          :label="t('createUser.password')"
+          :rules="[rules.required, rules.passwordLength]"
+          :type="showPassword ? 'text' : 'password'"
+          prepend-inner-icon="mdi-lock-outline"
+          :append-inner-icon="showPassword ? 'mdi-eye-off-outline' : 'mdi-eye-outline'"
+          autocomplete="new-password"
+          class="mb-4"
+          required
+          @click:append-inner="showPassword = !showPassword"
+        />
+        <v-btn type="submit" color="primary" size="large" block :loading="saving" :disabled="!valid">
+          {{ t('createUser.label') }}
+        </v-btn>
+      </v-form>
+    </v-card>
+    <v-snackbar v-model="feedback.show" :color="feedback.success ? 'primary' : 'error'" timeout="3000" location="bottom right">
+      {{ feedback.text }}
+      <template v-if="feedback.success" #actions>
+        <v-btn to="/admin/users" variant="text" color="secondary">{{ t('nav.users') }}</v-btn>
+      </template>
+    </v-snackbar>
   </v-container>
 </template>
+
+<style scoped>
+  .page {
+    max-width: 560px;
+  }
+</style>

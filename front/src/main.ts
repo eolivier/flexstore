@@ -11,7 +11,7 @@ import Users from './components/admin/Users.vue';
 import Cart from './components/Cart.vue';
 import About from './components/About.vue';
 import CreateUser from './components/admin/CreateUser.vue';
-import AdminSubMenu from './components/menu/submenu/AdminSubMenu.vue';
+import AdminHome from './components/admin/AdminHome.vue';
 import UserProfile from './components/UserProfile.vue';
 import Orders from './components/Orders.vue';
 import Products from "./components/products/Products.vue";
@@ -31,7 +31,7 @@ const routes = [
   { path: '/products/accessories', component: Products, props: { category: 'ACCESSORIES' } },
   { path: '/products/electronics', component: Products, props: { category: 'ELECTRONICS' } },
   { path: '/login', component: Login },
-  { path: '/admin', component: AdminSubMenu, meta: { requiresAuth: true } },
+  { path: '/admin', component: AdminHome, meta: { requiresAuth: true } },
   { path: '/admin/users', component: Users, meta: { requiresAuth: true } },
   { path: '/admin/create-user', component: CreateUser, meta: { requiresAuth: true } },
   { path: '/admin/create-product', component: CreateProduct, meta: { requiresAuth: true } },

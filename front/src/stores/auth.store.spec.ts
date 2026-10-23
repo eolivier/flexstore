@@ -7,7 +7,7 @@ const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
 // Shared mock user for tests (note: password should not be in API response, but testing current implementation)
-const createMockUser = () => ({ id: 1, name: 'John', email: 'john@example.com' });
+const createMockUser = () => ({ id: '1', name: 'John', email: 'john@example.com' });
 
 describe('auth.store', () => {
   beforeEach(() => {
