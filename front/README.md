@@ -1,5 +1,19 @@
-# Vue 3 + TypeScript + Vite
+# flexstore – front end
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+Vue 3 + TypeScript shop built with Vite, Vuetify, Pinia, Vue Router and vue-i18n (FR/EN).
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+See the [main README](../README.md) for the setup, the scripts and the API.
+
+## Structure
+
+```
+src/
+  components/   # pages and components (products, cart, admin, layout, menu)
+  composables/  # shared logic (add to cart)
+  stores/       # Pinia stores (auth, cart, products, users)
+  services/     # API calls through the generated client
+  generated/    # TypeScript client generated from the OpenAPI spec (npm run gen:api)
+  i18n/         # translations
+  plugins/      # Vuetify theme and i18n setup
+  utils/        # helpers (price formatting)
+```
