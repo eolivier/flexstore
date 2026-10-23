@@ -1,5 +1,32 @@
 export default {
   en: {
+    profile: {
+      title: "My account",
+      notSignedIn: "You are not signed in",
+      notSignedInText: "Sign in to see your account information.",
+      name: "Name",
+      email: "Email",
+      shortcuts: "Shortcuts"
+    },
+    admin: {
+      title: "Administration",
+      subtitle: "Manage the users and the products of the shop.",
+      usersText: "See and delete the user accounts.",
+      createUserText: "Add an account that can sign in.",
+      createProductText: "Add a product to the catalog."
+    },
+    createProduct: {
+      title: "Create a product",
+      name: "Product name",
+      description: "Description",
+      category: "Category",
+      price: "Price (€)",
+      submit: "Create product",
+      success: "The product {name} has been created.",
+      error: "The product could not be created.",
+      mandatoryField: "Mandatory field",
+      invalidPrice: "Enter a positive price"
+    },
     about: {
       title: "About Flexstore",
       intro: "Flexstore is a demo online shop. It is an open source project that shows how to build an e-commerce application around use cases: each user journey (creating an account, signing in, adding a product to the cart…) is an explicit, tested use case.",
@@ -105,11 +132,21 @@ export default {
       emptyText: "Browse the shop and add the products you like."
     },
     orders: {
-      title: "Orders"
+      title: "Orders",
+      demo: "Demo orders, not linked to your cart yet.",
+      status: {
+        shipped: "Shipped",
+        processing: "Processing",
+        delivered: "Delivered",
+        pendingPayment: "Pending payment"
+      }
     },
     users: {
       title: "Users",
-      delete: "Delete"
+      delete: "Delete",
+      count: "No users | 1 user | {n} users",
+      deleted: "The user has been deleted.",
+      deleteError: "The user could not be deleted."
     },
     nav: {
       home: "Home",
@@ -147,7 +184,10 @@ export default {
       label: "Create user",
       mandatoryField: "Mandatory field",
       invalidEmail: "Invalid email format",
-      passwordTooShort: "Password must be at least 8 characters"
+      passwordTooShort: "Password must be at least 8 characters",
+      success: "The user {name} has been created.",
+      error: "The user could not be created (the email may already be used).",
+      showPassword: "Show password"
     },
     login: {
       title: "Login",
@@ -161,6 +201,33 @@ export default {
     }
   },
   fr: {
+    profile: {
+      title: "Mon compte",
+      notSignedIn: "Vous n'êtes pas connecté",
+      notSignedInText: "Connectez-vous pour voir les informations de votre compte.",
+      name: "Nom",
+      email: "Email",
+      shortcuts: "Raccourcis"
+    },
+    admin: {
+      title: "Administration",
+      subtitle: "Gérez les utilisateurs et les produits de la boutique.",
+      usersText: "Consulter et supprimer les comptes utilisateurs.",
+      createUserText: "Ajouter un compte qui pourra se connecter.",
+      createProductText: "Ajouter un produit au catalogue."
+    },
+    createProduct: {
+      title: "Créer un produit",
+      name: "Nom du produit",
+      description: "Description",
+      category: "Catégorie",
+      price: "Prix (€)",
+      submit: "Créer le produit",
+      success: "Le produit {name} a été créé.",
+      error: "Le produit n'a pas pu être créé.",
+      mandatoryField: "Champ obligatoire",
+      invalidPrice: "Saisissez un prix positif"
+    },
     about: {
       title: "À propos de Flexstore",
       intro: "Flexstore est une boutique en ligne de démonstration. C'est un projet open source qui montre comment construire une application e-commerce autour des cas d'utilisation : chaque parcours utilisateur (créer un compte, se connecter, ajouter un produit au panier…) est un cas d'utilisation explicite et testé.",
@@ -266,11 +333,21 @@ export default {
       emptyText: "Parcourez la boutique et ajoutez les produits qui vous plaisent."
     },
     orders: {
-      title: "Commandes"
+      title: "Commandes",
+      demo: "Commandes de démonstration, pas encore liées à votre panier.",
+      status: {
+        shipped: "Expédiée",
+        processing: "En préparation",
+        delivered: "Livrée",
+        pendingPayment: "En attente de paiement"
+      }
     },
     users: {
       title: "Utilisateurs",
-      delete: "Supprimer"
+      delete: "Supprimer",
+      count: "Aucun utilisateur | 1 utilisateur | {n} utilisateurs",
+      deleted: "L'utilisateur a été supprimé.",
+      deleteError: "L'utilisateur n'a pas pu être supprimé."
     },
     nav: {
       home: "Accueil",
@@ -308,7 +385,10 @@ export default {
       label: "Créer utilisateur",
       mandatoryField: "Champ obligatoire",
       invalidEmail: "Format d'email invalide",
-      passwordTooShort: "Le mot de passe doit contenir au moins 8 caractères"
+      passwordTooShort: "Le mot de passe doit contenir au moins 8 caractères",
+      success: "L'utilisateur {name} a été créé.",
+      error: "L'utilisateur n'a pas pu être créé (l'email est peut-être déjà utilisé).",
+      showPassword: "Afficher le mot de passe"
     },
     login: {
       title: "Connexion",

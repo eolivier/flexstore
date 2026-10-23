@@ -10,24 +10,23 @@ export const useProductsStore = defineStore('products', () => {
   const loading = ref(false);
   const error = ref<string | null>(null);
 
-  async function addProduct(product: Product) {
-    const response = await fetch(`${apiUrl}/api/products`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(product),
-    });
-    if (response.ok) {
-      const text = await response.text();
-      if (text) {
-        const data = JSON.parse(text);
-        console.log('Product created:', data);
-      } else {
-        console.log('Product created, but no content returned');
+  // Returns whether the product was created
+  async function addProduct(product: Product): Promise<boolean> {
+    try {
+      const response = await fetch(`${apiUrl}/api/products`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(product),
+      });
+      if (!response.ok) {
+        console.error('Error when creating product', await response.text());
+        return false;
       }
-    } else {
-      // Gérer l’erreur
-      const error = await response.text();
+      await fetchProducts();
+      return true;
+    } catch (error) {
       console.error('Error when creating product', error);
+      return false;
     }
   }
 

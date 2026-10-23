@@ -75,7 +75,7 @@ describe('Login.vue', () => {
   it('calls login when form is submitted with valid data', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve({ id: 1, name: 'John', email: 'john@example.com' }),
+      json: () => Promise.resolve({ id: '1', name: 'John', email: 'john@example.com' }),
     });
 
     const wrapper = await mountComponent();
@@ -139,7 +139,7 @@ describe('Login.vue', () => {
   it('redirects to admin after successful login', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve({ id: 1, name: 'John', email: 'john@example.com' }),
+      json: () => Promise.resolve({ id: '1', name: 'John', email: 'john@example.com' }),
     });
 
     const wrapper = await mountComponent();
@@ -159,7 +159,7 @@ describe('Login.vue', () => {
   it('redirects to custom path from query params after successful login', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve({ id: 1, name: 'John', email: 'john@example.com' }),
+      json: () => Promise.resolve({ id: '1', name: 'John', email: 'john@example.com' }),
     });
 
     const wrapper = await mountComponent({ redirect: '/admin/users' });

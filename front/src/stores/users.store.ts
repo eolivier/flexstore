@@ -15,31 +15,36 @@ export const useUsersStore = defineStore('users', () => {
     }
   }
 
-  async function addUser(user: User) {
-    const response = await fetch(`${apiUrl}/api/users`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(user),
-    });
-    if (response.ok) {
-      const text = await response.text();
-      if (text) {
-        const data = JSON.parse(text);
-        console.log('User created:', data);
-      } else {
-        console.log('User created, but no content returned');
+  // Returns whether the user was created
+  async function addUser(user: Omit<User, 'id'>): Promise<boolean> {
+    try {
+      const response = await fetch(`${apiUrl}/api/users`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(user),
+      });
+      if (!response.ok) {
+        console.error('Error when creating user', await response.text());
+        return false;
       }
-    } else {
-      // Gérer l’erreur
-      const error = await response.text();
+      await fetchUsers();
+      return true;
+    } catch (error) {
       console.error('Error when creating user', error);
+      return false;
     }
-    await fetchUsers();
   }
 
-  async function deleteUser(id: number) {
-    await fetch(`${apiUrl}/api/users/${id}`, { method: 'DELETE' });
-    await fetchUsers();
+  // Returns whether the user was deleted
+  async function deleteUser(id: string): Promise<boolean> {
+    try {
+      const response = await fetch(`${apiUrl}/api/users/${id}`, { method: 'DELETE' });
+      await fetchUsers();
+      return response.ok;
+    } catch (error) {
+      console.error('Error when deleting user', error);
+      return false;
+    }
   }
 
   return { users, fetchUsers, addUser, deleteUser };
