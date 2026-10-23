@@ -80,7 +80,10 @@ export default {
     },
     cart: {
       title: "My cart",
-      total: "Total"
+      total: "Total",
+      increase: "Increase quantity",
+      decrease: "Decrease quantity",
+      remove: "Remove from cart"
     },
     orders: {
       title: "Orders"
@@ -219,7 +222,10 @@ export default {
     },
     cart: {
       title: "Mon panier",
-      total: "Total"
+      total: "Total",
+      increase: "Augmenter la quantité",
+      decrease: "Diminuer la quantité",
+      remove: "Retirer du panier"
     },
     orders: {
       title: "Commandes"

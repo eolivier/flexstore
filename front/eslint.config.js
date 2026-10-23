@@ -28,6 +28,15 @@ export default [
         },
     },
 
+    // TypeScript (vue-tsc) already reports undefined identifiers and knows the browser globals
+    // (https://typescript-eslint.io/troubleshooting/faqs/eslint#i-get-errors-from-the-no-undef-rule-about-global-variables-not-being-defined-even-though-there-are-no-typescript-errors)
+    {
+        files: ["**/*.{ts,vue}"],
+        rules: {
+            "no-undef": "off",
+        },
+    },
+
     // Règles communes + unused vars/imports via TS
     {
         files: ["**/*.{js,ts,vue}"],
