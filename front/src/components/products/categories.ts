@@ -16,3 +16,10 @@ const unknownCategory: CategoryInfo = { label: 'nav.allProducts', icon: 'mdi-pac
 export function categoryInfo(category: string | undefined): CategoryInfo {
   return (category && categories[category]) || unknownCategory;
 }
+
+// Categories shown on the home page, with their catalog page
+export const shopCategories = [
+  { code: 'CLOTHING', to: '/products/clothing' },
+  { code: 'ELECTRONICS', to: '/products/electronics' },
+  { code: 'ACCESSORIES', to: '/products/accessories' },
+];
