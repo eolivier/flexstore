@@ -260,7 +260,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **updateUser**
-> updateUser(jsonUser)
+> updateUser(jsonUserUpdate)
 
 
 ### Example
@@ -269,18 +269,18 @@ No authorization required
 import {
     UsersApi,
     Configuration,
-    JsonUser
+    JsonUserUpdate
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new UsersApi(configuration);
 
 let id: string; // (default to undefined)
-let jsonUser: JsonUser; //
+let jsonUserUpdate: JsonUserUpdate; //
 
 const { status, data } = await apiInstance.updateUser(
     id,
-    jsonUser
+    jsonUserUpdate
 );
 ```
 
@@ -288,7 +288,7 @@ const { status, data } = await apiInstance.updateUser(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **jsonUser** | **JsonUser**|  | |
+| **jsonUserUpdate** | **JsonUserUpdate**|  | |
 | **id** | [**string**] |  | defaults to undefined|
 
 

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.flexstore.domain.entity.Email
 import org.flexstore.domain.entity.HashedPassword
+import org.flexstore.domain.entity.PlainPassword
 import org.flexstore.domain.entity.User
 import org.flexstore.domain.entity.UserId
 import org.flexstore.domain.entity.of
@@ -87,13 +88,14 @@ class UserRestControllerIT {
     fun `should return user by id`() {
         // Arrange
         userService.createUser(createJsonUser().toUser())
-        val jsonUser = createJsonUser()
-        val user = jsonUser.toUser()
         // Act - Assert
         mockMvc.perform(get("/api/users/$USER_ID"))
             .andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(content().json(objectMapper.writeValueAsString(user)))
+            .andExpect(jsonPath("$.id").value(USER_ID))
+            .andExpect(jsonPath("$.name").value("John Doe"))
+            .andExpect(jsonPath("$.email").value("john.doe@example.com"))
+            .andExpect(jsonPath("$.password").doesNotExist())
     }
 
     @Test
@@ -109,8 +111,11 @@ class UserRestControllerIT {
                 .content(objectMapper.writeValueAsString(updatedJsonUser))
         )
             .andExpect(status().isOk)
-        val readUser = userService.readUser(UserId.of(USER_ID))
-        assertThat(readUser).isEqualTo(updatedJsonUser.toUser())
+        val readUser = userService.readUser(UserId.of(USER_ID)) as User.DefinedUser
+        assertThat(readUser.name.value).isEqualTo("Jane Doe")
+        assertThat(readUser.email.value).isEqualTo("jane.doe@example.com")
+        // The password is stored hashed, so it is checked through the repository
+        assertThat(userRepository.passwordMatches(readUser.email, PlainPassword("testpassword"))).isTrue()
     }
 
     @Test
