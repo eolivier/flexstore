@@ -15,22 +15,29 @@ export const useCartStore = defineStore('cart', () => {
         }
     }
 
-    async function saveItem(item: Item) {
+    // Returns whether the item was saved
+    async function saveItem(item: Item): Promise<boolean> {
         console.info('Saving...', item);
-        const response = await fetch(`${apiUrl}/api/cart/save`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(item),
-        });
-        if (response.ok) {
+        try {
+            const response = await fetch(`${apiUrl}/api/cart/save`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(item),
+            });
+            if (!response.ok) {
+                console.error('Failed to save cart item');
+                return false;
+            }
             const data = await response.json();
             console.info('Item saved : ', data);
             // Reload the cart so that its items, totals and the header badge stay in sync with the server
             await fetchCartItems();
-        } else {
-            console.error('Failed to save cart item');
+            return true;
+        } catch (error) {
+            console.error('Failed to save cart item', error);
+            return false;
         }
     }
 
