@@ -1,31 +1,78 @@
+<script setup lang="ts">
+  import { useI18n } from 'vue-i18n';
+
+  const { t } = useI18n();
+
+  const values = [
+    { key: 'quality', icon: 'mdi-star-outline' },
+    { key: 'transparency', icon: 'mdi-tag-outline' },
+    { key: 'care', icon: 'mdi-leaf' },
+  ];
+
+  const commitments = [
+    { key: 'delivery', icon: 'mdi-truck-fast-outline' },
+    { key: 'payment', icon: 'mdi-shield-lock-outline' },
+    { key: 'returns', icon: 'mdi-swap-horizontal' },
+    { key: 'support', icon: 'mdi-chat-outline' },
+  ];
+</script>
+
 <template>
-  <v-container>
-    <v-row>
-      <v-col>
-        <h1>À propos</h1>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, urna eu tincidunt
-          consectetur, nisi nisl aliquam eros, vitae dictum enim urna at sapien.
-        </p>
-        <p>
-          Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis
-          egestas. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia
-          curae.
-        </p>
-        <p>
-          Integer facilisis, sapien nec laoreet cursus, enim erat dictum urna, nec cursus enim erat
-          nec urna. Etiam euismod, justo at facilisis cursus, enim erat dictum urna.
-        </p>
-      </v-col>
-    </v-row>
+  <v-container class="py-12">
+    <section class="intro mb-14">
+      <div class="text-overline text-secondary font-weight-bold mb-2">{{ t('about.eyebrow') }}</div>
+      <h1 class="text-h4 text-md-h3 font-weight-bold mb-5">{{ t('about.title') }}</h1>
+      <p class="text-body-1 text-medium-emphasis">{{ t('about.intro') }}</p>
+    </section>
+
+    <section class="mb-14">
+      <h2 class="text-h5 font-weight-bold mb-6">{{ t('about.valuesTitle') }}</h2>
+      <v-row>
+        <v-col v-for="value in values" :key="value.key" cols="12" md="4">
+          <v-card class="pa-6 h-100">
+            <v-avatar color="secondary" variant="tonal" rounded="lg" size="48" class="mb-4">
+              <v-icon :icon="value.icon" />
+            </v-avatar>
+            <h3 class="text-h6 font-weight-bold mb-2">{{ t(`about.values.${value.key}.title`) }}</h3>
+            <p class="text-body-2 text-medium-emphasis">{{ t(`about.values.${value.key}.text`) }}</p>
+          </v-card>
+        </v-col>
+      </v-row>
+    </section>
+
+    <section class="mb-14">
+      <h2 class="text-h5 font-weight-bold mb-6">{{ t('about.commitmentsTitle') }}</h2>
+      <v-row>
+        <v-col v-for="commitment in commitments" :key="commitment.key" cols="12" sm="6">
+          <div class="d-flex">
+            <v-icon :icon="commitment.icon" color="primary" size="28" class="mr-4 mt-1" />
+            <div>
+              <h3 class="text-subtitle-1 font-weight-bold">{{ t(`about.commitments.${commitment.key}.title`) }}</h3>
+              <p class="text-body-2 text-medium-emphasis">{{ t(`about.commitments.${commitment.key}.text`) }}</p>
+            </div>
+          </div>
+        </v-col>
+      </v-row>
+    </section>
+
+    <v-sheet color="primary" rounded="xl" class="cta pa-8 pa-md-10 d-flex flex-column flex-md-row align-md-center">
+      <div class="mb-6 mb-md-0">
+        <h2 class="text-h5 font-weight-bold mb-1">{{ t('about.ctaTitle') }}</h2>
+        <p class="text-body-1 cta-text">{{ t('about.ctaText') }}</p>
+      </div>
+      <v-spacer />
+      <v-btn to="/products/" color="secondary" size="large" append-icon="mdi-arrow-right">
+        {{ t('about.ctaButton') }}
+      </v-btn>
+    </v-sheet>
   </v-container>
 </template>
 
 <style scoped>
-  h1 {
-    margin-bottom: 24px;
+  .intro {
+    max-width: 760px;
   }
-  p {
-    margin-bottom: 16px;
+  .cta-text {
+    opacity: 0.78;
   }
 </style>
