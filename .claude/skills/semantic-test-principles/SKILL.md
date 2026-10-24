@@ -41,6 +41,7 @@ it('should report a wrong current password', async () => {
 
 Details:
 - Use exactly these words, not `given / when / then` or other variants.
+- No blank line between the sections, nor inside them: the three comments already space out the test for reading.
 - Keep each section once and in order; do not interleave several Act and Assert blocks. A test that needs two actions to check two behaviours is two tests.
 - When the action is expected to fail, capture the failure in Act and check it in Assert, so the sections stay separate:
 
