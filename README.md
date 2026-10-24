@@ -91,9 +91,15 @@ The database can be configured either with:
 - `FLEXSTORE_DATABASE_URL`: a connection string `postgres(ql)://user:password@host:port/database` (as given by Render) or a full JDBC URL including the credentials
 - or the separate variables `FLEXSTORE_DATASOURCE_HOST`, `FLEXSTORE_DATASOURCE_HOST_SUFFIX`, `FLEXSTORE_DATASOURCE_PORT`, `FLEXSTORE_DATASOURCE_DATABASE`, `FLEXSTORE_DATASOURCE_USERNAME`, `FLEXSTORE_DATASOURCE_PASSWORD` (see `backend/spring-infra/.env`)
 
+The back end can also run in Docker, with the root `Dockerfile` (unit tests included):
+
+```bash
+docker compose up -d --build app
+```
+
 ### 3. Front end
 
-**Prerequisites**: Node 20 or later (the CI uses Node 22).
+**Prerequisites**: Node 20.19 or later, required by Vite 7 (the CI uses Node 22).
 
 Add a `front/.env` file:
 
@@ -176,7 +182,7 @@ Integration tests use the PostgreSQL database on `localhost:5432` (`flexstore` /
 
 ```bash
 npm test        # Vitest
-npm run lint    # ESLint
+npm run lint    # ESLint (generated client excluded)
 npm run build   # type check (vue-tsc) + production build
 ```
 
@@ -184,7 +190,7 @@ npm run build   # type check (vue-tsc) + production build
 
 ## 🚢 CI and deployment
 
-- **CI** (`.github/workflows/ci.yml`): on every pull request and push to `main`, back-end unit and integration tests (with a PostgreSQL service) and front-end build and tests
+- **CI** (`.github/workflows/ci.yml`): on every pull request and push to `main`, back-end unit and integration tests (with a PostgreSQL service) and front-end lint, build and tests
 - **Front end**: deployed to Cloudflare Pages on every push to `main` that touches `front/` (`.github/workflows/vue-pages.yml`)
 - **Back end**: deployed to Render from `main` with the root `Dockerfile` (`render.yaml`); the database is given to the app as `FLEXSTORE_DATABASE_URL`, and `FLEXSTORE_JWT_SECRET` must be set. HTTPS ends at the Render proxy: `server.forward-headers-strategy: framework` makes Spring see the requests as HTTPS
 
