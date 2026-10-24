@@ -29,3 +29,13 @@ How to apply:
 A pull request never has the branch of another pull request as its base. When that base branch is merged first, the dependent PR is merged into a branch that is already merged, and its changes never reach `main`; when the dependent PR is merged first, `main` gets them only through the base PR.
 
 After each merge on `main`, bring the open PRs up to date with it (merge `main` into their branch, or rebase while nobody reviews them), adapt them to what changed (a renamed type, a new API), and run all the tests: a PR that was green alone can break `main` once another one is merged before it. Check the CI of `main` after each merge.
+
+## 3. Push the pull request as soon as the unit tests are green
+
+Open (or update) the pull request as soon as the code compiles and the unit tests pass, before running the integration tests: the user can start the review earlier.
+
+How to apply:
+- unit tests green (`./gradlew test`, `npm test`, lint and type check) → push and open the PR, saying in the test plan that the integration tests are running;
+- then run the integration tests (`./gradlew integrationTest`) and the manual checks;
+- if they reveal a problem, fix it and push to the same PR, then update its description (test plan, and what changed when it matters for the review);
+- once everything is green, tick the integration tests in the test plan.

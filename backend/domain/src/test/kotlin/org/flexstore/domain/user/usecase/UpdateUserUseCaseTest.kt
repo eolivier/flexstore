@@ -5,93 +5,90 @@ import org.flexstore.domain.user.*
 import org.flexstore.domain.user.User.DefinedUser
 import org.flexstore.domain.user.UserId.InvalidUserId
 import org.flexstore.domain.user.UserId.ValidUserId
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.catchThrowable
+import org.flexstore.infra.repository.InMemoryUserRepository
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import kotlin.test.Test
 
 class UpdateUserUseCaseTest {
 
+    private val userRepository = InMemoryUserRepository()
+    private val updateUserUseCase = UpdateUserUseCase(userRepository)
+    private val administrator = DefinedUser(ValidUserId("admin-1"), Name("Admin"), Email("admin@example.com"), PlainPassword("admin-password"), Role.ADMIN)
+    private val simpleUser = DefinedUser(ValidUserId("user-1"), Name("Simple User"), Email("simple@example.com"), PlainPassword("user-password"))
+    private val john = DefinedUser(ValidUserId("123"), Name("John Doe"), Email("john.doe@example.com"), PlainPassword("password123"))
+
+    init {
+        listOf(administrator, simpleUser, john).forEach { userRepository.save(it) }
+    }
+
+    private fun stored(userId: UserId) = userRepository.findById(userId) as DefinedUser
+
     @Test
-    fun `should update user successfully`() {
+    fun `an administrator should edit the name, the email and the role of a user`() {
         // Arrange
-        val userRepository = mockk<UserRepository>()
-        val userId = ValidUserId("123")
-        val user = DefinedUser(userId, Name("John Doe"), Email("john.doe@example.com"), PlainPassword("password123"))
-        every { userRepository.notExists(userId) } returns false
-        every { userRepository.findById(userId) } returns user
-        every { userRepository.save(user) } returns user
-        val updateUserUseCase = UpdateUserUseCase(userRepository)
+        val editedJohn = john.copy(name = Name("Jane Doe"), email = Email("jane.doe@example.com"), role = Role.ADMIN)
         // Act
-        updateUserUseCase.unfold(user)
+        updateUserUseCase.unfold(UpdateUserRequest(administrator.id, editedJohn))
         // Assert
-        verify { userRepository.save(user) }
+        val storedJohn = stored(john.id)
+        assertThat(storedJohn.name).isEqualTo(Name("Jane Doe"))
+        assertThat(storedJohn.email).isEqualTo(Email("jane.doe@example.com"))
+        assertThat(storedJohn.role).isEqualTo(Role.ADMIN)
+    }
+
+    @Test
+    fun `an edit should keep the stored password`() {
+        // Arrange
+        val editedJohn = john.copy(name = Name("Jane Doe"), password = PlainPassword("another-password"))
+        // Act
+        updateUserUseCase.unfold(UpdateUserRequest(administrator.id, editedJohn))
+        // Assert
+        assertThat(userRepository.passwordMatches(john.email, PlainPassword("password123"))).isTrue()
+    }
+
+    @ParameterizedTest(name = "an editor \"{0}\" who is not an administrator is refused")
+    @ValueSource(strings = ["user-1", "unknown"])
+    fun `should refuse an editor who is not an administrator`(editorId: String) {
+        // Arrange
+        val editedJohn = john.copy(name = Name("Jane Doe"))
+        // Act
+        val thrown = catchThrowable { updateUserUseCase.unfold(UpdateUserRequest(ValidUserId(editorId), editedJohn)) }
+        // Assert
+        assertThat(thrown).isInstanceOf(UserUpdateForbiddenException::class.java)
+        assertThat(stored(john.id).name).isEqualTo(Name("John Doe"))
     }
 
     @Test
     fun `should fail to update if user id is invalid`() {
         // Arrange
-        val userRepository = mockk<UserRepository>()
-        val invalidUserId = InvalidUserId("@")
-        val user = DefinedUser(invalidUserId, Name("John Doe"), Email("john.doe@example.com"), PlainPassword("password123"))
-        val updateUserUseCase = UpdateUserUseCase(userRepository)
+        val user = john.copy(id = InvalidUserId("@"))
         // Act
-        val thrown = catchThrowable { updateUserUseCase.unfold(user) }
+        val thrown = catchThrowable { updateUserUseCase.unfold(UpdateUserRequest(administrator.id, user)) }
         // Assert
         assertThat(thrown).isInstanceOf(InvalidUserIdException::class.java).hasMessage("User ID @ is invalid.")
-        verify(exactly = 0) { userRepository.save(user) }
     }
 
     @Test
     fun `should fail to update if user does not exist`() {
         // Arrange
-        val userRepository = mockk<UserRepository>()
-        val userId = ValidUserId("123")
-        val user = DefinedUser(userId, Name("John Doe"), Email("john.doe@example.com"), PlainPassword("password123"))
-        every { userRepository.notExists(userId) } returns true
-        val updateUserUseCase = UpdateUserUseCase(userRepository)
+        val unknownUser = john.copy(id = ValidUserId("unknown"))
         // Act
-        val thrown = catchThrowable { updateUserUseCase.unfold(user) }
+        val thrown = catchThrowable { updateUserUseCase.unfold(UpdateUserRequest(administrator.id, unknownUser)) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java).hasMessage("User with ID 123 does not exist.")
-        verify(exactly = 0) { userRepository.save(user) }
+        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java).hasMessage("User with ID unknown does not exist.")
     }
 
     @Test
-    fun `should keep existing password if no password is provided`() {
+    fun `should refuse the email of another user`() {
         // Arrange
-        val userRepository = mockk<UserRepository>()
-        val userId = ValidUserId("123")
-        val existingUser = DefinedUser(userId, Name("John Doe"), Email("john.doe@example.com"), HashedPassword("hashed"))
-        val user = DefinedUser(userId, Name("Jane Doe"), Email("jane.doe@example.com"), PlainPassword(""))
-        val expectedUser = user.copy(password = existingUser.password)
-        every { userRepository.notExists(userId) } returns false
-        every { userRepository.findById(userId) } returns existingUser
-        every { userRepository.save(expectedUser) } returns expectedUser
-        val updateUserUseCase = UpdateUserUseCase(userRepository)
+        val editedJohn = john.copy(email = simpleUser.email)
         // Act
-        updateUserUseCase.unfold(user)
+        val thrown = catchThrowable { updateUserUseCase.unfold(UpdateUserRequest(administrator.id, editedJohn)) }
         // Assert
-        verify { userRepository.save(expectedUser) }
-    }
-
-    @Test
-    fun `should keep the stored role`() {
-        // Arrange
-        val userRepository = mockk<UserRepository>()
-        val userId = ValidUserId("123")
-        val existingUser = DefinedUser(userId, Name("Admin"), Email("admin@example.com"), HashedPassword("hashed"), Role.ADMIN)
-        val user = DefinedUser(userId, Name("Admin"), Email("admin@example.com"), PlainPassword("new-password"))
-        val expectedUser = user.copy(role = Role.ADMIN)
-        every { userRepository.notExists(userId) } returns false
-        every { userRepository.findById(userId) } returns existingUser
-        every { userRepository.save(expectedUser) } returns expectedUser
-        val updateUserUseCase = UpdateUserUseCase(userRepository)
-        // Act
-        updateUserUseCase.unfold(user)
-        // Assert
-        verify { userRepository.save(expectedUser) }
+        assertThat(thrown).isInstanceOf(UserAlreadyExists::class.java)
+        assertThat(stored(john.id).email).isEqualTo(Email("john.doe@example.com"))
     }
 }

@@ -111,6 +111,7 @@ export default {
     },
     table: {
       id: "ID",
+      role: "Role",
       name: "Name",
       email: "Email",
       description: "Description",
@@ -199,7 +200,18 @@ export default {
       delete: "Delete",
       count: "No users | 1 user | {n} users",
       deleted: "The user has been deleted.",
-      deleteError: "The user could not be deleted."
+      deleteError: "The user could not be deleted.",
+      edit: "Edit {name}"
+    },
+    editUser: {
+      title: "Edit the user",
+      save: "Save",
+      cancel: "Cancel",
+      saved: "The user has been saved.",
+      emailUsed: "This email is already used by another user.",
+      error: "The user could not be saved.",
+      loadError: "The user could not be loaded.",
+      passwordNote: "The password is not changed here: it is changed by a separate operation."
     },
     nav: {
       home: "Home",
@@ -372,6 +384,7 @@ export default {
     },
     table: {
       id: "ID",
+      role: "Rôle",
       name: "Nom",
       email: "Email",
       description: "Description",
@@ -460,7 +473,18 @@ export default {
       delete: "Supprimer",
       count: "Aucun utilisateur | 1 utilisateur | {n} utilisateurs",
       deleted: "L'utilisateur a été supprimé.",
-      deleteError: "L'utilisateur n'a pas pu être supprimé."
+      deleteError: "L'utilisateur n'a pas pu être supprimé.",
+      edit: "Modifier {name}"
+    },
+    editUser: {
+      title: "Modifier l'utilisateur",
+      save: "Enregistrer",
+      cancel: "Annuler",
+      saved: "L'utilisateur a été enregistré.",
+      emailUsed: "Cet email est déjà utilisé par un autre utilisateur.",
+      error: "L'utilisateur n'a pas pu être enregistré.",
+      loadError: "L'utilisateur n'a pas pu être chargé.",
+      passwordNote: "Le mot de passe ne se modifie pas ici : c'est une opération à part."
     },
     nav: {
       home: "Accueil",

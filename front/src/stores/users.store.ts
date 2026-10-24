@@ -3,6 +3,10 @@ import { ref } from 'vue';
 import type { User } from '@/models/user';
 import { useAuthStore } from './auth.store';
 
+// The fields of a user an administrator edits: the password is changed by a separate operation
+export type EditedUser = Pick<User, 'name' | 'email'> & { role: NonNullable<User['role']> };
+export type UserEdition = 'saved' | 'emailUsed' | 'error';
+
 export const useUsersStore = defineStore('users', () => {
   const users = ref<User[]>([]);
   const loading = ref(false);
@@ -55,5 +59,25 @@ export const useUsersStore = defineStore('users', () => {
     }
   }
 
-  return { users, loading, fetchUsers, addUser, deleteUser };
+  // One user, or null when it cannot be read
+  async function fetchUser(id: string): Promise<User | null> {
+    const response = await authStore.authFetch(`/api/users/${encodeURIComponent(id)}`).catch(() => null);
+    return response?.ok ? response.json() : null;
+  }
+
+  async function updateUser(id: string, editedUser: EditedUser): Promise<UserEdition> {
+    const response = await authStore
+      .authFetch(`/api/users/${encodeURIComponent(id)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editedUser),
+      })
+      .catch(() => null);
+    if (response?.status === 409) return 'emailUsed';
+    if (!response?.ok) return 'error';
+    await fetchUsers();
+    return 'saved';
+  }
+
+  return { users, loading, fetchUsers, fetchUser, addUser, updateUser, deleteUser };
 });
