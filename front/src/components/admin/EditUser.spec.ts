@@ -96,4 +96,45 @@ describe('EditUser.vue', () => {
     expect(wrapper.findComponent(AccountStatusField).props('disabled')).toBe(true);
     expect(wrapper.text()).toContain('You cannot change the status of your own account.');
   });
+
+  const saveButton = (wrapper: Awaited<ReturnType<typeof mountEditUser>>) => wrapper.findAll('button').find(button => button.text() === 'Save')!;
+
+  it('the save button is enabled when only the status changes', async () => {
+    // Arrange
+    const wrapper = await mountEditUser();
+    // Act
+    wrapper.findComponent(AccountStatusField).vm.$emit('update:modelValue', 'SUSPENDED');
+    await flushPromises();
+    // Assert
+    expect(saveButton(wrapper).attributes('disabled')).toBeUndefined();
+  });
+
+  // A one-word name was split by the migration into a first name and an empty last name
+  const userWithoutLastName = () => {
+    const withoutLastName = { ...jane, lastName: '' };
+    mockFetch.mockImplementation((url: string, init?: RequestInit) =>
+      Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(init?.method === 'PUT' || url.endsWith('/u-1') ? withoutLastName : [withoutLastName]) })
+    );
+  };
+
+  it('a user without last name shows at once the field to fill, which keeps the save button disabled', async () => {
+    // Arrange
+    userWithoutLastName();
+    // Act
+    const wrapper = await mountEditUser();
+    // Assert
+    expect(wrapper.text()).toContain('Mandatory field');
+    expect(saveButton(wrapper).attributes('disabled')).toBeDefined();
+  });
+
+  it('a user without last name can be saved once the last name is filled in', async () => {
+    // Arrange
+    userWithoutLastName();
+    const wrapper = await mountEditUser();
+    // Act
+    await wrapper.findAll('input[type="text"]')[1].setValue('Doe');
+    await flushPromises();
+    // Assert
+    expect(saveButton(wrapper).attributes('disabled')).toBeUndefined();
+  });
 });
