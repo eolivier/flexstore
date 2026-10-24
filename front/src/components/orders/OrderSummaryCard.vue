@@ -2,7 +2,8 @@
   import { useI18n } from 'vue-i18n';
   import type { JsonOrder } from '@/generated';
   import { formatPrice } from '@/utils/price';
-  import { orderItemsCount, orderNumber, orderStatusColors, placedOn } from '@/utils/order';
+  import { orderItemsCount, orderNumber, placedOn } from '@/utils/order';
+  import OrderStatusSteps from './OrderStatusSteps.vue';
 
   const props = defineProps<{ order: JsonOrder }>();
 
@@ -24,13 +25,13 @@
         </div>
         <div class="lines-summary text-body-2 text-medium-emphasis">{{ linesSummary }}</div>
       </div>
-      <v-chip :color="orderStatusColors[order.status]" variant="tonal" size="small" class="font-weight-medium">
-        {{ t(`orders.status.${order.status}`) }}
-      </v-chip>
-      <div class="order-total text-subtitle-1 font-weight-bold text-right">
-        {{ formatPrice(order.totalPrice, order.currency, locale) }}
+      <div class="order-status d-flex align-center ga-4">
+        <OrderStatusSteps :status="order.status" layout="compact" />
+        <div class="order-total text-subtitle-1 font-weight-bold text-right">
+          {{ formatPrice(order.totalPrice, order.currency, locale) }}
+        </div>
+        <v-icon icon="mdi-chevron-right" class="d-none d-sm-flex text-medium-emphasis" />
       </div>
-      <v-icon icon="mdi-chevron-right" class="text-medium-emphasis" />
     </div>
   </v-card>
 </template>
@@ -47,5 +48,12 @@
   }
   .order-total {
     min-width: 96px;
+  }
+  /* On a phone, the status and the total share a line under the order */
+  @media (max-width: 599px) {
+    .order-status {
+      width: 100%;
+      justify-content: space-between;
+    }
   }
 </style>

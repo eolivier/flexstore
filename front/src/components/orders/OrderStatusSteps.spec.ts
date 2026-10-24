@@ -18,4 +18,17 @@ describe('OrderStatusSteps.vue', () => {
     expect(wrapper.findAll('.step--done')).toHaveLength(doneCount);
     expect(wrapper.findAll('li.step')).toHaveLength(3);
   });
+
+  it.each([
+    { status: 'PROCESSING' as const, visibleLabel: 'Processing' },
+    { status: 'SHIPPED' as const, visibleLabel: 'Shipped' },
+  ])('in the compact layout, only the current step $visibleLabel is labelled', ({ status, visibleLabel }) => {
+    // Act
+    const wrapper = mount(OrderStatusSteps, { props: { status, layout: 'compact' }, global: { plugins: [vuetify, i18n] } });
+    // Assert
+    const visibleLabels = wrapper.findAll('.step-label').filter(label => !label.classes('d-sr-only')).map(label => label.text());
+    expect(visibleLabels).toEqual([visibleLabel]);
+    expect(wrapper.findAll('.step-label')).toHaveLength(3);
+    expect(wrapper.find('[aria-current="step"]').classes()).toContain('step--current');
+  });
 });
