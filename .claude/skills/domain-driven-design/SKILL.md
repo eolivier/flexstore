@@ -108,7 +108,7 @@ When a functional package holds too many classes to read at a glance, split it i
 - `usecase`: the use cases and their requests;
 - `repository`: the repository ports.
 
-Do not create a technical sub-package for a single class: keep that class at the level of its functional package.
+A technical sub-package holds **at least 3 files**. Do not create a `model`, `usecase` or `repository` sub-package to move one or two files into it: keep them at the level of their functional package, next to the sub-packages that do exist. Create the sub-package once a third file of that kind arrives, and move the files back up if one of them goes away and fewer than 3 remain.
 
 The elements common to several functions (shared value objects such as `Identity`, `Price`, `Quantity`, `Name`) go in a **shared kernel**: `org.flexstore.domain.sharedkernel`. Keep it small: an element used by a single function belongs to that function.
 
@@ -140,7 +140,7 @@ and, once the package grows:
 ```
 domain/order/model/Order.kt, OrderLines.kt, OrderStatus.kt...
 domain/order/usecase/PlaceOrderUseCase.kt, ReadOrdersUseCase.kt...
-domain/order/OrderRepository.kt        (a single port: no repository/ sub-package)
+domain/order/OrderRepository.kt        (fewer than 3 ports: no repository/ sub-package)
 ```
 
 Why: the package tree tells what the application does (orders, carts, catalog) before how it is built; the dependencies between functions become visible, which shows where the bounded contexts are.
