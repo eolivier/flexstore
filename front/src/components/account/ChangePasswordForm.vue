@@ -38,20 +38,20 @@
   async function submit() {
     if (!valid.value) return;
     saving.value = true;
-    const result = await authStore.changePassword(currentPassword.value, newPassword.value);
+    const passwordChange = await authStore.changePassword(currentPassword.value, newPassword.value);
     saving.value = false;
     const messages = {
       changed: 'profile.passwordChanged',
       wrongPassword: 'profile.wrongPassword',
       error: 'profile.passwordError',
     };
-    if (result === 'changed') {
+    if (passwordChange === 'changed') {
       formRef.value?.reset();
       await nextTick();
       formRef.value?.resetValidation();
       showPasswords.value = false;
     }
-    await showFeedback(result === 'changed', t(messages[result]));
+    await showFeedback(passwordChange === 'changed', t(messages[passwordChange]));
   }
 </script>
 

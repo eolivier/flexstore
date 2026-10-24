@@ -64,9 +64,9 @@ describe('orders.store', () => {
     respondWith({ 'POST /api/orders': { status: 201, body: order }, 'GET /api/cart/cart-items': { status: 200, body: emptyCart } });
     const store = useOrdersStore();
     // Act
-    const result = await store.placeOrder();
+    const placement = await store.placeOrder();
     // Assert
-    expect(result).toEqual({ status: 'placed', order });
+    expect(placement).toEqual({ status: 'placed', order });
     expect(mockFetch.mock.calls.some(([url]) => url.endsWith('/api/cart/cart-items'))).toBe(true);
   });
 
@@ -76,9 +76,9 @@ describe('orders.store', () => {
     respondWith({ 'POST /api/orders': { status: 422 } });
     const store = useOrdersStore();
     // Act
-    const result = await store.placeOrder();
+    const placement = await store.placeOrder();
     // Assert
-    expect(result).toEqual({ status: 'emptyCart' });
+    expect(placement).toEqual({ status: 'emptyCart' });
   });
 
   it('should report a loading error', async () => {
@@ -90,5 +90,20 @@ describe('orders.store', () => {
     await store.fetchOrders();
     // Assert
     expect(store.loadError).toBe(true);
+  });
+
+  it.each([
+    { status: 200, expected: { status: 'found', order } },
+    { status: 404, expected: { status: 'notFound' } },
+    { status: 500, expected: { status: 'error' } },
+  ])('should look up an order: HTTP $status gives $expected.status', async ({ status, expected }) => {
+    // Arrange
+    await signIn();
+    respondWith({ [`GET /api/orders/${order.id}`]: { status, body: status === 200 ? order : undefined } });
+    const store = useOrdersStore();
+    // Act
+    const orderLookup = await store.fetchOrder(order.id);
+    // Assert
+    expect(orderLookup).toEqual(expected);
   });
 });

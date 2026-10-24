@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import type { User } from '@/models/user';
 
-export type ChangePasswordResult = 'changed' | 'wrongPassword' | 'error';
+export type PasswordChange = 'changed' | 'wrongPassword' | 'error';
 
 interface LoginResponse {
   token: string;
@@ -30,9 +30,9 @@ export const useAuthStore = defineStore('auth', () => {
       });
 
       if (response.ok) {
-        const data: LoginResponse = await response.json();
-        token.value = data.token;
-        currentUser.value = data.user;
+        const session: LoginResponse = await response.json();
+        token.value = session.token;
+        currentUser.value = session.user;
         return true;
       } else {
         loginError.value = 'Invalid email or password';
@@ -59,7 +59,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   // Changes the password of the signed-in user, after checking the current one
-  async function changePassword(currentPassword: string, newPassword: string): Promise<ChangePasswordResult> {
+  async function changePassword(currentPassword: string, newPassword: string): Promise<PasswordChange> {
     if (!currentUser.value) return 'error';
     try {
       const response = await authFetch(`/api/users/${currentUser.value.id}/password`, {

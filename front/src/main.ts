@@ -14,6 +14,7 @@ import CreateUser from './components/admin/CreateUser.vue';
 import AdminHome from './components/admin/AdminHome.vue';
 import UserProfile from './components/UserProfile.vue';
 import Orders from './components/Orders.vue';
+import OrderDetail from './components/OrderDetail.vue';
 import Products from "./components/products/Products.vue";
 import ProductDetail from './components/products/ProductDetail.vue';
 import CreateProduct from './components/admin/CreateProduct.vue';
@@ -26,6 +27,7 @@ const routes = [
   { path: '/', component: Home },
   { path: '/cart', component: Cart },
   { path: '/orders', component: Orders, meta: { requiresAuth: true } },
+  { path: '/orders/:id', component: OrderDetail, props: true, meta: { requiresAuth: true } },
   { path: '/user-profile', component: UserProfile },
   { path: '/products/', component: Products },
   { path: '/products/clothing', component: Products, props: { category: 'CLOTHING' } },

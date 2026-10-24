@@ -72,9 +72,9 @@ class OrderIT {
     @Test
     fun `placing an order should require a signed-in customer`() {
         // Act
-        val result = mockMvc.perform(post("/api/orders"))
+        val response = mockMvc.perform(post("/api/orders"))
         // Assert
-        result.andExpect(status().isUnauthorized)
+        response.andExpect(status().isUnauthorized)
     }
 
     @Test
@@ -83,9 +83,9 @@ class OrderIT {
         addToCart(CUSTOMER_ID, productId = "6", quantity = 2)
         addToCart(CUSTOMER_ID, productId = "9", quantity = 1)
         // Act
-        val result = mockMvc.perform(post("/api/orders").with(asUser(CUSTOMER_ID)))
+        val response = mockMvc.perform(post("/api/orders").with(asUser(CUSTOMER_ID)))
         // Assert
-        result.andExpect(status().isCreated)
+        response.andExpect(status().isCreated)
             .andExpect(jsonPath("$.id").isNotEmpty)
             .andExpect(jsonPath("$.status").value("PROCESSING"))
             .andExpect(jsonPath("$.lines.length()").value(2))
@@ -110,9 +110,9 @@ class OrderIT {
     @Test
     fun `should not place an order from an empty cart`() {
         // Act
-        val result = mockMvc.perform(post("/api/orders").with(asUser(CUSTOMER_ID)))
+        val response = mockMvc.perform(post("/api/orders").with(asUser(CUSTOMER_ID)))
         // Assert
-        result.andExpect(status().isUnprocessableEntity)
+        response.andExpect(status().isUnprocessableEntity)
     }
 
     @Test
@@ -122,9 +122,9 @@ class OrderIT {
         val newerId = placeOrder(CUSTOMER_ID, productId = "2")
         placeOrder(OTHER_CUSTOMER_ID, productId = "3")
         // Act
-        val result = mockMvc.perform(get("/api/orders").with(asUser(CUSTOMER_ID)))
+        val response = mockMvc.perform(get("/api/orders").with(asUser(CUSTOMER_ID)))
         // Assert
-        result.andExpect(status().isOk)
+        response.andExpect(status().isOk)
             .andExpect(jsonPath("$.length()").value(2))
             .andExpect(jsonPath("$[0].id").value(newerId))
             .andExpect(jsonPath("$[1].id").value(olderId))
@@ -135,9 +135,9 @@ class OrderIT {
         // Arrange
         val otherOrderId = placeOrder(OTHER_CUSTOMER_ID, productId = "3")
         // Act
-        val result = mockMvc.perform(get("/api/orders/$otherOrderId").with(asUser(CUSTOMER_ID)))
+        val response = mockMvc.perform(get("/api/orders/$otherOrderId").with(asUser(CUSTOMER_ID)))
         // Assert
-        result.andExpect(status().isNotFound)
+        response.andExpect(status().isNotFound)
     }
 
     private fun addToCart(customerId: String, productId: String, quantity: Int) {

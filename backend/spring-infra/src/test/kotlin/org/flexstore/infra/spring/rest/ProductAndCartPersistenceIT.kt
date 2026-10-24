@@ -60,9 +60,9 @@ class ProductAndCartPersistenceIT {
     @Test
     fun `should read the catalog from the database`() {
         // Act
-        val result = mockMvc.perform(get("/api/products/"))
+        val response = mockMvc.perform(get("/api/products/"))
         // Assert
-        result.andExpect(status().isOk)
+        response.andExpect(status().isOk)
             .andExpect(jsonPath("$.length()").value(9))
             .andExpect(jsonPath("$[0].id").value("1"))
             .andExpect(jsonPath("$[0].name").value("Organic Cotton T-shirt"))
@@ -76,9 +76,9 @@ class ProductAndCartPersistenceIT {
         // Arrange
         val draft = draftProduct(price = "12.5")
         // Act
-        val result = createProduct(draft)
+        val response = createProduct(draft)
         // Assert
-        result.andExpect(status().isCreated)
+        response.andExpect(status().isCreated)
             .andExpect(jsonPath("$.id").isNotEmpty)
         mockMvc.perform(get("/api/products/"))
             .andExpect(jsonPath("$[*].name", hasItem(TEST_PRODUCT_NAME)))
@@ -89,9 +89,9 @@ class ProductAndCartPersistenceIT {
         // Arrange
         createProduct(draftProduct(price = "12.5")).andExpect(status().isCreated)
         // Act
-        val result = createProduct(draftProduct(price = "12.50"))
+        val response = createProduct(draftProduct(price = "12.50"))
         // Assert
-        result.andExpect(status().isUnprocessableEntity)
+        response.andExpect(status().isUnprocessableEntity)
     }
 
     @Test
@@ -140,12 +140,12 @@ class ProductAndCartPersistenceIT {
         // Arrange
         val unknownProductItem = item(productId = "unknown", quantity = 1)
         // Act
-        val result = mockMvc.perform(
+        val response = mockMvc.perform(
             post("/api/cart/save").header(CART_ID_HEADER, cartId).contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(unknownProductItem))
         )
         // Assert
-        result.andExpect(status().isNotFound)
+        response.andExpect(status().isNotFound)
     }
 
     private fun draftProduct(price: String) = """{"name": "$TEST_PRODUCT_NAME", "description": "Stored in PostgreSQL",

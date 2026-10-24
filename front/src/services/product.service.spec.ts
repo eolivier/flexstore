@@ -43,8 +43,8 @@ describe('getProduct', () => {
     // Arrange
     vi.mocked(productsApi.getProduct).mockRejectedValue(httpError(500));
     // Act
-    const result = getProduct('3');
+    const productLookup = getProduct('3');
     // Assert
-    await expect(result).rejects.toThrow();
+    await expect(productLookup).rejects.toThrow();
   });
 });

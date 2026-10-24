@@ -99,3 +99,35 @@ Details:
 - Keep the constructor taking the internal form (a `List`) for the adapters that already have a list; add the convenient one (`vararg`, single value) next to it.
 - With a `vararg` constructor, drop the default value of the primary one (`= emptyList()`): `Items()` then has a single meaning.
 - The same goes for factory methods: `Identity.nextId()` rather than `Identity(UUID.randomUUID().toString())` (see the `domain-driven-design` skill, principle 6).
+
+## 5. Names that say what the thing is
+
+Name variables, parameters, types and classes after what they represent in the business, never with generic words that would fit anything: `result`, `data`, `value` (outside a value object's own field), `info`, `item` (when it is not an item of the domain), `obj`, `tmp`, `manager`, `processor`, `handler`, `helper`, `util`, `process`, `handle`, `do`.
+
+Avoid:
+
+```kotlin
+val result = bcryptVerifier.verify(password, hash)
+```
+```ts
+const result = await ordersStore.placeOrder();
+const data: LoginResponse = await response.json();
+type FetchOrderResult = ...
+```
+
+Prefer:
+
+```kotlin
+val verification = bcryptVerifier.verify(password, hash)
+```
+```ts
+const placement = await ordersStore.placeOrder();
+const session: LoginResponse = await response.json();
+type OrderLookup = ...
+```
+
+Why: a generic name forces the reader to go back to where the value comes from to know what it holds; a business name carries that meaning wherever the value is used.
+
+Details:
+- In a test, name the outcome after what it is: `val response = mockMvc.perform(...)`, `val updatedCart = cart.add(...)`, `val thrown = catchThrowable { ... }`.
+- Names imposed by a framework or a pattern keep their name (`EnvironmentPostProcessor`, `@ExceptionHandler`, the `handle` of a chain of responsibility).
