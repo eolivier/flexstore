@@ -15,13 +15,19 @@ open class UseCaseConfig {
 
     @Bean
     open fun productUseCaseFacade(createProductUseCase: CreateProductUseCase,
-                                 readProductUseCase: ReadProductUseCase): ProductUseCaseFacade {
-        return ProductUseCaseFacade(createProductUseCase, readProductUseCase)
+                                 readProductUseCase: ReadProductUseCase,
+                                 updateProductUseCase: UpdateProductUseCase): ProductUseCaseFacade {
+        return ProductUseCaseFacade(createProductUseCase, readProductUseCase, updateProductUseCase)
     }
 
     @Bean
     open fun createProductUseCase(productRepository: ProductRepository): CreateProductUseCase {
         return CreateProductUseCase(productRepository)
+    }
+
+    @Bean
+    open fun updateProductUseCase(productRepository: ProductRepository): UpdateProductUseCase {
+        return UpdateProductUseCase(productRepository)
     }
 
     @Bean
@@ -72,8 +78,19 @@ open class UseCaseConfig {
     }
 
     @Bean
-    open fun shopSettingsUseCaseFacade(shopSettingsRepository: ShopSettingsRepository): ShopSettingsUseCaseFacade {
-        return ShopSettingsUseCaseFacade(shopSettingsRepository, UpdateShopSettingsUseCase(shopSettingsRepository))
+    open fun shopSettingsAdministrationService(readShopSettingsUseCase: ReadShopSettingsUseCase,
+                                        updateShopSettingsUseCase: UpdateShopSettingsUseCase): ShopSettingsAdministrationService {
+        return ShopSettingsAdministrationService(readShopSettingsUseCase, updateShopSettingsUseCase)
+    }
+
+    @Bean
+    open fun readShopSettingsUseCase(shopSettingsRepository: ShopSettingsRepository): ReadShopSettingsUseCase {
+        return ReadShopSettingsUseCase(shopSettingsRepository)
+    }
+
+    @Bean
+    open fun updateShopSettingsUseCase(shopSettingsRepository: ShopSettingsRepository): UpdateShopSettingsUseCase {
+        return UpdateShopSettingsUseCase(shopSettingsRepository)
     }
 
     @Bean

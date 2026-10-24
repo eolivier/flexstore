@@ -274,6 +274,39 @@ paths:
                 $ref: "#/components/schemas/JsonProduct"
         "404":
           description: Product not found
+    put:
+      tags:
+      - Products
+      summary: Edit a product (name, description, category, price)
+      description: Reserved to an administrator
+      operationId: updateProduct
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EditedJsonProduct"
+        required: true
+      responses:
+        "200":
+          description: The edited product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonProduct"
+        "401":
+          description: Not signed in
+        "403":
+          description: Not an administrator
+        "404":
+          description: Unknown product
   /api/cart/cart-items:
     get:
       tags:
@@ -463,6 +496,22 @@ components:
           type: number
         currency:
           type: string
+    EditedJsonProduct:
+      type: object
+      description: The fields an administrator edits; the id is given by the path
+      required: [name, description, category, price, currency]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        price:
+          type: number
+        currency:
+          type: string
+          description: Currency code (EUR)
     JsonProduct:
       type: object
       properties:

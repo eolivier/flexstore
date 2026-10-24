@@ -22,7 +22,9 @@ class InMemoryProductRepository : ProductRepository {
             }
             is DefinedProduct -> product
         }
-        products.add(productSaved)
+        // A defined product replaces the stored product with the same id, at the same place
+        val index = products.indexOfFirst { it.productId == productSaved.productId }
+        if (index < 0) products.add(productSaved) else products[index] = productSaved
         return productSaved
     }
 
