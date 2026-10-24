@@ -87,9 +87,12 @@
             />
           </v-col>
         </v-row>
-        <v-btn type="submit" color="primary" size="large" block class="mt-2" :loading="saving" :disabled="!valid">
-          {{ t('createProduct.submit') }}
-        </v-btn>
+        <div class="d-flex ga-3 mt-2">
+          <v-btn to="/admin" variant="outlined" color="primary" size="large" class="flex-grow-1">{{ t('createProduct.cancel') }}</v-btn>
+          <v-btn type="submit" color="primary" size="large" class="flex-grow-1" :loading="saving" :disabled="!valid">
+            {{ t('createProduct.submit') }}
+          </v-btn>
+        </div>
       </v-form>
     </v-card>
     <v-snackbar v-model="feedback.show" :color="feedback.success ? 'primary' : 'error'" timeout="3000" location="bottom right">
