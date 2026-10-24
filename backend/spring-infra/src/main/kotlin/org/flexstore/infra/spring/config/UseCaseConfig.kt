@@ -78,8 +78,19 @@ open class UseCaseConfig {
     }
 
     @Bean
-    open fun shopSettingsUseCaseFacade(shopSettingsRepository: ShopSettingsRepository): ShopSettingsUseCaseFacade {
-        return ShopSettingsUseCaseFacade(shopSettingsRepository, UpdateShopSettingsUseCase(shopSettingsRepository))
+    open fun shopSettingsAdministrationService(readShopSettingsUseCase: ReadShopSettingsUseCase,
+                                        updateShopSettingsUseCase: UpdateShopSettingsUseCase): ShopSettingsAdministrationService {
+        return ShopSettingsAdministrationService(readShopSettingsUseCase, updateShopSettingsUseCase)
+    }
+
+    @Bean
+    open fun readShopSettingsUseCase(shopSettingsRepository: ShopSettingsRepository): ReadShopSettingsUseCase {
+        return ReadShopSettingsUseCase(shopSettingsRepository)
+    }
+
+    @Bean
+    open fun updateShopSettingsUseCase(shopSettingsRepository: ShopSettingsRepository): UpdateShopSettingsUseCase {
+        return UpdateShopSettingsUseCase(shopSettingsRepository)
     }
 
     @Bean
