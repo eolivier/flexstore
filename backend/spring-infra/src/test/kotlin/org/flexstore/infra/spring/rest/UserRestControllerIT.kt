@@ -54,7 +54,7 @@ class UserRestControllerIT {
     @Test
     fun `should create user`() {
         // Arrange
-        val draftJsonUser = DraftJsonUser("Draft User", DRAFT_USER_EMAIL, "testpassword")
+        val draftJsonUser = DraftJsonUser("Draft", "User", DRAFT_USER_EMAIL, "testpassword")
         // Act
         mockMvc.perform(
             post("/api/users").with(asAdmin())
@@ -74,7 +74,7 @@ class UserRestControllerIT {
     @CsvSource("ADMIN, ADMIN", "USER, USER", ", USER")
     fun `should create the user with the chosen role`(role: String?, expectedRole: String) {
         // Arrange
-        val draftJsonUser = DraftJsonUser("Draft User", DRAFT_USER_EMAIL, "testpassword", role)
+        val draftJsonUser = DraftJsonUser("Draft", "User", DRAFT_USER_EMAIL, "testpassword", role)
         // Act
         val response = mockMvc.perform(
             post("/api/users").with(asAdmin()).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(draftJsonUser))
@@ -88,7 +88,7 @@ class UserRestControllerIT {
     @Test
     fun `should refuse a creation by a token that is not the one of an administrator in the users`() {
         // Arrange
-        val draftJsonUser = DraftJsonUser("Draft User", DRAFT_USER_EMAIL, "testpassword")
+        val draftJsonUser = DraftJsonUser("Draft", "User", DRAFT_USER_EMAIL, "testpassword")
         // Act
         val response = mockMvc.perform(
             post("/api/users").with(asAdmin("not-a-user")).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(draftJsonUser))
@@ -101,7 +101,7 @@ class UserRestControllerIT {
     @Test
     fun `should not create a user with an unknown role`() {
         // Arrange
-        val draftJsonUser = DraftJsonUser("Draft User", DRAFT_USER_EMAIL, "testpassword", "SUPERVISOR")
+        val draftJsonUser = DraftJsonUser("Draft", "User", DRAFT_USER_EMAIL, "testpassword", "SUPERVISOR")
         // Act
         val response = mockMvc.perform(
             post("/api/users").with(asAdmin()).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(draftJsonUser))
@@ -113,7 +113,7 @@ class UserRestControllerIT {
     @Test
     fun `should not create user with an already used email`() {
         // Arrange
-        val draftJsonUser = DraftJsonUser("Draft User", DRAFT_USER_EMAIL, "testpassword")
+        val draftJsonUser = DraftJsonUser("Draft", "User", DRAFT_USER_EMAIL, "testpassword")
         userService.createUser(CreateUserRequest(UserId.of(ADMIN_ACCOUNT_ID), draftJsonUser.toUser()))
         // Act - Assert
         mockMvc.perform(
@@ -133,7 +133,7 @@ class UserRestControllerIT {
             .andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.id").value(USER_ID))
-            .andExpect(jsonPath("$.name").value("John Doe"))
+            .andExpect(jsonPath("$.firstName").value("John")).andExpect(jsonPath("$.lastName").value("Doe"))
             .andExpect(jsonPath("$.email").value("john.doe@example.com"))
             .andExpect(jsonPath("$.password").doesNotExist())
     }
@@ -142,14 +142,14 @@ class UserRestControllerIT {
     fun `an administrator should edit the name, the email and the role of a user`() {
         // Arrange
         userService.createUser(CreateUserRequest(UserId.of(ADMIN_ACCOUNT_ID), createJsonUser().toUser()))
-        val editedUser = EditedJsonUser("Jane Doe", "jane.doe@example.com", "ADMIN")
+        val editedUser = EditedJsonUser("Jane", "Doe", "jane.doe@example.com", "ADMIN")
         // Act
         val response = mockMvc.perform(
             put("/api/users/$USER_ID").with(asAdmin()).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(editedUser))
         )
         // Assert
         response.andExpect(status().isOk)
-            .andExpect(jsonPath("$.name").value("Jane Doe"))
+            .andExpect(jsonPath("$.firstName").value("Jane")).andExpect(jsonPath("$.lastName").value("Doe"))
             .andExpect(jsonPath("$.email").value("jane.doe@example.com"))
             .andExpect(jsonPath("$.role").value("ADMIN"))
             .andExpect(jsonPath("$.password").doesNotExist())
@@ -159,7 +159,7 @@ class UserRestControllerIT {
     fun `an edit should keep the password, even if one is sent`() {
         // Arrange
         userService.createUser(CreateUserRequest(UserId.of(ADMIN_ACCOUNT_ID), createJsonUser().toUser()))
-        val editedUserWithPassword = """{"name": "Jane Doe", "email": "jane.doe@example.com", "password": "another-password"}"""
+        val editedUserWithPassword = """{"firstName": "Jane", "lastName": "Doe", "email": "jane.doe@example.com", "password": "another-password"}"""
         // Act
         mockMvc.perform(
             put("/api/users/$USER_ID").with(asAdmin()).contentType(MediaType.APPLICATION_JSON).content(editedUserWithPassword)
@@ -172,21 +172,21 @@ class UserRestControllerIT {
     fun `should refuse an edit by a token that is not the one of an administrator in the users`() {
         // Arrange
         userService.createUser(CreateUserRequest(UserId.of(ADMIN_ACCOUNT_ID), createJsonUser().toUser()))
-        val editedUser = EditedJsonUser("Jane Doe", "jane.doe@example.com", "USER")
+        val editedUser = EditedJsonUser("Jane", "Doe", "jane.doe@example.com", "USER")
         // Act
         val response = mockMvc.perform(
             put("/api/users/$USER_ID").with(asAdmin("not-a-user")).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(editedUser))
         )
         // Assert
         response.andExpect(status().isForbidden)
-        assertThat((userService.readUser(UserId.of(USER_ID)) as User.DefinedUser).name.value).isEqualTo("John Doe")
+        assertThat((userService.readUser(UserId.of(USER_ID)) as User.DefinedUser).fullName().value).isEqualTo("John Doe")
     }
 
     @Test
     fun `should refuse the email of another user`() {
         // Arrange
         userService.createUser(CreateUserRequest(UserId.of(ADMIN_ACCOUNT_ID), createJsonUser().toUser()))
-        val editedUser = EditedJsonUser("John Doe", "admin@flexstore.com", "USER")
+        val editedUser = EditedJsonUser("John", "Doe", "admin@flexstore.com", "USER")
         // Act
         val response = mockMvc.perform(
             put("/api/users/$USER_ID").with(asAdmin()).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(editedUser))
@@ -254,6 +254,6 @@ class UserRestControllerIT {
     }
 
     private fun createJsonUser(): DefinedJsonUser {
-        return DefinedJsonUser(USER_ID,"John Doe", "john.doe@example.com", "testpassword")
+        return DefinedJsonUser(USER_ID,"John", "Doe", "john.doe@example.com", "testpassword")
     }
 }

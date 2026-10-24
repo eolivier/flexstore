@@ -261,7 +261,8 @@ export default {
     confirm : "Confirm",
     confirmation : "Confirmation",
     createUser: {
-      name: "User's Name",
+      firstName: "First name",
+      lastName: "Last name",
       email: "User's Email",
       password: "Password",
       label: "Create user",
@@ -551,7 +552,8 @@ export default {
     confirm : "Confirmer",
     confirmation : "Confirmation",
     createUser: {
-      name: "Nom de l'utilisateur",
+      firstName: "Prénom",
+      lastName: "Nom",
       email: "Email de l'utilisateur",
       password: "Mot de passe",
       label: "Créer utilisateur",

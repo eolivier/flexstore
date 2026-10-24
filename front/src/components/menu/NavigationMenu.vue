@@ -4,6 +4,7 @@
   import { useRoute, useRouter } from 'vue-router';
   import ProductsSubMenu from './submenu/ProductsSubMenu.vue';
   import AdminSubMenu from './submenu/AdminSubMenu.vue';
+  import { fullName } from '@/models/user';
   import Language from '../Language.vue';
   import LoadingBar from '@/components/layout/LoadingBar.vue';
   import { accountLinks, adminLinks, shopLinks } from './navigation';
@@ -86,7 +87,7 @@
         </template>
         <v-list density="comfortable" min-width="240">
           <v-list-item v-if="authStore.isAuthenticated" :subtitle="authStore.currentUser?.email">
-            <v-list-item-title class="font-weight-bold">{{ authStore.currentUser?.name }}</v-list-item-title>
+            <v-list-item-title class="font-weight-bold">{{ fullName(authStore.currentUser) }}</v-list-item-title>
           </v-list-item>
           <v-divider v-if="authStore.isAuthenticated" class="my-1" />
           <v-list-item

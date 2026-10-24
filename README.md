@@ -33,7 +33,7 @@ This repo is meant to be a learning vehicle and a ready-to-fork base for real pr
 
 **Account and administration** (sign-in required)
 - Sign in, profile, change password
-- Administration (`ADMIN` role): users (list with their role, create with a role, edit name/email/role, delete), products (list, create, edit name/description/category/price), settings (order confirmation email on/off)
+- Administration (`ADMIN` role): users (list with their role, create with a role, edit first name/last name/email/role, delete), products (list, create, edit name/description/category/price), settings (order confirmation email on/off)
 
 ---
 
@@ -174,7 +174,7 @@ npm run gen:api
 | `GET` | `/api/users` | `ADMIN` | All users |
 | `GET` | `/api/users/{id}` | `ADMIN` | One user |
 | `POST` | `/api/users` | `ADMIN` | Create a user, with its `role` (`USER` by default, or `ADMIN`); `409` if the email is already used |
-| `PUT` | `/api/users/{id}` | `ADMIN` | Edit a user: name, email and role (`409` if the email is used by another user); the password is not changed by an edit |
+| `PUT` | `/api/users/{id}` | `ADMIN` | Edit a user: first name, last name, email and role (`409` if the email is used by another user); the password is not changed by an edit |
 | `DELETE` | `/api/users/{id}` | `ADMIN` | Delete a user |
 
 Passwords are hashed with bcrypt and never returned by the API.

@@ -12,7 +12,9 @@ const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '
 
 async function fillAndSubmit(chosenRole?: 'USER' | 'ADMIN') {
   const wrapper = mount(CreateUser, { global: { plugins: [vuetify, i18n, router] } });
-  await wrapper.find('input[type="text"]').setValue('Jane Doe');
+  const [firstName, lastName] = wrapper.findAll('input[type="text"]');
+  await firstName.setValue('Jane');
+  await lastName.setValue('Doe');
   await wrapper.find('input[type="email"]').setValue('jane@example.com');
   await wrapper.find('input[type="password"]').setValue('password123');
   if (chosenRole) {
@@ -44,7 +46,7 @@ describe('CreateUser.vue', () => {
     // Act
     await fillAndSubmit(chosenRole);
     // Assert
-    expect(sentUser()).toEqual({ name: 'Jane Doe', email: 'jane@example.com', password: 'password123', role: expectedRole });
+    expect(sentUser()).toEqual({ firstName: 'Jane', lastName: 'Doe', email: 'jane@example.com', password: 'password123', role: expectedRole });
   });
 
   it('the cancel button goes back to the list of users', () => {

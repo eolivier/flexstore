@@ -15,7 +15,7 @@ class ChangePasswordUseCaseTest {
 
     private val userId = ValidUserId("123")
     private val email = Email("john.doe@example.com")
-    private val user = DefinedUser(userId, Name("John Doe"), email, HashedPassword("hashed"))
+    private val user = DefinedUser(userId, FirstName("John"), LastName("Doe"), email, HashedPassword("hashed"))
     private val currentPassword = PlainPassword("current-password")
     private val newPassword = PlainPassword("new-password")
 

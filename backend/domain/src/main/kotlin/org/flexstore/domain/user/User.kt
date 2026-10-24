@@ -10,12 +10,15 @@ sealed class User(open val id: UserId) {
 
     data class DefinedUser(
         override val id: UserId,
-        val name: Name,
+        val firstName: FirstName,
+        val lastName: LastName,
         val email: Email,
         val password: Password,
         val role: Role = Role.USER
     ) : User(id) {
-        override fun user(userId: UserId) = DefinedUser(userId, name, email, password, role)
+        override fun user(userId: UserId) = DefinedUser(userId, firstName, lastName, email, password, role)
+
+        fun fullName() = fullNameOf(firstName, lastName)
 
         fun isAdministrator() = role == Role.ADMIN
 
@@ -23,9 +26,14 @@ sealed class User(open val id: UserId) {
     }
 
     // A user to create: the administrator who creates it chooses its role
-    data class DraftUser(val name: Name, val email: Email, val password: Password, val role: Role = Role.USER) :
-        User(UserId.InvalidUserId("")) {
-        override fun user(userId: UserId) = DraftUser(name, email, password, role)
+    data class DraftUser(
+        val firstName: FirstName,
+        val lastName: LastName,
+        val email: Email,
+        val password: Password,
+        val role: Role = Role.USER
+    ) : User(UserId.InvalidUserId("")) {
+        override fun user(userId: UserId) = DraftUser(firstName, lastName, email, password, role)
     }
 
     data class UndefinedUser(override val id: UserId, val reason: String) : User(id) {
@@ -35,13 +43,13 @@ sealed class User(open val id: UserId) {
     companion object
 }
 
-fun User.Companion.of(name: Name, email: Email, password: Password): User {
-    return User.DraftUser(name, email, password)
+fun User.Companion.of(firstName: FirstName, lastName: LastName, email: Email, password: Password): User {
+    return User.DraftUser(firstName, lastName, email, password)
 }
 
-fun User.Companion.of(userId: UserId, name: Name, email: Email, password: Password): User {
+fun User.Companion.of(userId: UserId, firstName: FirstName, lastName: LastName, email: Email, password: Password): User {
     return when (userId.isValid()) {
-        true -> User.DefinedUser(userId, name, email, password)
+        true -> User.DefinedUser(userId, firstName, lastName, email, password)
         false -> User.UndefinedUser(userId, "Invalid user id")
     }
 }
@@ -69,6 +77,14 @@ fun UserId.Companion.of(value: String): UserId {
         false -> UserId.InvalidUserId(value)
     }
 }
+
+data class FirstName(val value: String)
+
+data class LastName(val value: String)
+
+// "First name Last name", as the user is greeted; a missing part is left out
+private fun fullNameOf(firstName: FirstName, lastName: LastName) =
+    Name(listOf(firstName.value, lastName.value).filter { it.isNotBlank() }.joinToString(" "))
 
 data class Email(val value: String)
 

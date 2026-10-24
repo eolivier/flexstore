@@ -2,6 +2,7 @@
   import { computed, onMounted, ref } from 'vue';
   import { useUsersStore } from '@/stores/users.store.ts';
   import ConfirmDialog from '@/components/ConfirmDialog.vue';
+  import { fullName, initials } from '@/models/user';
   import { useI18n } from 'vue-i18n';
 
   const usersStore = useUsersStore();
@@ -27,12 +28,8 @@
     }
   }
 
-  function initials(name: string) {
-    return name.split(' ').filter(Boolean).slice(0, 2).map(part => part[0].toUpperCase()).join('');
-  }
-
   const headers = computed(() => [
-    { title: t('table.name'), key: 'name' },
+    { title: t('table.name'), key: 'name', value: fullName },
     { title: t('table.email'), key: 'email' },
     { title: t('table.role'), key: 'role' },
     { title: '', key: 'actions', sortable: false, align: 'end' as const },
@@ -59,8 +56,8 @@
     >
       <template #item.name="{ item }">
         <div class="d-flex align-center py-2">
-          <v-avatar color="surface-variant" size="36" class="mr-3 text-caption font-weight-bold">{{ initials(item.name) }}</v-avatar>
-          <span class="font-weight-medium">{{ item.name }}</span>
+          <v-avatar color="surface-variant" size="36" class="mr-3 text-caption font-weight-bold">{{ initials(item) }}</v-avatar>
+          <span class="font-weight-medium">{{ fullName(item) }}</span>
         </div>
       </template>
       <template #item.role="{ item }">
@@ -74,7 +71,7 @@
           icon="mdi-pencil-outline"
           variant="text"
           size="small"
-          :aria-label="t('users.edit', { name: item.name })"
+          :aria-label="t('users.edit', { name: fullName(item) })"
         />
         <v-btn
           icon="mdi-trash-can-outline"

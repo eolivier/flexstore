@@ -54,7 +54,7 @@ class OrderIT {
     @BeforeEach
     fun createOtherCustomer() {
         cleanUp()
-        userRepository.save(UserEntity(OTHER_CUSTOMER_ID, "Other customer", "it-order-customer@example.com", "not-used"))
+        userRepository.save(UserEntity(OTHER_CUSTOMER_ID, "Other", "Customer", "it-order-customer@example.com", "not-used"))
     }
 
     @AfterEach

@@ -34,7 +34,7 @@ paths:
     put:
       tags:
       - Users
-      summary: Edit a user by ID (name, email, role; not the password)
+      summary: Edit a user by ID (first name, last name, email, role; not the password)
       description: Reserved to an administrator, checked by the domain (403 otherwise)
       operationId: updateUser
       security:
@@ -405,7 +405,9 @@ components:
       properties:
         id:
           type: string
-        name:
+        firstName:
+          type: string
+        lastName:
           type: string
         email:
           type: string
@@ -431,10 +433,13 @@ components:
       type: object
       description: The fields an administrator can edit; the password is changed by a separate operation
       required:
-        - name
+        - firstName
+        - lastName
         - email
       properties:
-        name:
+        firstName:
+          type: string
+        lastName:
           type: string
         email:
           type: string
@@ -445,11 +450,14 @@ components:
     JsonUserCreate:
       type: object
       required:
-        - name
+        - firstName
+        - lastName
         - email
         - password
       properties:
-        name:
+        firstName:
+          type: string
+        lastName:
           type: string
         email:
           type: string

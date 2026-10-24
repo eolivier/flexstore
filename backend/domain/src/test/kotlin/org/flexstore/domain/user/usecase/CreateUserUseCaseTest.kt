@@ -15,9 +15,9 @@ class CreateUserUseCaseTest {
 
     private val userRepository = mockk<UserRepository>()
     private val createUserUseCase = CreateUserUseCase(userRepository)
-    private val administrator = DefinedUser(ValidUserId("admin-1"), Name("Admin"), Email("admin@example.com"), HashedPassword("hashed"), Role.ADMIN)
-    private val user = DefinedUser(ValidUserId("123"), Name("John Doe"), Email("john.doe@example.com"), PlainPassword("password123"))
-    private val draftUser = User.DraftUser(Name("John Doe"), Email("john.doe@example.com"), PlainPassword("password123"))
+    private val administrator = DefinedUser(ValidUserId("admin-1"), FirstName("Admin"), LastName("Flexstore"), Email("admin@example.com"), HashedPassword("hashed"), Role.ADMIN)
+    private val user = DefinedUser(ValidUserId("123"), FirstName("John"), LastName("Doe"), Email("john.doe@example.com"), PlainPassword("password123"))
+    private val draftUser = User.DraftUser(FirstName("John"), LastName("Doe"), Email("john.doe@example.com"), PlainPassword("password123"))
 
     private fun existing(creator: DefinedUser) {
         every { userRepository.isNotAdministrator(creator.id) } returns creator.isNotAdministrator()
@@ -87,7 +87,7 @@ class CreateUserUseCaseTest {
     fun `should create draft user with the id assigned by the repository`() {
         // Arrange
         existing(administrator)
-        val savedUser = DefinedUser(ValidUserId("generated-id"), draftUser.name, draftUser.email, PlainPassword("password123"))
+        val savedUser = DefinedUser(ValidUserId("generated-id"), draftUser.firstName, draftUser.lastName, draftUser.email, PlainPassword("password123"))
         every { userRepository.emailIsAlreadyUsed(draftUser.email) } returns false
         every { userRepository.save(draftUser) } returns savedUser
         every { userRepository.notExists(savedUser.id) } returns false

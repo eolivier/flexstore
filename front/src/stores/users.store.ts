@@ -4,7 +4,7 @@ import type { User } from '@/models/user';
 import { useAuthStore } from './auth.store';
 
 // The fields of a user an administrator edits: the password is changed by a separate operation
-export type EditedUser = Pick<User, 'name' | 'email'> & { role: NonNullable<User['role']> };
+export type EditedUser = Pick<User, 'firstName' | 'lastName' | 'email'> & { role: NonNullable<User['role']> };
 export type UserEdition = 'saved' | 'emailUsed' | 'error';
 
 export const useUsersStore = defineStore('users', () => {

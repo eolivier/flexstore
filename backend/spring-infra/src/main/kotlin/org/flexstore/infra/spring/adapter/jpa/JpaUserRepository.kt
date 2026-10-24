@@ -34,7 +34,8 @@ class PostgresUserRepositoryAdapter(
                 val hashedPasswordValue = hashPasswordIfNeeded(user.password)
                 val entity = UserEntity(
                     id = generateNewUserId(),
-                    name = user.name.value,
+                    firstName = user.firstName.value,
+                    lastName = user.lastName.value,
                     email = user.email.value,
                     password = hashedPasswordValue,
                     role = user.role.name
@@ -46,7 +47,8 @@ class PostgresUserRepositoryAdapter(
                 val hashedPasswordValue = hashPasswordIfNeeded(user.password)
                 val entity = UserEntity(
                     id = user.id.value,
-                    name = user.name.value,
+                    firstName = user.firstName.value,
+                    lastName = user.lastName.value,
                     email = user.email.value,
                     password = hashedPasswordValue,
                     role = user.role.name
@@ -105,7 +107,8 @@ class PostgresUserRepositoryAdapter(
     // mapping helper
     private fun UserEntity.toDomain() = User.DefinedUser(
         id = UserId.ValidUserId(this.id),
-        name = Name(this.name),
+        firstName = FirstName(this.firstName),
+        lastName = LastName(this.lastName),
         email = Email(this.email),
         password = HashedPassword(this.password),
         role = Role.valueOf(this.role)
