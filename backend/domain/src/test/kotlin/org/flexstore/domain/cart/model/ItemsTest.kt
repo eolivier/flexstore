@@ -1,8 +1,8 @@
 package org.flexstore.domain.cart.model
 
-import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
+import org.assertj.core.api.WithAssertions
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 

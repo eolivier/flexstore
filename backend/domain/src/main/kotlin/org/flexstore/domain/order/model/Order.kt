@@ -1,4 +1,4 @@
-package org.flexstore.domain.order
+package org.flexstore.domain.order.model
 
 import org.flexstore.domain.cart.model.*
 import org.flexstore.domain.product.*
