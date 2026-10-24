@@ -19,6 +19,7 @@ import OrderConfirmation from './components/orders/OrderConfirmation.vue';
 import Products from "./components/products/Products.vue";
 import ProductDetail from './components/products/ProductDetail.vue';
 import CreateProduct from './components/admin/CreateProduct.vue';
+import ShopSettings from './components/admin/settings/ShopSettings.vue';
 import Login from './components/Login.vue';
 import { useAuthStore } from './stores/auth.store';
 
@@ -41,6 +42,7 @@ const routes = [
   { path: '/admin/users', component: Users, meta: { requiresAuth: true, requiresAdmin: true } },
   { path: '/admin/create-user', component: CreateUser, meta: { requiresAuth: true, requiresAdmin: true } },
   { path: '/admin/create-product', component: CreateProduct, meta: { requiresAuth: true, requiresAdmin: true } },
+  { path: '/admin/settings', component: ShopSettings, meta: { requiresAuth: true, requiresAdmin: true } },
   { path: '/about', component: About },
 ];
 const router = createRouter({
