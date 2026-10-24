@@ -16,7 +16,8 @@ data class Quantity(val value: Int) {
     fun isNegative() = value < 0
     fun isZero() = value == 0
     fun isPositive() = value > 0
-    fun isNotZero() = !isZero()
+    fun isZeroOrNegative() = value <= 0
+    fun isAtLeast(other: Quantity) = value >= other.value
 }
 data class Identity(val value: String) {
     companion object {

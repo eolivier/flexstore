@@ -14,12 +14,12 @@ class InMemoryCartRepository : CartRepository {
     override fun load(owner: CartOwner): Cart = carts[owner] ?: Cart(owner)
 
     override fun save(cart: Cart): Cart {
-        val savedCart = cart.copy(items = cart.items.map {
+        val savedCart = cart.copy(items = Items(cart.items.asList().map {
             when (it) {
                 is DraftItem -> CartItem(ItemId(Identity("item-" + counter.incrementAndGet())), it.product, it.quantity)
                 else -> it
             }
-        })
+        }))
         carts[cart.owner] = savedCart
         return savedCart
     }

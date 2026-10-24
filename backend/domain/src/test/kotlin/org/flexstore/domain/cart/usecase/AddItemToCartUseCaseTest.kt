@@ -36,7 +36,7 @@ class AddItemToCartUseCaseTest : WithAssertions {
         // Act
         useCase.unfold(AddItemToCartRequest(owner, product.productId, Quantity(3)))
         // Assert
-        assertThat(cartRepository.load(owner).items).hasSize(1)
+        assertThat(cartRepository.load(owner).items.asList()).hasSize(1)
         assertThat((cartRepository.load(owner).findBy(product.productId) as CartItem).quantity).isEqualTo(Quantity(3))
     }
 
@@ -48,7 +48,7 @@ class AddItemToCartUseCaseTest : WithAssertions {
         val thrown = catchThrowable { useCase.unfold(request) }
         // Assert
         assertThat(thrown).isInstanceOf(ProductNotFoundException::class.java)
-        assertThat(cartRepository.load(owner).items).isEmpty()
+        assertThat(cartRepository.load(owner).items.asList()).isEmpty()
     }
 
     @Test
@@ -59,7 +59,7 @@ class AddItemToCartUseCaseTest : WithAssertions {
         val thrown = catchThrowable { useCase.unfold(request) }
         // Assert
         assertThat(thrown).isInstanceOf(InvalidQuantityException::class.java)
-        assertThat(cartRepository.load(owner).items).isEmpty()
+        assertThat(cartRepository.load(owner).items.asList()).isEmpty()
     }
 
     @Test
@@ -69,6 +69,6 @@ class AddItemToCartUseCaseTest : WithAssertions {
         // Act
         useCase.unfold(AddItemToCartRequest(owner, product.productId, Quantity(1)))
         // Assert
-        assertThat(cartRepository.load(otherOwner).items).isEmpty()
+        assertThat(cartRepository.load(otherOwner).items.asList()).isEmpty()
     }
 }

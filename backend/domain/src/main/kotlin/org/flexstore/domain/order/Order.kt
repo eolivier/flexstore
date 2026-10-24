@@ -60,12 +60,8 @@ data class OrderLines(private val lines: List<OrderLine>) {
     fun asList(): List<OrderLine> = lines.toList()
 
     companion object {
-        fun from(cart: Cart) = OrderLines(cart.items.mapNotNull {
-            when (it) {
-                is CartItem -> OrderLine(it.product.productId, it.product.name, it.product.price, it.quantity)
-                is DraftItem -> OrderLine(it.product.productId, it.product.name, it.product.price, it.quantity)
-                is NoItem -> null
-            }
+        fun from(cart: Cart) = OrderLines(cart.items.fold(emptyList()) { lines, product, quantity ->
+            lines + OrderLine(product.productId, product.name, product.price, quantity)
         })
     }
 }

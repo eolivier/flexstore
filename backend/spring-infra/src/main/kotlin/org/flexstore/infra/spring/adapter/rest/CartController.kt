@@ -35,7 +35,7 @@ class CartController(private val cartUseCaseFacade: CartUseCaseFacade) {
         @RequestHeader(CART_ID_HEADER, required = false) cartId: String?
     ): JsonCartItems {
         val owner = customer(jwt) ?: visitor(cartId) ?: return JsonCartItems(emptyList(), BigDecimal.ZERO, "€")
-        return cartUseCaseFacade.getCart(owner).toItems().toJsonCartItems()
+        return cartUseCaseFacade.getCart(owner).items.toJsonCartItems()
     }
 
     @Operation(summary = "Add an item to the cart, or change the quantity of an item (0 removes it)",

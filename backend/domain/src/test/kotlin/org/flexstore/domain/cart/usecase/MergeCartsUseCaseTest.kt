@@ -38,7 +38,7 @@ class MergeCartsUseCaseTest : WithAssertions {
         // Act
         useCase.unfold(MergeCartsRequest(visitor, customer))
         // Assert
-        assertThat(cartRepository.load(visitor).items).isEmpty()
+        assertThat(cartRepository.load(visitor).items.asList()).isEmpty()
     }
 
     @Test

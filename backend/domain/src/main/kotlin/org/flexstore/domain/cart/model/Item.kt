@@ -4,28 +4,75 @@ import org.flexstore.domain.product.*
 import org.flexstore.domain.shared.*
 import java.math.BigDecimal
 
-data class Items(val items: List<Item>) {
-    fun totalPrice(): Price {
+// The items of a cart; a cart holds cart items (stored) and draft items (not stored yet), never NoItem
+data class Items(private val items: List<Item> = emptyList()) {
 
-        val totalAmount = items.fold(BigDecimal.ZERO) { acc, item ->
-            when (item) {
-                is CartItem -> acc.add(item.itemPrice().amount.value)
-                is DraftItem -> acc.add(item.itemPrice().amount.value)
-                else -> acc
-            }
-        }
+    init {
+        require(items.none { it is NoItem }) { "A cart only holds cart items and draft items" }
+    }
+
+    fun totalPrice(): Price {
+        val totalAmount = items.fold(BigDecimal.ZERO) { total, item -> total.add(priceOf(item).amount.value) }
         return Price(Amount(totalAmount), currency())
     }
-    fun currency(): Currency {
-        return if (items.isNotEmpty()) {
-            when (val firstItem = items.first()) {
-                is CartItem -> firstItem.product.price.currency
-                is DraftItem -> firstItem.product.price.currency
-                else -> Currency.EUR
+
+    fun currency(): Currency = items.firstOrNull()?.let { productOf(it)?.price?.currency } ?: Currency.EUR
+
+    fun findBy(itemId: ItemId): CartItem? = cartItems().firstOrNull { it.itemId == itemId }
+
+    fun findBy(productId: ProductId): Item? = items.firstOrNull { productOf(it)?.productId == productId }
+
+    fun quantityOf(productId: ProductId): Quantity? = findBy(productId)?.let { quantityOf(it) }
+
+    // A product is in the items at most once: a product already there gets the new quantity
+    fun withProduct(product: DefinedProduct, quantity: Quantity): Items {
+        val existingItem = findBy(product.productId) ?: return Items(items + DraftItem(product, quantity))
+        return Items(items.map {
+            when {
+                it != existingItem -> it
+                it is CartItem -> it.copy(product = product, quantity = quantity)
+                it is DraftItem -> it.copy(product = product, quantity = quantity)
+                else -> it
             }
-        } else {
-            Currency.EUR
-        }
+        })
+    }
+
+    fun withQuantity(itemId: ItemId, quantity: Quantity) =
+        Items(items.map { if (it is CartItem && it.itemId == itemId) it.copy(quantity = quantity) else it })
+
+    fun without(itemId: ItemId) = Items(items.filterNot { it is CartItem && it.itemId == itemId })
+
+    // Folds over the product and the quantity of each item
+    fun <R> fold(initial: R, operation: (R, DefinedProduct, Quantity) -> R): R =
+        items.fold(initial) { result, item -> operation(result, productOf(item)!!, quantityOf(item)!!) }
+
+    fun isEmpty() = items.isEmpty()
+
+    fun hasItems() = items.isNotEmpty()
+
+    fun size() = items.size
+
+    // Read-only views for the adapters (JSON, persistence)
+    fun asList(): List<Item> = items.toList()
+
+    fun cartItems(): List<CartItem> = items.filterIsInstance<CartItem>()
+
+    private fun productOf(item: Item): DefinedProduct? = when (item) {
+        is CartItem -> item.product
+        is DraftItem -> item.product
+        is NoItem -> null
+    }
+
+    private fun quantityOf(item: Item): Quantity? = when (item) {
+        is CartItem -> item.quantity
+        is DraftItem -> item.quantity
+        is NoItem -> null
+    }
+
+    private fun priceOf(item: Item): Price = when (item) {
+        is CartItem -> item.itemPrice()
+        is DraftItem -> item.itemPrice()
+        is NoItem -> Price(Amount(BigDecimal.ZERO), Currency.EUR)
     }
 }
 

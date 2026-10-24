@@ -15,7 +15,7 @@ class ChangeCartItemQuantityUseCaseTest : WithAssertions {
     private val owner = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val cartRepository = InMemoryCartRepository()
     private val useCase = ChangeCartItemQuantityUseCase(cartRepository)
-    private val itemId = (cartRepository.save(Cart(owner).add(product, Quantity(1))).items.single() as CartItem).itemId
+    private val itemId = (cartRepository.save(Cart(owner).add(product, Quantity(1))).items.cartItems().single()).itemId
 
     @Test
     fun `should change the quantity of the item`() {
@@ -34,7 +34,7 @@ class ChangeCartItemQuantityUseCaseTest : WithAssertions {
         // Act
         useCase.unfold(request)
         // Assert
-        assertThat(cartRepository.load(owner).items).isEmpty()
+        assertThat(cartRepository.load(owner).items.asList()).isEmpty()
     }
 
     @Test
@@ -44,7 +44,7 @@ class ChangeCartItemQuantityUseCaseTest : WithAssertions {
         // Act
         useCase.unfold(ChangeCartItemQuantityRequest(owner, itemId, Quantity(5)))
         // Assert
-        assertThat(cartRepository.load(owner).items).isEmpty()
+        assertThat(cartRepository.load(owner).items.asList()).isEmpty()
     }
 
     @Test
