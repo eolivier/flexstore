@@ -16,24 +16,31 @@ class ChangeCartItemQuantityUseCaseTest : WithAssertions {
 
     @Test
     fun `should change the quantity of the item`() {
-        useCase.unfold(ChangeCartItemQuantityRequest(itemId, Quantity(4)))
-
+        // Arrange
+        val request = ChangeCartItemQuantityRequest(itemId, Quantity(4))
+        // Act
+        useCase.unfold(request)
+        // Assert
         assertThat(cartRepository.load().findBy(itemId)?.quantity).isEqualTo(Quantity(4))
     }
 
     @Test
     fun `a quantity of zero should remove the item`() {
-        useCase.unfold(ChangeCartItemQuantityRequest(itemId, Quantity(0)))
-
+        // Arrange
+        val request = ChangeCartItemQuantityRequest(itemId, Quantity(0))
+        // Act
+        useCase.unfold(request)
+        // Assert
         assertThat(cartRepository.load().items).isEmpty()
     }
 
     @Test
     fun `an item already removed should be ignored`() {
+        // Arrange
         useCase.unfold(ChangeCartItemQuantityRequest(itemId, Quantity(0)))
-
+        // Act
         useCase.unfold(ChangeCartItemQuantityRequest(itemId, Quantity(5)))
-
+        // Assert
         assertThat(cartRepository.load().items).isEmpty()
     }
 }

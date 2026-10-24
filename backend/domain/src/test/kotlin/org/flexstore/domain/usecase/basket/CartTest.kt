@@ -16,56 +16,93 @@ class CartTest : WithAssertions {
 
     @Test
     fun `should add new products as draft items`() {
-        val cart = Cart().add(product1, Quantity(1)).add(product2, Quantity(2))
-
-        assertThat(cart.items).containsExactly(DraftItem(product1, Quantity(1)), DraftItem(product2, Quantity(2)))
+        // Arrange
+        val cart = Cart().add(product1, Quantity(1))
+        // Act
+        val updatedCart = cart.add(product2, Quantity(2))
+        // Assert
+        assertThat(updatedCart.items).containsExactly(DraftItem(product1, Quantity(1)), DraftItem(product2, Quantity(2)))
     }
 
     @Test
     fun `adding a product already in the cart should change the quantity of its item`() {
-        val cart = Cart(listOf(item1)).add(product1, Quantity(3))
-
-        assertThat(cart.items).containsExactly(item1.copy(quantity = Quantity(3)))
+        // Arrange
+        val cart = Cart(listOf(item1))
+        // Act
+        val updatedCart = cart.add(product1, Quantity(3))
+        // Assert
+        assertThat(updatedCart.items).containsExactly(item1.copy(quantity = Quantity(3)))
     }
 
     @Test
     fun `adding a product should keep the given catalog product`() {
+        // Arrange
+        val cart = Cart(listOf(item1))
         val catalogProduct = product1.copy(price = Price(Amount(BigDecimal(12)), Currency.EUR))
-
-        val cart = Cart(listOf(item1)).add(catalogProduct, Quantity(2))
-
-        assertThat(cart.findBy(item1.itemId)?.product).isEqualTo(catalogProduct)
-        assertThat(cart.toItems().totalPrice().amount.value).isEqualByComparingTo("24")
+        // Act
+        val updatedCart = cart.add(catalogProduct, Quantity(2))
+        // Assert
+        assertThat(updatedCart.findBy(item1.itemId)?.product).isEqualTo(catalogProduct)
+        assertThat(updatedCart.toItems().totalPrice().amount.value).isEqualByComparingTo("24")
     }
 
     @Test
     fun `should not add a product without a positive quantity`() {
-        assertThatThrownBy { Cart().add(product1, Quantity(0)) }
-            .isInstanceOf(InvalidQuantityException::class.java)
+        // Arrange
+        val cart = Cart()
+        // Act
+        val thrown = catchThrowable { cart.add(product1, Quantity(0)) }
+        // Assert
+        assertThat(thrown).isInstanceOf(InvalidQuantityException::class.java)
     }
 
     @Test
     fun `should change the quantity of an item`() {
-        val cart = Cart(listOf(item1)).changeQuantity(item1.itemId, Quantity(12))
-
-        assertThat(cart.findBy(item1.itemId)?.quantity).isEqualTo(Quantity(12))
+        // Arrange
+        val cart = Cart(listOf(item1))
+        // Act
+        val updatedCart = cart.changeQuantity(item1.itemId, Quantity(12))
+        // Assert
+        assertThat(updatedCart.findBy(item1.itemId)?.quantity).isEqualTo(Quantity(12))
     }
 
     @Test
-    fun `an item whose quantity becomes zero or negative should be removed`() {
-        assertThat(Cart(listOf(item1)).changeQuantity(item1.itemId, Quantity(0)).items).isEmpty()
-        assertThat(Cart(listOf(item1)).changeQuantity(item1.itemId, Quantity(-1)).items).isEmpty()
+    fun `an item whose quantity becomes zero should be removed`() {
+        // Arrange
+        val cart = Cart(listOf(item1))
+        // Act
+        val updatedCart = cart.changeQuantity(item1.itemId, Quantity(0))
+        // Assert
+        assertThat(updatedCart.items).isEmpty()
+    }
+
+    @Test
+    fun `an item whose quantity becomes negative should be removed`() {
+        // Arrange
+        val cart = Cart(listOf(item1))
+        // Act
+        val updatedCart = cart.changeQuantity(item1.itemId, Quantity(-1))
+        // Assert
+        assertThat(updatedCart.items).isEmpty()
     }
 
     @Test
     fun `changing the quantity of an unknown item should leave the cart unchanged`() {
+        // Arrange
         val cart = Cart(listOf(item1))
-
-        assertThat(cart.changeQuantity(ItemId(Identity("unknown")), Quantity(5))).isEqualTo(cart)
+        // Act
+        val updatedCart = cart.changeQuantity(ItemId(Identity("unknown")), Quantity(5))
+        // Assert
+        assertThat(updatedCart).isEqualTo(cart)
     }
 
     @Test
     fun `should remove an item`() {
-        assertThat(Cart(listOf(item1)).remove(item1.itemId).items).isEmpty()
+        // Arrange
+        val cart = Cart(listOf(item1))
+        // Act
+        val updatedCart = cart.remove(item1.itemId)
+        // Assert
+        assertThat(updatedCart.items).isEmpty()
     }
 }

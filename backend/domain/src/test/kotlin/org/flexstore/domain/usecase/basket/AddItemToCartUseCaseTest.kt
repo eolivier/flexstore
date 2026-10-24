@@ -17,8 +17,11 @@ class AddItemToCartUseCaseTest : WithAssertions {
 
     @Test
     fun `should add the catalog product to the cart`() {
-        useCase.unfold(AddItemToCartRequest(product.productId, Quantity(2)))
-
+        // Arrange
+        val request = AddItemToCartRequest(product.productId, Quantity(2))
+        // Act
+        useCase.unfold(request)
+        // Assert
         val item = cartRepository.load().findBy(product.productId) as CartItem
         assertThat(item.product).isEqualTo(product)
         assertThat(item.quantity).isEqualTo(Quantity(2))
@@ -26,24 +29,34 @@ class AddItemToCartUseCaseTest : WithAssertions {
 
     @Test
     fun `adding the product again should change the quantity of its item`() {
+        // Arrange
         useCase.unfold(AddItemToCartRequest(product.productId, Quantity(1)))
+        // Act
         useCase.unfold(AddItemToCartRequest(product.productId, Quantity(3)))
-
+        // Assert
         assertThat(cartRepository.load().items).hasSize(1)
         assertThat((cartRepository.load().findBy(product.productId) as CartItem).quantity).isEqualTo(Quantity(3))
     }
 
     @Test
     fun `should not add a product missing from the catalog`() {
-        assertThatThrownBy { useCase.unfold(AddItemToCartRequest(ProductId(Identity("unknown")), Quantity(1))) }
-            .isInstanceOf(ProductNotFoundException::class.java)
+        // Arrange
+        val request = AddItemToCartRequest(ProductId(Identity("unknown")), Quantity(1))
+        // Act
+        val thrown = catchThrowable { useCase.unfold(request) }
+        // Assert
+        assertThat(thrown).isInstanceOf(ProductNotFoundException::class.java)
         assertThat(cartRepository.load().items).isEmpty()
     }
 
     @Test
     fun `should not add a product without a positive quantity`() {
-        assertThatThrownBy { useCase.unfold(AddItemToCartRequest(product.productId, Quantity(0))) }
-            .isInstanceOf(InvalidQuantityException::class.java)
+        // Arrange
+        val request = AddItemToCartRequest(product.productId, Quantity(0))
+        // Act
+        val thrown = catchThrowable { useCase.unfold(request) }
+        // Assert
+        assertThat(thrown).isInstanceOf(InvalidQuantityException::class.java)
         assertThat(cartRepository.load().items).isEmpty()
     }
 }
