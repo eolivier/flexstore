@@ -6,9 +6,9 @@ class UserService(
     private val userRepository: UserRepository
 ) {
 
-    fun createUser(user: User): User {
+    fun createUser(request: CreateUserRequest): User {
         val createUserUseCase = CreateUserUseCase(userRepository)
-        createUserUseCase.unfold(user)
+        createUserUseCase.unfold(request)
         return createUserUseCase.createdUser
     }
 

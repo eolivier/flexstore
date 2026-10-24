@@ -1,6 +1,7 @@
 package org.flexstore.infra.spring.rest
 
 import org.flexstore.domain.user.*
+import org.flexstore.domain.user.usecase.*
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.flexstore.infra.spring.adapter.rest.json.DefinedJsonUser
@@ -12,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
+import org.flexstore.infra.spring.security.ADMIN_ACCOUNT_ID
 import org.flexstore.infra.spring.security.asAdmin
 import org.flexstore.infra.spring.security.asUser
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
@@ -83,6 +85,19 @@ class UserRestControllerIT {
     }
 
     @Test
+    fun `should refuse a creation by a token that is not the one of an administrator in the users`() {
+        // Arrange
+        val draftJsonUser = DraftJsonUser("Draft User", DRAFT_USER_EMAIL, "testpassword")
+        // Act
+        val response = mockMvc.perform(
+            post("/api/users").with(asAdmin("not-a-user")).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(draftJsonUser))
+        )
+        // Assert
+        response.andExpect(status().isForbidden)
+        assertThat(userRepository.findByEmail(Email(DRAFT_USER_EMAIL))).isNotInstanceOf(User.DefinedUser::class.java)
+    }
+
+    @Test
     fun `should not create a user with an unknown role`() {
         // Arrange
         val draftJsonUser = DraftJsonUser("Draft User", DRAFT_USER_EMAIL, "testpassword", "SUPERVISOR")
@@ -98,7 +113,7 @@ class UserRestControllerIT {
     fun `should not create user with an already used email`() {
         // Arrange
         val draftJsonUser = DraftJsonUser("Draft User", DRAFT_USER_EMAIL, "testpassword")
-        userService.createUser(draftJsonUser.toUser())
+        userService.createUser(CreateUserRequest(UserId.of(ADMIN_ACCOUNT_ID), draftJsonUser.toUser()))
         // Act - Assert
         mockMvc.perform(
             post("/api/users").with(asAdmin())
@@ -111,7 +126,7 @@ class UserRestControllerIT {
     @Test
     fun `should return user by id`() {
         // Arrange
-        userService.createUser(createJsonUser().toUser())
+        userService.createUser(CreateUserRequest(UserId.of(ADMIN_ACCOUNT_ID), createJsonUser().toUser()))
         // Act - Assert
         mockMvc.perform(get("/api/users/$USER_ID").with(asAdmin()))
             .andExpect(status().isOk)
@@ -126,7 +141,7 @@ class UserRestControllerIT {
     fun `should update user`() {
         // Arrange
         val jsonUser = createJsonUser()
-        userService.createUser(jsonUser.toUser())
+        userService.createUser(CreateUserRequest(UserId.of(ADMIN_ACCOUNT_ID), jsonUser.toUser()))
         // Act - Assert
         val updatedJsonUser = DefinedJsonUser("1", "Jane Doe", "jane.doe@example.com", "testpassword")
         mockMvc.perform(
@@ -145,7 +160,7 @@ class UserRestControllerIT {
     @Test
     fun `should keep password when updating user without password`() {
         // Arrange
-        userService.createUser(createJsonUser().toUser())
+        userService.createUser(CreateUserRequest(UserId.of(ADMIN_ACCOUNT_ID), createJsonUser().toUser()))
         val updatedUser = """{"id": "$USER_ID", "name": "Jane Doe", "email": "jane.doe@example.com"}"""
         // Act
         mockMvc.perform(
@@ -161,7 +176,7 @@ class UserRestControllerIT {
     @Test
     fun `should change password with the current password`() {
         // Arrange
-        userService.createUser(createJsonUser().toUser())
+        userService.createUser(CreateUserRequest(UserId.of(ADMIN_ACCOUNT_ID), createJsonUser().toUser()))
         val request = """{"currentPassword": "testpassword", "newPassword": "new-password"}"""
         // Act
         mockMvc.perform(
@@ -178,7 +193,7 @@ class UserRestControllerIT {
     @Test
     fun `should not change password with a wrong current password`() {
         // Arrange
-        userService.createUser(createJsonUser().toUser())
+        userService.createUser(CreateUserRequest(UserId.of(ADMIN_ACCOUNT_ID), createJsonUser().toUser()))
         val request = """{"currentPassword": "wrong-password", "newPassword": "new-password"}"""
         // Act - Assert
         mockMvc.perform(
@@ -194,7 +209,7 @@ class UserRestControllerIT {
     fun `should delete user`() {
         // Arrange
         val jsonUser = createJsonUser()
-        userService.createUser(jsonUser.toUser())
+        userService.createUser(CreateUserRequest(UserId.of(ADMIN_ACCOUNT_ID), jsonUser.toUser()))
         // Act - Assert
         mockMvc.perform(delete("/api/users/$USER_ID").with(asAdmin()))
             .andExpect(status().isNoContent)
@@ -204,7 +219,7 @@ class UserRestControllerIT {
     fun `should login with valid credentials`() {
         // Arrange
         val jsonUser = createJsonUser()
-        userService.createUser(jsonUser.toUser())
+        userService.createUser(CreateUserRequest(UserId.of(ADMIN_ACCOUNT_ID), jsonUser.toUser()))
         val loginRequest = """{"email": "john.doe@example.com", "password": "testpassword"}"""
         // Act - Assert
         mockMvc.perform(

@@ -13,18 +13,17 @@ import org.junit.jupiter.api.Test
 class UseCaseHandlerTest {
 
     @Test
-    fun `should create and update user`() {
+    fun `should run the chained use cases whose preconditions are met`() {
         // Arrange
         val userRepository = spyk<InMemoryUserRepository>()
         val user = DefinedUser(ValidUserId("123"), Name("Jane Doe"), Email("jane.doe@example.com"), PlainPassword("password123"))
-        val createUserUseCase = CreateUserUseCase(userRepository)
-        val updateUserUseCase = UpdateUserUseCase(userRepository)
-        val createUserUcHandler = DefaultUseCaseHandler(createUserUseCase)
-        val updateUserUcHandler = DefaultUseCaseHandler(updateUserUseCase)
-        createUserUcHandler.setNext(updateUserUcHandler)
+        userRepository.save(user)
+        val readUserUcHandler = DefaultUseCaseHandler(ReadUserUseCase(userRepository))
+        readUserUcHandler.setNext(DefaultUseCaseHandler(DeleteUserUseCase(userRepository)))
         // Act
-        createUserUcHandler.handle(user)
+        readUserUcHandler.handle(user.id)
         // Assert
-        verify { userRepository.save(ofType<User.DefinedUser>()) }
+        verify { userRepository.findById(user.id) }
+        verify { userRepository.delete(user.id) }
     }
 }

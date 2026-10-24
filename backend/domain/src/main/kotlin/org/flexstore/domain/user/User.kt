@@ -16,6 +16,10 @@ sealed class User(open val id: UserId) {
         val role: Role = Role.USER
     ) : User(id) {
         override fun user(userId: UserId) = DefinedUser(userId, name, email, password, role)
+
+        fun isAdministrator() = role == Role.ADMIN
+
+        fun isNotAdministrator() = role != Role.ADMIN
     }
 
     // A user to create: the administrator who creates it chooses its role
@@ -80,6 +84,7 @@ enum class Role {
     }
 }
 
+data class UserCreationForbiddenException(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
 data class InvalidRoleException(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
 
 sealed class Password {
