@@ -2,7 +2,7 @@ package org.flexstore.domain.user
 
 import org.flexstore.domain.sharedkernel.*
 import org.ucop.domain.NominalException
-import org.ucop.domain.ErrorMessage
+import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.entity.Actor
 
 sealed class User(open val id: UserId) {

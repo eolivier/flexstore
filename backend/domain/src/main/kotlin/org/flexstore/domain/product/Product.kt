@@ -2,7 +2,7 @@ package org.flexstore.domain.product
 
 import org.flexstore.domain.sharedkernel.*
 import org.ucop.domain.NominalException
-import org.ucop.domain.ErrorMessage
+import org.flexstore.domain.sharedkernel.ErrorMessage
 
 sealed interface Product
 data class DraftProduct(val name: Name,

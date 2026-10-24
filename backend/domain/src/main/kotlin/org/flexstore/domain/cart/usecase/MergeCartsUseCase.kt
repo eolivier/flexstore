@@ -1,7 +1,7 @@
 package org.flexstore.domain.cart.usecase
 
 import org.flexstore.domain.cart.*
-import org.ucop.domain.ErrorMessage
+import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.entity.*
 
 // When a visitor signs in, the cart filled before signing in is merged into the cart of the customer

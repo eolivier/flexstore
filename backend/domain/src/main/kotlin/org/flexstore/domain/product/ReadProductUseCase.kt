@@ -1,7 +1,7 @@
 package org.flexstore.domain.product
 
 import org.ucop.domain.NominalException
-import org.ucop.domain.ErrorMessage
+import org.flexstore.domain.sharedkernel.ErrorMessage
 
 class ReadProductUseCase(private val productRepository: ProductRepository) {
     fun getProducts() = productRepository.findAll()

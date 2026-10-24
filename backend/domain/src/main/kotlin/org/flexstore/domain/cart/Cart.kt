@@ -4,7 +4,7 @@ import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.*
 import org.ucop.domain.NominalException
-import org.ucop.domain.ErrorMessage
+import org.flexstore.domain.sharedkernel.ErrorMessage
 import java.util.UUID
 
 /**

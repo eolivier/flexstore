@@ -1,7 +1,7 @@
 package org.flexstore.domain.product
 
 import org.ucop.domain.NominalException
-import org.ucop.domain.ErrorMessage
+import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.entity.*
 import kotlin.reflect.KClass
 

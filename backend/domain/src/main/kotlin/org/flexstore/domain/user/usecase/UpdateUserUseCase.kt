@@ -1,7 +1,7 @@
 package org.flexstore.domain.user.usecase
 
 import org.flexstore.domain.user.*
-import org.ucop.domain.ErrorMessage
+import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.entity.*
 
 class UpdateUserUseCase(private val userRepository: UserRepository) : UseCase<User> {
