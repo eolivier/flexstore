@@ -18,9 +18,9 @@ class UserService(
         return readUserUseCase.retrievedUser
     }
 
-    fun updateUser(user: User) {
+    fun updateUser(request: UpdateUserRequest) {
         val updateUserUseCase = UpdateUserUseCase(userRepository)
-        updateUserUseCase.unfold(user)
+        updateUserUseCase.unfold(request)
     }
 
     fun deleteUser(userId: UserId) {

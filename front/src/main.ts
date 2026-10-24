@@ -8,6 +8,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 
 import Home from './components/Home.vue';
 import Users from './components/admin/Users.vue';
+import EditUser from './components/admin/EditUser.vue';
 import Cart from './components/Cart.vue';
 import About from './components/About.vue';
 import CreateUser from './components/admin/CreateUser.vue';
@@ -40,6 +41,7 @@ const routes = [
   { path: '/login', component: Login },
   { path: '/admin', component: AdminHome, meta: { requiresAuth: true, requiresAdmin: true } },
   { path: '/admin/users', component: Users, meta: { requiresAuth: true, requiresAdmin: true } },
+  { path: '/admin/users/:id/edit', component: EditUser, props: true, meta: { requiresAuth: true, requiresAdmin: true } },
   { path: '/admin/create-user', component: CreateUser, meta: { requiresAuth: true, requiresAdmin: true } },
   { path: '/admin/create-product', component: CreateProduct, meta: { requiresAuth: true, requiresAdmin: true } },
   { path: '/admin/settings', component: ShopSettings, meta: { requiresAuth: true, requiresAdmin: true } },

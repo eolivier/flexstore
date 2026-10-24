@@ -16,6 +16,7 @@ import org.flexstore.infra.spring.adapter.rest.json.JsonLoginRequest
 import org.flexstore.infra.spring.adapter.rest.json.JsonLoginResponse
 import org.flexstore.infra.spring.security.JwtTokenService
 import org.flexstore.infra.spring.adapter.rest.json.DefinedJsonUser
+import org.flexstore.infra.spring.adapter.rest.json.EditedJsonUser
 import org.flexstore.infra.spring.adapter.rest.json.JsonUser
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -81,8 +82,9 @@ class UserRestController(val userService: UserService, private val jwtTokenServi
     )
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    fun updateUser(@PathVariable id: String, @RequestBody jsonUser: DefinedJsonUser) {
-        userService.updateUser(jsonUser.toUser(id))
+    fun updateUser(@AuthenticationPrincipal editor: Jwt, @PathVariable id: String, @RequestBody editedUser: EditedJsonUser): JsonUser {
+        userService.updateUser(UpdateUserRequest(UserId.of(editor.subject), editedUser.toUser(id)))
+        return userService.readUser(UserId.of(id)).toJsonUser()
     }
 
     @Operation(summary = "Delete a user by ID",

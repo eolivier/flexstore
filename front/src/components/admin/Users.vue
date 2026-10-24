@@ -34,7 +34,7 @@
   const headers = computed(() => [
     { title: t('table.name'), key: 'name' },
     { title: t('table.email'), key: 'email' },
-    { title: t('table.id'), key: 'id' },
+    { title: t('table.role'), key: 'role' },
     { title: '', key: 'actions', sortable: false, align: 'end' as const },
   ]);
 </script>
@@ -63,10 +63,19 @@
           <span class="font-weight-medium">{{ item.name }}</span>
         </div>
       </template>
-      <template #item.id="{ item }">
-        <span class="text-caption text-medium-emphasis">{{ item.id }}</span>
+      <template #item.role="{ item }">
+        <v-chip :color="item.role === 'ADMIN' ? 'secondary' : undefined" variant="tonal" size="small">
+          {{ t(`createUser.roles.${item.role ?? 'USER'}.label`) }}
+        </v-chip>
       </template>
       <template #item.actions="{ item }">
+        <v-btn
+          :to="`/admin/users/${item.id}/edit`"
+          icon="mdi-pencil-outline"
+          variant="text"
+          size="small"
+          :aria-label="t('users.edit', { name: item.name })"
+        />
         <v-btn
           icon="mdi-trash-can-outline"
           variant="text"

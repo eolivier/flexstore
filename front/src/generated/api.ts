@@ -154,15 +154,25 @@ export const JsonUserCreateRoleEnum = {
 
 export type JsonUserCreateRoleEnum = typeof JsonUserCreateRoleEnum[keyof typeof JsonUserCreateRoleEnum];
 
+/**
+ * The fields an administrator can edit; the password is changed by a separate operation
+ */
 export interface JsonUserUpdate {
-    'id'?: string;
-    'name'?: string;
-    'email'?: string;
+    'name': string;
+    'email': string;
     /**
-     * User\'s new password (will be hashed by the server). Omit it or leave it blank to keep the current password
+     * Role of the user (USER when absent)
      */
-    'password'?: string;
+    'role'?: JsonUserUpdateRoleEnum;
 }
+
+export const JsonUserUpdateRoleEnum = {
+    User: 'USER',
+    Admin: 'ADMIN'
+} as const;
+
+export type JsonUserUpdateRoleEnum = typeof JsonUserUpdateRoleEnum[keyof typeof JsonUserUpdateRoleEnum];
+
 
 /**
  * CartApi - axios parameter creator
@@ -1129,8 +1139,8 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
             };
         },
         /**
-         * 
-         * @summary Update a user by ID
+         * Reserved to an administrator, checked by the domain (403 otherwise)
+         * @summary Edit a user by ID (name, email, role; not the password)
          * @param {string} id 
          * @param {JsonUserUpdate} jsonUserUpdate 
          * @param {*} [options] Override http request option.
@@ -1260,14 +1270,14 @@ export const UsersApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 
-         * @summary Update a user by ID
+         * Reserved to an administrator, checked by the domain (403 otherwise)
+         * @summary Edit a user by ID (name, email, role; not the password)
          * @param {string} id 
          * @param {JsonUserUpdate} jsonUserUpdate 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async updateUser(id: string, jsonUserUpdate: JsonUserUpdate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async updateUser(id: string, jsonUserUpdate: JsonUserUpdate, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonUser>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.updateUser(id, jsonUserUpdate, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['UsersApi.updateUser']?.[localVarOperationServerIndex]?.url;
@@ -1343,14 +1353,14 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
             return localVarFp.loginUser(jsonLoginRequest, options).then((request) => request(axios, basePath));
         },
         /**
-         * 
-         * @summary Update a user by ID
+         * Reserved to an administrator, checked by the domain (403 otherwise)
+         * @summary Edit a user by ID (name, email, role; not the password)
          * @param {string} id 
          * @param {JsonUserUpdate} jsonUserUpdate 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateUser(id: string, jsonUserUpdate: JsonUserUpdate, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        updateUser(id: string, jsonUserUpdate: JsonUserUpdate, options?: RawAxiosRequestConfig): AxiosPromise<JsonUser> {
             return localVarFp.updateUser(id, jsonUserUpdate, options).then((request) => request(axios, basePath));
         },
     };
@@ -1427,8 +1437,8 @@ export class UsersApi extends BaseAPI {
     }
 
     /**
-     * 
-     * @summary Update a user by ID
+     * Reserved to an administrator, checked by the domain (403 otherwise)
+     * @summary Edit a user by ID (name, email, role; not the password)
      * @param {string} id 
      * @param {JsonUserUpdate} jsonUserUpdate 
      * @param {*} [options] Override http request option.

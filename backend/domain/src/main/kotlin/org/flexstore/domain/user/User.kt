@@ -84,6 +84,7 @@ enum class Role {
     }
 }
 
+data class UserUpdateForbiddenException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class UserCreationForbiddenException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class InvalidRoleException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 
