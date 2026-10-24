@@ -16,10 +16,16 @@ sealed class User(open val id: UserId) {
         val role: Role = Role.USER
     ) : User(id) {
         override fun user(userId: UserId) = DefinedUser(userId, name, email, password, role)
+
+        fun isAdministrator() = role == Role.ADMIN
+
+        fun isNotAdministrator() = role != Role.ADMIN
     }
 
-    data class DraftUser(val name: Name, val email: Email, val password: Password) : User(UserId.InvalidUserId("")) {
-        override fun user(userId: UserId) = DraftUser(name, email, password)
+    // A user to create: the administrator who creates it chooses its role
+    data class DraftUser(val name: Name, val email: Email, val password: Password, val role: Role = Role.USER) :
+        User(UserId.InvalidUserId("")) {
+        override fun user(userId: UserId) = DraftUser(name, email, password, role)
     }
 
     data class UndefinedUser(override val id: UserId, val reason: String) : User(id) {
@@ -67,7 +73,19 @@ fun UserId.Companion.of(value: String): UserId {
 data class Email(val value: String)
 
 // ADMIN can manage the users and the products
-enum class Role { USER, ADMIN }
+enum class Role {
+    USER, ADMIN;
+
+    companion object {
+        // The role given by name; a user without a given role is a USER
+        fun fromName(name: String?): Role =
+            if (name.isNullOrBlank()) USER
+            else entries.find { it.name == name } ?: throw InvalidRoleException(ErrorMessage("Unknown role: $name"))
+    }
+}
+
+data class UserCreationForbiddenException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class InvalidRoleException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 
 sealed class Password {
     abstract val value: String

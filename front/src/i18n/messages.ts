@@ -231,7 +231,12 @@ export default {
       passwordTooShort: "Password must be at least 8 characters",
       success: "The user {name} has been created.",
       error: "The user could not be created (the email may already be used).",
-      showPassword: "Show password"
+      showPassword: "Show password",
+      role: "Role",
+      roles: {
+        USER: { label: "User", text: "Shops and follows their orders." },
+        ADMIN: { label: "Administrator", text: "Also manages the users, the products and the settings." }
+      }
     },
     login: {
       title: "Login",
@@ -476,7 +481,12 @@ export default {
       passwordTooShort: "Le mot de passe doit contenir au moins 8 caractères",
       success: "L'utilisateur {name} a été créé.",
       error: "L'utilisateur n'a pas pu être créé (l'email est peut-être déjà utilisé).",
-      showPassword: "Afficher le mot de passe"
+      showPassword: "Afficher le mot de passe",
+      role: "Rôle",
+      roles: {
+        USER: { label: "Utilisateur", text: "Achète et suit ses commandes." },
+        ADMIN: { label: "Administrateur", text: "Gère aussi les utilisateurs, les produits et les paramètres." }
+      }
     },
     login: {
       title: "Connexion",

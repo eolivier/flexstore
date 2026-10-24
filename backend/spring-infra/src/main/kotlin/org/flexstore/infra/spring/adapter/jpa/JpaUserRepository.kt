@@ -36,7 +36,8 @@ class PostgresUserRepositoryAdapter(
                     id = generateNewUserId(),
                     name = user.name.value,
                     email = user.email.value,
-                    password = hashedPasswordValue
+                    password = hashedPasswordValue,
+                    role = user.role.name
                 )
                 val saved = jpaRepo.save(entity)
                 savedUser = saved.toDomain()

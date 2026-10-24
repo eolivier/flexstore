@@ -29,14 +29,17 @@ data class DefinedJsonUser @JsonCreator constructor(
     )
 }
 
+// role: USER (default) or ADMIN
 data class DraftJsonUser @JsonCreator constructor(
     @JsonProperty("name") val name: String,
     @JsonProperty("email") val email: String,
-    @JsonProperty("password") val password: String
+    @JsonProperty("password") val password: String,
+    @JsonProperty("role") val role: String? = null
 ): JsonUser {
-    fun toUser() = User.of(
-        Name(name),
-        Email(email),
-        PlainPassword(password)
+    fun toUser() = User.DraftUser(
+        name = Name(name),
+        email = Email(email),
+        password = PlainPassword(password),
+        role = Role.fromName(role)
     )
 }

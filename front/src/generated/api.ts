@@ -141,7 +141,19 @@ export interface JsonUserCreate {
      * User\'s password (will be hashed by the server)
      */
     'password': string;
+    /**
+     * Role of the new user (USER when absent)
+     */
+    'role'?: JsonUserCreateRoleEnum;
 }
+
+export const JsonUserCreateRoleEnum = {
+    User: 'USER',
+    Admin: 'ADMIN'
+} as const;
+
+export type JsonUserCreateRoleEnum = typeof JsonUserCreateRoleEnum[keyof typeof JsonUserCreateRoleEnum];
+
 export interface JsonUserUpdate {
     'id'?: string;
     'name'?: string;

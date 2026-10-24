@@ -20,24 +20,6 @@ import java.math.BigDecimal
 class GuestTest {
 
     @Test
-    fun `should perform create user use case`() {
-        // Arrange
-        val userRepository = spy(InMemoryUserRepository())
-        
-        val createUserUseCase = CreateUserUseCase(userRepository)
-        val guest = Guest(createUserUseCase, mock(AddItemToCartUseCase::class.java))
-        val user = DefinedUser(ValidUserId("user1"), Name("John Doe"), Email("1@1.fr"), PlainPassword("password123"))
-        // Act
-        guest.performCreateUser(user)
-        // Assert
-        // Verify the user was saved with hashed password by checking repository state
-        val savedUser = userRepository.findById(user.id)
-        assertThat(savedUser).isInstanceOf(User.DefinedUser::class.java)
-        assertThat((savedUser as User.DefinedUser).password).isInstanceOf(HashedPassword::class.java)
-        assertThat((savedUser.password as HashedPassword).value).matches("^\\$2[aby]\\$.*")
-    }
-
-    @Test
     fun `should perform add item to cart use case`() {
         // Arrange
         val product = DefinedProduct(
@@ -48,7 +30,7 @@ class GuestTest {
         val owner = CartOwner.Visitor(VisitorCartId.nextId())
         val cartRepository = InMemoryCartRepository()
         val addItemToCartUseCase = AddItemToCartUseCase(cartRepository, InMemoryProductRepository().apply { save(product) })
-        val guest = Guest(mock(CreateUserUseCase::class.java), addItemToCartUseCase)
+        val guest = Guest(addItemToCartUseCase)
         // Act
         guest.performAddItemToCart(AddItemToCartRequest(owner, product.productId, Quantity(1)))
         // Assert

@@ -22,6 +22,9 @@ class RestExceptionHandler {
             is InvalidCredentialsException, is UserNotFoundByEmailException -> ResponseEntity
                 .status(401)
                 .body(mapOf("error" to "Invalid credentials."))
+            is UserCreationForbiddenException -> ResponseEntity
+                .status(403)
+                .body(mapOf("error" to (ex.message ?: "Forbidden")))
             is InvalidCurrentPasswordException -> ResponseEntity
                 .status(400)
                 .body(mapOf("error" to (ex.message ?: "Wrong current password")))
