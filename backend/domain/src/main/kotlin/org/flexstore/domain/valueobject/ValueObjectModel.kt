@@ -76,7 +76,11 @@ data class DefinedProduct(
     val price: Price): Product {
     constructor(productId: ProductId, name: Name, price: Price) : this(productId, name, Description("No description"), Category.NOT_DEFINED, price)
 }
-data class ProductId(val id: Identity)
+data class ProductId(val id: Identity) {
+    companion object {
+        fun generate() = ProductId(Identity(java.util.UUID.randomUUID().toString()))
+    }
+}
 data class Price(val amount: Amount, val currency: Currency) {
     fun multiply(quantity: Quantity) = Price(amount.multiply(quantity), currency)
 }

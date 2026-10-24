@@ -65,3 +65,36 @@ Consequences:
 - a REST controller calls a use case (or a use case facade), never an entity built with repositories;
 - rules that need external data (the catalog product) receive it as a parameter, loaded by the use case;
 - a use case raises the business exceptions (`ProductNotFoundException`...) when loaded data is missing.
+
+## 3. A use case holds no state between calls
+
+A use case keeps nothing from one call to the next: no field set by a call, such as a `lateinit var createdProduct` read by the caller afterwards. A use case may be shared (a Spring singleton bean) and called by several requests at the same time: a result stored in a field can be overwritten by another request before the caller reads it.
+
+Its only fields are its dependencies (repositories, ports), set once at construction. Everything about a call lives in the request object or in local variables.
+
+To give a result back to the caller without storing it:
+- let the caller choose the identity of what is created (`ProductId.generate()`), pass it in the request, then read the created object with a read use case;
+- or keep the call's data in local variables of the steps; when a postcondition needs data loaded during the scenario, check what can be read back from the repositories instead.
+
+Avoid:
+
+```kotlin
+class CreateProductUseCase(private val productRepository: ProductRepository) : UseCase<Product> {
+    lateinit var createdProduct: Product
+    // nominal step: createdProduct = productRepository.save(product)
+}
+// caller: useCase.unfold(draft); return useCase.createdProduct
+```
+
+Prefer:
+
+```kotlin
+data class CreateProductRequest(val productId: ProductId, val draftProduct: DraftProduct)
+
+class CreateProductUseCase(private val productRepository: ProductRepository) : UseCase<CreateProductRequest> {
+    // nominal step: productRepository.save(request.definedProduct())
+}
+// caller: val productId = ProductId.generate(); useCase.unfold(CreateProductRequest(productId, draft)); return readProductUseCase.getProduct(productId)
+```
+
+Creating a new use case instance for each call avoids the sharing, but the state stays a trap for the next caller who shares the instance: prefer stateless use cases anyway.
