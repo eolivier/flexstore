@@ -135,6 +135,38 @@ class UserRestControllerIT {
     }
 
     @Test
+    fun `should change password with the current password`() {
+        // Arrange
+        userService.createUser(createJsonUser().toUser())
+        val request = """{"currentPassword": "testpassword", "newPassword": "new-password"}"""
+        // Act
+        mockMvc.perform(
+            post("/api/users/$USER_ID/password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(request)
+        )
+            .andExpect(status().isNoContent)
+        // Assert
+        assertThat(userRepository.passwordMatches(Email("john.doe@example.com"), PlainPassword("new-password"))).isTrue()
+        assertThat(userRepository.passwordMatches(Email("john.doe@example.com"), PlainPassword("testpassword"))).isFalse()
+    }
+
+    @Test
+    fun `should not change password with a wrong current password`() {
+        // Arrange
+        userService.createUser(createJsonUser().toUser())
+        val request = """{"currentPassword": "wrong-password", "newPassword": "new-password"}"""
+        // Act - Assert
+        mockMvc.perform(
+            post("/api/users/$USER_ID/password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(request)
+        )
+            .andExpect(status().isUnauthorized)
+        assertThat(userRepository.passwordMatches(Email("john.doe@example.com"), PlainPassword("testpassword"))).isTrue()
+    }
+
+    @Test
     fun `should delete user`() {
         // Arrange
         val jsonUser = createJsonUser()

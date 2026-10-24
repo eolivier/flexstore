@@ -8,6 +8,7 @@ docs/CartApi.md
 docs/DraftJsonProduct.md
 docs/JsonCartItem.md
 docs/JsonCartItems.md
+docs/JsonChangePasswordRequest.md
 docs/JsonItem.md
 docs/JsonLoginRequest.md
 docs/JsonProduct.md

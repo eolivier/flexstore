@@ -10,6 +10,7 @@ import org.flexstore.domain.service.UserService
 import org.flexstore.infra.spring.adapter.mapping.toJsonUser
 import org.flexstore.infra.spring.adapter.mapping.toJsonUsers
 import org.flexstore.infra.spring.adapter.rest.json.DraftJsonUser
+import org.flexstore.infra.spring.adapter.rest.json.JsonChangePasswordRequest
 import org.flexstore.infra.spring.adapter.rest.json.JsonLoginRequest
 import org.flexstore.infra.spring.adapter.rest.json.DefinedJsonUser
 import org.flexstore.infra.spring.adapter.rest.json.JsonUser
@@ -92,6 +93,19 @@ class UserRestController(val userService: UserService) {
     fun deleteUser(@PathVariable id: String) {
         val userId = ValidUserId(id)
         userService.deleteUser(userId)
+    }
+
+    @Operation(summary = "Change the password of a user",
+        responses = [
+            ApiResponse(responseCode = "204", description = "Password changed"),
+            ApiResponse(responseCode = "401", description = "Wrong current password"),
+            ApiResponse(responseCode = "422", description = "New password too short")
+        ]
+    )
+    @PostMapping("/{id}/password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun changePassword(@PathVariable id: String, @RequestBody request: JsonChangePasswordRequest) {
+        userService.changePassword(request.toChangePasswordRequest(id))
     }
 
     @Operation(summary = "Login with email and password",
