@@ -23,7 +23,7 @@ data class OrderEntity(
     @JoinColumn(name = "order_id", nullable = false)
     @OrderBy("position")
     val lines: List<OrderLineEntity> = emptyList()
-)
+) : TimestampedEntity()
 
 @Entity
 @Table(name = "customer_order_line")
@@ -48,4 +48,4 @@ data class OrderLineEntity(
 
     @Column(nullable = false)
     val quantity: Int
-)
+) : TimestampedEntity()

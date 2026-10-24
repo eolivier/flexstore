@@ -12,4 +12,4 @@ data class ShopSettingsEntity(
 
     @Column(name = "order_confirmation_email", nullable = false)
     val orderConfirmationEmail: String
-)
+) : TimestampedEntity()
