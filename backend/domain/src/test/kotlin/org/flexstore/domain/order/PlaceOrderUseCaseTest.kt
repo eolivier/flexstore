@@ -2,7 +2,7 @@ package org.flexstore.domain.order
 
 import org.flexstore.domain.cart.model.*
 import org.flexstore.domain.product.*
-import org.flexstore.domain.shared.*
+import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.*
 import org.assertj.core.api.WithAssertions
 import org.flexstore.infra.repository.InMemoryCartRepository
@@ -18,7 +18,7 @@ class PlaceOrderUseCaseTest : WithAssertions {
     private val cartRepository = InMemoryCartRepository()
     private val orderRepository = InMemoryOrderRepository()
     private val useCase = PlaceOrderUseCase(cartRepository, orderRepository)
-    private val request = PlaceOrderRequest(OrderId("order-1"), customer, Instant.parse("2026-10-24T10:00:00Z"))
+    private val request = OrderPlacement(OrderId("order-1"), customer, Instant.parse("2026-10-24T10:00:00Z"))
 
     @Test
     fun `should store the order placed from the cart`() {

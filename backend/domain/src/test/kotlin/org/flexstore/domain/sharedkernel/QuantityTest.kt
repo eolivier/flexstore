@@ -1,4 +1,4 @@
-package org.flexstore.domain.shared
+package org.flexstore.domain.sharedkernel
 
 import org.assertj.core.api.WithAssertions
 import org.junit.jupiter.params.ParameterizedTest

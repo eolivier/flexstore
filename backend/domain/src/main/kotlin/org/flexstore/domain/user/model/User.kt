@@ -1,6 +1,6 @@
 package org.flexstore.domain.user.model
 
-import org.flexstore.domain.shared.*
+import org.flexstore.domain.sharedkernel.*
 import org.ucop.domain.NominalException
 import org.ucop.domain.NonEmptyString
 import org.ucop.domain.entity.Actor

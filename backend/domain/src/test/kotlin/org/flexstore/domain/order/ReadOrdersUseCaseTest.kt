@@ -2,7 +2,7 @@ package org.flexstore.domain.order
 
 import org.flexstore.domain.cart.model.*
 import org.flexstore.domain.product.*
-import org.flexstore.domain.shared.*
+import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.*
 import org.assertj.core.api.WithAssertions
 import org.flexstore.infra.repository.InMemoryOrderRepository
@@ -20,7 +20,7 @@ class ReadOrdersUseCaseTest : WithAssertions {
     private val useCase = ReadOrdersUseCase(orderRepository)
 
     private fun placeOrder(orderId: String, owner: CartOwner.Customer, at: Instant) =
-        orderRepository.save(Order.place(PlaceOrderRequest(OrderId(orderId), owner, at), Cart(owner).add(lamp, Quantity(1))))
+        orderRepository.save(Order.place(OrderPlacement(OrderId(orderId), owner, at), Cart(owner).add(lamp, Quantity(1))))
 
     @Test
     fun `should list the orders of the customer only, newest first`() {

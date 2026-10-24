@@ -1,6 +1,6 @@
 package org.flexstore.infra.spring.adapter.jpa
 
-import org.flexstore.domain.shared.*
+import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
 import org.springframework.context.annotation.Primary

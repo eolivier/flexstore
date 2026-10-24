@@ -1,7 +1,7 @@
 package org.flexstore.infra.spring.adapter.rest
 
 import org.flexstore.domain.product.*
-import org.flexstore.domain.shared.*
+import org.flexstore.domain.sharedkernel.*
 import io.micrometer.core.annotation.Timed
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.ArraySchema

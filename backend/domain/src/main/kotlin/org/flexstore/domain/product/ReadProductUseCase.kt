@@ -11,4 +11,3 @@ class ReadProductUseCase(private val productRepository: ProductRepository) {
             ?: throw ProductNotFoundException(NonEmptyString("Product with ID ${productId.id.value} does not exist."))
 }
 
-data class ProductNotFoundException(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)

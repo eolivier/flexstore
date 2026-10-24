@@ -1,4 +1,4 @@
-package org.flexstore.domain.shared
+package org.flexstore.domain.sharedkernel
 
 import java.math.BigDecimal
 

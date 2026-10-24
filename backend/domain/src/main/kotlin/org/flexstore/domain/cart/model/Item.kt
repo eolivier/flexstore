@@ -1,7 +1,7 @@
 package org.flexstore.domain.cart.model
 
 import org.flexstore.domain.product.*
-import org.flexstore.domain.shared.*
+import org.flexstore.domain.sharedkernel.*
 import java.math.BigDecimal
 
 // The items of a cart; a cart holds cart items (stored) and draft items (not stored yet), never NoItem

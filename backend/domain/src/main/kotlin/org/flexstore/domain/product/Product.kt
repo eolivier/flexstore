@@ -1,6 +1,6 @@
 package org.flexstore.domain.product
 
-import org.flexstore.domain.shared.*
+import org.flexstore.domain.sharedkernel.*
 import org.ucop.domain.NominalException
 import org.ucop.domain.NonEmptyString
 
@@ -27,3 +27,4 @@ enum class Category { ELECTRONICS, BOOKS, CLOTHING, HOME, BEAUTY, TOYS, SPORTS, 
 
 data class ProductAlreadyExists(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
 data class ProductCreationFailed(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
+data class ProductNotFoundException(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)

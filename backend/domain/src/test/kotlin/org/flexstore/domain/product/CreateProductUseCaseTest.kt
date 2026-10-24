@@ -1,6 +1,6 @@
 package org.flexstore.domain.product
 
-import org.flexstore.domain.shared.*
+import org.flexstore.domain.sharedkernel.*
 import org.assertj.core.api.WithAssertions
 import org.flexstore.infra.repository.InMemoryProductRepository
 import org.junit.jupiter.api.Test

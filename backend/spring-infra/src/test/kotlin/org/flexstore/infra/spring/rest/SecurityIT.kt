@@ -1,6 +1,6 @@
 package org.flexstore.infra.spring.rest
 
-import org.flexstore.domain.shared.*
+import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
 import com.fasterxml.jackson.databind.ObjectMapper

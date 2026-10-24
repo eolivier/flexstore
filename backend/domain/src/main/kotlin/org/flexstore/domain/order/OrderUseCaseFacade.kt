@@ -10,7 +10,7 @@ class OrderUseCaseFacade(private val placeOrderUseCase: PlaceOrderUseCase,
     // The use cases are shared by all the requests: the placed order is read back with its id
     fun placeOrder(customer: CartOwner.Customer): Order {
         val orderId = OrderId.nextId()
-        placeOrderUseCase.unfold(PlaceOrderRequest(orderId, customer, Instant.now()))
+        placeOrderUseCase.unfold(OrderPlacement(orderId, customer, Instant.now()))
         return readOrdersUseCase.getOrder(customer.userId, orderId)
     }
 

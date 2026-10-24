@@ -2,7 +2,7 @@ package org.flexstore.domain.order
 
 import org.flexstore.domain.cart.model.*
 import org.flexstore.domain.product.*
-import org.flexstore.domain.shared.*
+import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.*
 import org.ucop.domain.NominalException
 import org.ucop.domain.NonEmptyString
@@ -27,14 +27,17 @@ data class Order(
     fun belongsTo(customer: UserId.ValidUserId) = this.customer == customer
 
     companion object {
-        fun place(request: PlaceOrderRequest, cart: Cart): Order {
+        fun place(placement: OrderPlacement, cart: Cart): Order {
             if (cart.isEmpty()) {
                 throw EmptyCartException(NonEmptyString("An order cannot be placed from an empty cart."))
             }
-            return Order(request.orderId, request.customer.userId, OrderLines.from(cart), OrderStatus.PROCESSING, request.placedAt)
+            return Order(placement.orderId, placement.customer.userId, OrderLines.from(cart), OrderStatus.PROCESSING, placement.placedAt)
         }
     }
 }
+
+// An order to place: its id (chosen by the caller, which can then read the order), its customer, its date
+data class OrderPlacement(val orderId: OrderId, val customer: CartOwner.Customer, val placedAt: Instant)
 
 data class OrderId(val value: String) {
     companion object {

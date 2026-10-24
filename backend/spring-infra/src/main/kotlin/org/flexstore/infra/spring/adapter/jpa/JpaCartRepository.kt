@@ -2,7 +2,7 @@ package org.flexstore.infra.spring.adapter.jpa
 
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.cart.model.*
-import org.flexstore.domain.shared.*
+import org.flexstore.domain.sharedkernel.*
 import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository

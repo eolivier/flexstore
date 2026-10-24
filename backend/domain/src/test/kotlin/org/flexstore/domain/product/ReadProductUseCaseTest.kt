@@ -1,6 +1,6 @@
 package org.flexstore.domain.product
 
-import org.flexstore.domain.shared.*
+import org.flexstore.domain.sharedkernel.*
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals

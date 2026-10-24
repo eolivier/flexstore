@@ -3,7 +3,7 @@ package org.flexstore.domain.actor
 import org.flexstore.domain.cart.model.*
 import org.flexstore.domain.cart.usecase.*
 import org.flexstore.domain.product.*
-import org.flexstore.domain.shared.*
+import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.usecase.*
 import org.flexstore.domain.user.model.User.DefinedUser
