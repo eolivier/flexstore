@@ -1,6 +1,6 @@
 ---
 name: domain-driven-design
-description: Domain-Driven Design and hexagonal architecture principles to follow when writing or reviewing back-end code - where business rules live, what entities, value objects and aggregates may reference, the role of use cases, repositories and adapters. Use before creating or changing an entity, aggregate, value object, use case, port (repository interface) or infrastructure adapter, and when reviewing domain code.
+description: Domain-Driven Design and hexagonal architecture principles to follow when writing or reviewing back-end code - where business rules live, what entities, value objects and aggregates may reference, the role of use cases, domain services, repositories and adapters. Use before creating or changing an entity, aggregate, value object, use case, domain service, port (repository interface) or infrastructure adapter, and when reviewing domain code.
 ---
 
 # Domain-Driven Design
@@ -207,3 +207,50 @@ CartEntity(id = Identity.nextId().value, ...)
 Why: the way ids (or any other derived value) are built is decided in one place; changing it (another id format, a sequence) changes one method; callers read what they get ("the next id"), not how it is made.
 
 This applies to the adapters and the tests too: they reuse the domain factories (`Identity.nextId()`, `VisitorCartId.nextId()`) instead of repeating their logic.
+
+## 7. A domain service coordinates use cases, as a last resort
+
+A business rule belongs first to an entity, an aggregate or a value object. When it cannot be placed in one of them, because it spans several use cases or several business functions (place the order, then confirm it by email; register a customer, then send them a verification link), a **domain service** can hold it: it interacts with one or several use cases and keeps the domain model free of that coordination.
+
+A domain service:
+- is agnostic of the infrastructure: plain Kotlin, no framework annotation, no adapter, no HTTP or persistence type; it receives the use cases (and, if needed, read-only ports) as constructor parameters and is wired by the infrastructure configuration;
+- calls the use cases, so their preconditions, nominal scenario and postconditions still apply; it does not write through the repositories itself, bypassing them;
+- holds no state between calls (section 3) and no rule that an entity, an aggregate or a value object could hold: it decides the order of the steps and passes the result of one use case to the next, the rules stay in the model and the use cases;
+- is named after the business journey it serves (`OrderCheckout`, `CustomerRegistration`), not with a technical suffix that says nothing (`Manager`, `Helper`, `Processor`);
+- lives in the functional package of the journey it serves (section 4) and is tested in the domain, with in-memory repositories or mocks.
+
+Before creating one, check the alternatives: a rule about one object goes into that object; a rule that needs external data receives that data as a parameter, loaded by the use case (section 2); a single business action is a single use case. A service that only forwards each call to one use case is a facade, not a domain service: it adds no coordination.
+
+Avoid:
+
+```kotlin
+// The aggregate sends the email: the model depends on a port and on another journey
+data class Order(...) {
+    fun place(placement: OrderPlacement, cart: Cart, emailRepository: EmailRepository): Order { /* ... */ }
+}
+
+// Or the REST controller chains the use cases: the journey is decided in an adapter
+placeOrderUseCase.unfold(placement)
+sendOrderConfirmationEmailUseCase.unfold(readOrdersUseCase.getOrder(customer, orderId))
+```
+
+Prefer:
+
+```kotlin
+// Domain service: chains the use cases of the journey, the rules stay in the model and the use cases
+class OrderCheckout(
+    private val placeOrderUseCase: PlaceOrderUseCase,
+    private val readOrdersUseCase: ReadOrdersUseCase,
+    private val sendOrderConfirmationEmailUseCase: SendOrderConfirmationEmailUseCase,
+) {
+    fun placeOrder(customer: CartOwner.Customer): Order {
+        val orderId = OrderId.nextId()
+        placeOrderUseCase.unfold(OrderPlacement(orderId, customer, Instant.now()))
+        val placedOrder = readOrdersUseCase.getOrder(customer.userId, orderId)
+        sendOrderConfirmationEmailUseCase.unfold(placedOrder)
+        return placedOrder
+    }
+}
+```
+
+Why: each use case stays a single, testable business action; the journey that combines them is written once, in the domain, instead of in a controller or inside an aggregate that would then depend on ports.
