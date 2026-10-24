@@ -35,7 +35,7 @@ class PostgresCartRepositoryAdapter(
 
     override fun save(cart: Cart): Cart {
         val cartEntity = find(cart.owner) ?: cartRepo.save(newCartEntity(cart.owner))
-        val keptIds = cart.items.cartItems().map { it.itemId.id.value }.toSet()
+        val keptIds = cart.items.cartItems().itemIds().map { it.id.value }.toSet()
         itemRepo.deleteAll(items(cartEntity).filterNot { it.id in keptIds })
         itemRepo.flush()
         cart.items.asList().forEach { item ->

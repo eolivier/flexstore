@@ -21,7 +21,7 @@ data class Items(private val items: List<Item>) {
 
     fun currency(): Currency = items.firstOrNull()?.let { productOf(it)?.price?.currency } ?: Currency.EUR
 
-    fun findBy(itemId: ItemId): CartItem? = cartItems().firstOrNull { it.itemId == itemId }
+    fun findBy(itemId: ItemId): CartItem? = cartItems().findBy(itemId)
 
     fun findBy(productId: ProductId): Item? = items.firstOrNull { productOf(it)?.productId == productId }
 
@@ -55,10 +55,11 @@ data class Items(private val items: List<Item>) {
 
     fun size() = items.size
 
-    // Read-only views for the adapters (JSON, persistence)
-    fun asList(): List<Item> = items.toList()
+    // The items already stored, i.e. with an id
+    fun cartItems() = CartItems(items.filterIsInstance<CartItem>())
 
-    fun cartItems(): List<CartItem> = items.filterIsInstance<CartItem>()
+    // Read-only view for the adapters (JSON, persistence)
+    fun asList(): List<Item> = items.toList()
 
     private fun productOf(item: Item): DefinedProduct? = when (item) {
         is CartItem -> item.product
@@ -77,6 +78,17 @@ data class Items(private val items: List<Item>) {
         is DraftItem -> item.itemPrice()
         is NoItem -> Price(Amount(BigDecimal.ZERO), Currency.EUR)
     }
+}
+
+// The stored items of a cart: those that have an id
+data class CartItems(private val items: List<CartItem>) {
+
+    constructor(vararg items: CartItem) : this(items.toList())
+
+    fun findBy(itemId: ItemId): CartItem? = items.firstOrNull { it.itemId == itemId }
+
+    // Read-only view of the ids for the adapters (persistence)
+    fun itemIds(): Set<ItemId> = items.map { it.itemId }.toSet()
 }
 
 sealed interface Item {
