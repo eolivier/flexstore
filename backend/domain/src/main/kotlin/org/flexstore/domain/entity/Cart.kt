@@ -1,76 +1,59 @@
 package org.flexstore.domain.entity
 
-import org.flexstore.domain.repository.ItemRepository
-import org.flexstore.domain.repository.ProductRepository
-import org.flexstore.domain.usecase.product.ProductNotFoundException
 import org.flexstore.domain.valueobject.*
 import org.ucop.domain.NominalException
 import org.ucop.domain.NonEmptyString
 
 /**
- * Cart rules:
- * - an item always holds the catalog product (the product given with the item is only used for its id)
+ * Cart aggregate: its items and the cart rules, without any repository (the use cases load and save it).
+ * - an item holds the catalog product given by the use case
  * - a product is in the cart at most once: adding it again changes the quantity of its item
  * - an item whose quantity becomes zero or negative is removed
+ * New items are DraftItem until the cart is saved.
  */
-class Cart(private val itemRepository: ItemRepository, private val productRepository: ProductRepository) {
+data class Cart(val items: List<Item> = emptyList()) {
 
-    fun getItems() = itemRepository.getItems()
-
-    fun save(item: Item)  {
-        when (item) {
-            is DraftItem -> add(item)
-            is CartItem -> update(item)
-            is NoItem -> throw UnknownItemException("Unknown item : $item")
-        }
+    init {
+        require(items.none { it is NoItem }) { "A cart only holds cart items and draft items" }
     }
 
-    fun add(draftItem: DraftItem): CartItem {
-        if (!draftItem.quantity.isPositive()) {
-            throw InvalidQuantityException(NonEmptyString("Quantity must be positive: ${draftItem.quantity.value}"))
+    fun add(product: DefinedProduct, quantity: Quantity): Cart {
+        if (!quantity.isPositive()) {
+            throw InvalidQuantityException(NonEmptyString("Quantity must be positive: ${quantity.value}"))
         }
-        val product = catalogProduct(draftItem.product.productId)
-        itemRepository.findByProductId(product.productId)?.let { existingItem ->
-            val updatedItem = existingItem.copy(product = product, quantity = draftItem.quantity)
-            itemRepository.update(updatedItem)
-            return updatedItem
+        val index = items.indexOfFirst { productIdOf(it) == product.productId }
+        if (index == -1) {
+            return copy(items = items + DraftItem(product, quantity))
         }
-        return itemRepository.add(draftItem.copy(product = product))
+        val updatedItem = when (val item = items[index]) {
+            is CartItem -> item.copy(product = product, quantity = quantity)
+            is DraftItem -> item.copy(product = product, quantity = quantity)
+            is NoItem -> item
+        }
+        return copy(items = items.toMutableList().apply { set(index, updatedItem) })
     }
 
-    fun update(cartItem: CartItem) {
-        // Only the quantity is taken from the given item; an item already removed has nothing left to update
-        val storedItem = itemRepository.findById(cartItem.itemId) as? CartItem ?: return
-        if (cartItem.quantity.isPositive()) {
-            itemRepository.update(storedItem.copy(quantity = cartItem.quantity))
-        } else {
-            itemRepository.remove(storedItem)
+    // An unknown item (e.g. already removed from another page) leaves the cart unchanged
+    fun changeQuantity(itemId: ItemId, quantity: Quantity): Cart {
+        if (!quantity.isPositive()) {
+            return remove(itemId)
         }
+        return copy(items = items.map { if (it is CartItem && it.itemId == itemId) it.copy(quantity = quantity) else it })
     }
 
-    fun removeItem(item: Item) = itemRepository.remove(item)
+    fun remove(itemId: ItemId): Cart = copy(items = items.filterNot { it is CartItem && it.itemId == itemId })
 
-    fun changeQuantity(item: Item, newQuantity: Quantity) {
-        modifyQuantity(item) { it.changeQuantity(newQuantity) }
+    fun findBy(itemId: ItemId): CartItem? = items.filterIsInstance<CartItem>().firstOrNull { it.itemId == itemId }
+
+    fun findBy(productId: ProductId): Item? = items.firstOrNull { productIdOf(it) == productId }
+
+    fun toItems() = Items(items)
+
+    private fun productIdOf(item: Item): ProductId? = when (item) {
+        is CartItem -> item.product.productId
+        is DraftItem -> item.product.productId
+        is NoItem -> null
     }
-
-    fun increaseQuantity(item: Item) = modifyQuantity(item) { it.increase() }
-
-    fun decreaseQuantity(item: Item)  = modifyQuantity(item) { it.decrease() }
-
-    fun modifyQuantity(item: Item, operation: (Item) -> Item) {
-        when (item) {
-            is DraftItem -> add(operation(item) as DraftItem)
-            is CartItem -> update(operation(item) as CartItem)
-            is NoItem -> throw UnknownItemException("Unknown item : $item")
-        }
-    }
-
-    fun findBy(itemId: ItemId) = itemRepository.findById(itemId)
-
-    private fun catalogProduct(productId: ProductId): DefinedProduct =
-        productRepository.findById(productId)
-            ?: throw ProductNotFoundException(NonEmptyString("Product ${productId.id.value} not found."))
 }
 
 data class InvalidQuantityException(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)

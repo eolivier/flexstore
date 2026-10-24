@@ -1,47 +1,26 @@
 package org.ucop.domain.entity
 
-import org.flexstore.domain.entity.Cart
-import org.flexstore.domain.valueobject.*
-import org.flexstore.infra.repository.InMemoryItemRepository
-import org.flexstore.infra.repository.InMemoryProductRepository
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.spy
-import org.mockito.Mockito.verify
-import java.math.BigDecimal
 
 class DeprecatedUseCaseTest {
 
     @Test
-    fun `should add to basket`() {
+    fun `should run the preconditions, the nominal scenario and the postconditions`() {
         // given
-        val itemRepository = spy(InMemoryItemRepository())
-        itemRepository.clear()
-        val item1 = createItem1()
-        val myCart = Cart(itemRepository, InMemoryProductRepository().apply { save(item1.product) })
-        val cartIsEmptyCondition = PreCondition<Cart> { basket -> assert(basket.getItems().items.isEmpty()) }
-        val addOneItemToCartStep = Step<Cart>(
-            run = {
-                basket -> run {
-                basket.add(item1)
-            }
-        })
-        val cartHasOneItemCondition = PostCondition<Cart> { basket -> assert(basket.getItems().items.size == 1) }
-
-        val addOneItemToBasketScenario = NominalScenario(listOf(addOneItemToCartStep))
+        val basket = mutableListOf<String>()
+        val basketIsEmptyCondition = PreCondition<MutableList<String>> { assert(it.isEmpty()) }
+        val addOneItemStep = Step<MutableList<String>>(run = { it.add("item1") })
+        val basketHasOneItemCondition = PostCondition<MutableList<String>> { assert(it.size == 1) }
 
         val addOneItemToBasketDeprecatedUseCase = DeprecatedUseCase(
-            preConditions = listOf(cartIsEmptyCondition),
-            nominalScenario = addOneItemToBasketScenario,
-            postConditions = listOf(cartHasOneItemCondition)
+            preConditions = listOf(basketIsEmptyCondition),
+            nominalScenario = NominalScenario(listOf(addOneItemStep)),
+            postConditions = listOf(basketHasOneItemCondition)
         )
         // when
-        addOneItemToBasketDeprecatedUseCase.run(myCart)
+        addOneItemToBasketDeprecatedUseCase.run(basket)
         // then
-        verify(itemRepository).add(item1)
-    }
-
-    fun createItem1(): DraftItem {
-        val product = DefinedProduct(ProductId(Identity("product1")), Name("product1"), Price(Amount(BigDecimal(10)), Currency.EUR))
-        return DraftItem(product, Quantity(10))
+        assertThat(basket).containsExactly("item1")
     }
 }

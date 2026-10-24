@@ -1,7 +1,7 @@
 package org.flexstore.infra.spring.rest
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.flexstore.domain.repository.ItemRepository
+import org.flexstore.infra.spring.adapter.jpa.JpaCartItemRepository
 import org.flexstore.infra.spring.adapter.jpa.JpaProductRepository
 import org.flexstore.infra.spring.adapter.rest.json.JsonItem
 import org.flexstore.infra.spring.security.asAdmin
@@ -35,7 +35,7 @@ class ProductAndCartPersistenceIT {
     private lateinit var objectMapper: ObjectMapper
 
     @Autowired
-    private lateinit var itemRepository: ItemRepository
+    private lateinit var cartItemRepository: JpaCartItemRepository
 
     @Autowired
     private lateinit var productRepository: JpaProductRepository
@@ -43,7 +43,7 @@ class ProductAndCartPersistenceIT {
     @BeforeEach
     @AfterEach
     fun cleanUp() {
-        itemRepository.clear()
+        cartItemRepository.deleteAll()
         productRepository.deleteAll(productRepository.findAll().filter { it.name == TEST_PRODUCT_NAME })
     }
 

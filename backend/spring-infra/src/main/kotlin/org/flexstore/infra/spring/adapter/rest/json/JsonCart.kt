@@ -2,9 +2,10 @@ package org.flexstore.infra.spring.adapter.rest.json
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import org.flexstore.domain.valueobject.*
+import org.flexstore.domain.valueobject.CartItem
 import java.math.BigDecimal
 
+// Only the item id, the product id and the quantity are used: the product is read from the catalog
 data class JsonItem @JsonCreator constructor(
     @JsonProperty("itemId") val itemId: String? = "",
     @JsonProperty("productId") val productId: String,
@@ -14,20 +15,7 @@ data class JsonItem @JsonCreator constructor(
     @JsonProperty("productPrice") val productPrice: BigDecimal,
     @JsonProperty("productCurrency") val productCurrency: String,
     @JsonProperty("productQuantity") val productQuantity: Int
-) {
-    fun toItem(): Item {
-        val price = Price(Amount(productPrice), Currency.fromSymbol(productCurrency))
-        val productId = ProductId(Identity(productId))
-        val name = Name(productName)
-        val description = Description(productDescription)
-        val category = Category.valueOf(productCategory)
-        val product = DefinedProduct(productId, name, description, category, price)
-        if (ItemId.isValid(itemId)) {
-            return CartItem(ItemId(Identity(itemId!!)), product, Quantity(productQuantity))
-        }
-        return DraftItem(product, Quantity(productQuantity))
-    }
-}
+)
 
 data class JsonCartItem @JsonCreator constructor(
     @JsonProperty("itemId") val itemId: String,

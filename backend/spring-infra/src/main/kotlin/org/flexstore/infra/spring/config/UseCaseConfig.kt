@@ -1,6 +1,11 @@
 package org.flexstore.infra.spring.config
 
+import org.flexstore.domain.repository.CartRepository
 import org.flexstore.domain.repository.ProductRepository
+import org.flexstore.domain.usecase.basket.AddItemToCartUseCase
+import org.flexstore.domain.usecase.basket.CartUseCaseFacade
+import org.flexstore.domain.usecase.basket.ChangeCartItemQuantityUseCase
+import org.flexstore.domain.usecase.basket.ReadCartUseCase
 import org.flexstore.domain.usecase.product.CreateProductUseCase
 import org.flexstore.domain.usecase.product.ProductUseCaseFacade
 import org.flexstore.domain.usecase.product.ReadProductUseCase
@@ -24,5 +29,27 @@ open class UseCaseConfig {
     @Bean
     open fun readProductUseCase(productRepository: ProductRepository): ReadProductUseCase {
         return ReadProductUseCase(productRepository)
+    }
+
+    @Bean
+    open fun cartUseCaseFacade(addItemToCartUseCase: AddItemToCartUseCase,
+                               changeCartItemQuantityUseCase: ChangeCartItemQuantityUseCase,
+                               readCartUseCase: ReadCartUseCase): CartUseCaseFacade {
+        return CartUseCaseFacade(addItemToCartUseCase, changeCartItemQuantityUseCase, readCartUseCase)
+    }
+
+    @Bean
+    open fun addItemToCartUseCase(cartRepository: CartRepository, productRepository: ProductRepository): AddItemToCartUseCase {
+        return AddItemToCartUseCase(cartRepository, productRepository)
+    }
+
+    @Bean
+    open fun changeCartItemQuantityUseCase(cartRepository: CartRepository): ChangeCartItemQuantityUseCase {
+        return ChangeCartItemQuantityUseCase(cartRepository)
+    }
+
+    @Bean
+    open fun readCartUseCase(cartRepository: CartRepository): ReadCartUseCase {
+        return ReadCartUseCase(cartRepository)
     }
 }
