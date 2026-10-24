@@ -46,4 +46,12 @@ describe('CreateUser.vue', () => {
     // Assert
     expect(sentUser()).toEqual({ name: 'Jane Doe', email: 'jane@example.com', password: 'password123', role: expectedRole });
   });
+
+  it('the cancel button goes back to the list of users', () => {
+    // Act
+    const wrapper = mount(CreateUser, { global: { plugins: [vuetify, i18n, router] } });
+    // Assert
+    const cancel = wrapper.findAll('a').find(link => link.text() === 'Cancel')!;
+    expect(cancel.attributes('href')).toBe('/admin/users');
+  });
 });
