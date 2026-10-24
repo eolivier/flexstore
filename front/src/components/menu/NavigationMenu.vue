@@ -115,7 +115,10 @@
             :title="t('nav.logout')"
             @click="logout"
           />
-          <v-list-item v-else to="/login" prepend-icon="mdi-login" :title="t('nav.login')" />
+          <template v-else>
+            <v-list-item to="/login" prepend-icon="mdi-login" :title="t('nav.login')" />
+            <v-list-item to="/sign-up" prepend-icon="mdi-account-plus-outline" :title="t('nav.signUp')" />
+          </template>
         </v-list>
       </v-menu>
 

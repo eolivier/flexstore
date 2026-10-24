@@ -4,8 +4,8 @@
   import { useI18n } from 'vue-i18n';
   import { FullName, type User } from '@/models/user';
   import UserRoleField from './UserRoleField.vue';
-  import PasswordField from './PasswordField.vue';
-  import UserNameFields from './UserNameFields.vue';
+  import PasswordField from '@/components/account/PasswordField.vue';
+  import UserNameFields from '@/components/account/UserNameFields.vue';
 
   const firstName = ref('');
   const lastName = ref('');

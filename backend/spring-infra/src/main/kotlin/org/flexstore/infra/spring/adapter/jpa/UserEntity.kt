@@ -21,5 +21,17 @@ data class UserEntity(
     val password: String,
 
     @Column(nullable = false)
-    val role: String = "USER"
+    val role: String = "USER",
+
+    @Column(nullable = false)
+    val status: String = "ACTIVE",
+
+    // The phone number and the postal addresses given by a customer who creates their account
+    @Column(name = "phone_number")
+    val phoneNumber: String? = null,
+
+    @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", nullable = false)
+    @OrderBy("position")
+    val addresses: List<AddressEntity> = emptyList()
 ) : TimestampedEntity()

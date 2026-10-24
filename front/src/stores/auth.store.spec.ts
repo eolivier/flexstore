@@ -5,7 +5,7 @@ import { useAuthStore } from './auth.store';
 const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
-const createMockUser = () => ({ id: '1', name: 'John', email: 'john@example.com', role: 'USER' as 'USER' | 'ADMIN' });
+const createMockUser = () => ({ id: '1', firstName: 'John', lastName: 'Doe', email: 'john@example.com', role: 'USER' as 'USER' | 'ADMIN' });
 // Body of a successful login: the token and the user
 const loginResponse = (user = createMockUser()) => ({ token: 'jwt-token', expiresAt: '2030-01-01T00:00:00Z', user });
 const loginSucceeds = (user = createMockUser()) =>
@@ -241,6 +241,42 @@ describe('auth.store', () => {
       // Act
       const store = reloadedStore();
       // Assert
+      expect(store.isAuthenticated).toBe(false);
+    });
+  });
+
+  describe('register', () => {
+    const registration = {
+      firstName: 'Jane', lastName: 'Doe', email: 'jane@example.com', password: 'password123', phoneNumber: '+33 6 12 34 56 78',
+      postalAddress: { street: '12 rue des Lilas', complement: '', postalCode: '75011', city: 'Paris', country: 'France' },
+    };
+
+    it('should create the account, then sign the customer in', async () => {
+      // Arrange
+      mockFetch.mockResolvedValueOnce({ ok: true, status: 201 });
+      loginSucceeds();
+      const store = useAuthStore();
+      // Act
+      const result = await store.register(registration);
+      // Assert
+      expect(result).toBe('signedIn');
+      expect(store.isAuthenticated).toBe(true);
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toMatch(/\/api\/accounts$/);
+      expect(JSON.parse(init.body)).toEqual(registration);
+    });
+
+    it.each([
+      { status: 409, expected: 'emailUsed' },
+      { status: 422, expected: 'error' },
+    ])('a registration answered $status is $expected, without signing in', async ({ status, expected }) => {
+      // Arrange
+      mockFetch.mockResolvedValueOnce({ ok: false, status });
+      const store = useAuthStore();
+      // Act
+      const result = await store.register(registration);
+      // Assert
+      expect(result).toBe(expected);
       expect(store.isAuthenticated).toBe(false);
     });
   });

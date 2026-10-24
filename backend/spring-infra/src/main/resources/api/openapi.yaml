@@ -147,6 +147,32 @@ paths:
           description: Not the password of the signed-in user
         "422":
           description: New password too short
+  /api/accounts:
+    post:
+      tags:
+      - Accounts
+      summary: Create the account of a customer
+      description: "Public. The account waits for the verification of the email (status PENDING_VERIFICATION);
+        the customer can already sign in and order."
+      operationId: registerAccount
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonAccountRegistration"
+        required: true
+      responses:
+        "201":
+          description: Account created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonUser"
+        "409":
+          description: The email is already used
+        "422":
+          description: A required field is missing or the password has fewer than 8 characters
   /api/users/login:
     post:
       tags:
@@ -414,6 +440,9 @@ components:
         role:
           type: string
           enum: [USER, ADMIN]
+        status:
+          type: string
+          enum: [PENDING_VERIFICATION, ACTIVE, SUSPENDED, LOCKED, DISABLED]
     JsonLoginResponse:
       type: object
       required:
@@ -468,6 +497,39 @@ components:
           type: string
           enum: [USER, ADMIN]
           description: Role of the new user (USER when absent)
+    JsonAccountRegistration:
+      type: object
+      required: [firstName, lastName, email, password, phoneNumber, postalAddress]
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+          description: At least 8 characters (will be hashed by the server)
+        phoneNumber:
+          type: string
+        postalAddress:
+          $ref: "#/components/schemas/JsonPostalAddress"
+    JsonPostalAddress:
+      type: object
+      required: [street, postalCode, city, country]
+      properties:
+        street:
+          type: string
+        complement:
+          type: string
+          nullable: true
+          description: Building, floor... (optional)
+        postalCode:
+          type: string
+        city:
+          type: string
+        country:
+          type: string
     JsonChangePasswordRequest:
       type: object
       required:

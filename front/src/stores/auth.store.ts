@@ -1,9 +1,12 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import type { User } from '@/models/user';
+import type { AccountRegistration } from '@/models/account';
 import { useLoadingStore } from '@/stores/loading.store';
 
 export type PasswordChange = 'changed' | 'wrongPassword' | 'error';
+// signedIn: the account is created and the customer is signed in
+export type Registration = 'signedIn' | 'emailUsed' | 'error';
 
 interface LoginResponse {
   token: string;
@@ -75,6 +78,23 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  // Creates the account of a customer, then signs them in
+  async function register(registration: AccountRegistration): Promise<Registration> {
+    try {
+      const response = await loadingStore.track(fetch(`${apiUrl}/api/accounts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(registration),
+      }));
+      if (response.status === 409) return 'emailUsed';
+      if (!response.ok) return 'error';
+      return (await login(registration.email, registration.password)) ? 'signedIn' : 'error';
+    } catch (error) {
+      console.error('Registration error:', error);
+      return 'error';
+    }
+  }
+
   // fetch with the token of the signed-in user; an expired or rejected token signs the user out
   async function authFetch(path: string, init: RequestInit = {}): Promise<Response> {
     const headers = new Headers(init.headers);
@@ -120,6 +140,7 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated,
     isAdmin,
     login,
+    register,
     logout,
     authFetch,
     changePassword,

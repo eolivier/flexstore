@@ -22,7 +22,7 @@ const router = createRouter({
 // Body of a successful login for a user with the given role
 const loginSuccess = (role: 'ADMIN' | 'USER') => ({
   ok: true,
-  json: () => Promise.resolve({ token: 'jwt-token', expiresAt: '2030-01-01T00:00:00Z', user: { id: '1', name: 'John', email: 'john@example.com', role } }),
+  json: () => Promise.resolve({ token: 'jwt-token', expiresAt: '2030-01-01T00:00:00Z', user: { id: '1', firstName: 'John', lastName: 'Doe', email: 'john@example.com', role } }),
 });
 
 describe('Login.vue', () => {
@@ -129,5 +129,13 @@ describe('Login.vue', () => {
     await submit(wrapper);
     // Assert
     expect(router.currentRoute.value.path).toBe(expectedPath);
+  });
+
+  it('links to the sign-up, keeping where to go back', async () => {
+    // Act
+    const wrapper = await mountComponent({ redirect: '/cart' });
+    // Assert
+    const signUp = wrapper.findAll('a').find(link => link.text() === 'Create an account')!;
+    expect(signUp.attributes('href')).toBe('/sign-up?redirect=/cart');
   });
 });
