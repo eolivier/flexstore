@@ -1,0 +1,67 @@
+---
+name: fluent-code-reading-semantic
+description: Principles that make code read like the business language - wrapping collections in their own class, naming boolean methods affirmatively instead of negating them. Use before writing, changing or reviewing domain or application code (entities, value objects, aggregates, use cases), in any language.
+---
+
+# Fluent code reading semantic
+
+Principles collected from the user's feedback, so that code reads as a sentence of the business language. Apply them to the code you write or change, and check them in reviews. When existing code breaks them, point it out (and fix it if you are already changing that code).
+
+## 1. Wrap a collection in its own class
+
+Do not pass or expose a raw `List` (or `Set`, `Map`) of domain objects. Wrap it in a class named after the business concept, which holds the collection and the behaviour on it.
+
+Example: `Items` wraps a list of `Item` and knows how to compute its total price.
+
+Avoid:
+
+```kotlin
+data class Cart(val owner: CartOwner, val items: List<Item>) {
+    fun totalPrice() = items.fold(BigDecimal.ZERO) { total, item -> total + item.price() }
+    fun findBy(productId: ProductId) = items.firstOrNull { it.productId == productId }
+}
+```
+
+Prefer:
+
+```kotlin
+data class Items(private val items: List<Item>) {
+    fun totalPrice(): Price = ...
+    fun findBy(productId: ProductId): Item? = ...
+    fun add(item: Item): Items = Items(items + item)
+    fun isEmpty() = items.isEmpty()
+}
+
+data class Cart(val owner: CartOwner, val items: Items) {
+    fun totalPrice() = items.totalPrice()
+}
+```
+
+Why: the operations on the collection (searching, totals, adding, removing, invariants such as "a product at most once") get a name and a single home instead of being repeated as `filter` / `fold` / `firstOrNull` wherever the list is used; the owner of the collection reads in business terms.
+
+Details:
+- The wrapper is immutable: its operations return a new instance.
+- Keep the raw collection private; expose business operations, and a read-only view only where an adapter needs to iterate (mapping to JSON or to the persistence model).
+- Name the wrapper after the business concept (`Items`, `Products`, `OrderLines`), not after its type (`ItemList`).
+
+## 2. Prefer affirmative methods
+
+Name boolean methods so that callers state what they check, without negating another method. Add the affirmative method to the class when it is missing.
+
+Avoid:
+
+```kotlin
+if (!quantity.isPositive()) { ... }
+```
+
+Prefer:
+
+```kotlin
+if (quantity.isZeroOrNegative()) { ... }
+```
+
+Why: a condition reads as the rule it expresses ("if the quantity is zero or negative"); a `!` is easy to miss when reading and doubles the effort to understand the condition.
+
+Details:
+- Each predicate and its opposite may both exist (`isPositive()` / `isZeroOrNegative()`, `exists()` / `notExists()`), so that every caller uses the affirmative form of what it means.
+- The same applies to local booleans: `val unchanged = ...` checked as `if (unchanged)` rather than `val changed = ...` checked as `if (!changed)`.
