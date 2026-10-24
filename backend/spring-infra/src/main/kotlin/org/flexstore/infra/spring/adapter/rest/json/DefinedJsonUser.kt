@@ -43,3 +43,19 @@ data class DraftJsonUser @JsonCreator constructor(
         role = Role.fromName(role)
     )
 }
+
+// The fields an administrator can edit: the password is changed by a separate operation
+data class EditedJsonUser @JsonCreator constructor(
+    @JsonProperty("name") val name: String,
+    @JsonProperty("email") val email: String,
+    @JsonProperty("role") val role: String? = null
+) {
+    // The password is not edited: the stored one is kept by the use case
+    fun toUser(userId: String) = User.DefinedUser(
+        id = UserId.of(userId),
+        name = Name(name),
+        email = Email(email),
+        password = PlainPassword(""),
+        role = Role.fromName(role)
+    )
+}

@@ -10,7 +10,7 @@ All URIs are relative to *http://localhost:8080*
 |[**getAllUsers**](#getallusers) | **GET** /api/users | Retrieve all users|
 |[**getUser**](#getuser) | **GET** /api/users/{id} | Retrieve a user by ID|
 |[**loginUser**](#loginuser) | **POST** /api/users/login | Authenticate a user|
-|[**updateUser**](#updateuser) | **PUT** /api/users/{id} | Update a user by ID|
+|[**updateUser**](#updateuser) | **PUT** /api/users/{id} | Edit a user by ID (name, email, role; not the password)|
 
 # **changePassword**
 > changePassword(jsonChangePasswordRequest)
@@ -319,8 +319,9 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **updateUser**
-> updateUser(jsonUserUpdate)
+> JsonUser updateUser(jsonUserUpdate)
 
+Reserved to an administrator, checked by the domain (403 otherwise)
 
 ### Example
 
@@ -353,7 +354,7 @@ const { status, data } = await apiInstance.updateUser(
 
 ### Return type
 
-void (empty response body)
+**JsonUser**
 
 ### Authorization
 
@@ -362,13 +363,16 @@ void (empty response body)
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: Not defined
+ - **Accept**: application/json
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | Successfully updated the user |  -  |
+|**200** | The edited user |  -  |
+|**403** | The editor is not an administrator |  -  |
+|**404** | Unknown user |  -  |
+|**409** | The email is used by another user |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

@@ -48,15 +48,9 @@ class CreateUserUseCase(
 
     // The creator must be an existing user with the ADMIN role (read from the users, not from the request)
     private fun creatorIsAdministratorCondition() = PreCondition<CreateUserRequest> { request ->
-        if (isNotAdministrator(request.creator)) {
+        if (userRepository.isNotAdministrator(request.creator)) {
             throw UserCreationForbiddenException(ErrorMessage("Only an administrator can create a user."))
         }
-    }
-
-    private fun isNotAdministrator(userId: UserId): Boolean {
-        if (userRepository.notExists(userId)) return true
-        val user = userRepository.findById(userId)
-        return user !is User.DefinedUser || user.isNotAdministrator()
     }
 
     private fun userDoesNotExistCondition() = PreCondition<CreateUserRequest> { request ->

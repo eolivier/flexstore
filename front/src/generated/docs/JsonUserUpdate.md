@@ -1,14 +1,14 @@
 # JsonUserUpdate
 
+The fields an administrator can edit; the password is changed by a separate operation
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **string** |  | [optional] [default to undefined]
-**name** | **string** |  | [optional] [default to undefined]
-**email** | **string** |  | [optional] [default to undefined]
-**password** | **string** | User\&#39;s new password (will be hashed by the server). Omit it or leave it blank to keep the current password | [optional] [default to undefined]
+**name** | **string** |  | [default to undefined]
+**email** | **string** |  | [default to undefined]
+**role** | **string** | Role of the user (USER when absent) | [optional] [default to undefined]
 
 ## Example
 
@@ -16,10 +16,9 @@ Name | Type | Description | Notes
 import { JsonUserUpdate } from './api';
 
 const instance: JsonUserUpdate = {
-    id,
     name,
     email,
-    password,
+    role,
 };
 ```
 

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.flexstore.infra.spring.adapter.rest.json.DefinedJsonUser
 import org.flexstore.infra.spring.adapter.rest.json.DraftJsonUser
+import org.flexstore.infra.spring.adapter.rest.json.EditedJsonUser
 import org.junit.jupiter.api.AfterEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -138,39 +139,60 @@ class UserRestControllerIT {
     }
 
     @Test
-    fun `should update user`() {
+    fun `an administrator should edit the name, the email and the role of a user`() {
         // Arrange
-        val jsonUser = createJsonUser()
-        userService.createUser(CreateUserRequest(UserId.of(ADMIN_ACCOUNT_ID), jsonUser.toUser()))
-        // Act - Assert
-        val updatedJsonUser = DefinedJsonUser("1", "Jane Doe", "jane.doe@example.com", "testpassword")
-        mockMvc.perform(
-            put("/api/users/1").with(asAdmin())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updatedJsonUser))
+        userService.createUser(CreateUserRequest(UserId.of(ADMIN_ACCOUNT_ID), createJsonUser().toUser()))
+        val editedUser = EditedJsonUser("Jane Doe", "jane.doe@example.com", "ADMIN")
+        // Act
+        val response = mockMvc.perform(
+            put("/api/users/$USER_ID").with(asAdmin()).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(editedUser))
         )
-            .andExpect(status().isOk)
-        val readUser = userService.readUser(UserId.of(USER_ID)) as User.DefinedUser
-        assertThat(readUser.name.value).isEqualTo("Jane Doe")
-        assertThat(readUser.email.value).isEqualTo("jane.doe@example.com")
-        // The password is stored hashed, so it is checked through the repository
-        assertThat(userRepository.passwordMatches(readUser.email, PlainPassword("testpassword"))).isTrue()
+        // Assert
+        response.andExpect(status().isOk)
+            .andExpect(jsonPath("$.name").value("Jane Doe"))
+            .andExpect(jsonPath("$.email").value("jane.doe@example.com"))
+            .andExpect(jsonPath("$.role").value("ADMIN"))
+            .andExpect(jsonPath("$.password").doesNotExist())
     }
 
     @Test
-    fun `should keep password when updating user without password`() {
+    fun `an edit should keep the password, even if one is sent`() {
         // Arrange
         userService.createUser(CreateUserRequest(UserId.of(ADMIN_ACCOUNT_ID), createJsonUser().toUser()))
-        val updatedUser = """{"id": "$USER_ID", "name": "Jane Doe", "email": "jane.doe@example.com"}"""
+        val editedUserWithPassword = """{"name": "Jane Doe", "email": "jane.doe@example.com", "password": "another-password"}"""
         // Act
         mockMvc.perform(
-            put("/api/users/$USER_ID").with(asAdmin())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(updatedUser)
-        )
-            .andExpect(status().isOk)
+            put("/api/users/$USER_ID").with(asAdmin()).contentType(MediaType.APPLICATION_JSON).content(editedUserWithPassword)
+        ).andExpect(status().isOk)
         // Assert
         assertThat(userRepository.passwordMatches(Email("jane.doe@example.com"), PlainPassword("testpassword"))).isTrue()
+    }
+
+    @Test
+    fun `should refuse an edit by a token that is not the one of an administrator in the users`() {
+        // Arrange
+        userService.createUser(CreateUserRequest(UserId.of(ADMIN_ACCOUNT_ID), createJsonUser().toUser()))
+        val editedUser = EditedJsonUser("Jane Doe", "jane.doe@example.com", "USER")
+        // Act
+        val response = mockMvc.perform(
+            put("/api/users/$USER_ID").with(asAdmin("not-a-user")).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(editedUser))
+        )
+        // Assert
+        response.andExpect(status().isForbidden)
+        assertThat((userService.readUser(UserId.of(USER_ID)) as User.DefinedUser).name.value).isEqualTo("John Doe")
+    }
+
+    @Test
+    fun `should refuse the email of another user`() {
+        // Arrange
+        userService.createUser(CreateUserRequest(UserId.of(ADMIN_ACCOUNT_ID), createJsonUser().toUser()))
+        val editedUser = EditedJsonUser("John Doe", "admin@flexstore.com", "USER")
+        // Act
+        val response = mockMvc.perform(
+            put("/api/users/$USER_ID").with(asAdmin()).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(editedUser))
+        )
+        // Assert
+        response.andExpect(status().isConflict)
     }
 
     @Test

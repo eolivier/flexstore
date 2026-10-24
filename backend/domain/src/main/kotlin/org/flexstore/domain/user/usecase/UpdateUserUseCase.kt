@@ -4,59 +4,59 @@ import org.flexstore.domain.user.*
 import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.entity.*
 
-class UpdateUserUseCase(private val userRepository: UserRepository) : UseCase<User> {
+// A user is edited by an administrator (the editor): name, email and role. The password is changed by a separate operation
+data class UpdateUserRequest(val editor: UserId, val user: User)
 
-    override fun getPreConditions(): PreConditions<User> {
-        println("#[BEGIN] UpdateUserUseCase.getPreConditions")
-        val preConditions = PreConditions(isValidUserIdCondition(), userDoExistCondition())
-        println("#[END] UpdateUserUseCase.getPreConditions")
-        return preConditions
+class UpdateUserUseCase(private val userRepository: UserRepository) : UseCase<UpdateUserRequest> {
+
+    override fun getPreConditions(): PreConditions<UpdateUserRequest> = PreConditions(
+        editorIsAdministratorCondition(),
+        isValidUserIdCondition(),
+        userDoExistCondition(),
+        emailIsNotUsedByAnotherUserCondition()
+    )
+
+    override fun getNominalScenario(): NominalScenario<UpdateUserRequest> {
+        val updateUserStep = Step<UpdateUserRequest> { request -> userRepository.save(withStoredPassword(request.user)) }
+        return NominalScenario(listOf(updateUserStep))
     }
 
-    override fun getNominalScenario(): NominalScenario<User> {
-        println("#[BEGIN] UpdateUserUseCase.getNominalScenario")
-        // Steps
-        val updateUserStep = Step<User> { user -> userRepository.save(keepStoredFields(user)) }
-        // Nominal scenario
-        val nominalScenario = NominalScenario(listOf(updateUserStep))
-        println("#[END] UpdateUserUseCase.getNominalScenario")
-        return nominalScenario
-    }
+    override fun getPostConditions(): PostConditions<UpdateUserRequest> = PostConditions.none()
 
-    override fun getPostConditions(): PostConditions<User> {
-        println("#[BEGIN] UpdateUserUseCase.getPostConditions")
-        val postConditions = PostConditions.none<User>()
-        println("#[END] UpdateUserUseCase.getPostConditions")
-        return postConditions
-    }
-
-    // The role cannot be changed by an update, and a blank password means the password is not updated:
-    // the stored role and (hashed) password are kept
-    private fun keepStoredFields(user: User): User {
+    // An edit never changes the password: the stored (hashed) one is kept
+    private fun withStoredPassword(user: User): User {
         if (user !is User.DefinedUser) {
             return user
         }
         return when (val existingUser = userRepository.findById(user.id)) {
-            is User.DefinedUser -> {
-                val passwordNotProvided = user.password is PlainPassword && user.password.value.isBlank()
-                user.copy(
-                    role = existingUser.role,
-                    password = if (passwordNotProvided) existingUser.password else user.password
-                )
-            }
+            is User.DefinedUser -> user.copy(password = existingUser.password)
             else -> user
         }
     }
 
-    private fun isValidUserIdCondition() = PreCondition<User> { user ->
-        if (user.id.isInvalid()) {
-            throw InvalidUserIdException(ErrorMessage("User ID ${user.id.value} is invalid."))
+    // The editor must be an existing user with the ADMIN role (read from the users, not from the request)
+    private fun editorIsAdministratorCondition() = PreCondition<UpdateUserRequest> { request ->
+        if (userRepository.isNotAdministrator(request.editor)) {
+            throw UserUpdateForbiddenException(ErrorMessage("Only an administrator can edit a user."))
         }
     }
 
-    private fun userDoExistCondition() = PreCondition<User> { user ->
-        if (userRepository.notExists(user.id)) {
-            throw UserNotFoundException(ErrorMessage("User with ID ${user.id.value} does not exist."))
+    private fun isValidUserIdCondition() = PreCondition<UpdateUserRequest> { request ->
+        if (request.user.id.isInvalid()) {
+            throw InvalidUserIdException(ErrorMessage("User ID ${request.user.id.value} is invalid."))
+        }
+    }
+
+    private fun userDoExistCondition() = PreCondition<UpdateUserRequest> { request ->
+        if (userRepository.notExists(request.user.id)) {
+            throw UserNotFoundException(ErrorMessage("User with ID ${request.user.id.value} does not exist."))
+        }
+    }
+
+    private fun emailIsNotUsedByAnotherUserCondition() = PreCondition<UpdateUserRequest> { request ->
+        val user = request.user
+        if (user is User.DefinedUser && userRepository.emailIsUsedByAnotherUser(user.email, user.id)) {
+            throw UserAlreadyExists(ErrorMessage("User with email ${user.email.value} already exists."))
         }
     }
 }

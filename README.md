@@ -33,7 +33,7 @@ This repo is meant to be a learning vehicle and a ready-to-fork base for real pr
 
 **Account and administration** (sign-in required)
 - Sign in, profile, change password
-- Administration (`ADMIN` role): users (list, create, delete), products (create), settings (order confirmation email on/off)
+- Administration (`ADMIN` role): users (list with their role, create with a role, edit name/email/role, delete), products (create), settings (order confirmation email on/off)
 
 ---
 
@@ -163,7 +163,7 @@ npm run gen:api
 | `GET` | `/api/users` | `ADMIN` | All users |
 | `GET` | `/api/users/{id}` | `ADMIN` | One user |
 | `POST` | `/api/users` | `ADMIN` | Create a user, with its `role` (`USER` by default, or `ADMIN`); `409` if the email is already used |
-| `PUT` | `/api/users/{id}` | `ADMIN` | Update a user (without password: the current one is kept; the role cannot be changed) |
+| `PUT` | `/api/users/{id}` | `ADMIN` | Edit a user: name, email and role (`409` if the email is used by another user); the password is not changed by an edit |
 | `DELETE` | `/api/users/{id}` | `ADMIN` | Delete a user |
 
 Passwords are hashed with bcrypt and never returned by the API.
@@ -176,7 +176,7 @@ The API is stateless and uses **JWT bearer tokens** (Spring Security, OAuth2 res
 2. Protected endpoints require the header `Authorization: Bearer <token>`: `401` without a valid token, `403` without the required role
 3. The front end keeps the token in memory only (not in `localStorage`): reloading the page signs out. When the API rejects the token, the user is signed out and sent back to the login page
 
-Users have a role, `USER` (default) or `ADMIN`, chosen by the administrator who creates them; it is stored in the database and cannot be changed afterwards through the API.
+Users have a role, `USER` (default) or `ADMIN`, chosen by the administrator who creates or edits them; it is stored in the database. Creating and editing users is checked by the domain: the creator or editor must be an existing administrator (`403` otherwise).
 
 ```bash
 TOKEN=$(curl -s -X POST localhost:8080/api/users/login -H 'Content-Type: application/json' \

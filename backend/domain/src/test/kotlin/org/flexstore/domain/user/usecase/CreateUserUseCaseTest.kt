@@ -20,8 +20,7 @@ class CreateUserUseCaseTest {
     private val draftUser = User.DraftUser(Name("John Doe"), Email("john.doe@example.com"), PlainPassword("password123"))
 
     private fun existing(creator: DefinedUser) {
-        every { userRepository.notExists(creator.id) } returns false
-        every { userRepository.findById(creator.id) } returns creator
+        every { userRepository.isNotAdministrator(creator.id) } returns creator.isNotAdministrator()
     }
 
     @Test
@@ -53,7 +52,7 @@ class CreateUserUseCaseTest {
     fun `should refuse an unknown creator`() {
         // Arrange
         val unknownCreator = ValidUserId("unknown")
-        every { userRepository.notExists(unknownCreator) } returns true
+        every { userRepository.isNotAdministrator(unknownCreator) } returns true
         // Act
         val thrown = catchThrowable { createUserUseCase.unfold(CreateUserRequest(unknownCreator, draftUser)) }
         // Assert
