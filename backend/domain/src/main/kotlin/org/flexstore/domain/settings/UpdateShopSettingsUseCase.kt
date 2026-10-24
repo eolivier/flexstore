@@ -8,7 +8,7 @@ class UpdateShopSettingsUseCase(private val shopSettingsRepository: ShopSettings
     override fun getPreConditions(): List<PreCondition<ShopSettings>> = listOf(EmptyPreCondition())
 
     override fun getNominalScenario(): NominalScenario<ShopSettings> =
-        NominalScenario(listOf(Step { settings -> shopSettingsRepository.save(settings) }))
+        NominalScenario(Step { settings -> shopSettingsRepository.save(settings) })
 
     override fun getPostConditions(): List<PostCondition<ShopSettings>> = listOf(settingsAreSavedCondition())
 

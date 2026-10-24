@@ -21,7 +21,7 @@ class SendOrderConfirmationEmailUseCase(
                 emailRepository.send(OrderConfirmationEmail(customer.email, customer.name, order))
             }
         }
-        return NominalScenario(listOf(sendEmailStep))
+        return NominalScenario(sendEmailStep)
     }
 
     override fun getPostConditions(): List<PostCondition<Order>> = listOf(EmptyPostCondition())
