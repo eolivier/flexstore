@@ -157,7 +157,7 @@ npm run gen:api
 | `POST` | `/api/users/{id}/password` | the user `{id}` | Change one's own password (`400` if the current one is wrong) |
 | `GET` | `/api/users` | `ADMIN` | All users |
 | `GET` | `/api/users/{id}` | `ADMIN` | One user |
-| `POST` | `/api/users` | `ADMIN` | Create a user (`409` if the email is already used) |
+| `POST` | `/api/users` | `ADMIN` | Create a user, with its `role` (`USER` by default, or `ADMIN`); `409` if the email is already used |
 | `PUT` | `/api/users/{id}` | `ADMIN` | Update a user (without password: the current one is kept; the role cannot be changed) |
 | `DELETE` | `/api/users/{id}` | `ADMIN` | Delete a user |
 
@@ -171,7 +171,7 @@ The API is stateless and uses **JWT bearer tokens** (Spring Security, OAuth2 res
 2. Protected endpoints require the header `Authorization: Bearer <token>`: `401` without a valid token, `403` without the required role
 3. The front end keeps the token in memory only (not in `localStorage`): reloading the page signs out. When the API rejects the token, the user is signed out and sent back to the login page
 
-Users have a role, `USER` (default) or `ADMIN`; it is stored in the database and cannot be changed through the API.
+Users have a role, `USER` (default) or `ADMIN`, chosen by the administrator who creates them; it is stored in the database and cannot be changed afterwards through the API.
 
 ```bash
 TOKEN=$(curl -s -X POST localhost:8080/api/users/login -H 'Content-Type: application/json' \

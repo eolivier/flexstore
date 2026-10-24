@@ -19,7 +19,7 @@ class InMemoryUserRepository : UserRepository {
         val userToSave = when (user) {
             is User.DefinedUser -> hashPasswordIfNeeded(user)
             is User.DraftUser -> hashPasswordIfNeeded(
-                User.DefinedUser(UserId.ValidUserId(Identity.nextId().value), user.name, user.email, user.password)
+                User.DefinedUser(UserId.ValidUserId(Identity.nextId().value), user.name, user.email, user.password, user.role)
             )
             else -> user
         }

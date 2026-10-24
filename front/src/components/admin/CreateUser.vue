@@ -2,11 +2,15 @@
   import { useUsersStore } from '@/stores/users.store.ts';
   import { nextTick, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
+  import type { User } from '@/models/user';
+  import UserRoleField from './UserRoleField.vue';
+  import PasswordField from './PasswordField.vue';
 
   const name = ref('');
   const email = ref('');
   const password = ref('');
-  const showPassword = ref(false);
+  // A new user is a simple user unless the administrator chooses otherwise
+  const role = ref<NonNullable<User['role']>>('USER');
   const valid = ref(false);
   const saving = ref(false);
   const formRef = ref<{ resetValidation: () => void } | null>(null);
@@ -25,7 +29,7 @@
     if (!valid.value) return;
     saving.value = true;
     const createdName = name.value;
-    const created = await usersStore.addUser({ name: name.value, email: email.value, password: password.value });
+    const created = await usersStore.addUser({ name: name.value, email: email.value, password: password.value, role: role.value });
     saving.value = false;
     feedback.value = {
       show: true,
@@ -39,6 +43,7 @@
     name.value = '';
     email.value = '';
     password.value = '';
+    role.value = 'USER';
     valid.value = false;
     nextTick(() => formRef.value?.resetValidation());
   };
@@ -66,18 +71,8 @@
           class="mb-2"
           required
         />
-        <v-text-field
-          v-model="password"
-          :label="t('createUser.password')"
-          :rules="[rules.required, rules.passwordLength]"
-          :type="showPassword ? 'text' : 'password'"
-          prepend-inner-icon="mdi-lock-outline"
-          :append-inner-icon="showPassword ? 'mdi-eye-off-outline' : 'mdi-eye-outline'"
-          autocomplete="new-password"
-          class="mb-4"
-          required
-          @click:append-inner="showPassword = !showPassword"
-        />
+        <PasswordField v-model="password" :label="t('createUser.password')" :rules="[rules.required, rules.passwordLength]" class="mb-4" />
+        <UserRoleField v-model="role" />
         <v-btn type="submit" color="primary" size="large" block :loading="saving" :disabled="!valid">
           {{ t('createUser.label') }}
         </v-btn>

@@ -6,25 +6,28 @@ import org.ucop.domain.NonEmptyString
 import org.ucop.domain.entity.*
 import kotlin.reflect.KClass
 
+// A user is created by an administrator: the creator is the authenticated user who asks for it
+data class CreateUserRequest(val creator: UserId, val user: User)
+
 class CreateUserUseCase(
     private val userRepository: UserRepository
-) : UseCase<User> {
+) : UseCase<CreateUserRequest> {
 
     lateinit var createdUser: User
 
-    override fun getPreConditions(): List<PreCondition<User>> {
+    override fun getPreConditions(): List<PreCondition<CreateUserRequest>> {
         println("#[BEGIN] CreateUserUseCase.getPreConditions")
-        val preConditions = listOf(userDoesNotExistCondition(), passwordIsNotBlankCondition())
+        val preConditions = listOf(creatorIsAdministratorCondition(), userDoesNotExistCondition(), passwordIsNotBlankCondition())
         println("#[END] CreateUserUseCase.getPreConditions")
         return preConditions
     }
 
-    override fun getNominalScenario(): NominalScenario<User> {
+    override fun getNominalScenario(): NominalScenario<CreateUserRequest> {
         println("##[BEGIN] CreateUserUseCase.getNominalScenario")
         // Steps
-        val createUserStep = Step<User> { user -> 
+        val createUserStep = Step<CreateUserRequest> { request ->
             // Repository will handle password hashing
-            createdUser = userRepository.save(user)
+            createdUser = userRepository.save(request.user)
         }
         // Nominal scenario
         val nominalScenario = NominalScenario(listOf(createUserStep))
@@ -32,19 +35,32 @@ class CreateUserUseCase(
         return nominalScenario
     }
 
-    override fun getPostConditions(): List<PostCondition<User>> {
+    override fun getPostConditions(): List<PostCondition<CreateUserRequest>> {
         println("#[BEGIN] CreateUserUseCase.getPostConditions")
         val postConditions = listOf(userExistsCondition())
         println("#[END] CreateUserUseCase.getPostConditions")
         return postConditions
     }
 
-    override fun getAlternativeScenarii(): Map<KClass<out NominalException>, AlternativeScenario<User>> {
+    override fun getAlternativeScenarii(): Map<KClass<out NominalException>, AlternativeScenario<CreateUserRequest>> {
         return emptyMap()
     }
 
-    private fun userDoesNotExistCondition() = PreCondition<User> { user ->
-        when (user) {
+    // The creator must be an existing user with the ADMIN role (read from the users, not from the request)
+    private fun creatorIsAdministratorCondition() = PreCondition<CreateUserRequest> { request ->
+        if (isNotAdministrator(request.creator)) {
+            throw UserCreationForbiddenException(NonEmptyString("Only an administrator can create a user."))
+        }
+    }
+
+    private fun isNotAdministrator(userId: UserId): Boolean {
+        if (userRepository.notExists(userId)) return true
+        val user = userRepository.findById(userId)
+        return user !is User.DefinedUser || user.isNotAdministrator()
+    }
+
+    private fun userDoesNotExistCondition() = PreCondition<CreateUserRequest> { request ->
+        when (val user = request.user) {
             // A draft user has no ID yet: uniqueness is checked on the email
             is User.DraftUser -> if (userRepository.emailIsAlreadyUsed(user.email)) {
                 throw UserAlreadyExists(NonEmptyString("User with email ${user.email.value} already exists."))
@@ -55,14 +71,15 @@ class CreateUserUseCase(
         }
     }
 
-    private fun passwordIsNotBlankCondition() = PreCondition<User> { user ->
+    private fun passwordIsNotBlankCondition() = PreCondition<CreateUserRequest> { request ->
+        val user = request.user
         if (user is User.DraftUser && user.password.value.isBlank()) {
             throw InvalidPasswordException(NonEmptyString("Password must not be blank."))
         }
     }
 
     // Checked on the saved user, since a draft user only gets its ID from the repository
-    private fun userExistsCondition(): PostCondition<User> = PostCondition<User> {
+    private fun userExistsCondition() = PostCondition<CreateUserRequest> {
         if (userRepository.notExists(createdUser.id)) {
             throw UserCreationFailed(NonEmptyString("User with ID ${createdUser.id.value} was not created."))
         }

@@ -409,6 +409,10 @@ components:
         password:
           type: string
           description: User's password (will be hashed by the server)
+        role:
+          type: string
+          enum: [USER, ADMIN]
+          description: Role of the new user (USER when absent)
     JsonChangePasswordRequest:
       type: object
       required:

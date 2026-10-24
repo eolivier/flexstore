@@ -2,6 +2,7 @@ package org.flexstore.infra.spring.adapter.rest
 
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.UserId.ValidUserId
+import org.flexstore.domain.user.usecase.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -17,6 +18,8 @@ import org.flexstore.infra.spring.security.JwtTokenService
 import org.flexstore.infra.spring.adapter.rest.json.DefinedJsonUser
 import org.flexstore.infra.spring.adapter.rest.json.JsonUser
 import org.springframework.http.HttpStatus
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.*
 
 @Tag(name = "Users")
@@ -30,8 +33,8 @@ class UserRestController(val userService: UserService, private val jwtTokenServi
     )
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    fun createUser(@RequestBody draftJsonUser: DraftJsonUser): JsonUser {
-        return userService.createUser(draftJsonUser.toUser()).toJsonUser()
+    fun createUser(@AuthenticationPrincipal creator: Jwt, @RequestBody draftJsonUser: DraftJsonUser): JsonUser {
+        return userService.createUser(CreateUserRequest(UserId.of(creator.subject), draftJsonUser.toUser())).toJsonUser()
     }
     @Operation(
         summary = "Retrieve all users",

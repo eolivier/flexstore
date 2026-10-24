@@ -24,3 +24,8 @@ config.global.plugins = [vuetify, i18n];
 
 // Mock import.meta.env
 vi.stubEnv('VITE_API_URL', 'http://localhost:8080');
+
+// happy-dom has no visualViewport, used by the Vuetify overlays (snackbars, menus)
+if (!('visualViewport' in globalThis)) {
+  vi.stubGlobal('visualViewport', Object.assign(new EventTarget(), { width: 1024, height: 768, offsetLeft: 0, offsetTop: 0, scale: 1 }));
+}
