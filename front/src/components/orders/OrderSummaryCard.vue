@@ -25,11 +25,13 @@
         </div>
         <div class="lines-summary text-body-2 text-medium-emphasis">{{ linesSummary }}</div>
       </div>
-      <OrderStatusSteps :status="order.status" layout="compact" />
-      <div class="order-total text-subtitle-1 font-weight-bold text-right">
-        {{ formatPrice(order.totalPrice, order.currency, locale) }}
+      <div class="order-status d-flex align-center ga-4">
+        <OrderStatusSteps :status="order.status" layout="compact" />
+        <div class="order-total text-subtitle-1 font-weight-bold text-right">
+          {{ formatPrice(order.totalPrice, order.currency, locale) }}
+        </div>
+        <v-icon icon="mdi-chevron-right" class="d-none d-sm-flex text-medium-emphasis" />
       </div>
-      <v-icon icon="mdi-chevron-right" class="text-medium-emphasis" />
     </div>
   </v-card>
 </template>
@@ -46,5 +48,12 @@
   }
   .order-total {
     min-width: 96px;
+  }
+  /* On a phone, the status and the total share a line under the order */
+  @media (max-width: 599px) {
+    .order-status {
+      width: 100%;
+      justify-content: space-between;
+    }
   }
 </style>
