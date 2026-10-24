@@ -11,9 +11,9 @@ class ReadUserUseCase(private val userRepository: UserRepository) : UseCase<User
 
     lateinit var retrievedUser: User
 
-    override fun getPreConditions(): List<PreCondition<UserId>> {
+    override fun getPreConditions(): PreConditions<UserId> {
         println("#[BEGIN] ReadUserUseCase.getPreConditions")
-        val preConditions = listOf(isValidUserIdCondition(), userExistsCondition())
+        val preConditions = PreConditions(isValidUserIdCondition(), userExistsCondition())
         println("#[END] ReadUserUseCase.getPreConditions")
         return preConditions
     }

@@ -29,7 +29,7 @@ class DefaultUseCaseHandler<T>(val useCase: UseCase<T>, private var nextUseCaseH
 
     override fun canHandle(t: T): Boolean {
         try {
-            useCase.getPreConditions().forEach { it.validate(t) }
+            useCase.getPreConditions().validate(t)
         } catch (pce: PreConditionException) {
             return false
         }

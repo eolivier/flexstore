@@ -10,7 +10,7 @@ data class ChangeCartItemQuantityRequest(val owner: CartOwner, val itemId: ItemI
 
 class ChangeCartItemQuantityUseCase(private val cartRepository: CartRepository) : UseCase<ChangeCartItemQuantityRequest> {
 
-    override fun getPreConditions(): List<PreCondition<ChangeCartItemQuantityRequest>> = listOf(EmptyPreCondition())
+    override fun getPreConditions(): PreConditions<ChangeCartItemQuantityRequest> = PreConditions.none()
 
     override fun getNominalScenario(): NominalScenario<ChangeCartItemQuantityRequest> {
         val changeQuantityStep = Step<ChangeCartItemQuantityRequest> { request ->

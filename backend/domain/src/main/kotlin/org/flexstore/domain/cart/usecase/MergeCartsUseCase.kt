@@ -9,7 +9,7 @@ data class MergeCartsRequest(val visitor: CartOwner.Visitor, val customer: CartO
 
 class MergeCartsUseCase(private val cartRepository: CartRepository) : UseCase<MergeCartsRequest> {
 
-    override fun getPreConditions(): List<PreCondition<MergeCartsRequest>> = listOf(EmptyPreCondition())
+    override fun getPreConditions(): PreConditions<MergeCartsRequest> = PreConditions.none()
 
     override fun getNominalScenario(): NominalScenario<MergeCartsRequest> {
         val mergeStep = Step<MergeCartsRequest> { request ->

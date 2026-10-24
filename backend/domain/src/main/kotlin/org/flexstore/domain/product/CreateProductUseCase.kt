@@ -18,7 +18,7 @@ data class CreateProductRequest(val productId: ProductId, val draftProduct: Draf
 
 class CreateProductUseCase(private val productRepository: ProductRepository) : UseCase<CreateProductRequest> {
 
-    override fun getPreConditions(): List<PreCondition<CreateProductRequest>> = listOf(productDoesNotExistCondition())
+    override fun getPreConditions(): PreConditions<CreateProductRequest> = PreConditions(productDoesNotExistCondition())
 
     override fun getNominalScenario(): NominalScenario<CreateProductRequest> {
         val createProductStep = Step<CreateProductRequest> { request -> productRepository.save(request.definedProduct()) }

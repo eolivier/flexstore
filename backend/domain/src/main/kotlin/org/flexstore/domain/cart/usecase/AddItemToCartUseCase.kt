@@ -14,7 +14,7 @@ class AddItemToCartUseCase(
     private val productRepository: ProductRepository
 ) : UseCase<AddItemToCartRequest> {
 
-    override fun getPreConditions(): List<PreCondition<AddItemToCartRequest>> = listOf(productExistsCondition())
+    override fun getPreConditions(): PreConditions<AddItemToCartRequest> = PreConditions(productExistsCondition())
 
     override fun getNominalScenario(): NominalScenario<AddItemToCartRequest> {
         val addItemStep = Step<AddItemToCartRequest> { request ->

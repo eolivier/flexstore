@@ -14,9 +14,9 @@ class LoginUseCase(
 
     lateinit var authenticatedUser: User
 
-    override fun getPreConditions(): List<PreCondition<LoginRequest>> {
+    override fun getPreConditions(): PreConditions<LoginRequest> {
         println("#[BEGIN] LoginUseCase.getPreConditions")
-        val preConditions = listOf(userExistsByEmailCondition(), passwordMatchesCondition())
+        val preConditions = PreConditions(userExistsByEmailCondition(), passwordMatchesCondition())
         println("#[END] LoginUseCase.getPreConditions")
         return preConditions
     }

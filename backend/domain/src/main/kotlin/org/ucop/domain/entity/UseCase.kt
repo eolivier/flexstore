@@ -11,9 +11,16 @@ open class Actor(val name: Name)
 open class PreCondition<T>(val validate: (T) -> Unit)
 class EmptyPreCondition<T> : PreCondition<T>({ /* No validation */ })
 
-data class PreConditions(val preConditions: List<PreCondition<Any>>) {
-    fun <T> validate(t: T) {
-        preConditions.forEach { (it as PreCondition<T>).validate(t) }
+// The preconditions of a use case, checked before its nominal scenario
+data class PreConditions<T>(private val preConditions: List<PreCondition<T>>) {
+
+    // PreConditions(condition1, condition2): the caller does not wrap the conditions in a list
+    constructor(vararg preConditions: PreCondition<T>) : this(preConditions.toList())
+
+    fun validate(t: T) = preConditions.forEach { it.validate(t) }
+
+    companion object {
+        fun <T> none() = PreConditions(EmptyPreCondition<T>())
     }
 }
 
@@ -63,7 +70,7 @@ data class DeprecatedUseCase<T>(
 
 interface UseCase<T> {
 
-    fun getPreConditions():List<PreCondition<T>>
+    fun getPreConditions(): PreConditions<T>
     fun getNominalScenario(): NominalScenario<T>
     fun getPostConditions():List<PostCondition<T>>
 
@@ -71,7 +78,7 @@ interface UseCase<T> {
 
     fun unfold(t: T) {
         try {
-            getPreConditions().forEach { it.validate(t) }
+            getPreConditions().validate(t)
             getNominalScenario().unfold(t)
             getPostConditions().forEach { it.validate(t) }
         } catch (ne: NominalException) {
@@ -86,7 +93,7 @@ interface UseCase<T> {
 
 class EmptyUseCase<T> : UseCase<T> {
 
-    override fun getPreConditions(): List<PreCondition<T>> = listOf(EmptyPreCondition())
+    override fun getPreConditions(): PreConditions<T> = PreConditions.none()
 
     override fun getNominalScenario(): NominalScenario<T> = NominalScenario(listOf())
 
