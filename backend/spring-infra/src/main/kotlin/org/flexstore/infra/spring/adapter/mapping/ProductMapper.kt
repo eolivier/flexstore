@@ -3,6 +3,7 @@ package org.flexstore.infra.spring.adapter.mapping
 import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.infra.spring.adapter.rest.json.DraftJsonProduct
+import org.flexstore.infra.spring.adapter.rest.json.EditedJsonProduct
 import org.flexstore.infra.spring.adapter.rest.json.JsonProduct
 import org.springframework.stereotype.Component
 
@@ -14,6 +15,15 @@ class ProductMapper {
             Description(draftJsonProduct.description),
             Category.valueOf(draftJsonProduct.category),
             Price(Amount(draftJsonProduct.price), Currency.valueOf(draftJsonProduct.currency)),
+        )
+    }
+    fun toDomain(productId: ProductId, editedJsonProduct: EditedJsonProduct): DefinedProduct {
+        return DefinedProduct(
+            productId,
+            Name(editedJsonProduct.name),
+            Description(editedJsonProduct.description),
+            Category.valueOf(editedJsonProduct.category),
+            Price(Amount(editedJsonProduct.price), Currency.valueOf(editedJsonProduct.currency)),
         )
     }
     fun toJson(product: Product): JsonProduct {

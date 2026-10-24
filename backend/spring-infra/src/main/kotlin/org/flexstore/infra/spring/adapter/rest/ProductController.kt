@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.infra.spring.adapter.mapping.ProductMapper
 import org.flexstore.infra.spring.adapter.mapping.toJsonProducts
 import org.flexstore.infra.spring.adapter.rest.json.DraftJsonProduct
+import org.flexstore.infra.spring.adapter.rest.json.EditedJsonProduct
 import org.flexstore.infra.spring.adapter.rest.json.JsonProduct
 import org.flexstore.infra.spring.metrics.ProductMetrics
 import org.springframework.http.HttpStatus
@@ -36,6 +37,15 @@ class ProductController(private val productUseCaseFacade: ProductUseCaseFacade,
         productMetrics.incrementCreated()
         return toJson
     }
+
+    @Operation(summary = "Edit a product (name, description, category, price)")
+    @ApiResponse(responseCode = "200", description = "The edited product",
+        content = [Content(schema = Schema(implementation = JsonProduct::class))]
+    )
+    @ApiResponse(responseCode = "404", description = "Unknown product")
+    @PutMapping("/{id}")
+    fun update(@PathVariable id: String, @RequestBody editedJsonProduct: EditedJsonProduct): JsonProduct =
+        mapper.toJson(productUseCaseFacade.updateProduct(mapper.toDomain(ProductId(Identity(id)), editedJsonProduct)))
 
     @Operation(
         summary = "Retrieve all products",

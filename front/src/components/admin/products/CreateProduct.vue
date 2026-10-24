@@ -1,8 +1,8 @@
 <script setup lang="ts">
-  import { computed, nextTick, ref } from 'vue';
+  import { nextTick, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useProductsStore } from '@/stores/products.store.ts';
-  import { categoryInfo, shopCategories } from '@/components/products/categories';
+  import ProductFields from './ProductFields.vue';
 
   const name = ref('');
   const description = ref('');
@@ -15,15 +15,6 @@
 
   const productsStore = useProductsStore();
   const { t } = useI18n();
-
-  const categories = computed(() =>
-    shopCategories.map(({ code }) => ({ title: t(categoryInfo(code).label), value: code, props: { prependIcon: categoryInfo(code).icon } }))
-  );
-
-  const rules = {
-    required: (v: string | null) => !!v || t('createProduct.mandatoryField'),
-    price: (v: string | null) => (v !== null && parseFloat(v) > 0) || t('createProduct.invalidPrice'),
-  };
 
   const submitForm = async () => {
     if (!valid.value || price.value === null) return;
@@ -59,36 +50,9 @@
     <h1 class="text-h4 font-weight-bold mb-6">{{ t('createProduct.title') }}</h1>
     <v-card class="pa-6">
       <v-form ref="formRef" v-model="valid" @submit.prevent="submitForm">
-        <v-text-field v-model="name" :label="t('createProduct.name')" :rules="[rules.required]" class="mb-2" required />
-        <v-textarea
-          v-model="description"
-          :label="t('createProduct.description')"
-          :rules="[rules.required]"
-          variant="outlined"
-          rounded="lg"
-          rows="3"
-          auto-grow
-          class="mb-2"
-          required
-        />
-        <v-row>
-          <v-col cols="12" sm="7">
-            <v-select v-model="category" :items="categories" :label="t('createProduct.category')" />
-          </v-col>
-          <v-col cols="12" sm="5">
-            <v-text-field
-              v-model="price"
-              :label="t('createProduct.price')"
-              :rules="[rules.required, rules.price]"
-              type="number"
-              min="0"
-              step="0.01"
-              required
-            />
-          </v-col>
-        </v-row>
+        <ProductFields v-model:name="name" v-model:description="description" v-model:category="category" v-model:price="price" />
         <div class="d-flex ga-3 mt-2">
-          <v-btn to="/admin" variant="outlined" color="primary" size="large" class="flex-grow-1">{{ t('createProduct.cancel') }}</v-btn>
+          <v-btn to="/admin/products" variant="outlined" color="primary" size="large" class="flex-grow-1">{{ t('createProduct.cancel') }}</v-btn>
           <v-btn type="submit" color="primary" size="large" class="flex-grow-1" :loading="saving" :disabled="!valid">
             {{ t('createProduct.submit') }}
           </v-btn>
@@ -98,7 +62,7 @@
     <v-snackbar v-model="feedback.show" :color="feedback.success ? 'primary' : 'error'" timeout="3000" location="bottom right">
       {{ feedback.text }}
       <template v-if="feedback.success" #actions>
-        <v-btn to="/products/" variant="text" color="secondary">{{ t('nav.allProducts') }}</v-btn>
+        <v-btn to="/admin/products" variant="text" color="secondary">{{ t('nav.products') }}</v-btn>
       </template>
     </v-snackbar>
   </v-container>

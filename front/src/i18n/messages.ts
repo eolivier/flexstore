@@ -24,6 +24,7 @@ export default {
       subtitle: "Manage the users and the products of the shop.",
       usersText: "See and delete the user accounts.",
       createUserText: "Add an account that can sign in.",
+      productsText: "See and edit the products of the catalog.",
       createProductText: "Add a product to the catalog.",
       settingsText: "Turn the features of the shop on or off."
     },
@@ -204,6 +205,20 @@ export default {
       deleteError: "The user could not be deleted.",
       edit: "Edit {name}"
     },
+    adminProducts: {
+      title: "Products",
+      count: "No products | 1 product | {n} products",
+      loading: "Loading the products…",
+      edit: "Edit {name}"
+    },
+    editProduct: {
+      title: "Edit the product",
+      save: "Save",
+      cancel: "Cancel",
+      saved: "The product has been saved.",
+      error: "The product could not be saved.",
+      loadError: "The product could not be loaded."
+    },
     editUser: {
       title: "Edit the user",
       save: "Save",
@@ -228,6 +243,7 @@ export default {
       admin: "Administration",
       users: "Users",
       createUser: "Create a user",
+      products: "Products",
       createProduct: "Create a product",
       settings: "Settings",
       about: "About",
@@ -298,6 +314,7 @@ export default {
       subtitle: "Gérez les utilisateurs et les produits de la boutique.",
       usersText: "Consulter et supprimer les comptes utilisateurs.",
       createUserText: "Ajouter un compte qui pourra se connecter.",
+      productsText: "Consulter et modifier les produits du catalogue.",
       createProductText: "Ajouter un produit au catalogue.",
       settingsText: "Activer ou désactiver les fonctionnalités de la boutique."
     },
@@ -478,6 +495,20 @@ export default {
       deleteError: "L'utilisateur n'a pas pu être supprimé.",
       edit: "Modifier {name}"
     },
+    adminProducts: {
+      title: "Produits",
+      count: "Aucun produit | 1 produit | {n} produits",
+      loading: "Chargement des produits…",
+      edit: "Modifier {name}"
+    },
+    editProduct: {
+      title: "Modifier le produit",
+      save: "Enregistrer",
+      cancel: "Annuler",
+      saved: "Le produit a été enregistré.",
+      error: "Le produit n'a pas pu être enregistré.",
+      loadError: "Le produit n'a pas pu être chargé."
+    },
     editUser: {
       title: "Modifier l'utilisateur",
       save: "Enregistrer",
@@ -502,6 +533,7 @@ export default {
       admin: "Administration",
       users: "Utilisateurs",
       createUser: "Créer un utilisateur",
+      products: "Produits",
       createProduct: "Créer un produit",
       settings: "Paramètres",
       about: "À propos",

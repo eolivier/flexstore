@@ -15,13 +15,19 @@ open class UseCaseConfig {
 
     @Bean
     open fun productUseCaseFacade(createProductUseCase: CreateProductUseCase,
-                                 readProductUseCase: ReadProductUseCase): ProductUseCaseFacade {
-        return ProductUseCaseFacade(createProductUseCase, readProductUseCase)
+                                 readProductUseCase: ReadProductUseCase,
+                                 updateProductUseCase: UpdateProductUseCase): ProductUseCaseFacade {
+        return ProductUseCaseFacade(createProductUseCase, readProductUseCase, updateProductUseCase)
     }
 
     @Bean
     open fun createProductUseCase(productRepository: ProductRepository): CreateProductUseCase {
         return CreateProductUseCase(productRepository)
+    }
+
+    @Bean
+    open fun updateProductUseCase(productRepository: ProductRepository): UpdateProductUseCase {
+        return UpdateProductUseCase(productRepository)
     }
 
     @Bean
