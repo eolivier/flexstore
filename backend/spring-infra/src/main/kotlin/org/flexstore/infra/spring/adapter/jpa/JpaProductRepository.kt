@@ -60,6 +60,9 @@ class PostgresProductRepositoryAdapter(
 
     override fun notExists(product: Product): Boolean = !exists(product)
 
+    @Transactional(readOnly = true)
+    override fun productExists(productId: ProductId): Boolean = jpaRepo.existsById(productId.id.value)
+
     private fun DraftProduct.toEntity(id: String) = ProductEntity(
         id = id,
         name = name.value,

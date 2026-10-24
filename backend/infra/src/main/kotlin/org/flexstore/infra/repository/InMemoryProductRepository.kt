@@ -60,6 +60,8 @@ class InMemoryProductRepository : ProductRepository {
     }
 
     override fun notExists(product: Product): Boolean = !exists(product)
+
+    override fun productExists(productId: ProductId): Boolean = products.any { it.productId == productId }
 }
 
 private val currentId = AtomicInteger(1)

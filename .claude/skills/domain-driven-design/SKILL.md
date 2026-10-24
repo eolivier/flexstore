@@ -98,3 +98,59 @@ class CreateProductUseCase(private val productRepository: ProductRepository) : U
 ```
 
 Creating a new use case instance for each call avoids the sharing, but the state stays a trap for the next caller who shares the instance: prefer stateless use cases anyway.
+
+## 4. Package the domain by business function
+
+The domain is split by business function, not by technical kind, so that the subdomains and bounded contexts emerge from the code: `org.flexstore.domain.order`, `org.flexstore.domain.cart`, `org.flexstore.domain.product`, `org.flexstore.domain.user`. A package holds everything of its function: entities, value objects, aggregates, use cases, repository ports, business exceptions.
+
+When a functional package holds too many classes to read at a glance, split it inside with technical sub-packages:
+- `model`: value objects, entities, aggregates (and their business exceptions);
+- `usecase`: the use cases and their requests;
+- `repository`: the repository ports.
+
+Do not create a technical sub-package for a single class: keep that class at the level of its functional package.
+
+Avoid:
+
+```
+domain/entity/Order.kt
+domain/repository/OrderRepository.kt
+domain/usecase/order/PlaceOrderUseCase.kt
+```
+
+Prefer:
+
+```
+domain/order/Order.kt
+domain/order/OrderRepository.kt
+domain/order/PlaceOrderUseCase.kt
+```
+
+and, once the package grows:
+
+```
+domain/order/model/Order.kt, OrderLines.kt, OrderStatus.kt...
+domain/order/usecase/PlaceOrderUseCase.kt, ReadOrdersUseCase.kt...
+domain/order/OrderRepository.kt        (a single port: no repository/ sub-package)
+```
+
+Why: the package tree tells what the application does (orders, carts, catalog) before how it is built; the dependencies between functions become visible, which shows where the bounded contexts are.
+
+## 5. Name things after the business
+
+Methods, especially on repository ports, are named after the business question they answer, not after their technical implementation. Combine with the affirmative methods of the `fluent-code-reading-semantic` skill.
+
+Avoid:
+
+```kotlin
+if (productRepository.findById(request.productId) == null) { ... }
+```
+
+Prefer:
+
+```kotlin
+if (productRepository.productIsMissing(request.productId)) { ... }
+// and productRepository.productExists(productId) where the affirmative case is checked
+```
+
+Why: the condition reads as the business rule ("if the product is missing"), the null check and the lookup stay in the adapter.

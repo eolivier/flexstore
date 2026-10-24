@@ -43,7 +43,7 @@ class CreateProductUseCase(private val productRepository: ProductRepository) : U
     }
 
     private fun productExistsCondition() = PostCondition<CreateProductRequest> { request ->
-        if (productRepository.findById(request.productId) == null) {
+        if (productRepository.productIsMissing(request.productId)) {
             throw ProductCreationFailed(NonEmptyString("Product ${request.draftProduct} was not created."))
         }
     }
