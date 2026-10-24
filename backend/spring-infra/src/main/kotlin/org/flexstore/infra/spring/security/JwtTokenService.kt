@@ -1,6 +1,6 @@
 package org.flexstore.infra.spring.security
 
-import org.flexstore.domain.user.model.*
+import org.flexstore.domain.user.*
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm
 import org.springframework.security.oauth2.jwt.JwsHeader

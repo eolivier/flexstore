@@ -1,8 +1,7 @@
 package org.flexstore.domain.order.usecase
 
 import org.flexstore.domain.cart.*
-import org.flexstore.domain.order.model.*
-import org.flexstore.domain.order.repository.*
+import org.flexstore.domain.order.*
 import org.ucop.domain.NonEmptyString
 import org.ucop.domain.entity.*
 import java.time.Instant

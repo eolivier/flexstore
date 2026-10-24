@@ -1,7 +1,6 @@
-package org.flexstore.domain.order.repository
+package org.flexstore.domain.order
 
-import org.flexstore.domain.order.model.*
-import org.flexstore.domain.user.model.*
+import org.flexstore.domain.user.*
 
 interface OrderRepository {
 

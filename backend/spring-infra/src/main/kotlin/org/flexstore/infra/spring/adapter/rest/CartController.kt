@@ -1,10 +1,10 @@
 package org.flexstore.infra.spring.adapter.rest
 
-import org.flexstore.domain.cart.model.*
+import org.flexstore.domain.cart.*
 import org.flexstore.domain.cart.usecase.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
-import org.flexstore.domain.user.model.*
+import org.flexstore.domain.user.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.infra.spring.adapter.mapping.toJsonCartItems

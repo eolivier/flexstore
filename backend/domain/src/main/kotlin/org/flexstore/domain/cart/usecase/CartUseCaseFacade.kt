@@ -1,6 +1,6 @@
 package org.flexstore.domain.cart.usecase
 
-import org.flexstore.domain.cart.model.*
+import org.flexstore.domain.cart.*
 
 class CartUseCaseFacade(private val addItemToCartUseCase: AddItemToCartUseCase,
                         private val changeCartItemQuantityUseCase: ChangeCartItemQuantityUseCase,

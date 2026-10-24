@@ -1,4 +1,4 @@
-package org.flexstore.domain.cart.model
+package org.flexstore.domain.cart
 
 import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*

@@ -1,8 +1,7 @@
 package org.flexstore.infra.spring.adapter.rest
 
 import org.flexstore.domain.user.*
-import org.flexstore.domain.user.model.*
-import org.flexstore.domain.user.model.UserId.ValidUserId
+import org.flexstore.domain.user.UserId.ValidUserId
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
