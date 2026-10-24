@@ -16,30 +16,21 @@ class CreateUserUseCase(
     lateinit var createdUser: User
 
     override fun getPreConditions(): PreConditions<CreateUserRequest> {
-        println("#[BEGIN] CreateUserUseCase.getPreConditions")
-        val preConditions = PreConditions(creatorIsAdministratorCondition(), userDoesNotExistCondition(), passwordIsNotBlankCondition())
-        println("#[END] CreateUserUseCase.getPreConditions")
-        return preConditions
+        return PreConditions(creatorIsAdministratorCondition(), userDoesNotExistCondition(), passwordIsNotBlankCondition())
     }
 
     override fun getNominalScenario(): NominalScenario<CreateUserRequest> {
-        println("##[BEGIN] CreateUserUseCase.getNominalScenario")
         // Steps
         val createUserStep = Step<CreateUserRequest> { request ->
             // Repository will handle password hashing
             createdUser = userRepository.save(request.user)
         }
         // Nominal scenario
-        val nominalScenario = NominalScenario(listOf(createUserStep))
-        println("##[END] CreateUserUseCase.getNominalScenario")
-        return nominalScenario
+        return NominalScenario(listOf(createUserStep))
     }
 
     override fun getPostConditions(): PostConditions<CreateUserRequest> {
-        println("#[BEGIN] CreateUserUseCase.getPostConditions")
-        val postConditions = PostConditions(userExistsCondition())
-        println("#[END] CreateUserUseCase.getPostConditions")
-        return postConditions
+        return PostConditions(userExistsCondition())
     }
 
     override fun getAlternativeScenarii(): Map<KClass<out NominalException>, AlternativeScenario<CreateUserRequest>> {

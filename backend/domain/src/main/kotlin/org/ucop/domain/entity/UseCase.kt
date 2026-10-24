@@ -4,6 +4,7 @@ import org.flexstore.domain.sharedkernel.*
 import org.ucop.domain.AlternativeException
 import org.ucop.domain.NominalException
 import org.ucop.domain.StepException
+import org.ucop.domain.UseCaseLog
 import kotlin.reflect.KClass
 
 open class Actor(val name: Name)
@@ -96,7 +97,7 @@ interface UseCase<T> {
 
     fun getAlternativeScenarii():Map<KClass<out NominalException>, AlternativeScenario<T>> = emptyMap()
 
-    fun unfold(t: T) {
+    fun unfold(t: T) = UseCaseLog.execution(this::class.simpleName ?: "UseCase") {
         try {
             getPreConditions().validate(t)
             getNominalScenario().unfold(t)
