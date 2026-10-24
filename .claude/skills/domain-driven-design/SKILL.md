@@ -1,6 +1,6 @@
 ---
 name: domain-driven-design
-description: Domain-Driven Design and hexagonal architecture principles to follow when writing or reviewing back-end code - where business rules live, what entities, value objects and aggregates may reference, the role of use cases, domain services, repositories and adapters. Use before creating or changing an entity, aggregate, value object, use case, domain service, port (repository interface) or infrastructure adapter, and when reviewing domain code.
+description: Domain-Driven Design and hexagonal architecture principles to follow when writing or reviewing back-end code - where business rules live, what entities, value objects and aggregates may reference (value objects rather than primitive types), the role of use cases, domain services, repositories and adapters. Use before creating or changing an entity, aggregate, value object, use case, domain service, port (repository interface) or infrastructure adapter, and when reviewing domain code.
 ---
 
 # Domain-Driven Design
@@ -272,3 +272,47 @@ class ShopSettingsAdministrationService(
 ```
 
 Why: each use case stays a single, testable business action; the logic that combines them is written once, in the domain, instead of in a controller or inside an aggregate that would then depend on ports; acting on a repository from a single place keeps one path for each read and write.
+
+## 8. No primitive type in the domain model
+
+An entity, an aggregate or a value object does not expose a primitive type (`String`, `Int`, `Long`, `BigDecimal`, `Instant`...) as a property, a constructor parameter or a return value: each business concept has its own value object, named after it.
+
+The primitive only appears at the bottom, inside the value object that represents one single concept, as its `value`: `Street(val value: String)`, `Quantity(val value: Int)`. A composite value object, an entity or an aggregate is made of these value objects, never of the primitives themselves.
+
+Avoid:
+
+```kotlin
+data class PostalAddress(
+    val street: String,
+    val postalCode: String,
+    val city: String,
+    val country: String
+)
+
+data class OrderLine(val productName: String, val quantity: Int)
+```
+
+Prefer:
+
+```kotlin
+data class Street(val value: String)
+data class PostalCode(val value: String)
+data class City(val value: String)
+data class Country(val value: String)
+
+data class PostalAddress(
+    val street: Street,
+    val postalCode: PostalCode,
+    val city: City,
+    val country: Country
+)
+
+data class OrderLine(val productName: Name, val quantity: Quantity)
+```
+
+Why: the type tells what a value is, so a postal code cannot be passed where a city is expected; the rules about one concept (a blank street, a valid postal code) live in its value object, once; and the signatures read in the language of the business.
+
+Consequences:
+- the adapters convert between the primitives of their technology (columns, JSON fields) and the value objects, at the edge of the domain;
+- a method that answers a business question may return a `Boolean` (`isComplete()`, `isExpiredAt(instant)`): the question is in its name;
+- a value object shared by several functions goes into the shared kernel (section 4).
