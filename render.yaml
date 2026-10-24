@@ -17,6 +17,21 @@ services:
       # Secret used to sign the authentication tokens (JWT)
       - key: FLEXSTORE_JWT_SECRET
         generateValue: true
+      # SMTP server of the order confirmation emails (values set in the Render dashboard);
+      # without FLEXSTORE_MAIL_HOST, the emails are only written to the logs
+      - key: FLEXSTORE_MAIL_HOST
+        sync: false
+      - key: FLEXSTORE_MAIL_PORT
+        value: "587"
+      - key: FLEXSTORE_MAIL_USERNAME
+        sync: false
+      - key: FLEXSTORE_MAIL_PASSWORD
+        sync: false
+      - key: FLEXSTORE_MAIL_FROM
+        sync: false
+      # Address of the shop, for the links of the emails
+      - key: FLEXSTORE_FRONT_URL
+        value: https://flexstore-front.pages.dev
 
 databases:
   - name: flexstore-db

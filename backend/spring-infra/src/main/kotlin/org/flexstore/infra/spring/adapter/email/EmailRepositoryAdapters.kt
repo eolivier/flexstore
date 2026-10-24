@@ -6,7 +6,7 @@ import org.springframework.mail.SimpleMailMessage
 import org.springframework.mail.javamail.JavaMailSender
 
 /**
- * Sends the emails with an SMTP server (SPRING_MAIL_HOST...). A failure to send is logged and does not
+ * Sends the emails with the SMTP server of spring.mail (FLEXSTORE_MAIL_HOST...). A failure to send is logged and does not
  * cancel the order: the email is a notification of an order already placed.
  */
 class SmtpEmailRepositoryAdapter(

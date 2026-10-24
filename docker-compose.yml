@@ -49,15 +49,22 @@ services:
         condition: service_healthy
       flyway:
         condition: service_completed_successfully
+      mailpit:
+        condition: service_started
     environment:
       FLEXSTORE_DATABASE_URL: postgresql://${POSTGRES_USER:-flex}:${POSTGRES_PASSWORD:-flex}@db:5432/${POSTGRES_DB:-flexstore}
       # Secret de signature des JWT (au moins 32 caractères) : à changer hors développement
       FLEXSTORE_JWT_SECRET: ${FLEXSTORE_JWT_SECRET:-local-docker-secret-change-me-0123456789}
+      # Emails sent to Mailpit (web interface on http://localhost:8025): no authentication nor STARTTLS
+      FLEXSTORE_MAIL_HOST: mailpit
+      FLEXSTORE_MAIL_PORT: 1025
+      FLEXSTORE_MAIL_SMTP_AUTH: "false"
+      FLEXSTORE_MAIL_SMTP_STARTTLS: "false"
     ports:
       - "8080:8080"
 
   # Local SMTP server that catches the emails (order confirmations): web interface on http://localhost:8025
-  # Start the back end with SPRING_MAIL_HOST=localhost SPRING_MAIL_PORT=1025 to send its emails there
+  # Back end run outside Docker: FLEXSTORE_MAIL_HOST=localhost FLEXSTORE_MAIL_PORT=1025 FLEXSTORE_MAIL_SMTP_AUTH=false FLEXSTORE_MAIL_SMTP_STARTTLS=false
   mailpit:
     image: axllent/mailpit:v1.20.0
     container_name: flexstore-mailpit

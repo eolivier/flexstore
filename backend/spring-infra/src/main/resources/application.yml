@@ -6,9 +6,18 @@ spring:
     password: ${FLEXSTORE_DATASOURCE_PASSWORD}
   flyway:
     enabled: true
+  # SMTP server of the order confirmation emails. Without host (FLEXSTORE_MAIL_HOST empty), the emails are
+  # written to the logs instead of being sent
+  mail:
+    host: ${FLEXSTORE_MAIL_HOST:}
+    port: ${FLEXSTORE_MAIL_PORT:587}
+    username: ${FLEXSTORE_MAIL_USERNAME:}
+    password: ${FLEXSTORE_MAIL_PASSWORD:}
+    properties:
+      # Most providers require authentication and STARTTLS; set both to false for a local server such as Mailpit
+      mail.smtp.auth: ${FLEXSTORE_MAIL_SMTP_AUTH:true}
+      mail.smtp.starttls.enable: ${FLEXSTORE_MAIL_SMTP_STARTTLS:true}
 flexstore:
-  # The order confirmation emails are sent with SMTP when SPRING_MAIL_HOST is set (and SPRING_MAIL_PORT,
-  # SPRING_MAIL_USERNAME, SPRING_MAIL_PASSWORD...), and written to the logs otherwise
   mail:
     from: ${FLEXSTORE_MAIL_FROM:Flexstore <no-reply@flexstore.com>}
   # Address of the shop, for the links of the emails
