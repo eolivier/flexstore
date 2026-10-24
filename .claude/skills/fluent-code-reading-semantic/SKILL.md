@@ -65,3 +65,37 @@ Why: a condition reads as the rule it expresses ("if the quantity is zero or neg
 Details:
 - Each predicate and its opposite may both exist (`isPositive()` / `isZeroOrNegative()`, `exists()` / `notExists()`), so that every caller uses the affirmative form of what it means.
 - The same applies to local booleans: `val unchanged = ...` checked as `if (unchanged)` rather than `val changed = ...` checked as `if (!changed)`.
+
+## 4. Simple constructors: the class does the recurring work
+
+Constructors and factory methods take what the caller naturally has, and the class does the recurring work of building its state. A caller should not wrap, convert or assemble values that the class could handle itself.
+
+Avoid:
+
+```kotlin
+Items(listOf(item1))
+Cart(customer, Items(listOf(item1, item2)))
+Orders(listOf(older, newer))
+```
+
+Prefer:
+
+```kotlin
+data class Items(private val items: List<Item>) {
+    constructor(vararg items: Item) : this(items.toList())
+}
+data class Cart(val owner: CartOwner, val items: Items) {
+    constructor(owner: CartOwner, vararg items: Item) : this(owner, Items(*items))
+}
+
+Items(item1)
+Cart(customer, item1, item2)
+Orders(older, newer)
+```
+
+Why: the collection, the conversion or the default is an internal choice of the class; when it lives in the class, callers read the business values only and the choice can change in one place.
+
+Details:
+- Keep the constructor taking the internal form (a `List`) for the adapters that already have a list; add the convenient one (`vararg`, single value) next to it.
+- With a `vararg` constructor, drop the default value of the primary one (`= emptyList()`): `Items()` then has a single meaning.
+- The same goes for factory methods: `Identity.nextId()` rather than `Identity(UUID.randomUUID().toString())` (see the `domain-driven-design` skill, principle 6).

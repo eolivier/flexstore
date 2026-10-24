@@ -16,7 +16,10 @@ import java.util.UUID
  * - merging a cart keeps all the items; for a product in both carts, the larger quantity is kept
  * New items are DraftItem until the cart is saved.
  */
-data class Cart(val owner: CartOwner, val items: Items = Items()) {
+data class Cart(val owner: CartOwner, val items: Items) {
+
+    // Cart(owner), Cart(owner, item1, item2): the caller does not build the Items
+    constructor(owner: CartOwner, vararg items: Item) : this(owner, Items(*items))
 
     fun add(product: DefinedProduct, quantity: Quantity): Cart {
         if (quantity.isZeroOrNegative()) {

@@ -59,7 +59,7 @@ class OrderTest : WithAssertions {
         val older = Order.place(OrderPlacement(OrderId("older"), customer, placedAt), cart)
         val newer = Order.place(OrderPlacement(OrderId("newer"), customer, placedAt.plusSeconds(60)), cart)
         // Act
-        val sorted = Orders(listOf(older, newer)).newestFirst()
+        val sorted = Orders(older, newer).newestFirst()
         // Assert
         assertThat(sorted.asList()).containsExactly(newer, older)
     }

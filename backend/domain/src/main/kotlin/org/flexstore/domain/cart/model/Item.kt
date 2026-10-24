@@ -5,7 +5,10 @@ import org.flexstore.domain.sharedkernel.*
 import java.math.BigDecimal
 
 // The items of a cart; a cart holds cart items (stored) and draft items (not stored yet), never NoItem
-data class Items(private val items: List<Item> = emptyList()) {
+data class Items(private val items: List<Item>) {
+
+    // Items(), Items(item1, item2): the caller does not wrap the items in a list
+    constructor(vararg items: Item) : this(items.toList())
 
     init {
         require(items.none { it is NoItem }) { "A cart only holds cart items and draft items" }

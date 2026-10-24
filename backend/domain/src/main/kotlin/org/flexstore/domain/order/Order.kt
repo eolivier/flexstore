@@ -53,6 +53,8 @@ data class OrderLine(val productId: ProductId, val productName: Name, val unitPr
 
 data class OrderLines(private val lines: List<OrderLine>) {
 
+    constructor(vararg lines: OrderLine) : this(lines.toList())
+
     fun totalPrice(): Price {
         val currency = lines.firstOrNull()?.unitPrice?.currency ?: Currency.EUR
         val total = lines.fold(BigDecimal.ZERO) { sum, line -> sum.add(line.linePrice().amount.value) }
@@ -70,6 +72,8 @@ data class OrderLines(private val lines: List<OrderLine>) {
 }
 
 data class Orders(private val orders: List<Order>) {
+
+    constructor(vararg orders: Order) : this(orders.toList())
 
     fun newestFirst() = Orders(orders.sortedByDescending { it.placedAt })
 

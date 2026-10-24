@@ -32,7 +32,7 @@ class CartTest : WithAssertions {
     @Test
     fun `adding a product already in the cart should change the quantity of its item`() {
         // Arrange
-        val cart = Cart(customer, Items(listOf(item1)))
+        val cart = Cart(customer, item1)
         // Act
         val updatedCart = cart.add(product1, Quantity(3))
         // Assert
@@ -42,7 +42,7 @@ class CartTest : WithAssertions {
     @Test
     fun `adding a product should keep the given catalog product`() {
         // Arrange
-        val cart = Cart(customer, Items(listOf(item1)))
+        val cart = Cart(customer, item1)
         val catalogProduct = product1.copy(price = Price(Amount(BigDecimal(12)), Currency.EUR))
         // Act
         val updatedCart = cart.add(catalogProduct, Quantity(2))
@@ -65,7 +65,7 @@ class CartTest : WithAssertions {
     @Test
     fun `should change the quantity of an item`() {
         // Arrange
-        val cart = Cart(customer, Items(listOf(item1)))
+        val cart = Cart(customer, item1)
         // Act
         val updatedCart = cart.changeQuantity(item1.itemId, Quantity(12))
         // Assert
@@ -76,7 +76,7 @@ class CartTest : WithAssertions {
     @ValueSource(ints = [0, -1, -10])
     fun `an item whose quantity becomes zero or negative should be removed`(quantity: Int) {
         // Arrange
-        val cart = Cart(customer, Items(listOf(item1)))
+        val cart = Cart(customer, item1)
         // Act
         val updatedCart = cart.changeQuantity(item1.itemId, Quantity(quantity))
         // Assert
@@ -86,7 +86,7 @@ class CartTest : WithAssertions {
     @Test
     fun `changing the quantity of an unknown item should leave the cart unchanged`() {
         // Arrange
-        val cart = Cart(customer, Items(listOf(item1)))
+        val cart = Cart(customer, item1)
         // Act
         val updatedCart = cart.changeQuantity(ItemId(Identity("unknown")), Quantity(5))
         // Assert
@@ -96,7 +96,7 @@ class CartTest : WithAssertions {
     @Test
     fun `should remove an item`() {
         // Arrange
-        val cart = Cart(customer, Items(listOf(item1)))
+        val cart = Cart(customer, item1)
         // Act
         val updatedCart = cart.remove(item1.itemId)
         // Assert
@@ -106,8 +106,8 @@ class CartTest : WithAssertions {
     @Test
     fun `merging should add the items of the other cart`() {
         // Arrange
-        val customerCart = Cart(customer, Items(listOf(item1)))
-        val visitorCart = Cart(visitor, Items(listOf(CartItem(ItemId(Identity("item-2")), product2, Quantity(2)))))
+        val customerCart = Cart(customer, item1)
+        val visitorCart = Cart(visitor, CartItem(ItemId(Identity("item-2")), product2, Quantity(2)))
         // Act
         val mergedCart = customerCart.mergeWith(visitorCart)
         // Assert
@@ -119,8 +119,8 @@ class CartTest : WithAssertions {
     @CsvSource("1, 3, 3", "4, 1, 4", "2, 2, 2")
     fun `merging should keep the larger quantity of a product in both carts`(customerQuantity: Int, visitorQuantity: Int, mergedQuantity: Int) {
         // Arrange
-        val customerCart = Cart(customer, Items(listOf(item1.copy(quantity = Quantity(customerQuantity)))))
-        val visitorCart = Cart(visitor, Items(listOf(CartItem(ItemId(Identity("item-2")), product1, Quantity(visitorQuantity)))))
+        val customerCart = Cart(customer, item1.copy(quantity = Quantity(customerQuantity)))
+        val visitorCart = Cart(visitor, CartItem(ItemId(Identity("item-2")), product1, Quantity(visitorQuantity)))
         // Act
         val mergedCart = customerCart.mergeWith(visitorCart)
         // Assert
@@ -130,7 +130,7 @@ class CartTest : WithAssertions {
     @Test
     fun `merging an empty cart should leave the cart unchanged`() {
         // Arrange
-        val customerCart = Cart(customer, Items(listOf(item1)))
+        val customerCart = Cart(customer, item1)
         // Act
         val mergedCart = customerCart.mergeWith(Cart(visitor))
         // Assert
