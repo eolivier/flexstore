@@ -27,9 +27,8 @@ This repo is meant to be a learning vehicle and a ready-to-fork base for real pr
 - Cart: quantity per line, remove, total, item count badge in the header
 
 **Account and administration** (sign-in required)
-- Sign in, profile
-- Users: list, create, delete
-- Products: create
+- Sign in, profile, change password
+- Administration (`ADMIN` role): users (list, create, delete), products (create)
 
 Orders are demo data: they are not stored by the back end yet.
 
@@ -86,6 +85,8 @@ export FLEXSTORE_DATABASE_URL=postgresql://flex:flex@localhost:5432/flexstore
 
 The server starts on [http://localhost:8080](http://localhost:8080) (health check: `/actuator/health`).
 
+Set `FLEXSTORE_JWT_SECRET` (at least 32 characters) to sign the authentication tokens. Without it, a random secret is used and tokens stop working when the back end restarts.
+
 The database can be configured either with:
 - `FLEXSTORE_DATABASE_URL`: a connection string `postgres(ql)://user:password@host:port/database` (as given by Render) or a full JDBC URL including the credentials
 - or the separate variables `FLEXSTORE_DATASOURCE_HOST`, `FLEXSTORE_DATASOURCE_HOST_SUFFIX`, `FLEXSTORE_DATASOURCE_PORT`, `FLEXSTORE_DATASOURCE_DATABASE`, `FLEXSTORE_DATASOURCE_USERNAME`, `FLEXSTORE_DATASOURCE_PASSWORD` (see `backend/spring-infra/.env`)
@@ -125,21 +126,38 @@ cd front
 npm run gen:api
 ```
 
-| Method | Path | Description |
-|---|---|---|
-| `GET` | `/api/products/` | All products |
-| `GET` | `/api/products/{id}` | One product (`404` if it does not exist) |
-| `POST` | `/api/products` | Create a product |
-| `GET` | `/api/cart/cart-items` | Cart items and total |
-| `POST` | `/api/cart/save` | Add or update a cart item (quantity `0` removes it) |
-| `POST` | `/api/users/login` | Sign in (`401` on wrong credentials) |
-| `GET` | `/api/users` | All users |
-| `GET` | `/api/users/{id}` | One user |
-| `POST` | `/api/users` | Create a user (`409` if the email is already used) |
-| `PUT` | `/api/users/{id}` | Update a user (without password: the current one is kept) |
-| `DELETE` | `/api/users/{id}` | Delete a user |
+| Method | Path | Access | Description |
+|---|---|---|---|
+| `GET` | `/api/products/` | public | All products |
+| `GET` | `/api/products/{id}` | public | One product (`404` if it does not exist) |
+| `POST` | `/api/products` | `ADMIN` | Create a product |
+| `GET` | `/api/cart/cart-items` | public | Cart items and total |
+| `POST` | `/api/cart/save` | public | Add or update a cart item (quantity `0` removes it) |
+| `POST` | `/api/users/login` | public | Sign in: returns a token and the user (`401` on wrong credentials) |
+| `POST` | `/api/users/{id}/password` | the user `{id}` | Change one's own password (`400` if the current one is wrong) |
+| `GET` | `/api/users` | `ADMIN` | All users |
+| `GET` | `/api/users/{id}` | `ADMIN` | One user |
+| `POST` | `/api/users` | `ADMIN` | Create a user (`409` if the email is already used) |
+| `PUT` | `/api/users/{id}` | `ADMIN` | Update a user (without password: the current one is kept; the role cannot be changed) |
+| `DELETE` | `/api/users/{id}` | `ADMIN` | Delete a user |
 
 Passwords are hashed with bcrypt and never returned by the API.
+
+### Authentication
+
+The API is stateless and uses **JWT bearer tokens** (Spring Security, OAuth2 resource server):
+
+1. `POST /api/users/login` returns `{ token, expiresAt, user }`; the token is signed with HMAC-SHA256 (`FLEXSTORE_JWT_SECRET`), contains the user id (`sub`) and roles (`roles`) and is valid for 1 hour (`flexstore.security.jwt-ttl`)
+2. Protected endpoints require the header `Authorization: Bearer <token>`: `401` without a valid token, `403` without the required role
+3. The front end keeps the token in memory only (not in `localStorage`): reloading the page signs out. When the API rejects the token, the user is signed out and sent back to the login page
+
+Users have a role, `USER` (default) or `ADMIN`; it is stored in the database and cannot be changed through the API.
+
+```bash
+TOKEN=$(curl -s -X POST localhost:8080/api/users/login -H 'Content-Type: application/json' \
+  -d '{"email": "admin@flexstore.com", "password": "admin"}' | jq -r .token)
+curl localhost:8080/api/users -H "Authorization: Bearer $TOKEN"
+```
 
 ---
 
@@ -168,7 +186,7 @@ npm run build   # type check (vue-tsc) + production build
 
 - **CI** (`.github/workflows/ci.yml`): on every pull request and push to `main`, back-end unit and integration tests (with a PostgreSQL service) and front-end build and tests
 - **Front end**: deployed to Cloudflare Pages on every push to `main` that touches `front/` (`.github/workflows/vue-pages.yml`)
-- **Back end**: deployed to Render from `main` with the root `Dockerfile` (`render.yaml`); the database is given to the app as `FLEXSTORE_DATABASE_URL`
+- **Back end**: deployed to Render from `main` with the root `Dockerfile` (`render.yaml`); the database is given to the app as `FLEXSTORE_DATABASE_URL`, and `FLEXSTORE_JWT_SECRET` must be set. HTTPS ends at the Render proxy: `server.forward-headers-strategy: framework` makes Spring see the requests as HTTPS
 
 ---
 

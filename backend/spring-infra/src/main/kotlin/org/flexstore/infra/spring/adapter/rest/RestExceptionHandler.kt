@@ -4,6 +4,7 @@ import org.flexstore.domain.entity.InvalidCredentialsException
 import org.flexstore.domain.entity.UserAlreadyExists
 import org.flexstore.domain.entity.UserNotFoundByEmailException
 import org.flexstore.domain.usecase.product.ProductNotFoundException
+import org.flexstore.domain.usecase.user.InvalidCurrentPasswordException
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -18,12 +19,13 @@ class RestExceptionHandler {
             is UserAlreadyExists -> ResponseEntity
                 .status(409)
                 .body(mapOf("error" to (ex.message ?: "User already exists")))
-            is InvalidCredentialsException -> ResponseEntity
+            // Same answer for an unknown email and a wrong password, so that the login does not reveal which accounts exist
+            is InvalidCredentialsException, is UserNotFoundByEmailException -> ResponseEntity
                 .status(401)
-                .body(mapOf("error" to (ex.message ?: "Invalid credentials")))
-            is UserNotFoundByEmailException -> ResponseEntity
-                .status(404)
-                .body(mapOf("error" to (ex.message ?: "User not found")))
+                .body(mapOf("error" to "Invalid credentials."))
+            is InvalidCurrentPasswordException -> ResponseEntity
+                .status(400)
+                .body(mapOf("error" to (ex.message ?: "Wrong current password")))
             is ProductNotFoundException -> ResponseEntity
                 .status(404)
                 .body(mapOf("error" to (ex.message ?: "Product not found")))

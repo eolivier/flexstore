@@ -8,8 +8,14 @@ import org.ucop.domain.entity.Actor
 sealed class User(open val id: UserId) {
     abstract fun user(userId: UserId):User
 
-    data class DefinedUser(override val id: UserId, val name: Name, val email: Email, val password: Password) : User(id) {
-        override fun user(userId: UserId) = DefinedUser(userId, name, email, password)
+    data class DefinedUser(
+        override val id: UserId,
+        val name: Name,
+        val email: Email,
+        val password: Password,
+        val role: Role = Role.USER
+    ) : User(id) {
+        override fun user(userId: UserId) = DefinedUser(userId, name, email, password, role)
     }
 
     data class DraftUser(val name: Name, val email: Email, val password: Password) : User(UserId.InvalidUserId("")) {
@@ -59,6 +65,9 @@ fun UserId.Companion.of(value: String): UserId {
 }
 
 data class Email(val value: String)
+
+// ADMIN can manage the users and the products
+enum class Role { USER, ADMIN }
 
 sealed class Password {
     abstract val value: String

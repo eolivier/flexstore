@@ -17,7 +17,7 @@ class UpdateUserUseCase(private val userRepository: UserRepository) : UseCase<Us
     override fun getNominalScenario(): NominalScenario<User> {
         println("#[BEGIN] UpdateUserUseCase.getNominalScenario")
         // Steps
-        val updateUserStep = Step<User> { user -> userRepository.save(keepPasswordIfNotProvided(user)) }
+        val updateUserStep = Step<User> { user -> userRepository.save(keepStoredFields(user)) }
         // Nominal scenario
         val nominalScenario = NominalScenario(listOf(updateUserStep))
         println("#[END] UpdateUserUseCase.getNominalScenario")
@@ -31,13 +31,20 @@ class UpdateUserUseCase(private val userRepository: UserRepository) : UseCase<Us
         return postConditions
     }
 
-    // A blank password means the password is not updated: the stored (hashed) one is kept
-    private fun keepPasswordIfNotProvided(user: User): User {
-        if (user !is User.DefinedUser || user.password !is PlainPassword || user.password.value.isNotBlank()) {
+    // The role cannot be changed by an update, and a blank password means the password is not updated:
+    // the stored role and (hashed) password are kept
+    private fun keepStoredFields(user: User): User {
+        if (user !is User.DefinedUser) {
             return user
         }
         return when (val existingUser = userRepository.findById(user.id)) {
-            is User.DefinedUser -> user.copy(password = existingUser.password)
+            is User.DefinedUser -> {
+                val passwordNotProvided = user.password is PlainPassword && user.password.value.isBlank()
+                user.copy(
+                    role = existingUser.role,
+                    password = if (passwordNotProvided) existingUser.password else user.password
+                )
+            }
             else -> user
         }
     }

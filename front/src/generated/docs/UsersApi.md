@@ -51,7 +51,7 @@ void (empty response body)
 
 ### Authorization
 
-No authorization required
+[bearerAuth](../README.md#bearerAuth)
 
 ### HTTP request headers
 
@@ -63,7 +63,9 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**204** | Password changed |  -  |
-|**401** | Wrong current password |  -  |
+|**400** | Wrong current password |  -  |
+|**401** | Missing or invalid token |  -  |
+|**403** | Not the password of the signed-in user |  -  |
 |**422** | New password too short |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -104,7 +106,7 @@ const { status, data } = await apiInstance.createUser(
 
 ### Authorization
 
-No authorization required
+[bearerAuth](../README.md#bearerAuth)
 
 ### HTTP request headers
 
@@ -154,7 +156,7 @@ void (empty response body)
 
 ### Authorization
 
-No authorization required
+[bearerAuth](../README.md#bearerAuth)
 
 ### HTTP request headers
 
@@ -198,7 +200,7 @@ This endpoint does not have any parameters.
 
 ### Authorization
 
-No authorization required
+[bearerAuth](../README.md#bearerAuth)
 
 ### HTTP request headers
 
@@ -248,7 +250,7 @@ const { status, data } = await apiInstance.getUser(
 
 ### Authorization
 
-No authorization required
+[bearerAuth](../README.md#bearerAuth)
 
 ### HTTP request headers
 
@@ -264,7 +266,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **loginUser**
-> JsonUser loginUser(jsonLoginRequest)
+> JsonLoginResponse loginUser(jsonLoginRequest)
 
 Validates user credentials and returns user information on success
 
@@ -296,7 +298,7 @@ const { status, data } = await apiInstance.loginUser(
 
 ### Return type
 
-**JsonUser**
+**JsonLoginResponse**
 
 ### Authorization
 
@@ -355,7 +357,7 @@ void (empty response body)
 
 ### Authorization
 
-No authorization required
+[bearerAuth](../README.md#bearerAuth)
 
 ### HTTP request headers
 

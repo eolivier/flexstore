@@ -44,7 +44,7 @@ const { status, data } = await apiInstance.create(
 
 ### Authorization
 
-No authorization required
+[bearerAuth](../README.md#bearerAuth)
 
 ### HTTP request headers
 

@@ -7,7 +7,9 @@ const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
 // Shared mock user for tests (note: password should not be in API response, but testing current implementation)
-const createMockUser = () => ({ id: '1', name: 'John', email: 'john@example.com' });
+const createMockUser = () => ({ id: '1', name: 'John', email: 'john@example.com', role: 'USER' as 'USER' | 'ADMIN' });
+// Body of a successful login: the token and the user
+const loginResponse = (user = createMockUser()) => ({ token: 'jwt-token', expiresAt: '2030-01-01T00:00:00Z', user });
 
 describe('auth.store', () => {
   beforeEach(() => {
@@ -37,7 +39,7 @@ describe('auth.store', () => {
       const mockUser = createMockUser();
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockUser),
+        json: () => Promise.resolve(loginResponse(mockUser)),
       });
 
       const store = useAuthStore();
@@ -45,7 +47,9 @@ describe('auth.store', () => {
 
       expect(result).toBe(true);
       expect(store.currentUser).toEqual(mockUser);
+      expect(store.token).toBe('jwt-token');
       expect(store.isAuthenticated).toBe(true);
+      expect(store.isAdmin).toBe(false);
       expect(store.loginError).toBeNull();
     });
 
@@ -91,7 +95,7 @@ describe('auth.store', () => {
       const mockUser = createMockUser();
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockUser),
+        json: () => Promise.resolve(loginResponse(mockUser)),
       });
 
       await store.login('john@example.com', 'secret');
@@ -101,7 +105,7 @@ describe('auth.store', () => {
     it('should call fetch with correct parameters', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(createMockUser()),
+        json: () => Promise.resolve(loginResponse()),
       });
 
       const store = useAuthStore();
@@ -123,7 +127,7 @@ describe('auth.store', () => {
       const mockUser = createMockUser();
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockUser),
+        json: () => Promise.resolve(loginResponse(mockUser)),
       });
 
       const store = useAuthStore();
@@ -133,14 +137,53 @@ describe('auth.store', () => {
       store.logout();
 
       expect(store.currentUser).toBeNull();
+      expect(store.token).toBeNull();
       expect(store.isAuthenticated).toBe(false);
       expect(store.loginError).toBeNull();
     });
   });
 
+  describe('authFetch', () => {
+    it('should send the token of the signed-in user', async () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(loginResponse()) });
+      const store = useAuthStore();
+      await store.login('john@example.com', 'secret');
+      mockFetch.mockResolvedValueOnce({ ok: true, status: 200 });
+
+      await store.authFetch('/api/users', { method: 'GET' });
+
+      const [url, init] = mockFetch.mock.lastCall!;
+      expect(url).toBe('http://localhost:8080/api/users');
+      expect(new Headers(init.headers).get('Authorization')).toBe('Bearer jwt-token');
+    });
+
+    it('should sign out when the token is rejected', async () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(loginResponse()) });
+      const store = useAuthStore();
+      await store.login('john@example.com', 'secret');
+      mockFetch.mockResolvedValueOnce({ ok: false, status: 401 });
+
+      await store.authFetch('/api/users');
+
+      expect(store.isAuthenticated).toBe(false);
+      expect(store.token).toBeNull();
+    });
+
+    it('should know whether the user is an admin', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(loginResponse({ ...createMockUser(), role: 'ADMIN' })),
+      });
+      const store = useAuthStore();
+      await store.login('john@example.com', 'secret');
+
+      expect(store.isAdmin).toBe(true);
+    });
+  });
+
   describe('changePassword', () => {
     const signIn = async () => {
-      mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(createMockUser()) });
+      mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(loginResponse()) });
       const store = useAuthStore();
       await store.login('john@example.com', 'secret');
       return store;
@@ -153,16 +196,16 @@ describe('auth.store', () => {
       const result = await store.changePassword('secret', 'new-password');
 
       expect(result).toBe('changed');
-      expect(mockFetch).toHaveBeenLastCalledWith('http://localhost:8080/api/users/1/password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ currentPassword: 'secret', newPassword: 'new-password' }),
-      });
+      const [url, init] = mockFetch.mock.lastCall!;
+      expect(url).toBe('http://localhost:8080/api/users/1/password');
+      expect(init.method).toBe('POST');
+      expect(init.body).toBe(JSON.stringify({ currentPassword: 'secret', newPassword: 'new-password' }));
+      expect(new Headers(init.headers).get('Authorization')).toBe('Bearer jwt-token');
     });
 
     it('should report a wrong current password', async () => {
       const store = await signIn();
-      mockFetch.mockResolvedValueOnce({ ok: false, status: 401 });
+      mockFetch.mockResolvedValueOnce({ ok: false, status: 400 });
 
       expect(await store.changePassword('wrong', 'new-password')).toBe('wrongPassword');
     });

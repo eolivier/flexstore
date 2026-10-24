@@ -1,13 +1,15 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import type { User } from '@/models/user';
+import { useAuthStore } from './auth.store';
 
 export const useUsersStore = defineStore('users', () => {
   const users = ref<User[]>([]);
-  const apiUrl = import.meta.env.VITE_API_URL;
+  // User management is reserved to admins: requests carry the token of the signed-in user
+  const authStore = useAuthStore();
 
   async function fetchUsers() {
-      const response = await fetch(`${apiUrl}/api/users`);
+    const response = await authStore.authFetch('/api/users');
     if (response.ok) {
       users.value = await response.json();
     } else {
@@ -18,7 +20,7 @@ export const useUsersStore = defineStore('users', () => {
   // Returns whether the user was created
   async function addUser(user: Omit<User, 'id'>): Promise<boolean> {
     try {
-      const response = await fetch(`${apiUrl}/api/users`, {
+      const response = await authStore.authFetch('/api/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(user),
@@ -38,7 +40,7 @@ export const useUsersStore = defineStore('users', () => {
   // Returns whether the user was deleted
   async function deleteUser(id: string): Promise<boolean> {
     try {
-      const response = await fetch(`${apiUrl}/api/users/${id}`, { method: 'DELETE' });
+      const response = await authStore.authFetch(`/api/users/${id}`, { method: 'DELETE' });
       await fetchUsers();
       return response.ok;
     } catch (error) {

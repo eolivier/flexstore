@@ -6,6 +6,11 @@ spring:
     password: ${FLEXSTORE_DATASOURCE_PASSWORD}
   flyway:
     enabled: true
+flexstore:
+  security:
+    # Secret used to sign the JWT (at least 32 characters); a random one is used when missing
+    jwt-secret: ${FLEXSTORE_JWT_SECRET:}
+    jwt-ttl: 1h
 management:
   endpoints:
     web:
@@ -27,6 +32,8 @@ management:
     key-values:
       service: flexstore
 server:
+  # Behind the Render proxy (TLS ends there): trust X-Forwarded-* so that requests are seen as HTTPS
+  forward-headers-strategy: framework
 # (optionnel) séparer le management path/port
 # port: 8080
 # management.server.port: 8081

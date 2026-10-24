@@ -22,6 +22,7 @@ class UpdateUserUseCaseTest {
         val userId = ValidUserId("123")
         val user = DefinedUser(userId, Name("John Doe"), Email("john.doe@example.com"), PlainPassword("password123"))
         every { userRepository.notExists(userId) } returns false
+        every { userRepository.findById(userId) } returns user
         every { userRepository.save(user) } returns user
         val updateUserUseCase = UpdateUserUseCase(userRepository)
         // Act
@@ -71,6 +72,24 @@ class UpdateUserUseCaseTest {
         val existingUser = DefinedUser(userId, Name("John Doe"), Email("john.doe@example.com"), HashedPassword("hashed"))
         val user = DefinedUser(userId, Name("Jane Doe"), Email("jane.doe@example.com"), PlainPassword(""))
         val expectedUser = user.copy(password = existingUser.password)
+        every { userRepository.notExists(userId) } returns false
+        every { userRepository.findById(userId) } returns existingUser
+        every { userRepository.save(expectedUser) } returns expectedUser
+        val updateUserUseCase = UpdateUserUseCase(userRepository)
+        // Act
+        updateUserUseCase.unfold(user)
+        // Assert
+        verify { userRepository.save(expectedUser) }
+    }
+
+    @Test
+    fun `should keep the stored role`() {
+        // Arrange
+        val userRepository = mockk<UserRepository>()
+        val userId = ValidUserId("123")
+        val existingUser = DefinedUser(userId, Name("Admin"), Email("admin@example.com"), HashedPassword("hashed"), Role.ADMIN)
+        val user = DefinedUser(userId, Name("Admin"), Email("admin@example.com"), PlainPassword("new-password"))
+        val expectedUser = user.copy(role = Role.ADMIN)
         every { userRepository.notExists(userId) } returns false
         every { userRepository.findById(userId) } returns existingUser
         every { userRepository.save(expectedUser) } returns expectedUser

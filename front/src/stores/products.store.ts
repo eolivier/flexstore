@@ -2,9 +2,9 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import type { Product } from '@/models/product';
 import { getAllProducts } from '@/services/product.service';
+import { useAuthStore } from './auth.store';
 
 export const useProductsStore = defineStore('products', () => {
-  const apiUrl = import.meta.env.VITE_API_URL;
 
   const products = ref<Product[]>([]);
   const loading = ref(false);
@@ -13,7 +13,7 @@ export const useProductsStore = defineStore('products', () => {
   // Returns whether the product was created
   async function addProduct(product: Product): Promise<boolean> {
     try {
-      const response = await fetch(`${apiUrl}/api/products`, {
+      const response = await useAuthStore().authFetch('/api/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(product),
