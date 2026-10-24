@@ -25,9 +25,9 @@ class DeleteUserUseCase(private val userRepository: UserRepository) : UseCase<Us
         return nominalScenario
     }
 
-    override fun getPostConditions(): List<PostCondition<UserId>> {
+    override fun getPostConditions(): PostConditions<UserId> {
         println("#[BEGIN] DeleteUserUseCase.getPostConditions")
-        val postConditions = listOf(userDeletedCondition())
+        val postConditions = PostConditions(userDeletedCondition())
         println("#[END] DeleteUserUseCase.getPostConditions")
         return postConditions
     }

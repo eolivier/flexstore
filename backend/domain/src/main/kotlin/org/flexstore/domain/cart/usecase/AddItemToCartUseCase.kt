@@ -24,7 +24,7 @@ class AddItemToCartUseCase(
         return NominalScenario(listOf(addItemStep))
     }
 
-    override fun getPostConditions(): List<PostCondition<AddItemToCartRequest>> = listOf(itemHasQuantityCondition())
+    override fun getPostConditions(): PostConditions<AddItemToCartRequest> = PostConditions(itemHasQuantityCondition())
 
     private fun catalogProduct(productId: ProductId): DefinedProduct =
         productRepository.findById(productId)

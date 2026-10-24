@@ -32,9 +32,9 @@ class CreateUserUseCase(
         return nominalScenario
     }
 
-    override fun getPostConditions(): List<PostCondition<User>> {
+    override fun getPostConditions(): PostConditions<User> {
         println("#[BEGIN] CreateUserUseCase.getPostConditions")
-        val postConditions = listOf(userExistsCondition())
+        val postConditions = PostConditions(userExistsCondition())
         println("#[END] CreateUserUseCase.getPostConditions")
         return postConditions
     }

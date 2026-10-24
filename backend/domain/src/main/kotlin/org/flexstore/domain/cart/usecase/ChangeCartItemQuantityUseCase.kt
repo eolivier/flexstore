@@ -20,7 +20,7 @@ class ChangeCartItemQuantityUseCase(private val cartRepository: CartRepository) 
         return NominalScenario(listOf(changeQuantityStep))
     }
 
-    override fun getPostConditions(): List<PostCondition<ChangeCartItemQuantityRequest>> = listOf(quantityChangedCondition())
+    override fun getPostConditions(): PostConditions<ChangeCartItemQuantityRequest> = PostConditions(quantityChangedCondition())
 
     private fun quantityChangedCondition() = PostCondition<ChangeCartItemQuantityRequest> { request ->
         val item = cartRepository.load(request.owner).findBy(request.itemId)

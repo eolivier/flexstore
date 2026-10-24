@@ -25,7 +25,7 @@ class CreateProductUseCase(private val productRepository: ProductRepository) : U
         return NominalScenario(listOf(createProductStep))
     }
 
-    override fun getPostConditions(): List<PostCondition<CreateProductRequest>> = listOf(productExistsCondition())
+    override fun getPostConditions(): PostConditions<CreateProductRequest> = PostConditions(productExistsCondition())
 
     override fun getAlternativeScenarii(): Map<KClass<out NominalException>, AlternativeScenario<CreateProductRequest>> {
         return emptyMap()

@@ -28,9 +28,9 @@ class ReadUserUseCase(private val userRepository: UserRepository) : UseCase<User
         return nominalScenario
     }
 
-    override fun getPostConditions(): List<PostCondition<UserId>> {
+    override fun getPostConditions(): PostConditions<UserId> {
         println("#[BEGIN] ReadUserUseCase.getPostConditions")
-        val postConditions = listOf(userRetrievedCondition())
+        val postConditions = PostConditions(userRetrievedCondition())
         println("#[END] ReadUserUseCase.getPostConditions")
         return postConditions
     }

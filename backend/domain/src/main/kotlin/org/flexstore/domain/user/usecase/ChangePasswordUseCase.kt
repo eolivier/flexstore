@@ -34,9 +34,9 @@ class ChangePasswordUseCase(
         return nominalScenario
     }
 
-    override fun getPostConditions(): List<PostCondition<ChangePasswordRequest>> {
+    override fun getPostConditions(): PostConditions<ChangePasswordRequest> {
         println("#[BEGIN] ChangePasswordUseCase.getPostConditions")
-        val postConditions = listOf(newPasswordMatchesCondition())
+        val postConditions = PostConditions(newPasswordMatchesCondition())
         println("#[END] ChangePasswordUseCase.getPostConditions")
         return postConditions
     }

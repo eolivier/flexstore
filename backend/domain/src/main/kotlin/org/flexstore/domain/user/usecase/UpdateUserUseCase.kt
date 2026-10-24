@@ -23,9 +23,9 @@ class UpdateUserUseCase(private val userRepository: UserRepository) : UseCase<Us
         return nominalScenario
     }
 
-    override fun getPostConditions(): List<PostCondition<User>> {
+    override fun getPostConditions(): PostConditions<User> {
         println("#[BEGIN] UpdateUserUseCase.getPostConditions")
-        val postConditions = listOf<EmptyPostCondition<User>>(EmptyPostCondition())
+        val postConditions = PostConditions.none<User>()
         println("#[END] UpdateUserUseCase.getPostConditions")
         return postConditions
     }

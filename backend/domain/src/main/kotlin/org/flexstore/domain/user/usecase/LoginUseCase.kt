@@ -33,9 +33,9 @@ class LoginUseCase(
         return nominalScenario
     }
 
-    override fun getPostConditions(): List<PostCondition<LoginRequest>> {
+    override fun getPostConditions(): PostConditions<LoginRequest> {
         println("#[BEGIN] LoginUseCase.getPostConditions")
-        val postConditions = listOf(userAuthenticatedCondition())
+        val postConditions = PostConditions(userAuthenticatedCondition())
         println("#[END] LoginUseCase.getPostConditions")
         return postConditions
     }
