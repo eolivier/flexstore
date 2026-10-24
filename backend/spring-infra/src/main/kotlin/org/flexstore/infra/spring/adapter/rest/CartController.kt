@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.domain.entity.Cart
 import org.flexstore.domain.repository.ItemRepository
+import org.flexstore.domain.repository.ProductRepository
 import org.flexstore.infra.spring.adapter.mapping.toJsonCartItems
 import org.flexstore.infra.spring.adapter.rest.json.JsonItem
 import org.springframework.http.HttpStatus
@@ -13,9 +14,9 @@ import org.springframework.web.bind.annotation.*
 @Tag(name = "Cart")
 @RestController
 @RequestMapping("/api/cart")
-class CartController(itemRepository: ItemRepository) {
+class CartController(itemRepository: ItemRepository, productRepository: ProductRepository) {
 
-    private val cart = Cart(itemRepository)
+    private val cart = Cart(itemRepository, productRepository)
 
     @Operation(summary = "Retrieve all cart items",
         description = "Returns the full list of items in the cart"

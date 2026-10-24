@@ -3,6 +3,7 @@ package org.ucop.domain.entity
 import org.flexstore.domain.entity.Cart
 import org.flexstore.domain.valueobject.*
 import org.flexstore.infra.repository.InMemoryItemRepository
+import org.flexstore.infra.repository.InMemoryProductRepository
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.spy
 import org.mockito.Mockito.verify
@@ -15,9 +16,9 @@ class DeprecatedUseCaseTest {
         // given
         val itemRepository = spy(InMemoryItemRepository())
         itemRepository.clear()
-        val myCart = Cart(itemRepository)
-        val cartIsEmptyCondition = PreCondition<Cart> { basket -> assert(basket.getItems().items.isEmpty()) }
         val item1 = createItem1()
+        val myCart = Cart(itemRepository, InMemoryProductRepository().apply { save(item1.product) })
+        val cartIsEmptyCondition = PreCondition<Cart> { basket -> assert(basket.getItems().items.isEmpty()) }
         val addOneItemToCartStep = Step<Cart>(
             run = {
                 basket -> run {

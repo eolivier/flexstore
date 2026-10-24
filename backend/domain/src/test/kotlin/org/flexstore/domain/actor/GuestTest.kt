@@ -10,6 +10,7 @@ import org.flexstore.domain.usecase.user.CreateUserUseCase
 import org.flexstore.domain.valueobject.*
 import org.flexstore.infra.repository.InMemoryUserRepository
 import org.flexstore.infra.repository.InMemoryItemRepository
+import org.flexstore.infra.repository.InMemoryProductRepository
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*
 import java.math.BigDecimal
@@ -39,9 +40,6 @@ class GuestTest {
         // Arrange
         val itemRepository = spy(InMemoryItemRepository())
         itemRepository.clear()
-        val cart = Cart(itemRepository)
-        val addItemToBasketUseCase = AddItemToBasketUseCase(cart)
-        val guest = Guest(mock(CreateUserUseCase::class.java), addItemToBasketUseCase)
         val draftItem = DraftItem(
             product = DefinedProduct(
                 productId = ProductId(Identity("product1")),
@@ -50,6 +48,9 @@ class GuestTest {
             ),
             quantity = Quantity(1)
         )
+        val cart = Cart(itemRepository, InMemoryProductRepository().apply { save(draftItem.product) })
+        val addItemToBasketUseCase = AddItemToBasketUseCase(cart)
+        val guest = Guest(mock(CreateUserUseCase::class.java), addItemToBasketUseCase)
         // Act
         guest.performAddItemToBasket(draftItem, Quantity(1))
         // Assert

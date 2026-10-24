@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.flexstore.domain.entity.Cart
 import org.flexstore.domain.valueobject.*
 import org.flexstore.infra.repository.InMemoryItemRepository
+import org.flexstore.infra.repository.InMemoryProductRepository
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.spy
 import java.math.BigDecimal
@@ -21,7 +22,7 @@ class AddItemToCartDeprecatedUseCaseTest {
         val quantityToAdd = Quantity(1)
         val itemRepository = spy(InMemoryItemRepository())
         itemRepository.clear()
-        val currentCart = Cart(itemRepository)
+        val currentCart = Cart(itemRepository, InMemoryProductRepository().apply { save(product) })
         val addItemToBasketUseCase = AddItemToBasketUseCase(currentCart)
         // when
         addItemToBasketUseCase.perform(draftItem, quantityToAdd)

@@ -21,11 +21,6 @@ class InMemoryItemRepository: ItemRepository {
     }
 
     override fun add(draftItem: DraftItem): CartItem {
-        items.find { it.product.productId == draftItem.product.productId }?.let {
-            val cartItem = CartItem(it.itemId, draftItem.product, draftItem.quantity)
-            update(cartItem)
-            return cartItem
-        }
         val cartItemToAdd = CartItem(
             itemId = ItemId(Identity("item-" + counter.incrementAndGet())),
             product = draftItem.product,
@@ -38,17 +33,15 @@ class InMemoryItemRepository: ItemRepository {
     override fun update(cartItem: CartItem) {
         val index = items.indexOfFirst { it.itemId == cartItem.itemId }
         if (index != -1) {
-            if (cartItem.quantity.isNegative() || cartItem.quantity.isZero()) {
-                items.removeAt(index)
-            } else {
-                items[index] = CartItem(cartItem.itemId, cartItem.product, cartItem.quantity)
-            }
+            items[index] = cartItem
         }
     }
 
     override fun findById(itemId: ItemId): Item {
         return items.firstOrNull { it.itemId == itemId } ?: NoItem
     }
+
+    override fun findByProductId(productId: ProductId): CartItem? = items.firstOrNull { it.product.productId == productId }
 
     override fun clear() = items.clear()
 

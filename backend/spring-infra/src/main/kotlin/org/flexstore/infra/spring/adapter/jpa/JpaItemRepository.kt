@@ -1,13 +1,11 @@
 package org.flexstore.infra.spring.adapter.jpa
 
 import org.flexstore.domain.repository.ItemRepository
-import org.flexstore.domain.usecase.product.ProductNotFoundException
 import org.flexstore.domain.valueobject.*
 import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
-import org.ucop.domain.NonEmptyString
 import java.util.UUID
 
 @Repository
@@ -15,10 +13,7 @@ interface JpaCartItemRepository : JpaRepository<CartItemEntity, String> {
     fun findByProductId(productId: String): CartItemEntity?
 }
 
-/**
- * Cart items stored in the database. The product of an item is always read from the catalog:
- * the product data sent by the client (name, price...) is ignored.
- */
+// Cart items stored in the database: an item keeps the product id and the quantity, the product is read from the catalog
 @Repository
 @Transactional
 class PostgresItemRepositoryAdapter(
@@ -42,31 +37,22 @@ class PostgresItemRepositoryAdapter(
     }
 
     override fun add(draftItem: DraftItem): CartItem {
-        val productId = draftItem.product.productId.id.value
-        // A product already in the cart: its quantity is replaced
-        jpaRepo.findByProductId(productId)?.let { existing ->
-            val cartItem = CartItem(ItemId(Identity(existing.id)), existing.product.toDomain(), draftItem.quantity)
-            update(cartItem)
-            return cartItem
-        }
-        val product = productRepo.findById(productId).orElseThrow {
-            ProductNotFoundException(NonEmptyString("Product $productId not found."))
-        }
-        return jpaRepo.save(CartItemEntity(UUID.randomUUID().toString(), product, draftItem.quantity.value)).toDomain()
+        val product = productRepo.getReferenceById(draftItem.product.productId.id.value)
+        val saved = jpaRepo.save(CartItemEntity(UUID.randomUUID().toString(), product, draftItem.quantity.value))
+        return CartItem(ItemId(Identity(saved.id)), draftItem.product, draftItem.quantity)
     }
 
     override fun update(cartItem: CartItem) {
-        val existing = jpaRepo.findById(cartItem.itemId.id.value).orElse(null) ?: return
-        if (cartItem.quantity.isNegative() || cartItem.quantity.isZero()) {
-            jpaRepo.delete(existing)
-        } else {
-            jpaRepo.save(existing.copy(quantity = cartItem.quantity.value))
-        }
+        val existing = jpaRepo.findById(cartItem.itemId.id.value).orElseThrow()
+        jpaRepo.save(existing.copy(quantity = cartItem.quantity.value))
     }
 
     @Transactional(readOnly = true)
     override fun findById(itemId: ItemId): Item =
         jpaRepo.findById(itemId.id.value).map<Item> { it.toDomain() }.orElse(NoItem)
+
+    @Transactional(readOnly = true)
+    override fun findByProductId(productId: ProductId): CartItem? = jpaRepo.findByProductId(productId.id.value)?.toDomain()
 
     override fun clear() = jpaRepo.deleteAll()
 

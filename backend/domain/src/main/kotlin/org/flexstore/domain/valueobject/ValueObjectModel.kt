@@ -90,6 +90,7 @@ data class Quantity(val value: Int) {
     fun changeQuantity(newQuantity: Quantity) = Quantity(newQuantity.value)
     fun isNegative() = value < 0
     fun isZero() = value == 0
+    fun isPositive() = value > 0
     fun isNotZero() = !isZero()
 }
 data class Identity(val value: String)
