@@ -4,10 +4,10 @@ import org.assertj.core.api.WithAssertions
 import org.flexstore.infra.repository.InMemoryShopSettingsRepository
 import org.junit.jupiter.api.Test
 
-class ShopSettingsAdministrationTest : WithAssertions {
+class ShopSettingsAdministrationServiceTest : WithAssertions {
 
     private val repository = InMemoryShopSettingsRepository()
-    private val administration = ShopSettingsAdministration(ReadShopSettingsUseCase(repository), UpdateShopSettingsUseCase(repository))
+    private val administration = ShopSettingsAdministrationService(ReadShopSettingsUseCase(repository), UpdateShopSettingsUseCase(repository))
 
     @Test
     fun `the order confirmation email should be sent by default`() {

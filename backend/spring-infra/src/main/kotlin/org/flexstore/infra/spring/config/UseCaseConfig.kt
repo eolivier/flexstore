@@ -72,9 +72,9 @@ open class UseCaseConfig {
     }
 
     @Bean
-    open fun shopSettingsAdministration(readShopSettingsUseCase: ReadShopSettingsUseCase,
-                                        updateShopSettingsUseCase: UpdateShopSettingsUseCase): ShopSettingsAdministration {
-        return ShopSettingsAdministration(readShopSettingsUseCase, updateShopSettingsUseCase)
+    open fun shopSettingsAdministrationService(readShopSettingsUseCase: ReadShopSettingsUseCase,
+                                        updateShopSettingsUseCase: UpdateShopSettingsUseCase): ShopSettingsAdministrationService {
+        return ShopSettingsAdministrationService(readShopSettingsUseCase, updateShopSettingsUseCase)
     }
 
     @Bean
