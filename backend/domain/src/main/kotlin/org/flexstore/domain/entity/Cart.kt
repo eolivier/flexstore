@@ -91,7 +91,7 @@ data class VisitorCartId(val value: String) {
     }
 
     companion object {
-        fun generate() = VisitorCartId(UUID.randomUUID().toString())
+        fun generate() = VisitorCartId(Identity.nextId().value)
 
         fun isValid(value: String?) = value != null && runCatching { UUID.fromString(value) }.isSuccess
     }

@@ -76,7 +76,11 @@ data class DefinedProduct(
     val price: Price): Product {
     constructor(productId: ProductId, name: Name, price: Price) : this(productId, name, Description("No description"), Category.NOT_DEFINED, price)
 }
-data class ProductId(val id: Identity)
+data class ProductId(val id: Identity) {
+    companion object {
+        fun generate() = ProductId(Identity.nextId())
+    }
+}
 data class Price(val amount: Amount, val currency: Currency) {
     fun multiply(quantity: Quantity) = Price(amount.multiply(quantity), currency)
 }
@@ -93,7 +97,12 @@ data class Quantity(val value: Int) {
     fun isPositive() = value > 0
     fun isNotZero() = !isZero()
 }
-data class Identity(val value: String)
+data class Identity(val value: String) {
+    companion object {
+        // A new unique identity: every new id of the application comes from here
+        fun nextId() = Identity(java.util.UUID.randomUUID().toString())
+    }
+}
 enum class Currency(val symbol: String) {
     EUR("€"), USD("$");
     companion object {

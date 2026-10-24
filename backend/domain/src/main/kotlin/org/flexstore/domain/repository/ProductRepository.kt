@@ -13,4 +13,6 @@ interface ProductRepository {
     fun findAllBy(category: Category): List<Product>
     fun exists(product: Product): Boolean
     fun notExists(product: Product): Boolean
+    fun productExists(productId: ProductId): Boolean
+    fun productIsMissing(productId: ProductId): Boolean = !productExists(productId)
 }

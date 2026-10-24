@@ -4,7 +4,7 @@ import at.favre.lib.crypto.bcrypt.BCrypt
 import org.flexstore.domain.entity.*
 import org.flexstore.domain.repository.UserRepository
 import org.flexstore.domain.valueobject.Name
-import java.util.UUID
+import org.flexstore.domain.valueobject.Identity
 
 class InMemoryUserRepository : UserRepository {
     
@@ -21,7 +21,7 @@ class InMemoryUserRepository : UserRepository {
         val userToSave = when (user) {
             is User.DefinedUser -> hashPasswordIfNeeded(user)
             is User.DraftUser -> hashPasswordIfNeeded(
-                User.DefinedUser(UserId.ValidUserId(UUID.randomUUID().toString()), user.name, user.email, user.password)
+                User.DefinedUser(UserId.ValidUserId(Identity.nextId().value), user.name, user.email, user.password)
             )
             else -> user
         }

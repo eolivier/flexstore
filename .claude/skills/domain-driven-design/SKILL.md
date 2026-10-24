@@ -65,3 +65,120 @@ Consequences:
 - a REST controller calls a use case (or a use case facade), never an entity built with repositories;
 - rules that need external data (the catalog product) receive it as a parameter, loaded by the use case;
 - a use case raises the business exceptions (`ProductNotFoundException`...) when loaded data is missing.
+
+## 3. A use case holds no state between calls
+
+A use case keeps nothing from one call to the next: no field set by a call, such as a `lateinit var createdProduct` read by the caller afterwards. A use case may be shared (a Spring singleton bean) and called by several requests at the same time: a result stored in a field can be overwritten by another request before the caller reads it.
+
+Its only fields are its dependencies (repositories, ports), set once at construction. Everything about a call lives in the request object or in local variables.
+
+To give a result back to the caller without storing it:
+- let the caller choose the identity of what is created (`ProductId.generate()`), pass it in the request, then read the created object with a read use case;
+- or keep the call's data in local variables of the steps; when a postcondition needs data loaded during the scenario, check what can be read back from the repositories instead.
+
+Avoid:
+
+```kotlin
+class CreateProductUseCase(private val productRepository: ProductRepository) : UseCase<Product> {
+    lateinit var createdProduct: Product
+    // nominal step: createdProduct = productRepository.save(product)
+}
+// caller: useCase.unfold(draft); return useCase.createdProduct
+```
+
+Prefer:
+
+```kotlin
+data class CreateProductRequest(val productId: ProductId, val draftProduct: DraftProduct)
+
+class CreateProductUseCase(private val productRepository: ProductRepository) : UseCase<CreateProductRequest> {
+    // nominal step: productRepository.save(request.definedProduct())
+}
+// caller: val productId = ProductId.generate(); useCase.unfold(CreateProductRequest(productId, draft)); return readProductUseCase.getProduct(productId)
+```
+
+Creating a new use case instance for each call avoids the sharing, but the state stays a trap for the next caller who shares the instance: prefer stateless use cases anyway.
+
+## 4. Package the domain by business function
+
+The domain is split by business function, not by technical kind, so that the subdomains and bounded contexts emerge from the code: `org.flexstore.domain.order`, `org.flexstore.domain.cart`, `org.flexstore.domain.product`, `org.flexstore.domain.user`. A package holds everything of its function: entities, value objects, aggregates, use cases, repository ports, business exceptions.
+
+When a functional package holds too many classes to read at a glance, split it inside with technical sub-packages:
+- `model`: value objects, entities, aggregates (and their business exceptions);
+- `usecase`: the use cases and their requests;
+- `repository`: the repository ports.
+
+Do not create a technical sub-package for a single class: keep that class at the level of its functional package.
+
+Avoid:
+
+```
+domain/entity/Order.kt
+domain/repository/OrderRepository.kt
+domain/usecase/order/PlaceOrderUseCase.kt
+```
+
+Prefer:
+
+```
+domain/order/Order.kt
+domain/order/OrderRepository.kt
+domain/order/PlaceOrderUseCase.kt
+```
+
+and, once the package grows:
+
+```
+domain/order/model/Order.kt, OrderLines.kt, OrderStatus.kt...
+domain/order/usecase/PlaceOrderUseCase.kt, ReadOrdersUseCase.kt...
+domain/order/OrderRepository.kt        (a single port: no repository/ sub-package)
+```
+
+Why: the package tree tells what the application does (orders, carts, catalog) before how it is built; the dependencies between functions become visible, which shows where the bounded contexts are.
+
+## 5. Name things after the business
+
+Methods, especially on repository ports, are named after the business question they answer, not after their technical implementation. Combine with the affirmative methods of the `fluent-code-reading-semantic` skill.
+
+Avoid:
+
+```kotlin
+if (productRepository.findById(request.productId) == null) { ... }
+```
+
+Prefer:
+
+```kotlin
+if (productRepository.productIsMissing(request.productId)) { ... }
+// and productRepository.productExists(productId) where the affirmative case is checked
+```
+
+Why: the condition reads as the business rule ("if the product is missing"), the null check and the lookup stay in the adapter.
+
+## 6. Instantiating a domain class takes minimal work
+
+Creating a domain object should not require the caller to know how its parts are built. When building a value takes more than passing data (generating an id, applying a default, combining values), give the class a factory method with a business name, and call it everywhere: the logic lives once, in the domain.
+
+Avoid:
+
+```kotlin
+ProductId(Identity(java.util.UUID.randomUUID().toString()))
+CartEntity(id = UUID.randomUUID().toString(), ...)          // the same logic repeated in an adapter
+```
+
+Prefer:
+
+```kotlin
+data class Identity(val value: String) {
+    companion object {
+        fun nextId() = Identity(UUID.randomUUID().toString())
+    }
+}
+
+ProductId(Identity.nextId())
+CartEntity(id = Identity.nextId().value, ...)
+```
+
+Why: the way ids (or any other derived value) are built is decided in one place; changing it (another id format, a sequence) changes one method; callers read what they get ("the next id"), not how it is made.
+
+This applies to the adapters and the tests too: they reuse the domain factories (`Identity.nextId()`, `VisitorCartId.generate()`) instead of repeating their logic.

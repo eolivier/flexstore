@@ -8,7 +8,6 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
-import java.util.UUID
 
 @Repository
 interface JpaCartRepository : JpaRepository<CartEntity, String> {
@@ -47,7 +46,7 @@ class PostgresCartRepositoryAdapter(
                 }
                 is DraftItem -> itemRepo.save(
                     CartItemEntity(
-                        id = UUID.randomUUID().toString(),
+                        id = Identity.nextId().value,
                         cartId = cartEntity.id,
                         product = productRepo.getReferenceById(item.product.productId.id.value),
                         quantity = item.quantity.value
@@ -73,7 +72,7 @@ class PostgresCartRepositoryAdapter(
     }
 
     private fun newCartEntity(owner: CartOwner) = when (owner) {
-        is CartOwner.Customer -> CartEntity(id = UUID.randomUUID().toString(), userId = owner.userId.value)
+        is CartOwner.Customer -> CartEntity(id = Identity.nextId().value, userId = owner.userId.value)
         is CartOwner.Visitor -> CartEntity(id = owner.cartId.value)
     }
 

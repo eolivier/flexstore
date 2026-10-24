@@ -1,6 +1,7 @@
 package org.flexstore.infra.spring.rest
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.flexstore.domain.entity.VisitorCartId
 import org.flexstore.infra.spring.adapter.jpa.JpaCartItemRepository
 import org.flexstore.infra.spring.adapter.jpa.JpaCartRepository
 import org.flexstore.infra.spring.adapter.rest.CART_ID_HEADER
@@ -21,7 +22,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.math.BigDecimal
-import java.util.UUID
 
 // The administration account created by the migrations: a customer cart references an existing user
 private const val CUSTOMER_ID = "u-admin"
@@ -43,7 +43,7 @@ class CartOwnershipIT {
     @Autowired
     private lateinit var cartRepository: JpaCartRepository
 
-    private val visitorCartId = UUID.randomUUID().toString()
+    private val visitorCartId = VisitorCartId.generate().value
 
     @BeforeEach
     @AfterEach
@@ -67,7 +67,7 @@ class CartOwnershipIT {
         // Arrange
         mockMvc.perform(saveItem(productId = "1", quantity = 1).header(CART_ID_HEADER, visitorCartId))
         // Act
-        val result = mockMvc.perform(get("/api/cart/cart-items").header(CART_ID_HEADER, UUID.randomUUID().toString()))
+        val result = mockMvc.perform(get("/api/cart/cart-items").header(CART_ID_HEADER, VisitorCartId.generate().value))
         // Assert
         result.andExpect(status().isOk)
             .andExpect(jsonPath("$.items.length()").value(0))

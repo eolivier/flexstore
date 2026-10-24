@@ -1,6 +1,7 @@
 package org.flexstore.infra.spring.rest
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.flexstore.domain.entity.VisitorCartId
 import org.flexstore.infra.spring.adapter.jpa.JpaCartItemRepository
 import org.flexstore.infra.spring.adapter.jpa.JpaCartRepository
 import org.flexstore.infra.spring.adapter.jpa.JpaProductRepository
@@ -22,7 +23,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.math.BigDecimal
-import java.util.UUID
 
 private const val TEST_PRODUCT_NAME = "Persistence IT product"
 
@@ -47,7 +47,7 @@ class ProductAndCartPersistenceIT {
     private lateinit var productRepository: JpaProductRepository
 
     // The cart of a visitor
-    private val cartId = UUID.randomUUID().toString()
+    private val cartId = VisitorCartId.generate().value
 
     @BeforeEach
     @AfterEach
