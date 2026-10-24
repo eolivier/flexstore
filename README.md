@@ -95,7 +95,18 @@ export FLEXSTORE_DATABASE_URL=postgresql://flex:flex@localhost:5432/flexstore
 
 The server starts on [http://localhost:8080](http://localhost:8080) (health check: `/actuator/health`).
 
-**Emails**: the order confirmation emails are sent with SMTP when `SPRING_MAIL_HOST` is set (with `SPRING_MAIL_PORT`, `SPRING_MAIL_USERNAME`, `SPRING_MAIL_PASSWORD`, sender `FLEXSTORE_MAIL_FROM`, shop address for the links `FLEXSTORE_FRONT_URL`); without it, they are written to the logs. Locally, `docker compose up -d mailpit` starts an SMTP server that catches them: start the back end with `SPRING_MAIL_HOST=localhost SPRING_MAIL_PORT=1025` and read them on [http://localhost:8025](http://localhost:8025).
+**Emails**: the order confirmation emails are sent with the SMTP server configured in `application.yml` (`spring.mail.*`), through these variables; when `FLEXSTORE_MAIL_HOST` is empty, they are written to the logs instead.
+
+| Variable | Default | |
+|---|---|---|
+| `FLEXSTORE_MAIL_HOST` | empty (logs) | SMTP server, e.g. `smtp-relay.brevo.com` |
+| `FLEXSTORE_MAIL_PORT` | `587` | |
+| `FLEXSTORE_MAIL_USERNAME` / `FLEXSTORE_MAIL_PASSWORD` | empty | credentials given by the provider |
+| `FLEXSTORE_MAIL_SMTP_AUTH` / `FLEXSTORE_MAIL_SMTP_STARTTLS` | `true` / `true` | `false` / `false` for a local server such as Mailpit |
+| `FLEXSTORE_MAIL_FROM` | `Flexstore <no-reply@flexstore.com>` | sender (often to be validated at the provider) |
+| `FLEXSTORE_FRONT_URL` | `http://localhost:5173` | address of the shop, for the link to the order |
+
+Locally, `docker compose up -d mailpit` starts an SMTP server that catches the emails ([http://localhost:8025](http://localhost:8025)): start the back end with `FLEXSTORE_MAIL_HOST=localhost FLEXSTORE_MAIL_PORT=1025 FLEXSTORE_MAIL_SMTP_AUTH=false FLEXSTORE_MAIL_SMTP_STARTTLS=false` (the `app` service of docker compose is already configured so). On Render, the variables are declared in `render.yaml` and their values set in the dashboard. Sending can be turned off in Administration > Paramètres.
 
 Set `FLEXSTORE_JWT_SECRET` (at least 32 characters) to sign the authentication tokens. Without it, a random secret is used and tokens stop working when the back end restarts.
 
