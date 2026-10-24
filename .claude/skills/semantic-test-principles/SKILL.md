@@ -1,11 +1,11 @@
 ---
-name: semantic-test-rule
-description: Rules for the structure and wording of automated tests (unit, integration, front-end). Use before writing, changing or reviewing any test, in any language or framework (JUnit, Kotest, Vitest...).
+name: semantic-test-principles
+description: Principles for the structure and wording of automated tests (unit, integration, front-end). Use before writing, changing or reviewing any test, in any language or framework (JUnit, Kotest, Vitest...).
 ---
 
-# Semantic test rules
+# Semantic test principles
 
-Rules collected from the user's feedback. Apply them to every test you write or change, and check them in reviews. When an existing test breaks them, point it out (and fix it if you are already changing that test).
+Principles collected from the user's feedback. Apply them to every test you write or change, and check them in reviews. When an existing test breaks them, point it out (and fix it if you are already changing that test).
 
 ## 1. Arrange, Act, Assert
 
