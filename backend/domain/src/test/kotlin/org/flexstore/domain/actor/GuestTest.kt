@@ -5,11 +5,13 @@ import org.assertj.core.api.Assertions.assertThat
 import org.flexstore.domain.entity.*
 import org.flexstore.domain.entity.User.DefinedUser
 import org.flexstore.domain.entity.UserId.ValidUserId
-import org.flexstore.domain.usecase.basket.AddItemToBasketUseCase
+import org.flexstore.domain.usecase.basket.AddItemToCartRequest
+import org.flexstore.domain.usecase.basket.AddItemToCartUseCase
 import org.flexstore.domain.usecase.user.CreateUserUseCase
 import org.flexstore.domain.valueobject.*
 import org.flexstore.infra.repository.InMemoryUserRepository
-import org.flexstore.infra.repository.InMemoryItemRepository
+import org.flexstore.infra.repository.InMemoryCartRepository
+import org.flexstore.infra.repository.InMemoryProductRepository
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*
 import java.math.BigDecimal
@@ -22,7 +24,7 @@ class GuestTest {
         val userRepository = spy(InMemoryUserRepository())
         
         val createUserUseCase = CreateUserUseCase(userRepository)
-        val guest = Guest(createUserUseCase, mock(AddItemToBasketUseCase::class.java))
+        val guest = Guest(createUserUseCase, mock(AddItemToCartUseCase::class.java))
         val user = DefinedUser(ValidUserId("user1"), Name("John Doe"), Email("1@1.fr"), PlainPassword("password123"))
         // Act
         guest.performCreateUser(user)
@@ -35,24 +37,19 @@ class GuestTest {
     }
 
     @Test
-    fun `should perform add item to basket use case`() {
+    fun `should perform add item to cart use case`() {
         // Arrange
-        val itemRepository = spy(InMemoryItemRepository())
-        itemRepository.clear()
-        val cart = Cart(itemRepository)
-        val addItemToBasketUseCase = AddItemToBasketUseCase(cart)
-        val guest = Guest(mock(CreateUserUseCase::class.java), addItemToBasketUseCase)
-        val draftItem = DraftItem(
-            product = DefinedProduct(
-                productId = ProductId(Identity("product1")),
-                name = Name("product1"),
-                price = Price(Amount(BigDecimal(10)), Currency.EUR)
-            ),
-            quantity = Quantity(1)
+        val product = DefinedProduct(
+            productId = ProductId(Identity("product1")),
+            name = Name("product1"),
+            price = Price(Amount(BigDecimal(10)), Currency.EUR)
         )
+        val cartRepository = InMemoryCartRepository()
+        val addItemToCartUseCase = AddItemToCartUseCase(cartRepository, InMemoryProductRepository().apply { save(product) })
+        val guest = Guest(mock(CreateUserUseCase::class.java), addItemToCartUseCase)
         // Act
-        guest.performAddItemToBasket(draftItem, Quantity(1))
+        guest.performAddItemToCart(AddItemToCartRequest(product.productId, Quantity(1)))
         // Assert
-        verify(itemRepository).add(draftItem)
+        assertThat(cartRepository.load().findBy(product.productId)).isNotNull
     }
 }

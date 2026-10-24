@@ -1,42 +1,59 @@
 package org.flexstore.domain.entity
 
-import org.flexstore.domain.repository.ItemRepository
 import org.flexstore.domain.valueobject.*
+import org.ucop.domain.NominalException
+import org.ucop.domain.NonEmptyString
 
-class Cart(private val itemRepository: ItemRepository) {
+/**
+ * Cart aggregate: its items and the cart rules, without any repository (the use cases load and save it).
+ * - an item holds the catalog product given by the use case
+ * - a product is in the cart at most once: adding it again changes the quantity of its item
+ * - an item whose quantity becomes zero or negative is removed
+ * New items are DraftItem until the cart is saved.
+ */
+data class Cart(val items: List<Item> = emptyList()) {
 
-    fun getItems() = itemRepository.getItems()
+    init {
+        require(items.none { it is NoItem }) { "A cart only holds cart items and draft items" }
+    }
 
-    fun save(item: Item)  {
-        when (item) {
-            is DraftItem -> add(item)
-            is CartItem -> update(item)
-            is NoItem -> throw UnknownItemException("Unknown item : $item")
+    fun add(product: DefinedProduct, quantity: Quantity): Cart {
+        if (!quantity.isPositive()) {
+            throw InvalidQuantityException(NonEmptyString("Quantity must be positive: ${quantity.value}"))
         }
-    }
-
-    fun add(draftItem: DraftItem) = itemRepository.add(draftItem)
-
-    fun update(cartItem: CartItem) = itemRepository.update(cartItem)
-
-    fun removeItem(item: Item) = itemRepository.remove(item)
-
-    fun changeQuantity(item: Item, newQuantity: Quantity) {
-        modifyQuantity(item) { it.changeQuantity(newQuantity) }
-    }
-
-    fun increaseQuantity(item: Item) = modifyQuantity(item) { it.increase() }
-
-    fun decreaseQuantity(item: Item)  = modifyQuantity(item) { it.decrease() }
-
-    fun modifyQuantity(item: Item, operation: (Item) -> Item) {
-        when (item) {
-            is DraftItem -> add(operation(item) as DraftItem)
-            is CartItem -> update(operation(item) as CartItem)
-            is NoItem -> throw UnknownItemException("Unknown item : $item")
+        val index = items.indexOfFirst { productIdOf(it) == product.productId }
+        if (index == -1) {
+            return copy(items = items + DraftItem(product, quantity))
         }
+        val updatedItem = when (val item = items[index]) {
+            is CartItem -> item.copy(product = product, quantity = quantity)
+            is DraftItem -> item.copy(product = product, quantity = quantity)
+            is NoItem -> item
+        }
+        return copy(items = items.toMutableList().apply { set(index, updatedItem) })
     }
 
-    fun findBy(itemId: ItemId) = itemRepository.findById(itemId) ?: NoItem
+    // An unknown item (e.g. already removed from another page) leaves the cart unchanged
+    fun changeQuantity(itemId: ItemId, quantity: Quantity): Cart {
+        if (!quantity.isPositive()) {
+            return remove(itemId)
+        }
+        return copy(items = items.map { if (it is CartItem && it.itemId == itemId) it.copy(quantity = quantity) else it })
+    }
+
+    fun remove(itemId: ItemId): Cart = copy(items = items.filterNot { it is CartItem && it.itemId == itemId })
+
+    fun findBy(itemId: ItemId): CartItem? = items.filterIsInstance<CartItem>().firstOrNull { it.itemId == itemId }
+
+    fun findBy(productId: ProductId): Item? = items.firstOrNull { productIdOf(it) == productId }
+
+    fun toItems() = Items(items)
+
+    private fun productIdOf(item: Item): ProductId? = when (item) {
+        is CartItem -> item.product.productId
+        is DraftItem -> item.product.productId
+        is NoItem -> null
+    }
 }
 
+data class InvalidQuantityException(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
