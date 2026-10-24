@@ -2,7 +2,7 @@ package org.flexstore.domain.user
 
 import org.flexstore.domain.sharedkernel.*
 import org.ucop.domain.NominalException
-import org.ucop.domain.NonEmptyString
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.Actor
 
 sealed class User(open val id: UserId) {
@@ -78,16 +78,16 @@ data class PlainPassword(override val value: String) : Password()
 data class HashedPassword(override val value: String) : Password()
 
 // creation
-data class UserAlreadyExists(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
-data class UserCreationFailed(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
-data class InvalidPasswordException(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
+data class UserAlreadyExists(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class UserCreationFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class InvalidPasswordException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 // read
-data class InvalidUserIdException(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
-data class UserNotFoundException(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
-data class UserRetrievalFailed(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
+data class InvalidUserIdException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class UserNotFoundException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class UserRetrievalFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 // delete
-data class UserDeletionFailed(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
+data class UserDeletionFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 // login
-data class InvalidCredentialsException(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
-data class UserNotFoundByEmailException(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
+data class InvalidCredentialsException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class UserNotFoundByEmailException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 

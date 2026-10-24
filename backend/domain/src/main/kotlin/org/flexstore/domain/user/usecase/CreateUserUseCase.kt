@@ -2,7 +2,7 @@ package org.flexstore.domain.user.usecase
 
 import org.flexstore.domain.user.*
 import org.ucop.domain.NominalException
-import org.ucop.domain.NonEmptyString
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 import kotlin.reflect.KClass
 
@@ -47,24 +47,24 @@ class CreateUserUseCase(
         when (user) {
             // A draft user has no ID yet: uniqueness is checked on the email
             is User.DraftUser -> if (userRepository.emailIsAlreadyUsed(user.email)) {
-                throw UserAlreadyExists(NonEmptyString("User with email ${user.email.value} already exists."))
+                throw UserAlreadyExists(ErrorMessage("User with email ${user.email.value} already exists."))
             }
             else -> if (userRepository.exists(user.id)) {
-                throw UserAlreadyExists(NonEmptyString("User with ID ${user.id.value} already exists."))
+                throw UserAlreadyExists(ErrorMessage("User with ID ${user.id.value} already exists."))
             }
         }
     }
 
     private fun passwordIsNotBlankCondition() = PreCondition<User> { user ->
         if (user is User.DraftUser && user.password.value.isBlank()) {
-            throw InvalidPasswordException(NonEmptyString("Password must not be blank."))
+            throw InvalidPasswordException(ErrorMessage("Password must not be blank."))
         }
     }
 
     // Checked on the saved user, since a draft user only gets its ID from the repository
     private fun userExistsCondition(): PostCondition<User> = PostCondition<User> {
         if (userRepository.notExists(createdUser.id)) {
-            throw UserCreationFailed(NonEmptyString("User with ID ${createdUser.id.value} was not created."))
+            throw UserCreationFailed(ErrorMessage("User with ID ${createdUser.id.value} was not created."))
         }
     }
 }

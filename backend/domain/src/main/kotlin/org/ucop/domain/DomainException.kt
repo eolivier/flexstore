@@ -1,15 +1,14 @@
 package org.ucop.domain
 
-data class StepException(val nonEmptyMessage: NonEmptyString) : Exception(nonEmptyMessage.value)
-open class NominalException(open val nonEmptyMessage: NonEmptyString) : Exception(nonEmptyMessage.value)
-data class PreConditionException(val nonEmptyMessage: NonEmptyString) : Exception(nonEmptyMessage.value)
-data class PostConditionException(val nonEmptyMessage: NonEmptyString) : Exception(nonEmptyMessage.value)
-data class AlternativeException(val nonEmptyMessage: NonEmptyString) : Exception(nonEmptyMessage.value)
+data class StepException(val errorMessage: ErrorMessage) : Exception(errorMessage.value)
+open class NominalException(open val errorMessage: ErrorMessage) : Exception(errorMessage.value)
+data class PreConditionException(val errorMessage: ErrorMessage) : Exception(errorMessage.value)
+data class PostConditionException(val errorMessage: ErrorMessage) : Exception(errorMessage.value)
+data class AlternativeException(val errorMessage: ErrorMessage) : Exception(errorMessage.value)
 
-data class NonEmptyString(val value: String) {
+// The message of a domain exception: never empty, so that every failure says what happened
+data class ErrorMessage(val value: String) {
     init {
-        if (value.isEmpty()) {
-            throw IllegalArgumentException("Value must not be empty")
-        }
+        require(value.isNotEmpty()) { "An error message must not be empty" }
     }
 }

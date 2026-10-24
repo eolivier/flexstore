@@ -4,7 +4,7 @@ import org.flexstore.domain.cart.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
 import org.ucop.domain.NominalException
-import org.ucop.domain.NonEmptyString
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 data class AddItemToCartRequest(val owner: CartOwner, val productId: ProductId, val quantity: Quantity)
@@ -28,7 +28,7 @@ class AddItemToCartUseCase(
 
     private fun catalogProduct(productId: ProductId): DefinedProduct =
         productRepository.findById(productId)
-            ?: throw ProductNotFoundException(NonEmptyString("Product ${productId.id.value} not found."))
+            ?: throw ProductNotFoundException(ErrorMessage("Product ${productId.id.value} not found."))
 
     private fun productExistsCondition() = PreCondition<AddItemToCartRequest> { request ->
         catalogProduct(request.productId)
@@ -37,9 +37,9 @@ class AddItemToCartUseCase(
     private fun itemHasQuantityCondition() = PostCondition<AddItemToCartRequest> { request ->
         val item = cartRepository.load(request.owner).findBy(request.productId)
         if (item !is CartItem || item.quantity != request.quantity) {
-            throw CartUpdateFailed(NonEmptyString("Product ${request.productId.id.value} was not added to the cart."))
+            throw CartUpdateFailed(ErrorMessage("Product ${request.productId.id.value} was not added to the cart."))
         }
     }
 }
 
-data class CartUpdateFailed(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
+data class CartUpdateFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

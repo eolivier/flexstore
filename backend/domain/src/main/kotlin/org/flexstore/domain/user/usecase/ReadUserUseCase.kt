@@ -3,7 +3,7 @@ package org.flexstore.domain.user.usecase
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.User.DefinedUser
 import org.ucop.domain.NominalException
-import org.ucop.domain.NonEmptyString
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 import kotlin.reflect.KClass
 
@@ -41,19 +41,19 @@ class ReadUserUseCase(private val userRepository: UserRepository) : UseCase<User
 
     private fun userExistsCondition() = PreCondition<UserId> { userId ->
         if (userRepository.notExists(userId)) {
-            throw UserNotFoundException(NonEmptyString("User with ID ${userId.value} does not exist."))
+            throw UserNotFoundException(ErrorMessage("User with ID ${userId.value} does not exist."))
         }
     }
 
     private fun isValidUserIdCondition() = PreCondition<UserId> { userId ->
         if (userId.isInvalid()) {
-            throw InvalidUserIdException(NonEmptyString("User ID ${userId.value} is invalid."))
+            throw InvalidUserIdException(ErrorMessage("User ID ${userId.value} is invalid."))
         }
     }
 
     private fun userRetrievedCondition() = PostCondition<UserId> { userId ->
         if (retrievedUser is User.UndefinedUser) {
-            throw UserNotFoundException(NonEmptyString("User with ID ${userId.value} does not exist."))
+            throw UserNotFoundException(ErrorMessage("User with ID ${userId.value} does not exist."))
         }
     }
 }
