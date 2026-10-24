@@ -18,8 +18,10 @@ sealed class User(open val id: UserId) {
         override fun user(userId: UserId) = DefinedUser(userId, name, email, password, role)
     }
 
-    data class DraftUser(val name: Name, val email: Email, val password: Password) : User(UserId.InvalidUserId("")) {
-        override fun user(userId: UserId) = DraftUser(name, email, password)
+    // A user to create: the administrator who creates it chooses its role
+    data class DraftUser(val name: Name, val email: Email, val password: Password, val role: Role = Role.USER) :
+        User(UserId.InvalidUserId("")) {
+        override fun user(userId: UserId) = DraftUser(name, email, password, role)
     }
 
     data class UndefinedUser(override val id: UserId, val reason: String) : User(id) {
@@ -67,7 +69,18 @@ fun UserId.Companion.of(value: String): UserId {
 data class Email(val value: String)
 
 // ADMIN can manage the users and the products
-enum class Role { USER, ADMIN }
+enum class Role {
+    USER, ADMIN;
+
+    companion object {
+        // The role given by name; a user without a given role is a USER
+        fun fromName(name: String?): Role =
+            if (name.isNullOrBlank()) USER
+            else entries.find { it.name == name } ?: throw InvalidRoleException(NonEmptyString("Unknown role: $name"))
+    }
+}
+
+data class InvalidRoleException(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
 
 sealed class Password {
     abstract val value: String

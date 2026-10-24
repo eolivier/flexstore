@@ -19,6 +19,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import kotlin.test.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 
 private const val USER_ID = "1"
 private const val DRAFT_USER_EMAIL = "draft.user@example.com"
@@ -63,6 +65,33 @@ class UserRestControllerIT {
         val savedUser = userRepository.findByEmail(Email(DRAFT_USER_EMAIL))
         assertThat(savedUser).isInstanceOf(User.DefinedUser::class.java)
         assertThat((savedUser as User.DefinedUser).password).isInstanceOf(HashedPassword::class.java)
+    }
+
+    @ParameterizedTest(name = "role sent: {0} -> user created as {1}")
+    @CsvSource("ADMIN, ADMIN", "USER, USER", ", USER")
+    fun `should create the user with the chosen role`(role: String?, expectedRole: String) {
+        // Arrange
+        val draftJsonUser = DraftJsonUser("Draft User", DRAFT_USER_EMAIL, "testpassword", role)
+        // Act
+        val response = mockMvc.perform(
+            post("/api/users").with(asAdmin()).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(draftJsonUser))
+        )
+        // Assert
+        response.andExpect(status().isCreated)
+            .andExpect(jsonPath("$.role").value(expectedRole))
+        assertThat((userRepository.findByEmail(Email(DRAFT_USER_EMAIL)) as User.DefinedUser).role).isEqualTo(Role.valueOf(expectedRole))
+    }
+
+    @Test
+    fun `should not create a user with an unknown role`() {
+        // Arrange
+        val draftJsonUser = DraftJsonUser("Draft User", DRAFT_USER_EMAIL, "testpassword", "SUPERVISOR")
+        // Act
+        val response = mockMvc.perform(
+            post("/api/users").with(asAdmin()).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(draftJsonUser))
+        )
+        // Assert
+        response.andExpect(status().isUnprocessableEntity)
     }
 
     @Test

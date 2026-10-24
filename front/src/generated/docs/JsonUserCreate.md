@@ -8,6 +8,7 @@ Name | Type | Description | Notes
 **name** | **string** |  | [default to undefined]
 **email** | **string** |  | [default to undefined]
 **password** | **string** | User\&#39;s password (will be hashed by the server) | [default to undefined]
+**role** | **string** | Role of the new user (USER when absent) | [optional] [default to undefined]
 
 ## Example
 
@@ -18,6 +19,7 @@ const instance: JsonUserCreate = {
     name,
     email,
     password,
+    role,
 };
 ```
 
