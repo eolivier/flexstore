@@ -1,9 +1,9 @@
 package org.flexstore.domain.user
 
 import org.assertj.core.api.WithAssertions
+import org.flexstore.domain.email.*
 import org.flexstore.domain.user.usecase.*
 import org.flexstore.infra.repository.InMemoryEmailRepository
-import org.flexstore.infra.repository.InMemoryEmailVerificationRepository
 import org.flexstore.infra.repository.InMemoryUserRepository
 import org.junit.jupiter.api.Test
 import java.time.Clock
@@ -15,12 +15,11 @@ class CustomerRegistrationServiceTest : WithAssertions {
 
     private val now = Instant.parse("2026-10-24T10:00:00Z")
     private val userRepository = InMemoryUserRepository()
-    private val verificationRepository = InMemoryEmailVerificationRepository()
     private val emailRepository = InMemoryEmailRepository()
-    private val verifyEmailUseCase = VerifyEmailUseCase(userRepository, verificationRepository)
+    private val verifyEmailUseCase = VerifyEmailUseCase(userRepository, emailRepository)
     private val service = CustomerRegistrationService(
         RegisterCustomerUseCase(userRepository),
-        SendVerificationEmailUseCase(userRepository, verificationRepository, emailRepository),
+        SendVerificationEmailUseCase(userRepository, emailRepository, VerificationPage("https://shop.example/verify-email")),
         verifyEmailUseCase,
         ReadAccountUseCase(userRepository),
         Clock.fixed(now, ZoneOffset.UTC)
@@ -29,7 +28,7 @@ class CustomerRegistrationServiceTest : WithAssertions {
 
     private fun stored() = userRepository.findById(jane.userId) as User.DefinedUser
 
-    private fun lastLink() = emailRepository.sentVerificationEmails().last().token
+    private fun lastLink() = emailRepository.sentVerificationLinks().last().token
 
     @Test
     fun `a new customer should receive a verification link valid for 1 hour`() {
@@ -37,10 +36,11 @@ class CustomerRegistrationServiceTest : WithAssertions {
         val account = service.register(jane)
         // Assert
         assertThat(account.status).isEqualTo(AccountStatus.PENDING_VERIFICATION)
-        val email = emailRepository.sentVerificationEmails().single()
+        val email = emailRepository.sentVerificationLinks().single()
         assertThat(email.recipient).isEqualTo(jane.email)
         assertThat(email.customerName).isEqualTo(jane.fullName)
         assertThat(email.expiresAt).isEqualTo(ExpirationDate(now + Duration.ofHours(1)))
+        assertThat(email.link().value).startsWith("https://shop.example/verify-email?token=")
     }
 
     @Test
@@ -92,7 +92,7 @@ class CustomerRegistrationServiceTest : WithAssertions {
         // Act
         service.sendVerificationEmail(jane.userId)
         // Assert
-        assertThat(emailRepository.sentVerificationEmails()).hasSize(2)
+        assertThat(emailRepository.sentVerificationLinks()).hasSize(2)
         assertThat(catchThrowable { service.verifyEmail(previousLink) }).isInstanceOf(VerificationLinkUnknownException::class.java)
     }
 

@@ -1,10 +1,12 @@
-package org.flexstore.domain.user
+package org.flexstore.domain.email
 
 import org.assertj.core.api.WithAssertions
+import org.flexstore.domain.user.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.EnumSource
+import org.junit.jupiter.params.provider.ValueSource
 import java.time.Duration
 import java.time.Instant
 
@@ -12,6 +14,9 @@ class EmailVerificationTest : WithAssertions {
 
     private val requestedAt = Instant.parse("2026-10-24T10:00:00Z")
     private val userId = UserId.ValidUserId("u-1")
+
+    private fun userWith(status: AccountStatus) =
+        User.DefinedUser(userId, FullName(FirstName("Jane"), LastName("Doe")), Email("jane@example.com"), PlainPassword("password"), status = status)
 
     @Test
     fun `a verification link should be valid for 1 hour`() {
@@ -49,23 +54,35 @@ class EmailVerificationTest : WithAssertions {
         "LOCKED, LOCKED",
         "DISABLED, DISABLED",
     )
-    fun `verifying the email should only activate an account that waits for it`(status: AccountStatus, expected: AccountStatus) {
+    fun `confirming the email should only activate an account that waits for it`(status: AccountStatus, expected: AccountStatus) {
         // Arrange
-        val user = User.DefinedUser(userId, FullName(FirstName("Jane"), LastName("Doe")), Email("jane@example.com"), PlainPassword("password"), status = status)
+        val verification = EmailVerification.requestedAt(userId, requestedAt)
         // Act
-        val verified = user.withEmailVerified()
+        val confirmed = verification.confirm(userWith(status))
         // Assert
-        assertThat(verified.status).isEqualTo(expected)
+        assertThat(confirmed.status).isEqualTo(expected)
     }
 
     @ParameterizedTest(name = "{0}")
     @EnumSource(AccountStatus::class)
-    fun `only an account that waits for the verification should have an unverified email`(status: AccountStatus) {
-        // Arrange
-        val user = User.DefinedUser(userId, FullName(FirstName("Jane"), LastName("Doe")), Email("jane@example.com"), PlainPassword("password"), status = status)
+    fun `only an account that waits for the verification of its email should need a link`(status: AccountStatus) {
         // Act
-        val verified = user.hasVerifiedEmail()
+        val needed = EmailVerification.isNeededFor(userWith(status))
         // Assert
-        assertThat(verified).isEqualTo(status != AccountStatus.PENDING_VERIFICATION)
+        assertThat(needed).isEqualTo(status == AccountStatus.PENDING_VERIFICATION)
+    }
+
+    @ParameterizedTest(name = "page \"{0}\"")
+    @ValueSource(strings = ["https://shop.example/verify-email", "https://shop.example/verify-email/"])
+    fun `the link should open the verification page with the token`(page: String) {
+        // Arrange
+        val email = EmailVerificationLink(
+            Email("jane@example.com"), FullName(FirstName("Jane"), LastName("Doe")), VerificationPage(page),
+            VerificationToken("abc123"), ExpirationDate(requestedAt)
+        )
+        // Act
+        val link = email.link()
+        // Assert
+        assertThat(link).isEqualTo(Link("https://shop.example/verify-email?token=abc123"))
     }
 }

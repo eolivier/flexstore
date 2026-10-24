@@ -2,6 +2,7 @@ package org.flexstore.infra.spring.adapter.email
 
 import org.assertj.core.api.Assertions.assertThat
 import org.flexstore.domain.cart.*
+import org.flexstore.domain.email.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
@@ -21,14 +22,14 @@ import java.math.BigDecimal
 import java.time.Instant
 
 @ExtendWith(OutputCaptureExtension::class)
-class SmtpEmailRepositoryAdapterTest {
+class SmtpEmailSenderTest {
 
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val lamp = DefinedProduct(ProductId(Identity("lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR))
     private val order = Order.place(OrderPlacement(OrderId("c5f7326c-0000"), customer, Instant.parse("2026-10-24T10:00:00Z")), Cart(customer).add(lamp, Quantity(1)))
     private val email = OrderConfirmationEmail(Email("jane@example.com"), FullName(FirstName("Jane"), LastName("Doe")), order)
     private val mailSender = mock(JavaMailSender::class.java)
-    private val adapter = SmtpEmailRepositoryAdapter(mailSender, "Flexstore <no-reply@flexstore.com>", "https://flexstore.example")
+    private val adapter = SmtpEmailSender(mailSender, "Flexstore <no-reply@flexstore.com>", "https://flexstore.example")
 
     @Test
     fun `should log the email sent`(output: CapturedOutput) {

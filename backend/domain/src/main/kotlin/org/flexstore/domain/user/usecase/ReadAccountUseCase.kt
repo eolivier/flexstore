@@ -6,10 +6,10 @@ import org.ucop.domain.UseCaseLog
 
 class ReadAccountUseCase(private val userRepository: UserRepository) {
 
-    fun getAccount(userId: UserId): User.DefinedUser = UseCaseLog.execution("ReadAccountUseCase.getAccount") {
+    fun getAccount(userId: UserId): Account = UseCaseLog.execution("ReadAccountUseCase.getAccount") {
         if (userRepository.notExists(userId)) {
             throw UserNotFoundException(ErrorMessage("User with ID ${userId.value} does not exist."))
         }
-        userRepository.findById(userId) as User.DefinedUser
+        (userRepository.findById(userId) as User.DefinedUser).account()
     }
 }

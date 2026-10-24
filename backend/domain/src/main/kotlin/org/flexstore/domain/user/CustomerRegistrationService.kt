@@ -1,5 +1,6 @@
 package org.flexstore.domain.user
 
+import org.flexstore.domain.email.VerificationToken
 import org.flexstore.domain.user.usecase.*
 import java.time.Clock
 
@@ -13,7 +14,7 @@ class CustomerRegistrationService(
 ) {
 
     // The account is read back with the id chosen for it
-    fun register(registration: CustomerRegistration): User.DefinedUser {
+    fun register(registration: CustomerRegistration): Account {
         registerCustomerUseCase.unfold(registration)
         sendVerificationEmail(registration.userId)
         return readAccountUseCase.getAccount(registration.userId)

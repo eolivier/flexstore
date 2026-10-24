@@ -1,5 +1,6 @@
 package org.flexstore.domain.user.usecase
 
+import org.flexstore.domain.email.*
 import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.*
 import org.ucop.domain.entity.*
@@ -11,25 +12,25 @@ data class VerificationEmailRequest(val userId: UserId, val requestedAt: Instant
 // a new link replaces the previous ones
 class SendVerificationEmailUseCase(
     private val userRepository: UserRepository,
-    private val emailVerificationRepository: EmailVerificationRepository,
-    private val accountEmailRepository: AccountEmailRepository
+    private val emailRepository: EmailRepository,
+    private val verificationPage: VerificationPage
 ) : UseCase<VerificationEmailRequest> {
 
     override fun getPreConditions(): PreConditions<VerificationEmailRequest> =
-        PreConditions(accountExistsCondition(), accountIsPendingVerificationCondition())
+        PreConditions(accountExistsCondition(), accountNeedsVerificationCondition())
 
     override fun getNominalScenario(): NominalScenario<VerificationEmailRequest> =
         NominalScenario(Step { request ->
-            val account = account(request.userId)
-            val verification = EmailVerification.requestedAt(account.id, request.requestedAt)
-            emailVerificationRepository.deleteAllOf(account.id)
-            emailVerificationRepository.save(verification)
-            accountEmailRepository.send(EmailVerificationEmail(account.email, account.fullName, verification.token, verification.expiresAt))
+            val user = user(request.userId)
+            val verification = EmailVerification.requestedAt(user.id, request.requestedAt)
+            emailRepository.deleteAllVerificationsOf(user.id)
+            emailRepository.save(verification)
+            emailRepository.send(EmailVerificationLink(user.email, user.fullName, verificationPage, verification.token, verification.expiresAt))
         })
 
     override fun getPostConditions(): PostConditions<VerificationEmailRequest> = PostConditions.none()
 
-    private fun account(userId: UserId) = userRepository.findById(userId) as User.DefinedUser
+    private fun user(userId: UserId) = userRepository.findById(userId) as User.DefinedUser
 
     private fun accountExistsCondition() = PreCondition<VerificationEmailRequest> { request ->
         if (userRepository.notExists(request.userId)) {
@@ -37,8 +38,8 @@ class SendVerificationEmailUseCase(
         }
     }
 
-    private fun accountIsPendingVerificationCondition() = PreCondition<VerificationEmailRequest> { request ->
-        if (account(request.userId).hasVerifiedEmail()) {
+    private fun accountNeedsVerificationCondition() = PreCondition<VerificationEmailRequest> { request ->
+        if (EmailVerification.isAlreadyDoneFor(user(request.userId))) {
             throw AccountAlreadyVerifiedException(ErrorMessage("The email of user ${request.userId.value} is already verified."))
         }
     }

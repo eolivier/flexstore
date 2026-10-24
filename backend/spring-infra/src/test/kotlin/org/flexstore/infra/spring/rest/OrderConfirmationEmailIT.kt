@@ -4,7 +4,8 @@ import org.flexstore.domain.settings.*
 import org.flexstore.domain.user.*
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
-import org.flexstore.infra.repository.InMemoryEmailRepository
+import org.flexstore.infra.spring.adapter.email.RecordingEmailConfig
+import org.flexstore.infra.spring.adapter.email.RecordingEmailSender
 import org.flexstore.infra.spring.adapter.email.OrderConfirmationEmailContent
 import org.flexstore.infra.spring.adapter.jpa.JpaCartItemRepository
 import org.flexstore.infra.spring.adapter.jpa.JpaCartRepository
@@ -33,14 +34,6 @@ import java.math.BigDecimal
 // The administration account created by the migrations
 private const val CUSTOMER_ID = "u-admin"
 
-// Keeps the emails instead of logging them, so that the test can read them
-@TestConfiguration
-open class RecordingEmailConfig {
-    @Bean
-    @Primary
-    open fun recordingEmailRepository() = InMemoryEmailRepository()
-}
-
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -54,7 +47,7 @@ class OrderConfirmationEmailIT {
     private lateinit var objectMapper: ObjectMapper
 
     @Autowired
-    private lateinit var emailRepository: InMemoryEmailRepository
+    private lateinit var emailSender: RecordingEmailSender
 
     @Autowired
     private lateinit var shopSettingsRepository: ShopSettingsRepository
@@ -71,7 +64,7 @@ class OrderConfirmationEmailIT {
     @BeforeEach
     @AfterEach
     fun cleanUp() {
-        emailRepository.clear()
+        emailSender.clear()
         shopSettingsRepository.save(ShopSettings.byDefault())
         orderRepository.deleteAll(orderRepository.findAllByUserId(CUSTOMER_ID))
         cartRepository.findByUserId(CUSTOMER_ID)?.let { cart ->
@@ -90,7 +83,7 @@ class OrderConfirmationEmailIT {
         val response = mockMvc.perform(post("/api/orders").with(asUser(CUSTOMER_ID)))
         // Assert
         response.andExpect(status().isCreated)
-        assertThat(emailRepository.sentEmails()).hasSize(sentCount)
+        assertThat(emailSender.sentEmails()).hasSize(sentCount)
     }
 
     @Test
@@ -100,7 +93,7 @@ class OrderConfirmationEmailIT {
         // Act
         mockMvc.perform(post("/api/orders").with(asUser(CUSTOMER_ID))).andExpect(status().isCreated)
         // Assert
-        val email = emailRepository.sentEmails().single()
+        val email = emailSender.sentEmails().single()
         val content = OrderConfirmationEmailContent(email, "https://flexstore.example")
         assertThat(email.recipient).isEqualTo(Email("admin@flexstore.com"))
         assertThat(content.subject).isEqualTo("Flexstore - Confirmation de votre commande ${email.order.number()}")

@@ -11,3 +11,5 @@ fun User.toJsonUser(): JsonUser = when (this) {
     is User.UndefinedUser -> DefinedJsonUser(this.id.value, "Undefined", "User", this.reason)
     is User.DraftUser -> DefinedJsonUser(this.id.value, this.fullName.firstName.value, this.fullName.lastName.value, this.email.value)
 }
+fun Account.toJsonUser(): JsonUser =
+    DefinedJsonUser(id.value, fullName.firstName.value, fullName.lastName.value, email.value, role = role.name, status = status.name)

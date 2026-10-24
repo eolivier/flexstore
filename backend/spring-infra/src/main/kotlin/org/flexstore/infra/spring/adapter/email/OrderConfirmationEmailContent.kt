@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.adapter.email
 
+import org.flexstore.domain.email.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.sharedkernel.*
 import java.text.NumberFormat

@@ -2,7 +2,8 @@ package org.flexstore.infra.spring.rest
 
 import org.assertj.core.api.Assertions.assertThat
 import org.flexstore.infra.spring.adapter.jpa.JpaUserRepository
-import org.flexstore.infra.repository.InMemoryEmailRepository
+import org.flexstore.infra.spring.adapter.email.RecordingEmailConfig
+import org.flexstore.infra.spring.adapter.email.RecordingEmailSender
 import org.flexstore.infra.spring.security.asUser
 import org.springframework.context.annotation.Import
 import org.springframework.jdbc.core.JdbcTemplate
@@ -36,7 +37,7 @@ class AccountIT {
     private lateinit var userRepository: JpaUserRepository
 
     @Autowired
-    private lateinit var emailRepository: InMemoryEmailRepository
+    private lateinit var emailSender: RecordingEmailSender
 
     @Autowired
     private lateinit var jdbcTemplate: JdbcTemplate
@@ -45,7 +46,7 @@ class AccountIT {
     @AfterEach
     fun deleteCustomer() {
         userRepository.findByEmail(CUSTOMER_EMAIL)?.let { userRepository.delete(it) }
-        emailRepository.clear()
+        emailSender.clear()
     }
 
     @Test
@@ -114,7 +115,7 @@ class AccountIT {
         // Act
         register(registration()).andExpect(status().isCreated)
         // Assert
-        assertThat(emailRepository.sentVerificationEmails().map { it.recipient.value }).containsExactly(CUSTOMER_EMAIL)
+        assertThat(emailSender.sentVerificationLinks().map { it.recipient.value }).containsExactly(CUSTOMER_EMAIL)
     }
 
     @Test
@@ -173,7 +174,7 @@ class AccountIT {
         val response = mockMvc.perform(post("/api/accounts/me/verification-email").with(asUser(customerId)))
         // Assert
         response.andExpect(status().isNoContent)
-        assertThat(emailRepository.sentVerificationEmails()).hasSize(2)
+        assertThat(emailSender.sentVerificationLinks()).hasSize(2)
         verify(previousToken).andExpect(status().isNotFound)
     }
 
@@ -185,7 +186,7 @@ class AccountIT {
         response.andExpect(status().isUnauthorized)
     }
 
-    private fun lastToken() = emailRepository.sentVerificationEmails().last().token.value
+    private fun lastToken() = emailSender.sentVerificationLinks().last().token.value
 
     private fun verify(token: String) = mockMvc.perform(
         post("/api/accounts/email-verification").contentType(MediaType.APPLICATION_JSON).content("""{"token": "$token"}""")

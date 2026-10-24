@@ -22,12 +22,7 @@ sealed class User(open val id: UserId) {
     ) : User(id) {
         override fun user(userId: UserId) = copy(id = userId)
 
-        fun isPendingVerification() = status == AccountStatus.PENDING_VERIFICATION
-
-        fun hasVerifiedEmail() = status != AccountStatus.PENDING_VERIFICATION
-
-        // Verifying the email activates an account that waits for it; any other status (e.g. suspended) is kept
-        fun withEmailVerified() = if (isPendingVerification()) copy(status = AccountStatus.ACTIVE) else this
+        fun account() = Account(id, fullName, email, role, status, phoneNumber, postalAddresses)
 
         fun isAdministrator() = role == Role.ADMIN
 
