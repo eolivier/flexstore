@@ -1,14 +1,18 @@
 <script setup lang="ts">
-  import { onMounted, ref } from 'vue';
+  import { computed, onMounted, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useUsersStore, type EditedUser, type UserEdition } from '@/stores/users.store';
   import UserRoleField from './UserRoleField.vue';
+  import AccountStatusField from './AccountStatusField.vue';
+  import { useAuthStore } from '@/stores/auth.store';
+  import type { AccountStatus } from '@/models/user';
   import UserNameFields from '@/components/account/UserNameFields.vue';
 
   const props = defineProps<{ id: string }>();
 
   const { t } = useI18n();
   const usersStore = useUsersStore();
+  const authStore = useAuthStore();
 
   // null while loading, false when the user cannot be read
   const editedUser = ref<EditedUser | null | false>(null);
@@ -21,15 +25,27 @@
     email: (v: string) => /.+@.+\..+/.test(v) || t('createUser.invalidEmail'),
   };
 
+  // The status is changed by its own request, only when the administrator chose another one
+  const status = ref<AccountStatus | null>(null);
+  const storedStatus = ref<AccountStatus | null>(null);
+  // An administrator cannot change the status of their own account
+  const ownAccount = computed(() => authStore.currentUser?.id === props.id);
+
   onMounted(async () => {
     const user = await usersStore.fetchUser(props.id);
     editedUser.value = user ? { firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role ?? 'USER' } : false;
+    status.value = storedStatus.value = user?.status ?? null;
   });
 
   async function save() {
     if (!valid.value || !editedUser.value) return;
     saving.value = true;
     edition.value = await usersStore.updateUser(props.id, editedUser.value);
+    if (edition.value === 'saved' && status.value && status.value !== storedStatus.value) {
+      const changed = await usersStore.changeStatus(props.id, status.value);
+      if (changed) storedStatus.value = status.value;
+      else edition.value = 'error';
+    }
     saving.value = false;
   }
 </script>
@@ -44,6 +60,7 @@
         <UserNameFields v-model:first-name="editedUser.firstName" v-model:last-name="editedUser.lastName" />
         <v-text-field v-model="editedUser.email" :label="t('createUser.email')" :rules="[rules.required, rules.email]" type="email" prepend-inner-icon="mdi-email-outline" class="mb-2" />
         <UserRoleField v-model="editedUser.role" />
+        <AccountStatusField v-if="status" v-model="status" :disabled="ownAccount" />
         <p class="text-caption text-medium-emphasis mb-4">{{ t('editUser.passwordNote') }}</p>
         <v-alert v-if="edition === 'emailUsed' || edition === 'error'" type="error" variant="tonal" density="compact" class="mb-4">
           {{ t(`editUser.${edition}`) }}

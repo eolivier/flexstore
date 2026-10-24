@@ -87,5 +87,6 @@ data class Orders(private val orders: List<Order>) {
 }
 
 data class EmptyCartException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class OrderRefusedException(val status: AccountStatus, override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class OrderNotFoundException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class OrderPlacementFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

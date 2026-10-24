@@ -163,7 +163,8 @@ export default {
       accountItemsMerged: "The items saved in your account have been added to your cart.",
       placeOrder: "Place order",
       signInToOrder: "You will sign in to confirm your order.",
-      orderError: "The order could not be placed. Please try again."
+      orderError: "The order could not be placed. Please try again.",
+      orderRefused: "Your account does not allow ordering (suspended, locked or disabled). Contact the shop."
     },
     orders: {
       title: "Orders",
@@ -227,7 +228,10 @@ export default {
       emailUsed: "This email is already used by another user.",
       error: "The user could not be saved.",
       loadError: "The user could not be loaded.",
-      passwordNote: "The password is not changed here: it is changed by a separate operation."
+      passwordNote: "The password is not changed here: it is changed by a separate operation.",
+      status: "Account status",
+      statusHint: "A suspended, locked or disabled account can neither sign in nor order.",
+      ownStatus: "You cannot change the status of your own account."
     },
     nav: {
       home: "Home",
@@ -289,7 +293,19 @@ export default {
       error: "Invalid email or password",
       mandatoryField: "Mandatory field",
       invalidEmail: "Invalid email format",
-      noAccount: "No account yet?"
+      noAccount: "No account yet?",
+      refused: {
+        SUSPENDED: "Your account is suspended. Contact the shop to know more.",
+        LOCKED: "Your account is locked. Contact the shop to unlock it.",
+        DISABLED: "Your account is disabled."
+      }
+    },
+    accountStatus: {
+      PENDING_VERIFICATION: "Email to verify",
+      ACTIVE: "Active",
+      SUSPENDED: "Suspended",
+      LOCKED: "Locked",
+      DISABLED: "Disabled"
     },
     emailVerification: {
       pendingTitle: "Verify your email address",
@@ -486,7 +502,8 @@ export default {
       accountItemsMerged: "Les articles enregistrés dans votre compte ont été ajoutés à votre panier.",
       placeOrder: "Passer la commande",
       signInToOrder: "Vous vous connecterez pour valider la commande.",
-      orderError: "La commande n'a pas pu être passée. Veuillez réessayer."
+      orderError: "La commande n'a pas pu être passée. Veuillez réessayer.",
+      orderRefused: "Votre compte ne permet pas de commander (suspendu, verrouillé ou désactivé). Contactez la boutique."
     },
     orders: {
       title: "Commandes",
@@ -550,7 +567,10 @@ export default {
       emailUsed: "Cet email est déjà utilisé par un autre utilisateur.",
       error: "L'utilisateur n'a pas pu être enregistré.",
       loadError: "L'utilisateur n'a pas pu être chargé.",
-      passwordNote: "Le mot de passe ne se modifie pas ici : c'est une opération à part."
+      passwordNote: "Le mot de passe ne se modifie pas ici : c'est une opération à part.",
+      status: "Statut du compte",
+      statusHint: "Un compte suspendu, verrouillé ou désactivé ne peut ni se connecter ni commander.",
+      ownStatus: "Vous ne pouvez pas changer le statut de votre propre compte."
     },
     nav: {
       home: "Accueil",
@@ -612,7 +632,19 @@ export default {
       error: "Email ou mot de passe invalide",
       mandatoryField: "Champ obligatoire",
       invalidEmail: "Format d'email invalide",
-      noAccount: "Pas encore de compte ?"
+      noAccount: "Pas encore de compte ?",
+      refused: {
+        SUSPENDED: "Votre compte est suspendu. Contactez la boutique pour en savoir plus.",
+        LOCKED: "Votre compte est verrouillé. Contactez la boutique pour le déverrouiller.",
+        DISABLED: "Votre compte est désactivé."
+      }
+    },
+    accountStatus: {
+      PENDING_VERIFICATION: "Email à vérifier",
+      ACTIVE: "Actif",
+      SUSPENDED: "Suspendu",
+      LOCKED: "Verrouillé",
+      DISABLED: "Désactivé"
     },
     emailVerification: {
       pendingTitle: "Vérifiez votre adresse email",

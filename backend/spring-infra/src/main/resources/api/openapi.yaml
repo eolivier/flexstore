@@ -116,6 +116,39 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/JsonUser"
+  /api/users/{id}/status:
+    put:
+      tags:
+      - Users
+      summary: Change the status of an account
+      description: "Reserved to an administrator, on another account than their own. ACTIVE, SUSPENDED, LOCKED or
+        DISABLED; a suspended, locked or disabled account can neither sign in nor order."
+      operationId: changeAccountStatus
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonAccountStatus"
+        required: true
+      responses:
+        "200":
+          description: The user with their new status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonUser"
+        "403":
+          description: The editor is not an administrator
+        "422":
+          description: Own account, PENDING_VERIFICATION or unknown status
   /api/users/{id}/password:
     post:
       tags:
@@ -232,6 +265,8 @@ paths:
                 $ref: "#/components/schemas/JsonLoginResponse"
         "401":
           description: Invalid credentials
+        "403":
+          description: "The account is SUSPENDED, LOCKED or DISABLED: { error, status }"
   /api/products:
     post:
       tags:
@@ -407,6 +442,8 @@ paths:
                 $ref: "#/components/schemas/JsonOrder"
         "401":
           description: Not signed in
+        "403":
+          description: "The account is SUSPENDED, LOCKED or DISABLED: { error, status }"
         "422":
           description: The cart is empty
     get:
@@ -551,6 +588,13 @@ components:
           type: string
         postalAddress:
           $ref: "#/components/schemas/JsonPostalAddress"
+    JsonAccountStatus:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [ACTIVE, SUSPENDED, LOCKED, DISABLED]
     JsonEmailVerification:
       type: object
       required: [token]

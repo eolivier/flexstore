@@ -16,7 +16,8 @@
   const { t, locale } = useI18n();
 
   const placingOrder = ref(false);
-  const orderError = ref(false);
+  // Why the order was not placed: refused (account suspended, locked or disabled) or another error
+  const orderError = ref<'refused' | 'error' | null>(null);
 
   // A visitor signs in first and comes back to the cart, whose items are kept (merged into the account cart)
   async function placeOrder() {
@@ -25,13 +26,13 @@
       return;
     }
     placingOrder.value = true;
-    orderError.value = false;
+    orderError.value = null;
     const placement = await ordersStore.placeOrder();
     placingOrder.value = false;
     if (placement.status === 'placed') {
       router.push(`/orders/${placement.order.id}/confirmation`);
     } else {
-      orderError.value = true;
+      orderError.value = placement.status === 'refused' ? 'refused' : 'error';
     }
   }
 
@@ -96,7 +97,7 @@
             <span class="text-h5 font-weight-bold">{{ total }}</span>
           </div>
           <v-alert v-if="orderError" type="error" variant="tonal" density="compact" class="mb-4">
-            {{ t('cart.orderError') }}
+            {{ t(orderError === 'refused' ? 'cart.orderRefused' : 'cart.orderError') }}
           </v-alert>
           <v-btn
             color="secondary"

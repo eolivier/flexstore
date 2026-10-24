@@ -8,6 +8,9 @@ import org.flexstore.domain.user.*
 import org.assertj.core.api.WithAssertions
 import org.flexstore.infra.repository.InMemoryCartRepository
 import org.flexstore.infra.repository.InMemoryOrderRepository
+import org.flexstore.infra.repository.InMemoryUserRepository
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.time.Instant
@@ -18,7 +21,8 @@ class PlaceOrderUseCaseTest : WithAssertions {
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val cartRepository = InMemoryCartRepository()
     private val orderRepository = InMemoryOrderRepository()
-    private val useCase = PlaceOrderUseCase(cartRepository, orderRepository)
+    private val userRepository = InMemoryUserRepository()
+    private val useCase = PlaceOrderUseCase(cartRepository, orderRepository, userRepository)
     private val request = OrderPlacement(OrderId("order-1"), customer, Instant.parse("2026-10-24T10:00:00Z"))
 
     @Test
@@ -49,5 +53,18 @@ class PlaceOrderUseCaseTest : WithAssertions {
         // Assert
         assertThat(thrown).isInstanceOf(EmptyCartException::class.java)
         assertThat(orderRepository.findById(OrderId("order-1"))).isNull()
+    }
+
+    @ParameterizedTest(name = "an account {0}: order placed = {1}")
+    @CsvSource("PENDING_VERIFICATION, true", "ACTIVE, true", "SUSPENDED, false", "LOCKED, false", "DISABLED, false")
+    fun `only an account that allows ordering should place an order`(status: AccountStatus, placed: Boolean) {
+        // Arrange
+        userRepository.save(User.DefinedUser(customer.userId, FullName(FirstName("Jane"), LastName("Doe")), Email("jane@example.com"), PlainPassword("password"), status = status))
+        cartRepository.save(Cart(customer).add(lamp, Quantity(2)))
+        // Act
+        val thrown = catchThrowable { useCase.unfold(request) }
+        // Assert
+        assertThat(orderRepository.orderIsMissing(request.orderId)).isEqualTo(!placed)
+        if (!placed) assertThat(thrown).isInstanceOf(OrderRefusedException::class.java)
     }
 }

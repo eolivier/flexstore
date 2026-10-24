@@ -131,6 +131,22 @@ describe('Login.vue', () => {
     expect(router.currentRoute.value.path).toBe(expectedPath);
   });
 
+  it.each([
+    { status: 'SUSPENDED', expected: 'Your account is suspended. Contact the shop to know more.' },
+    { status: 'LOCKED', expected: 'Your account is locked. Contact the shop to unlock it.' },
+    { status: 'DISABLED', expected: 'Your account is disabled.' },
+  ])('a $status account is told why it cannot sign in', async ({ status, expected }) => {
+    // Arrange
+    mockFetch.mockResolvedValueOnce({ ok: false, status: 403, json: () => Promise.resolve({ error: 'refused', status }) });
+    const wrapper = await mountComponent();
+    await fillForm(wrapper, 'jane@example.com', 'password123');
+    // Act
+    await submit(wrapper);
+    // Assert
+    expect(wrapper.text()).toContain(expected);
+    expect(router.currentRoute.value.path).toBe('/login');
+  });
+
   it('links to the sign-up, keeping where to go back', async () => {
     // Act
     const wrapper = await mountComponent({ redirect: '/cart' });
