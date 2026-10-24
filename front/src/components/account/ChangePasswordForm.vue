@@ -28,12 +28,16 @@
   watch(currentPassword, () => newPassword.value && newPasswordField.value?.validate());
   watch(newPassword, () => confirmPassword.value && confirmPasswordField.value?.validate());
 
-  async function showFeedback(success: boolean, text: string) {
-    // Close the previous message first, so that a new one is shown even if the previous one is still open
+  // Close the previous message first, so that a new one is shown even if the previous one is still open
+  async function replaceFeedback(newFeedback: Omit<typeof feedback.value, 'show'>) {
     feedback.value.show = false;
     await nextTick();
-    feedback.value = { show: true, success, text };
+    feedback.value = { show: true, ...newFeedback };
   }
+
+  const showSuccess = (text: string) => replaceFeedback({ success: true, text });
+
+  const showError = (text: string) => replaceFeedback({ success: false, text });
 
   async function submit() {
     if (!valid.value) return;
@@ -50,8 +54,10 @@
       await nextTick();
       formRef.value?.resetValidation();
       showPasswords.value = false;
+      await showSuccess(t(messages.changed));
+    } else {
+      await showError(t(messages[passwordChange]));
     }
-    await showFeedback(passwordChange === 'changed', t(messages[passwordChange]));
   }
 </script>
 
