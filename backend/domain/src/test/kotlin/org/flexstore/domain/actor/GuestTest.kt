@@ -44,7 +44,7 @@ class GuestTest {
             name = Name("product1"),
             price = Price(Amount(BigDecimal(10)), Currency.EUR)
         )
-        val owner = CartOwner.Visitor(VisitorCartId.generate())
+        val owner = CartOwner.Visitor(VisitorCartId.nextId())
         val cartRepository = InMemoryCartRepository()
         val addItemToCartUseCase = AddItemToCartUseCase(cartRepository, InMemoryProductRepository().apply { save(product) })
         val guest = Guest(mock(CreateUserUseCase::class.java), addItemToCartUseCase)

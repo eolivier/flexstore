@@ -18,7 +18,7 @@ class CreateProductUseCaseTest : WithAssertions {
     @Test
     fun `should store the product with the given id`() {
         // Arrange
-        val productId = ProductId.generate()
+        val productId = ProductId.nextId()
         // Act
         useCase.unfold(CreateProductRequest(productId, lamp))
         // Assert
@@ -28,9 +28,9 @@ class CreateProductUseCaseTest : WithAssertions {
     @Test
     fun `should not create a product that already exists`() {
         // Arrange
-        useCase.unfold(CreateProductRequest(ProductId.generate(), lamp))
+        useCase.unfold(CreateProductRequest(ProductId.nextId(), lamp))
         // Act
-        val thrown = catchThrowable { useCase.unfold(CreateProductRequest(ProductId.generate(), lamp)) }
+        val thrown = catchThrowable { useCase.unfold(CreateProductRequest(ProductId.nextId(), lamp)) }
         // Assert
         assertThat(thrown).isInstanceOf(ProductAlreadyExists::class.java)
     }

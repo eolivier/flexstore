@@ -47,7 +47,7 @@ class ProductAndCartPersistenceIT {
     private lateinit var productRepository: JpaProductRepository
 
     // The cart of a visitor
-    private val cartId = VisitorCartId.generate().value
+    private val cartId = VisitorCartId.nextId().value
 
     @BeforeEach
     @AfterEach

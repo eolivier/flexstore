@@ -17,7 +17,7 @@ class CartTest : WithAssertions {
     private val product2 = DefinedProduct(ProductId(Identity("productId-2")), Name("Product2"), Price(Amount(BigDecimal(11)), Currency.EUR))
     private val item1 = CartItem(ItemId(Identity("item-1")), product1, Quantity(1))
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
-    private val visitor = CartOwner.Visitor(VisitorCartId.generate())
+    private val visitor = CartOwner.Visitor(VisitorCartId.nextId())
 
     @Test
     fun `should add new products as draft items`() {
