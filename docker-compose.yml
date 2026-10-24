@@ -41,7 +41,7 @@ services:
   app:
     build:
       context: .
-      dockerfile: ./backend/Dockerfile
+      dockerfile: Dockerfile
     image: flexstore-app:latest
     container_name: flexstore-app
     depends_on:
@@ -50,10 +50,9 @@ services:
       flyway:
         condition: service_completed_successfully
     environment:
-      SPRING_PROFILES_ACTIVE: local
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-flexstore}
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-flex}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-flex}
+      FLEXSTORE_DATABASE_URL: postgresql://${POSTGRES_USER:-flex}:${POSTGRES_PASSWORD:-flex}@db:5432/${POSTGRES_DB:-flexstore}
+      # Secret de signature des JWT (au moins 32 caractères) : à changer hors développement
+      FLEXSTORE_JWT_SECRET: ${FLEXSTORE_JWT_SECRET:-local-docker-secret-change-me-0123456789}
     ports:
       - "8080:8080"
 
@@ -67,6 +66,8 @@ services:
       - ./.env                       # 👈 charge ton .env racine
     environment:
       SPRING_PROFILES_ACTIVE: test   # profil Spring "test"
+      # Dans le conteneur, la base est joignable par le nom du service et non par localhost
+      FLEXSTORE_DATABASE_URL: postgresql://${POSTGRES_USER:-flex}:${POSTGRES_PASSWORD:-flex}@db:5432/${POSTGRES_DB:-flexstore}
     depends_on:
       db:
         condition: service_healthy

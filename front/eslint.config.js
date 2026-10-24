@@ -67,6 +67,7 @@ export default [
             'dist/',
             'build/',
             'public/',
+            'src/generated/',
         ],
         // ...autres options de config
     },

@@ -35,8 +35,8 @@ export const useProductsStore = defineStore('products', () => {
     error.value = null;
     try {
       products.value = await getAllProducts();
-    } catch (e: any) {
-      error.value = e?.message ?? 'Unknown error while loading products';
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : 'Unknown error while loading products';
     } finally {
       loading.value = false;
     }

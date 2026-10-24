@@ -6,9 +6,9 @@ export function fromApi(jsonProduct: JsonProduct): Product {
   return {
     id: jsonProduct.id,
     name: jsonProduct.name,
-    description: (jsonProduct as any).description,
-    category: (jsonProduct as any).category,
+    description: jsonProduct.description ?? '',
+    category: jsonProduct.category ?? '',
     price: jsonProduct.price,
-    currency: (jsonProduct as any).currency ?? 'EUR'
+    currency: jsonProduct.currency ?? 'EUR'
   };
 }
