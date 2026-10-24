@@ -4,15 +4,15 @@ import org.assertj.core.api.WithAssertions
 import org.flexstore.infra.repository.InMemoryShopSettingsRepository
 import org.junit.jupiter.api.Test
 
-class ShopSettingsUseCaseFacadeTest : WithAssertions {
+class ShopSettingsAdministrationTest : WithAssertions {
 
     private val repository = InMemoryShopSettingsRepository()
-    private val facade = ShopSettingsUseCaseFacade(repository, UpdateShopSettingsUseCase(repository))
+    private val administration = ShopSettingsAdministration(ReadShopSettingsUseCase(repository), UpdateShopSettingsUseCase(repository))
 
     @Test
     fun `the order confirmation email should be sent by default`() {
         // Act
-        val settings = facade.getSettings()
+        val settings = administration.getSettings()
         // Assert
         assertThat(settings.sendsOrderConfirmationEmail()).isTrue()
     }
@@ -20,7 +20,7 @@ class ShopSettingsUseCaseFacadeTest : WithAssertions {
     @Test
     fun `should disable the order confirmation email`() {
         // Act
-        val savedSettings = facade.disableOrderConfirmationEmail()
+        val savedSettings = administration.disableOrderConfirmationEmail()
         // Assert
         assertThat(savedSettings.sendsOrderConfirmationEmail()).isFalse()
     }
@@ -28,9 +28,9 @@ class ShopSettingsUseCaseFacadeTest : WithAssertions {
     @Test
     fun `should enable the order confirmation email again`() {
         // Arrange
-        facade.disableOrderConfirmationEmail()
+        administration.disableOrderConfirmationEmail()
         // Act
-        val savedSettings = facade.enableOrderConfirmationEmail()
+        val savedSettings = administration.enableOrderConfirmationEmail()
         // Assert
         assertThat(savedSettings.sendsOrderConfirmationEmail()).isTrue()
     }
