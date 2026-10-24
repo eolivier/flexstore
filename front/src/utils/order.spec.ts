@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { JsonOrder } from '@/generated';
-import { orderNumber, placedOn } from './order';
+import { orderItemsCount, orderNumber, orderStepState, placedOn } from './order';
+import { twoLinesOrder } from '@/components/orders/orderFixture';
 
 const order: JsonOrder = {
   id: '7687ab84-a48e-49ee-80b3-d218997b31d7',
@@ -27,5 +28,23 @@ describe('order utils', () => {
     const date = placedOn(order, locale);
     // Assert
     expect(date).toBe(expected);
+  });
+
+  it.each([
+    { currentStatus: 'PROCESSING', expected: ['current', 'upcoming', 'upcoming'] },
+    { currentStatus: 'SHIPPED', expected: ['done', 'current', 'upcoming'] },
+    { currentStatus: 'DELIVERED', expected: ['done', 'done', 'current'] },
+  ] as const)('an order $currentStatus has the steps $expected', ({ currentStatus, expected }) => {
+    // Act
+    const states = (['PROCESSING', 'SHIPPED', 'DELIVERED'] as const).map(step => orderStepState(step, currentStatus));
+    // Assert
+    expect(states).toEqual(expected);
+  });
+
+  it('the item count adds up the quantities of the lines', () => {
+    // Act
+    const itemsCount = orderItemsCount(twoLinesOrder);
+    // Assert
+    expect(itemsCount).toBe(3);
   });
 });
