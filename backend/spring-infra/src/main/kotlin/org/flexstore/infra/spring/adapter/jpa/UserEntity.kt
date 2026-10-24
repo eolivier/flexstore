@@ -26,19 +26,12 @@ data class UserEntity(
     @Column(nullable = false)
     val status: String = "ACTIVE",
 
-    // The contact details given by a customer who creates their account
+    // The phone number and the postal addresses given by a customer who creates their account
     @Column(name = "phone_number")
     val phoneNumber: String? = null,
 
-    val street: String? = null,
-
-    @Column(name = "address_complement")
-    val addressComplement: String? = null,
-
-    @Column(name = "postal_code")
-    val postalCode: String? = null,
-
-    val city: String? = null,
-
-    val country: String? = null
+    @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", nullable = false)
+    @OrderBy("position")
+    val addresses: List<AddressEntity> = emptyList()
 ) : TimestampedEntity()

@@ -34,7 +34,7 @@ class UpdateUserUseCase(private val userRepository: UserRepository) : UseCase<Up
                 password = existingUser.password,
                 status = existingUser.status,
                 phoneNumber = existingUser.phoneNumber,
-                postalAddress = existingUser.postalAddress
+                postalAddresses = existingUser.postalAddresses
             )
             else -> user
         }

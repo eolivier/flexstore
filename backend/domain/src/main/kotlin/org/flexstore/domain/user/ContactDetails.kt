@@ -25,3 +25,17 @@ data class PostalAddress(
 ) {
     fun isComplete() = listOf(street.value, postalCode.value, city.value, country.value).none { it.isBlank() }
 }
+
+// The postal addresses of a customer: the first one is given when they create their account
+data class PostalAddresses(private val addresses: List<PostalAddress>) {
+
+    constructor(vararg addresses: PostalAddress) : this(addresses.toList())
+
+    // Read-only view for the adapters (JSON, persistence)
+    fun asList(): List<PostalAddress> = addresses.toList()
+
+    companion object {
+        // A user created by an administrator has no postal address
+        fun none() = PostalAddresses(emptyList())
+    }
+}

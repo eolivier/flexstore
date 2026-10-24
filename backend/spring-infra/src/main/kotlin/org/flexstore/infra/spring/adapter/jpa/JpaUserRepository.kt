@@ -18,7 +18,7 @@ interface JpaUserRepository : JpaRepository<UserEntity, String> {
 class PostgresUserRepositoryAdapter(
     private val jpaRepo: JpaUserRepository
 ) : UserRepository {
-    
+
     private val passwordEncoder = BCryptPasswordEncoder()
 
     override fun exists(userId: UserId): Boolean = jpaRepo.existsById(userId.value)
@@ -54,11 +54,7 @@ class PostgresUserRepositoryAdapter(
                     role = user.role.name,
                     status = user.status.name,
                     phoneNumber = user.phoneNumber?.value,
-                    street = user.postalAddress?.street?.value,
-                    addressComplement = user.postalAddress?.complement?.value,
-                    postalCode = user.postalAddress?.postalCode?.value,
-                    city = user.postalAddress?.city?.value,
-                    country = user.postalAddress?.country?.value
+                    addresses = addressEntities(user)
                 )
                 val saved = jpaRepo.save(entity)
                 savedUser = saved.toDomain()
@@ -76,6 +72,28 @@ class PostgresUserRepositoryAdapter(
         return when (password) {
             is PlainPassword -> passwordEncoder.encode(password.value)
             is HashedPassword -> password.value
+        }
+    }
+
+    // The stored row of an address that did not change is kept (same id, same creation date); the others are new rows
+    private fun addressEntities(user: User.DefinedUser): List<AddressEntity> {
+        val storedAddresses = jpaRepo.findById(user.id.value).map { it.addresses }.orElse(emptyList()).toMutableList()
+        return user.postalAddresses.asList().mapIndexed { position, address ->
+            val stored = storedAddresses.firstOrNull { it.toDomain() == address }
+            if (stored != null) {
+                storedAddresses.remove(stored)
+                stored.copy(position = position).also { it.createdAt = stored.createdAt }
+            } else {
+                AddressEntity(
+                    id = Identity.nextId().value,
+                    position = position,
+                    street = address.street.value,
+                    complement = address.complement?.value,
+                    postalCode = address.postalCode.value,
+                    city = address.city.value,
+                    country = address.country.value
+                )
+            }
         }
     }
 
@@ -99,7 +117,7 @@ class PostgresUserRepositoryAdapter(
            false
         }
     }
-    
+
     override fun passwordMatches(email: Email, password: Password): Boolean {
         val user = findByEmail(email)
         return when (user) {
@@ -120,12 +138,10 @@ class PostgresUserRepositoryAdapter(
         role = Role.valueOf(this.role),
         status = AccountStatus.valueOf(this.status),
         phoneNumber = phoneNumber?.let { PhoneNumber(it) },
-        postalAddress = postalAddress()
+        postalAddresses = PostalAddresses(addresses.map { it.toDomain() })
     )
 
-    // A user created by an administrator has no postal address
-    private fun UserEntity.postalAddress(): PostalAddress? {
-        if (street == null || postalCode == null || city == null || country == null) return null
-        return PostalAddress(Street(street), addressComplement?.let { AddressComplement(it) }, PostalCode(postalCode), City(city), Country(country))
-    }
+    private fun AddressEntity.toDomain() = PostalAddress(
+        Street(street), complement?.let { AddressComplement(it) }, PostalCode(postalCode), City(city), Country(country)
+    )
 }

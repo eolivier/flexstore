@@ -105,6 +105,6 @@ class UpdateUserUseCaseTest {
         assertThat(storedCustomer.fullName.firstName).isEqualTo(FirstName("Janet"))
         assertThat(storedCustomer.status).isEqualTo(AccountStatus.PENDING_VERIFICATION)
         assertThat(storedCustomer.phoneNumber).isEqualTo(registration.phoneNumber)
-        assertThat(storedCustomer.postalAddress).isEqualTo(registration.postalAddress)
+        assertThat(storedCustomer.postalAddresses).isEqualTo(PostalAddresses(registration.postalAddress))
     }
 }

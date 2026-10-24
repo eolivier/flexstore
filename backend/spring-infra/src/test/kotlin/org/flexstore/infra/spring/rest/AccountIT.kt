@@ -68,8 +68,10 @@ class AccountIT {
         register(registration()).andExpect(status().isCreated)
         // Assert
         val stored = userRepository.findByEmail(CUSTOMER_EMAIL)!!
-        assertThat(listOf(stored.phoneNumber, stored.street, stored.addressComplement, stored.postalCode, stored.city, stored.country))
-            .containsExactly("+33 6 12 34 56 78", "12 rue des Lilas", null, "75011", "Paris", "France")
+        val address = stored.addresses.single()
+        assertThat(stored.phoneNumber).isEqualTo("+33 6 12 34 56 78")
+        assertThat(listOf(address.street, address.complement, address.postalCode, address.city, address.country))
+            .containsExactly("12 rue des Lilas", null, "75011", "Paris", "France")
     }
 
     @Test

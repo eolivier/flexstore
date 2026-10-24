@@ -21,7 +21,7 @@ data class CustomerRegistration(
         role = Role.USER,
         status = AccountStatus.PENDING_VERIFICATION,
         phoneNumber = phoneNumber,
-        postalAddress = postalAddress
+        postalAddresses = PostalAddresses(postalAddress)
     )
 
     fun isComplete() =

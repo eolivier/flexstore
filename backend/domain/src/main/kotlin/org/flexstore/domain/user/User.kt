@@ -18,7 +18,7 @@ sealed class User(open val id: UserId) {
         val status: AccountStatus = AccountStatus.ACTIVE,
         // Given by a customer who creates their own account
         val phoneNumber: PhoneNumber? = null,
-        val postalAddress: PostalAddress? = null
+        val postalAddresses: PostalAddresses = PostalAddresses.none()
     ) : User(id) {
         override fun user(userId: UserId) = copy(id = userId)
 

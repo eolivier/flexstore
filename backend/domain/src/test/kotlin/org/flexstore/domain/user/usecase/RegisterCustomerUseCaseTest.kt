@@ -57,7 +57,7 @@ class RegisterCustomerUseCaseTest : WithAssertions {
         // Assert
         assertThat(stored().fullName.value).isEqualTo("Jane Doe")
         assertThat(stored().phoneNumber).isEqualTo(PhoneNumber("+33 6 12 34 56 78"))
-        assertThat(stored().postalAddress).isEqualTo(address)
+        assertThat(stored().postalAddresses).isEqualTo(PostalAddresses(address))
     }
 
     @Test
@@ -75,7 +75,7 @@ class RegisterCustomerUseCaseTest : WithAssertions {
         // Act
         useCase.unfold(withoutComplement)
         // Assert
-        assertThat(stored().postalAddress?.complement).isNull()
+        assertThat(stored().postalAddresses.asList().single().complement).isNull()
     }
 
     @ParameterizedTest(name = "a registration without {0} should be refused")
