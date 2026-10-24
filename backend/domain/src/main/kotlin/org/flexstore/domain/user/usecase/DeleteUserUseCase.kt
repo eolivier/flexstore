@@ -9,27 +9,18 @@ import kotlin.reflect.KClass
 class DeleteUserUseCase(private val userRepository: UserRepository) : UseCase<UserId> {
 
     override fun getPreConditions(): PreConditions<UserId> {
-        println("#[BEGIN] DeleteUserUseCase.getPreConditions")
-        val preConditions = PreConditions(userExistsCondition())
-        println("#[END] DeleteUserUseCase.getPreConditions")
-        return preConditions
+        return PreConditions(userExistsCondition())
     }
 
     override fun getNominalScenario(): NominalScenario<UserId> {
-        println("#[BEGIN] DeleteUserUseCase.getNominalScenario")
         // Steps
         val deleteUserStep = Step<UserId> { userId -> userRepository.delete(userId) }
         // Nominal scenario
-        val nominalScenario = NominalScenario(listOf(deleteUserStep))
-        println("#[END] DeleteUserUseCase.getNominalScenario")
-        return nominalScenario
+        return NominalScenario(listOf(deleteUserStep))
     }
 
     override fun getPostConditions(): PostConditions<UserId> {
-        println("#[BEGIN] DeleteUserUseCase.getPostConditions")
-        val postConditions = PostConditions(userDeletedCondition())
-        println("#[END] DeleteUserUseCase.getPostConditions")
-        return postConditions
+        return PostConditions(userDeletedCondition())
     }
 
     override fun getAlternativeScenarii(): Map<KClass<out NominalException>, AlternativeScenario<UserId>> {

@@ -12,27 +12,18 @@ class ReadUserUseCase(private val userRepository: UserRepository) : UseCase<User
     lateinit var retrievedUser: User
 
     override fun getPreConditions(): PreConditions<UserId> {
-        println("#[BEGIN] ReadUserUseCase.getPreConditions")
-        val preConditions = PreConditions(isValidUserIdCondition(), userExistsCondition())
-        println("#[END] ReadUserUseCase.getPreConditions")
-        return preConditions
+        return PreConditions(isValidUserIdCondition(), userExistsCondition())
     }
 
     override fun getNominalScenario(): NominalScenario<UserId> {
-        println("#[BEGIN] ReadUserUseCase.getNominalScenario")
         // Steps
         val readUserStep = Step<UserId> { userId -> retrievedUser = userRepository.findById(userId) }
         // Nominal scenario
-        val nominalScenario = NominalScenario(listOf(readUserStep))
-        println("#[END] ReadUserUseCase.getNominalScenario")
-        return nominalScenario
+        return NominalScenario(listOf(readUserStep))
     }
 
     override fun getPostConditions(): PostConditions<UserId> {
-        println("#[BEGIN] ReadUserUseCase.getPostConditions")
-        val postConditions = PostConditions(userRetrievedCondition())
-        println("#[END] ReadUserUseCase.getPostConditions")
-        return postConditions
+        return PostConditions(userRetrievedCondition())
     }
 
     override fun getAlternativeScenarii(): Map<KClass<out NominalException>, AlternativeScenario<UserId>> {

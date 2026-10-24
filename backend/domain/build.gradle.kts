@@ -7,7 +7,11 @@ repositories {
 }
 
 dependencies {
+    // Logging facade only: the logging framework is chosen by the application (Spring Boot: Logback)
+    implementation("org.slf4j:slf4j-api:2.0.16")
+
     testImplementation(project(":infra"))
+    testImplementation("ch.qos.logback:logback-classic:1.5.11")
 
     testImplementation(kotlin("test"))
 

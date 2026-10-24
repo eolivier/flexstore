@@ -15,29 +15,20 @@ class LoginUseCase(
     lateinit var authenticatedUser: User
 
     override fun getPreConditions(): PreConditions<LoginRequest> {
-        println("#[BEGIN] LoginUseCase.getPreConditions")
-        val preConditions = PreConditions(userExistsByEmailCondition(), passwordMatchesCondition())
-        println("#[END] LoginUseCase.getPreConditions")
-        return preConditions
+        return PreConditions(userExistsByEmailCondition(), passwordMatchesCondition())
     }
 
     override fun getNominalScenario(): NominalScenario<LoginRequest> {
-        println("#[BEGIN] LoginUseCase.getNominalScenario")
         // Steps
         val authenticateUserStep = Step<LoginRequest> { request -> 
             authenticatedUser = userRepository.findByEmail(request.email)
         }
         // Nominal scenario
-        val nominalScenario = NominalScenario(listOf(authenticateUserStep))
-        println("#[END] LoginUseCase.getNominalScenario")
-        return nominalScenario
+        return NominalScenario(listOf(authenticateUserStep))
     }
 
     override fun getPostConditions(): PostConditions<LoginRequest> {
-        println("#[BEGIN] LoginUseCase.getPostConditions")
-        val postConditions = PostConditions(userAuthenticatedCondition())
-        println("#[END] LoginUseCase.getPostConditions")
-        return postConditions
+        return PostConditions(userAuthenticatedCondition())
     }
 
     override fun getAlternativeScenarii(): Map<KClass<out NominalException>, AlternativeScenario<LoginRequest>> {

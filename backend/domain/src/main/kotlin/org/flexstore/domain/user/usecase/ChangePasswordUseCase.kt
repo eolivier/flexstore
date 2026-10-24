@@ -15,30 +15,21 @@ class ChangePasswordUseCase(
 ) : UseCase<ChangePasswordRequest> {
 
     override fun getPreConditions(): PreConditions<ChangePasswordRequest> {
-        println("#[BEGIN] ChangePasswordUseCase.getPreConditions")
-        val preConditions = PreConditions(userExistsCondition(), currentPasswordMatchesCondition(), newPasswordIsLongEnoughCondition())
-        println("#[END] ChangePasswordUseCase.getPreConditions")
-        return preConditions
+        return PreConditions(userExistsCondition(), currentPasswordMatchesCondition(), newPasswordIsLongEnoughCondition())
     }
 
     override fun getNominalScenario(): NominalScenario<ChangePasswordRequest> {
-        println("#[BEGIN] ChangePasswordUseCase.getNominalScenario")
         // Steps
         val changePasswordStep = Step<ChangePasswordRequest> { request ->
             // Repository will handle password hashing
             userRepository.save(definedUser(request).copy(password = request.newPassword))
         }
         // Nominal scenario
-        val nominalScenario = NominalScenario(listOf(changePasswordStep))
-        println("#[END] ChangePasswordUseCase.getNominalScenario")
-        return nominalScenario
+        return NominalScenario(listOf(changePasswordStep))
     }
 
     override fun getPostConditions(): PostConditions<ChangePasswordRequest> {
-        println("#[BEGIN] ChangePasswordUseCase.getPostConditions")
-        val postConditions = PostConditions(newPasswordMatchesCondition())
-        println("#[END] ChangePasswordUseCase.getPostConditions")
-        return postConditions
+        return PostConditions(newPasswordMatchesCondition())
     }
 
     override fun getAlternativeScenarii(): Map<KClass<out NominalException>, AlternativeScenario<ChangePasswordRequest>> {
