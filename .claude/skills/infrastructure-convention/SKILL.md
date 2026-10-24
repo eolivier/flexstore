@@ -1,9 +1,9 @@
 ---
-name: infrastructure-adapters
+name: infrastructure-convention
 description: Rules for the infrastructure layer of the back end (spring-infra) - JPA entities (naming, files, creation and update dates), persistence adapters and database migrations. Use before creating, renaming or changing a JPA entity, a Spring Data repository, a repository adapter or a Flyway migration, and when reviewing infrastructure code.
 ---
 
-# Infrastructure adapters
+# Infrastructure convention
 
 Rules collected from the user's feedback for the infrastructure layer (`backend/spring-infra`). Apply them to any new or changed infrastructure code and check them in reviews. When existing code breaks them, point it out (and fix it if you are already changing that code).
 
