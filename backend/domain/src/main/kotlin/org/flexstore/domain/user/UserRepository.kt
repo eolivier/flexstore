@@ -12,4 +12,6 @@ interface UserRepository {
     fun findAll(): List<User>
     fun delete(id: UserId):Boolean
     fun passwordMatches(email: Email, password: Password): Boolean
+    fun passwordDoesNotMatch(email: Email, password: Password): Boolean = !passwordMatches(email, password)
+    fun emailIsAlreadyUsed(email: Email): Boolean = !notExistsBasedOn(email)
 }

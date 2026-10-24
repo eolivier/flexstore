@@ -53,7 +53,7 @@ class LoginUseCase(
     }
 
     private fun passwordMatchesCondition() = PreCondition<LoginRequest> { request ->
-        if (!userRepository.passwordMatches(request.email, request.password)) {
+        if (userRepository.passwordDoesNotMatch(request.email, request.password)) {
             throw InvalidCredentialsException(NonEmptyString("Invalid credentials."))
         }
     }

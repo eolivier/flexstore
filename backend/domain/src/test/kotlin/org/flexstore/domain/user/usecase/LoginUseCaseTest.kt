@@ -24,7 +24,7 @@ class LoginUseCaseTest {
         val loginRequest = LoginRequest(email, password)
         
         every { userRepository.findByEmail(email) } returns user
-        every { userRepository.passwordMatches(email, password) } returns true
+        every { userRepository.passwordDoesNotMatch(email, password) } returns false
         
         val loginUseCase = LoginUseCase(userRepository)
         
@@ -35,7 +35,7 @@ class LoginUseCaseTest {
         val authenticatedUser = loginUseCase.authenticatedUser
         assertThat(authenticatedUser).isEqualTo(user)
         verify { userRepository.findByEmail(email) }
-        verify { userRepository.passwordMatches(email, password) }
+        verify { userRepository.passwordDoesNotMatch(email, password) }
     }
 
     @Test
@@ -70,7 +70,7 @@ class LoginUseCaseTest {
         val loginRequest = LoginRequest(email, incorrectPassword)
         
         every { userRepository.findByEmail(email) } returns user
-        every { userRepository.passwordMatches(email, incorrectPassword) } returns false
+        every { userRepository.passwordDoesNotMatch(email, incorrectPassword) } returns true
         
         val loginUseCase = LoginUseCase(userRepository)
         

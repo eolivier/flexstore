@@ -24,9 +24,9 @@ class ChangePasswordUseCaseTest {
         val userRepository = mockk<UserRepository>()
         every { userRepository.notExists(userId) } returns false
         every { userRepository.findById(userId) } returns user
-        every { userRepository.passwordMatches(email, currentPassword) } returns currentPasswordMatches
+        every { userRepository.passwordDoesNotMatch(email, currentPassword) } returns !currentPasswordMatches
         every { userRepository.save(ofType<DefinedUser>()) } answers { firstArg() }
-        every { userRepository.passwordMatches(email, newPassword) } returns true
+        every { userRepository.passwordDoesNotMatch(email, newPassword) } returns false
         return userRepository
     }
 

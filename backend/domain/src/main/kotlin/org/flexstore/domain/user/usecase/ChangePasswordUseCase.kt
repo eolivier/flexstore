@@ -59,7 +59,7 @@ class ChangePasswordUseCase(
     }
 
     private fun currentPasswordMatchesCondition() = PreCondition<ChangePasswordRequest> { request ->
-        if (!userRepository.passwordMatches(definedUser(request).email, request.currentPassword)) {
+        if (userRepository.passwordDoesNotMatch(definedUser(request).email, request.currentPassword)) {
             throw InvalidCurrentPasswordException(NonEmptyString("The current password is wrong."))
         }
     }
@@ -71,7 +71,7 @@ class ChangePasswordUseCase(
     }
 
     private fun newPasswordMatchesCondition() = PostCondition<ChangePasswordRequest> { request ->
-        if (!userRepository.passwordMatches(definedUser(request).email, request.newPassword)) {
+        if (userRepository.passwordDoesNotMatch(definedUser(request).email, request.newPassword)) {
             throw PasswordChangeFailed(NonEmptyString("Password of user ${request.userId.value} was not changed."))
         }
     }

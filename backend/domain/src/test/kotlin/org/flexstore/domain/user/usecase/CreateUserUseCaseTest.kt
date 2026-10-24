@@ -76,7 +76,7 @@ class CreateUserUseCaseTest {
         val draftUser = User.DraftUser(Name("John Doe"), Email("john.doe@example.com"), PlainPassword("password123"))
         val savedUser = DefinedUser(ValidUserId("generated-id"), draftUser.name, draftUser.email, PlainPassword("password123"))
 
-        every { userRepository.notExistsBasedOn(draftUser.email) } returns true
+        every { userRepository.emailIsAlreadyUsed(draftUser.email) } returns false
         every { userRepository.save(draftUser) } returns savedUser
         every { userRepository.notExists(savedUser.id) } returns false
 
@@ -95,7 +95,7 @@ class CreateUserUseCaseTest {
         // Arrange
         val userRepository = mockk<UserRepository>()
         val draftUser = User.DraftUser(Name("John Doe"), Email("john.doe@example.com"), PlainPassword("password123"))
-        every { userRepository.notExistsBasedOn(draftUser.email) } returns false
+        every { userRepository.emailIsAlreadyUsed(draftUser.email) } returns true
         val createUserUseCase = CreateUserUseCase(userRepository)
         val exception = assertThrows<UserAlreadyExists> {
             // Act
@@ -110,7 +110,7 @@ class CreateUserUseCaseTest {
         // Arrange
         val userRepository = mockk<UserRepository>()
         val draftUser = User.DraftUser(Name("John Doe"), Email("john.doe@example.com"), PlainPassword(" "))
-        every { userRepository.notExistsBasedOn(draftUser.email) } returns true
+        every { userRepository.emailIsAlreadyUsed(draftUser.email) } returns false
         val createUserUseCase = CreateUserUseCase(userRepository)
         val exception = assertThrows<InvalidPasswordException> {
             // Act

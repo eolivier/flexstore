@@ -47,7 +47,7 @@ class CreateUserUseCase(
     private fun userDoesNotExistCondition() = PreCondition<User> { user ->
         when (user) {
             // A draft user has no ID yet: uniqueness is checked on the email
-            is User.DraftUser -> if (!userRepository.notExistsBasedOn(user.email)) {
+            is User.DraftUser -> if (userRepository.emailIsAlreadyUsed(user.email)) {
                 throw UserAlreadyExists(NonEmptyString("User with email ${user.email.value} already exists."))
             }
             else -> if (userRepository.exists(user.id)) {
