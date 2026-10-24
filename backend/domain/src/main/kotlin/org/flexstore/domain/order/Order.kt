@@ -9,6 +9,9 @@ import org.flexstore.domain.sharedkernel.ErrorMessage
 import java.math.BigDecimal
 import java.time.Instant
 
+// Number of characters of the order id shown to the customer as the order number
+private const val ORDER_NUMBER_LENGTH = 8
+
 /**
  * Order aggregate: placed by a customer from their cart.
  * - an order is placed from a cart that has items
@@ -23,6 +26,9 @@ data class Order(
     val placedAt: Instant
 ) {
     fun totalPrice() = lines.totalPrice()
+
+    // The number shown to the customer: the beginning of the order id
+    fun number() = orderId.value.take(ORDER_NUMBER_LENGTH).uppercase()
 
     fun belongsTo(customer: UserId.ValidUserId) = this.customer == customer
 

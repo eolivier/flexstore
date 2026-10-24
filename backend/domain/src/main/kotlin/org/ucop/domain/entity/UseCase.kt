@@ -50,6 +50,10 @@ interface Scenario<T> {
 }
 
 data class NominalScenario<T>(override val steps: List<Step<T>>) : Scenario<T> {
+
+    // NominalScenario(step1, step2): the caller does not wrap the steps in a list
+    constructor(vararg steps: Step<T>) : this(steps.toList())
+
     override fun unfold(t: T) {
         try {
             steps.forEach { it.run(t) }
@@ -60,6 +64,9 @@ data class NominalScenario<T>(override val steps: List<Step<T>>) : Scenario<T> {
 }
 
 data class AlternativeScenario<T>(override val steps: List<Step<T>>) : Scenario<T> {
+
+    constructor(vararg steps: Step<T>) : this(steps.toList())
+
     override fun unfold(t: T) {
         try {
             steps.forEach { it.run(t) }
