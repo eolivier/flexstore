@@ -21,6 +21,8 @@ class CustomerRegistrationService(
         return readAccountUseCase.getAccount(registration.userId)
     }
 
+    fun getAccount(userId: UserId): Account = readAccountUseCase.getAccount(userId)
+
     // A new link, when the previous one has expired or was lost
     fun sendVerificationEmail(userId: UserId) =
         sendVerificationEmailUseCase.unfold(VerificationEmailRequest(userId, clock.instant()))

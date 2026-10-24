@@ -21,7 +21,7 @@ class ReadOrdersUseCaseTest : WithAssertions {
     private val useCase = ReadOrdersUseCase(orderRepository)
 
     private fun placeOrder(orderId: String, owner: CartOwner.Customer, at: Instant) =
-        orderRepository.save(Order.place(OrderPlacement(OrderId(orderId), owner, at), Cart(owner).add(lamp, Quantity(1))))
+        orderRepository.save(Order.place(OrderPlacement(OrderId(orderId), owner, at, homeAddresses), Cart(owner).add(lamp, Quantity(1))))
 
     @Test
     fun `should list the orders of the customer only, newest first`() {
