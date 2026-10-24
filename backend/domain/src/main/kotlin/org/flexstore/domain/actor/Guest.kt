@@ -1,7 +1,7 @@
 package org.flexstore.domain.actor
 
 import org.flexstore.domain.cart.usecase.*
-import org.flexstore.domain.user.model.*
+import org.flexstore.domain.user.*
 import org.flexstore.domain.user.usecase.*
 
 class Guest(

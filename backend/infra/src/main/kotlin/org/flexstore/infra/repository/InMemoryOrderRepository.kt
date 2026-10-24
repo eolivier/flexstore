@@ -1,8 +1,7 @@
 package org.flexstore.infra.repository
 
-import org.flexstore.domain.order.model.*
-import org.flexstore.domain.order.repository.*
-import org.flexstore.domain.user.model.*
+import org.flexstore.domain.order.*
+import org.flexstore.domain.user.*
 
 class InMemoryOrderRepository : OrderRepository {
 

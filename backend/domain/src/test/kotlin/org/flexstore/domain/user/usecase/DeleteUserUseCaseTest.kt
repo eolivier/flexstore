@@ -1,8 +1,7 @@
 package org.flexstore.domain.user.usecase
 
 import org.flexstore.domain.user.*
-import org.flexstore.domain.user.model.*
-import org.flexstore.domain.user.model.UserId.ValidUserId
+import org.flexstore.domain.user.UserId.ValidUserId
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify

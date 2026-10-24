@@ -1,7 +1,6 @@
 package org.flexstore.infra.repository
 
 import org.flexstore.domain.cart.*
-import org.flexstore.domain.cart.model.*
 import org.flexstore.domain.sharedkernel.*
 import java.util.concurrent.atomic.AtomicInteger
 

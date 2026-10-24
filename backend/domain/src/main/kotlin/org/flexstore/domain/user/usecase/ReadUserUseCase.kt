@@ -1,8 +1,7 @@
 package org.flexstore.domain.user.usecase
 
 import org.flexstore.domain.user.*
-import org.flexstore.domain.user.model.*
-import org.flexstore.domain.user.model.User.DefinedUser
+import org.flexstore.domain.user.User.DefinedUser
 import org.ucop.domain.NominalException
 import org.ucop.domain.NonEmptyString
 import org.ucop.domain.entity.*

@@ -1,8 +1,8 @@
 package org.flexstore.infra.spring.adapter.rest
 
-import org.flexstore.domain.order.model.*
+import org.flexstore.domain.order.*
 import org.flexstore.domain.product.*
-import org.flexstore.domain.user.model.*
+import org.flexstore.domain.user.*
 import org.flexstore.domain.user.usecase.*
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler

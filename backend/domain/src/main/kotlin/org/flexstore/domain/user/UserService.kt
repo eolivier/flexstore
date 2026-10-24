@@ -1,6 +1,5 @@
 package org.flexstore.domain.user
 
-import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.usecase.*
 
 class UserService(

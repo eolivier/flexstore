@@ -1,6 +1,6 @@
 package org.flexstore.infra.spring.adapter.rest.json
 
-import org.flexstore.domain.cart.model.*
+import org.flexstore.domain.cart.*
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.math.BigDecimal

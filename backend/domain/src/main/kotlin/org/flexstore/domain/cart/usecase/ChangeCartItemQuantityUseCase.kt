@@ -1,7 +1,6 @@
 package org.flexstore.domain.cart.usecase
 
 import org.flexstore.domain.cart.*
-import org.flexstore.domain.cart.model.*
 import org.flexstore.domain.sharedkernel.*
 import org.ucop.domain.NonEmptyString
 import org.ucop.domain.entity.*

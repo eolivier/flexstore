@@ -2,7 +2,7 @@ package org.flexstore.infra.spring.config
 
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.cart.usecase.*
-import org.flexstore.domain.order.repository.*
+import org.flexstore.domain.order.*
 import org.flexstore.domain.order.usecase.*
 import org.flexstore.domain.product.*
 import org.springframework.context.annotation.Bean

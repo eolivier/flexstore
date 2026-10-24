@@ -1,7 +1,7 @@
 package org.flexstore.infra.spring.adapter.rest.json
 
 import org.flexstore.domain.sharedkernel.*
-import org.flexstore.domain.user.model.*
+import org.flexstore.domain.user.*
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 

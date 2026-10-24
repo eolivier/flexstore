@@ -1,6 +1,6 @@
 package org.flexstore.infra.spring.adapter.mapping
 
-import org.flexstore.domain.cart.model.*
+import org.flexstore.domain.cart.*
 import org.flexstore.infra.spring.adapter.rest.json.JsonCartItem
 import org.flexstore.infra.spring.adapter.rest.json.JsonCartItems
 
