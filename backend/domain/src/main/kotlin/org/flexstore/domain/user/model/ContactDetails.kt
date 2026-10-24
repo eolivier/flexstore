@@ -1,4 +1,4 @@
-package org.flexstore.domain.user
+package org.flexstore.domain.user.model
 
 data class PhoneNumber(val value: String) {
     fun isGiven() = value.isNotBlank()

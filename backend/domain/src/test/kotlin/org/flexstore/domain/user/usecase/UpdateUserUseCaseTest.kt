@@ -1,10 +1,10 @@
 package org.flexstore.domain.user.usecase
 
 import org.flexstore.domain.sharedkernel.*
-import org.flexstore.domain.user.*
-import org.flexstore.domain.user.User.DefinedUser
-import org.flexstore.domain.user.UserId.InvalidUserId
-import org.flexstore.domain.user.UserId.ValidUserId
+import org.flexstore.domain.user.model.*
+import org.flexstore.domain.user.model.User.DefinedUser
+import org.flexstore.domain.user.model.UserId.InvalidUserId
+import org.flexstore.domain.user.model.UserId.ValidUserId
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.catchThrowable
 import org.flexstore.infra.repository.InMemoryUserRepository

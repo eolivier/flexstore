@@ -4,10 +4,10 @@ import org.flexstore.domain.cart.*
 import org.flexstore.domain.cart.usecase.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
-import org.flexstore.domain.user.*
+import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.usecase.*
-import org.flexstore.domain.user.User.DefinedUser
-import org.flexstore.domain.user.UserId.ValidUserId
+import org.flexstore.domain.user.model.User.DefinedUser
+import org.flexstore.domain.user.model.UserId.ValidUserId
 import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
 import org.flexstore.infra.repository.InMemoryUserRepository

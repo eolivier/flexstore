@@ -4,6 +4,7 @@ import org.flexstore.domain.email.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.settings.*
 import org.flexstore.domain.user.*
+import org.flexstore.domain.user.model.*
 import org.ucop.domain.entity.*
 
 // Sends the confirmation of a placed order to its customer, when the shop settings enable it

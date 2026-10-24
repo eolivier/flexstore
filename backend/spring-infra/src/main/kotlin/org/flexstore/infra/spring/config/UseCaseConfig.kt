@@ -8,6 +8,7 @@ import org.flexstore.domain.order.usecase.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.settings.*
 import org.flexstore.domain.user.*
+import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.usecase.*
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean

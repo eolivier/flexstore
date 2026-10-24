@@ -4,6 +4,7 @@ import org.flexstore.domain.cart.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.*
+import org.flexstore.domain.user.model.*
 import org.ucop.domain.entity.*
 import java.time.Instant
 

@@ -1,4 +1,4 @@
-package org.flexstore.domain.user
+package org.flexstore.domain.user.model
 
 data class FirstName(val value: String)
 

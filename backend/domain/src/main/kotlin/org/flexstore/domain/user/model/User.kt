@@ -1,4 +1,4 @@
-package org.flexstore.domain.user
+package org.flexstore.domain.user.model
 
 import org.flexstore.domain.sharedkernel.*
 import org.ucop.domain.NominalException

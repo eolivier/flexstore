@@ -1,5 +1,6 @@
 package org.flexstore.domain.user
 
+import org.flexstore.domain.user.model.*
 import org.flexstore.domain.email.VerificationToken
 import org.flexstore.domain.user.usecase.*
 import java.time.Clock

@@ -1,5 +1,4 @@
-package org.flexstore.domain.user
-
+package org.flexstore.domain.user.model
 import org.assertj.core.api.WithAssertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest

@@ -3,7 +3,7 @@ package org.flexstore.infra.spring.adapter.rest
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.order.usecase.*
-import org.flexstore.domain.user.*
+import org.flexstore.domain.user.model.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.infra.spring.adapter.rest.json.JsonOrder

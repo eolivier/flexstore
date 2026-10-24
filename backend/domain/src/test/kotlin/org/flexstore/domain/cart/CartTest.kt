@@ -2,7 +2,7 @@ package org.flexstore.domain.cart
 
 import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
-import org.flexstore.domain.user.*
+import org.flexstore.domain.user.model.*
 import org.assertj.core.api.WithAssertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest

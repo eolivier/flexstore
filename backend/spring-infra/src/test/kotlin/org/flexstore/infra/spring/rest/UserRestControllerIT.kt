@@ -1,6 +1,7 @@
 package org.flexstore.infra.spring.rest
 
 import org.flexstore.domain.user.*
+import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.usecase.*
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat

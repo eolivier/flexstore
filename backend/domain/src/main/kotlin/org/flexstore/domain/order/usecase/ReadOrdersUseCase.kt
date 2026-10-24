@@ -2,7 +2,7 @@ package org.flexstore.domain.order.usecase
 
 import org.ucop.domain.UseCaseLog
 import org.flexstore.domain.order.*
-import org.flexstore.domain.user.*
+import org.flexstore.domain.user.model.*
 import org.flexstore.domain.sharedkernel.ErrorMessage
 
 class ReadOrdersUseCase(private val orderRepository: OrderRepository) {
