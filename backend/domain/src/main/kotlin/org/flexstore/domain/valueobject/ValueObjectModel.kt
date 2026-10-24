@@ -78,7 +78,7 @@ data class DefinedProduct(
 }
 data class ProductId(val id: Identity) {
     companion object {
-        fun generate() = ProductId(Identity.nextId())
+        fun nextId() = ProductId(Identity.nextId())
     }
 }
 data class Price(val amount: Amount, val currency: Currency) {

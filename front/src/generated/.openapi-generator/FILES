@@ -12,11 +12,14 @@ docs/JsonChangePasswordRequest.md
 docs/JsonItem.md
 docs/JsonLoginRequest.md
 docs/JsonLoginResponse.md
+docs/JsonOrder.md
+docs/JsonOrderLine.md
 docs/JsonProduct.md
 docs/JsonSaveItemResponse.md
 docs/JsonUser.md
 docs/JsonUserCreate.md
 docs/JsonUserUpdate.md
+docs/OrdersApi.md
 docs/ProductsApi.md
 docs/UsersApi.md
 git_push.sh

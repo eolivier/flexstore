@@ -52,7 +52,7 @@ class CartController(private val cartUseCaseFacade: CartUseCaseFacade) {
         @RequestHeader(CART_ID_HEADER, required = false) cartId: String?,
         @RequestBody jsonItem: JsonItem
     ): JsonSaveItemResponse {
-        val owner = customer(jwt) ?: visitor(cartId) ?: CartOwner.Visitor(VisitorCartId.generate())
+        val owner = customer(jwt) ?: visitor(cartId) ?: CartOwner.Visitor(VisitorCartId.nextId())
         val quantity = Quantity(jsonItem.productQuantity)
         if (ItemId.isValid(jsonItem.itemId)) {
             cartUseCaseFacade.changeQuantity(ChangeCartItemQuantityRequest(owner, ItemId(Identity(jsonItem.itemId!!)), quantity))

@@ -9,7 +9,7 @@ class ProductUseCaseFacade(private val createProductUseCase: CreateProductUseCas
 
     // The use cases are shared by all the requests: the created product is read back with its id, not kept by the use case
     fun createProduct(draftProduct: DraftProduct): DefinedProduct {
-        val productId = ProductId.generate()
+        val productId = ProductId.nextId()
         createProductUseCase.unfold(CreateProductRequest(productId, draftProduct))
         return readProductUseCase.getProduct(productId)
     }

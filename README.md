@@ -26,11 +26,13 @@ This repo is meant to be a learning vehicle and a ready-to-fork base for real pr
 - Product detail: description, quantity, add to cart, products of the same category
 - Cart: quantity per line, remove, total, item count badge in the header; one cart per visitor and per customer, merged at sign-in
 
+**Orders** (sign-in required)
+- Place an order from the cart: the order keeps the name and the price of the products, the cart is emptied
+- Orders page: the customer's orders, newest first, with their status and lines
+
 **Account and administration** (sign-in required)
 - Sign in, profile, change password
 - Administration (`ADMIN` role): users (list, create, delete), products (create)
-
-Orders are demo data: they are not stored by the back end yet.
 
 ---
 
@@ -147,6 +149,9 @@ npm run gen:api
 | `GET` | `/api/cart/cart-items` | public | Items and total of the cart of the customer (token) or of the visitor (`X-Cart-Id`) |
 | `POST` | `/api/cart/save` | public | Add or update a cart item (quantity `0` removes it); returns the visitor cart id |
 | `POST` | `/api/cart/merge` | signed in | Merge the visitor cart (`X-Cart-Id`) into the customer cart |
+| `POST` | `/api/orders` | signed in | Place an order from the cart of the customer, then empty the cart (`422` if the cart is empty) |
+| `GET` | `/api/orders` | signed in | Orders of the customer, newest first |
+| `GET` | `/api/orders/{id}` | signed in | One order of the customer (`404` for the order of another customer) |
 | `POST` | `/api/users/login` | public | Sign in: returns a token and the user (`401` on wrong credentials) |
 | `POST` | `/api/users/{id}/password` | the user `{id}` | Change one's own password (`400` if the current one is wrong) |
 | `GET` | `/api/users` | `ADMIN` | All users |

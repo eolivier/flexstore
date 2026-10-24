@@ -73,7 +73,7 @@ A use case keeps nothing from one call to the next: no field set by a call, such
 Its only fields are its dependencies (repositories, ports), set once at construction. Everything about a call lives in the request object or in local variables.
 
 To give a result back to the caller without storing it:
-- let the caller choose the identity of what is created (`ProductId.generate()`), pass it in the request, then read the created object with a read use case;
+- let the caller choose the identity of what is created (`ProductId.nextId()`), pass it in the request, then read the created object with a read use case;
 - or keep the call's data in local variables of the steps; when a postcondition needs data loaded during the scenario, check what can be read back from the repositories instead.
 
 Avoid:
@@ -94,7 +94,7 @@ data class CreateProductRequest(val productId: ProductId, val draftProduct: Draf
 class CreateProductUseCase(private val productRepository: ProductRepository) : UseCase<CreateProductRequest> {
     // nominal step: productRepository.save(request.definedProduct())
 }
-// caller: val productId = ProductId.generate(); useCase.unfold(CreateProductRequest(productId, draft)); return readProductUseCase.getProduct(productId)
+// caller: val productId = ProductId.nextId(); useCase.unfold(CreateProductRequest(productId, draft)); return readProductUseCase.getProduct(productId)
 ```
 
 Creating a new use case instance for each call avoids the sharing, but the state stays a trap for the next caller who shares the instance: prefer stateless use cases anyway.
@@ -155,6 +155,22 @@ if (productRepository.productIsMissing(request.productId)) { ... }
 
 Why: the condition reads as the business rule ("if the product is missing"), the null check and the lookup stay in the adapter.
 
+The same goes for the classes of the domain themselves: their methods, especially factories, use the vocabulary of the domain, not technical verbs (`generate`, `create`, `build`, `process`, `handle`, `data`).
+
+Avoid:
+
+```kotlin
+VisitorCartId.generate()
+```
+
+Prefer:
+
+```kotlin
+VisitorCartId.nextId()    // like Identity.nextId(), ProductId.nextId(), OrderId.nextId()
+```
+
+Use the same word for the same concept across the domain (`nextId()` for every new identity), so that a reader who knows one class knows the others.
+
 ## 6. Instantiating a domain class takes minimal work
 
 Creating a domain object should not require the caller to know how its parts are built. When building a value takes more than passing data (generating an id, applying a default, combining values), give the class a factory method with a business name, and call it everywhere: the logic lives once, in the domain.
@@ -181,4 +197,4 @@ CartEntity(id = Identity.nextId().value, ...)
 
 Why: the way ids (or any other derived value) are built is decided in one place; changing it (another id format, a sequence) changes one method; callers read what they get ("the next id"), not how it is made.
 
-This applies to the adapters and the tests too: they reuse the domain factories (`Identity.nextId()`, `VisitorCartId.generate()`) instead of repeating their logic.
+This applies to the adapters and the tests too: they reuse the domain factories (`Identity.nextId()`, `VisitorCartId.nextId()`) instead of repeating their logic.

@@ -3,6 +3,7 @@ package org.flexstore.infra.spring.adapter.rest
 import org.flexstore.domain.entity.InvalidCredentialsException
 import org.flexstore.domain.entity.UserAlreadyExists
 import org.flexstore.domain.entity.UserNotFoundByEmailException
+import org.flexstore.domain.order.OrderNotFoundException
 import org.flexstore.domain.usecase.product.ProductNotFoundException
 import org.flexstore.domain.usecase.user.InvalidCurrentPasswordException
 import org.springframework.http.ResponseEntity
@@ -26,9 +27,9 @@ class RestExceptionHandler {
             is InvalidCurrentPasswordException -> ResponseEntity
                 .status(400)
                 .body(mapOf("error" to (ex.message ?: "Wrong current password")))
-            is ProductNotFoundException -> ResponseEntity
+            is ProductNotFoundException, is OrderNotFoundException -> ResponseEntity
                 .status(404)
-                .body(mapOf("error" to (ex.message ?: "Product not found")))
+                .body(mapOf("error" to (ex.message ?: "Not found")))
             else -> ResponseEntity
                 .status(422)
                 .body(mapOf("error" to (ex.message ?: "Nominal exception")))

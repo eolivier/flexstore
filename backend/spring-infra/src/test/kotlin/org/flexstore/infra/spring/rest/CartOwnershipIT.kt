@@ -43,7 +43,7 @@ class CartOwnershipIT {
     @Autowired
     private lateinit var cartRepository: JpaCartRepository
 
-    private val visitorCartId = VisitorCartId.generate().value
+    private val visitorCartId = VisitorCartId.nextId().value
 
     @BeforeEach
     @AfterEach
@@ -67,7 +67,7 @@ class CartOwnershipIT {
         // Arrange
         mockMvc.perform(saveItem(productId = "1", quantity = 1).header(CART_ID_HEADER, visitorCartId))
         // Act
-        val result = mockMvc.perform(get("/api/cart/cart-items").header(CART_ID_HEADER, VisitorCartId.generate().value))
+        val result = mockMvc.perform(get("/api/cart/cart-items").header(CART_ID_HEADER, VisitorCartId.nextId().value))
         // Assert
         result.andExpect(status().isOk)
             .andExpect(jsonPath("$.items.length()").value(0))
