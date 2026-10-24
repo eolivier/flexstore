@@ -3,8 +3,8 @@ package org.flexstore.domain.product
 import org.flexstore.domain.sharedkernel.*
 import io.mockk.every
 import io.mockk.mockk
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.assertThrows
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.catchThrowable
 import java.math.BigDecimal
 import kotlin.test.Test
 
@@ -20,7 +20,7 @@ class ReadProductUseCaseTest {
         // Act
         val readProduct = ReadProductUseCase(productRepository).getProduct(productId)
         // Assert
-        assertEquals(product, readProduct)
+        assertThat(readProduct).isEqualTo(product)
     }
 
     @Test
@@ -30,10 +30,8 @@ class ReadProductUseCaseTest {
         val productId = ProductId(Identity("unknown"))
         every { productRepository.findById(productId) } returns null
         // Act
-        val exception = assertThrows<ProductNotFoundException> {
-            ReadProductUseCase(productRepository).getProduct(productId)
-        }
+        val thrown = catchThrowable { ReadProductUseCase(productRepository).getProduct(productId) }
         // Assert
-        assertEquals("Product with ID unknown does not exist.", exception.message)
+        assertThat(thrown).isInstanceOf(ProductNotFoundException::class.java).hasMessage("Product with ID unknown does not exist.")
     }
 }
