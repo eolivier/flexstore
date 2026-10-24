@@ -220,7 +220,7 @@ npm run build   # type check (vue-tsc) + production build
 ## 🚢 CI and deployment
 
 - **CI** (`.github/workflows/ci.yml`): on every pull request and push to `main`, back-end unit and integration tests (with a PostgreSQL service) and front-end lint, build and tests
-- **Front end**: deployed to Cloudflare Pages on every push to `main` that touches `front/` (`.github/workflows/vue-pages.yml`)
+- **Front end**: deployed to Cloudflare Pages on every push to `main` that touches `front/` (`.github/workflows/vue-pages.yml`); `front/public/_headers` sets its HTTP headers, among which a **Content Security Policy** (only the shop's own scripts run, no inline script; requests only to the shop and its API on `*.onrender.com`; inline styles allowed for Vuetify)
 - **Back end**: deployed to Render from `main` with the root `Dockerfile` (`render.yaml`); the database is given to the app as `FLEXSTORE_DATABASE_URL`, and `FLEXSTORE_JWT_SECRET` must be set. HTTPS ends at the Render proxy: `server.forward-headers-strategy: framework` makes Spring see the requests as HTTPS
 
 ---

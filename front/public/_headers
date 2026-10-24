@@ -1,0 +1,10 @@
+# HTTP headers of the front end, applied by Cloudflare Pages (https://developers.cloudflare.com/pages/configuration/headers/)
+#
+# Content-Security-Policy: the browser only runs the scripts of the shop itself (no inline script, no
+# other domain), so that a script injected in a page cannot run; it can only call the shop's API
+# (connect-src), so that a script that ran anyway could not send the session elsewhere.
+# 'unsafe-inline' is allowed for the styles only: Vuetify injects its theme as inline styles.
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data:; connect-src 'self' https://*.onrender.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
