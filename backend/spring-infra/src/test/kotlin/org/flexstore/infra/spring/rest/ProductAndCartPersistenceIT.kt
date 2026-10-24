@@ -49,8 +49,10 @@ class ProductAndCartPersistenceIT {
 
     @Test
     fun `should read the catalog from the database`() {
-        mockMvc.perform(get("/api/products/"))
-            .andExpect(status().isOk)
+        // Act
+        val result = mockMvc.perform(get("/api/products/"))
+        // Assert
+        result.andExpect(status().isOk)
             .andExpect(jsonPath("$.length()").value(9))
             .andExpect(jsonPath("$[0].id").value("1"))
             .andExpect(jsonPath("$[0].name").value("Organic Cotton T-shirt"))
@@ -61,26 +63,34 @@ class ProductAndCartPersistenceIT {
 
     @Test
     fun `should store a created product`() {
-        val draft = """{"name": "$TEST_PRODUCT_NAME", "description": "Stored in PostgreSQL",
-            "category": "HOME", "price": 12.5, "currency": "EUR"}"""
-
-        mockMvc.perform(post("/api/products").with(asAdmin()).contentType(MediaType.APPLICATION_JSON).content(draft))
-            .andExpect(status().isCreated)
+        // Arrange
+        val draft = draftProduct(price = "12.5")
+        // Act
+        val result = createProduct(draft)
+        // Assert
+        result.andExpect(status().isCreated)
             .andExpect(jsonPath("$.id").isNotEmpty)
         mockMvc.perform(get("/api/products/"))
             .andExpect(jsonPath("$[*].name", hasItem(TEST_PRODUCT_NAME)))
+    }
 
-        // The same product cannot be created twice, even with another price scale
-        mockMvc.perform(post("/api/products").with(asAdmin()).contentType(MediaType.APPLICATION_JSON)
-            .content(draft.replace("12.5", "12.50")))
-            .andExpect(status().isUnprocessableEntity)
+    @Test
+    fun `should not create the same product twice, even with another price scale`() {
+        // Arrange
+        createProduct(draftProduct(price = "12.5")).andExpect(status().isCreated)
+        // Act
+        val result = createProduct(draftProduct(price = "12.50"))
+        // Assert
+        result.andExpect(status().isUnprocessableEntity)
     }
 
     @Test
     fun `should store the cart items with the catalog product`() {
-        // The product data sent by the client is ignored: the catalog one is used
-        saveItem(item(productId = "4", quantity = 2, name = "Fake name", price = BigDecimal.ONE))
-
+        // Arrange
+        val itemWithFakeProductData = item(productId = "4", quantity = 2, name = "Fake name", price = BigDecimal.ONE)
+        // Act
+        saveItem(itemWithFakeProductData)
+        // Assert
         mockMvc.perform(get("/api/cart/cart-items"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.items.length()").value(1))
@@ -91,16 +101,25 @@ class ProductAndCartPersistenceIT {
     }
 
     @Test
-    fun `should change the quantity and remove a cart item`() {
+    fun `adding a product already in the cart should change the quantity of its item`() {
+        // Arrange
         saveItem(item(productId = "7", quantity = 1))
-        // Adding the same product again changes the quantity of its line
+        // Act
         saveItem(item(productId = "7", quantity = 3))
-        val itemId = cartItemIds().single()
+        // Assert
         mockMvc.perform(get("/api/cart/cart-items"))
+            .andExpect(jsonPath("$.items.length()").value(1))
             .andExpect(jsonPath("$.items[0].productQuantity").value(3))
+    }
 
+    @Test
+    fun `a quantity of zero should remove the cart item`() {
+        // Arrange
+        saveItem(item(productId = "7", quantity = 1))
+        val itemId = cartItemIds().single()
+        // Act
         saveItem(item(itemId = itemId, productId = "7", quantity = 0))
-
+        // Assert
         mockMvc.perform(get("/api/cart/cart-items"))
             .andExpect(jsonPath("$.items.length()").value(0))
             .andExpect(jsonPath("$.totalItemsPrice").value(0))
@@ -108,11 +127,21 @@ class ProductAndCartPersistenceIT {
 
     @Test
     fun `should not add an unknown product to the cart`() {
-        mockMvc.perform(
-            post("/api/cart/save").contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(item(productId = "unknown", quantity = 1)))
-        ).andExpect(status().isNotFound)
+        // Arrange
+        val unknownProductItem = item(productId = "unknown", quantity = 1)
+        // Act
+        val result = mockMvc.perform(
+            post("/api/cart/save").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(unknownProductItem))
+        )
+        // Assert
+        result.andExpect(status().isNotFound)
     }
+
+    private fun draftProduct(price: String) = """{"name": "$TEST_PRODUCT_NAME", "description": "Stored in PostgreSQL",
+        "category": "HOME", "price": $price, "currency": "EUR"}"""
+
+    private fun createProduct(draft: String) =
+        mockMvc.perform(post("/api/products").with(asAdmin()).contentType(MediaType.APPLICATION_JSON).content(draft))
 
     private fun saveItem(item: JsonItem) {
         mockMvc.perform(
