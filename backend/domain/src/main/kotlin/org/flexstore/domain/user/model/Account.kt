@@ -1,4 +1,4 @@
-package org.flexstore.domain.user
+package org.flexstore.domain.user.model
 
 // The account of a user, as they and the administrators see it: everything but the password
 data class Account(

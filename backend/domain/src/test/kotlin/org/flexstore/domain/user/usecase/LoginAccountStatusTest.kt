@@ -1,7 +1,7 @@
 package org.flexstore.domain.user.usecase
 
 import org.assertj.core.api.WithAssertions
-import org.flexstore.domain.user.*
+import org.flexstore.domain.user.model.*
 import org.flexstore.infra.repository.InMemoryUserRepository
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest

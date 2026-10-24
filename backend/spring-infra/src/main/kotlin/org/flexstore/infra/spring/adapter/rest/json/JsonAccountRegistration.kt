@@ -2,7 +2,7 @@ package org.flexstore.infra.spring.adapter.rest.json
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import org.flexstore.domain.user.*
+import org.flexstore.domain.user.model.*
 
 // The account a customer creates for themselves
 data class JsonAccountRegistration @JsonCreator constructor(

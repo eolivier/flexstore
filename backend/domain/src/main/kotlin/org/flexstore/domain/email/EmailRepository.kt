@@ -1,6 +1,6 @@
 package org.flexstore.domain.email
 
-import org.flexstore.domain.user.UserId
+import org.flexstore.domain.user.model.UserId
 
 // The emails of the shop: sends them (the infrastructure decides how: SMTP, logs...) and keeps the verifications
 // of the email addresses, whose links are sent by email

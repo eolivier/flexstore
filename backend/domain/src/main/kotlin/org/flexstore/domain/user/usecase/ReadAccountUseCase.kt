@@ -2,6 +2,7 @@ package org.flexstore.domain.user.usecase
 
 import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.*
+import org.flexstore.domain.user.model.*
 import org.ucop.domain.UseCaseLog
 
 class ReadAccountUseCase(private val userRepository: UserRepository) {

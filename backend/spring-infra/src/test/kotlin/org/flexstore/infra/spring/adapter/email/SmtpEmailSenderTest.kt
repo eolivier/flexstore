@@ -6,7 +6,7 @@ import org.flexstore.domain.email.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
-import org.flexstore.domain.user.*
+import org.flexstore.domain.user.model.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.ArgumentMatchers.any

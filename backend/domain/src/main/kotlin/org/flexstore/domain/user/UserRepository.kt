@@ -1,5 +1,6 @@
 package org.flexstore.domain.user
 
+import org.flexstore.domain.user.model.*
 interface UserRepository {
     fun exists(userId: UserId): Boolean
     fun notExists(userId: UserId): Boolean

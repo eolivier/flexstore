@@ -2,6 +2,7 @@ package org.flexstore.domain.user.usecase
 
 import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.*
+import org.flexstore.domain.user.model.*
 import org.ucop.domain.entity.*
 
 // An administrator (the editor) activates, suspends, locks or disables the account of another user

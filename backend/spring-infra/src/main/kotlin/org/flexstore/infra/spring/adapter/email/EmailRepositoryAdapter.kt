@@ -1,7 +1,7 @@
 package org.flexstore.infra.spring.adapter.email
 
 import org.flexstore.domain.email.*
-import org.flexstore.domain.user.UserId
+import org.flexstore.domain.user.model.UserId
 import org.flexstore.infra.spring.adapter.jpa.EmailVerificationEntity
 import org.flexstore.infra.spring.adapter.jpa.JpaEmailVerificationRepository
 import org.springframework.stereotype.Repository

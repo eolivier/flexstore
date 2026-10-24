@@ -1,7 +1,7 @@
 package org.flexstore.domain.email
 
 import org.flexstore.domain.sharedkernel.ErrorMessage
-import org.flexstore.domain.user.*
+import org.flexstore.domain.user.model.*
 import org.ucop.domain.NominalException
 import java.security.SecureRandom
 import java.time.Duration

@@ -2,7 +2,7 @@ package org.flexstore.domain.order.usecase
 
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.order.*
-import org.flexstore.domain.user.*
+import org.flexstore.domain.user.model.*
 import java.time.Instant
 
 class OrderUseCaseFacade(private val placeOrderUseCase: PlaceOrderUseCase,

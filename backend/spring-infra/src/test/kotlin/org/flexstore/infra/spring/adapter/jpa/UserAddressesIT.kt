@@ -2,6 +2,7 @@ package org.flexstore.infra.spring.adapter.jpa
 
 import org.assertj.core.api.Assertions.assertThat
 import org.flexstore.domain.user.*
+import org.flexstore.domain.user.model.*
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

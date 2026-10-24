@@ -1,7 +1,7 @@
 package org.flexstore.infra.repository
 
 import org.flexstore.domain.email.*
-import org.flexstore.domain.user.UserId
+import org.flexstore.domain.user.model.UserId
 
 // Keeps the emails instead of sending them, and the verifications in memory: for the tests
 class InMemoryEmailRepository : EmailRepository {

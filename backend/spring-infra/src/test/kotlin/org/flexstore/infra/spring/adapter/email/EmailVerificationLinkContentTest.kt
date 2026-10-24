@@ -2,7 +2,7 @@ package org.flexstore.infra.spring.adapter.email
 
 import org.assertj.core.api.Assertions.assertThat
 import org.flexstore.domain.email.*
-import org.flexstore.domain.user.*
+import org.flexstore.domain.user.model.*
 import org.junit.jupiter.api.Test
 import java.time.Instant
 

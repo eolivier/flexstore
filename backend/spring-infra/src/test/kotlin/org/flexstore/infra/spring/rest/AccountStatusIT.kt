@@ -1,6 +1,7 @@
 package org.flexstore.infra.spring.rest
 
 import org.flexstore.domain.user.*
+import org.flexstore.domain.user.model.*
 import org.flexstore.infra.spring.security.ADMIN_ACCOUNT_ID
 import org.flexstore.infra.spring.security.asAdmin
 import org.flexstore.infra.spring.security.asUser
