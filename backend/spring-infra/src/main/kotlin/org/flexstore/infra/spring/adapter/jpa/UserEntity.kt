@@ -19,4 +19,4 @@ data class UserEntity(
 
     @Column(nullable = false)
     val role: String = "USER"
-)
+) : TimestampedEntity()

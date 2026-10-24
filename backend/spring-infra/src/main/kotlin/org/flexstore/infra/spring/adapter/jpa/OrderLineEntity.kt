@@ -26,4 +26,4 @@ data class OrderLineEntity(
 
     @Column(nullable = false)
     val quantity: Int
-)
+) : TimestampedEntity()
