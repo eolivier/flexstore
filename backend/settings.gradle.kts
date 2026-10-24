@@ -3,7 +3,6 @@ plugins {
 }
 rootProject.name = "flexstore"
 
-include("app")
 include("domain")
 include("infra")
 include("spring-infra")
