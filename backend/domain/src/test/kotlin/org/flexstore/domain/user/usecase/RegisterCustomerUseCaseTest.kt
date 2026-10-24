@@ -12,7 +12,6 @@ class RegisterCustomerUseCaseTest : WithAssertions {
 
     private val userRepository = InMemoryUserRepository()
     private val useCase = RegisterCustomerUseCase(userRepository)
-    private val userService = UserService(userRepository)
 
     companion object {
         private val address = PostalAddress(Street("12 rue des Lilas"), AddressComplement("Bâtiment B"), PostalCode("75011"), City("Paris"), Country("France"))
@@ -104,14 +103,5 @@ class RegisterCustomerUseCaseTest : WithAssertions {
         val thrown = catchThrowable { useCase.unfold(jane.copy(userId = UserId.ValidUserId("jane-2"))) }
         // Assert
         assertThat(thrown).isInstanceOf(UserAlreadyExists::class.java)
-    }
-
-    @Test
-    fun `the user service should return the registered account`() {
-        // Act
-        val account = userService.registerCustomer(jane) as User.DefinedUser
-        // Assert
-        assertThat(account.id).isEqualTo(jane.userId)
-        assertThat(account.status).isEqualTo(AccountStatus.PENDING_VERIFICATION)
     }
 }

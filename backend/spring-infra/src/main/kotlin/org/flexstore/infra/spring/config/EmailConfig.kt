@@ -19,10 +19,10 @@ open class EmailConfig(
     // spring.mail.host is always defined (application.yml): it is its value that chooses SMTP or the logs
     @Bean
     @ConditionalOnExpression("!'\${spring.mail.host:}'.isBlank()")
-    open fun smtpEmailRepository(mailSender: JavaMailSender): EmailRepository =
+    open fun smtpEmailRepository(mailSender: JavaMailSender): SmtpEmailRepositoryAdapter =
         SmtpEmailRepositoryAdapter(mailSender, sender, frontUrl)
 
     @Bean
     @ConditionalOnExpression("'\${spring.mail.host:}'.isBlank()")
-    open fun loggingEmailRepository(): EmailRepository = LoggingEmailRepositoryAdapter(frontUrl)
+    open fun loggingEmailRepository(): LoggingEmailRepositoryAdapter = LoggingEmailRepositoryAdapter(frontUrl)
 }
