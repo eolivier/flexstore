@@ -13,11 +13,8 @@ export function placedOn(order: JsonOrder, locale: string): string {
   return new Date(order.placedAt).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
-export const orderStatusColors: Record<JsonOrder['status'], string> = {
-  PROCESSING: 'warning',
-  SHIPPED: 'info',
-  DELIVERED: 'success',
-};
+// full: every step with its label (order detail); compact: smaller markers, only the current step labelled (orders list)
+export type OrderStepsLayout = 'full' | 'compact';
 
 // The statuses an order goes through, in order
 export const orderStatusSteps: JsonOrder['status'][] = ['PROCESSING', 'SHIPPED', 'DELIVERED'];

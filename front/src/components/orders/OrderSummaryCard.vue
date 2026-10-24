@@ -2,7 +2,8 @@
   import { useI18n } from 'vue-i18n';
   import type { JsonOrder } from '@/generated';
   import { formatPrice } from '@/utils/price';
-  import { orderItemsCount, orderNumber, orderStatusColors, placedOn } from '@/utils/order';
+  import { orderItemsCount, orderNumber, placedOn } from '@/utils/order';
+  import OrderStatusSteps from './OrderStatusSteps.vue';
 
   const props = defineProps<{ order: JsonOrder }>();
 
@@ -24,9 +25,7 @@
         </div>
         <div class="lines-summary text-body-2 text-medium-emphasis">{{ linesSummary }}</div>
       </div>
-      <v-chip :color="orderStatusColors[order.status]" variant="tonal" size="small" class="font-weight-medium">
-        {{ t(`orders.status.${order.status}`) }}
-      </v-chip>
+      <OrderStatusSteps :status="order.status" layout="compact" />
       <div class="order-total text-subtitle-1 font-weight-bold text-right">
         {{ formatPrice(order.totalPrice, order.currency, locale) }}
       </div>

@@ -17,5 +17,6 @@ describe('OrderSummaryCard.vue', () => {
     expect(wrapper.text()).toContain('3 items');
     expect(wrapper.text()).toContain('2 × 5G Smartphone, 1 × Bluetooth Headphones');
     expect(wrapper.text()).toContain('857.00 €');
+    expect(wrapper.find('[aria-current="step"]').text()).toBe('Processing');
   });
 });

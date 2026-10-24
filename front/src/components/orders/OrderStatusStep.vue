@@ -1,9 +1,9 @@
 <script setup lang="ts">
   import { useI18n } from 'vue-i18n';
   import type { JsonOrder } from '@/generated';
-  import type { OrderStepState } from '@/utils/order';
+  import type { OrderStepsLayout, OrderStepState } from '@/utils/order';
 
-  defineProps<{ step: JsonOrder['status']; state: OrderStepState }>();
+  defineProps<{ step: JsonOrder['status']; state: OrderStepState; layout: OrderStepsLayout }>();
 
   const { t } = useI18n();
 
@@ -15,11 +15,12 @@
 </script>
 
 <template>
-  <li :class="['step', `step--${state}`]" :aria-current="state === 'current' ? 'step' : undefined">
+  <li :class="['step', `step--${state}`, `step--${layout}`]" :aria-current="state === 'current' ? 'step' : undefined">
     <span class="step-marker d-flex align-center justify-center">
-      <v-icon :icon="state === 'done' ? 'mdi-check' : stepIcons[step]" size="18" />
+      <v-icon :icon="state === 'done' ? 'mdi-check' : stepIcons[step]" :size="layout === 'compact' ? 14 : 18" />
     </span>
-    <span class="step-label">{{ t(`orders.status.${step}`) }}</span>
+    <!-- In the compact layout, only the current step shows its label; the others stay readable by screen readers -->
+    <span :class="['step-label', { 'd-sr-only': layout === 'compact' && state !== 'current' }]">{{ t(`orders.status.${step}`) }}</span>
   </li>
 </template>
 
@@ -61,13 +62,23 @@
     color: rgb(var(--v-theme-on-surface));
     font-weight: 700;
   }
+  .step--compact {
+    gap: 6px;
+  }
+  .step--compact .step-marker {
+    width: 26px;
+    height: 26px;
+  }
+  .step--compact.step--current .step-marker {
+    box-shadow: 0 0 0 3px rgba(var(--v-theme-secondary), 0.2);
+  }
   @media (max-width: 599px) {
-    .step {
+    .step--full {
       flex-direction: column;
       gap: 4px;
       text-align: center;
     }
-    .step-label {
+    .step--full .step-label {
       font-size: 0.75rem;
     }
   }
