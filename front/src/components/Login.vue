@@ -8,7 +8,6 @@
   const password = ref('');
   const valid = ref(false);
   const loading = ref(false);
-  const formRef = ref(null);
 
   const authStore = useAuthStore();
   const router = useRouter();
@@ -40,7 +39,7 @@
       <h1 class="text-h5 font-weight-bold mb-1">{{ t('login.title') }}</h1>
       <p class="text-body-2 text-medium-emphasis mb-6">{{ t('login.subtitle') }}</p>
 
-      <v-form ref="formRef" v-model="valid" @submit.prevent="submitForm">
+      <v-form v-model="valid" @submit.prevent="submitForm">
         <v-text-field
           v-model="email"
           :label="t('login.email')"

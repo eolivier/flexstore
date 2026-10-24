@@ -69,6 +69,10 @@ jobs:
         working-directory: front
         run: npm ci
 
+      - name: Audit the production dependencies
+        working-directory: front
+        run: npm audit --omit=dev --audit-level=high
+
       - name: Lint
         working-directory: front
         run: npm run lint
