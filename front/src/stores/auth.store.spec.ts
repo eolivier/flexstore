@@ -23,6 +23,7 @@ describe('auth.store', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     mockFetch.mockReset();
+    sessionStorage.clear();
   });
 
   describe('initial state', () => {
@@ -197,6 +198,50 @@ describe('auth.store', () => {
       // Assert
       expect(passwordChange).toBe('error');
       expect(mockFetch).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('session kept on reload', () => {
+    // A new store, as when the page is reloaded
+    const reloadedStore = () => {
+      setActivePinia(createPinia());
+      return useAuthStore();
+    };
+
+    it('should stay signed in after a reload', async () => {
+      // Arrange
+      await signedIn();
+      // Act
+      const store = reloadedStore();
+      // Assert
+      expect(store.isAuthenticated).toBe(true);
+      expect(store.token).toBe('jwt-token');
+      expect(store.currentUser).toEqual(createMockUser());
+    });
+
+    it.each([
+      { what: 'signing out', end: (store: ReturnType<typeof useAuthStore>) => store.logout() },
+      { what: 'a rejected token', end: async (store: ReturnType<typeof useAuthStore>) => {
+        mockFetch.mockResolvedValueOnce({ ok: false, status: 401 });
+        await store.authFetch('/api/users');
+      } },
+    ])('should be signed out after a reload that follows $what', async ({ end }) => {
+      // Arrange
+      const store = await signedIn();
+      await end(store);
+      // Act
+      const reloaded = reloadedStore();
+      // Assert
+      expect(reloaded.isAuthenticated).toBe(false);
+    });
+
+    it('should not restore an expired session', () => {
+      // Arrange
+      sessionStorage.setItem('flexstore.session', JSON.stringify({ ...loginResponse(), expiresAt: '2020-01-01T00:00:00Z' }));
+      // Act
+      const store = reloadedStore();
+      // Assert
+      expect(store.isAuthenticated).toBe(false);
     });
   });
 });

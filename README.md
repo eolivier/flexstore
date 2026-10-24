@@ -174,7 +174,7 @@ The API is stateless and uses **JWT bearer tokens** (Spring Security, OAuth2 res
 
 1. `POST /api/users/login` returns `{ token, expiresAt, user }`; the token is signed with HMAC-SHA256 (`FLEXSTORE_JWT_SECRET`), contains the user id (`sub`) and roles (`roles`) and is valid for 1 hour (`flexstore.security.jwt-ttl`)
 2. Protected endpoints require the header `Authorization: Bearer <token>`: `401` without a valid token, `403` without the required role
-3. The front end keeps the token in memory only (not in `localStorage`): reloading the page signs out. When the API rejects the token, the user is signed out and sent back to the login page
+3. The front end keeps the session (token, user, expiry) in the `sessionStorage` of the tab: reloading the page keeps the user signed in, closing the tab or the expiry of the token (1 hour) signs out. When the API rejects the token, the user is signed out and sent back to the login page
 
 Users have a role, `USER` (default) or `ADMIN`, chosen by the administrator who creates or edits them; it is stored in the database. Creating and editing users is checked by the domain: the creator or editor must be an existing administrator (`403` otherwise).
 

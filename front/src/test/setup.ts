@@ -2,7 +2,7 @@ import { config } from '@vue/test-utils';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
-import { vi } from 'vitest';
+import { beforeEach, vi } from 'vitest';
 import { createI18n } from 'vue-i18n';
 import messages from '@/i18n/messages';
 
@@ -29,3 +29,8 @@ vi.stubEnv('VITE_API_URL', 'http://localhost:8080');
 if (!('visualViewport' in globalThis)) {
   vi.stubGlobal('visualViewport', Object.assign(new EventTarget(), { width: 1024, height: 768, offsetLeft: 0, offsetTop: 0, scale: 1 }));
 }
+
+// The session is kept in sessionStorage (it survives a reload): each test starts signed out
+beforeEach(() => {
+  sessionStorage.clear();
+});

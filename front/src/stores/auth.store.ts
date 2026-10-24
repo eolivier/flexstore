@@ -11,11 +11,38 @@ interface LoginResponse {
   user: User;
 }
 
+// The session is kept in the tab (sessionStorage): it survives a reload and ends when the tab is closed
+const SESSION_KEY = 'flexstore.session';
+
+function readSession(): LoginResponse | null {
+  try {
+    const stored = sessionStorage.getItem(SESSION_KEY);
+    if (!stored) return null;
+    const session: LoginResponse = JSON.parse(stored);
+    return new Date(session.expiresAt) > new Date() ? session : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeSession(session: LoginResponse | null) {
+  try {
+    if (session) {
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    } else {
+      sessionStorage.removeItem(SESSION_KEY);
+    }
+  } catch {
+    // Storage unavailable: the session lasts until the page is reloaded
+  }
+}
+
 export const useAuthStore = defineStore('auth', () => {
   const apiUrl = import.meta.env.VITE_API_URL;
-  const currentUser = ref<User | null>(null);
-  // Kept in memory only (not in localStorage) so that a script injected in the page cannot read it after a reload
-  const token = ref<string | null>(null);
+  // Restored from the tab when the page is reloaded, unless the token has expired
+  const restoredSession = readSession();
+  const currentUser = ref<User | null>(restoredSession?.user ?? null);
+  const token = ref<string | null>(restoredSession?.token ?? null);
   const loginError = ref<string | null>(null);
   const loadingStore = useLoadingStore();
 
@@ -35,6 +62,7 @@ export const useAuthStore = defineStore('auth', () => {
         const session: LoginResponse = await response.json();
         token.value = session.token;
         currentUser.value = session.user;
+        writeSession(session);
         return true;
       } else {
         loginError.value = 'Invalid email or password';
@@ -82,6 +110,7 @@ export const useAuthStore = defineStore('auth', () => {
     currentUser.value = null;
     token.value = null;
     loginError.value = null;
+    writeSession(null);
   }
 
   return {
