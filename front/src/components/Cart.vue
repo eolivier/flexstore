@@ -26,10 +26,10 @@
     }
     placingOrder.value = true;
     orderError.value = false;
-    const result = await ordersStore.placeOrder();
+    const placement = await ordersStore.placeOrder();
     placingOrder.value = false;
-    if (result.status === 'placed') {
-      router.push({ path: '/orders', query: { placed: result.order.id } });
+    if (placement.status === 'placed') {
+      router.push({ path: `/orders/${placement.order.id}`, query: { placed: 'true' } });
     } else {
       orderError.value = true;
     }

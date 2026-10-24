@@ -29,9 +29,9 @@ class DefinedProductControllerIT {
     @Test
     fun `should return the products`() {
         // Act
-        val result = mockMvc.perform(get("/api/products/"))
+        val response = mockMvc.perform(get("/api/products/"))
         // Assert
-        val responseContent = result.andExpect(status().isOk)
+        val responseContent = response.andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andReturn().response.contentAsString
         val products: List<JsonProduct> = objectMapper.readValue(
@@ -44,9 +44,9 @@ class DefinedProductControllerIT {
     @Test
     fun `should return a product by id`() {
         // Act
-        val result = mockMvc.perform(get("/api/products/1"))
+        val response = mockMvc.perform(get("/api/products/1"))
         // Assert
-        result.andExpect(status().isOk)
+        response.andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.id").value("1"))
             .andExpect(jsonPath("$.name").isNotEmpty)
@@ -55,8 +55,8 @@ class DefinedProductControllerIT {
     @Test
     fun `should return 404 for an unknown product`() {
         // Act
-        val result = mockMvc.perform(get("/api/products/unknown"))
+        val response = mockMvc.perform(get("/api/products/unknown"))
         // Assert
-        result.andExpect(status().isNotFound)
+        response.andExpect(status().isNotFound)
     }
 }

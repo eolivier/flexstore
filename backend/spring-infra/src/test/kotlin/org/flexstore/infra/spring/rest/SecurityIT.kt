@@ -62,9 +62,9 @@ class SecurityIT {
     @Test
     fun `should return the token and the user without password on login`() {
         // Act
-        val result = login("security.admin@example.com", PASSWORD)
+        val response = login("security.admin@example.com", PASSWORD)
         // Assert
-        result.andExpect(status().isOk)
+        response.andExpect(status().isOk)
             .andExpect(jsonPath("$.token").isNotEmpty)
             .andExpect(jsonPath("$.expiresAt").isNotEmpty)
             .andExpect(jsonPath("$.user.id").value(ADMIN_ID))
@@ -76,9 +76,9 @@ class SecurityIT {
     @CsvSource("unknown@example.com, $PASSWORD", "security.user@example.com, wrong-password")
     fun `should answer the same way for an unknown email and a wrong password`(email: String, password: String) {
         // Act
-        val result = login(email, password)
+        val response = login(email, password)
         // Assert
-        result.andExpect(status().isUnauthorized)
+        response.andExpect(status().isUnauthorized)
             .andExpect(jsonPath("$.error").value("Invalid credentials."))
     }
 
@@ -86,33 +86,33 @@ class SecurityIT {
     @ValueSource(strings = ["/api/products/", "/api/products/1", "/api/cart/cart-items"])
     fun `should keep the catalog and the cart public`(path: String) {
         // Act
-        val result = mockMvc.perform(get(path))
+        val response = mockMvc.perform(get(path))
         // Assert
-        result.andExpect(status().isOk)
+        response.andExpect(status().isOk)
     }
 
     @Test
     fun `should reject anonymous requests to the users`() {
         // Act
-        val result = mockMvc.perform(get("/api/users"))
+        val response = mockMvc.perform(get("/api/users"))
         // Assert
-        result.andExpect(status().isUnauthorized)
+        response.andExpect(status().isUnauthorized)
     }
 
     @Test
     fun `should reject anonymous product creation`() {
         // Act
-        val result = mockMvc.perform(post("/api/products").contentType(MediaType.APPLICATION_JSON).content("{}"))
+        val response = mockMvc.perform(post("/api/products").contentType(MediaType.APPLICATION_JSON).content("{}"))
         // Assert
-        result.andExpect(status().isUnauthorized)
+        response.andExpect(status().isUnauthorized)
     }
 
     @Test
     fun `should reject an invalid token`() {
         // Act
-        val result = mockMvc.perform(get("/api/users").header(HttpHeaders.AUTHORIZATION, bearer("not-a-token")))
+        val response = mockMvc.perform(get("/api/users").header(HttpHeaders.AUTHORIZATION, bearer("not-a-token")))
         // Assert
-        result.andExpect(status().isUnauthorized)
+        response.andExpect(status().isUnauthorized)
     }
 
     @Test
@@ -120,9 +120,9 @@ class SecurityIT {
         // Arrange
         val userToken = tokenOf("security.user@example.com")
         // Act
-        val result = mockMvc.perform(get("/api/users").header(HttpHeaders.AUTHORIZATION, bearer(userToken)))
+        val response = mockMvc.perform(get("/api/users").header(HttpHeaders.AUTHORIZATION, bearer(userToken)))
         // Assert
-        result.andExpect(status().isForbidden)
+        response.andExpect(status().isForbidden)
     }
 
     @Test
@@ -130,9 +130,9 @@ class SecurityIT {
         // Arrange
         val adminToken = tokenOf("security.admin@example.com")
         // Act
-        val result = mockMvc.perform(get("/api/users").header(HttpHeaders.AUTHORIZATION, bearer(adminToken)))
+        val response = mockMvc.perform(get("/api/users").header(HttpHeaders.AUTHORIZATION, bearer(adminToken)))
         // Assert
-        result.andExpect(status().isOk)
+        response.andExpect(status().isOk)
     }
 
     @Test
@@ -140,9 +140,9 @@ class SecurityIT {
         // Arrange
         val userToken = tokenOf("security.user@example.com")
         // Act
-        val result = changePassword(ADMIN_ID, userToken)
+        val response = changePassword(ADMIN_ID, userToken)
         // Assert
-        result.andExpect(status().isForbidden)
+        response.andExpect(status().isForbidden)
     }
 
     @Test
@@ -150,9 +150,9 @@ class SecurityIT {
         // Arrange
         val userToken = tokenOf("security.user@example.com")
         // Act
-        val result = changePassword(USER_ID, userToken)
+        val response = changePassword(USER_ID, userToken)
         // Assert
-        result.andExpect(status().isNoContent)
+        response.andExpect(status().isNoContent)
     }
 
     private fun login(email: String, password: String) = mockMvc.perform(

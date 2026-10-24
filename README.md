@@ -28,7 +28,8 @@ This repo is meant to be a learning vehicle and a ready-to-fork base for real pr
 
 **Orders** (sign-in required)
 - Place an order from the cart: the order keeps the name and the price of the products, the cart is emptied
-- Orders page: the customer's orders, newest first, with their status and lines
+- Orders page: the customer's orders, newest first, with their status and total
+- Order detail: date, status, lines (product, unit price, quantity, total) and order total; shown right after the order is placed
 
 **Account and administration** (sign-in required)
 - Sign in, profile, change password

@@ -55,9 +55,9 @@ class CartOwnershipIT {
     @Test
     fun `a first item should create a visitor cart and return its id`() {
         // Act
-        val result = mockMvc.perform(saveItem(productId = "1", quantity = 1))
+        val response = mockMvc.perform(saveItem(productId = "1", quantity = 1))
         // Assert
-        val cartId = objectMapper.readTree(result.andExpect(status().isOk).andReturn().response.contentAsString)["cartId"].asText()
+        val cartId = objectMapper.readTree(response.andExpect(status().isOk).andReturn().response.contentAsString)["cartId"].asText()
         mockMvc.perform(get("/api/cart/cart-items").header(CART_ID_HEADER, cartId))
             .andExpect(jsonPath("$.items.length()").value(1))
     }
@@ -67,18 +67,18 @@ class CartOwnershipIT {
         // Arrange
         mockMvc.perform(saveItem(productId = "1", quantity = 1).header(CART_ID_HEADER, visitorCartId))
         // Act
-        val result = mockMvc.perform(get("/api/cart/cart-items").header(CART_ID_HEADER, VisitorCartId.nextId().value))
+        val response = mockMvc.perform(get("/api/cart/cart-items").header(CART_ID_HEADER, VisitorCartId.nextId().value))
         // Assert
-        result.andExpect(status().isOk)
+        response.andExpect(status().isOk)
             .andExpect(jsonPath("$.items.length()").value(0))
     }
 
     @Test
     fun `a visitor without cart id should get an empty cart`() {
         // Act
-        val result = mockMvc.perform(get("/api/cart/cart-items"))
+        val response = mockMvc.perform(get("/api/cart/cart-items"))
         // Assert
-        result.andExpect(status().isOk)
+        response.andExpect(status().isOk)
             .andExpect(jsonPath("$.items.length()").value(0))
     }
 
@@ -87,9 +87,9 @@ class CartOwnershipIT {
         // Arrange
         mockMvc.perform(saveItem(productId = "4", quantity = 2).with(asUser(CUSTOMER_ID))).andExpect(status().isOk)
         // Act
-        val result = mockMvc.perform(get("/api/cart/cart-items").with(asUser(CUSTOMER_ID)))
+        val response = mockMvc.perform(get("/api/cart/cart-items").with(asUser(CUSTOMER_ID)))
         // Assert
-        result.andExpect(jsonPath("$.items.length()").value(1))
+        response.andExpect(jsonPath("$.items.length()").value(1))
             .andExpect(jsonPath("$.items[0].productName").value("5G Smartphone"))
             .andExpect(jsonPath("$.items[0].productQuantity").value(2))
     }
@@ -97,9 +97,9 @@ class CartOwnershipIT {
     @Test
     fun `merging should require a signed-in customer`() {
         // Act
-        val result = mockMvc.perform(post("/api/cart/merge").header(CART_ID_HEADER, visitorCartId))
+        val response = mockMvc.perform(post("/api/cart/merge").header(CART_ID_HEADER, visitorCartId))
         // Assert
-        result.andExpect(status().isUnauthorized)
+        response.andExpect(status().isUnauthorized)
     }
 
     @Test
@@ -109,9 +109,9 @@ class CartOwnershipIT {
         mockMvc.perform(saveItem(productId = "7", quantity = 2).header(CART_ID_HEADER, visitorCartId)).andExpect(status().isOk)
         mockMvc.perform(saveItem(productId = "9", quantity = 1).header(CART_ID_HEADER, visitorCartId)).andExpect(status().isOk)
         // Act
-        val result = mockMvc.perform(post("/api/cart/merge").header(CART_ID_HEADER, visitorCartId).with(asUser(CUSTOMER_ID)))
+        val response = mockMvc.perform(post("/api/cart/merge").header(CART_ID_HEADER, visitorCartId).with(asUser(CUSTOMER_ID)))
         // Assert
-        result.andExpect(status().isNoContent)
+        response.andExpect(status().isNoContent)
         mockMvc.perform(get("/api/cart/cart-items").with(asUser(CUSTOMER_ID)))
             .andExpect(jsonPath("$.items.length()").value(2))
             .andExpect(jsonPath("$.items[?(@.productId == '7')].productQuantity").value(2))

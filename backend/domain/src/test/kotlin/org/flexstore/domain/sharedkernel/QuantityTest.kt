@@ -35,29 +35,29 @@ class QuantityTest : WithAssertions {
     @MethodSource("increaseTestCases")
     fun `increasing a quantity should add one`(input: Quantity, expected: Quantity) {
         // Act
-        val result = input.increase()
+        val newQuantity = input.increase()
         // Assert
-        assertThat(result).isEqualTo(expected)
-        assertThat(result !== input).isTrue()
+        assertThat(newQuantity).isEqualTo(expected)
+        assertThat(newQuantity !== input).isTrue()
     }
 
     @ParameterizedTest(name = "{0} decreased is {1}")
     @MethodSource("decreaseTestCases")
     fun `decreasing a quantity should remove one`(input: Quantity, expected: Quantity) {
         // Act
-        val result = input.decrease()
+        val newQuantity = input.decrease()
         // Assert
-        assertThat(result).isEqualTo(expected)
-        assertThat(result !== input).isTrue()
+        assertThat(newQuantity).isEqualTo(expected)
+        assertThat(newQuantity !== input).isTrue()
     }
 
     @ParameterizedTest(name = "{0} changed to {1}")
     @MethodSource("changeQuantityTestCases")
     fun `changing a quantity should give the new quantity`(input: Quantity, change: Quantity) {
         // Act
-        val result = input.changeQuantity(change)
+        val newQuantity = input.changeQuantity(change)
         // Assert
-        assertThat(result).isEqualTo(change)
-        assertThat(result !== input).isTrue()
+        assertThat(newQuantity).isEqualTo(change)
+        assertThat(newQuantity !== input).isTrue()
     }
 }

@@ -43,9 +43,9 @@ describe('auth.store', () => {
       loginSucceeds(mockUser);
       const store = useAuthStore();
       // Act
-      const result = await store.login('john@example.com', 'secret');
+      const loggedIn = await store.login('john@example.com', 'secret');
       // Assert
-      expect(result).toBe(true);
+      expect(loggedIn).toBe(true);
       expect(store.currentUser).toEqual(mockUser);
       expect(store.token).toBe('jwt-token');
       expect(store.isAuthenticated).toBe(true);
@@ -58,9 +58,9 @@ describe('auth.store', () => {
       mockFetch.mockResolvedValueOnce({ ok: false, status: 401 });
       const store = useAuthStore();
       // Act
-      const result = await store.login('john@example.com', 'wrongpassword');
+      const loggedIn = await store.login('john@example.com', 'wrongpassword');
       // Assert
-      expect(result).toBe(false);
+      expect(loggedIn).toBe(false);
       expect(store.isAuthenticated).toBe(false);
       expect(store.loginError).toBe('Invalid email or password');
     });
@@ -70,9 +70,9 @@ describe('auth.store', () => {
       mockFetch.mockRejectedValueOnce(new Error('Network error'));
       const store = useAuthStore();
       // Act
-      const result = await store.login('john@example.com', 'secret');
+      const loggedIn = await store.login('john@example.com', 'secret');
       // Assert
-      expect(result).toBe(false);
+      expect(loggedIn).toBe(false);
       expect(store.isAuthenticated).toBe(false);
       expect(store.loginError).toBe('An error occurred during login');
     });
@@ -159,9 +159,9 @@ describe('auth.store', () => {
       const store = await signedIn();
       mockFetch.mockResolvedValueOnce({ ok: true, status: 204 });
       // Act
-      const result = await store.changePassword('secret', 'new-password');
+      const passwordChange = await store.changePassword('secret', 'new-password');
       // Assert
-      expect(result).toBe('changed');
+      expect(passwordChange).toBe('changed');
       const [url, init] = mockFetch.mock.lastCall!;
       expect(url).toBe('http://localhost:8080/api/users/1/password');
       expect(init.method).toBe('POST');
@@ -174,9 +174,9 @@ describe('auth.store', () => {
       const store = await signedIn();
       mockFetch.mockResolvedValueOnce({ ok: false, status: 400 });
       // Act
-      const result = await store.changePassword('wrong', 'new-password');
+      const passwordChange = await store.changePassword('wrong', 'new-password');
       // Assert
-      expect(result).toBe('wrongPassword');
+      expect(passwordChange).toBe('wrongPassword');
     });
 
     it('should report other errors', async () => {
@@ -184,18 +184,18 @@ describe('auth.store', () => {
       const store = await signedIn();
       mockFetch.mockRejectedValueOnce(new Error('Network error'));
       // Act
-      const result = await store.changePassword('secret', 'new-password');
+      const passwordChange = await store.changePassword('secret', 'new-password');
       // Assert
-      expect(result).toBe('error');
+      expect(passwordChange).toBe('error');
     });
 
     it('should not call the API when signed out', async () => {
       // Arrange
       const store = useAuthStore();
       // Act
-      const result = await store.changePassword('secret', 'new-password');
+      const passwordChange = await store.changePassword('secret', 'new-password');
       // Assert
-      expect(result).toBe('error');
+      expect(passwordChange).toBe('error');
       expect(mockFetch).not.toHaveBeenCalled();
     });
   });

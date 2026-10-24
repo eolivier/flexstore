@@ -55,8 +55,8 @@ class InMemoryUserRepository : UserRepository {
         return when (user) {
             is User.DefinedUser -> when (user.password) {
                 is HashedPassword -> {
-                    val result = bcryptVerifier.verify(password.value.toCharArray(), user.password.value.toCharArray())
-                    result.verified
+                    val verification = bcryptVerifier.verify(password.value.toCharArray(), user.password.value.toCharArray())
+                    verification.verified
                 }
                 else -> false
             }

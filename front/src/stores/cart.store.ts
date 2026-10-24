@@ -70,9 +70,9 @@ export const useCartStore = defineStore('cart', () => {
                 console.error('Failed to save cart item');
                 return false;
             }
-            const data: { cartId?: string | null } = await response.json();
-            if (data.cartId) {
-                writeCartId(data.cartId);
+            const savedCart: { cartId?: string | null } = await response.json();
+            if (savedCart.cartId) {
+                writeCartId(savedCart.cartId);
             }
             // Reload the cart so that its items, totals and the header badge stay in sync with the server
             await fetchCartItems();

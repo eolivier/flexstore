@@ -15,9 +15,9 @@ class InMemoryUserRepositoryTest {
         val userRepository = InMemoryUserRepository()
         val userId = ValidUserId("123")
         // Act
-        val result = userRepository.exists(userId)
+        val exists = userRepository.exists(userId)
         // Assert
-        assertThat(result).isFalse()
+        assertThat(exists).isFalse()
     }
 
     @Test
@@ -27,9 +27,9 @@ class InMemoryUserRepositoryTest {
         val user = DefinedUser(ValidUserId("123"), Name("Jane Doe"), Email("jane.doe@example.com"), PlainPassword("password123"))
         userRepository.save(user)
         // Act
-        val result = userRepository.exists(user.id)
+        val exists = userRepository.exists(user.id)
         // Assert
-        assertThat(result).isTrue()
+        assertThat(exists).isTrue()
     }
 
     @Test
@@ -50,13 +50,13 @@ class InMemoryUserRepositoryTest {
         val user = DefinedUser(ValidUserId("123"), Name("Jane Doe"), Email("jane.doe@example.com"), PlainPassword("password123"))
         userRepository.save(user)
         // Act
-        val result = userRepository.findById(user.id)
+        val foundUser = userRepository.findById(user.id)
         // Assert
-        assertThat(result.id).isEqualTo(user.id)
-        assertThat((result as DefinedUser).name).isEqualTo(user.name)
-        assertThat(result.email).isEqualTo(user.email)
+        assertThat(foundUser.id).isEqualTo(user.id)
+        assertThat((foundUser as DefinedUser).name).isEqualTo(user.name)
+        assertThat(foundUser.email).isEqualTo(user.email)
         // Password will be hashed, so we can't directly compare
-        assertThat(result.password).isInstanceOf(HashedPassword::class.java)
+        assertThat(foundUser.password).isInstanceOf(HashedPassword::class.java)
     }
 
     @Test
@@ -66,9 +66,9 @@ class InMemoryUserRepositoryTest {
         val user = DefinedUser(ValidUserId("123"), Name("Jane Doe"), Email("jane.doe@example.com"), PlainPassword("password123"))
         userRepository.save(user)
         // Act
-        val result = userRepository.delete(user.id)
+        val deleted = userRepository.delete(user.id)
         // Assert
-        assertThat(result).isTrue()
+        assertThat(deleted).isTrue()
         assertThat(userRepository.exists(user.id)).isFalse()
     }
 
@@ -78,8 +78,8 @@ class InMemoryUserRepositoryTest {
         val userRepository = InMemoryUserRepository()
         val userId = ValidUserId("123")
         // Act
-        val result = userRepository.delete(userId)
+        val deleted = userRepository.delete(userId)
         // Assert
-        assertThat(result).isFalse()
+        assertThat(deleted).isFalse()
     }
 }
