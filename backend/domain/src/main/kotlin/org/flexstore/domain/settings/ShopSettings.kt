@@ -1,7 +1,7 @@
 package org.flexstore.domain.settings
 
 import org.ucop.domain.NominalException
-import org.ucop.domain.NonEmptyString
+import org.flexstore.domain.sharedkernel.ErrorMessage
 
 enum class Activation { ENABLED, DISABLED }
 
@@ -19,4 +19,4 @@ data class ShopSettings(val orderConfirmationEmail: Activation) {
     }
 }
 
-data class ShopSettingsUpdateFailed(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
+data class ShopSettingsUpdateFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

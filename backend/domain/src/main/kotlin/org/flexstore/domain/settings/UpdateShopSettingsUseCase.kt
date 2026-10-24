@@ -1,20 +1,20 @@
 package org.flexstore.domain.settings
 
-import org.ucop.domain.NonEmptyString
+import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.entity.*
 
 class UpdateShopSettingsUseCase(private val shopSettingsRepository: ShopSettingsRepository) : UseCase<ShopSettings> {
 
-    override fun getPreConditions(): List<PreCondition<ShopSettings>> = listOf(EmptyPreCondition())
+    override fun getPreConditions(): PreConditions<ShopSettings> = PreConditions.none()
 
     override fun getNominalScenario(): NominalScenario<ShopSettings> =
         NominalScenario(Step { settings -> shopSettingsRepository.save(settings) })
 
-    override fun getPostConditions(): List<PostCondition<ShopSettings>> = listOf(settingsAreSavedCondition())
+    override fun getPostConditions(): PostConditions<ShopSettings> = PostConditions(settingsAreSavedCondition())
 
     private fun settingsAreSavedCondition() = PostCondition<ShopSettings> { settings ->
         if (shopSettingsRepository.load() != settings) {
-            throw ShopSettingsUpdateFailed(NonEmptyString("The shop settings were not saved."))
+            throw ShopSettingsUpdateFailed(ErrorMessage("The shop settings were not saved."))
         }
     }
 }

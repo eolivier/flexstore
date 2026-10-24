@@ -12,7 +12,7 @@ class SendOrderConfirmationEmailUseCase(
     private val emailRepository: EmailRepository
 ) : UseCase<Order> {
 
-    override fun getPreConditions(): List<PreCondition<Order>> = listOf(EmptyPreCondition())
+    override fun getPreConditions(): PreConditions<Order> = PreConditions.none()
 
     override fun getNominalScenario(): NominalScenario<Order> {
         val sendEmailStep = Step<Order> { order ->
@@ -24,5 +24,5 @@ class SendOrderConfirmationEmailUseCase(
         return NominalScenario(sendEmailStep)
     }
 
-    override fun getPostConditions(): List<PostCondition<Order>> = listOf(EmptyPostCondition())
+    override fun getPostConditions(): PostConditions<Order> = PostConditions.none()
 }
