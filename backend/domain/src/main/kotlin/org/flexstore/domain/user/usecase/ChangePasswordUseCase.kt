@@ -14,9 +14,9 @@ class ChangePasswordUseCase(
     private val userRepository: UserRepository
 ) : UseCase<ChangePasswordRequest> {
 
-    override fun getPreConditions(): List<PreCondition<ChangePasswordRequest>> {
+    override fun getPreConditions(): PreConditions<ChangePasswordRequest> {
         println("#[BEGIN] ChangePasswordUseCase.getPreConditions")
-        val preConditions = listOf(userExistsCondition(), currentPasswordMatchesCondition(), newPasswordIsLongEnoughCondition())
+        val preConditions = PreConditions(userExistsCondition(), currentPasswordMatchesCondition(), newPasswordIsLongEnoughCondition())
         println("#[END] ChangePasswordUseCase.getPreConditions")
         return preConditions
     }
@@ -34,9 +34,9 @@ class ChangePasswordUseCase(
         return nominalScenario
     }
 
-    override fun getPostConditions(): List<PostCondition<ChangePasswordRequest>> {
+    override fun getPostConditions(): PostConditions<ChangePasswordRequest> {
         println("#[BEGIN] ChangePasswordUseCase.getPostConditions")
-        val postConditions = listOf(newPasswordMatchesCondition())
+        val postConditions = PostConditions(newPasswordMatchesCondition())
         println("#[END] ChangePasswordUseCase.getPostConditions")
         return postConditions
     }

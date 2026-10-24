@@ -12,9 +12,9 @@ class CreateUserUseCase(
 
     lateinit var createdUser: User
 
-    override fun getPreConditions(): List<PreCondition<User>> {
+    override fun getPreConditions(): PreConditions<User> {
         println("#[BEGIN] CreateUserUseCase.getPreConditions")
-        val preConditions = listOf(userDoesNotExistCondition(), passwordIsNotBlankCondition())
+        val preConditions = PreConditions(userDoesNotExistCondition(), passwordIsNotBlankCondition())
         println("#[END] CreateUserUseCase.getPreConditions")
         return preConditions
     }
@@ -32,9 +32,9 @@ class CreateUserUseCase(
         return nominalScenario
     }
 
-    override fun getPostConditions(): List<PostCondition<User>> {
+    override fun getPostConditions(): PostConditions<User> {
         println("#[BEGIN] CreateUserUseCase.getPostConditions")
-        val postConditions = listOf(userExistsCondition())
+        val postConditions = PostConditions(userExistsCondition())
         println("#[END] CreateUserUseCase.getPostConditions")
         return postConditions
     }

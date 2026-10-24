@@ -11,7 +11,7 @@ class PlaceOrderUseCase(
     private val orderRepository: OrderRepository
 ) : UseCase<OrderPlacement> {
 
-    override fun getPreConditions(): List<PreCondition<OrderPlacement>> = listOf(cartHasItemsCondition())
+    override fun getPreConditions(): PreConditions<OrderPlacement> = PreConditions(cartHasItemsCondition())
 
     override fun getNominalScenario(): NominalScenario<OrderPlacement> {
         val placeOrderStep = Step<OrderPlacement> { request ->
@@ -22,8 +22,8 @@ class PlaceOrderUseCase(
         return NominalScenario(listOf(placeOrderStep))
     }
 
-    override fun getPostConditions(): List<PostCondition<OrderPlacement>> =
-        listOf(orderIsStoredCondition(), cartIsEmptyCondition())
+    override fun getPostConditions(): PostConditions<OrderPlacement> =
+        PostConditions(orderIsStoredCondition(), cartIsEmptyCondition())
 
     private fun cartHasItemsCondition() = PreCondition<OrderPlacement> { request ->
         if (cartRepository.load(request.customer).isEmpty()) {
