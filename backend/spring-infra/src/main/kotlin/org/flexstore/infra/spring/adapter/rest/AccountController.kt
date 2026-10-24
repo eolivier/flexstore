@@ -6,6 +6,7 @@ import org.flexstore.domain.email.VerificationToken
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.infra.spring.adapter.mapping.toJsonUser
+import org.flexstore.infra.spring.adapter.rest.json.JsonAccount
 import org.flexstore.infra.spring.adapter.rest.json.JsonAccountRegistration
 import org.flexstore.infra.spring.adapter.rest.json.JsonEmailVerification
 import org.flexstore.infra.spring.adapter.rest.json.JsonUser
@@ -25,6 +26,11 @@ class AccountController(private val customerRegistrationService: CustomerRegistr
     @ResponseStatus(HttpStatus.CREATED)
     fun register(@RequestBody registration: JsonAccountRegistration): JsonUser =
         customerRegistrationService.register(registration.toRegistration(UserId.nextId())).toJsonUser()
+
+    @Operation(summary = "Retrieve the account of the signed-in user, with their phone number and postal addresses")
+    @GetMapping("/me")
+    fun getAccount(@AuthenticationPrincipal user: Jwt): JsonAccount =
+        JsonAccount(customerRegistrationService.getAccount(UserId.of(user.subject)))
 
     @Operation(summary = "Verify the email of an account with the token of the link: the account becomes active")
     @PostMapping("/email-verification")

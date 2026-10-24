@@ -7,6 +7,7 @@ import org.flexstore.domain.user.model.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.infra.spring.adapter.rest.json.JsonOrder
+import org.flexstore.infra.spring.adapter.rest.json.JsonOrderAddresses
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
@@ -19,13 +20,13 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/orders")
 class OrderController(private val orderUseCaseFacade: OrderUseCaseFacade) {
 
-    @Operation(summary = "Place an order from the cart of the signed-in customer, then empty the cart")
+    @Operation(summary = "Place an order from the cart of the signed-in customer, delivered and billed to the given addresses, then empty the cart")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     // The order is stored and the cart emptied together, or not at all
     @Transactional
-    fun placeOrder(@AuthenticationPrincipal jwt: Jwt): JsonOrder =
-        JsonOrder(orderUseCaseFacade.placeOrder(CartOwner.Customer(customer(jwt))))
+    fun placeOrder(@AuthenticationPrincipal jwt: Jwt, @RequestBody addresses: JsonOrderAddresses): JsonOrder =
+        JsonOrder(orderUseCaseFacade.placeOrder(CartOwner.Customer(customer(jwt)), addresses.toOrderAddresses()))
 
     @Operation(summary = "Retrieve the orders of the signed-in customer, newest first")
     @GetMapping

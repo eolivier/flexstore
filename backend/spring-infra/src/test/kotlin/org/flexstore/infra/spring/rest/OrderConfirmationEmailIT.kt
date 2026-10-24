@@ -80,7 +80,7 @@ class OrderConfirmationEmailIT {
         shopSettingsRepository.save(ShopSettings(orderConfirmationEmail = activation))
         addToCart(productId = "6", quantity = 2)
         // Act
-        val response = mockMvc.perform(post("/api/orders").with(asUser(CUSTOMER_ID)))
+        val response = mockMvc.perform(post("/api/orders").withHomeAddresses().with(asUser(CUSTOMER_ID)))
         // Assert
         response.andExpect(status().isCreated)
         assertThat(emailSender.sentEmails()).hasSize(sentCount)
@@ -91,7 +91,7 @@ class OrderConfirmationEmailIT {
         // Arrange
         addToCart(productId = "6", quantity = 2)
         // Act
-        mockMvc.perform(post("/api/orders").with(asUser(CUSTOMER_ID))).andExpect(status().isCreated)
+        mockMvc.perform(post("/api/orders").withHomeAddresses().with(asUser(CUSTOMER_ID))).andExpect(status().isCreated)
         // Assert
         val email = emailSender.sentEmails().single()
         val content = OrderConfirmationEmailContent(email, "https://flexstore.example")

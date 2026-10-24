@@ -23,7 +23,7 @@ class PlaceOrderUseCaseTest : WithAssertions {
     private val orderRepository = InMemoryOrderRepository()
     private val userRepository = InMemoryUserRepository()
     private val useCase = PlaceOrderUseCase(cartRepository, orderRepository, userRepository)
-    private val request = OrderPlacement(OrderId("order-1"), customer, Instant.parse("2026-10-24T10:00:00Z"))
+    private val request = OrderPlacement(OrderId("order-1"), customer, Instant.parse("2026-10-24T10:00:00Z"), homeAddresses)
 
     @Test
     fun `should store the order placed from the cart`() {

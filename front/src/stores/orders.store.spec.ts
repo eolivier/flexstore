@@ -14,6 +14,7 @@ const order = {
   totalPrice: 799,
   currency: '€',
 };
+const homeAddresses = { deliveryAddress: { street: '12 rue des Lilas', complement: '', postalCode: '75011', city: 'Paris', country: 'France' } };
 const emptyCart = { items: [], totalItemsPrice: 0, itemsCurrency: '€' };
 
 // Answers each API call by method and path
@@ -64,15 +65,28 @@ describe('orders.store', () => {
     respondWith({ 'POST /api/orders': { status: 201, body: order }, 'GET /api/cart/cart-items': { status: 200, body: emptyCart } });
     const store = useOrdersStore();
     // Act
-    const placement = await store.placeOrder();
+    const placement = await store.placeOrder(homeAddresses);
     // Assert
     expect(placement).toEqual({ status: 'placed', order });
     expect(mockFetch.mock.calls.some(([url]) => url.endsWith('/api/cart/cart-items'))).toBe(true);
   });
 
+  it('should send the addresses of the order', async () => {
+    // Arrange
+    await signIn();
+    respondWith({ 'POST /api/orders': { status: 201, body: order }, 'GET /api/cart/cart-items': { status: 200, body: emptyCart } });
+    const store = useOrdersStore();
+    // Act
+    await store.placeOrder(homeAddresses);
+    // Assert
+    const [, init] = mockFetch.mock.calls.find(([url, init]) => url.endsWith('/api/orders') && init?.method === 'POST')!;
+    expect(JSON.parse(init.body)).toEqual(homeAddresses);
+  });
+
   it.each([
     { status: 422, expected: 'emptyCart' },
     { status: 403, expected: 'refused' },
+    { status: 400, expected: 'incompleteAddress' },
     { status: 500, expected: 'error' },
   ])('an order answered $status is $expected', async ({ status, expected }) => {
     // Arrange
@@ -80,7 +94,7 @@ describe('orders.store', () => {
     respondWith({ 'POST /api/orders': { status } });
     const store = useOrdersStore();
     // Act
-    const placement = await store.placeOrder();
+    const placement = await store.placeOrder(homeAddresses);
     // Assert
     expect(placement).toEqual({ status: expected });
   });

@@ -1,0 +1,36 @@
+import { describe, expect, it } from 'vitest';
+import { mount } from '@vue/test-utils';
+import OrderAddressesCard from './OrderAddressesCard.vue';
+import { twoLinesOrder } from './orderFixture';
+import { vuetify, i18n } from '@/test/setup';
+
+const home = { street: '12 rue des Lilas', complement: null, postalCode: '75011', city: 'Paris', country: 'France' };
+const office = { street: '3 place du Marché', complement: null, postalCode: '69001', city: 'Lyon', country: 'France' };
+
+function mountCard(order = twoLinesOrder) {
+  return mount(OrderAddressesCard, { props: { order }, global: { plugins: [vuetify, i18n] } });
+}
+
+describe('OrderAddressesCard.vue', () => {
+  it('shows the delivery address, and a billing address that is the same', () => {
+    // Act
+    const wrapper = mountCard({ ...twoLinesOrder, deliveryAddress: home, billingAddress: home });
+    // Assert
+    expect(wrapper.text()).toContain('12 rue des Lilas, 75011 Paris, France');
+    expect(wrapper.text()).toContain('Same as the delivery address');
+  });
+
+  it('shows a billing address different from the delivery address', () => {
+    // Act
+    const wrapper = mountCard({ ...twoLinesOrder, deliveryAddress: home, billingAddress: office });
+    // Assert
+    expect(wrapper.text()).toContain('3 place du Marché, 69001 Lyon, France');
+  });
+
+  it('shows nothing for an order placed before the addresses', () => {
+    // Act
+    const wrapper = mountCard();
+    // Assert
+    expect(wrapper.text()).toBe('');
+  });
+});

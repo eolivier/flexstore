@@ -1,12 +1,17 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { JsonOrder } from '@/generated';
+import type { JsonOrder, JsonOrderAddresses } from '@/generated';
 import { useAuthStore } from '@/stores/auth.store';
 import { useCartStore } from '@/stores/cart.store';
 
 export type OrderLookup = { status: 'found'; order: JsonOrder } | { status: 'notFound' } | { status: 'error' };
 // refused: the account of the customer is suspended, locked or disabled
-export type OrderPlacement = { status: 'placed'; order: JsonOrder } | { status: 'emptyCart' } | { status: 'refused' } | { status: 'error' };
+export type OrderPlacement =
+  | { status: 'placed'; order: JsonOrder }
+  | { status: 'emptyCart' }
+  | { status: 'refused' }
+  | { status: 'incompleteAddress' }
+  | { status: 'error' };
 
 // The orders of the signed-in customer
 export const useOrdersStore = defineStore('orders', () => {
@@ -44,9 +49,15 @@ export const useOrdersStore = defineStore('orders', () => {
   }
 
   // Places an order from the cart of the customer; the server empties the cart
-  async function placeOrder(): Promise<OrderPlacement> {
+  // Without billing address, the order is billed to the delivery address
+  async function placeOrder(addresses: JsonOrderAddresses): Promise<OrderPlacement> {
     try {
-      const response = await authStore.authFetch('/api/orders', { method: 'POST' });
+      const response = await authStore.authFetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(addresses),
+      });
+      if (response.status === 400) return { status: 'incompleteAddress' };
       if (response.status === 403) return { status: 'refused' };
       if (response.status === 422) return { status: 'emptyCart' };
       if (!response.ok) return { status: 'error' };

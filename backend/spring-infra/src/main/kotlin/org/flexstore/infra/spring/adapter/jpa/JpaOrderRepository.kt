@@ -33,6 +33,8 @@ class PostgresOrderRepositoryAdapter(private val jpaRepo: JpaOrderRepository) : 
         userId = customer.value,
         status = status.name,
         placedAt = placedAt,
+        deliveryAddress = addresses?.delivery?.toEmbeddable(),
+        billingAddress = addresses?.billing?.toEmbeddable(),
         lines = lines.asList().mapIndexed { position, line ->
             OrderLineEntity(
                 id = Identity.nextId().value,
@@ -58,6 +60,15 @@ class PostgresOrderRepositoryAdapter(private val jpaRepo: JpaOrderRepository) : 
             )
         }),
         status = OrderStatus.valueOf(status),
-        placedAt = placedAt
+        placedAt = placedAt,
+        addresses = if (deliveryAddress != null && billingAddress != null) {
+            OrderAddresses(deliveryAddress.toDomain(), billingAddress.toDomain())
+        } else null
     )
+
+    private fun PostalAddress.toEmbeddable() =
+        OrderAddressEmbeddable(street.value, complement?.value, postalCode.value, city.value, country.value)
+
+    private fun OrderAddressEmbeddable.toDomain() =
+        PostalAddress(Street(street), complement?.let { AddressComplement(it) }, PostalCode(postalCode), City(city), Country(country))
 }

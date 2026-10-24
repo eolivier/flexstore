@@ -14,7 +14,7 @@ class PlaceOrderUseCase(
     private val userRepository: UserRepository
 ) : UseCase<OrderPlacement> {
 
-    override fun getPreConditions(): PreConditions<OrderPlacement> = PreConditions(accountAllowsOrderingCondition(), cartHasItemsCondition())
+    override fun getPreConditions(): PreConditions<OrderPlacement> = PreConditions(accountAllowsOrderingCondition(), cartHasItemsCondition(), addressesAreCompleteCondition())
 
     override fun getNominalScenario(): NominalScenario<OrderPlacement> {
         val placeOrderStep = Step<OrderPlacement> { request ->
@@ -40,6 +40,12 @@ class PlaceOrderUseCase(
     private fun cartHasItemsCondition() = PreCondition<OrderPlacement> { request ->
         if (cartRepository.load(request.customer).isEmpty()) {
             throw EmptyCartException(ErrorMessage("An order cannot be placed from an empty cart."))
+        }
+    }
+
+    private fun addressesAreCompleteCondition() = PreCondition<OrderPlacement> { request ->
+        if (request.addresses.isIncomplete()) {
+            throw IncompleteOrderAddressException(ErrorMessage("An order needs a complete delivery address and billing address."))
         }
     }
 

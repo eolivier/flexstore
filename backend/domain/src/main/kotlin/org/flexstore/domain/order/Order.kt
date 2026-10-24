@@ -17,13 +17,16 @@ private const val ORDER_NUMBER_LENGTH = 8
  * - an order is placed from a cart that has items
  * - its lines keep the name and the price of the products when the order is placed
  * - a new order is being processed
+ * - it keeps a copy of its delivery and billing addresses: changing an address of the customer later does not change it
  */
 data class Order(
     val orderId: OrderId,
     val customer: UserId.ValidUserId,
     val lines: OrderLines,
     val status: OrderStatus,
-    val placedAt: Instant
+    val placedAt: Instant,
+    // null for the orders placed before the addresses were asked for
+    val addresses: OrderAddresses? = null
 ) {
     fun totalPrice() = lines.totalPrice()
 
@@ -37,13 +40,33 @@ data class Order(
             if (cart.isEmpty()) {
                 throw EmptyCartException(ErrorMessage("An order cannot be placed from an empty cart."))
             }
-            return Order(placement.orderId, placement.customer.userId, OrderLines.from(cart), OrderStatus.PROCESSING, placement.placedAt)
+            if (placement.addresses.isIncomplete()) {
+                throw IncompleteOrderAddressException(ErrorMessage("An order needs a complete delivery address and billing address."))
+            }
+            return Order(
+                placement.orderId, placement.customer.userId, OrderLines.from(cart), OrderStatus.PROCESSING, placement.placedAt,
+                placement.addresses
+            )
         }
     }
 }
 
-// An order to place: its id (chosen by the caller, which can then read the order), its customer, its date
-data class OrderPlacement(val orderId: OrderId, val customer: CartOwner.Customer, val placedAt: Instant)
+// An order to place: its id (chosen by the caller, which can then read the order), its customer, its date, its addresses
+data class OrderPlacement(val orderId: OrderId, val customer: CartOwner.Customer, val placedAt: Instant, val addresses: OrderAddresses)
+
+// Where the order is delivered and to which address it is billed (often the same)
+data class OrderAddresses(val delivery: PostalAddress, val billing: PostalAddress) {
+
+    fun isComplete() = delivery.isComplete() && billing.isComplete()
+
+    fun isIncomplete() = !isComplete()
+
+    fun isBilledToTheDeliveryAddress() = delivery == billing
+
+    companion object {
+        fun sameFor(address: PostalAddress) = OrderAddresses(address, address)
+    }
+}
 
 data class OrderId(val value: String) {
     companion object {
@@ -87,6 +110,7 @@ data class Orders(private val orders: List<Order>) {
 }
 
 data class EmptyCartException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class IncompleteOrderAddressException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class OrderRefusedException(val status: AccountStatus, override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class OrderNotFoundException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class OrderPlacementFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

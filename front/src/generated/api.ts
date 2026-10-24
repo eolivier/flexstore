@@ -30,6 +30,70 @@ export interface DraftJsonProduct {
     'price'?: number;
     'currency'?: string;
 }
+/**
+ * The fields an administrator edits; the id is given by the path
+ */
+export interface EditedJsonProduct {
+    'name': string;
+    'description': string;
+    'category': string;
+    'price': number;
+    /**
+     * Currency code (EUR)
+     */
+    'currency': string;
+}
+export interface JsonAccount {
+    'id': string;
+    'firstName': string;
+    'lastName': string;
+    'email': string;
+    'role': JsonAccountRoleEnum;
+    'status': JsonAccountStatusEnum;
+    'phoneNumber'?: string | null;
+    'postalAddresses': Array<JsonPostalAddress>;
+}
+
+export const JsonAccountRoleEnum = {
+    User: 'USER',
+    Admin: 'ADMIN'
+} as const;
+
+export type JsonAccountRoleEnum = typeof JsonAccountRoleEnum[keyof typeof JsonAccountRoleEnum];
+export const JsonAccountStatusEnum = {
+    PendingVerification: 'PENDING_VERIFICATION',
+    Active: 'ACTIVE',
+    Suspended: 'SUSPENDED',
+    Locked: 'LOCKED',
+    Disabled: 'DISABLED'
+} as const;
+
+export type JsonAccountStatusEnum = typeof JsonAccountStatusEnum[keyof typeof JsonAccountStatusEnum];
+
+export interface JsonAccountRegistration {
+    'firstName': string;
+    'lastName': string;
+    'email': string;
+    /**
+     * At least 8 characters (will be hashed by the server)
+     */
+    'password': string;
+    'phoneNumber': string;
+    'postalAddress': JsonPostalAddress;
+}
+export interface JsonAccountStatus {
+    'status': JsonAccountStatusStatusEnum;
+}
+
+export const JsonAccountStatusStatusEnum = {
+    Active: 'ACTIVE',
+    Suspended: 'SUSPENDED',
+    Locked: 'LOCKED',
+    Disabled: 'DISABLED'
+} as const;
+
+export type JsonAccountStatusStatusEnum = typeof JsonAccountStatusStatusEnum[keyof typeof JsonAccountStatusStatusEnum];
+
 export interface JsonCartItem {
     'itemId'?: string;
     'productId'?: string;
@@ -52,6 +116,12 @@ export interface JsonChangePasswordRequest {
      * New password, at least 8 characters (will be hashed by the server)
      */
     'newPassword': string;
+}
+export interface JsonEmailVerification {
+    /**
+     * The token of the link (query parameter token of the verification page)
+     */
+    'token': string;
 }
 export interface JsonItem {
     'itemId'?: string;
@@ -88,6 +158,8 @@ export interface JsonOrder {
     'lines': Array<JsonOrderLine>;
     'totalPrice': number;
     'currency': string;
+    'deliveryAddress'?: JsonPostalAddress;
+    'billingAddress'?: JsonPostalAddress;
 }
 
 export const JsonOrderStatusEnum = {
@@ -98,12 +170,26 @@ export const JsonOrderStatusEnum = {
 
 export type JsonOrderStatusEnum = typeof JsonOrderStatusEnum[keyof typeof JsonOrderStatusEnum];
 
+export interface JsonOrderAddresses {
+    'deliveryAddress': JsonPostalAddress;
+    'billingAddress'?: JsonPostalAddress;
+}
 export interface JsonOrderLine {
     'productId': string;
     'productName': string;
     'unitPrice': number;
     'quantity': number;
     'linePrice': number;
+}
+export interface JsonPostalAddress {
+    'street': string;
+    /**
+     * Building, floor... (optional)
+     */
+    'complement'?: string | null;
+    'postalCode': string;
+    'city': string;
+    'country': string;
 }
 export interface JsonProduct {
     'id'?: string;
@@ -122,9 +208,11 @@ export interface JsonSaveItemResponse {
 }
 export interface JsonUser {
     'id'?: string;
-    'name'?: string;
+    'firstName'?: string;
+    'lastName'?: string;
     'email'?: string;
     'role'?: JsonUserRoleEnum;
+    'status'?: JsonUserStatusEnum;
 }
 
 export const JsonUserRoleEnum = {
@@ -133,9 +221,19 @@ export const JsonUserRoleEnum = {
 } as const;
 
 export type JsonUserRoleEnum = typeof JsonUserRoleEnum[keyof typeof JsonUserRoleEnum];
+export const JsonUserStatusEnum = {
+    PendingVerification: 'PENDING_VERIFICATION',
+    Active: 'ACTIVE',
+    Suspended: 'SUSPENDED',
+    Locked: 'LOCKED',
+    Disabled: 'DISABLED'
+} as const;
+
+export type JsonUserStatusEnum = typeof JsonUserStatusEnum[keyof typeof JsonUserStatusEnum];
 
 export interface JsonUserCreate {
-    'name': string;
+    'firstName': string;
+    'lastName': string;
     'email': string;
     /**
      * User\'s password (will be hashed by the server)
@@ -158,7 +256,8 @@ export type JsonUserCreateRoleEnum = typeof JsonUserCreateRoleEnum[keyof typeof 
  * The fields an administrator can edit; the password is changed by a separate operation
  */
 export interface JsonUserUpdate {
-    'name': string;
+    'firstName': string;
+    'lastName': string;
     'email': string;
     /**
      * Role of the user (USER when absent)
@@ -172,6 +271,309 @@ export const JsonUserUpdateRoleEnum = {
 } as const;
 
 export type JsonUserUpdateRoleEnum = typeof JsonUserUpdateRoleEnum[keyof typeof JsonUserUpdateRoleEnum];
+
+
+/**
+ * AccountsApi - axios parameter creator
+ */
+export const AccountsApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Retrieve the account of the signed-in user, with their phone number and postal addresses
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAccount: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/accounts/me`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Public. The account waits for the verification of the email (status PENDING_VERIFICATION); the customer can already sign in and order.
+         * @summary Create the account of a customer and send them a verification link, valid for 1 hour
+         * @param {JsonAccountRegistration} jsonAccountRegistration 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        registerAccount: async (jsonAccountRegistration: JsonAccountRegistration, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'jsonAccountRegistration' is not null or undefined
+            assertParamExists('registerAccount', 'jsonAccountRegistration', jsonAccountRegistration)
+            const localVarPath = `/api/accounts`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonAccountRegistration, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * The previous links stop working
+         * @summary Send a new verification link (valid for 1 hour) to the signed-in customer
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sendVerificationEmail: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/accounts/me/verification-email`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Public. The account becomes ACTIVE and the link cannot be used again.
+         * @summary Verify the email of an account with the token of the link sent by email
+         * @param {JsonEmailVerification} jsonEmailVerification 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        verifyEmail: async (jsonEmailVerification: JsonEmailVerification, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'jsonEmailVerification' is not null or undefined
+            assertParamExists('verifyEmail', 'jsonEmailVerification', jsonEmailVerification)
+            const localVarPath = `/api/accounts/email-verification`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonEmailVerification, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * AccountsApi - functional programming interface
+ */
+export const AccountsApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = AccountsApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Retrieve the account of the signed-in user, with their phone number and postal addresses
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getAccount(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonAccount>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getAccount(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AccountsApi.getAccount']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Public. The account waits for the verification of the email (status PENDING_VERIFICATION); the customer can already sign in and order.
+         * @summary Create the account of a customer and send them a verification link, valid for 1 hour
+         * @param {JsonAccountRegistration} jsonAccountRegistration 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async registerAccount(jsonAccountRegistration: JsonAccountRegistration, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonUser>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.registerAccount(jsonAccountRegistration, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AccountsApi.registerAccount']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * The previous links stop working
+         * @summary Send a new verification link (valid for 1 hour) to the signed-in customer
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async sendVerificationEmail(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.sendVerificationEmail(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AccountsApi.sendVerificationEmail']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Public. The account becomes ACTIVE and the link cannot be used again.
+         * @summary Verify the email of an account with the token of the link sent by email
+         * @param {JsonEmailVerification} jsonEmailVerification 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async verifyEmail(jsonEmailVerification: JsonEmailVerification, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.verifyEmail(jsonEmailVerification, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AccountsApi.verifyEmail']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * AccountsApi - factory interface
+ */
+export const AccountsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = AccountsApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Retrieve the account of the signed-in user, with their phone number and postal addresses
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAccount(options?: RawAxiosRequestConfig): AxiosPromise<JsonAccount> {
+            return localVarFp.getAccount(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Public. The account waits for the verification of the email (status PENDING_VERIFICATION); the customer can already sign in and order.
+         * @summary Create the account of a customer and send them a verification link, valid for 1 hour
+         * @param {JsonAccountRegistration} jsonAccountRegistration 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        registerAccount(jsonAccountRegistration: JsonAccountRegistration, options?: RawAxiosRequestConfig): AxiosPromise<JsonUser> {
+            return localVarFp.registerAccount(jsonAccountRegistration, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * The previous links stop working
+         * @summary Send a new verification link (valid for 1 hour) to the signed-in customer
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sendVerificationEmail(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.sendVerificationEmail(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Public. The account becomes ACTIVE and the link cannot be used again.
+         * @summary Verify the email of an account with the token of the link sent by email
+         * @param {JsonEmailVerification} jsonEmailVerification 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        verifyEmail(jsonEmailVerification: JsonEmailVerification, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.verifyEmail(jsonEmailVerification, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * AccountsApi - object-oriented interface
+ */
+export class AccountsApi extends BaseAPI {
+    /**
+     * 
+     * @summary Retrieve the account of the signed-in user, with their phone number and postal addresses
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getAccount(options?: RawAxiosRequestConfig) {
+        return AccountsApiFp(this.configuration).getAccount(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Public. The account waits for the verification of the email (status PENDING_VERIFICATION); the customer can already sign in and order.
+     * @summary Create the account of a customer and send them a verification link, valid for 1 hour
+     * @param {JsonAccountRegistration} jsonAccountRegistration 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public registerAccount(jsonAccountRegistration: JsonAccountRegistration, options?: RawAxiosRequestConfig) {
+        return AccountsApiFp(this.configuration).registerAccount(jsonAccountRegistration, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * The previous links stop working
+     * @summary Send a new verification link (valid for 1 hour) to the signed-in customer
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public sendVerificationEmail(options?: RawAxiosRequestConfig) {
+        return AccountsApiFp(this.configuration).sendVerificationEmail(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Public. The account becomes ACTIVE and the link cannot be used again.
+     * @summary Verify the email of an account with the token of the link sent by email
+     * @param {JsonEmailVerification} jsonEmailVerification 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public verifyEmail(jsonEmailVerification: JsonEmailVerification, options?: RawAxiosRequestConfig) {
+        return AccountsApiFp(this.configuration).verifyEmail(jsonEmailVerification, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
 
 
 /**
@@ -510,12 +912,15 @@ export const OrdersApiAxiosParamCreator = function (configuration?: Configuratio
             };
         },
         /**
-         * 
+         * The order keeps a copy of its delivery address and billing address (the delivery address when no billing address is given)
          * @summary Place an order from the cart of the signed-in customer, then empty the cart
+         * @param {JsonOrderAddresses} jsonOrderAddresses 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        placeOrder: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        placeOrder: async (jsonOrderAddresses: JsonOrderAddresses, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'jsonOrderAddresses' is not null or undefined
+            assertParamExists('placeOrder', 'jsonOrderAddresses', jsonOrderAddresses)
             const localVarPath = `/api/orders`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -534,9 +939,12 @@ export const OrdersApiAxiosParamCreator = function (configuration?: Configuratio
 
 
     
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonOrderAddresses, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -578,13 +986,14 @@ export const OrdersApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 
+         * The order keeps a copy of its delivery address and billing address (the delivery address when no billing address is given)
          * @summary Place an order from the cart of the signed-in customer, then empty the cart
+         * @param {JsonOrderAddresses} jsonOrderAddresses 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async placeOrder(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonOrder>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.placeOrder(options);
+        async placeOrder(jsonOrderAddresses: JsonOrderAddresses, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonOrder>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.placeOrder(jsonOrderAddresses, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['OrdersApi.placeOrder']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -618,13 +1027,14 @@ export const OrdersApiFactory = function (configuration?: Configuration, basePat
             return localVarFp.getOrders(options).then((request) => request(axios, basePath));
         },
         /**
-         * 
+         * The order keeps a copy of its delivery address and billing address (the delivery address when no billing address is given)
          * @summary Place an order from the cart of the signed-in customer, then empty the cart
+         * @param {JsonOrderAddresses} jsonOrderAddresses 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        placeOrder(options?: RawAxiosRequestConfig): AxiosPromise<JsonOrder> {
-            return localVarFp.placeOrder(options).then((request) => request(axios, basePath));
+        placeOrder(jsonOrderAddresses: JsonOrderAddresses, options?: RawAxiosRequestConfig): AxiosPromise<JsonOrder> {
+            return localVarFp.placeOrder(jsonOrderAddresses, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -655,13 +1065,14 @@ export class OrdersApi extends BaseAPI {
     }
 
     /**
-     * 
+     * The order keeps a copy of its delivery address and billing address (the delivery address when no billing address is given)
      * @summary Place an order from the cart of the signed-in customer, then empty the cart
+     * @param {JsonOrderAddresses} jsonOrderAddresses 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public placeOrder(options?: RawAxiosRequestConfig) {
-        return OrdersApiFp(this.configuration).placeOrder(options).then((request) => request(this.axios, this.basePath));
+    public placeOrder(jsonOrderAddresses: JsonOrderAddresses, options?: RawAxiosRequestConfig) {
+        return OrdersApiFp(this.configuration).placeOrder(jsonOrderAddresses, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -776,6 +1187,50 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * Reserved to an administrator
+         * @summary Edit a product (name, description, category, price)
+         * @param {string} id 
+         * @param {EditedJsonProduct} editedJsonProduct 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateProduct: async (id: string, editedJsonProduct: EditedJsonProduct, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('updateProduct', 'id', id)
+            // verify required parameter 'editedJsonProduct' is not null or undefined
+            assertParamExists('updateProduct', 'editedJsonProduct', editedJsonProduct)
+            const localVarPath = `/api/products/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(editedJsonProduct, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -823,6 +1278,20 @@ export const ProductsApiFp = function(configuration?: Configuration) {
             const localVarOperationServerBasePath = operationServerMap['ProductsApi.getProducts']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
+        /**
+         * Reserved to an administrator
+         * @summary Edit a product (name, description, category, price)
+         * @param {string} id 
+         * @param {EditedJsonProduct} editedJsonProduct 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async updateProduct(id: string, editedJsonProduct: EditedJsonProduct, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonProduct>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateProduct(id, editedJsonProduct, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProductsApi.updateProduct']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
     }
 };
 
@@ -860,6 +1329,17 @@ export const ProductsApiFactory = function (configuration?: Configuration, baseP
          */
         getProducts(options?: RawAxiosRequestConfig): AxiosPromise<Array<JsonProduct>> {
             return localVarFp.getProducts(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Reserved to an administrator
+         * @summary Edit a product (name, description, category, price)
+         * @param {string} id 
+         * @param {EditedJsonProduct} editedJsonProduct 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateProduct(id: string, editedJsonProduct: EditedJsonProduct, options?: RawAxiosRequestConfig): AxiosPromise<JsonProduct> {
+            return localVarFp.updateProduct(id, editedJsonProduct, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -899,6 +1379,18 @@ export class ProductsApi extends BaseAPI {
     public getProducts(options?: RawAxiosRequestConfig) {
         return ProductsApiFp(this.configuration).getProducts(options).then((request) => request(this.axios, this.basePath));
     }
+
+    /**
+     * Reserved to an administrator
+     * @summary Edit a product (name, description, category, price)
+     * @param {string} id 
+     * @param {EditedJsonProduct} editedJsonProduct 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public updateProduct(id: string, editedJsonProduct: EditedJsonProduct, options?: RawAxiosRequestConfig) {
+        return ProductsApiFp(this.configuration).updateProduct(id, editedJsonProduct, options).then((request) => request(this.axios, this.basePath));
+    }
 }
 
 
@@ -908,6 +1400,50 @@ export class ProductsApi extends BaseAPI {
  */
 export const UsersApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
+        /**
+         * Reserved to an administrator, on another account than their own. ACTIVE, SUSPENDED, LOCKED or DISABLED; a suspended, locked or disabled account can neither sign in nor order.
+         * @summary Change the status of an account
+         * @param {string} id 
+         * @param {JsonAccountStatus} jsonAccountStatus 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        changeAccountStatus: async (id: string, jsonAccountStatus: JsonAccountStatus, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('changeAccountStatus', 'id', id)
+            // verify required parameter 'jsonAccountStatus' is not null or undefined
+            assertParamExists('changeAccountStatus', 'jsonAccountStatus', jsonAccountStatus)
+            const localVarPath = `/api/users/{id}/status`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonAccountStatus, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
         /**
          * 
          * @summary Change the password of a user
@@ -1140,7 +1676,7 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
         },
         /**
          * Reserved to an administrator, checked by the domain (403 otherwise)
-         * @summary Edit a user by ID (name, email, role; not the password)
+         * @summary Edit a user by ID (first name, last name, email, role; not the password)
          * @param {string} id 
          * @param {JsonUserUpdate} jsonUserUpdate 
          * @param {*} [options] Override http request option.
@@ -1191,6 +1727,20 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
 export const UsersApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = UsersApiAxiosParamCreator(configuration)
     return {
+        /**
+         * Reserved to an administrator, on another account than their own. ACTIVE, SUSPENDED, LOCKED or DISABLED; a suspended, locked or disabled account can neither sign in nor order.
+         * @summary Change the status of an account
+         * @param {string} id 
+         * @param {JsonAccountStatus} jsonAccountStatus 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async changeAccountStatus(id: string, jsonAccountStatus: JsonAccountStatus, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonUser>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.changeAccountStatus(id, jsonAccountStatus, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UsersApi.changeAccountStatus']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
         /**
          * 
          * @summary Change the password of a user
@@ -1271,7 +1821,7 @@ export const UsersApiFp = function(configuration?: Configuration) {
         },
         /**
          * Reserved to an administrator, checked by the domain (403 otherwise)
-         * @summary Edit a user by ID (name, email, role; not the password)
+         * @summary Edit a user by ID (first name, last name, email, role; not the password)
          * @param {string} id 
          * @param {JsonUserUpdate} jsonUserUpdate 
          * @param {*} [options] Override http request option.
@@ -1292,6 +1842,17 @@ export const UsersApiFp = function(configuration?: Configuration) {
 export const UsersApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
     const localVarFp = UsersApiFp(configuration)
     return {
+        /**
+         * Reserved to an administrator, on another account than their own. ACTIVE, SUSPENDED, LOCKED or DISABLED; a suspended, locked or disabled account can neither sign in nor order.
+         * @summary Change the status of an account
+         * @param {string} id 
+         * @param {JsonAccountStatus} jsonAccountStatus 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        changeAccountStatus(id: string, jsonAccountStatus: JsonAccountStatus, options?: RawAxiosRequestConfig): AxiosPromise<JsonUser> {
+            return localVarFp.changeAccountStatus(id, jsonAccountStatus, options).then((request) => request(axios, basePath));
+        },
         /**
          * 
          * @summary Change the password of a user
@@ -1354,7 +1915,7 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
         },
         /**
          * Reserved to an administrator, checked by the domain (403 otherwise)
-         * @summary Edit a user by ID (name, email, role; not the password)
+         * @summary Edit a user by ID (first name, last name, email, role; not the password)
          * @param {string} id 
          * @param {JsonUserUpdate} jsonUserUpdate 
          * @param {*} [options] Override http request option.
@@ -1370,6 +1931,18 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
  * UsersApi - object-oriented interface
  */
 export class UsersApi extends BaseAPI {
+    /**
+     * Reserved to an administrator, on another account than their own. ACTIVE, SUSPENDED, LOCKED or DISABLED; a suspended, locked or disabled account can neither sign in nor order.
+     * @summary Change the status of an account
+     * @param {string} id 
+     * @param {JsonAccountStatus} jsonAccountStatus 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public changeAccountStatus(id: string, jsonAccountStatus: JsonAccountStatus, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).changeAccountStatus(id, jsonAccountStatus, options).then((request) => request(this.axios, this.basePath));
+    }
+
     /**
      * 
      * @summary Change the password of a user
@@ -1438,7 +2011,7 @@ export class UsersApi extends BaseAPI {
 
     /**
      * Reserved to an administrator, checked by the domain (403 otherwise)
-     * @summary Edit a user by ID (name, email, role; not the password)
+     * @summary Edit a user by ID (first name, last name, email, role; not the password)
      * @param {string} id 
      * @param {JsonUserUpdate} jsonUserUpdate 
      * @param {*} [options] Override http request option.

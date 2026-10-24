@@ -33,6 +33,10 @@ class RestExceptionHandler {
             is UserCreationForbiddenException, is UserUpdateForbiddenException -> ResponseEntity
                 .status(403)
                 .body(mapOf("error" to (ex.message ?: "Forbidden")))
+            // Not 422, which tells the front that the cart is empty
+            is IncompleteOrderAddressException -> ResponseEntity
+                .status(400)
+                .body(mapOf("error" to (ex.message ?: "Incomplete address")))
             is InvalidCurrentPasswordException -> ResponseEntity
                 .status(400)
                 .body(mapOf("error" to (ex.message ?: "Wrong current password")))
