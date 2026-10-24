@@ -80,12 +80,12 @@ enum class Role {
         // The role given by name; a user without a given role is a USER
         fun fromName(name: String?): Role =
             if (name.isNullOrBlank()) USER
-            else entries.find { it.name == name } ?: throw InvalidRoleException(NonEmptyString("Unknown role: $name"))
+            else entries.find { it.name == name } ?: throw InvalidRoleException(ErrorMessage("Unknown role: $name"))
     }
 }
 
-data class UserCreationForbiddenException(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
-data class InvalidRoleException(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
+data class UserCreationForbiddenException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class InvalidRoleException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 
 sealed class Password {
     abstract val value: String

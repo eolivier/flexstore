@@ -15,9 +15,9 @@ class CreateUserUseCase(
 
     lateinit var createdUser: User
 
-    override fun getPreConditions(): List<PreCondition<CreateUserRequest>> {
+    override fun getPreConditions(): PreConditions<CreateUserRequest> {
         println("#[BEGIN] CreateUserUseCase.getPreConditions")
-        val preConditions = listOf(creatorIsAdministratorCondition(), userDoesNotExistCondition(), passwordIsNotBlankCondition())
+        val preConditions = PreConditions(creatorIsAdministratorCondition(), userDoesNotExistCondition(), passwordIsNotBlankCondition())
         println("#[END] CreateUserUseCase.getPreConditions")
         return preConditions
     }
@@ -35,9 +35,9 @@ class CreateUserUseCase(
         return nominalScenario
     }
 
-    override fun getPostConditions(): List<PostCondition<CreateUserRequest>> {
+    override fun getPostConditions(): PostConditions<CreateUserRequest> {
         println("#[BEGIN] CreateUserUseCase.getPostConditions")
-        val postConditions = listOf(userExistsCondition())
+        val postConditions = PostConditions(userExistsCondition())
         println("#[END] CreateUserUseCase.getPostConditions")
         return postConditions
     }
@@ -49,7 +49,7 @@ class CreateUserUseCase(
     // The creator must be an existing user with the ADMIN role (read from the users, not from the request)
     private fun creatorIsAdministratorCondition() = PreCondition<CreateUserRequest> { request ->
         if (isNotAdministrator(request.creator)) {
-            throw UserCreationForbiddenException(NonEmptyString("Only an administrator can create a user."))
+            throw UserCreationForbiddenException(ErrorMessage("Only an administrator can create a user."))
         }
     }
 

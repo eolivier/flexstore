@@ -18,14 +18,14 @@ data class CreateProductRequest(val productId: ProductId, val draftProduct: Draf
 
 class CreateProductUseCase(private val productRepository: ProductRepository) : UseCase<CreateProductRequest> {
 
-    override fun getPreConditions(): List<PreCondition<CreateProductRequest>> = listOf(productDoesNotExistCondition())
+    override fun getPreConditions(): PreConditions<CreateProductRequest> = PreConditions(productDoesNotExistCondition())
 
     override fun getNominalScenario(): NominalScenario<CreateProductRequest> {
         val createProductStep = Step<CreateProductRequest> { request -> productRepository.save(request.definedProduct()) }
         return NominalScenario(listOf(createProductStep))
     }
 
-    override fun getPostConditions(): List<PostCondition<CreateProductRequest>> = listOf(productExistsCondition())
+    override fun getPostConditions(): PostConditions<CreateProductRequest> = PostConditions(productExistsCondition())
 
     override fun getAlternativeScenarii(): Map<KClass<out NominalException>, AlternativeScenario<CreateProductRequest>> {
         return emptyMap()

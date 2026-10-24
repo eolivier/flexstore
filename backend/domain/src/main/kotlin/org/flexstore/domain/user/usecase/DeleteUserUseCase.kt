@@ -8,9 +8,9 @@ import kotlin.reflect.KClass
 
 class DeleteUserUseCase(private val userRepository: UserRepository) : UseCase<UserId> {
 
-    override fun getPreConditions(): List<PreCondition<UserId>> {
+    override fun getPreConditions(): PreConditions<UserId> {
         println("#[BEGIN] DeleteUserUseCase.getPreConditions")
-        val preConditions = listOf(userExistsCondition())
+        val preConditions = PreConditions(userExistsCondition())
         println("#[END] DeleteUserUseCase.getPreConditions")
         return preConditions
     }
@@ -25,9 +25,9 @@ class DeleteUserUseCase(private val userRepository: UserRepository) : UseCase<Us
         return nominalScenario
     }
 
-    override fun getPostConditions(): List<PostCondition<UserId>> {
+    override fun getPostConditions(): PostConditions<UserId> {
         println("#[BEGIN] DeleteUserUseCase.getPostConditions")
-        val postConditions = listOf(userDeletedCondition())
+        val postConditions = PostConditions(userDeletedCondition())
         println("#[END] DeleteUserUseCase.getPostConditions")
         return postConditions
     }

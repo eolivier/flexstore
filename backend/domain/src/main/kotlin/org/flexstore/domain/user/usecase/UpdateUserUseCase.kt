@@ -6,9 +6,9 @@ import org.ucop.domain.entity.*
 
 class UpdateUserUseCase(private val userRepository: UserRepository) : UseCase<User> {
 
-    override fun getPreConditions(): List<PreCondition<User>> {
+    override fun getPreConditions(): PreConditions<User> {
         println("#[BEGIN] UpdateUserUseCase.getPreConditions")
-        val preConditions = listOf(isValidUserIdCondition(), userDoExistCondition())
+        val preConditions = PreConditions(isValidUserIdCondition(), userDoExistCondition())
         println("#[END] UpdateUserUseCase.getPreConditions")
         return preConditions
     }
@@ -23,9 +23,9 @@ class UpdateUserUseCase(private val userRepository: UserRepository) : UseCase<Us
         return nominalScenario
     }
 
-    override fun getPostConditions(): List<PostCondition<User>> {
+    override fun getPostConditions(): PostConditions<User> {
         println("#[BEGIN] UpdateUserUseCase.getPostConditions")
-        val postConditions = listOf<EmptyPostCondition<User>>(EmptyPostCondition())
+        val postConditions = PostConditions.none<User>()
         println("#[END] UpdateUserUseCase.getPostConditions")
         return postConditions
     }
