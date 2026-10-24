@@ -1,18 +1,12 @@
 package org.flexstore.infra.spring.adapter.rest
 
+import org.flexstore.domain.cart.model.*
+import org.flexstore.domain.cart.usecase.*
+import org.flexstore.domain.product.*
+import org.flexstore.domain.shared.*
+import org.flexstore.domain.user.model.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.flexstore.domain.entity.CartOwner
-import org.flexstore.domain.entity.UserId
-import org.flexstore.domain.entity.VisitorCartId
-import org.flexstore.domain.usecase.basket.AddItemToCartRequest
-import org.flexstore.domain.usecase.basket.CartUseCaseFacade
-import org.flexstore.domain.usecase.basket.ChangeCartItemQuantityRequest
-import org.flexstore.domain.usecase.basket.MergeCartsRequest
-import org.flexstore.domain.valueobject.Identity
-import org.flexstore.domain.valueobject.ItemId
-import org.flexstore.domain.valueobject.ProductId
-import org.flexstore.domain.valueobject.Quantity
 import org.flexstore.infra.spring.adapter.mapping.toJsonCartItems
 import org.flexstore.infra.spring.adapter.rest.json.JsonCartItems
 import org.flexstore.infra.spring.adapter.rest.json.JsonItem

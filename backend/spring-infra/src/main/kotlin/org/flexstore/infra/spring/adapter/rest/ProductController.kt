@@ -1,5 +1,7 @@
 package org.flexstore.infra.spring.adapter.rest
 
+import org.flexstore.domain.product.*
+import org.flexstore.domain.shared.*
 import io.micrometer.core.annotation.Timed
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.ArraySchema
@@ -7,9 +9,6 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.flexstore.domain.usecase.product.ProductUseCaseFacade
-import org.flexstore.domain.valueobject.Identity
-import org.flexstore.domain.valueobject.ProductId
 import org.flexstore.infra.spring.adapter.mapping.ProductMapper
 import org.flexstore.infra.spring.adapter.mapping.toJsonProducts
 import org.flexstore.infra.spring.adapter.rest.json.DraftJsonProduct

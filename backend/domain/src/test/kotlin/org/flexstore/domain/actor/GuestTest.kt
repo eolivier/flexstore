@@ -1,14 +1,15 @@
 package org.flexstore.domain.actor
 
+import org.flexstore.domain.cart.model.*
+import org.flexstore.domain.cart.usecase.*
+import org.flexstore.domain.product.*
+import org.flexstore.domain.shared.*
+import org.flexstore.domain.user.model.*
+import org.flexstore.domain.user.usecase.*
+import org.flexstore.domain.user.model.User.DefinedUser
+import org.flexstore.domain.user.model.UserId.ValidUserId
 import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
-import org.flexstore.domain.entity.*
-import org.flexstore.domain.entity.User.DefinedUser
-import org.flexstore.domain.entity.UserId.ValidUserId
-import org.flexstore.domain.usecase.basket.AddItemToCartRequest
-import org.flexstore.domain.usecase.basket.AddItemToCartUseCase
-import org.flexstore.domain.usecase.user.CreateUserUseCase
-import org.flexstore.domain.valueobject.*
 import org.flexstore.infra.repository.InMemoryUserRepository
 import org.flexstore.infra.repository.InMemoryCartRepository
 import org.flexstore.infra.repository.InMemoryProductRepository

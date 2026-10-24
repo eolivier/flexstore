@@ -1,8 +1,9 @@
 package org.flexstore.infra.spring.adapter.jpa
 
-import org.flexstore.domain.entity.UserId
 import org.flexstore.domain.order.*
-import org.flexstore.domain.valueobject.*
+import org.flexstore.domain.product.*
+import org.flexstore.domain.shared.*
+import org.flexstore.domain.user.model.*
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional

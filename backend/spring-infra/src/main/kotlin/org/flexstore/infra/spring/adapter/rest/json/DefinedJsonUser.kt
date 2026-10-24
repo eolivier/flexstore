@@ -1,9 +1,9 @@
 package org.flexstore.infra.spring.adapter.rest.json
 
+import org.flexstore.domain.shared.*
+import org.flexstore.domain.user.model.*
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import org.flexstore.domain.entity.*
-import org.flexstore.domain.valueobject.Name
 
 interface JsonUser
 

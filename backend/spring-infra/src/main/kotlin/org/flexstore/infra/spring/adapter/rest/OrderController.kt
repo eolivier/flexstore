@@ -1,11 +1,10 @@
 package org.flexstore.infra.spring.adapter.rest
 
+import org.flexstore.domain.cart.model.*
+import org.flexstore.domain.order.*
+import org.flexstore.domain.user.model.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.flexstore.domain.entity.CartOwner
-import org.flexstore.domain.order.OrderId
-import org.flexstore.domain.entity.UserId
-import org.flexstore.domain.order.OrderUseCaseFacade
 import org.flexstore.infra.spring.adapter.rest.json.JsonOrder
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal

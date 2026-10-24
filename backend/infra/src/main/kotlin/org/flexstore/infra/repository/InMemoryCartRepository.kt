@@ -1,9 +1,8 @@
 package org.flexstore.infra.repository
 
-import org.flexstore.domain.entity.Cart
-import org.flexstore.domain.entity.CartOwner
-import org.flexstore.domain.repository.CartRepository
-import org.flexstore.domain.valueobject.*
+import org.flexstore.domain.cart.*
+import org.flexstore.domain.cart.model.*
+import org.flexstore.domain.shared.*
 import java.util.concurrent.atomic.AtomicInteger
 
 class InMemoryCartRepository : CartRepository {

@@ -1,6 +1,6 @@
 package org.ucop.domain.entity
 
-import org.flexstore.domain.valueobject.Name
+import org.flexstore.domain.shared.*
 import org.ucop.domain.AlternativeException
 import org.ucop.domain.NominalException
 import org.ucop.domain.StepException

@@ -1,7 +1,7 @@
 package org.flexstore.domain.order
 
-import org.flexstore.domain.entity.*
-import org.flexstore.domain.repository.CartRepository
+import org.flexstore.domain.cart.*
+import org.flexstore.domain.cart.model.*
 import org.ucop.domain.NonEmptyString
 import org.ucop.domain.entity.*
 import java.time.Instant

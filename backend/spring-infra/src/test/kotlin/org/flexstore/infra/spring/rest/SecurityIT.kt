@@ -1,9 +1,9 @@
 package org.flexstore.infra.spring.rest
 
+import org.flexstore.domain.shared.*
+import org.flexstore.domain.user.*
+import org.flexstore.domain.user.model.*
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.flexstore.domain.entity.*
-import org.flexstore.domain.repository.UserRepository
-import org.flexstore.domain.valueobject.Name
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired

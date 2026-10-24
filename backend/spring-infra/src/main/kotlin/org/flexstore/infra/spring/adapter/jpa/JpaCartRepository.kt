@@ -1,9 +1,8 @@
 package org.flexstore.infra.spring.adapter.jpa
 
-import org.flexstore.domain.entity.Cart
-import org.flexstore.domain.entity.CartOwner
-import org.flexstore.domain.repository.CartRepository
-import org.flexstore.domain.valueobject.*
+import org.flexstore.domain.cart.*
+import org.flexstore.domain.cart.model.*
+import org.flexstore.domain.shared.*
 import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository

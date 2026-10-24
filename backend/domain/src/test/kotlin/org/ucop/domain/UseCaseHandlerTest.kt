@@ -1,13 +1,12 @@
 package org.ucop.domain
 
+import org.flexstore.domain.shared.*
+import org.flexstore.domain.user.model.*
+import org.flexstore.domain.user.usecase.*
+import org.flexstore.domain.user.model.User.DefinedUser
+import org.flexstore.domain.user.model.UserId.ValidUserId
 import io.mockk.spyk
 import io.mockk.verify
-import org.flexstore.domain.entity.*
-import org.flexstore.domain.entity.User.DefinedUser
-import org.flexstore.domain.entity.UserId.ValidUserId
-import org.flexstore.domain.usecase.user.CreateUserUseCase
-import org.flexstore.domain.usecase.user.UpdateUserUseCase
-import org.flexstore.domain.valueobject.Name
 import org.flexstore.infra.repository.InMemoryUserRepository
 import org.junit.jupiter.api.Test
 

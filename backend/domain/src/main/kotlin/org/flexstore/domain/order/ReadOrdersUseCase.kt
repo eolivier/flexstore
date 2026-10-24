@@ -1,6 +1,6 @@
 package org.flexstore.domain.order
 
-import org.flexstore.domain.entity.UserId
+import org.flexstore.domain.user.model.*
 import org.ucop.domain.NonEmptyString
 
 class ReadOrdersUseCase(private val orderRepository: OrderRepository) {

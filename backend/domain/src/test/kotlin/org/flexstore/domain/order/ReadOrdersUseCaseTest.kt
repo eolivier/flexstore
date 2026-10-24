@@ -1,8 +1,10 @@
 package org.flexstore.domain.order
 
+import org.flexstore.domain.cart.model.*
+import org.flexstore.domain.product.*
+import org.flexstore.domain.shared.*
+import org.flexstore.domain.user.model.*
 import org.assertj.core.api.WithAssertions
-import org.flexstore.domain.entity.*
-import org.flexstore.domain.valueobject.*
 import org.flexstore.infra.repository.InMemoryOrderRepository
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal

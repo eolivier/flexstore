@@ -1,8 +1,9 @@
 package org.flexstore.domain.order
 
-import org.flexstore.domain.entity.Cart
-import org.flexstore.domain.entity.UserId
-import org.flexstore.domain.valueobject.*
+import org.flexstore.domain.cart.model.*
+import org.flexstore.domain.product.*
+import org.flexstore.domain.shared.*
+import org.flexstore.domain.user.model.*
 import org.ucop.domain.NominalException
 import org.ucop.domain.NonEmptyString
 import java.math.BigDecimal

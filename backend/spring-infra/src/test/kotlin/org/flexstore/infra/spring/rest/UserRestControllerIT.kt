@@ -1,15 +1,9 @@
 package org.flexstore.infra.spring.rest
 
+import org.flexstore.domain.user.*
+import org.flexstore.domain.user.model.*
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
-import org.flexstore.domain.entity.Email
-import org.flexstore.domain.entity.HashedPassword
-import org.flexstore.domain.entity.PlainPassword
-import org.flexstore.domain.entity.User
-import org.flexstore.domain.entity.UserId
-import org.flexstore.domain.entity.of
-import org.flexstore.domain.repository.UserRepository
-import org.flexstore.domain.service.UserService
 import org.flexstore.infra.spring.adapter.rest.json.DefinedJsonUser
 import org.flexstore.infra.spring.adapter.rest.json.DraftJsonUser
 import org.junit.jupiter.api.AfterEach
