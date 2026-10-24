@@ -5,6 +5,8 @@ import org.flexstore.domain.cart.usecase.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.order.usecase.*
 import org.flexstore.domain.product.*
+import org.flexstore.domain.settings.*
+import org.flexstore.domain.user.*
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -56,8 +58,22 @@ open class UseCaseConfig {
     }
 
     @Bean
-    open fun orderUseCaseFacade(placeOrderUseCase: PlaceOrderUseCase, readOrdersUseCase: ReadOrdersUseCase): OrderUseCaseFacade {
-        return OrderUseCaseFacade(placeOrderUseCase, readOrdersUseCase)
+    open fun orderUseCaseFacade(placeOrderUseCase: PlaceOrderUseCase,
+                                readOrdersUseCase: ReadOrdersUseCase,
+                                sendOrderConfirmationEmailUseCase: SendOrderConfirmationEmailUseCase): OrderUseCaseFacade {
+        return OrderUseCaseFacade(placeOrderUseCase, readOrdersUseCase, sendOrderConfirmationEmailUseCase)
+    }
+
+    @Bean
+    open fun sendOrderConfirmationEmailUseCase(shopSettingsRepository: ShopSettingsRepository,
+                                               userRepository: UserRepository,
+                                               emailRepository: EmailRepository): SendOrderConfirmationEmailUseCase {
+        return SendOrderConfirmationEmailUseCase(shopSettingsRepository, userRepository, emailRepository)
+    }
+
+    @Bean
+    open fun shopSettingsUseCaseFacade(shopSettingsRepository: ShopSettingsRepository): ShopSettingsUseCaseFacade {
+        return ShopSettingsUseCaseFacade(shopSettingsRepository, UpdateShopSettingsUseCase(shopSettingsRepository))
     }
 
     @Bean

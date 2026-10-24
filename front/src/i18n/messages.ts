@@ -24,7 +24,16 @@ export default {
       subtitle: "Manage the users and the products of the shop.",
       usersText: "See and delete the user accounts.",
       createUserText: "Add an account that can sign in.",
-      createProductText: "Add a product to the catalog."
+      createProductText: "Add a product to the catalog.",
+      settingsText: "Turn the features of the shop on or off."
+    },
+    settings: {
+      title: "Settings",
+      subtitle: "Turn the features of the shop on or off.",
+      orderConfirmationEmail: "Order confirmation email",
+      orderConfirmationEmailText: "Send an email to the customer, with the summary of the order, when an order is placed.",
+      saveError: "The setting could not be saved.",
+      loadError: "The settings could not be loaded."
     },
     createProduct: {
       title: "Create a product",
@@ -203,6 +212,7 @@ export default {
       users: "Users",
       createUser: "Create a user",
       createProduct: "Create a product",
+      settings: "Settings",
       about: "About",
       login: "Sign in",
       logout: "Sign out",
@@ -265,7 +275,16 @@ export default {
       subtitle: "Gérez les utilisateurs et les produits de la boutique.",
       usersText: "Consulter et supprimer les comptes utilisateurs.",
       createUserText: "Ajouter un compte qui pourra se connecter.",
-      createProductText: "Ajouter un produit au catalogue."
+      createProductText: "Ajouter un produit au catalogue.",
+      settingsText: "Activer ou désactiver les fonctionnalités de la boutique."
+    },
+    settings: {
+      title: "Paramètres",
+      subtitle: "Activez ou désactivez les fonctionnalités de la boutique.",
+      orderConfirmationEmail: "Email de confirmation de commande",
+      orderConfirmationEmailText: "Envoyer au client un email récapitulant sa commande lorsqu'elle est passée.",
+      saveError: "Le paramètre n'a pas pu être enregistré.",
+      loadError: "Les paramètres n'ont pas pu être chargés."
     },
     createProduct: {
       title: "Créer un produit",
@@ -444,6 +463,7 @@ export default {
       users: "Utilisateurs",
       createUser: "Créer un utilisateur",
       createProduct: "Créer un produit",
+      settings: "Paramètres",
       about: "À propos",
       login: "Se connecter",
       logout: "Se déconnecter",

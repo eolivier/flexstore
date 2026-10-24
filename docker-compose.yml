@@ -56,6 +56,15 @@ services:
     ports:
       - "8080:8080"
 
+  # Local SMTP server that catches the emails (order confirmations): web interface on http://localhost:8025
+  # Start the back end with SPRING_MAIL_HOST=localhost SPRING_MAIL_PORT=1025 to send its emails there
+  mailpit:
+    image: axllent/mailpit:v1.20.0
+    container_name: flexstore-mailpit
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
   integrationTests:
     image: gradle:8.10-jdk21
     container_name: flexstore-integration-tests

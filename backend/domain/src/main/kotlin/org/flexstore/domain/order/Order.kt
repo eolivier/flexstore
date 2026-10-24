@@ -24,6 +24,9 @@ data class Order(
 ) {
     fun totalPrice() = lines.totalPrice()
 
+    // The number shown to the customer: the beginning of the order id
+    fun number() = orderId.value.take(8).uppercase()
+
     fun belongsTo(customer: UserId.ValidUserId) = this.customer == customer
 
     companion object {
