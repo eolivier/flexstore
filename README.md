@@ -39,7 +39,7 @@ Orders are demo data: they are not stored by the back end yet.
 **Domain**: pure Kotlin (entities, value objects, use cases, ports, domain errors). No framework.\
 **Infrastructure**: Spring Boot adapters implementing ports (REST controllers as *input adapters*, JPA as *output adapter*).
 
-Users are stored in PostgreSQL (JPA). Products and the cart are kept in memory (`InMemoryProductRepository`, `InMemoryItemRepository`): they are reset when the back end restarts.
+Users, products and the cart are stored in PostgreSQL (JPA adapters in `spring-infra/.../adapter/jpa`). The cart is a single cart shared by all visitors; a cart item only keeps the product id and the quantity, and the product (name, price) is always read from the catalog.
 
 ---
 
@@ -49,7 +49,7 @@ Users are stored in PostgreSQL (JPA). Products and the cart are kept in memory (
 backend/
   app/            # not used at the moment
   domain/         # Entities, value objects, use cases, ports, errors
-  infra/          # Infrastructure not linked to a framework (in-memory repositories)
+  infra/          # Infrastructure not linked to a framework (in-memory repositories, not used by the app)
   spring-infra/   # Spring adapters (REST controllers, JPA), OpenAPI spec
   migrations/     # Flyway SQL migrations
 front/            # Vue 3 + Vuetify + Pinia + vue-i18n shop
@@ -67,7 +67,7 @@ The back end needs PostgreSQL. Start it with Docker (the credentials come from t
 docker compose up -d db
 ```
 
-Flyway migrations run when the back end starts. To open a SQL console:
+Flyway migrations run when the back end starts; they create the catalog (9 products). To open a SQL console:
 
 ```bash
 docker exec -it flexstore-db psql -U flex -d flexstore
