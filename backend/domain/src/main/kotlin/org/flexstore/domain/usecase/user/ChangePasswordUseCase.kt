@@ -60,7 +60,7 @@ class ChangePasswordUseCase(
 
     private fun currentPasswordMatchesCondition() = PreCondition<ChangePasswordRequest> { request ->
         if (!userRepository.passwordMatches(definedUser(request).email, request.currentPassword)) {
-            throw InvalidCredentialsException(NonEmptyString("Invalid credentials."))
+            throw InvalidCurrentPasswordException(NonEmptyString("The current password is wrong."))
         }
     }
 
@@ -77,4 +77,6 @@ class ChangePasswordUseCase(
     }
 }
 
+// Not InvalidCredentialsException: the user is authenticated, only the confirmation of the current password failed
+data class InvalidCurrentPasswordException(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
 data class PasswordChangeFailed(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)

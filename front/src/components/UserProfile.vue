@@ -18,11 +18,11 @@
       .join('')
   );
 
-  const shortcuts = [
+  const shortcuts = computed(() => [
     { to: '/orders', icon: 'mdi-truck-outline', label: 'nav.orders' },
     { to: '/cart', icon: 'mdi-cart-outline', label: 'nav.cart' },
-    { to: '/admin', icon: 'mdi-cog-outline', label: 'nav.admin' },
-  ];
+    ...(authStore.isAdmin ? [{ to: '/admin', icon: 'mdi-cog-outline', label: 'nav.admin' }] : []),
+  ]);
 
   function logout() {
     authStore.logout();

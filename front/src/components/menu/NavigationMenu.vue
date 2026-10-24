@@ -94,15 +94,17 @@
             :prepend-icon="link.icon"
             :title="t(link.label)"
           />
-          <v-divider class="my-1" />
-          <v-list-subheader>{{ t('nav.admin') }}</v-list-subheader>
-          <v-list-item
-            v-for="link in adminLinks"
-            :key="link.to"
-            :to="link.to"
-            :prepend-icon="link.icon"
-            :title="t(link.label)"
-          />
+          <template v-if="authStore.isAdmin">
+            <v-divider class="my-1" />
+            <v-list-subheader>{{ t('nav.admin') }}</v-list-subheader>
+            <v-list-item
+              v-for="link in adminLinks"
+              :key="link.to"
+              :to="link.to"
+              :prepend-icon="link.icon"
+              :title="t(link.label)"
+            />
+          </template>
           <v-divider class="my-1" />
           <v-list-item
             v-if="authStore.isAuthenticated"
@@ -141,7 +143,7 @@
         :prepend-icon="link.icon"
         :title="t(link.label)"
       />
-      <AdminSubMenu />
+      <AdminSubMenu v-if="authStore.isAdmin" />
       <v-list-item to="/about" prepend-icon="mdi-information-outline" :title="t('nav.about')" />
     </v-list>
     <template #append>

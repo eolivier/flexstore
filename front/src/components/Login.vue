@@ -28,7 +28,7 @@
     loading.value = false;
 
     if (success) {
-      const redirectTo = (route.query.redirect as string) || '/admin';
+      const redirectTo = (route.query.redirect as string) || (authStore.isAdmin ? '/admin' : '/user-profile');
       router.push(redirectTo);
     }
   };

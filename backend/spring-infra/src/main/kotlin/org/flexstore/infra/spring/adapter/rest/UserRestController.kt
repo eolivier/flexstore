@@ -6,12 +6,15 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.domain.entity.UserId.ValidUserId
+import org.flexstore.domain.entity.User
 import org.flexstore.domain.service.UserService
 import org.flexstore.infra.spring.adapter.mapping.toJsonUser
 import org.flexstore.infra.spring.adapter.mapping.toJsonUsers
 import org.flexstore.infra.spring.adapter.rest.json.DraftJsonUser
 import org.flexstore.infra.spring.adapter.rest.json.JsonChangePasswordRequest
 import org.flexstore.infra.spring.adapter.rest.json.JsonLoginRequest
+import org.flexstore.infra.spring.adapter.rest.json.JsonLoginResponse
+import org.flexstore.infra.spring.security.JwtTokenService
 import org.flexstore.infra.spring.adapter.rest.json.DefinedJsonUser
 import org.flexstore.infra.spring.adapter.rest.json.JsonUser
 import org.springframework.http.HttpStatus
@@ -20,7 +23,7 @@ import org.springframework.web.bind.annotation.*
 @Tag(name = "Users")
 @RestController
 @RequestMapping("/api/users")
-class UserRestController(val userService: UserService) {
+class UserRestController(val userService: UserService, private val jwtTokenService: JwtTokenService) {
 
     @Operation(summary = "Create a user")
     @ApiResponse(responseCode = "201", description = "User created",
@@ -98,7 +101,9 @@ class UserRestController(val userService: UserService) {
     @Operation(summary = "Change the password of a user",
         responses = [
             ApiResponse(responseCode = "204", description = "Password changed"),
-            ApiResponse(responseCode = "401", description = "Wrong current password"),
+            ApiResponse(responseCode = "400", description = "Wrong current password"),
+            ApiResponse(responseCode = "401", description = "Missing or invalid token"),
+            ApiResponse(responseCode = "403", description = "Not the password of the signed-in user"),
             ApiResponse(responseCode = "422", description = "New password too short")
         ]
     )
@@ -112,16 +117,19 @@ class UserRestController(val userService: UserService) {
         responses = [
             ApiResponse(
                 responseCode = "200",
-                description = "Successfully authenticated",
+                description = "Successfully authenticated: the token is returned with the user",
                 content = [
-                    Content(schema = Schema(implementation = DefinedJsonUser::class))
+                    Content(schema = Schema(implementation = JsonLoginResponse::class))
                 ]
-            )
+            ),
+            ApiResponse(responseCode = "401", description = "Invalid credentials")
         ]
     )
     @PostMapping("/login")
     @ResponseStatus(HttpStatus.OK)
-    fun login(@RequestBody jsonLoginRequest: JsonLoginRequest): JsonUser {
-        return userService.login(jsonLoginRequest.toLoginRequest()).toJsonUser()
+    fun login(@RequestBody jsonLoginRequest: JsonLoginRequest): JsonLoginResponse {
+        val user = userService.login(jsonLoginRequest.toLoginRequest()) as User.DefinedUser
+        val token = jwtTokenService.issue(user)
+        return JsonLoginResponse(token.value, token.expiresAt.toString(), user.toJsonUser())
     }
 }

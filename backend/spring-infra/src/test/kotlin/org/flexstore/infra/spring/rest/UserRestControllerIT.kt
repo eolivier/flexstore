@@ -19,6 +19,8 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
+import org.flexstore.infra.spring.security.asAdmin
+import org.flexstore.infra.spring.security.asUser
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
@@ -57,7 +59,7 @@ class UserRestControllerIT {
         val draftJsonUser = DraftJsonUser("Draft User", DRAFT_USER_EMAIL, "testpassword")
         // Act
         mockMvc.perform(
-            post("/api/users")
+            post("/api/users").with(asAdmin())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(draftJsonUser))
         )
@@ -77,7 +79,7 @@ class UserRestControllerIT {
         userService.createUser(draftJsonUser.toUser())
         // Act - Assert
         mockMvc.perform(
-            post("/api/users")
+            post("/api/users").with(asAdmin())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(draftJsonUser))
         )
@@ -89,7 +91,7 @@ class UserRestControllerIT {
         // Arrange
         userService.createUser(createJsonUser().toUser())
         // Act - Assert
-        mockMvc.perform(get("/api/users/$USER_ID"))
+        mockMvc.perform(get("/api/users/$USER_ID").with(asAdmin()))
             .andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.id").value(USER_ID))
@@ -106,7 +108,7 @@ class UserRestControllerIT {
         // Act - Assert
         val updatedJsonUser = DefinedJsonUser("1", "Jane Doe", "jane.doe@example.com", "testpassword")
         mockMvc.perform(
-            put("/api/users/1")
+            put("/api/users/1").with(asAdmin())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedJsonUser))
         )
@@ -125,7 +127,7 @@ class UserRestControllerIT {
         val updatedUser = """{"id": "$USER_ID", "name": "Jane Doe", "email": "jane.doe@example.com"}"""
         // Act
         mockMvc.perform(
-            put("/api/users/$USER_ID")
+            put("/api/users/$USER_ID").with(asAdmin())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(updatedUser)
         )
@@ -141,7 +143,7 @@ class UserRestControllerIT {
         val request = """{"currentPassword": "testpassword", "newPassword": "new-password"}"""
         // Act
         mockMvc.perform(
-            post("/api/users/$USER_ID/password")
+            post("/api/users/$USER_ID/password").with(asUser(USER_ID))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(request)
         )
@@ -158,11 +160,11 @@ class UserRestControllerIT {
         val request = """{"currentPassword": "wrong-password", "newPassword": "new-password"}"""
         // Act - Assert
         mockMvc.perform(
-            post("/api/users/$USER_ID/password")
+            post("/api/users/$USER_ID/password").with(asUser(USER_ID))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(request)
         )
-            .andExpect(status().isUnauthorized)
+            .andExpect(status().isBadRequest)
         assertThat(userRepository.passwordMatches(Email("john.doe@example.com"), PlainPassword("testpassword"))).isTrue()
     }
 
@@ -172,7 +174,7 @@ class UserRestControllerIT {
         val jsonUser = createJsonUser()
         userService.createUser(jsonUser.toUser())
         // Act - Assert
-        mockMvc.perform(delete("/api/users/$USER_ID"))
+        mockMvc.perform(delete("/api/users/$USER_ID").with(asAdmin()))
             .andExpect(status().isNoContent)
     }
 

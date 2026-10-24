@@ -45,11 +45,11 @@ class ChangePasswordUseCaseTest {
         // Arrange
         val userRepository = repository(currentPasswordMatches = false)
         // Act
-        val exception = assertThrows<InvalidCredentialsException> {
+        val exception = assertThrows<InvalidCurrentPasswordException> {
             ChangePasswordUseCase(userRepository).unfold(ChangePasswordRequest(userId, currentPassword, newPassword))
         }
         // Assert
-        assertEquals("Invalid credentials.", exception.message)
+        assertEquals("The current password is wrong.", exception.message)
         verify(exactly = 0) { userRepository.save(ofType<DefinedUser>()) }
     }
 

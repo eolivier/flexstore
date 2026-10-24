@@ -11,6 +11,7 @@ docs/JsonCartItems.md
 docs/JsonChangePasswordRequest.md
 docs/JsonItem.md
 docs/JsonLoginRequest.md
+docs/JsonLoginResponse.md
 docs/JsonProduct.md
 docs/JsonUser.md
 docs/JsonUserCreate.md

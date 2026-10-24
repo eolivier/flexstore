@@ -20,7 +20,9 @@ dependencies {
     implementation(project(":infra"))
     implementation("org.springframework.boot:spring-boot-starter-web")
 
-    // Security - Password Encryption
+    // Security - authentication with JWT bearer tokens, password encryption
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.security:spring-security-crypto")
     implementation("org.bouncycastle:bcprov-jdk18on:1.78")
 
@@ -46,6 +48,7 @@ dependencies {
     }
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation(kotlin("test"))
+    testImplementation("org.springframework.security:spring-security-test")
 
     // Driver pour exécuter les tests (unit/IT)
     testRuntimeOnly("org.postgresql:postgresql")

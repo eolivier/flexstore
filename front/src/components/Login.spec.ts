@@ -17,6 +17,7 @@ const router = createRouter({
     { path: '/login', component: Login },
     { path: '/admin', component: { template: '<div>Admin</div>' } },
     { path: '/admin/users', component: { template: '<div>Users</div>' } },
+    { path: '/user-profile', component: { template: '<div>Profile</div>' } },
   ],
 });
 
@@ -75,7 +76,7 @@ describe('Login.vue', () => {
   it('calls login when form is submitted with valid data', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve({ id: '1', name: 'John', email: 'john@example.com' }),
+      json: () => Promise.resolve({ token: 'jwt-token', expiresAt: '2030-01-01T00:00:00Z', user: { id: '1', name: 'John', email: 'john@example.com', role: 'ADMIN' } }),
     });
 
     const wrapper = await mountComponent();
@@ -139,7 +140,7 @@ describe('Login.vue', () => {
   it('redirects to admin after successful login', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve({ id: '1', name: 'John', email: 'john@example.com' }),
+      json: () => Promise.resolve({ token: 'jwt-token', expiresAt: '2030-01-01T00:00:00Z', user: { id: '1', name: 'John', email: 'john@example.com', role: 'ADMIN' } }),
     });
 
     const wrapper = await mountComponent();
@@ -156,10 +157,28 @@ describe('Login.vue', () => {
     expect(router.currentRoute.value.path).toBe('/admin');
   });
 
+  it('redirects a user without the admin role to the account page', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ token: 'jwt-token', expiresAt: '2030-01-01T00:00:00Z', user: { id: '2', name: 'Jane', email: 'jane@example.com', role: 'USER' } }),
+    });
+
+    const wrapper = await mountComponent();
+
+    await wrapper.find('input[type="email"]').setValue('jane@example.com');
+    await wrapper.find('input[type="password"]').setValue('password123');
+    await flushPromises();
+
+    await wrapper.find('form').trigger('submit.prevent');
+    await flushPromises();
+
+    expect(router.currentRoute.value.path).toBe('/user-profile');
+  });
+
   it('redirects to custom path from query params after successful login', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve({ id: '1', name: 'John', email: 'john@example.com' }),
+      json: () => Promise.resolve({ token: 'jwt-token', expiresAt: '2030-01-01T00:00:00Z', user: { id: '1', name: 'John', email: 'john@example.com', role: 'ADMIN' } }),
     });
 
     const wrapper = await mountComponent({ redirect: '/admin/users' });
