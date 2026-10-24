@@ -2,7 +2,9 @@ package org.flexstore.infra.spring.rest
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.flexstore.infra.spring.adapter.jpa.JpaCartItemRepository
+import org.flexstore.infra.spring.adapter.jpa.JpaCartRepository
 import org.flexstore.infra.spring.adapter.jpa.JpaProductRepository
+import org.flexstore.infra.spring.adapter.rest.CART_ID_HEADER
 import org.flexstore.infra.spring.adapter.rest.json.JsonItem
 import org.flexstore.infra.spring.security.asAdmin
 import org.hamcrest.Matchers.hasItem
@@ -20,6 +22,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.math.BigDecimal
+import java.util.UUID
 
 private const val TEST_PRODUCT_NAME = "Persistence IT product"
 
@@ -38,12 +41,19 @@ class ProductAndCartPersistenceIT {
     private lateinit var cartItemRepository: JpaCartItemRepository
 
     @Autowired
+    private lateinit var cartRepository: JpaCartRepository
+
+    @Autowired
     private lateinit var productRepository: JpaProductRepository
+
+    // The cart of a visitor
+    private val cartId = UUID.randomUUID().toString()
 
     @BeforeEach
     @AfterEach
     fun cleanUp() {
         cartItemRepository.deleteAll()
+        cartRepository.deleteAll()
         productRepository.deleteAll(productRepository.findAll().filter { it.name == TEST_PRODUCT_NAME })
     }
 
@@ -91,7 +101,7 @@ class ProductAndCartPersistenceIT {
         // Act
         saveItem(itemWithFakeProductData)
         // Assert
-        mockMvc.perform(get("/api/cart/cart-items"))
+        getCart()
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.items.length()").value(1))
             .andExpect(jsonPath("$.items[0].productName").value("5G Smartphone"))
@@ -107,7 +117,7 @@ class ProductAndCartPersistenceIT {
         // Act
         saveItem(item(productId = "7", quantity = 3))
         // Assert
-        mockMvc.perform(get("/api/cart/cart-items"))
+        getCart()
             .andExpect(jsonPath("$.items.length()").value(1))
             .andExpect(jsonPath("$.items[0].productQuantity").value(3))
     }
@@ -120,7 +130,7 @@ class ProductAndCartPersistenceIT {
         // Act
         saveItem(item(itemId = itemId, productId = "7", quantity = 0))
         // Assert
-        mockMvc.perform(get("/api/cart/cart-items"))
+        getCart()
             .andExpect(jsonPath("$.items.length()").value(0))
             .andExpect(jsonPath("$.totalItemsPrice").value(0))
     }
@@ -131,7 +141,8 @@ class ProductAndCartPersistenceIT {
         val unknownProductItem = item(productId = "unknown", quantity = 1)
         // Act
         val result = mockMvc.perform(
-            post("/api/cart/save").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(unknownProductItem))
+            post("/api/cart/save").header(CART_ID_HEADER, cartId).contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(unknownProductItem))
         )
         // Assert
         result.andExpect(status().isNotFound)
@@ -145,12 +156,15 @@ class ProductAndCartPersistenceIT {
 
     private fun saveItem(item: JsonItem) {
         mockMvc.perform(
-            post("/api/cart/save").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(item))
+            post("/api/cart/save").header(CART_ID_HEADER, cartId).contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(item))
         ).andExpect(status().isOk)
     }
 
+    private fun getCart() = mockMvc.perform(get("/api/cart/cart-items").header(CART_ID_HEADER, cartId))
+
     private fun cartItemIds(): List<String> {
-        val body = mockMvc.perform(get("/api/cart/cart-items")).andReturn().response.contentAsString
+        val body = getCart().andReturn().response.contentAsString
         return objectMapper.readTree(body)["items"].map { it["itemId"].asText() }
     }
 

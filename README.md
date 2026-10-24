@@ -24,7 +24,7 @@ This repo is meant to be a learning vehicle and a ready-to-fork base for real pr
 - Home page: categories, a selection of products, the shop values and commitments
 - Catalog: product cards, category filter (clothing, electronics, accessories), sort by name or price
 - Product detail: description, quantity, add to cart, products of the same category
-- Cart: quantity per line, remove, total, item count badge in the header
+- Cart: quantity per line, remove, total, item count badge in the header; one cart per visitor and per customer, merged at sign-in
 
 **Account and administration** (sign-in required)
 - Sign in, profile, change password
@@ -39,7 +39,14 @@ Orders are demo data: they are not stored by the back end yet.
 **Domain**: pure Kotlin (entities, value objects, use cases, ports, domain errors). No framework.\
 **Infrastructure**: Spring Boot adapters implementing ports (REST controllers as *input adapters*, JPA as *output adapter*).
 
-Users, products and the cart are stored in PostgreSQL (JPA adapters in `spring-infra/.../adapter/jpa`). The cart is a single cart shared by all visitors; a cart item only keeps the product id and the quantity, and the product (name, price) is always read from the catalog.
+Users, products and carts are stored in PostgreSQL (JPA adapters in `spring-infra/.../adapter/jpa`). A cart item only keeps the product id and the quantity: the product (name, price) is always read from the catalog.
+
+**Carts**: each cart has an owner.
+- A **visitor** gets a cart id (a UUID) with their first item (`POST /api/cart/save` returns it); the front end keeps it in `localStorage` and sends it in the `X-Cart-Id` header. No server session is needed.
+- A **signed-in customer** has one cart, found with the token, on every device.
+- At **sign-in**, the front end calls `POST /api/cart/merge`: the visitor cart is merged into the customer cart (all the items are kept; for a product in both carts, the larger quantity is kept), then deleted.
+
+The cart rules live in the `Cart` aggregate (domain); the use cases (`AddItemToCartUseCase`, `ChangeCartItemQuantityUseCase`, `MergeCartsUseCase`...) load and save it through the `CartRepository` port.
 
 ---
 
@@ -137,8 +144,9 @@ npm run gen:api
 | `GET` | `/api/products/` | public | All products |
 | `GET` | `/api/products/{id}` | public | One product (`404` if it does not exist) |
 | `POST` | `/api/products` | `ADMIN` | Create a product |
-| `GET` | `/api/cart/cart-items` | public | Cart items and total |
-| `POST` | `/api/cart/save` | public | Add or update a cart item (quantity `0` removes it) |
+| `GET` | `/api/cart/cart-items` | public | Items and total of the cart of the customer (token) or of the visitor (`X-Cart-Id`) |
+| `POST` | `/api/cart/save` | public | Add or update a cart item (quantity `0` removes it); returns the visitor cart id |
+| `POST` | `/api/cart/merge` | signed in | Merge the visitor cart (`X-Cart-Id`) into the customer cart |
 | `POST` | `/api/users/login` | public | Sign in: returns a token and the user (`401` on wrong credentials) |
 | `POST` | `/api/users/{id}/password` | the user `{id}` | Change one's own password (`400` if the current one is wrong) |
 | `GET` | `/api/users` | `ADMIN` | All users |

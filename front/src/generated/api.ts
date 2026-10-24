@@ -89,6 +89,13 @@ export interface JsonProduct {
     'price'?: number;
     'currency'?: string;
 }
+export interface JsonSaveItemResponse {
+    'status'?: string;
+    /**
+     * Id of the visitor cart, to send in X-Cart-Id; null for a signed-in customer
+     */
+    'cartId'?: string | null;
+}
 export interface JsonUser {
     'id'?: string;
     'name'?: string;
@@ -127,13 +134,14 @@ export interface JsonUserUpdate {
 export const CartApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * 
-         * @summary Add an item to the cart
+         * The cart of the signed-in customer (bearer token), otherwise the cart of the visitor given by X-Cart-Id; without X-Cart-Id, a visitor cart is created and its id is returned.
+         * @summary Add an item to the cart, or change the quantity of an item (0 removes it)
          * @param {JsonItem} jsonItem 
+         * @param {string} [xCartId] Id of the visitor cart (a UUID), returned by POST /api/cart/save
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        addItem: async (jsonItem: JsonItem, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        addItem: async (jsonItem: JsonItem, xCartId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'jsonItem' is not null or undefined
             assertParamExists('addItem', 'jsonItem', jsonItem)
             const localVarPath = `/api/cart/save`;
@@ -148,10 +156,17 @@ export const CartApiAxiosParamCreator = function (configuration?: Configuration)
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
 
     
             localVarHeaderParameter['Content-Type'] = 'application/json';
 
+            if (xCartId != null) {
+                localVarHeaderParameter['X-Cart-Id'] = String(xCartId);
+            }
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -163,12 +178,13 @@ export const CartApiAxiosParamCreator = function (configuration?: Configuration)
             };
         },
         /**
-         * Returns the full list of items in the cart
-         * @summary Retrieve all cart items
+         * The cart of the signed-in customer (bearer token), otherwise the cart of the visitor given by X-Cart-Id (empty without it).
+         * @summary Retrieve the items of the cart of the customer or of the visitor
+         * @param {string} [xCartId] Id of the visitor cart (a UUID), returned by POST /api/cart/save
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getCartItems: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getCartItems: async (xCartId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/cart/cart-items`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -181,8 +197,53 @@ export const CartApiAxiosParamCreator = function (configuration?: Configuration)
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
 
     
+            if (xCartId != null) {
+                localVarHeaderParameter['X-Cart-Id'] = String(xCartId);
+            }
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * All the items are kept; for a product in both carts, the larger quantity is kept. The visitor cart is then deleted.
+         * @summary Merge the cart of the visitor (X-Cart-Id) into the cart of the signed-in customer
+         * @param {string} [xCartId] Id of the visitor cart (a UUID), returned by POST /api/cart/save
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mergeCarts: async (xCartId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/cart/merge`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            if (xCartId != null) {
+                localVarHeaderParameter['X-Cart-Id'] = String(xCartId);
+            }
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -202,28 +263,43 @@ export const CartApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = CartApiAxiosParamCreator(configuration)
     return {
         /**
-         * 
-         * @summary Add an item to the cart
+         * The cart of the signed-in customer (bearer token), otherwise the cart of the visitor given by X-Cart-Id; without X-Cart-Id, a visitor cart is created and its id is returned.
+         * @summary Add an item to the cart, or change the quantity of an item (0 removes it)
          * @param {JsonItem} jsonItem 
+         * @param {string} [xCartId] Id of the visitor cart (a UUID), returned by POST /api/cart/save
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async addItem(jsonItem: JsonItem, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<object>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.addItem(jsonItem, options);
+        async addItem(jsonItem: JsonItem, xCartId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonSaveItemResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.addItem(jsonItem, xCartId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CartApi.addItem']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Returns the full list of items in the cart
-         * @summary Retrieve all cart items
+         * The cart of the signed-in customer (bearer token), otherwise the cart of the visitor given by X-Cart-Id (empty without it).
+         * @summary Retrieve the items of the cart of the customer or of the visitor
+         * @param {string} [xCartId] Id of the visitor cart (a UUID), returned by POST /api/cart/save
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getCartItems(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonCartItems>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getCartItems(options);
+        async getCartItems(xCartId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonCartItems>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getCartItems(xCartId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CartApi.getCartItems']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * All the items are kept; for a product in both carts, the larger quantity is kept. The visitor cart is then deleted.
+         * @summary Merge the cart of the visitor (X-Cart-Id) into the cart of the signed-in customer
+         * @param {string} [xCartId] Id of the visitor cart (a UUID), returned by POST /api/cart/save
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async mergeCarts(xCartId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.mergeCarts(xCartId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CartApi.mergeCarts']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -236,23 +312,35 @@ export const CartApiFactory = function (configuration?: Configuration, basePath?
     const localVarFp = CartApiFp(configuration)
     return {
         /**
-         * 
-         * @summary Add an item to the cart
+         * The cart of the signed-in customer (bearer token), otherwise the cart of the visitor given by X-Cart-Id; without X-Cart-Id, a visitor cart is created and its id is returned.
+         * @summary Add an item to the cart, or change the quantity of an item (0 removes it)
          * @param {JsonItem} jsonItem 
+         * @param {string} [xCartId] Id of the visitor cart (a UUID), returned by POST /api/cart/save
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        addItem(jsonItem: JsonItem, options?: RawAxiosRequestConfig): AxiosPromise<object> {
-            return localVarFp.addItem(jsonItem, options).then((request) => request(axios, basePath));
+        addItem(jsonItem: JsonItem, xCartId?: string, options?: RawAxiosRequestConfig): AxiosPromise<JsonSaveItemResponse> {
+            return localVarFp.addItem(jsonItem, xCartId, options).then((request) => request(axios, basePath));
         },
         /**
-         * Returns the full list of items in the cart
-         * @summary Retrieve all cart items
+         * The cart of the signed-in customer (bearer token), otherwise the cart of the visitor given by X-Cart-Id (empty without it).
+         * @summary Retrieve the items of the cart of the customer or of the visitor
+         * @param {string} [xCartId] Id of the visitor cart (a UUID), returned by POST /api/cart/save
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getCartItems(options?: RawAxiosRequestConfig): AxiosPromise<JsonCartItems> {
-            return localVarFp.getCartItems(options).then((request) => request(axios, basePath));
+        getCartItems(xCartId?: string, options?: RawAxiosRequestConfig): AxiosPromise<JsonCartItems> {
+            return localVarFp.getCartItems(xCartId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * All the items are kept; for a product in both carts, the larger quantity is kept. The visitor cart is then deleted.
+         * @summary Merge the cart of the visitor (X-Cart-Id) into the cart of the signed-in customer
+         * @param {string} [xCartId] Id of the visitor cart (a UUID), returned by POST /api/cart/save
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mergeCarts(xCartId?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.mergeCarts(xCartId, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -262,24 +350,37 @@ export const CartApiFactory = function (configuration?: Configuration, basePath?
  */
 export class CartApi extends BaseAPI {
     /**
-     * 
-     * @summary Add an item to the cart
+     * The cart of the signed-in customer (bearer token), otherwise the cart of the visitor given by X-Cart-Id; without X-Cart-Id, a visitor cart is created and its id is returned.
+     * @summary Add an item to the cart, or change the quantity of an item (0 removes it)
      * @param {JsonItem} jsonItem 
+     * @param {string} [xCartId] Id of the visitor cart (a UUID), returned by POST /api/cart/save
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public addItem(jsonItem: JsonItem, options?: RawAxiosRequestConfig) {
-        return CartApiFp(this.configuration).addItem(jsonItem, options).then((request) => request(this.axios, this.basePath));
+    public addItem(jsonItem: JsonItem, xCartId?: string, options?: RawAxiosRequestConfig) {
+        return CartApiFp(this.configuration).addItem(jsonItem, xCartId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
-     * Returns the full list of items in the cart
-     * @summary Retrieve all cart items
+     * The cart of the signed-in customer (bearer token), otherwise the cart of the visitor given by X-Cart-Id (empty without it).
+     * @summary Retrieve the items of the cart of the customer or of the visitor
+     * @param {string} [xCartId] Id of the visitor cart (a UUID), returned by POST /api/cart/save
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public getCartItems(options?: RawAxiosRequestConfig) {
-        return CartApiFp(this.configuration).getCartItems(options).then((request) => request(this.axios, this.basePath));
+    public getCartItems(xCartId?: string, options?: RawAxiosRequestConfig) {
+        return CartApiFp(this.configuration).getCartItems(xCartId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * All the items are kept; for a product in both carts, the larger quantity is kept. The visitor cart is then deleted.
+     * @summary Merge the cart of the visitor (X-Cart-Id) into the cart of the signed-in customer
+     * @param {string} [xCartId] Id of the visitor cart (a UUID), returned by POST /api/cart/save
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public mergeCarts(xCartId?: string, options?: RawAxiosRequestConfig) {
+        return CartApiFp(this.configuration).mergeCarts(xCartId, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

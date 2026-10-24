@@ -1,5 +1,6 @@
 package org.flexstore.domain.usecase.basket
 
+import org.flexstore.domain.entity.CartOwner
 import org.flexstore.domain.repository.CartRepository
 import org.flexstore.domain.repository.ProductRepository
 import org.flexstore.domain.usecase.product.ProductNotFoundException
@@ -8,7 +9,7 @@ import org.ucop.domain.NominalException
 import org.ucop.domain.NonEmptyString
 import org.ucop.domain.entity.*
 
-data class AddItemToCartRequest(val productId: ProductId, val quantity: Quantity)
+data class AddItemToCartRequest(val owner: CartOwner, val productId: ProductId, val quantity: Quantity)
 
 class AddItemToCartUseCase(
     private val cartRepository: CartRepository,
@@ -19,7 +20,7 @@ class AddItemToCartUseCase(
 
     override fun getNominalScenario(): NominalScenario<AddItemToCartRequest> {
         val addItemStep = Step<AddItemToCartRequest> { request ->
-            val cart = cartRepository.load()
+            val cart = cartRepository.load(request.owner)
             cartRepository.save(cart.add(catalogProduct(request.productId), request.quantity))
         }
         return NominalScenario(listOf(addItemStep))
@@ -36,7 +37,7 @@ class AddItemToCartUseCase(
     }
 
     private fun itemHasQuantityCondition() = PostCondition<AddItemToCartRequest> { request ->
-        val item = cartRepository.load().findBy(request.productId)
+        val item = cartRepository.load(request.owner).findBy(request.productId)
         if (item !is CartItem || item.quantity != request.quantity) {
             throw CartUpdateFailed(NonEmptyString("Product ${request.productId.id.value} was not added to the cart."))
         }

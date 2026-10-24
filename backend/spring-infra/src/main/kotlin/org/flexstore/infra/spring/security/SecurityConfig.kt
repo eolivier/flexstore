@@ -28,7 +28,8 @@ const val ROLES_CLAIM = "roles"
 
 /**
  * Stateless authentication with JWT bearer tokens signed with HMAC-SHA256 (issued by POST /api/users/login).
- * The catalog, the cart and the login are public; managing users and products requires the ADMIN role.
+ * The catalog, the cart and the login are public (merging a visitor cart requires a signed-in user);
+ * managing users and products requires the ADMIN role.
  */
 @Configuration
 open class SecurityConfig(@Value("\${flexstore.security.jwt-secret:}") private val jwtSecret: String) {
@@ -58,6 +59,7 @@ open class SecurityConfig(@Value("\${flexstore.security.jwt-secret:}") private v
                 it
                     .requestMatchers("/error", "/actuator/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/cart/merge").authenticated()
                     .requestMatchers("/api/cart/**").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/users/{id}/password").access(isUserFromPath())

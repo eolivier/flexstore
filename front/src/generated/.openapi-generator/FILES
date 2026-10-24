@@ -13,6 +13,7 @@ docs/JsonItem.md
 docs/JsonLoginRequest.md
 docs/JsonLoginResponse.md
 docs/JsonProduct.md
+docs/JsonSaveItemResponse.md
 docs/JsonUser.md
 docs/JsonUserCreate.md
 docs/JsonUserUpdate.md

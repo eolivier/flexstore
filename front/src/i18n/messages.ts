@@ -147,7 +147,8 @@ export default {
       itemsCount: "No items | 1 item | {n} items",
       continue: "Continue shopping",
       empty: "Your cart is empty",
-      emptyText: "Browse the shop and add the products you like."
+      emptyText: "Browse the shop and add the products you like.",
+      accountItemsMerged: "The items saved in your account have been added to your cart."
     },
     orders: {
       title: "Orders",
@@ -366,7 +367,8 @@ export default {
       itemsCount: "Aucun article | 1 article | {n} articles",
       continue: "Continuer mes achats",
       empty: "Votre panier est vide",
-      emptyText: "Parcourez la boutique et ajoutez les produits qui vous plaisent."
+      emptyText: "Parcourez la boutique et ajoutez les produits qui vous plaisent.",
+      accountItemsMerged: "Les articles enregistrés dans votre compte ont été ajoutés à votre panier."
     },
     orders: {
       title: "Commandes",
