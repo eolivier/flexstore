@@ -1,0 +1,67 @@
+---
+name: domain-driven-design
+description: Domain-Driven Design and hexagonal architecture principles to follow when writing or reviewing back-end code - where business rules live, what entities, value objects and aggregates may reference, the role of use cases, repositories and adapters. Use before creating or changing an entity, aggregate, value object, use case, port (repository interface) or infrastructure adapter, and when reviewing domain code.
+---
+
+# Domain-Driven Design
+
+Principles collected from the user's feedback. Apply them to any domain or infrastructure code and check them in reviews. When existing code breaks them, point it out instead of copying the flaw.
+
+## 1. Adapters do not add business rules
+
+An infrastructure adapter, and in particular the implementation of a domain repository, only translates and stores. It holds no business rule. Business rules are defined in the domain.
+
+A repository adapter is limited to:
+- converting between the domain model and the persistence model (JPA entity, document, SQL row);
+- reading, inserting, updating and deleting what it is asked to;
+- generating technical ids when needed.
+
+Examples of business rules that do not belong in an adapter:
+- "adding a product already in the cart changes the quantity of its line";
+- "a quantity of zero removes the line";
+- "the price of an item is the catalog price, not the one sent by the client";
+- "an unknown product cannot be added".
+
+Warning sign: an `if` on a business value (quantity, status, amount, existence of another object) in an adapter. Move the decision to the domain and give the port simple operations (`add`, `update`, `remove`, `findByX`, `load`, `save`).
+
+A database constraint (foreign key, uniqueness, `CHECK`) may back a rule up to protect the data, but does not replace it: the rule is still written and tested in the domain.
+
+Test these rules in the domain, without infrastructure (in-memory repositories or mocks); integration tests only check that the adapter stores and reads back correctly.
+
+## 2. No repository in an entity, value object or aggregate
+
+An entity, value object or aggregate of the domain does not reference a repository interface as a member (property, constructor parameter kept as a field). The entry point of a business action is a **use case**: it uses the repositories to load the domain objects, asks them to apply the rules, then saves the result.
+
+Avoid:
+
+```kotlin
+class Cart(private val itemRepository: ItemRepository, private val productRepository: ProductRepository) {
+    fun add(draftItem: DraftItem): CartItem { /* reads and writes through the repositories */ }
+}
+```
+
+Prefer:
+
+```kotlin
+// Aggregate: state and rules, no dependency on infrastructure or ports
+data class Cart(val items: List<Item>) {
+    fun add(product: DefinedProduct, quantity: Quantity): Cart { /* pure rules */ }
+}
+
+// Use case: orchestrates the ports and delegates the rules to the aggregate
+class AddItemToCartUseCase(
+    private val cartRepository: CartRepository,
+    private val productRepository: ProductRepository,
+) : UseCase<AddItemToCartRequest> {
+    // nominal step
+    val product = productRepository.findById(request.productId) ?: throw ProductNotFoundException(...)
+    cartRepository.save(cartRepository.load().add(product, request.quantity))
+}
+```
+
+Why: the domain object stays testable without mocks, its rules can be read without following infrastructure calls, and each user journey has an explicit entry point (preconditions, nominal scenario, postconditions) that input adapters (REST controllers) call.
+
+Consequences:
+- a REST controller calls a use case (or a use case facade), never an entity built with repositories;
+- rules that need external data (the catalog product) receive it as a parameter, loaded by the use case;
+- a use case raises the business exceptions (`ProductNotFoundException`...) when loaded data is missing.
