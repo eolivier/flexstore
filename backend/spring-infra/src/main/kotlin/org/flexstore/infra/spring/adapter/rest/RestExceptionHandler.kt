@@ -1,6 +1,6 @@
 package org.flexstore.infra.spring.adapter.rest
 
-import org.flexstore.domain.order.*
+import org.flexstore.domain.order.model.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.usecase.*

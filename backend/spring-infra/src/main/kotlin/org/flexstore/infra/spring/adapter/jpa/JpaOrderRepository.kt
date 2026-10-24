@@ -1,6 +1,7 @@
 package org.flexstore.infra.spring.adapter.jpa
 
-import org.flexstore.domain.order.*
+import org.flexstore.domain.order.model.*
+import org.flexstore.domain.order.repository.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.*

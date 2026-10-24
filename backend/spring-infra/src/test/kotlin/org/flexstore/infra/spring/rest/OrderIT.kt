@@ -1,6 +1,6 @@
 package org.flexstore.infra.spring.rest
 
-import org.flexstore.domain.order.*
+import org.flexstore.domain.order.model.*
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.flexstore.infra.spring.adapter.jpa.JpaCartItemRepository
 import org.flexstore.infra.spring.adapter.jpa.JpaCartRepository

@@ -1,5 +1,7 @@
-package org.flexstore.domain.order
+package org.flexstore.domain.order.usecase
 
+import org.flexstore.domain.order.model.*
+import org.flexstore.domain.order.repository.*
 import org.flexstore.domain.user.model.*
 import org.ucop.domain.NonEmptyString
 

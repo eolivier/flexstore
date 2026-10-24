@@ -1,6 +1,6 @@
 package org.flexstore.infra.spring.adapter.rest.json
 
-import org.flexstore.domain.order.*
+import org.flexstore.domain.order.model.*
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.math.BigDecimal
 
