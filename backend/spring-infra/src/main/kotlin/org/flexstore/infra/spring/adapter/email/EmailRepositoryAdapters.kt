@@ -25,8 +25,10 @@ class SmtpEmailRepositoryAdapter(
             subject = content.subject
             text = content.body
         }
+        val orderNumber = email.order.number()
         runCatching { mailSender.send(message) }
-            .onFailure { logger.error("Order confirmation email to ${email.recipient.value} not sent", it) }
+            .onSuccess { logger.info("Order confirmation email of order {} sent to {}", orderNumber, email.recipient.value) }
+            .onFailure { logger.error("Order confirmation email of order $orderNumber to ${email.recipient.value} not sent", it) }
     }
 }
 
