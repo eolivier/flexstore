@@ -11,14 +11,34 @@ open class Actor(val name: Name)
 open class PreCondition<T>(val validate: (T) -> Unit)
 class EmptyPreCondition<T> : PreCondition<T>({ /* No validation */ })
 
-data class PreConditions(val preConditions: List<PreCondition<Any>>) {
-    fun <T> validate(t: T) {
-        preConditions.forEach { (it as PreCondition<T>).validate(t) }
+// The preconditions of a use case, checked before its nominal scenario
+data class PreConditions<T>(private val preConditions: List<PreCondition<T>>) {
+
+    // PreConditions(condition1, condition2): the caller does not wrap the conditions in a list
+    constructor(vararg preConditions: PreCondition<T>) : this(preConditions.toList())
+
+    fun validate(t: T) = preConditions.forEach { it.validate(t) }
+
+    companion object {
+        fun <T> none() = PreConditions(EmptyPreCondition<T>())
     }
 }
 
 open class PostCondition<T>(val validate: (T) -> Unit)
 class EmptyPostCondition<T> : PostCondition<T>({ /* No validation */ })
+
+// The postconditions of a use case, checked after its nominal scenario
+data class PostConditions<T>(private val postConditions: List<PostCondition<T>>) {
+
+    // PostConditions(condition1, condition2): the caller does not wrap the conditions in a list
+    constructor(vararg postConditions: PostCondition<T>) : this(postConditions.toList())
+
+    fun validate(t: T) = postConditions.forEach { it.validate(t) }
+
+    companion object {
+        fun <T> none() = PostConditions(EmptyPostCondition<T>())
+    }
+}
 
 data class Step<T>(val run: (T) -> Unit)
 
@@ -38,7 +58,7 @@ data class NominalScenario<T>(override val steps: List<Step<T>>) : Scenario<T> {
         try {
             steps.forEach { it.run(t) }
         } catch (se: StepException) {
-            throw NominalException(se.nonEmptyMessage)
+            throw NominalException(se.errorMessage)
         }
     }
 }
@@ -51,7 +71,7 @@ data class AlternativeScenario<T>(override val steps: List<Step<T>>) : Scenario<
         try {
             steps.forEach { it.run(t) }
         } catch (se: StepException) {
-            throw AlternativeException(se.nonEmptyMessage)
+            throw AlternativeException(se.errorMessage)
         }
     }
 }
@@ -70,17 +90,17 @@ data class DeprecatedUseCase<T>(
 
 interface UseCase<T> {
 
-    fun getPreConditions():List<PreCondition<T>>
+    fun getPreConditions(): PreConditions<T>
     fun getNominalScenario(): NominalScenario<T>
-    fun getPostConditions():List<PostCondition<T>>
+    fun getPostConditions(): PostConditions<T>
 
     fun getAlternativeScenarii():Map<KClass<out NominalException>, AlternativeScenario<T>> = emptyMap()
 
     fun unfold(t: T) {
         try {
-            getPreConditions().forEach { it.validate(t) }
+            getPreConditions().validate(t)
             getNominalScenario().unfold(t)
-            getPostConditions().forEach { it.validate(t) }
+            getPostConditions().validate(t)
         } catch (ne: NominalException) {
             if (getAlternativeScenarii().containsKey(ne::class)) {
                 getAlternativeScenarii()[ne::class]?.unfold(t)
@@ -93,11 +113,11 @@ interface UseCase<T> {
 
 class EmptyUseCase<T> : UseCase<T> {
 
-    override fun getPreConditions(): List<PreCondition<T>> = listOf(EmptyPreCondition())
+    override fun getPreConditions(): PreConditions<T> = PreConditions.none()
 
     override fun getNominalScenario(): NominalScenario<T> = NominalScenario(listOf())
 
-    override fun getPostConditions(): List<PostCondition<T>> = listOf(EmptyPostCondition())
+    override fun getPostConditions(): PostConditions<T> = PostConditions.none()
 
     override fun getAlternativeScenarii(): Map<KClass<out NominalException>, AlternativeScenario<T>> = emptyMap()
 

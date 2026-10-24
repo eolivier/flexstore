@@ -2,7 +2,7 @@ package org.flexstore.domain.cart.usecase
 
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.sharedkernel.*
-import org.ucop.domain.NonEmptyString
+import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.entity.*
 
 // A quantity of zero or less removes the item; an item of another cart is unknown to the owner's cart, hence ignored
@@ -10,7 +10,7 @@ data class ChangeCartItemQuantityRequest(val owner: CartOwner, val itemId: ItemI
 
 class ChangeCartItemQuantityUseCase(private val cartRepository: CartRepository) : UseCase<ChangeCartItemQuantityRequest> {
 
-    override fun getPreConditions(): List<PreCondition<ChangeCartItemQuantityRequest>> = listOf(EmptyPreCondition())
+    override fun getPreConditions(): PreConditions<ChangeCartItemQuantityRequest> = PreConditions.none()
 
     override fun getNominalScenario(): NominalScenario<ChangeCartItemQuantityRequest> {
         val changeQuantityStep = Step<ChangeCartItemQuantityRequest> { request ->
@@ -20,14 +20,14 @@ class ChangeCartItemQuantityUseCase(private val cartRepository: CartRepository) 
         return NominalScenario(listOf(changeQuantityStep))
     }
 
-    override fun getPostConditions(): List<PostCondition<ChangeCartItemQuantityRequest>> = listOf(quantityChangedCondition())
+    override fun getPostConditions(): PostConditions<ChangeCartItemQuantityRequest> = PostConditions(quantityChangedCondition())
 
     private fun quantityChangedCondition() = PostCondition<ChangeCartItemQuantityRequest> { request ->
         val item = cartRepository.load(request.owner).findBy(request.itemId)
         // An item kept with another quantity than requested, or kept when it should have been removed
         val quantityNotApplied = item != null && (request.quantity.isZeroOrNegative() || item.quantity != request.quantity)
         if (quantityNotApplied) {
-            throw CartUpdateFailed(NonEmptyString("Quantity of item ${request.itemId.id.value} was not changed."))
+            throw CartUpdateFailed(ErrorMessage("Quantity of item ${request.itemId.id.value} was not changed."))
         }
     }
 }

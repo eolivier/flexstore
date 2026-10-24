@@ -1,14 +1,14 @@
 package org.flexstore.domain.user.usecase
 
 import org.flexstore.domain.user.*
-import org.ucop.domain.NonEmptyString
+import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.entity.*
 
 class UpdateUserUseCase(private val userRepository: UserRepository) : UseCase<User> {
 
-    override fun getPreConditions(): List<PreCondition<User>> {
+    override fun getPreConditions(): PreConditions<User> {
         println("#[BEGIN] UpdateUserUseCase.getPreConditions")
-        val preConditions = listOf(isValidUserIdCondition(), userDoExistCondition())
+        val preConditions = PreConditions(isValidUserIdCondition(), userDoExistCondition())
         println("#[END] UpdateUserUseCase.getPreConditions")
         return preConditions
     }
@@ -23,9 +23,9 @@ class UpdateUserUseCase(private val userRepository: UserRepository) : UseCase<Us
         return nominalScenario
     }
 
-    override fun getPostConditions(): List<PostCondition<User>> {
+    override fun getPostConditions(): PostConditions<User> {
         println("#[BEGIN] UpdateUserUseCase.getPostConditions")
-        val postConditions = listOf<EmptyPostCondition<User>>(EmptyPostCondition())
+        val postConditions = PostConditions.none<User>()
         println("#[END] UpdateUserUseCase.getPostConditions")
         return postConditions
     }
@@ -50,13 +50,13 @@ class UpdateUserUseCase(private val userRepository: UserRepository) : UseCase<Us
 
     private fun isValidUserIdCondition() = PreCondition<User> { user ->
         if (user.id.isInvalid()) {
-            throw InvalidUserIdException(NonEmptyString("User ID ${user.id.value} is invalid."))
+            throw InvalidUserIdException(ErrorMessage("User ID ${user.id.value} is invalid."))
         }
     }
 
     private fun userDoExistCondition() = PreCondition<User> { user ->
         if (userRepository.notExists(user.id)) {
-            throw UserNotFoundException(NonEmptyString("User with ID ${user.id.value} does not exist."))
+            throw UserNotFoundException(ErrorMessage("User with ID ${user.id.value} does not exist."))
         }
     }
 }

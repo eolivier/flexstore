@@ -2,7 +2,7 @@ package org.flexstore.domain.product
 
 import org.flexstore.domain.sharedkernel.*
 import org.ucop.domain.NominalException
-import org.ucop.domain.NonEmptyString
+import org.flexstore.domain.sharedkernel.ErrorMessage
 
 sealed interface Product
 data class DraftProduct(val name: Name,
@@ -25,6 +25,6 @@ data class ProductId(val id: Identity) {
 
 enum class Category { ELECTRONICS, BOOKS, CLOTHING, HOME, BEAUTY, TOYS, SPORTS, AUTOMOTIVE, GROCERY, HEALTH, ACCESSORIES, NOT_DEFINED }
 
-data class ProductAlreadyExists(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
-data class ProductCreationFailed(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
-data class ProductNotFoundException(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
+data class ProductAlreadyExists(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class ProductCreationFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class ProductNotFoundException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

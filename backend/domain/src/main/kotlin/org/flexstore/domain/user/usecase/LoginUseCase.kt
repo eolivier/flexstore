@@ -2,7 +2,7 @@ package org.flexstore.domain.user.usecase
 
 import org.flexstore.domain.user.*
 import org.ucop.domain.NominalException
-import org.ucop.domain.NonEmptyString
+import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.entity.*
 import kotlin.reflect.KClass
 
@@ -14,9 +14,9 @@ class LoginUseCase(
 
     lateinit var authenticatedUser: User
 
-    override fun getPreConditions(): List<PreCondition<LoginRequest>> {
+    override fun getPreConditions(): PreConditions<LoginRequest> {
         println("#[BEGIN] LoginUseCase.getPreConditions")
-        val preConditions = listOf(userExistsByEmailCondition(), passwordMatchesCondition())
+        val preConditions = PreConditions(userExistsByEmailCondition(), passwordMatchesCondition())
         println("#[END] LoginUseCase.getPreConditions")
         return preConditions
     }
@@ -33,9 +33,9 @@ class LoginUseCase(
         return nominalScenario
     }
 
-    override fun getPostConditions(): List<PostCondition<LoginRequest>> {
+    override fun getPostConditions(): PostConditions<LoginRequest> {
         println("#[BEGIN] LoginUseCase.getPostConditions")
-        val postConditions = listOf(userAuthenticatedCondition())
+        val postConditions = PostConditions(userAuthenticatedCondition())
         println("#[END] LoginUseCase.getPostConditions")
         return postConditions
     }
@@ -47,19 +47,19 @@ class LoginUseCase(
     private fun userExistsByEmailCondition() = PreCondition<LoginRequest> { request ->
         val user = userRepository.findByEmail(request.email)
         if (user is User.UndefinedUser) {
-            throw UserNotFoundByEmailException(NonEmptyString("User with email ${request.email.value} does not exist."))
+            throw UserNotFoundByEmailException(ErrorMessage("User with email ${request.email.value} does not exist."))
         }
     }
 
     private fun passwordMatchesCondition() = PreCondition<LoginRequest> { request ->
         if (userRepository.passwordDoesNotMatch(request.email, request.password)) {
-            throw InvalidCredentialsException(NonEmptyString("Invalid credentials."))
+            throw InvalidCredentialsException(ErrorMessage("Invalid credentials."))
         }
     }
 
     private fun userAuthenticatedCondition() = PostCondition<LoginRequest> { request ->
         if (authenticatedUser is User.UndefinedUser) {
-            throw InvalidCredentialsException(NonEmptyString("User authentication failed."))
+            throw InvalidCredentialsException(ErrorMessage("User authentication failed."))
         }
     }
 }

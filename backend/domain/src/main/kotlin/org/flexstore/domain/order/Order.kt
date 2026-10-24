@@ -5,7 +5,7 @@ import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.*
 import org.ucop.domain.NominalException
-import org.ucop.domain.NonEmptyString
+import org.flexstore.domain.sharedkernel.ErrorMessage
 import java.math.BigDecimal
 import java.time.Instant
 
@@ -35,7 +35,7 @@ data class Order(
     companion object {
         fun place(placement: OrderPlacement, cart: Cart): Order {
             if (cart.isEmpty()) {
-                throw EmptyCartException(NonEmptyString("An order cannot be placed from an empty cart."))
+                throw EmptyCartException(ErrorMessage("An order cannot be placed from an empty cart."))
             }
             return Order(placement.orderId, placement.customer.userId, OrderLines.from(cart), OrderStatus.PROCESSING, placement.placedAt)
         }
@@ -86,6 +86,6 @@ data class Orders(private val orders: List<Order>) {
     fun asList(): List<Order> = orders.toList()
 }
 
-data class EmptyCartException(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
-data class OrderNotFoundException(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
-data class OrderPlacementFailed(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
+data class EmptyCartException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class OrderNotFoundException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class OrderPlacementFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

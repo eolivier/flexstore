@@ -4,7 +4,7 @@ import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.*
 import org.ucop.domain.NominalException
-import org.ucop.domain.NonEmptyString
+import org.flexstore.domain.sharedkernel.ErrorMessage
 import java.util.UUID
 
 /**
@@ -23,7 +23,7 @@ data class Cart(val owner: CartOwner, val items: Items) {
 
     fun add(product: DefinedProduct, quantity: Quantity): Cart {
         if (quantity.isZeroOrNegative()) {
-            throw InvalidQuantityException(NonEmptyString("Quantity must be positive: ${quantity.value}"))
+            throw InvalidQuantityException(ErrorMessage("Quantity must be positive: ${quantity.value}"))
         }
         return copy(items = items.withProduct(product, quantity))
     }
@@ -55,7 +55,7 @@ data class Cart(val owner: CartOwner, val items: Items) {
     fun emptied() = copy(items = Items())
 }
 
-data class InvalidQuantityException(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
+data class InvalidQuantityException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 
 /**
  * The owner of a cart: a signed-in customer, or a visitor identified by a cart id kept by the client.

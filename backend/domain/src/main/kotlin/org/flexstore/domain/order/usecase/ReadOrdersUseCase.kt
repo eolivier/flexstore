@@ -2,7 +2,7 @@ package org.flexstore.domain.order.usecase
 
 import org.flexstore.domain.order.*
 import org.flexstore.domain.user.*
-import org.ucop.domain.NonEmptyString
+import org.flexstore.domain.sharedkernel.ErrorMessage
 
 class ReadOrdersUseCase(private val orderRepository: OrderRepository) {
 
@@ -11,5 +11,5 @@ class ReadOrdersUseCase(private val orderRepository: OrderRepository) {
     // The order of another customer is reported as not found, so that its existence is not revealed
     fun getOrder(customer: UserId.ValidUserId, orderId: OrderId): Order =
         orderRepository.findById(orderId)?.takeIf { it.belongsTo(customer) }
-            ?: throw OrderNotFoundException(NonEmptyString("Order ${orderId.value} not found."))
+            ?: throw OrderNotFoundException(ErrorMessage("Order ${orderId.value} not found."))
 }

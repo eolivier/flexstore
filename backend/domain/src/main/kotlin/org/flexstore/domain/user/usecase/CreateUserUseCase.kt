@@ -2,7 +2,7 @@ package org.flexstore.domain.user.usecase
 
 import org.flexstore.domain.user.*
 import org.ucop.domain.NominalException
-import org.ucop.domain.NonEmptyString
+import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.entity.*
 import kotlin.reflect.KClass
 
@@ -15,9 +15,9 @@ class CreateUserUseCase(
 
     lateinit var createdUser: User
 
-    override fun getPreConditions(): List<PreCondition<CreateUserRequest>> {
+    override fun getPreConditions(): PreConditions<CreateUserRequest> {
         println("#[BEGIN] CreateUserUseCase.getPreConditions")
-        val preConditions = listOf(creatorIsAdministratorCondition(), userDoesNotExistCondition(), passwordIsNotBlankCondition())
+        val preConditions = PreConditions(creatorIsAdministratorCondition(), userDoesNotExistCondition(), passwordIsNotBlankCondition())
         println("#[END] CreateUserUseCase.getPreConditions")
         return preConditions
     }
@@ -35,9 +35,9 @@ class CreateUserUseCase(
         return nominalScenario
     }
 
-    override fun getPostConditions(): List<PostCondition<CreateUserRequest>> {
+    override fun getPostConditions(): PostConditions<CreateUserRequest> {
         println("#[BEGIN] CreateUserUseCase.getPostConditions")
-        val postConditions = listOf(userExistsCondition())
+        val postConditions = PostConditions(userExistsCondition())
         println("#[END] CreateUserUseCase.getPostConditions")
         return postConditions
     }
@@ -49,7 +49,7 @@ class CreateUserUseCase(
     // The creator must be an existing user with the ADMIN role (read from the users, not from the request)
     private fun creatorIsAdministratorCondition() = PreCondition<CreateUserRequest> { request ->
         if (isNotAdministrator(request.creator)) {
-            throw UserCreationForbiddenException(NonEmptyString("Only an administrator can create a user."))
+            throw UserCreationForbiddenException(ErrorMessage("Only an administrator can create a user."))
         }
     }
 
@@ -63,10 +63,10 @@ class CreateUserUseCase(
         when (val user = request.user) {
             // A draft user has no ID yet: uniqueness is checked on the email
             is User.DraftUser -> if (userRepository.emailIsAlreadyUsed(user.email)) {
-                throw UserAlreadyExists(NonEmptyString("User with email ${user.email.value} already exists."))
+                throw UserAlreadyExists(ErrorMessage("User with email ${user.email.value} already exists."))
             }
             else -> if (userRepository.exists(user.id)) {
-                throw UserAlreadyExists(NonEmptyString("User with ID ${user.id.value} already exists."))
+                throw UserAlreadyExists(ErrorMessage("User with ID ${user.id.value} already exists."))
             }
         }
     }
@@ -74,14 +74,14 @@ class CreateUserUseCase(
     private fun passwordIsNotBlankCondition() = PreCondition<CreateUserRequest> { request ->
         val user = request.user
         if (user is User.DraftUser && user.password.value.isBlank()) {
-            throw InvalidPasswordException(NonEmptyString("Password must not be blank."))
+            throw InvalidPasswordException(ErrorMessage("Password must not be blank."))
         }
     }
 
     // Checked on the saved user, since a draft user only gets its ID from the repository
     private fun userExistsCondition() = PostCondition<CreateUserRequest> {
         if (userRepository.notExists(createdUser.id)) {
-            throw UserCreationFailed(NonEmptyString("User with ID ${createdUser.id.value} was not created."))
+            throw UserCreationFailed(ErrorMessage("User with ID ${createdUser.id.value} was not created."))
         }
     }
 }
