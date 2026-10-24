@@ -1,5 +1,5 @@
 ---
-name: front-good-practice
+name: frontend-good-practice
 description: Good practices for the front end (Vue components, pages, stores, composables) - composition and fine-grained components to keep each component short. Use before creating, changing or reviewing a front-end component or page.
 ---
 
