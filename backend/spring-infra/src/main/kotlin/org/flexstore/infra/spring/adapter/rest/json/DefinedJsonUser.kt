@@ -17,15 +17,13 @@ data class DefinedJsonUser @JsonCreator constructor(
 ): JsonUser {
     fun toUser() = User.of(
         UserId.of(id),
-        FirstName(firstName),
-        LastName(lastName),
+        FullName(FirstName(firstName), LastName(lastName)),
         Email(email),
         PlainPassword(password ?: "")
     )
     fun toUser(userId: String) = User.of(
         UserId.of(userId),
-        FirstName(firstName),
-        LastName(lastName),
+        FullName(FirstName(firstName), LastName(lastName)),
         Email(email),
         PlainPassword(password ?: "")
     )
@@ -40,8 +38,7 @@ data class DraftJsonUser @JsonCreator constructor(
     @JsonProperty("role") val role: String? = null
 ): JsonUser {
     fun toUser() = User.DraftUser(
-        firstName = FirstName(firstName),
-        lastName = LastName(lastName),
+        fullName = FullName(FirstName(firstName), LastName(lastName)),
         email = Email(email),
         password = PlainPassword(password),
         role = Role.fromName(role)
@@ -58,8 +55,7 @@ data class EditedJsonUser @JsonCreator constructor(
     // The password is not edited: the stored one is kept by the use case
     fun toUser(userId: String) = User.DefinedUser(
         id = UserId.of(userId),
-        firstName = FirstName(firstName),
-        lastName = LastName(lastName),
+        fullName = FullName(FirstName(firstName), LastName(lastName)),
         email = Email(email),
         password = PlainPassword(""),
         role = Role.fromName(role)

@@ -19,7 +19,7 @@ class InMemoryUserRepository : UserRepository {
         val userToSave = when (user) {
             is User.DefinedUser -> hashPasswordIfNeeded(user)
             is User.DraftUser -> hashPasswordIfNeeded(
-                User.DefinedUser(UserId.ValidUserId(Identity.nextId().value), user.firstName, user.lastName, user.email, user.password, user.role)
+                User.DefinedUser(UserId.ValidUserId(Identity.nextId().value), user.fullName, user.email, user.password, user.role)
             )
             else -> user
         }
@@ -70,22 +70,19 @@ class InMemoryUserRepository : UserRepository {
         val demoUsers = listOf(
             User.DefinedUser(
                 id = UserId.ValidUserId("u-1"),
-                firstName = FirstName("Alice"),
-                lastName = LastName("Smith"),
+                fullName = FullName(FirstName("Alice"), LastName("Smith")),
                 email = Email("alice.smith@example.com"),
                 password = HashedPassword(bcryptHasher.hashToString(12, "password123".toCharArray()))
             ),
             User.DefinedUser(
                 id = UserId.ValidUserId("u-2"),
-                firstName = FirstName("Bob"),
-                lastName = LastName("Johnson"),
+                fullName = FullName(FirstName("Bob"), LastName("Johnson")),
                 email = Email("bob.johnson@example.com"),
                 password = HashedPassword(bcryptHasher.hashToString(12, "password456".toCharArray()))
             ),
             User.DefinedUser(
                 id = UserId.ValidUserId("u-3"),
-                firstName = FirstName("Charlie"),
-                lastName = LastName("Brown"),
+                fullName = FullName(FirstName("Charlie"), LastName("Brown")),
                 email = Email("charlie.brown@example.com"),
                 password = HashedPassword(bcryptHasher.hashToString(12, "password789".toCharArray()))
             )

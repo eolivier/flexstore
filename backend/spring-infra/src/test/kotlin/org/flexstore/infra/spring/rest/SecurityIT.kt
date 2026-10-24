@@ -41,8 +41,8 @@ class SecurityIT {
 
     @BeforeEach
     fun createUsers() {
-        userRepository.save(User.DefinedUser(UserId.of(ADMIN_ID), FirstName("Security"), LastName("Admin"), Email("security.admin@example.com"), PlainPassword(PASSWORD), Role.ADMIN))
-        userRepository.save(User.DefinedUser(UserId.of(USER_ID), FirstName("Security"), LastName("User"), Email("security.user@example.com"), PlainPassword(PASSWORD)))
+        userRepository.save(User.DefinedUser(UserId.of(ADMIN_ID), FullName(FirstName("Security"), LastName("Admin")), Email("security.admin@example.com"), PlainPassword(PASSWORD), Role.ADMIN))
+        userRepository.save(User.DefinedUser(UserId.of(USER_ID), FullName(FirstName("Security"), LastName("User")), Email("security.user@example.com"), PlainPassword(PASSWORD)))
     }
 
     @AfterEach

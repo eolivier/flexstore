@@ -1,27 +1,27 @@
 import { describe, expect, it } from 'vitest';
-import { fullName, initials } from './user';
+import { FullName } from './user';
 
-describe('user', () => {
+describe('FullName', () => {
   it.each([
-    { user: { firstName: 'Jane', lastName: 'Doe' }, expected: 'Jane Doe' },
-    { user: { firstName: 'Admin', lastName: '' }, expected: 'Admin' },
-    { user: { firstName: '', lastName: 'Doe' }, expected: 'Doe' },
-    { user: null, expected: '' },
-  ])('the full name of $user is "$expected"', ({ user, expected }) => {
+    { person: { firstName: 'Jane', lastName: 'Doe' }, expected: 'Jane Doe' },
+    { person: { firstName: 'Admin', lastName: '' }, expected: 'Admin' },
+    { person: { firstName: '', lastName: 'Doe' }, expected: 'Doe' },
+    { person: null, expected: '' },
+  ])('the full name of $person reads "$expected"', ({ person, expected }) => {
     // Act
-    const name = fullName(user);
+    const value = FullName.of(person).value;
     // Assert
-    expect(name).toBe(expected);
+    expect(value).toBe(expected);
   });
 
   it.each([
-    { user: { firstName: 'jane', lastName: 'doe' }, expected: 'JD' },
-    { user: { firstName: 'Admin', lastName: '' }, expected: 'A' },
-    { user: undefined, expected: '' },
-  ])('the initials of $user are "$expected"', ({ user, expected }) => {
+    { person: { firstName: 'jane', lastName: 'doe' }, expected: 'JD' },
+    { person: { firstName: 'Admin', lastName: '' }, expected: 'A' },
+    { person: undefined, expected: '' },
+  ])('the initials of $person are "$expected"', ({ person, expected }) => {
     // Act
-    const userInitials = initials(user);
+    const initials = FullName.of(person).initials;
     // Assert
-    expect(userInitials).toBe(expected);
+    expect(initials).toBe(expected);
   });
 });

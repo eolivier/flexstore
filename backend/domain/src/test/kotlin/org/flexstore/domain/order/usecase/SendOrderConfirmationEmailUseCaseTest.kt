@@ -19,7 +19,7 @@ import java.time.Instant
 class SendOrderConfirmationEmailUseCaseTest : WithAssertions {
 
     private val lamp = DefinedProduct(ProductId(Identity("lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR))
-    private val customer = User.DefinedUser(UserId.ValidUserId("user-1"), FirstName("Jane"), LastName("Doe"), Email("jane@example.com"), PlainPassword("password123"))
+    private val customer = User.DefinedUser(UserId.ValidUserId("user-1"), FullName(FirstName("Jane"), LastName("Doe")), Email("jane@example.com"), PlainPassword("password123"))
     private val owner = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val order = Order.place(OrderPlacement(OrderId("order-1"), owner, Instant.parse("2026-10-24T10:00:00Z")), Cart(owner).add(lamp, Quantity(2)))
     private val userRepository = InMemoryUserRepository().apply { save(customer) }
@@ -45,6 +45,6 @@ class SendOrderConfirmationEmailUseCaseTest : WithAssertions {
         // Act
         useCase.unfold(order)
         // Assert
-        assertThat(emailRepository.sentEmails()).containsExactly(OrderConfirmationEmail(Email("jane@example.com"), Name("Jane Doe"), order))
+        assertThat(emailRepository.sentEmails()).containsExactly(OrderConfirmationEmail(Email("jane@example.com"), FullName(FirstName("Jane"), LastName("Doe")), order))
     }
 }

@@ -4,13 +4,13 @@
   import { useRouter } from 'vue-router';
   import { useAuthStore } from '@/stores/auth.store';
   import ChangePasswordForm from '@/components/account/ChangePasswordForm.vue';
-  import { fullName, initials as initialsOf } from '@/models/user';
+  import { FullName } from '@/models/user';
 
   const { t } = useI18n();
   const router = useRouter();
   const authStore = useAuthStore();
 
-  const initials = computed(() => initialsOf(authStore.currentUser));
+  const initials = computed(() => FullName.of(authStore.currentUser).initials);
 
   const shortcuts = computed(() => [
     { to: '/orders', icon: 'mdi-truck-outline', label: 'nav.orders' },
@@ -42,7 +42,7 @@
         <v-avatar color="secondary" size="72" class="text-h5 font-weight-bold">{{ initials }}</v-avatar>
         <div class="flex-grow-1">
           <div class="text-caption text-medium-emphasis">{{ t('profile.name') }}</div>
-          <div class="text-h6 font-weight-bold mb-2">{{ fullName(authStore.currentUser) }}</div>
+          <div class="text-h6 font-weight-bold mb-2">{{ FullName.of(authStore.currentUser).value }}</div>
           <div class="text-caption text-medium-emphasis">{{ t('profile.email') }}</div>
           <div class="text-body-1">{{ authStore.currentUser?.email }}</div>
         </div>

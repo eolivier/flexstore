@@ -2,7 +2,7 @@
   import { useUsersStore } from '@/stores/users.store.ts';
   import { nextTick, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
-  import { fullName, type User } from '@/models/user';
+  import { FullName, type User } from '@/models/user';
   import UserRoleField from './UserRoleField.vue';
   import PasswordField from './PasswordField.vue';
   import UserNameFields from './UserNameFields.vue';
@@ -30,7 +30,7 @@
   const submitForm = async () => {
     if (!valid.value) return;
     saving.value = true;
-    const createdName = fullName({ firstName: firstName.value, lastName: lastName.value });
+    const createdName = FullName.of({ firstName: firstName.value, lastName: lastName.value }).value;
     const created = await usersStore.addUser({ firstName: firstName.value, lastName: lastName.value, email: email.value, password: password.value, role: role.value });
     saving.value = false;
     feedback.value = {

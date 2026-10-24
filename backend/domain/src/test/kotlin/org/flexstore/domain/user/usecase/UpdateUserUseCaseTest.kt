@@ -16,9 +16,9 @@ class UpdateUserUseCaseTest {
 
     private val userRepository = InMemoryUserRepository()
     private val updateUserUseCase = UpdateUserUseCase(userRepository)
-    private val administrator = DefinedUser(ValidUserId("admin-1"), FirstName("Admin"), LastName("Flexstore"), Email("admin@example.com"), PlainPassword("admin-password"), Role.ADMIN)
-    private val simpleUser = DefinedUser(ValidUserId("user-1"), FirstName("Simple"), LastName("User"), Email("simple@example.com"), PlainPassword("user-password"))
-    private val john = DefinedUser(ValidUserId("123"), FirstName("John"), LastName("Doe"), Email("john.doe@example.com"), PlainPassword("password123"))
+    private val administrator = DefinedUser(ValidUserId("admin-1"), FullName(FirstName("Admin"), LastName("Flexstore")), Email("admin@example.com"), PlainPassword("admin-password"), Role.ADMIN)
+    private val simpleUser = DefinedUser(ValidUserId("user-1"), FullName(FirstName("Simple"), LastName("User")), Email("simple@example.com"), PlainPassword("user-password"))
+    private val john = DefinedUser(ValidUserId("123"), FullName(FirstName("John"), LastName("Doe")), Email("john.doe@example.com"), PlainPassword("password123"))
 
     init {
         listOf(administrator, simpleUser, john).forEach { userRepository.save(it) }
@@ -29,12 +29,12 @@ class UpdateUserUseCaseTest {
     @Test
     fun `an administrator should edit the name, the email and the role of a user`() {
         // Arrange
-        val editedJohn = john.copy(firstName = FirstName("Jane"), lastName = LastName("Doe"), email = Email("jane.doe@example.com"), role = Role.ADMIN)
+        val editedJohn = john.copy(fullName = FullName(FirstName("Jane"), LastName("Doe")), email = Email("jane.doe@example.com"), role = Role.ADMIN)
         // Act
         updateUserUseCase.unfold(UpdateUserRequest(administrator.id, editedJohn))
         // Assert
         val storedJohn = stored(john.id)
-        assertThat(storedJohn.fullName()).isEqualTo(Name("Jane Doe"))
+        assertThat(storedJohn.fullName.value).isEqualTo("Jane Doe")
         assertThat(storedJohn.email).isEqualTo(Email("jane.doe@example.com"))
         assertThat(storedJohn.role).isEqualTo(Role.ADMIN)
     }
@@ -42,7 +42,7 @@ class UpdateUserUseCaseTest {
     @Test
     fun `an edit should keep the stored password`() {
         // Arrange
-        val editedJohn = john.copy(firstName = FirstName("Jane"), lastName = LastName("Doe"), password = PlainPassword("another-password"))
+        val editedJohn = john.copy(fullName = FullName(FirstName("Jane"), LastName("Doe")), password = PlainPassword("another-password"))
         // Act
         updateUserUseCase.unfold(UpdateUserRequest(administrator.id, editedJohn))
         // Assert
@@ -53,12 +53,12 @@ class UpdateUserUseCaseTest {
     @ValueSource(strings = ["user-1", "unknown"])
     fun `should refuse an editor who is not an administrator`(editorId: String) {
         // Arrange
-        val editedJohn = john.copy(firstName = FirstName("Jane"), lastName = LastName("Doe"))
+        val editedJohn = john.copy(fullName = FullName(FirstName("Jane"), LastName("Doe")))
         // Act
         val thrown = catchThrowable { updateUserUseCase.unfold(UpdateUserRequest(ValidUserId(editorId), editedJohn)) }
         // Assert
         assertThat(thrown).isInstanceOf(UserUpdateForbiddenException::class.java)
-        assertThat(stored(john.id).fullName()).isEqualTo(Name("John Doe"))
+        assertThat(stored(john.id).fullName.value).isEqualTo("John Doe")
     }
 
     @Test
