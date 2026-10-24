@@ -68,7 +68,7 @@
           density="compact"
           class="mb-4"
         >
-          {{ t('login.error') }}
+          {{ authStore.refusedStatus ? t(`login.refused.${authStore.refusedStatus}`) : t('login.error') }}
         </v-alert>
 
         <v-btn

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import type { User } from '@/models/user';
+import type { AccountStatus, User } from '@/models/user';
 import type { AccountRegistration } from '@/models/account';
 import { useLoadingStore } from '@/stores/loading.store';
 
@@ -47,6 +47,8 @@ export const useAuthStore = defineStore('auth', () => {
   const currentUser = ref<User | null>(restoredSession?.user ?? null);
   const token = ref<string | null>(restoredSession?.token ?? null);
   const loginError = ref<string | null>(null);
+  // The status of an account that cannot sign in (SUSPENDED, LOCKED, DISABLED), after a refused sign-in
+  const refusedStatus = ref<AccountStatus | null>(null);
   const loadingStore = useLoadingStore();
 
   const isAuthenticated = computed(() => currentUser.value !== null && token.value !== null);
@@ -54,6 +56,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function login(email: string, password: string): Promise<boolean> {
     loginError.value = null;
+    refusedStatus.value = null;
     try {
       const response = await loadingStore.track(fetch(`${apiUrl}/api/users/login`, {
         method: 'POST',
@@ -67,6 +70,11 @@ export const useAuthStore = defineStore('auth', () => {
         currentUser.value = session.user;
         writeSession(session);
         return true;
+      } else if (response.status === 403) {
+        // Right password, but a suspended, locked or disabled account: the user is told why
+        refusedStatus.value = (await response.json()).status ?? null;
+        loginError.value = 'Account refused';
+        return false;
       } else {
         loginError.value = 'Invalid email or password';
         return false;
@@ -145,6 +153,7 @@ export const useAuthStore = defineStore('auth', () => {
     currentUser,
     token,
     loginError,
+    refusedStatus,
     isAuthenticated,
     isAdmin,
     login,

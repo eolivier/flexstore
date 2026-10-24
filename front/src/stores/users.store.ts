@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { User } from '@/models/user';
+import type { AccountStatus, User } from '@/models/user';
 import { useAuthStore } from './auth.store';
 
 // The fields of a user an administrator edits: the password is changed by a separate operation
@@ -79,5 +79,19 @@ export const useUsersStore = defineStore('users', () => {
     return 'saved';
   }
 
-  return { users, loading, fetchUsers, fetchUser, addUser, updateUser, deleteUser };
+  // An administrator activates, suspends, locks or disables the account of another user. Returns whether it changed
+  async function changeStatus(id: string, status: AccountStatus): Promise<boolean> {
+    const response = await authStore
+      .authFetch(`/api/users/${encodeURIComponent(id)}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      })
+      .catch(() => null);
+    if (!response?.ok) return false;
+    await fetchUsers();
+    return true;
+  }
+
+  return { users, loading, fetchUsers, fetchUser, addUser, updateUser, changeStatus, deleteUser };
 });

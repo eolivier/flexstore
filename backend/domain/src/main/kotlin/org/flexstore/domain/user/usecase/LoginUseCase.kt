@@ -15,7 +15,8 @@ class LoginUseCase(
     lateinit var authenticatedUser: User
 
     override fun getPreConditions(): PreConditions<LoginRequest> {
-        return PreConditions(userExistsByEmailCondition(), passwordMatchesCondition())
+        // The status is only checked once the password is right: it does not reveal the accounts to a wrong password
+        return PreConditions(userExistsByEmailCondition(), passwordMatchesCondition(), accountAllowsSignInCondition())
     }
 
     override fun getNominalScenario(): NominalScenario<LoginRequest> {
@@ -45,6 +46,13 @@ class LoginUseCase(
     private fun passwordMatchesCondition() = PreCondition<LoginRequest> { request ->
         if (userRepository.passwordDoesNotMatch(request.email, request.password)) {
             throw InvalidCredentialsException(ErrorMessage("Invalid credentials."))
+        }
+    }
+
+    private fun accountAllowsSignInCondition() = PreCondition<LoginRequest> { request ->
+        val user = userRepository.findByEmail(request.email) as User.DefinedUser
+        if (user.status.refusesSignIn()) {
+            throw AccountSignInRefusedException(user.status, ErrorMessage("The account of ${request.email.value} is ${user.status}."))
         }
     }
 

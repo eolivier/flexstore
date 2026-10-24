@@ -32,7 +32,7 @@ async function signIn() {
   respondWith({
     'POST /api/users/login': {
       status: 200,
-      body: { token: 'jwt-token', expiresAt: '2030-01-01T00:00:00Z', user: { id: 'u-1', name: 'John', email: 'john@example.com', role: 'USER' } },
+      body: { token: 'jwt-token', expiresAt: '2030-01-01T00:00:00Z', user: { id: 'u-1', firstName: 'John', lastName: 'Doe', email: 'john@example.com', role: 'USER' } },
     },
   });
   await useAuthStore().login('john@example.com', 'secret');
@@ -70,15 +70,19 @@ describe('orders.store', () => {
     expect(mockFetch.mock.calls.some(([url]) => url.endsWith('/api/cart/cart-items'))).toBe(true);
   });
 
-  it('should report an empty cart', async () => {
+  it.each([
+    { status: 422, expected: 'emptyCart' },
+    { status: 403, expected: 'refused' },
+    { status: 500, expected: 'error' },
+  ])('an order answered $status is $expected', async ({ status, expected }) => {
     // Arrange
     await signIn();
-    respondWith({ 'POST /api/orders': { status: 422 } });
+    respondWith({ 'POST /api/orders': { status } });
     const store = useOrdersStore();
     // Act
     const placement = await store.placeOrder();
     // Assert
-    expect(placement).toEqual({ status: 'emptyCart' });
+    expect(placement).toEqual({ status: expected });
   });
 
   it('should report a loading error', async () => {

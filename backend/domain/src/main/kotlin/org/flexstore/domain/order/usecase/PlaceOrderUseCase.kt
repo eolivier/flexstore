@@ -3,15 +3,17 @@ package org.flexstore.domain.order.usecase
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.sharedkernel.ErrorMessage
+import org.flexstore.domain.user.*
 import org.ucop.domain.entity.*
 import java.time.Instant
 
 class PlaceOrderUseCase(
     private val cartRepository: CartRepository,
-    private val orderRepository: OrderRepository
+    private val orderRepository: OrderRepository,
+    private val userRepository: UserRepository
 ) : UseCase<OrderPlacement> {
 
-    override fun getPreConditions(): PreConditions<OrderPlacement> = PreConditions(cartHasItemsCondition())
+    override fun getPreConditions(): PreConditions<OrderPlacement> = PreConditions(accountAllowsOrderingCondition(), cartHasItemsCondition())
 
     override fun getNominalScenario(): NominalScenario<OrderPlacement> {
         val placeOrderStep = Step<OrderPlacement> { request ->
@@ -24,6 +26,15 @@ class PlaceOrderUseCase(
 
     override fun getPostConditions(): PostConditions<OrderPlacement> =
         PostConditions(orderIsStoredCondition(), cartIsEmptyCondition())
+
+    // A token stays valid after the account is suspended, locked or disabled: the status is checked at each order
+    private fun accountAllowsOrderingCondition() = PreCondition<OrderPlacement> { request ->
+        val customerId = request.customer.userId
+        val customer = if (userRepository.exists(customerId)) userRepository.findById(customerId) else null
+        if (customer is User.DefinedUser && customer.status.refusesOrdering()) {
+            throw OrderRefusedException(customer.status, ErrorMessage("The account ${request.customer.userId.value} is ${customer.status}: it cannot order."))
+        }
+    }
 
     private fun cartHasItemsCondition() = PreCondition<OrderPlacement> { request ->
         if (cartRepository.load(request.customer).isEmpty()) {

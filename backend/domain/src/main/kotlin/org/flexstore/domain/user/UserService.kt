@@ -23,6 +23,11 @@ class UserService(
         updateUserUseCase.unfold(request)
     }
 
+    fun changeAccountStatus(change: AccountStatusChange): User {
+        ChangeAccountStatusUseCase(userRepository).unfold(change)
+        return readUser(change.userId)
+    }
+
     fun deleteUser(userId: UserId) {
         DeleteUserUseCase(userRepository).unfold(userId)
     }

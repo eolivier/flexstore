@@ -2,7 +2,7 @@
   import { computed, onMounted, ref } from 'vue';
   import { useUsersStore } from '@/stores/users.store.ts';
   import ConfirmDialog from '@/components/ConfirmDialog.vue';
-  import { FullName, type User } from '@/models/user';
+  import { FullName, type AccountStatus, type User } from '@/models/user';
   import { useI18n } from 'vue-i18n';
 
   const usersStore = useUsersStore();
@@ -28,10 +28,20 @@
     }
   }
 
+  // The statuses that prevent signing in and ordering stand out
+  const statusColors: Record<AccountStatus, string | undefined> = {
+    PENDING_VERIFICATION: 'info',
+    ACTIVE: 'success',
+    SUSPENDED: 'warning',
+    LOCKED: 'error',
+    DISABLED: 'error',
+  };
+
   const headers = computed(() => [
     { title: t('table.name'), key: 'name', value: (user: User) => FullName.of(user).value },
     { title: t('table.email'), key: 'email' },
     { title: t('table.role'), key: 'role' },
+    { title: t('table.status'), key: 'status' },
     { title: '', key: 'actions', sortable: false, align: 'end' as const },
   ]);
 </script>
@@ -63,6 +73,11 @@
       <template #item.role="{ item }">
         <v-chip :color="item.role === 'ADMIN' ? 'secondary' : undefined" variant="tonal" size="small">
           {{ t(`createUser.roles.${item.role ?? 'USER'}.label`) }}
+        </v-chip>
+      </template>
+      <template #item.status="{ item }">
+        <v-chip :color="statusColors[item.status ?? 'ACTIVE']" variant="tonal" size="small">
+          {{ t(`accountStatus.${item.status ?? 'ACTIVE'}`) }}
         </v-chip>
       </template>
       <template #item.actions="{ item }">

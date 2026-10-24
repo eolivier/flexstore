@@ -97,8 +97,9 @@ open class UseCaseConfig(@Value("\${flexstore.front-url}") private val frontUrl:
     }
 
     @Bean
-    open fun placeOrderUseCase(cartRepository: CartRepository, orderRepository: OrderRepository): PlaceOrderUseCase {
-        return PlaceOrderUseCase(cartRepository, orderRepository)
+    open fun placeOrderUseCase(cartRepository: CartRepository, orderRepository: OrderRepository,
+                               userRepository: UserRepository): PlaceOrderUseCase {
+        return PlaceOrderUseCase(cartRepository, orderRepository, userRepository)
     }
 
     @Bean

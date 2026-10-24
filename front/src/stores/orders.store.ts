@@ -5,7 +5,8 @@ import { useAuthStore } from '@/stores/auth.store';
 import { useCartStore } from '@/stores/cart.store';
 
 export type OrderLookup = { status: 'found'; order: JsonOrder } | { status: 'notFound' } | { status: 'error' };
-export type OrderPlacement = { status: 'placed'; order: JsonOrder } | { status: 'emptyCart' } | { status: 'error' };
+// refused: the account of the customer is suspended, locked or disabled
+export type OrderPlacement = { status: 'placed'; order: JsonOrder } | { status: 'emptyCart' } | { status: 'refused' } | { status: 'error' };
 
 // The orders of the signed-in customer
 export const useOrdersStore = defineStore('orders', () => {
@@ -46,6 +47,7 @@ export const useOrdersStore = defineStore('orders', () => {
   async function placeOrder(): Promise<OrderPlacement> {
     try {
       const response = await authStore.authFetch('/api/orders', { method: 'POST' });
+      if (response.status === 403) return { status: 'refused' };
       if (response.status === 422) return { status: 'emptyCart' };
       if (!response.ok) return { status: 'error' };
       const order: JsonOrder = await response.json();

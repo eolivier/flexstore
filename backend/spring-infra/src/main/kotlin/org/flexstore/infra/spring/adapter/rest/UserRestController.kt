@@ -14,6 +14,7 @@ import org.flexstore.infra.spring.adapter.rest.json.DraftJsonUser
 import org.flexstore.infra.spring.adapter.rest.json.JsonChangePasswordRequest
 import org.flexstore.infra.spring.adapter.rest.json.JsonLoginRequest
 import org.flexstore.infra.spring.adapter.rest.json.JsonLoginResponse
+import org.flexstore.infra.spring.adapter.rest.json.JsonAccountStatus
 import org.flexstore.infra.spring.security.JwtTokenService
 import org.flexstore.infra.spring.adapter.rest.json.DefinedJsonUser
 import org.flexstore.infra.spring.adapter.rest.json.EditedJsonUser
@@ -86,6 +87,12 @@ class UserRestController(val userService: UserService, private val jwtTokenServi
         userService.updateUser(UpdateUserRequest(UserId.of(editor.subject), editedUser.toUser(id)))
         return userService.readUser(UserId.of(id)).toJsonUser()
     }
+
+    @Operation(summary = "Change the status of an account: ACTIVE, SUSPENDED, LOCKED or DISABLED (administrator only)")
+    @PutMapping("/{id}/status")
+    @ResponseStatus(HttpStatus.OK)
+    fun changeAccountStatus(@AuthenticationPrincipal editor: Jwt, @PathVariable id: String, @RequestBody status: JsonAccountStatus): JsonUser =
+        userService.changeAccountStatus(AccountStatusChange(UserId.of(editor.subject), UserId.of(id), status.toAccountStatus())).toJsonUser()
 
     @Operation(summary = "Delete a user by ID",
         responses = [
