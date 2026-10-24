@@ -54,11 +54,11 @@ class PostgresUserRepositoryAdapter(
                     role = user.role.name,
                     status = user.status.name,
                     phoneNumber = user.phoneNumber?.value,
-                    street = user.postalAddress?.street,
-                    addressComplement = user.postalAddress?.complement,
-                    postalCode = user.postalAddress?.postalCode,
-                    city = user.postalAddress?.city,
-                    country = user.postalAddress?.country
+                    street = user.postalAddress?.street?.value,
+                    addressComplement = user.postalAddress?.complement?.value,
+                    postalCode = user.postalAddress?.postalCode?.value,
+                    city = user.postalAddress?.city?.value,
+                    country = user.postalAddress?.country?.value
                 )
                 val saved = jpaRepo.save(entity)
                 savedUser = saved.toDomain()
@@ -126,6 +126,6 @@ class PostgresUserRepositoryAdapter(
     // A user created by an administrator has no postal address
     private fun UserEntity.postalAddress(): PostalAddress? {
         if (street == null || postalCode == null || city == null || country == null) return null
-        return PostalAddress(street, addressComplement, postalCode, city, country)
+        return PostalAddress(Street(street), addressComplement?.let { AddressComplement(it) }, PostalCode(postalCode), City(city), Country(country))
     }
 }

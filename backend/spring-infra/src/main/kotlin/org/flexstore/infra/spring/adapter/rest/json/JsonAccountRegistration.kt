@@ -31,10 +31,10 @@ data class JsonPostalAddress @JsonCreator constructor(
     @JsonProperty("country") val country: String
 ) {
     fun toPostalAddress() = PostalAddress(
-        street = street.trim(),
-        complement = complement?.trim()?.ifEmpty { null },
-        postalCode = postalCode.trim(),
-        city = city.trim(),
-        country = country.trim()
+        street = Street(street.trim()),
+        complement = complement?.trim()?.ifEmpty { null }?.let { AddressComplement(it) },
+        postalCode = PostalCode(postalCode.trim()),
+        city = City(city.trim()),
+        country = Country(country.trim())
     )
 }

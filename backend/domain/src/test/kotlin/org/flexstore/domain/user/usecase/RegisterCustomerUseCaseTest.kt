@@ -15,7 +15,7 @@ class RegisterCustomerUseCaseTest : WithAssertions {
     private val userService = UserService(userRepository)
 
     companion object {
-        private val address = PostalAddress("12 rue des Lilas", "Bâtiment B", "75011", "Paris", "France")
+        private val address = PostalAddress(Street("12 rue des Lilas"), AddressComplement("Bâtiment B"), PostalCode("75011"), City("Paris"), Country("France"))
 
         val jane = CustomerRegistration(
             UserId.ValidUserId("jane-1"),
@@ -32,10 +32,10 @@ class RegisterCustomerUseCaseTest : WithAssertions {
             Arguments.of("last name", jane.copy(fullName = FullName(FirstName("Jane"), LastName("")))),
             Arguments.of("email", jane.copy(email = Email(""))),
             Arguments.of("phone number", jane.copy(phoneNumber = PhoneNumber(""))),
-            Arguments.of("street", jane.copy(postalAddress = address.copy(street = ""))),
-            Arguments.of("postal code", jane.copy(postalAddress = address.copy(postalCode = ""))),
-            Arguments.of("city", jane.copy(postalAddress = address.copy(city = ""))),
-            Arguments.of("country", jane.copy(postalAddress = address.copy(country = ""))),
+            Arguments.of("street", jane.copy(postalAddress = address.copy(street = Street("")))),
+            Arguments.of("postal code", jane.copy(postalAddress = address.copy(postalCode = PostalCode("")))),
+            Arguments.of("city", jane.copy(postalAddress = address.copy(city = City("")))),
+            Arguments.of("country", jane.copy(postalAddress = address.copy(country = Country("")))),
         )
     }
 
