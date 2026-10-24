@@ -29,7 +29,7 @@
     const placement = await ordersStore.placeOrder();
     placingOrder.value = false;
     if (placement.status === 'placed') {
-      router.push({ path: `/orders/${placement.order.id}`, query: { placed: 'true' } });
+      router.push(`/orders/${placement.order.id}/confirmation`);
     } else {
       orderError.value = true;
     }
