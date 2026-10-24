@@ -4,12 +4,69 @@ All URIs are relative to *http://localhost:8080*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
+|[**changePassword**](#changepassword) | **POST** /api/users/{id}/password | Change the password of a user|
 |[**createUser**](#createuser) | **POST** /api/users | Create a user|
 |[**deleteUser**](#deleteuser) | **DELETE** /api/users/{id} | Delete a user by ID|
 |[**getAllUsers**](#getallusers) | **GET** /api/users | Retrieve all users|
 |[**getUser**](#getuser) | **GET** /api/users/{id} | Retrieve a user by ID|
 |[**loginUser**](#loginuser) | **POST** /api/users/login | Authenticate a user|
 |[**updateUser**](#updateuser) | **PUT** /api/users/{id} | Update a user by ID|
+
+# **changePassword**
+> changePassword(jsonChangePasswordRequest)
+
+
+### Example
+
+```typescript
+import {
+    UsersApi,
+    Configuration,
+    JsonChangePasswordRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new UsersApi(configuration);
+
+let id: string; // (default to undefined)
+let jsonChangePasswordRequest: JsonChangePasswordRequest; //
+
+const { status, data } = await apiInstance.changePassword(
+    id,
+    jsonChangePasswordRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **jsonChangePasswordRequest** | **JsonChangePasswordRequest**|  | |
+| **id** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: Not defined
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**204** | Password changed |  -  |
+|**401** | Wrong current password |  -  |
+|**422** | New password too short |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **createUser**
 > JsonUser createUser(jsonUserCreate)

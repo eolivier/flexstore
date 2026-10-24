@@ -3,6 +3,7 @@
   import { useI18n } from 'vue-i18n';
   import { useRouter } from 'vue-router';
   import { useAuthStore } from '@/stores/auth.store';
+  import ChangePasswordForm from '@/components/account/ChangePasswordForm.vue';
 
   const { t } = useI18n();
   const router = useRouter();
@@ -53,6 +54,8 @@
         </div>
         <v-btn variant="outlined" color="primary" prepend-icon="mdi-logout" @click="logout">{{ t('nav.logout') }}</v-btn>
       </v-card>
+
+      <ChangePasswordForm class="mb-6" />
 
       <h2 class="text-h6 font-weight-bold mb-4">{{ t('profile.shortcuts') }}</h2>
       <v-row>

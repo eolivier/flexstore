@@ -46,6 +46,13 @@ export interface JsonCartItems {
     'totalItemsPrice'?: number;
     'itemsCurrency'?: string;
 }
+export interface JsonChangePasswordRequest {
+    'currentPassword': string;
+    /**
+     * New password, at least 8 characters (will be hashed by the server)
+     */
+    'newPassword': string;
+}
 export interface JsonItem {
     'itemId'?: string;
     'productId'?: string;
@@ -500,6 +507,46 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
     return {
         /**
          * 
+         * @summary Change the password of a user
+         * @param {string} id 
+         * @param {JsonChangePasswordRequest} jsonChangePasswordRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        changePassword: async (id: string, jsonChangePasswordRequest: JsonChangePasswordRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('changePassword', 'id', id)
+            // verify required parameter 'jsonChangePasswordRequest' is not null or undefined
+            assertParamExists('changePassword', 'jsonChangePasswordRequest', jsonChangePasswordRequest)
+            const localVarPath = `/api/users/{id}/password`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonChangePasswordRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Create a user
          * @param {JsonUserCreate} jsonUserCreate 
          * @param {*} [options] Override http request option.
@@ -719,6 +766,20 @@ export const UsersApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
+         * @summary Change the password of a user
+         * @param {string} id 
+         * @param {JsonChangePasswordRequest} jsonChangePasswordRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async changePassword(id: string, jsonChangePasswordRequest: JsonChangePasswordRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.changePassword(id, jsonChangePasswordRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UsersApi.changePassword']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Create a user
          * @param {JsonUserCreate} jsonUserCreate 
          * @param {*} [options] Override http request option.
@@ -806,6 +867,17 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
     return {
         /**
          * 
+         * @summary Change the password of a user
+         * @param {string} id 
+         * @param {JsonChangePasswordRequest} jsonChangePasswordRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        changePassword(id: string, jsonChangePasswordRequest: JsonChangePasswordRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.changePassword(id, jsonChangePasswordRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Create a user
          * @param {JsonUserCreate} jsonUserCreate 
          * @param {*} [options] Override http request option.
@@ -871,6 +943,18 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
  * UsersApi - object-oriented interface
  */
 export class UsersApi extends BaseAPI {
+    /**
+     * 
+     * @summary Change the password of a user
+     * @param {string} id 
+     * @param {JsonChangePasswordRequest} jsonChangePasswordRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public changePassword(id: string, jsonChangePasswordRequest: JsonChangePasswordRequest, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).changePassword(id, jsonChangePasswordRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
     /**
      * 
      * @summary Create a user

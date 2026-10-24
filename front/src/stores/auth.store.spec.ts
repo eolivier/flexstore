@@ -137,4 +137,48 @@ describe('auth.store', () => {
       expect(store.loginError).toBeNull();
     });
   });
+
+  describe('changePassword', () => {
+    const signIn = async () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(createMockUser()) });
+      const store = useAuthStore();
+      await store.login('john@example.com', 'secret');
+      return store;
+    };
+
+    it('should post the passwords for the signed-in user', async () => {
+      const store = await signIn();
+      mockFetch.mockResolvedValueOnce({ ok: true, status: 204 });
+
+      const result = await store.changePassword('secret', 'new-password');
+
+      expect(result).toBe('changed');
+      expect(mockFetch).toHaveBeenLastCalledWith('http://localhost:8080/api/users/1/password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword: 'secret', newPassword: 'new-password' }),
+      });
+    });
+
+    it('should report a wrong current password', async () => {
+      const store = await signIn();
+      mockFetch.mockResolvedValueOnce({ ok: false, status: 401 });
+
+      expect(await store.changePassword('wrong', 'new-password')).toBe('wrongPassword');
+    });
+
+    it('should report other errors', async () => {
+      const store = await signIn();
+      mockFetch.mockRejectedValueOnce(new Error('Network error'));
+
+      expect(await store.changePassword('secret', 'new-password')).toBe('error');
+    });
+
+    it('should not call the API when signed out', async () => {
+      const store = useAuthStore();
+
+      expect(await store.changePassword('secret', 'new-password')).toBe('error');
+      expect(mockFetch).not.toHaveBeenCalled();
+    });
+  });
 });

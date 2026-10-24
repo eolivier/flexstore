@@ -6,7 +6,18 @@ export default {
       notSignedInText: "Sign in to see your account information.",
       name: "Name",
       email: "Email",
-      shortcuts: "Shortcuts"
+      shortcuts: "Shortcuts",
+      passwordTitle: "Password",
+      passwordText: "Use a long password that you do not use on other sites.",
+      currentPassword: "Current password",
+      newPassword: "New password",
+      confirmPassword: "Confirm the new password",
+      passwordsDiffer: "The passwords are different",
+      passwordUnchanged: "The new password must be different",
+      changePassword: "Change password",
+      passwordChanged: "Your password has been changed.",
+      wrongPassword: "The current password is wrong.",
+      passwordError: "The password could not be changed."
     },
     admin: {
       title: "Administration",
@@ -214,7 +225,18 @@ export default {
       notSignedInText: "Connectez-vous pour voir les informations de votre compte.",
       name: "Nom",
       email: "Email",
-      shortcuts: "Raccourcis"
+      shortcuts: "Raccourcis",
+      passwordTitle: "Mot de passe",
+      passwordText: "Choisissez un mot de passe long, que vous n'utilisez pas sur d'autres sites.",
+      currentPassword: "Mot de passe actuel",
+      newPassword: "Nouveau mot de passe",
+      confirmPassword: "Confirmez le nouveau mot de passe",
+      passwordsDiffer: "Les mots de passe sont différents",
+      passwordUnchanged: "Le nouveau mot de passe doit être différent",
+      changePassword: "Changer le mot de passe",
+      passwordChanged: "Votre mot de passe a été modifié.",
+      wrongPassword: "Le mot de passe actuel est incorrect.",
+      passwordError: "Le mot de passe n'a pas pu être modifié."
     },
     admin: {
       title: "Administration",
