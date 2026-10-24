@@ -131,3 +131,41 @@ Why: a generic name forces the reader to go back to where the value comes from t
 Details:
 - In a test, name the outcome after what it is: `val response = mockMvc.perform(...)`, `val updatedCart = cart.add(...)`, `val thrown = catchThrowable { ... }`.
 - Names imposed by a framework or a pattern keep their name (`EnvironmentPostProcessor`, `@ExceptionHandler`, the `handle` of a chain of responsibility).
+
+## 6. No boolean argument: one method per intent
+
+A constructor or a function does not take a boolean argument. A call such as `ShopSettings(true)` or `showFeedback(false, text)` does not say what `true` or `false` means; the implementation exposes instead one method per need, whose name says it.
+
+Avoid:
+
+```kotlin
+data class ShopSettings(val orderConfirmationEmailEnabled: Boolean)
+facade.updateSettings(ShopSettings(orderConfirmationEmailEnabled = false))
+```
+```ts
+showFeedback(false, t('profile.passwordError'));
+```
+
+Prefer:
+
+```kotlin
+enum class Activation { ENABLED, DISABLED }
+
+data class ShopSettings(val orderConfirmationEmail: Activation) {
+    fun sendsOrderConfirmationEmail() = orderConfirmationEmail == Activation.ENABLED
+    fun withOrderConfirmationEmailDisabled() = copy(orderConfirmationEmail = Activation.DISABLED)
+    companion object { fun byDefault() = ShopSettings(Activation.ENABLED) }
+}
+
+facade.disableOrderConfirmationEmail()
+```
+```ts
+showError(t('profile.passwordError'));
+```
+
+Why: each call reads as the intent ("disable the order confirmation email"), and a new case gets a new name instead of a new combination of flags.
+
+Details:
+- A state with two values that must be stored is a small enum named after the business (`Activation`), not a `Boolean`; the same holds for the API (`/order-confirmation-email/enable` and `/disable`, or `"ENABLED"`) and the database column.
+- Returning a boolean is fine (`sendsOrderConfirmationEmail()`, `orderExists(id)`); it is the boolean argument that hides the intent.
+- Arguments imposed by a framework keep their type (the `modelValue` of a Vue `v-model`).
