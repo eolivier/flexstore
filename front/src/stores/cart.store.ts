@@ -2,6 +2,7 @@ import type { CartItems, Item } from '@/models/cart';
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 import { useAuthStore } from '@/stores/auth.store';
+import { useLoadingStore } from '@/stores/loading.store';
 
 // Id of the cart of a visitor, created by the server on the first item
 const CART_ID_KEY = 'flexstore.cartId';
@@ -44,7 +45,7 @@ export const useCartStore = defineStore('cart', () => {
         if (cartId) {
             headers.set(CART_ID_HEADER, cartId);
         }
-        return fetch(`${apiUrl}${path}`, { ...init, headers });
+        return useLoadingStore().track(fetch(`${apiUrl}${path}`, { ...init, headers }));
     }
 
     async function fetchCartItems() {

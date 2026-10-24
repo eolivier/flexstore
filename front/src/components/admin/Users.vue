@@ -50,7 +50,13 @@
       <v-btn to="/admin/create-user" color="primary" prepend-icon="mdi-account-plus-outline">{{ t('nav.createUser') }}</v-btn>
     </div>
 
-    <v-data-table :headers="headers" :items="usersStore.users" item-value="id">
+    <v-data-table
+      :headers="headers"
+      :items="usersStore.users"
+      :loading="usersStore.loading"
+      :loading-text="t('users.loading')"
+      item-value="id"
+    >
       <template #item.name="{ item }">
         <div class="d-flex align-center py-2">
           <v-avatar color="surface-variant" size="36" class="mr-3 text-caption font-weight-bold">{{ initials(item.name) }}</v-avatar>

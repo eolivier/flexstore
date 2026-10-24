@@ -1,5 +1,6 @@
 import { AxiosError, AxiosHeaders } from 'axios';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { createPinia, setActivePinia } from 'pinia';
 import { productsApi } from '@/api';
 import { getProduct } from './product.service';
 
@@ -18,6 +19,7 @@ const jeans = { id: '3', name: 'Slim Jeans', description: 'Modern fit', category
 
 describe('getProduct', () => {
   beforeEach(() => {
+    setActivePinia(createPinia());
     vi.mocked(productsApi.getProduct).mockReset();
   });
 

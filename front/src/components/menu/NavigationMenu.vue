@@ -5,6 +5,7 @@
   import ProductsSubMenu from './submenu/ProductsSubMenu.vue';
   import AdminSubMenu from './submenu/AdminSubMenu.vue';
   import Language from '../Language.vue';
+  import LoadingBar from '@/components/layout/LoadingBar.vue';
   import { accountLinks, adminLinks, shopLinks } from './navigation';
   import { useAuthStore } from '@/stores/auth.store';
   import { useCartStore } from '@/stores/cart.store';
@@ -37,6 +38,7 @@
 
 <template>
   <v-app-bar flat border="b" color="surface" height="72">
+    <LoadingBar />
     <div class="header-inner d-flex align-center w-100 px-4">
       <v-app-bar-nav-icon
         class="d-md-none mr-1"

@@ -181,7 +181,11 @@ export default {
         DELIVERED: "Delivered"
       }
     },
+    loading: {
+      inProgress: "Loading…"
+    },
     users: {
+      loading: "Loading the users…",
       title: "Users",
       delete: "Delete",
       count: "No users | 1 user | {n} users",
@@ -422,7 +426,11 @@ export default {
         DELIVERED: "Livrée"
       }
     },
+    loading: {
+      inProgress: "Chargement en cours…"
+    },
     users: {
+      loading: "Chargement des utilisateurs…",
       title: "Utilisateurs",
       delete: "Supprimer",
       count: "Aucun utilisateur | 1 utilisateur | {n} utilisateurs",
