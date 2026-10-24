@@ -20,7 +20,7 @@ class ReadUserUseCaseTest {
     @Test
     fun `should read user successfully`() {
         // Arrange
-        val user = User.DefinedUser(userId, Name("John Doe"), Email("john.doe@example.com"), PlainPassword("password123"))
+        val user = User.DefinedUser(userId, FullName(FirstName("John"), LastName("Doe")), Email("john.doe@example.com"), PlainPassword("password123"))
         every { userRepository.findById(userId) } returns user
         every { userRepository.notExists(userId) } returns false
         // Act

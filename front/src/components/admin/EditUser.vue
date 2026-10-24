@@ -3,6 +3,7 @@
   import { useI18n } from 'vue-i18n';
   import { useUsersStore, type EditedUser, type UserEdition } from '@/stores/users.store';
   import UserRoleField from './UserRoleField.vue';
+  import UserNameFields from './UserNameFields.vue';
 
   const props = defineProps<{ id: string }>();
 
@@ -22,7 +23,7 @@
 
   onMounted(async () => {
     const user = await usersStore.fetchUser(props.id);
-    editedUser.value = user ? { name: user.name, email: user.email, role: user.role ?? 'USER' } : false;
+    editedUser.value = user ? { firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role ?? 'USER' } : false;
   });
 
   async function save() {
@@ -40,7 +41,7 @@
     <v-alert v-else-if="editedUser === false" type="error" variant="tonal">{{ t('editUser.loadError') }}</v-alert>
     <v-card v-else class="pa-6">
       <v-form v-model="valid" @submit.prevent="save">
-        <v-text-field v-model="editedUser.name" :label="t('createUser.name')" :rules="[rules.required]" prepend-inner-icon="mdi-account-outline" class="mb-2" />
+        <UserNameFields v-model:first-name="editedUser.firstName" v-model:last-name="editedUser.lastName" />
         <v-text-field v-model="editedUser.email" :label="t('createUser.email')" :rules="[rules.required, rules.email]" type="email" prepend-inner-icon="mdi-email-outline" class="mb-2" />
         <UserRoleField v-model="editedUser.role" />
         <p class="text-caption text-medium-emphasis mb-4">{{ t('editUser.passwordNote') }}</p>

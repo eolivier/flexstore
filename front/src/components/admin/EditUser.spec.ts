@@ -9,7 +9,7 @@ const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
 const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/:any(.*)', component: { template: '<div />' } }] });
-const jane = { id: 'u-1', name: 'Jane Doe', email: 'jane@example.com', role: 'USER' };
+const jane = { id: 'u-1', firstName: 'Jane', lastName: 'Doe', email: 'jane@example.com', role: 'USER' };
 
 async function mountEditUser() {
   const wrapper = mount(EditUser, { props: { id: 'u-1' }, global: { plugins: [vuetify, i18n, router] } });
@@ -26,19 +26,21 @@ describe('EditUser.vue', () => {
     );
   });
 
-  it('shows the current name, email and role of the user', async () => {
+  it('shows the current first name, last name, email and role of the user', async () => {
     // Act
     const wrapper = await mountEditUser();
     // Assert
-    expect((wrapper.find('input[type="text"]').element as HTMLInputElement).value).toBe('Jane Doe');
+    const [firstName, lastName] = wrapper.findAll('input[type="text"]');
+    expect((firstName.element as HTMLInputElement).value).toBe('Jane');
+    expect((lastName.element as HTMLInputElement).value).toBe('Doe');
     expect((wrapper.find('input[type="email"]').element as HTMLInputElement).value).toBe('jane@example.com');
     expect((wrapper.find('input[type="radio"][value="USER"]').element as HTMLInputElement).checked).toBe(true);
   });
 
-  it('saves the edited name, email and role', async () => {
+  it('saves the edited last name, email and role', async () => {
     // Arrange
     const wrapper = await mountEditUser();
-    await wrapper.find('input[type="text"]').setValue('Jane Smith');
+    await wrapper.findAll('input[type="text"]')[1].setValue('Smith');
     await wrapper.find('input[type="radio"][value="ADMIN"]').setValue(true);
     await flushPromises();
     // Act
@@ -46,7 +48,7 @@ describe('EditUser.vue', () => {
     await flushPromises();
     // Assert
     const [, init] = mockFetch.mock.calls.find(([, init]) => init?.method === 'PUT')!;
-    expect(JSON.parse(init.body)).toEqual({ name: 'Jane Smith', email: 'jane@example.com', role: 'ADMIN' });
+    expect(JSON.parse(init.body)).toEqual({ firstName: 'Jane', lastName: 'Smith', email: 'jane@example.com', role: 'ADMIN' });
   });
 
   it('the cancel button goes back to the list of users', async () => {

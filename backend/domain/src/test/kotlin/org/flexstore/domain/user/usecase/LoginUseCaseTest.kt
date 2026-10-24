@@ -16,7 +16,7 @@ class LoginUseCaseTest {
     private val userRepository = mockk<UserRepository>()
     private val loginUseCase = LoginUseCase(userRepository)
     private val email = Email("john.doe@example.com")
-    private val user = DefinedUser(ValidUserId("123"), Name("John Doe"), email, HashedPassword("hashedPassword123"))
+    private val user = DefinedUser(ValidUserId("123"), FullName(FirstName("John"), LastName("Doe")), email, HashedPassword("hashedPassword123"))
 
     @Test
     fun `should authenticate user successfully with valid credentials`() {

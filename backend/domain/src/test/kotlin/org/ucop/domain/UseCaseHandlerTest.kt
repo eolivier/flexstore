@@ -16,7 +16,7 @@ class UseCaseHandlerTest {
     fun `should run the chained use cases whose preconditions are met`() {
         // Arrange
         val userRepository = spyk<InMemoryUserRepository>()
-        val user = DefinedUser(ValidUserId("123"), Name("Jane Doe"), Email("jane.doe@example.com"), PlainPassword("password123"))
+        val user = DefinedUser(ValidUserId("123"), FullName(FirstName("Jane"), LastName("Doe")), Email("jane.doe@example.com"), PlainPassword("password123"))
         userRepository.save(user)
         val readUserUcHandler = DefaultUseCaseHandler(ReadUserUseCase(userRepository))
         readUserUcHandler.setNext(DefaultUseCaseHandler(DeleteUserUseCase(userRepository)))

@@ -8,8 +8,11 @@ data class UserEntity(
     @Id
     val id: String,
 
-    @Column(nullable = false)
-    val name: String,
+    @Column(name = "first_name", nullable = false)
+    val firstName: String,
+
+    @Column(name = "last_name", nullable = false)
+    val lastName: String,
 
     @Column(nullable = false, unique = true)
     val email: String,

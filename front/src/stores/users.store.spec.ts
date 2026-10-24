@@ -5,7 +5,7 @@ import { useUsersStore } from './users.store';
 const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
-const jane = { id: 'u-1', name: 'Jane Doe', email: 'jane@example.com', role: 'USER' as const };
+const jane = { id: 'u-1', firstName: 'Jane', lastName: 'Doe', email: 'jane@example.com', role: 'USER' as const };
 
 // Answers each API call by method and path
 function respondWith(responses: Record<string, { status: number; body?: unknown }>) {
@@ -44,19 +44,19 @@ describe('users.store', () => {
     respondWith({ 'PUT /api/users/u-1': { status, body: jane }, 'GET /api/users': { status: 200, body: [jane] } });
     const store = useUsersStore();
     // Act
-    const edition = await store.updateUser('u-1', { name: 'Jane Doe', email: 'jane@example.com', role: 'ADMIN' });
+    const edition = await store.updateUser('u-1', { firstName: 'Jane', lastName: 'Doe', email: 'jane@example.com', role: 'ADMIN' });
     // Assert
     expect(edition).toBe(expected);
   });
 
-  it('should send the name, the email and the role, but no password', async () => {
+  it('should send the first name, the last name, the email and the role, but no password', async () => {
     // Arrange
     respondWith({ 'PUT /api/users/u-1': { status: 200, body: jane }, 'GET /api/users': { status: 200, body: [jane] } });
     const store = useUsersStore();
     // Act
-    await store.updateUser('u-1', { name: 'Jane Doe', email: 'jane@example.com', role: 'ADMIN' });
+    await store.updateUser('u-1', { firstName: 'Jane', lastName: 'Doe', email: 'jane@example.com', role: 'ADMIN' });
     // Assert
     const [, init] = mockFetch.mock.calls.find(([, init]) => init?.method === 'PUT')!;
-    expect(JSON.parse(init.body)).toEqual({ name: 'Jane Doe', email: 'jane@example.com', role: 'ADMIN' });
+    expect(JSON.parse(init.body)).toEqual({ firstName: 'Jane', lastName: 'Doe', email: 'jane@example.com', role: 'ADMIN' });
   });
 });

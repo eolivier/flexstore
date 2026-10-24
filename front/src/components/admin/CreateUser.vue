@@ -2,11 +2,13 @@
   import { useUsersStore } from '@/stores/users.store.ts';
   import { nextTick, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
-  import type { User } from '@/models/user';
+  import { FullName, type User } from '@/models/user';
   import UserRoleField from './UserRoleField.vue';
   import PasswordField from './PasswordField.vue';
+  import UserNameFields from './UserNameFields.vue';
 
-  const name = ref('');
+  const firstName = ref('');
+  const lastName = ref('');
   const email = ref('');
   const password = ref('');
   // A new user is a simple user unless the administrator chooses otherwise
@@ -28,8 +30,8 @@
   const submitForm = async () => {
     if (!valid.value) return;
     saving.value = true;
-    const createdName = name.value;
-    const created = await usersStore.addUser({ name: name.value, email: email.value, password: password.value, role: role.value });
+    const createdName = FullName.of({ firstName: firstName.value, lastName: lastName.value }).value;
+    const created = await usersStore.addUser({ firstName: firstName.value, lastName: lastName.value, email: email.value, password: password.value, role: role.value });
     saving.value = false;
     feedback.value = {
       show: true,
@@ -40,7 +42,8 @@
   };
 
   const resetForm = () => {
-    name.value = '';
+    firstName.value = '';
+    lastName.value = '';
     email.value = '';
     password.value = '';
     role.value = 'USER';
@@ -54,14 +57,7 @@
     <h1 class="text-h4 font-weight-bold mb-6">{{ t('createUser.label') }}</h1>
     <v-card class="pa-6">
       <v-form ref="formRef" v-model="valid" @submit.prevent="submitForm">
-        <v-text-field
-          v-model="name"
-          :label="t('createUser.name')"
-          :rules="[rules.required]"
-          prepend-inner-icon="mdi-account-outline"
-          class="mb-2"
-          required
-        />
+        <UserNameFields v-model:first-name="firstName" v-model:last-name="lastName" />
         <v-text-field
           v-model="email"
           :label="t('createUser.email')"

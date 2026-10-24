@@ -18,7 +18,7 @@ class SendOrderConfirmationEmailUseCase(
         val sendEmailStep = Step<Order> { order ->
             if (shopSettingsRepository.load().sendsOrderConfirmationEmail()) {
                 val customer = userRepository.findById(order.customer) as User.DefinedUser
-                emailRepository.send(OrderConfirmationEmail(customer.email, customer.name, order))
+                emailRepository.send(OrderConfirmationEmail(customer.email, customer.fullName, order))
             }
         }
         return NominalScenario(sendEmailStep)
