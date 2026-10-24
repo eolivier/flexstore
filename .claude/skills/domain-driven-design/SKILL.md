@@ -154,3 +154,31 @@ if (productRepository.productIsMissing(request.productId)) { ... }
 ```
 
 Why: the condition reads as the business rule ("if the product is missing"), the null check and the lookup stay in the adapter.
+
+## 6. Instantiating a domain class takes minimal work
+
+Creating a domain object should not require the caller to know how its parts are built. When building a value takes more than passing data (generating an id, applying a default, combining values), give the class a factory method with a business name, and call it everywhere: the logic lives once, in the domain.
+
+Avoid:
+
+```kotlin
+ProductId(Identity(java.util.UUID.randomUUID().toString()))
+CartEntity(id = UUID.randomUUID().toString(), ...)          // the same logic repeated in an adapter
+```
+
+Prefer:
+
+```kotlin
+data class Identity(val value: String) {
+    companion object {
+        fun nextId() = Identity(UUID.randomUUID().toString())
+    }
+}
+
+ProductId(Identity.nextId())
+CartEntity(id = Identity.nextId().value, ...)
+```
+
+Why: the way ids (or any other derived value) are built is decided in one place; changing it (another id format, a sequence) changes one method; callers read what they get ("the next id"), not how it is made.
+
+This applies to the adapters and the tests too: they reuse the domain factories (`Identity.nextId()`, `VisitorCartId.generate()`) instead of repeating their logic.

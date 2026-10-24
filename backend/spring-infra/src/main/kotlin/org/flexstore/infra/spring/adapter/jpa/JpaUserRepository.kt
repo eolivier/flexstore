@@ -2,6 +2,7 @@ package org.flexstore.infra.spring.adapter.jpa
 
 import org.flexstore.domain.entity.*
 import org.flexstore.domain.repository.UserRepository
+import org.flexstore.domain.valueobject.Identity
 import org.flexstore.domain.valueobject.Name
 import org.springframework.context.annotation.Primary
 import org.springframework.data.jpa.repository.JpaRepository
@@ -60,7 +61,7 @@ class PostgresUserRepositoryAdapter(
     }
 
     private fun generateNewUserId(): String {
-        return java.util.UUID.randomUUID().toString()
+        return Identity.nextId().value
     }
 
     private fun hashPasswordIfNeeded(password: Password): String {

@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
-import java.util.UUID
 
 @Repository
 interface JpaProductRepository : JpaRepository<ProductEntity, String> {
@@ -28,7 +27,7 @@ class PostgresProductRepositoryAdapter(
 
     override fun save(product: Product): Product {
         val entity = when (product) {
-            is DraftProduct -> product.toEntity(UUID.randomUUID().toString())
+            is DraftProduct -> product.toEntity(Identity.nextId().value)
             is DefinedProduct -> product.toEntity()
         }
         return jpaRepo.save(entity).toDomain()
