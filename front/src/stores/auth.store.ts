@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import type { User } from '@/models/user';
+import { useLoadingStore } from '@/stores/loading.store';
 
 export type PasswordChange = 'changed' | 'wrongPassword' | 'error';
 
@@ -16,6 +17,7 @@ export const useAuthStore = defineStore('auth', () => {
   // Kept in memory only (not in localStorage) so that a script injected in the page cannot read it after a reload
   const token = ref<string | null>(null);
   const loginError = ref<string | null>(null);
+  const loadingStore = useLoadingStore();
 
   const isAuthenticated = computed(() => currentUser.value !== null && token.value !== null);
   const isAdmin = computed(() => isAuthenticated.value && currentUser.value?.role === 'ADMIN');
@@ -23,11 +25,11 @@ export const useAuthStore = defineStore('auth', () => {
   async function login(email: string, password: string): Promise<boolean> {
     loginError.value = null;
     try {
-      const response = await fetch(`${apiUrl}/api/users/login`, {
+      const response = await loadingStore.track(fetch(`${apiUrl}/api/users/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
-      });
+      }));
 
       if (response.ok) {
         const session: LoginResponse = await response.json();
@@ -51,7 +53,7 @@ export const useAuthStore = defineStore('auth', () => {
     if (token.value) {
       headers.set('Authorization', `Bearer ${token.value}`);
     }
-    const response = await fetch(`${apiUrl}${path}`, { ...init, headers });
+    const response = await loadingStore.track(fetch(`${apiUrl}${path}`, { ...init, headers }));
     if (response.status === 401 && token.value) {
       logout();
     }

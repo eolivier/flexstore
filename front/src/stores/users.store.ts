@@ -5,15 +5,21 @@ import { useAuthStore } from './auth.store';
 
 export const useUsersStore = defineStore('users', () => {
   const users = ref<User[]>([]);
+  const loading = ref(false);
   // User management is reserved to admins: requests carry the token of the signed-in user
   const authStore = useAuthStore();
 
   async function fetchUsers() {
-    const response = await authStore.authFetch('/api/users');
-    if (response.ok) {
-      users.value = await response.json();
-    } else {
-      console.error('Error when loading users');
+    loading.value = true;
+    try {
+      const response = await authStore.authFetch('/api/users');
+      if (response.ok) {
+        users.value = await response.json();
+      } else {
+        console.error('Error when loading users');
+      }
+    } finally {
+      loading.value = false;
     }
   }
 
@@ -49,5 +55,5 @@ export const useUsersStore = defineStore('users', () => {
     }
   }
 
-  return { users, fetchUsers, addUser, deleteUser };
+  return { users, loading, fetchUsers, addUser, deleteUser };
 });
