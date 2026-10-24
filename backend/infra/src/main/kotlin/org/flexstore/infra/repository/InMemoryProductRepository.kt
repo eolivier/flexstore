@@ -1,7 +1,7 @@
 package org.flexstore.infra.repository
 
-import org.flexstore.domain.repository.ProductRepository
-import org.flexstore.domain.valueobject.*
+import org.flexstore.domain.product.*
+import org.flexstore.domain.sharedkernel.*
 import java.math.BigDecimal
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -65,7 +65,6 @@ class InMemoryProductRepository : ProductRepository {
 }
 
 private val currentId = AtomicInteger(1)
-
 
 val clothes = listOf(
     DefinedProduct(

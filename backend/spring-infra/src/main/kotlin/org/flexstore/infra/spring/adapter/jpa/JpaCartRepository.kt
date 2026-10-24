@@ -1,9 +1,8 @@
 package org.flexstore.infra.spring.adapter.jpa
 
-import org.flexstore.domain.entity.Cart
-import org.flexstore.domain.entity.CartOwner
-import org.flexstore.domain.repository.CartRepository
-import org.flexstore.domain.valueobject.*
+import org.flexstore.domain.cart.*
+import org.flexstore.domain.cart.model.*
+import org.flexstore.domain.sharedkernel.*
 import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
@@ -31,15 +30,15 @@ class PostgresCartRepositoryAdapter(
     @Transactional(readOnly = true)
     override fun load(owner: CartOwner): Cart {
         val cartEntity = find(owner) ?: return Cart(owner)
-        return Cart(owner, items(cartEntity).map { it.toDomain() })
+        return Cart(owner, Items(items(cartEntity).map { it.toDomain() }))
     }
 
     override fun save(cart: Cart): Cart {
         val cartEntity = find(cart.owner) ?: cartRepo.save(newCartEntity(cart.owner))
-        val keptIds = cart.items.filterIsInstance<CartItem>().map { it.itemId.id.value }.toSet()
+        val keptIds = cart.items.cartItems().itemIds().map { it.id.value }.toSet()
         itemRepo.deleteAll(items(cartEntity).filterNot { it.id in keptIds })
         itemRepo.flush()
-        cart.items.forEach { item ->
+        cart.items.asList().forEach { item ->
             when (item) {
                 is CartItem -> itemRepo.findById(item.itemId.id.value).ifPresent {
                     itemRepo.save(it.copy(quantity = item.quantity.value))

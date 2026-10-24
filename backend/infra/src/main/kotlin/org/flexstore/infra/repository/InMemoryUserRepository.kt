@@ -1,10 +1,9 @@
 package org.flexstore.infra.repository
 
+import org.flexstore.domain.sharedkernel.*
+import org.flexstore.domain.user.*
+import org.flexstore.domain.user.model.*
 import at.favre.lib.crypto.bcrypt.BCrypt
-import org.flexstore.domain.entity.*
-import org.flexstore.domain.repository.UserRepository
-import org.flexstore.domain.valueobject.Name
-import org.flexstore.domain.valueobject.Identity
 
 class InMemoryUserRepository : UserRepository {
     

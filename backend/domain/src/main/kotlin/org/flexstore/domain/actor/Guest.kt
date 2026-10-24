@@ -1,9 +1,8 @@
 package org.flexstore.domain.actor
 
-import org.flexstore.domain.entity.User
-import org.flexstore.domain.usecase.basket.AddItemToCartRequest
-import org.flexstore.domain.usecase.basket.AddItemToCartUseCase
-import org.flexstore.domain.usecase.user.CreateUserUseCase
+import org.flexstore.domain.cart.usecase.*
+import org.flexstore.domain.user.model.*
+import org.flexstore.domain.user.usecase.*
 
 class Guest(
     private val createUserUseCase: CreateUserUseCase,

@@ -1,13 +1,13 @@
 package org.flexstore.infra.spring.adapter.rest
 
+import org.flexstore.domain.user.*
+import org.flexstore.domain.user.model.*
+import org.flexstore.domain.user.model.UserId.ValidUserId
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.flexstore.domain.entity.UserId.ValidUserId
-import org.flexstore.domain.entity.User
-import org.flexstore.domain.service.UserService
 import org.flexstore.infra.spring.adapter.mapping.toJsonUser
 import org.flexstore.infra.spring.adapter.mapping.toJsonUsers
 import org.flexstore.infra.spring.adapter.rest.json.DraftJsonUser

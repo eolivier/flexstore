@@ -1,10 +1,10 @@
 package org.flexstore.infra.repository
 
+import org.flexstore.domain.sharedkernel.*
+import org.flexstore.domain.user.model.*
+import org.flexstore.domain.user.model.User.DefinedUser
+import org.flexstore.domain.user.model.UserId.ValidUserId
 import org.assertj.core.api.Assertions.assertThat
-import org.flexstore.domain.entity.*
-import org.flexstore.domain.entity.User.DefinedUser
-import org.flexstore.domain.entity.UserId.ValidUserId
-import org.flexstore.domain.valueobject.Name
 import org.junit.jupiter.api.Test
 
 class InMemoryUserRepositoryTest {

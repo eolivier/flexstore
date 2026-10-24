@@ -1,9 +1,8 @@
 package org.flexstore.infra.spring.adapter.jpa
 
-import org.flexstore.domain.entity.*
-import org.flexstore.domain.repository.UserRepository
-import org.flexstore.domain.valueobject.Identity
-import org.flexstore.domain.valueobject.Name
+import org.flexstore.domain.sharedkernel.*
+import org.flexstore.domain.user.*
+import org.flexstore.domain.user.model.*
 import org.springframework.context.annotation.Primary
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder

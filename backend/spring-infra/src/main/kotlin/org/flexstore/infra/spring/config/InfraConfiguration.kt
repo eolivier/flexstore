@@ -1,7 +1,6 @@
 package org.flexstore.infra.spring.config
 
-import org.flexstore.domain.repository.UserRepository
-import org.flexstore.domain.service.UserService
+import org.flexstore.domain.user.*
 import org.flexstore.infra.repository.InMemoryUserRepository
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

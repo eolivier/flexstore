@@ -1,7 +1,7 @@
 package org.flexstore.infra.spring.adapter.jpa
 
-import org.flexstore.domain.repository.ProductRepository
-import org.flexstore.domain.valueobject.*
+import org.flexstore.domain.product.*
+import org.flexstore.domain.sharedkernel.*
 import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository

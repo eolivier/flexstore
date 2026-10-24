@@ -1,8 +1,8 @@
 package org.flexstore.infra.spring.adapter.rest.json
 
+import org.flexstore.domain.cart.model.*
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import org.flexstore.domain.valueobject.CartItem
 import java.math.BigDecimal
 
 // Only the item id, the product id and the quantity are used: the product is read from the catalog

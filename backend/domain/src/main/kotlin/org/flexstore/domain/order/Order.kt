@@ -1,8 +1,9 @@
 package org.flexstore.domain.order
 
-import org.flexstore.domain.entity.Cart
-import org.flexstore.domain.entity.UserId
-import org.flexstore.domain.valueobject.*
+import org.flexstore.domain.cart.model.*
+import org.flexstore.domain.product.*
+import org.flexstore.domain.sharedkernel.*
+import org.flexstore.domain.user.model.*
 import org.ucop.domain.NominalException
 import org.ucop.domain.NonEmptyString
 import java.math.BigDecimal
@@ -26,14 +27,17 @@ data class Order(
     fun belongsTo(customer: UserId.ValidUserId) = this.customer == customer
 
     companion object {
-        fun place(request: PlaceOrderRequest, cart: Cart): Order {
+        fun place(placement: OrderPlacement, cart: Cart): Order {
             if (cart.isEmpty()) {
                 throw EmptyCartException(NonEmptyString("An order cannot be placed from an empty cart."))
             }
-            return Order(request.orderId, request.customer.userId, OrderLines.from(cart), OrderStatus.PROCESSING, request.placedAt)
+            return Order(placement.orderId, placement.customer.userId, OrderLines.from(cart), OrderStatus.PROCESSING, placement.placedAt)
         }
     }
 }
+
+// An order to place: its id (chosen by the caller, which can then read the order), its customer, its date
+data class OrderPlacement(val orderId: OrderId, val customer: CartOwner.Customer, val placedAt: Instant)
 
 data class OrderId(val value: String) {
     companion object {
@@ -49,6 +53,8 @@ data class OrderLine(val productId: ProductId, val productName: Name, val unitPr
 
 data class OrderLines(private val lines: List<OrderLine>) {
 
+    constructor(vararg lines: OrderLine) : this(lines.toList())
+
     fun totalPrice(): Price {
         val currency = lines.firstOrNull()?.unitPrice?.currency ?: Currency.EUR
         val total = lines.fold(BigDecimal.ZERO) { sum, line -> sum.add(line.linePrice().amount.value) }
@@ -59,17 +65,15 @@ data class OrderLines(private val lines: List<OrderLine>) {
     fun asList(): List<OrderLine> = lines.toList()
 
     companion object {
-        fun from(cart: Cart) = OrderLines(cart.items.mapNotNull {
-            when (it) {
-                is CartItem -> OrderLine(it.product.productId, it.product.name, it.product.price, it.quantity)
-                is DraftItem -> OrderLine(it.product.productId, it.product.name, it.product.price, it.quantity)
-                is NoItem -> null
-            }
+        fun from(cart: Cart) = OrderLines(cart.items.fold(emptyList()) { lines, product, quantity ->
+            lines + OrderLine(product.productId, product.name, product.price, quantity)
         })
     }
 }
 
 data class Orders(private val orders: List<Order>) {
+
+    constructor(vararg orders: Order) : this(orders.toList())
 
     fun newestFirst() = Orders(orders.sortedByDescending { it.placedAt })
 

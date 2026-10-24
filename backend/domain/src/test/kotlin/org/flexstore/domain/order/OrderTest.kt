@@ -1,8 +1,10 @@
 package org.flexstore.domain.order
 
+import org.flexstore.domain.cart.model.*
+import org.flexstore.domain.product.*
+import org.flexstore.domain.sharedkernel.*
+import org.flexstore.domain.user.model.*
 import org.assertj.core.api.WithAssertions
-import org.flexstore.domain.entity.*
-import org.flexstore.domain.valueobject.*
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.time.Instant
@@ -20,7 +22,7 @@ class OrderTest : WithAssertions {
         // Arrange
         val cart = Cart(customer).add(lamp, Quantity(2)).add(mug, Quantity(1))
         // Act
-        val order = Order.place(PlaceOrderRequest(OrderId("order-1"), customer, placedAt), cart)
+        val order = Order.place(OrderPlacement(OrderId("order-1"), customer, placedAt), cart)
         // Assert
         assertThat(order.lines.asList()).containsExactly(
             OrderLine(lamp.productId, Name("Desk lamp"), lamp.price, Quantity(2)),
@@ -35,7 +37,7 @@ class OrderTest : WithAssertions {
         // Arrange
         val cart = Cart(customer).add(lamp, Quantity(2)).add(mug, Quantity(1))
         // Act
-        val order = Order.place(PlaceOrderRequest(OrderId("order-1"), customer, placedAt), cart)
+        val order = Order.place(OrderPlacement(OrderId("order-1"), customer, placedAt), cart)
         // Assert
         assertThat(order.totalPrice().amount.value).isEqualByComparingTo("82")
     }
@@ -45,7 +47,7 @@ class OrderTest : WithAssertions {
         // Arrange
         val cart = Cart(customer)
         // Act
-        val thrown = catchThrowable { Order.place(PlaceOrderRequest(OrderId("order-1"), customer, placedAt), cart) }
+        val thrown = catchThrowable { Order.place(OrderPlacement(OrderId("order-1"), customer, placedAt), cart) }
         // Assert
         assertThat(thrown).isInstanceOf(EmptyCartException::class.java)
     }
@@ -54,10 +56,10 @@ class OrderTest : WithAssertions {
     fun `orders should be sorted newest first`() {
         // Arrange
         val cart = Cart(customer).add(lamp, Quantity(1))
-        val older = Order.place(PlaceOrderRequest(OrderId("older"), customer, placedAt), cart)
-        val newer = Order.place(PlaceOrderRequest(OrderId("newer"), customer, placedAt.plusSeconds(60)), cart)
+        val older = Order.place(OrderPlacement(OrderId("older"), customer, placedAt), cart)
+        val newer = Order.place(OrderPlacement(OrderId("newer"), customer, placedAt.plusSeconds(60)), cart)
         // Act
-        val sorted = Orders(listOf(older, newer)).newestFirst()
+        val sorted = Orders(older, newer).newestFirst()
         // Assert
         assertThat(sorted.asList()).containsExactly(newer, older)
     }

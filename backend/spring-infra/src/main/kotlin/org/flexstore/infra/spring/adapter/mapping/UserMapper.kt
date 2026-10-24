@@ -1,6 +1,6 @@
 package org.flexstore.infra.spring.adapter.mapping
 
-import org.flexstore.domain.entity.User
+import org.flexstore.domain.user.model.*
 import org.flexstore.infra.spring.adapter.rest.json.DefinedJsonUser
 import org.flexstore.infra.spring.adapter.rest.json.JsonUser
 

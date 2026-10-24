@@ -38,7 +38,6 @@ class ProductMetrics(private val registry: MeterRegistry) {
             .register(registry) // -> flexstore_inventory_total
     }
 
-
     fun incrementCreated() = productCreatedCounter.increment()
     fun recordList(durationNanos: Long) = listTimer.record(durationNanos, TimeUnit.NANOSECONDS)
     fun setInventory(total: Int) { inventory.set(total) }

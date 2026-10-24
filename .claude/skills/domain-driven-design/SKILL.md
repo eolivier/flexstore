@@ -110,6 +110,15 @@ When a functional package holds too many classes to read at a glance, split it i
 
 Do not create a technical sub-package for a single class: keep that class at the level of its functional package.
 
+The elements common to several functions (shared value objects such as `Identity`, `Price`, `Quantity`, `Name`) go in a **shared kernel**: `org.flexstore.domain.sharedkernel`. Keep it small: an element used by a single function belongs to that function.
+
+Dependencies between the technical sub-packages go one way:
+- `model` depends on neither `usecase` nor `repository` (it may use the `model` of another function and the shared kernel);
+- `repository` uses `model`;
+- `usecase` uses `repository` and `model`.
+
+So a model class never receives a use case request: when the model needs the data of a request, that data is a model value object, which the use case takes as its input (e.g. `Order.place(placement: OrderPlacement, cart)`, with `PlaceOrderUseCase : UseCase<OrderPlacement>`). The same direction applies inside a flat functional package, between the classes of each kind.
+
 Avoid:
 
 ```

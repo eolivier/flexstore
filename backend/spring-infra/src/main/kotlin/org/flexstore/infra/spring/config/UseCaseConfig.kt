@@ -1,19 +1,9 @@
 package org.flexstore.infra.spring.config
 
-import org.flexstore.domain.repository.CartRepository
-import org.flexstore.domain.order.OrderRepository
-import org.flexstore.domain.repository.ProductRepository
-import org.flexstore.domain.usecase.basket.AddItemToCartUseCase
-import org.flexstore.domain.usecase.basket.CartUseCaseFacade
-import org.flexstore.domain.usecase.basket.ChangeCartItemQuantityUseCase
-import org.flexstore.domain.usecase.basket.MergeCartsUseCase
-import org.flexstore.domain.usecase.basket.ReadCartUseCase
-import org.flexstore.domain.order.OrderUseCaseFacade
-import org.flexstore.domain.order.PlaceOrderUseCase
-import org.flexstore.domain.order.ReadOrdersUseCase
-import org.flexstore.domain.usecase.product.CreateProductUseCase
-import org.flexstore.domain.usecase.product.ProductUseCaseFacade
-import org.flexstore.domain.usecase.product.ReadProductUseCase
+import org.flexstore.domain.cart.*
+import org.flexstore.domain.cart.usecase.*
+import org.flexstore.domain.order.*
+import org.flexstore.domain.product.*
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 

@@ -1,23 +1,20 @@
 package org.flexstore.domain.order
 
-import org.flexstore.domain.entity.*
-import org.flexstore.domain.repository.CartRepository
+import org.flexstore.domain.cart.*
+import org.flexstore.domain.cart.model.*
 import org.ucop.domain.NonEmptyString
 import org.ucop.domain.entity.*
 import java.time.Instant
 
-// The id of the new order is chosen by the caller, which can then read the placed order
-data class PlaceOrderRequest(val orderId: OrderId, val customer: CartOwner.Customer, val placedAt: Instant)
-
 class PlaceOrderUseCase(
     private val cartRepository: CartRepository,
     private val orderRepository: OrderRepository
-) : UseCase<PlaceOrderRequest> {
+) : UseCase<OrderPlacement> {
 
-    override fun getPreConditions(): List<PreCondition<PlaceOrderRequest>> = listOf(cartHasItemsCondition())
+    override fun getPreConditions(): List<PreCondition<OrderPlacement>> = listOf(cartHasItemsCondition())
 
-    override fun getNominalScenario(): NominalScenario<PlaceOrderRequest> {
-        val placeOrderStep = Step<PlaceOrderRequest> { request ->
+    override fun getNominalScenario(): NominalScenario<OrderPlacement> {
+        val placeOrderStep = Step<OrderPlacement> { request ->
             val cart = cartRepository.load(request.customer)
             orderRepository.save(Order.place(request, cart))
             cartRepository.save(cart.emptied())
@@ -25,22 +22,22 @@ class PlaceOrderUseCase(
         return NominalScenario(listOf(placeOrderStep))
     }
 
-    override fun getPostConditions(): List<PostCondition<PlaceOrderRequest>> =
+    override fun getPostConditions(): List<PostCondition<OrderPlacement>> =
         listOf(orderIsStoredCondition(), cartIsEmptyCondition())
 
-    private fun cartHasItemsCondition() = PreCondition<PlaceOrderRequest> { request ->
+    private fun cartHasItemsCondition() = PreCondition<OrderPlacement> { request ->
         if (cartRepository.load(request.customer).isEmpty()) {
             throw EmptyCartException(NonEmptyString("An order cannot be placed from an empty cart."))
         }
     }
 
-    private fun orderIsStoredCondition() = PostCondition<PlaceOrderRequest> { request ->
+    private fun orderIsStoredCondition() = PostCondition<OrderPlacement> { request ->
         if (orderRepository.orderIsMissing(request.orderId)) {
             throw OrderPlacementFailed(NonEmptyString("Order ${request.orderId.value} was not stored."))
         }
     }
 
-    private fun cartIsEmptyCondition() = PostCondition<PlaceOrderRequest> { request ->
+    private fun cartIsEmptyCondition() = PostCondition<OrderPlacement> { request ->
         if (cartRepository.load(request.customer).hasItems()) {
             throw OrderPlacementFailed(NonEmptyString("The cart was not emptied after order ${request.orderId.value}."))
         }

@@ -1,6 +1,7 @@
 package org.flexstore.infra.spring.adapter.mapping
 
-import org.flexstore.domain.valueobject.*
+import org.flexstore.domain.product.*
+import org.flexstore.domain.sharedkernel.*
 import org.flexstore.infra.spring.adapter.rest.json.DraftJsonProduct
 import org.flexstore.infra.spring.adapter.rest.json.JsonProduct
 import org.springframework.stereotype.Component

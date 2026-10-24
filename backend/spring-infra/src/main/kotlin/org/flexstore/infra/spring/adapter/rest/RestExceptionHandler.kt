@@ -1,11 +1,9 @@
 package org.flexstore.infra.spring.adapter.rest
 
-import org.flexstore.domain.entity.InvalidCredentialsException
-import org.flexstore.domain.entity.UserAlreadyExists
-import org.flexstore.domain.entity.UserNotFoundByEmailException
-import org.flexstore.domain.order.OrderNotFoundException
-import org.flexstore.domain.usecase.product.ProductNotFoundException
-import org.flexstore.domain.usecase.user.InvalidCurrentPasswordException
+import org.flexstore.domain.order.*
+import org.flexstore.domain.product.*
+import org.flexstore.domain.user.model.*
+import org.flexstore.domain.user.usecase.*
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice

@@ -1,7 +1,7 @@
 package org.flexstore.infra.spring.adapter.rest.json
 
+import org.flexstore.domain.order.*
 import com.fasterxml.jackson.annotation.JsonProperty
-import org.flexstore.domain.order.Order
 import java.math.BigDecimal
 
 data class JsonOrder(
