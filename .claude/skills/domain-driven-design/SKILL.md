@@ -1,6 +1,6 @@
 ---
 name: domain-driven-design
-description: Domain-Driven Design and hexagonal architecture principles to follow when writing or reviewing back-end code - where business rules live, what entities, value objects and aggregates may reference, the role of use cases, repositories and adapters. Use before creating or changing an entity, aggregate, value object, use case, port (repository interface) or infrastructure adapter, and when reviewing domain code.
+description: Domain-Driven Design and hexagonal architecture principles to follow when writing or reviewing back-end code - where business rules live, what entities, value objects and aggregates may reference, the role of use cases, domain services, repositories and adapters. Use before creating or changing an entity, aggregate, value object, use case, domain service, port (repository interface) or infrastructure adapter, and when reviewing domain code.
 ---
 
 # Domain-Driven Design
@@ -207,3 +207,68 @@ CartEntity(id = Identity.nextId().value, ...)
 Why: the way ids (or any other derived value) are built is decided in one place; changing it (another id format, a sequence) changes one method; callers read what they get ("the next id"), not how it is made.
 
 This applies to the adapters and the tests too: they reuse the domain factories (`Identity.nextId()`, `VisitorCartId.nextId()`) instead of repeating their logic.
+
+## 7. A domain service, as a last resort
+
+A business rule belongs first to an entity, an aggregate or a value object. When it cannot be placed in one of them, because it spans several objects, several use cases or several business functions (place the order, then confirm it by email; register a customer, then send them a verification link), a **domain service** can hold it and keep the domain model free of that logic.
+
+A domain service is agnostic of the infrastructure: plain Kotlin, no framework annotation, no adapter, no HTTP or persistence type. Its dependencies are constructor parameters, wired by the infrastructure configuration.
+
+Its name ends with **`Service`**, after the business journey it serves: `OrderCheckoutService`, `CustomerRegistrationService`, `ShopSettingsAdministrationService`. The suffix tells at once that the class is a domain service, not an entity or a use case; the rest of the name says which journey it serves. Avoid the vague suffixes `Manager`, `Helper` or `Processor`, and a name made of the suffix only (`OrderService`, which says nothing about what it does).
+
+It plays one or both of these roles:
+- **entry point of the domain, like a use case**: an input adapter (REST controller) calls it; it loads what it needs through the ports, asks the model to apply the rules and saves the result;
+- **coordinator of use cases**: it calls one or several use cases, so their preconditions, nominal scenario and postconditions still apply, and passes the result of one to the next.
+
+Rules:
+- it acts on a repository **either** itself **or** through the use cases that use that repository, never both: when a use case already works with a repository, the service delegates to use cases for that repository (a read use case to read, the update use case to write) instead of also referencing the port;
+- it holds no state between calls (section 3), and no rule that an entity, an aggregate or a value object could hold: it decides the order of the steps, the rules stay in the model and the use cases;
+- it lives in the functional package of the journey it serves (section 4) and is tested in the domain, with in-memory repositories or mocks.
+
+Before creating one, check the alternatives: a rule about one object goes into that object; a rule that needs external data receives that data as a parameter, loaded by the use case (section 2); a single business action is a single use case. A class that only forwards each call to one use case is a facade, not a domain service: it adds no logic of its own.
+
+Avoid:
+
+```kotlin
+// The aggregate sends the email: the model depends on a port and on another journey
+data class Order(...) {
+    fun place(placement: OrderPlacement, cart: Cart, emailRepository: EmailRepository): Order { /* ... */ }
+}
+
+// Or the REST controller chains the use cases: the journey is decided in an adapter
+placeOrderUseCase.unfold(placement)
+sendOrderConfirmationEmailUseCase.unfold(readOrdersUseCase.getOrder(customer, orderId))
+
+// Or the service references the repository next to the use case that already uses it
+class ShopSettingsAdministrationService(
+    private val shopSettingsRepository: ShopSettingsRepository,
+    private val updateShopSettingsUseCase: UpdateShopSettingsUseCase,   // also uses ShopSettingsRepository
+)
+```
+
+Prefer:
+
+```kotlin
+// Domain service: chains the use cases of the journey, the rules stay in the model and the use cases
+class OrderCheckoutService(
+    private val placeOrderUseCase: PlaceOrderUseCase,
+    private val readOrdersUseCase: ReadOrdersUseCase,
+    private val sendOrderConfirmationEmailUseCase: SendOrderConfirmationEmailUseCase,
+) {
+    fun placeOrder(customer: CartOwner.Customer): Order {
+        val orderId = OrderId.nextId()
+        placeOrderUseCase.unfold(OrderPlacement(orderId, customer, Instant.now()))
+        val placedOrder = readOrdersUseCase.getOrder(customer.userId, orderId)
+        sendOrderConfirmationEmailUseCase.unfold(placedOrder)
+        return placedOrder
+    }
+}
+
+// Delegation only: the settings are read and written through the use cases
+class ShopSettingsAdministrationService(
+    private val readShopSettingsUseCase: ReadShopSettingsUseCase,
+    private val updateShopSettingsUseCase: UpdateShopSettingsUseCase,
+)
+```
+
+Why: each use case stays a single, testable business action; the logic that combines them is written once, in the domain, instead of in a controller or inside an aggregate that would then depend on ports; acting on a repository from a single place keeps one path for each read and write.
