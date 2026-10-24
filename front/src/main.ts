@@ -25,6 +25,7 @@ import EditProduct from './components/admin/products/EditProduct.vue';
 import ShopSettings from './components/admin/settings/ShopSettings.vue';
 import Login from './components/Login.vue';
 import SignUp from './components/account/SignUp.vue';
+import VerifyEmail from './components/account/VerifyEmail.vue';
 import { useAuthStore } from './stores/auth.store';
 
 const pinia = createPinia();
@@ -43,6 +44,7 @@ const routes = [
   { path: '/products/:id', component: ProductDetail, props: true },
   { path: '/login', component: Login },
   { path: '/sign-up', component: SignUp },
+  { path: '/verify-email', component: VerifyEmail },
   { path: '/admin', component: AdminHome, meta: { requiresAuth: true, requiresAdmin: true } },
   { path: '/admin/users', component: Users, meta: { requiresAuth: true, requiresAdmin: true } },
   { path: '/admin/users/:id/edit', component: EditUser, props: true, meta: { requiresAuth: true, requiresAdmin: true } },

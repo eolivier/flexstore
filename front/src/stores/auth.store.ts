@@ -126,6 +126,14 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  // The email of the signed-in customer is verified: their account is active, in the tab session too
+  function markEmailVerified() {
+    if (!currentUser.value) return;
+    currentUser.value = { ...currentUser.value, status: 'ACTIVE' };
+    const session = readSession();
+    if (session) writeSession({ ...session, user: currentUser.value });
+  }
+
   function logout() {
     currentUser.value = null;
     token.value = null;
@@ -141,6 +149,7 @@ export const useAuthStore = defineStore('auth', () => {
     isAdmin,
     login,
     register,
+    markEmailVerified,
     logout,
     authFetch,
     changePassword,

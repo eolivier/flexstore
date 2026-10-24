@@ -38,3 +38,6 @@ data class JsonPostalAddress @JsonCreator constructor(
         country = Country(country.trim())
     )
 }
+
+// The token of the verification link
+data class JsonEmailVerification @JsonCreator constructor(@JsonProperty("token") val token: String)

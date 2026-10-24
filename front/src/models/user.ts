@@ -5,7 +5,11 @@ export interface User {
   email: string;
   password?: string;
   role?: 'USER' | 'ADMIN';
+  status?: AccountStatus;
 }
+
+// PENDING_VERIFICATION: the account waits for the verification of the email (the customer can already order)
+export type AccountStatus = 'PENDING_VERIFICATION' | 'ACTIVE' | 'SUSPENDED' | 'LOCKED' | 'DISABLED';
 
 type Named = Partial<Pick<User, 'firstName' | 'lastName'>> | null | undefined;
 

@@ -1,5 +1,6 @@
 package org.flexstore.domain.order.usecase
 
+import org.flexstore.domain.email.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.settings.*
 import org.flexstore.domain.user.*

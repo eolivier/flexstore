@@ -12,12 +12,6 @@ class UserService(
         return createUserUseCase.createdUser
     }
 
-    // The account is read back with the id chosen for it
-    fun registerCustomer(registration: CustomerRegistration): User {
-        RegisterCustomerUseCase(userRepository).unfold(registration)
-        return readUser(registration.userId)
-    }
-
     fun readUser(userId: UserId): User {
         val readUserUseCase = ReadUserUseCase(userRepository)
         readUserUseCase.unfold(userId)

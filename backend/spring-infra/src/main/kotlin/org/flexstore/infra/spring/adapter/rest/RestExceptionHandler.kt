@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.adapter.rest
 
+import org.flexstore.domain.email.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.user.*
@@ -31,6 +32,16 @@ class RestExceptionHandler {
             is ProductNotFoundException, is OrderNotFoundException -> ResponseEntity
                 .status(404)
                 .body(mapOf("error" to (ex.message ?: "Not found")))
+            is VerificationLinkUnknownException -> ResponseEntity
+                .status(404)
+                .body(mapOf("error" to (ex.message ?: "Unknown verification link")))
+            // The link was right but is too old: the customer can ask for a new one
+            is VerificationLinkExpiredException -> ResponseEntity
+                .status(410)
+                .body(mapOf("error" to (ex.message ?: "Expired verification link")))
+            is AccountAlreadyVerifiedException -> ResponseEntity
+                .status(409)
+                .body(mapOf("error" to (ex.message ?: "Email already verified")))
             else -> ResponseEntity
                 .status(422)
                 .body(mapOf("error" to (ex.message ?: "Nominal exception")))

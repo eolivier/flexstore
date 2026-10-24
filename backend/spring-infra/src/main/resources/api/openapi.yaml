@@ -151,7 +151,7 @@ paths:
     post:
       tags:
       - Accounts
-      summary: Create the account of a customer
+      summary: Create the account of a customer and send them a verification link, valid for 1 hour
       description: "Public. The account waits for the verification of the email (status PENDING_VERIFICATION);
         the customer can already sign in and order."
       operationId: registerAccount
@@ -173,6 +173,43 @@ paths:
           description: The email is already used
         "422":
           description: A required field is missing or the password has fewer than 8 characters
+  /api/accounts/email-verification:
+    post:
+      tags:
+      - Accounts
+      summary: Verify the email of an account with the token of the link sent by email
+      description: "Public. The account becomes ACTIVE and the link cannot be used again."
+      operationId: verifyEmail
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonEmailVerification"
+        required: true
+      responses:
+        "204":
+          description: Email verified
+        "404":
+          description: Unknown link, or link already used
+        "410":
+          description: Link older than 1 hour
+  /api/accounts/me/verification-email:
+    post:
+      tags:
+      - Accounts
+      summary: Send a new verification link (valid for 1 hour) to the signed-in customer
+      description: The previous links stop working
+      operationId: sendVerificationEmail
+      security:
+      - bearerAuth: []
+      responses:
+        "204":
+          description: Link sent
+        "401":
+          description: Not signed in
+        "409":
+          description: The email is already verified
   /api/users/login:
     post:
       tags:
@@ -514,6 +551,13 @@ components:
           type: string
         postalAddress:
           $ref: "#/components/schemas/JsonPostalAddress"
+    JsonEmailVerification:
+      type: object
+      required: [token]
+      properties:
+        token:
+          type: string
+          description: The token of the link (query parameter token of the verification page)
     JsonPostalAddress:
       type: object
       required: [street, postalCode, city, country]

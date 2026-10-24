@@ -291,6 +291,19 @@ export default {
       invalidEmail: "Invalid email format",
       noAccount: "No account yet?"
     },
+    emailVerification: {
+      pendingTitle: "Verify your email address",
+      pendingText: "We sent a link to {email}. Open it within 1 hour to verify your address. You can already order.",
+      resend: "Send a new link",
+      sent: "A new link has been sent. It is valid for 1 hour.",
+      sendError: "The link could not be sent. Try again later.",
+      continueShopping: "Continue shopping",
+      signInForNewLink: "Sign in to receive a new link",
+      verified: { title: "Email address verified", text: "Thank you! Your account is now active." },
+      expired: { title: "Link expired", text: "This link was valid for 1 hour. Ask for a new one." },
+      unknown: { title: "Invalid link", text: "This link is wrong or was already used." },
+      error: { title: "Verification failed", text: "Your email address could not be verified. Try again later." }
+    },
     signUp: {
       title: "Create your account",
       subtitle: "Order and follow your orders. You can order right away, before verifying your email.",
@@ -600,6 +613,19 @@ export default {
       mandatoryField: "Champ obligatoire",
       invalidEmail: "Format d'email invalide",
       noAccount: "Pas encore de compte ?"
+    },
+    emailVerification: {
+      pendingTitle: "Vérifiez votre adresse email",
+      pendingText: "Nous avons envoyé un lien à {email}. Ouvrez-le dans l'heure pour vérifier votre adresse. Vous pouvez déjà commander.",
+      resend: "Recevoir un nouveau lien",
+      sent: "Un nouveau lien vous a été envoyé. Il est valable 1 heure.",
+      sendError: "Le lien n'a pas pu être envoyé. Réessayez plus tard.",
+      continueShopping: "Continuer mes achats",
+      signInForNewLink: "Se connecter pour recevoir un nouveau lien",
+      verified: { title: "Adresse email vérifiée", text: "Merci ! Votre compte est maintenant actif." },
+      expired: { title: "Lien expiré", text: "Ce lien était valable 1 heure. Demandez-en un nouveau." },
+      unknown: { title: "Lien invalide", text: "Ce lien est incorrect ou a déjà été utilisé." },
+      error: { title: "Vérification impossible", text: "Votre adresse email n'a pas pu être vérifiée. Réessayez plus tard." }
     },
     signUp: {
       title: "Créer votre compte",

@@ -4,6 +4,7 @@
   import { useRouter } from 'vue-router';
   import { useAuthStore } from '@/stores/auth.store';
   import ChangePasswordForm from '@/components/account/ChangePasswordForm.vue';
+  import EmailVerificationBanner from '@/components/account/EmailVerificationBanner.vue';
   import { FullName } from '@/models/user';
 
   const { t } = useI18n();
@@ -38,6 +39,7 @@
     </v-card>
 
     <template v-else>
+      <EmailVerificationBanner />
       <v-card class="pa-6 d-flex flex-column flex-sm-row align-sm-center ga-5 mb-6">
         <v-avatar color="secondary" size="72" class="text-h5 font-weight-bold">{{ initials }}</v-avatar>
         <div class="flex-grow-1">

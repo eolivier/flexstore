@@ -22,6 +22,8 @@ sealed class User(open val id: UserId) {
     ) : User(id) {
         override fun user(userId: UserId) = copy(id = userId)
 
+        fun account() = Account(id, fullName, email, role, status, phoneNumber, postalAddresses)
+
         fun isAdministrator() = role == Role.ADMIN
 
         fun isNotAdministrator() = role != Role.ADMIN

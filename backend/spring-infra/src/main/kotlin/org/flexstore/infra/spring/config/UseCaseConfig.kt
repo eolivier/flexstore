@@ -2,16 +2,19 @@ package org.flexstore.infra.spring.config
 
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.cart.usecase.*
+import org.flexstore.domain.email.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.order.usecase.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.settings.*
 import org.flexstore.domain.user.*
+import org.flexstore.domain.user.usecase.*
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-open class UseCaseConfig {
+open class UseCaseConfig(@Value("\${flexstore.front-url}") private val frontUrl: String) {
 
     @Bean
     open fun productUseCaseFacade(createProductUseCase: CreateProductUseCase,
@@ -101,5 +104,36 @@ open class UseCaseConfig {
     @Bean
     open fun readOrdersUseCase(orderRepository: OrderRepository): ReadOrdersUseCase {
         return ReadOrdersUseCase(orderRepository)
+    }
+
+    @Bean
+    open fun customerRegistrationService(registerCustomerUseCase: RegisterCustomerUseCase,
+                                         sendVerificationEmailUseCase: SendVerificationEmailUseCase,
+                                         verifyEmailUseCase: VerifyEmailUseCase,
+                                         readAccountUseCase: ReadAccountUseCase): CustomerRegistrationService {
+        return CustomerRegistrationService(registerCustomerUseCase, sendVerificationEmailUseCase, verifyEmailUseCase, readAccountUseCase)
+    }
+
+    @Bean
+    open fun registerCustomerUseCase(userRepository: UserRepository): RegisterCustomerUseCase {
+        return RegisterCustomerUseCase(userRepository)
+    }
+
+    @Bean
+    // The links of the verification emails open the page /verify-email of the front
+    open fun sendVerificationEmailUseCase(userRepository: UserRepository,
+                                          emailRepository: EmailRepository): SendVerificationEmailUseCase {
+        return SendVerificationEmailUseCase(userRepository, emailRepository, VerificationPage("${frontUrl.trimEnd('/')}/verify-email"))
+    }
+
+    @Bean
+    open fun verifyEmailUseCase(userRepository: UserRepository,
+                                emailRepository: EmailRepository): VerifyEmailUseCase {
+        return VerifyEmailUseCase(userRepository, emailRepository)
+    }
+
+    @Bean
+    open fun readAccountUseCase(userRepository: UserRepository): ReadAccountUseCase {
+        return ReadAccountUseCase(userRepository)
     }
 }

@@ -63,6 +63,7 @@ open class SecurityConfig(@Value("\${flexstore.security.jwt-secret:}") private v
                     .requestMatchers("/api/cart/**").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/accounts").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/accounts/email-verification").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/users/{id}/password").access(isUserFromPath())
                     .requestMatchers("/api/users/**").hasRole("ADMIN")
                     .requestMatchers("/api/admin/**").hasRole("ADMIN")
