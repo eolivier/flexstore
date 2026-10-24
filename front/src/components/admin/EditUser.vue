@@ -3,7 +3,7 @@
   import { useI18n } from 'vue-i18n';
   import { useUsersStore, type EditedUser, type UserEdition } from '@/stores/users.store';
   import UserRoleField from './UserRoleField.vue';
-  import UserNameFields from './UserNameFields.vue';
+  import UserNameFields from '@/components/account/UserNameFields.vue';
 
   const props = defineProps<{ id: string }>();
 

@@ -13,7 +13,9 @@ data class DefinedJsonUser @JsonCreator constructor(
     @JsonProperty("email") val email: String,
     @JsonProperty("password") val password: String? = null,
     // Only sent in responses: the role cannot be changed through the API
-    @JsonProperty("role") val role: String? = null
+    @JsonProperty("role") val role: String? = null,
+    // Only sent in responses: the status of the account
+    @JsonProperty("status") val status: String? = null
 ): JsonUser {
     fun toUser() = User.of(
         UserId.of(id),

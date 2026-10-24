@@ -82,6 +82,10 @@
           {{ t('login.submit') }}
         </v-btn>
       </v-form>
+      <p class="text-body-2 text-center mt-6">
+        {{ t('login.noAccount') }}
+        <router-link :to="{ path: '/sign-up', query: route.query }">{{ t('nav.signUp') }}</router-link>
+      </p>
     </v-card>
   </v-container>
 </template>

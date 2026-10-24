@@ -17,19 +17,25 @@ class UpdateUserUseCase(private val userRepository: UserRepository) : UseCase<Up
     )
 
     override fun getNominalScenario(): NominalScenario<UpdateUserRequest> {
-        val updateUserStep = Step<UpdateUserRequest> { request -> userRepository.save(withStoredPassword(request.user)) }
+        val updateUserStep = Step<UpdateUserRequest> { request -> userRepository.save(withStoredAccount(request.user)) }
         return NominalScenario(listOf(updateUserStep))
     }
 
     override fun getPostConditions(): PostConditions<UpdateUserRequest> = PostConditions.none()
 
-    // An edit never changes the password: the stored (hashed) one is kept
-    private fun withStoredPassword(user: User): User {
+    // An edit changes neither the password (the stored hashed one is kept) nor the status and the contact
+    // details given by the customer
+    private fun withStoredAccount(user: User): User {
         if (user !is User.DefinedUser) {
             return user
         }
         return when (val existingUser = userRepository.findById(user.id)) {
-            is User.DefinedUser -> user.copy(password = existingUser.password)
+            is User.DefinedUser -> user.copy(
+                password = existingUser.password,
+                status = existingUser.status,
+                phoneNumber = existingUser.phoneNumber,
+                postalAddress = existingUser.postalAddress
+            )
             else -> user
         }
     }

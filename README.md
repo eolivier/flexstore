@@ -32,6 +32,7 @@ This repo is meant to be a learning vehicle and a ready-to-fork base for real pr
 - Order detail: date, status, lines (product, unit price, quantity, total) and order total; shown right after the order is placed
 
 **Account and administration** (sign-in required)
+- Create an account (first name, last name, email, password, phone number, postal address): the account waits for the verification of the email (`PENDING_VERIFICATION`), the customer is signed in at once and can order
 - Sign in, profile, change password
 - Administration (`ADMIN` role): users (list with their role, create with a role, edit first name/last name/email/role, delete), products (list, create, edit name/description/category/price), settings (order confirmation email on/off)
 
@@ -169,6 +170,7 @@ npm run gen:api
 | `GET` | `/api/admin/settings` | `ADMIN` | Settings of the shop (`orderConfirmationEmail`: `ENABLED` / `DISABLED`) |
 | `POST` | `/api/admin/settings/order-confirmation-email/enable` | `ADMIN` | Send a confirmation email when an order is placed |
 | `POST` | `/api/admin/settings/order-confirmation-email/disable` | `ADMIN` | Stop sending the order confirmation email |
+| `POST` | `/api/accounts` | public | Create the account of a customer, status `PENDING_VERIFICATION` (`409` if the email is used, `422` if a field is missing or the password is too short) |
 | `POST` | `/api/users/login` | public | Sign in: returns a token and the user (`401` on wrong credentials) |
 | `POST` | `/api/users/{id}/password` | the user `{id}` | Change one's own password (`400` if the current one is wrong) |
 | `GET` | `/api/users` | `ADMIN` | All users |

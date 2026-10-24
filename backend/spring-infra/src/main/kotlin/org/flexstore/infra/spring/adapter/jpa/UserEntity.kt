@@ -21,5 +21,24 @@ data class UserEntity(
     val password: String,
 
     @Column(nullable = false)
-    val role: String = "USER"
+    val role: String = "USER",
+
+    @Column(nullable = false)
+    val status: String = "ACTIVE",
+
+    // The contact details given by a customer who creates their account
+    @Column(name = "phone_number")
+    val phoneNumber: String? = null,
+
+    val street: String? = null,
+
+    @Column(name = "address_complement")
+    val addressComplement: String? = null,
+
+    @Column(name = "postal_code")
+    val postalCode: String? = null,
+
+    val city: String? = null,
+
+    val country: String? = null
 ) : TimestampedEntity()

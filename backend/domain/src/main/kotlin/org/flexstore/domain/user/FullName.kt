@@ -10,4 +10,6 @@ data class FullName(val firstName: FirstName, val lastName: LastName) {
     // "First name Last name", as the person is greeted; a missing part is left out
     val value: String
         get() = listOf(firstName.value, lastName.value).filter { it.isNotBlank() }.joinToString(" ")
+
+    fun isComplete() = firstName.value.isNotBlank() && lastName.value.isNotBlank()
 }

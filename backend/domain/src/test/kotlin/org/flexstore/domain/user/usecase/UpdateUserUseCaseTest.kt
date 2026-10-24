@@ -91,4 +91,20 @@ class UpdateUserUseCaseTest {
         assertThat(thrown).isInstanceOf(UserAlreadyExists::class.java)
         assertThat(stored(john.id).email).isEqualTo(Email("john.doe@example.com"))
     }
+
+    @Test
+    fun `an edit should keep the status, the phone number and the postal address of a registered customer`() {
+        // Arrange
+        val registration = RegisterCustomerUseCaseTest.jane
+        RegisterCustomerUseCase(userRepository).unfold(registration)
+        val editedCustomer = DefinedUser(registration.userId, FullName(FirstName("Janet"), LastName("Doe")), registration.email, PlainPassword(""))
+        // Act
+        updateUserUseCase.unfold(UpdateUserRequest(administrator.id, editedCustomer))
+        // Assert
+        val storedCustomer = stored(registration.userId)
+        assertThat(storedCustomer.fullName.firstName).isEqualTo(FirstName("Janet"))
+        assertThat(storedCustomer.status).isEqualTo(AccountStatus.PENDING_VERIFICATION)
+        assertThat(storedCustomer.phoneNumber).isEqualTo(registration.phoneNumber)
+        assertThat(storedCustomer.postalAddress).isEqualTo(registration.postalAddress)
+    }
 }

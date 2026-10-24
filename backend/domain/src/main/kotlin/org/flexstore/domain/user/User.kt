@@ -13,9 +13,14 @@ sealed class User(open val id: UserId) {
         val fullName: FullName,
         val email: Email,
         val password: Password,
-        val role: Role = Role.USER
+        val role: Role = Role.USER,
+        // A user created by an administrator is active at once
+        val status: AccountStatus = AccountStatus.ACTIVE,
+        // Given by a customer who creates their own account
+        val phoneNumber: PhoneNumber? = null,
+        val postalAddress: PostalAddress? = null
     ) : User(id) {
-        override fun user(userId: UserId) = DefinedUser(userId, fullName, email, password, role)
+        override fun user(userId: UserId) = copy(id = userId)
 
         fun isAdministrator() = role == Role.ADMIN
 
@@ -66,6 +71,8 @@ sealed class UserId(open val value: String) {
 }
 
 fun UserId.Companion.isValid(value: String) = value.isNotEmpty()
+
+fun UserId.Companion.nextId(): UserId = UserId.ValidUserId(Identity.nextId().value)
 
 fun UserId.Companion.of(value: String): UserId {
     return when (UserId.isValid(value)) {

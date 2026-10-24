@@ -248,6 +248,7 @@ export default {
       settings: "Settings",
       about: "About",
       login: "Sign in",
+      signUp: "Create an account",
       logout: "Sign out",
       language: "Language",
       openMenu: "Open menu"
@@ -287,7 +288,25 @@ export default {
       submit: "Sign In",
       error: "Invalid email or password",
       mandatoryField: "Mandatory field",
-      invalidEmail: "Invalid email format"
+      invalidEmail: "Invalid email format",
+      noAccount: "No account yet?"
+    },
+    signUp: {
+      title: "Create your account",
+      subtitle: "Order and follow your orders. You can order right away, before verifying your email.",
+      password: "Password (at least 8 characters)",
+      phoneNumber: "Phone number",
+      invalidPhoneNumber: "Invalid phone number",
+      address: "Postal address",
+      street: "Street address",
+      complement: "Address complement (optional)",
+      postalCode: "Postal code",
+      city: "City",
+      country: "Country",
+      submit: "Create my account",
+      emailUsed: "An account already exists with this email.",
+      error: "The account could not be created.",
+      haveAccount: "Already have an account?"
     }
   },
   fr: {
@@ -539,6 +558,7 @@ export default {
       settings: "Paramètres",
       about: "À propos",
       login: "Se connecter",
+      signUp: "Créer un compte",
       logout: "Se déconnecter",
       language: "Langue",
       openMenu: "Ouvrir le menu"
@@ -578,7 +598,25 @@ export default {
       submit: "Se connecter",
       error: "Email ou mot de passe invalide",
       mandatoryField: "Champ obligatoire",
-      invalidEmail: "Format d'email invalide"
+      invalidEmail: "Format d'email invalide",
+      noAccount: "Pas encore de compte ?"
+    },
+    signUp: {
+      title: "Créer votre compte",
+      subtitle: "Commandez et suivez vos commandes. Vous pouvez commander tout de suite, avant de vérifier votre email.",
+      password: "Mot de passe (8 caractères minimum)",
+      phoneNumber: "Numéro de téléphone",
+      invalidPhoneNumber: "Numéro de téléphone invalide",
+      address: "Adresse postale",
+      street: "Numéro et rue",
+      complement: "Complément d'adresse (facultatif)",
+      postalCode: "Code postal",
+      city: "Ville",
+      country: "Pays",
+      submit: "Créer mon compte",
+      emailUsed: "Un compte existe déjà avec cet email.",
+      error: "Le compte n'a pas pu être créé.",
+      haveAccount: "Vous avez déjà un compte ?"
     }
   }
 };
