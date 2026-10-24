@@ -27,13 +27,13 @@ This repo is meant to be a learning vehicle and a ready-to-fork base for real pr
 - Cart: quantity per line, remove, total, item count badge in the header; one cart per visitor and per customer, merged at sign-in
 
 **Orders** (sign-in required)
-- Place an order from the cart: the order keeps the name and the price of the products, the cart is emptied
+- Place an order from the cart: the order keeps the name and the price of the products, the cart is emptied, and a confirmation email is sent to the customer (can be turned off in the administration settings)
 - Orders page: the customer's orders, newest first, with their status and total
 - Order detail: date, status, lines (product, unit price, quantity, total) and order total; shown right after the order is placed
 
 **Account and administration** (sign-in required)
 - Sign in, profile, change password
-- Administration (`ADMIN` role): users (list, create, delete), products (create)
+- Administration (`ADMIN` role): users (list, create, delete), products (create), settings (order confirmation email on/off)
 
 ---
 
@@ -95,6 +95,8 @@ export FLEXSTORE_DATABASE_URL=postgresql://flex:flex@localhost:5432/flexstore
 
 The server starts on [http://localhost:8080](http://localhost:8080) (health check: `/actuator/health`).
 
+**Emails**: the order confirmation emails are sent with SMTP when `SPRING_MAIL_HOST` is set (with `SPRING_MAIL_PORT`, `SPRING_MAIL_USERNAME`, `SPRING_MAIL_PASSWORD`, sender `FLEXSTORE_MAIL_FROM`, shop address for the links `FLEXSTORE_FRONT_URL`); without it, they are written to the logs. Locally, `docker compose up -d mailpit` starts an SMTP server that catches them: start the back end with `SPRING_MAIL_HOST=localhost SPRING_MAIL_PORT=1025` and read them on [http://localhost:8025](http://localhost:8025).
+
 Set `FLEXSTORE_JWT_SECRET` (at least 32 characters) to sign the authentication tokens. Without it, a random secret is used and tokens stop working when the back end restarts.
 
 The database can be configured either with:
@@ -153,6 +155,9 @@ npm run gen:api
 | `POST` | `/api/orders` | signed in | Place an order from the cart of the customer, then empty the cart (`422` if the cart is empty) |
 | `GET` | `/api/orders` | signed in | Orders of the customer, newest first |
 | `GET` | `/api/orders/{id}` | signed in | One order of the customer (`404` for the order of another customer) |
+| `GET` | `/api/admin/settings` | `ADMIN` | Settings of the shop (`orderConfirmationEmail`: `ENABLED` / `DISABLED`) |
+| `POST` | `/api/admin/settings/order-confirmation-email/enable` | `ADMIN` | Send a confirmation email when an order is placed |
+| `POST` | `/api/admin/settings/order-confirmation-email/disable` | `ADMIN` | Stop sending the order confirmation email |
 | `POST` | `/api/users/login` | public | Sign in: returns a token and the user (`401` on wrong credentials) |
 | `POST` | `/api/users/{id}/password` | the user `{id}` | Change one's own password (`400` if the current one is wrong) |
 | `GET` | `/api/users` | `ADMIN` | All users |
