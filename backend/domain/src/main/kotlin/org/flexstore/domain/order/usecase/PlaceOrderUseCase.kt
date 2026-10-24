@@ -2,7 +2,7 @@ package org.flexstore.domain.order.usecase
 
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.order.*
-import org.ucop.domain.NonEmptyString
+import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.entity.*
 import java.time.Instant
 
@@ -27,19 +27,19 @@ class PlaceOrderUseCase(
 
     private fun cartHasItemsCondition() = PreCondition<OrderPlacement> { request ->
         if (cartRepository.load(request.customer).isEmpty()) {
-            throw EmptyCartException(NonEmptyString("An order cannot be placed from an empty cart."))
+            throw EmptyCartException(ErrorMessage("An order cannot be placed from an empty cart."))
         }
     }
 
     private fun orderIsStoredCondition() = PostCondition<OrderPlacement> { request ->
         if (orderRepository.orderIsMissing(request.orderId)) {
-            throw OrderPlacementFailed(NonEmptyString("Order ${request.orderId.value} was not stored."))
+            throw OrderPlacementFailed(ErrorMessage("Order ${request.orderId.value} was not stored."))
         }
     }
 
     private fun cartIsEmptyCondition() = PostCondition<OrderPlacement> { request ->
         if (cartRepository.load(request.customer).hasItems()) {
-            throw OrderPlacementFailed(NonEmptyString("The cart was not emptied after order ${request.orderId.value}."))
+            throw OrderPlacementFailed(ErrorMessage("The cart was not emptied after order ${request.orderId.value}."))
         }
     }
 }

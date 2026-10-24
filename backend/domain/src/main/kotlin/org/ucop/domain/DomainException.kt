@@ -1,15 +1,9 @@
 package org.ucop.domain
 
-data class StepException(val nonEmptyMessage: NonEmptyString) : Exception(nonEmptyMessage.value)
-open class NominalException(open val nonEmptyMessage: NonEmptyString) : Exception(nonEmptyMessage.value)
-data class PreConditionException(val nonEmptyMessage: NonEmptyString) : Exception(nonEmptyMessage.value)
-data class PostConditionException(val nonEmptyMessage: NonEmptyString) : Exception(nonEmptyMessage.value)
-data class AlternativeException(val nonEmptyMessage: NonEmptyString) : Exception(nonEmptyMessage.value)
+import org.flexstore.domain.sharedkernel.ErrorMessage
 
-data class NonEmptyString(val value: String) {
-    init {
-        if (value.isEmpty()) {
-            throw IllegalArgumentException("Value must not be empty")
-        }
-    }
-}
+data class StepException(val errorMessage: ErrorMessage) : Exception(errorMessage.value)
+open class NominalException(open val errorMessage: ErrorMessage) : Exception(errorMessage.value)
+data class PreConditionException(val errorMessage: ErrorMessage) : Exception(errorMessage.value)
+data class PostConditionException(val errorMessage: ErrorMessage) : Exception(errorMessage.value)
+data class AlternativeException(val errorMessage: ErrorMessage) : Exception(errorMessage.value)

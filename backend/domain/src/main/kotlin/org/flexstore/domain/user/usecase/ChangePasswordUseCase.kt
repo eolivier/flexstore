@@ -2,7 +2,7 @@ package org.flexstore.domain.user.usecase
 
 import org.flexstore.domain.user.*
 import org.ucop.domain.NominalException
-import org.ucop.domain.NonEmptyString
+import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.entity.*
 import kotlin.reflect.KClass
 
@@ -48,34 +48,34 @@ class ChangePasswordUseCase(
     private fun definedUser(request: ChangePasswordRequest): User.DefinedUser =
         when (val user = userRepository.findById(request.userId)) {
             is User.DefinedUser -> user
-            else -> throw UserNotFoundException(NonEmptyString("User with ID ${request.userId.value} does not exist."))
+            else -> throw UserNotFoundException(ErrorMessage("User with ID ${request.userId.value} does not exist."))
         }
 
     private fun userExistsCondition() = PreCondition<ChangePasswordRequest> { request ->
         if (userRepository.notExists(request.userId)) {
-            throw UserNotFoundException(NonEmptyString("User with ID ${request.userId.value} does not exist."))
+            throw UserNotFoundException(ErrorMessage("User with ID ${request.userId.value} does not exist."))
         }
     }
 
     private fun currentPasswordMatchesCondition() = PreCondition<ChangePasswordRequest> { request ->
         if (userRepository.passwordDoesNotMatch(definedUser(request).email, request.currentPassword)) {
-            throw InvalidCurrentPasswordException(NonEmptyString("The current password is wrong."))
+            throw InvalidCurrentPasswordException(ErrorMessage("The current password is wrong."))
         }
     }
 
     private fun newPasswordIsLongEnoughCondition() = PreCondition<ChangePasswordRequest> { request ->
         if (request.newPassword.value.length < PASSWORD_MIN_LENGTH) {
-            throw InvalidPasswordException(NonEmptyString("Password must be at least $PASSWORD_MIN_LENGTH characters."))
+            throw InvalidPasswordException(ErrorMessage("Password must be at least $PASSWORD_MIN_LENGTH characters."))
         }
     }
 
     private fun newPasswordMatchesCondition() = PostCondition<ChangePasswordRequest> { request ->
         if (userRepository.passwordDoesNotMatch(definedUser(request).email, request.newPassword)) {
-            throw PasswordChangeFailed(NonEmptyString("Password of user ${request.userId.value} was not changed."))
+            throw PasswordChangeFailed(ErrorMessage("Password of user ${request.userId.value} was not changed."))
         }
     }
 }
 
 // Not InvalidCredentialsException: the user is authenticated, only the confirmation of the current password failed
-data class InvalidCurrentPasswordException(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
-data class PasswordChangeFailed(override val nonEmptyMessage: NonEmptyString) : NominalException(nonEmptyMessage)
+data class InvalidCurrentPasswordException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class PasswordChangeFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

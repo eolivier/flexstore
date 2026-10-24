@@ -1,7 +1,7 @@
 package org.flexstore.domain.user.usecase
 
 import org.flexstore.domain.user.*
-import org.ucop.domain.NonEmptyString
+import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.entity.*
 
 class UpdateUserUseCase(private val userRepository: UserRepository) : UseCase<User> {
@@ -50,13 +50,13 @@ class UpdateUserUseCase(private val userRepository: UserRepository) : UseCase<Us
 
     private fun isValidUserIdCondition() = PreCondition<User> { user ->
         if (user.id.isInvalid()) {
-            throw InvalidUserIdException(NonEmptyString("User ID ${user.id.value} is invalid."))
+            throw InvalidUserIdException(ErrorMessage("User ID ${user.id.value} is invalid."))
         }
     }
 
     private fun userDoExistCondition() = PreCondition<User> { user ->
         if (userRepository.notExists(user.id)) {
-            throw UserNotFoundException(NonEmptyString("User with ID ${user.id.value} does not exist."))
+            throw UserNotFoundException(ErrorMessage("User with ID ${user.id.value} does not exist."))
         }
     }
 }

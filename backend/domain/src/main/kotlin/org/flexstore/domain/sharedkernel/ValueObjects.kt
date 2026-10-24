@@ -45,3 +45,10 @@ data class Description(val value: String) {
         require(value.isNotBlank()) { "Description must not ne empty nor null" }
     }
 }
+
+// The message of a domain exception: never empty, so that every failure says what happened
+data class ErrorMessage(val value: String) {
+    init {
+        require(value.isNotEmpty()) { "An error message must not be empty" }
+    }
+}

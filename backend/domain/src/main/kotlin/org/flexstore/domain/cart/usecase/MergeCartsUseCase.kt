@@ -1,7 +1,7 @@
 package org.flexstore.domain.cart.usecase
 
 import org.flexstore.domain.cart.*
-import org.ucop.domain.NonEmptyString
+import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.entity.*
 
 // When a visitor signs in, the cart filled before signing in is merged into the cart of the customer
@@ -25,7 +25,7 @@ class MergeCartsUseCase(private val cartRepository: CartRepository) : UseCase<Me
 
     private fun visitorCartIsDeletedCondition() = PostCondition<MergeCartsRequest> { request ->
         if (cartRepository.load(request.visitor).hasItems()) {
-            throw CartUpdateFailed(NonEmptyString("The visitor cart ${request.visitor.cartId.value} was not merged."))
+            throw CartUpdateFailed(ErrorMessage("The visitor cart ${request.visitor.cartId.value} was not merged."))
         }
     }
 }
