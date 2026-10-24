@@ -57,7 +57,6 @@ The cart rules live in the `Cart` aggregate (domain); the use cases (`AddItemToC
 
 ```
 backend/
-  app/            # not used at the moment
   domain/         # Entities, value objects, use cases, ports, errors
   infra/          # Infrastructure not linked to a framework (in-memory repositories, not used by the app)
   spring-infra/   # Spring adapters (REST controllers, JPA), OpenAPI spec
