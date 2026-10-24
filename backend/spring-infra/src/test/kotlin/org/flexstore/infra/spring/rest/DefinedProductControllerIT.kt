@@ -2,7 +2,6 @@ package org.flexstore.infra.spring.rest
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
-import org.flexstore.infra.spring.adapter.rest.ProductController
 import org.flexstore.infra.spring.adapter.rest.json.JsonProduct
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -27,16 +26,14 @@ class DefinedProductControllerIT {
     @Autowired
     private lateinit var objectMapper: ObjectMapper
 
-    @Autowired
-    private lateinit var productController: ProductController
-
     @Test
-    fun `should returnØ products`() {
-        val mvcResult = mockMvc.perform(get("/api/products/"))
-            .andExpect(status().isOk)
+    fun `should return the products`() {
+        // Act
+        val result = mockMvc.perform(get("/api/products/"))
+        // Assert
+        val responseContent = result.andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andReturn()
-        val responseContent = mvcResult.response.contentAsString
+            .andReturn().response.contentAsString
         val products: List<JsonProduct> = objectMapper.readValue(
             responseContent,
             objectMapper.typeFactory.constructCollectionType(List::class.java, JsonProduct::class.java)
@@ -46,8 +43,10 @@ class DefinedProductControllerIT {
 
     @Test
     fun `should return a product by id`() {
-        mockMvc.perform(get("/api/products/1"))
-            .andExpect(status().isOk)
+        // Act
+        val result = mockMvc.perform(get("/api/products/1"))
+        // Assert
+        result.andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.id").value("1"))
             .andExpect(jsonPath("$.name").isNotEmpty)
@@ -55,7 +54,9 @@ class DefinedProductControllerIT {
 
     @Test
     fun `should return 404 for an unknown product`() {
-        mockMvc.perform(get("/api/products/unknown"))
-            .andExpect(status().isNotFound)
+        // Act
+        val result = mockMvc.perform(get("/api/products/unknown"))
+        // Assert
+        result.andExpect(status().isNotFound)
     }
 }

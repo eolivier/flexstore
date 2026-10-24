@@ -9,8 +9,8 @@ import org.flexstore.domain.user.model.UserId.ValidUserId
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.assertThrows
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.catchThrowable
 import kotlin.test.Test
 
 class UpdateUserUseCaseTest {
@@ -38,12 +38,10 @@ class UpdateUserUseCaseTest {
         val invalidUserId = InvalidUserId("@")
         val user = DefinedUser(invalidUserId, Name("John Doe"), Email("john.doe@example.com"), PlainPassword("password123"))
         val updateUserUseCase = UpdateUserUseCase(userRepository)
-        val exception = assertThrows<InvalidUserIdException> {
-            // Act
-            updateUserUseCase.unfold(user)
-        }
+        // Act
+        val thrown = catchThrowable { updateUserUseCase.unfold(user) }
         // Assert
-        assertEquals("User ID @ is invalid.", exception.message)
+        assertThat(thrown).isInstanceOf(InvalidUserIdException::class.java).hasMessage("User ID @ is invalid.")
         verify(exactly = 0) { userRepository.save(user) }
     }
 
@@ -55,12 +53,10 @@ class UpdateUserUseCaseTest {
         val user = DefinedUser(userId, Name("John Doe"), Email("john.doe@example.com"), PlainPassword("password123"))
         every { userRepository.notExists(userId) } returns true
         val updateUserUseCase = UpdateUserUseCase(userRepository)
-        val exception = assertThrows<UserNotFoundException> {
-            // Act
-            updateUserUseCase.unfold(user)
-        }
+        // Act
+        val thrown = catchThrowable { updateUserUseCase.unfold(user) }
         // Assert
-        assertEquals("User with ID 123 does not exist.", exception.message)
+        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java).hasMessage("User with ID 123 does not exist.")
         verify(exactly = 0) { userRepository.save(user) }
     }
 

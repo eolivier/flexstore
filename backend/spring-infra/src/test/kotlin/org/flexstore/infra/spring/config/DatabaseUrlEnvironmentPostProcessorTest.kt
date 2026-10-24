@@ -1,7 +1,7 @@
 package org.flexstore.infra.spring.config
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.assertThrows
+import org.assertj.core.api.Assertions.catchThrowable
 import org.springframework.boot.SpringApplication
 import org.springframework.mock.env.MockEnvironment
 import kotlin.test.Test
@@ -40,7 +40,10 @@ class DatabaseUrlEnvironmentPostProcessorTest {
 
     @Test
     fun `should reject an unsupported URL`() {
-        assertThrows<IllegalArgumentException> { datasourceProperties("mysql://flex:flex@localhost/flexstore") }
+        // Act
+        val thrown = catchThrowable { datasourceProperties("mysql://flex:flex@localhost/flexstore") }
+        // Assert
+        assertThat(thrown).isInstanceOf(IllegalArgumentException::class.java)
     }
 
     @Test

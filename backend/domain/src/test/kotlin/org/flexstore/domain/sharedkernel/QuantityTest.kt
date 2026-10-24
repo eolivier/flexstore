@@ -31,32 +31,32 @@ class QuantityTest : WithAssertions {
         ).asStream()
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{0} increased is {1}")
     @MethodSource("increaseTestCases")
-    fun `test increase`(input: Quantity, expected: Quantity) {
-        // when
+    fun `increasing a quantity should add one`(input: Quantity, expected: Quantity) {
+        // Act
         val result = input.increase()
-        // then
+        // Assert
         assertThat(result).isEqualTo(expected)
         assertThat(result !== input).isTrue()
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{0} decreased is {1}")
     @MethodSource("decreaseTestCases")
-    fun `test decrease`(input: Quantity, expected: Quantity) {
-        // when
+    fun `decreasing a quantity should remove one`(input: Quantity, expected: Quantity) {
+        // Act
         val result = input.decrease()
-        // then
+        // Assert
         assertThat(result).isEqualTo(expected)
         assertThat(result !== input).isTrue()
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{0} changed to {1}")
     @MethodSource("changeQuantityTestCases")
-    fun `test changeQuantity`(input: Quantity, change: Quantity) {
-        // when
+    fun `changing a quantity should give the new quantity`(input: Quantity, change: Quantity) {
+        // Act
         val result = input.changeQuantity(change)
-        // then
+        // Assert
         assertThat(result).isEqualTo(change)
         assertThat(result !== input).isTrue()
     }

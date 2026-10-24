@@ -14,10 +14,8 @@ class InMemoryUserRepositoryTest {
         // Arrange
         val userRepository = InMemoryUserRepository()
         val userId = ValidUserId("123")
-
         // Act
         val result = userRepository.exists(userId)
-
         // Assert
         assertThat(result).isFalse()
     }
@@ -28,10 +26,8 @@ class InMemoryUserRepositoryTest {
         val userRepository = InMemoryUserRepository()
         val user = DefinedUser(ValidUserId("123"), Name("Jane Doe"), Email("jane.doe@example.com"), PlainPassword("password123"))
         userRepository.save(user)
-
         // Act
         val result = userRepository.exists(user.id)
-
         // Assert
         assertThat(result).isTrue()
     }
@@ -41,10 +37,8 @@ class InMemoryUserRepositoryTest {
         // Arrange
         val userRepository = InMemoryUserRepository()
         val user = DefinedUser(ValidUserId("123"), Name("Jane Doe"), Email("jane.doe@example.com"), PlainPassword("password123"))
-
         // Act
         userRepository.save(user)
-
         // Assert
         assertThat(userRepository.exists(user.id)).isTrue()
     }
@@ -55,10 +49,8 @@ class InMemoryUserRepositoryTest {
         val userRepository = InMemoryUserRepository()
         val user = DefinedUser(ValidUserId("123"), Name("Jane Doe"), Email("jane.doe@example.com"), PlainPassword("password123"))
         userRepository.save(user)
-
         // Act
         val result = userRepository.findById(user.id)
-
         // Assert
         assertThat(result.id).isEqualTo(user.id)
         assertThat((result as DefinedUser).name).isEqualTo(user.name)
@@ -73,10 +65,8 @@ class InMemoryUserRepositoryTest {
         val userRepository = InMemoryUserRepository()
         val user = DefinedUser(ValidUserId("123"), Name("Jane Doe"), Email("jane.doe@example.com"), PlainPassword("password123"))
         userRepository.save(user)
-
         // Act
         val result = userRepository.delete(user.id)
-
         // Assert
         assertThat(result).isTrue()
         assertThat(userRepository.exists(user.id)).isFalse()
@@ -87,10 +77,8 @@ class InMemoryUserRepositoryTest {
         // Arrange
         val userRepository = InMemoryUserRepository()
         val userId = ValidUserId("123")
-
         // Act
         val result = userRepository.delete(userId)
-
         // Assert
         assertThat(result).isFalse()
     }

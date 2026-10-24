@@ -1,16 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { mount, flushPromises } from '@vue/test-utils';
+import { mount, flushPromises, type VueWrapper } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { createRouter, createMemoryHistory } from 'vue-router';
 import Login from './Login.vue';
 import { useAuthStore } from '@/stores/auth.store';
 import { vuetify, i18n } from '@/test/setup';
 
-// Mock fetch globally
 const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
-// Create router with memory history for tests
 const router = createRouter({
   history: createMemoryHistory(),
   routes: [
@@ -19,6 +17,12 @@ const router = createRouter({
     { path: '/admin/users', component: { template: '<div>Users</div>' } },
     { path: '/user-profile', component: { template: '<div>Profile</div>' } },
   ],
+});
+
+// Body of a successful login for a user with the given role
+const loginSuccess = (role: 'ADMIN' | 'USER') => ({
+  ok: true,
+  json: () => Promise.resolve({ token: 'jwt-token', expiresAt: '2030-01-01T00:00:00Z', user: { id: '1', name: 'John', email: 'john@example.com', role } }),
 });
 
 describe('Login.vue', () => {
@@ -32,69 +36,63 @@ describe('Login.vue', () => {
     if (Object.keys(query).length > 0) {
       await router.push({ path: '/login', query });
     }
-    return mount(Login, {
-      global: {
-        plugins: [vuetify, i18n, router],
-      },
-    });
+    const wrapper = mount(Login, { global: { plugins: [vuetify, i18n, router] } });
+    await flushPromises();
+    return wrapper;
+  };
+
+  const fillForm = async (wrapper: VueWrapper, email: string, password: string) => {
+    await wrapper.find('input[type="email"]').setValue(email);
+    await wrapper.find('input[type="password"]').setValue(password);
+    await flushPromises();
+  };
+
+  const submit = async (wrapper: VueWrapper) => {
+    await wrapper.find('form').trigger('submit.prevent');
+    await flushPromises();
   };
 
   it('renders login form with email and password fields', async () => {
+    // Act
     const wrapper = await mountComponent();
-
+    // Assert
     expect(wrapper.find('input[type="email"]').exists()).toBe(true);
     expect(wrapper.find('input[type="password"]').exists()).toBe(true);
     expect(wrapper.find('button[type="submit"]').exists()).toBe(true);
   });
 
   it('displays title from i18n', async () => {
+    // Act
     const wrapper = await mountComponent();
-
+    // Assert
     expect(wrapper.text()).toContain('Login');
   });
 
   it('submit button is disabled when form is invalid', async () => {
+    // Act
     const wrapper = await mountComponent();
-    await flushPromises();
-
-    const submitButton = wrapper.find('button[type="submit"]');
-    expect(submitButton.attributes('disabled')).toBeDefined();
+    // Assert
+    expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeDefined();
   });
 
   it('validates email format', async () => {
+    // Arrange
     const wrapper = await mountComponent();
-
-    const emailInput = wrapper.find('input[type="email"]');
-    await emailInput.setValue('invalid-email');
+    // Act
+    await wrapper.find('input[type="email"]').setValue('invalid-email');
     await flushPromises();
-
-    // Check that form is still invalid due to bad email format
-    const submitButton = wrapper.find('button[type="submit"]');
-    expect(submitButton.attributes('disabled')).toBeDefined();
+    // Assert
+    expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeDefined();
   });
 
   it('calls login when form is submitted with valid data', async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: () => Promise.resolve({ token: 'jwt-token', expiresAt: '2030-01-01T00:00:00Z', user: { id: '1', name: 'John', email: 'john@example.com', role: 'ADMIN' } }),
-    });
-
+    // Arrange
+    mockFetch.mockResolvedValueOnce(loginSuccess('ADMIN'));
     const wrapper = await mountComponent();
-    const authStore = useAuthStore();
-
-    // Fill in the form
-    const emailInput = wrapper.find('input[type="email"]');
-    const passwordInput = wrapper.find('input[type="password"]');
-
-    await emailInput.setValue('john@example.com');
-    await passwordInput.setValue('password123');
-    await flushPromises();
-
-    // Submit the form
-    await wrapper.find('form').trigger('submit.prevent');
-    await flushPromises();
-
-    // Verify fetch was called with correct parameters
+    await fillForm(wrapper, 'john@example.com', 'password123');
+    // Act
+    await submit(wrapper);
+    // Assert
     expect(mockFetch).toHaveBeenCalledWith(
       'http://localhost:8080/api/users/login',
       expect.objectContaining({
@@ -103,96 +101,33 @@ describe('Login.vue', () => {
         body: JSON.stringify({ email: 'john@example.com', password: 'password123' }),
       })
     );
-
-    // Verify user is authenticated
-    expect(authStore.isAuthenticated).toBe(true);
+    expect(useAuthStore().isAuthenticated).toBe(true);
   });
 
   it('displays error message when login fails', async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: false,
-      status: 401,
-    });
-
+    // Arrange
+    mockFetch.mockResolvedValueOnce({ ok: false, status: 401 });
     const wrapper = await mountComponent();
-    const authStore = useAuthStore();
-
-    // Fill in the form
-    const emailInput = wrapper.find('input[type="email"]');
-    const passwordInput = wrapper.find('input[type="password"]');
-
-    await emailInput.setValue('john@example.com');
-    await passwordInput.setValue('wrongpassword');
-    await flushPromises();
-
-    // Submit the form
-    await wrapper.find('form').trigger('submit.prevent');
-    await flushPromises();
-
-    // Verify error is set
-    expect(authStore.loginError).toBe('Invalid email or password');
-
-    // Re-render to see error message
-    await wrapper.vm.$nextTick();
+    await fillForm(wrapper, 'john@example.com', 'wrongpassword');
+    // Act
+    await submit(wrapper);
+    // Assert
+    expect(useAuthStore().loginError).toBe('Invalid email or password');
     expect(wrapper.text()).toContain('Invalid email or password');
   });
 
-  it('redirects to admin after successful login', async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: () => Promise.resolve({ token: 'jwt-token', expiresAt: '2030-01-01T00:00:00Z', user: { id: '1', name: 'John', email: 'john@example.com', role: 'ADMIN' } }),
-    });
-
-    const wrapper = await mountComponent();
-
-    // Fill and submit form
-    await wrapper.find('input[type="email"]').setValue('john@example.com');
-    await wrapper.find('input[type="password"]').setValue('password123');
-    await flushPromises();
-
-    await wrapper.find('form').trigger('submit.prevent');
-    await flushPromises();
-
-    // Check router navigation
-    expect(router.currentRoute.value.path).toBe('/admin');
-  });
-
-  it('redirects a user without the admin role to the account page', async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: () => Promise.resolve({ token: 'jwt-token', expiresAt: '2030-01-01T00:00:00Z', user: { id: '2', name: 'Jane', email: 'jane@example.com', role: 'USER' } }),
-    });
-
-    const wrapper = await mountComponent();
-
-    await wrapper.find('input[type="email"]').setValue('jane@example.com');
-    await wrapper.find('input[type="password"]').setValue('password123');
-    await flushPromises();
-
-    await wrapper.find('form').trigger('submit.prevent');
-    await flushPromises();
-
-    expect(router.currentRoute.value.path).toBe('/user-profile');
-  });
-
-  it('redirects to custom path from query params after successful login', async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: () => Promise.resolve({ token: 'jwt-token', expiresAt: '2030-01-01T00:00:00Z', user: { id: '1', name: 'John', email: 'john@example.com', role: 'ADMIN' } }),
-    });
-
-    const wrapper = await mountComponent({ redirect: '/admin/users' });
-    await flushPromises();
-
-    // Fill and submit form
-    await wrapper.find('input[type="email"]').setValue('john@example.com');
-    await wrapper.find('input[type="password"]').setValue('password123');
-    await flushPromises();
-
-    await wrapper.find('form').trigger('submit.prevent');
-    await flushPromises();
-
-    // Check router navigation to redirect path
-    expect(router.currentRoute.value.path).toBe('/admin/users');
+  it.each([
+    { role: 'ADMIN' as const, query: {}, expectedPath: '/admin' },
+    { role: 'USER' as const, query: {}, expectedPath: '/user-profile' },
+    { role: 'ADMIN' as const, query: { redirect: '/admin/users' }, expectedPath: '/admin/users' },
+  ])('redirects a $role user to $expectedPath after login (query $query)', async ({ role, query, expectedPath }) => {
+    // Arrange
+    mockFetch.mockResolvedValueOnce(loginSuccess(role));
+    const wrapper = await mountComponent(query);
+    await fillForm(wrapper, 'john@example.com', 'password123');
+    // Act
+    await submit(wrapper);
+    // Assert
+    expect(router.currentRoute.value.path).toBe(expectedPath);
   });
 });

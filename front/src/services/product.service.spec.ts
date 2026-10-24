@@ -14,30 +14,37 @@ const httpError = (status: number) =>
     config: { headers: new AxiosHeaders() },
   });
 
+const jeans = { id: '3', name: 'Slim Jeans', description: 'Modern fit', category: 'CLOTHING', price: 49, currency: '€' };
+
 describe('getProduct', () => {
   beforeEach(() => {
     vi.mocked(productsApi.getProduct).mockReset();
   });
 
   it('returns the product', async () => {
-    vi.mocked(productsApi.getProduct).mockResolvedValue({
-      data: { id: '3', name: 'Slim Jeans', description: 'Modern fit', category: 'CLOTHING', price: 49, currency: '€' },
-    } as never);
-
-    expect(await getProduct('3')).toEqual({
-      id: '3', name: 'Slim Jeans', description: 'Modern fit', category: 'CLOTHING', price: 49, currency: '€',
-    });
+    // Arrange
+    vi.mocked(productsApi.getProduct).mockResolvedValue({ data: jeans } as never);
+    // Act
+    const product = await getProduct('3');
+    // Assert
+    expect(product).toEqual(jeans);
   });
 
   it('returns null when the product does not exist', async () => {
+    // Arrange
     vi.mocked(productsApi.getProduct).mockRejectedValue(httpError(404));
-
-    expect(await getProduct('unknown')).toBeNull();
+    // Act
+    const product = await getProduct('unknown');
+    // Assert
+    expect(product).toBeNull();
   });
 
   it('rethrows other errors', async () => {
+    // Arrange
     vi.mocked(productsApi.getProduct).mockRejectedValue(httpError(500));
-
-    await expect(getProduct('3')).rejects.toThrow();
+    // Act
+    const result = getProduct('3');
+    // Assert
+    await expect(result).rejects.toThrow();
   });
 });

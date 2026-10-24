@@ -8,8 +8,8 @@ import org.flexstore.domain.user.model.UserId.ValidUserId
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.assertThrows
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.catchThrowable
 import kotlin.test.Test
 
 class ChangePasswordUseCaseTest {
@@ -45,11 +45,9 @@ class ChangePasswordUseCaseTest {
         // Arrange
         val userRepository = repository(currentPasswordMatches = false)
         // Act
-        val exception = assertThrows<InvalidCurrentPasswordException> {
-            ChangePasswordUseCase(userRepository).unfold(ChangePasswordRequest(userId, currentPassword, newPassword))
-        }
+        val thrown = catchThrowable { ChangePasswordUseCase(userRepository).unfold(ChangePasswordRequest(userId, currentPassword, newPassword)) }
         // Assert
-        assertEquals("The current password is wrong.", exception.message)
+        assertThat(thrown).isInstanceOf(InvalidCurrentPasswordException::class.java).hasMessage("The current password is wrong.")
         verify(exactly = 0) { userRepository.save(ofType<DefinedUser>()) }
     }
 
@@ -58,11 +56,9 @@ class ChangePasswordUseCaseTest {
         // Arrange
         val userRepository = repository()
         // Act
-        val exception = assertThrows<InvalidPasswordException> {
-            ChangePasswordUseCase(userRepository).unfold(ChangePasswordRequest(userId, currentPassword, PlainPassword("short")))
-        }
+        val thrown = catchThrowable { ChangePasswordUseCase(userRepository).unfold(ChangePasswordRequest(userId, currentPassword, PlainPassword("short"))) }
         // Assert
-        assertEquals("Password must be at least 8 characters.", exception.message)
+        assertThat(thrown).isInstanceOf(InvalidPasswordException::class.java).hasMessage("Password must be at least 8 characters.")
         verify(exactly = 0) { userRepository.save(ofType<DefinedUser>()) }
     }
 
@@ -72,10 +68,8 @@ class ChangePasswordUseCaseTest {
         val userRepository = mockk<UserRepository>()
         every { userRepository.notExists(userId) } returns true
         // Act
-        val exception = assertThrows<UserNotFoundException> {
-            ChangePasswordUseCase(userRepository).unfold(ChangePasswordRequest(userId, currentPassword, newPassword))
-        }
+        val thrown = catchThrowable { ChangePasswordUseCase(userRepository).unfold(ChangePasswordRequest(userId, currentPassword, newPassword)) }
         // Assert
-        assertEquals("User with ID 123 does not exist.", exception.message)
+        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java).hasMessage("User with ID 123 does not exist.")
     }
 }
