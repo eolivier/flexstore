@@ -53,3 +53,49 @@ Details:
   ```
 
 - Setup shared by all the tests of a class (fields, `@BeforeEach`, `beforeEach`) is part of Arrange; a test with nothing more to arrange may omit its `// Arrange` section, but keeps `// Act` and `// Assert`.
+
+## 2. Parameterized tests for boundary cases
+
+Prefer a parameterized test to cover the boundary cases of a rule (zero, negative, limit, just above the limit, empty, missing...), instead of copying the same test for each value or packing several values into one long test. The test stays one Arrange / Act / Assert, run once per case.
+
+Avoid:
+
+```kotlin
+@Test
+fun `an item whose quantity becomes zero should be removed`() { ... changeQuantity(item1.itemId, Quantity(0)) ... }
+
+@Test
+fun `an item whose quantity becomes negative should be removed`() { ... changeQuantity(item1.itemId, Quantity(-1)) ... }
+```
+
+Prefer:
+
+```kotlin
+@ParameterizedTest(name = "a quantity of {0} removes the item")
+@ValueSource(ints = [0, -1, -10])
+fun `an item whose quantity becomes zero or negative should be removed`(quantity: Int) {
+    // Arrange
+    val cart = Cart(customer, listOf(item1))
+    // Act
+    val updatedCart = cart.changeQuantity(item1.itemId, Quantity(quantity))
+    // Assert
+    assertThat(updatedCart.items).isEmpty()
+}
+```
+
+```ts
+it.each([0, -1, -10])('a quantity of %i removes the item', async (quantity) => {
+  // Arrange
+  ...
+  // Act
+  ...
+  // Assert
+  ...
+});
+```
+
+The parameterized test must stay readable:
+- Give each case a name that reads as the rule (`name = "a quantity of {0} removes the item"`, `'a quantity of %i...'`), so that a failure says which case broke.
+- Keep few parameters, ideally one or two: the input and, when it varies, the expected outcome (`@CsvSource("0, true", "1, false")`). More columns mean the cases are different behaviours: write separate tests.
+- One behaviour per parameterized test: cases with different expected outcomes in kind (removed vs rejected) are separate tests.
+- Keep the values in the annotation or a short, well-named source method next to the test; no logic (conditions, loops) in the test body to handle the cases.
