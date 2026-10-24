@@ -10,7 +10,7 @@ class CreateProductUseCaseTest : WithAssertions {
 
     private val productRepository = InMemoryProductRepository()
     private val useCase = CreateProductUseCase(productRepository)
-    private val facade = ProductUseCaseFacade(useCase, ReadProductUseCase(productRepository))
+    private val facade = ProductUseCaseFacade(useCase, ReadProductUseCase(productRepository), UpdateProductUseCase(productRepository))
     private val lamp = DraftProduct(Name("Desk lamp"), Description("Warm light"), Category.HOME, Price(Amount(BigDecimal(35)), Currency.EUR))
     private val mug = DraftProduct(Name("Mug"), Description("Ceramic"), Category.HOME, Price(Amount(BigDecimal(12)), Currency.EUR))
 

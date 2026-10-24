@@ -20,3 +20,12 @@ data class DraftJsonProduct @JsonCreator constructor(
     @JsonProperty("price") val price: BigDecimal,
     @JsonProperty("currency") val currency: String
 )
+
+// The fields an administrator edits; the id is given by the path
+data class EditedJsonProduct @JsonCreator constructor(
+    @JsonProperty("name") val name: String,
+    @JsonProperty("description") val description: String,
+    @JsonProperty("category") val category: String,
+    @JsonProperty("price") val price: BigDecimal,
+    @JsonProperty("currency") val currency: String
+)

@@ -33,7 +33,7 @@ This repo is meant to be a learning vehicle and a ready-to-fork base for real pr
 
 **Account and administration** (sign-in required)
 - Sign in, profile, change password
-- Administration (`ADMIN` role): users (list with their role, create with a role, edit name/email/role, delete), products (create), settings (order confirmation email on/off)
+- Administration (`ADMIN` role): users (list with their role, create with a role, edit name/email/role, delete), products (list, create, edit name/description/category/price), settings (order confirmation email on/off)
 
 ---
 
@@ -159,6 +159,7 @@ npm run gen:api
 | `GET` | `/api/products/` | public | All products |
 | `GET` | `/api/products/{id}` | public | One product (`404` if it does not exist) |
 | `POST` | `/api/products` | `ADMIN` | Create a product |
+| `PUT` | `/api/products/{id}` | `ADMIN` | Edit a product (`404` if it does not exist) |
 | `GET` | `/api/cart/cart-items` | public | Items and total of the cart of the customer (token) or of the visitor (`X-Cart-Id`) |
 | `POST` | `/api/cart/save` | public | Add or update a cart item (quantity `0` removes it); returns the visitor cart id |
 | `POST` | `/api/cart/merge` | signed in | Merge the visitor cart (`X-Cart-Id`) into the customer cart |

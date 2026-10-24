@@ -12,11 +12,11 @@ describe('CreateProduct.vue', () => {
     setActivePinia(createPinia());
   });
 
-  it('the cancel button goes back to the administration home', () => {
+  it('the cancel button goes back to the list of products', () => {
     // Act
     const wrapper = mount(CreateProduct, { global: { plugins: [vuetify, i18n, router] } });
     // Assert
     const cancel = wrapper.findAll('a').find(link => link.text() === 'Cancel')!;
-    expect(cancel.attributes('href')).toBe('/admin');
+    expect(cancel.attributes('href')).toBe('/admin/products');
   });
 });

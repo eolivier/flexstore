@@ -66,6 +66,7 @@ open class SecurityConfig(@Value("\${flexstore.security.jwt-secret:}") private v
                     .requestMatchers("/api/users/**").hasRole("ADMIN")
                     .requestMatchers("/api/admin/**").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.POST, "/api/products").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/api/products/{id}").hasRole("ADMIN")
                     .anyRequest().authenticated()
             }
             .oauth2ResourceServer { it.jwt { jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()) } }

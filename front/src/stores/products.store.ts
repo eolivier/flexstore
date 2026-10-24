@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import type { Product } from '@/models/product';
-import { getAllProducts } from '@/services/product.service';
+import { getAllProducts, getProduct } from '@/services/product.service';
 import { useAuthStore } from './auth.store';
 
 export const useProductsStore = defineStore('products', () => {
@@ -30,6 +30,36 @@ export const useProductsStore = defineStore('products', () => {
     }
   }
 
+  // Returns null when the product cannot be read
+  async function fetchProduct(id: string): Promise<Product | null> {
+    try {
+      return await getProduct(id);
+    } catch (e) {
+      console.error('Error when reading product', e);
+      return null;
+    }
+  }
+
+  // Returns whether the product was edited
+  async function updateProduct(id: string, product: Product): Promise<boolean> {
+    try {
+      const response = await useAuthStore().authFetch(`/api/products/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(product),
+      });
+      if (!response.ok) {
+        console.error('Error when editing product', await response.text());
+        return false;
+      }
+      await fetchProducts();
+      return true;
+    } catch (e) {
+      console.error('Error when editing product', e);
+      return false;
+    }
+  }
+
   async function fetchProducts() {
     loading.value = true;
     error.value = null;
@@ -42,5 +72,5 @@ export const useProductsStore = defineStore('products', () => {
     }
   }
 
-  return { products, loading, error, fetchProducts, addProduct };
+  return { products, loading, error, fetchProducts, fetchProduct, addProduct, updateProduct };
 });

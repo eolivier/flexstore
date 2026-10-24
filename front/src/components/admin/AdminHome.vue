@@ -7,6 +7,7 @@
   const descriptions: Record<string, string> = {
     '/admin/users': 'admin.usersText',
     '/admin/create-user': 'admin.createUserText',
+    '/admin/products': 'admin.productsText',
     '/admin/create-product': 'admin.createProductText',
     '/admin/settings': 'admin.settingsText',
   };
