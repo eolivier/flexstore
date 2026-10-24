@@ -44,12 +44,13 @@ class GuestTest {
             name = Name("product1"),
             price = Price(Amount(BigDecimal(10)), Currency.EUR)
         )
+        val owner = CartOwner.Visitor(VisitorCartId.generate())
         val cartRepository = InMemoryCartRepository()
         val addItemToCartUseCase = AddItemToCartUseCase(cartRepository, InMemoryProductRepository().apply { save(product) })
         val guest = Guest(mock(CreateUserUseCase::class.java), addItemToCartUseCase)
         // Act
-        guest.performAddItemToCart(AddItemToCartRequest(product.productId, Quantity(1)))
+        guest.performAddItemToCart(AddItemToCartRequest(owner, product.productId, Quantity(1)))
         // Assert
-        assertThat(cartRepository.load().findBy(product.productId)).isNotNull
+        assertThat(cartRepository.load(owner).findBy(product.productId)).isNotNull
     }
 }

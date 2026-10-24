@@ -46,3 +46,9 @@ data class JsonCartItems @JsonCreator constructor(
     @JsonProperty("totalItemsPrice") val totalItemsPrice: BigDecimal,
     @JsonProperty("itemsCurrency") val itemsCurrency: String
 )
+
+// cartId: the cart id of a visitor, to send in the X-Cart-Id header; null for a signed-in customer
+data class JsonSaveItemResponse(
+    @JsonProperty("status") val status: String,
+    @JsonProperty("cartId") val cartId: String?
+)

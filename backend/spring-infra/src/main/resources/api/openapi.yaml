@@ -183,8 +183,15 @@ paths:
     post:
       tags:
       - Cart
-      summary: Add an item to the cart
+      summary: Add an item to the cart, or change the quantity of an item (0 removes it)
+      description: "The cart of the signed-in customer (bearer token), otherwise the cart of the visitor
+        given by X-Cart-Id; without X-Cart-Id, a visitor cart is created and its id is returned."
       operationId: addItem
+      security:
+      - {}
+      - bearerAuth: []
+      parameters:
+      - $ref: "#/components/parameters/CartId"
       requestBody:
         content:
           application/json:
@@ -192,12 +199,33 @@ paths:
               $ref: "#/components/schemas/JsonItem"
         required: true
       responses:
-        "201":
-          description: Created
+        "200":
+          description: Saved
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/JsonSaveItemResponse"
+        "404":
+          description: Unknown product
+        "422":
+          description: A new item needs a positive quantity
+  /api/cart/merge:
+    post:
+      tags:
+      - Cart
+      summary: Merge the cart of the visitor (X-Cart-Id) into the cart of the signed-in customer
+      description: "All the items are kept; for a product in both carts, the larger quantity is kept.
+        The visitor cart is then deleted."
+      operationId: mergeCarts
+      security:
+      - bearerAuth: []
+      parameters:
+      - $ref: "#/components/parameters/CartId"
+      responses:
+        "204":
+          description: Merged
+        "401":
+          description: Not signed in
   /api/products/:
     get:
       tags:
@@ -239,9 +267,15 @@ paths:
     get:
       tags:
       - Cart
-      summary: Retrieve all cart items
-      description: Returns the full list of items in the cart
+      summary: Retrieve the items of the cart of the customer or of the visitor
+      description: "The cart of the signed-in customer (bearer token), otherwise the cart of the visitor
+        given by X-Cart-Id (empty without it)."
       operationId: getCartItems
+      security:
+      - {}
+      - bearerAuth: []
+      parameters:
+      - $ref: "#/components/parameters/CartId"
       responses:
         "200":
           description: OK
@@ -250,6 +284,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/JsonCartItems"
 components:
+  parameters:
+    CartId:
+      name: X-Cart-Id
+      in: header
+      required: false
+      description: Id of the visitor cart (a UUID), returned by POST /api/cart/save
+      schema:
+        type: string
   securitySchemes:
     bearerAuth:
       type: http
@@ -402,6 +444,15 @@ components:
           format: int32
         itemPrice:
           type: number
+    JsonSaveItemResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        cartId:
+          type: string
+          nullable: true
+          description: Id of the visitor cart, to send in X-Cart-Id; null for a signed-in customer
     JsonCartItems:
       type: object
       properties:

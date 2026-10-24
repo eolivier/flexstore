@@ -5,6 +5,7 @@ import org.flexstore.domain.repository.ProductRepository
 import org.flexstore.domain.usecase.basket.AddItemToCartUseCase
 import org.flexstore.domain.usecase.basket.CartUseCaseFacade
 import org.flexstore.domain.usecase.basket.ChangeCartItemQuantityUseCase
+import org.flexstore.domain.usecase.basket.MergeCartsUseCase
 import org.flexstore.domain.usecase.basket.ReadCartUseCase
 import org.flexstore.domain.usecase.product.CreateProductUseCase
 import org.flexstore.domain.usecase.product.ProductUseCaseFacade
@@ -34,8 +35,9 @@ open class UseCaseConfig {
     @Bean
     open fun cartUseCaseFacade(addItemToCartUseCase: AddItemToCartUseCase,
                                changeCartItemQuantityUseCase: ChangeCartItemQuantityUseCase,
-                               readCartUseCase: ReadCartUseCase): CartUseCaseFacade {
-        return CartUseCaseFacade(addItemToCartUseCase, changeCartItemQuantityUseCase, readCartUseCase)
+                               readCartUseCase: ReadCartUseCase,
+                               mergeCartsUseCase: MergeCartsUseCase): CartUseCaseFacade {
+        return CartUseCaseFacade(addItemToCartUseCase, changeCartItemQuantityUseCase, readCartUseCase, mergeCartsUseCase)
     }
 
     @Bean
@@ -51,5 +53,10 @@ open class UseCaseConfig {
     @Bean
     open fun readCartUseCase(cartRepository: CartRepository): ReadCartUseCase {
         return ReadCartUseCase(cartRepository)
+    }
+
+    @Bean
+    open fun mergeCartsUseCase(cartRepository: CartRepository): MergeCartsUseCase {
+        return MergeCartsUseCase(cartRepository)
     }
 }
