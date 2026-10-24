@@ -148,16 +148,23 @@ export default {
       continue: "Continue shopping",
       empty: "Your cart is empty",
       emptyText: "Browse the shop and add the products you like.",
-      accountItemsMerged: "The items saved in your account have been added to your cart."
+      accountItemsMerged: "The items saved in your account have been added to your cart.",
+      placeOrder: "Place order",
+      signInToOrder: "You will sign in to confirm your order.",
+      orderError: "The order could not be placed. Please try again."
     },
     orders: {
       title: "Orders",
-      demo: "Demo orders, not linked to your cart yet.",
+      number: "Order {number}",
+      placedOn: "Placed on {date}",
+      placed: "Thank you! Your order has been placed.",
+      empty: "No orders yet",
+      emptyText: "Your orders will appear here once placed from your cart.",
+      loadError: "Your orders could not be loaded.",
       status: {
-        shipped: "Shipped",
-        processing: "Processing",
-        delivered: "Delivered",
-        pendingPayment: "Pending payment"
+        PROCESSING: "Processing",
+        SHIPPED: "Shipped",
+        DELIVERED: "Delivered"
       }
     },
     users: {
@@ -368,16 +375,23 @@ export default {
       continue: "Continuer mes achats",
       empty: "Votre panier est vide",
       emptyText: "Parcourez la boutique et ajoutez les produits qui vous plaisent.",
-      accountItemsMerged: "Les articles enregistrés dans votre compte ont été ajoutés à votre panier."
+      accountItemsMerged: "Les articles enregistrés dans votre compte ont été ajoutés à votre panier.",
+      placeOrder: "Passer la commande",
+      signInToOrder: "Vous vous connecterez pour valider la commande.",
+      orderError: "La commande n'a pas pu être passée. Veuillez réessayer."
     },
     orders: {
       title: "Commandes",
-      demo: "Commandes de démonstration, pas encore liées à votre panier.",
+      number: "Commande {number}",
+      placedOn: "Passée le {date}",
+      placed: "Merci ! Votre commande a été enregistrée.",
+      empty: "Aucune commande pour l'instant",
+      emptyText: "Vos commandes apparaîtront ici une fois passées depuis votre panier.",
+      loadError: "Vos commandes n'ont pas pu être chargées.",
       status: {
-        shipped: "Expédiée",
-        processing: "En préparation",
-        delivered: "Livrée",
-        pendingPayment: "En attente de paiement"
+        PROCESSING: "En préparation",
+        SHIPPED: "Expédiée",
+        DELIVERED: "Livrée"
       }
     },
     users: {

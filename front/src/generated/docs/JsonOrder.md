@@ -1,0 +1,30 @@
+# JsonOrder
+
+
+## Properties
+
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**id** | **string** |  | [default to undefined]
+**placedAt** | **string** |  | [default to undefined]
+**status** | **string** |  | [default to undefined]
+**lines** | [**Array&lt;JsonOrderLine&gt;**](JsonOrderLine.md) |  | [default to undefined]
+**totalPrice** | **number** |  | [default to undefined]
+**currency** | **string** |  | [default to undefined]
+
+## Example
+
+```typescript
+import { JsonOrder } from './api';
+
+const instance: JsonOrder = {
+    id,
+    placedAt,
+    status,
+    lines,
+    totalPrice,
+    currency,
+};
+```
+
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

@@ -1,12 +1,16 @@
 package org.flexstore.infra.spring.config
 
 import org.flexstore.domain.repository.CartRepository
+import org.flexstore.domain.order.OrderRepository
 import org.flexstore.domain.repository.ProductRepository
 import org.flexstore.domain.usecase.basket.AddItemToCartUseCase
 import org.flexstore.domain.usecase.basket.CartUseCaseFacade
 import org.flexstore.domain.usecase.basket.ChangeCartItemQuantityUseCase
 import org.flexstore.domain.usecase.basket.MergeCartsUseCase
 import org.flexstore.domain.usecase.basket.ReadCartUseCase
+import org.flexstore.domain.order.OrderUseCaseFacade
+import org.flexstore.domain.order.PlaceOrderUseCase
+import org.flexstore.domain.order.ReadOrdersUseCase
 import org.flexstore.domain.usecase.product.CreateProductUseCase
 import org.flexstore.domain.usecase.product.ProductUseCaseFacade
 import org.flexstore.domain.usecase.product.ReadProductUseCase
@@ -58,5 +62,20 @@ open class UseCaseConfig {
     @Bean
     open fun mergeCartsUseCase(cartRepository: CartRepository): MergeCartsUseCase {
         return MergeCartsUseCase(cartRepository)
+    }
+
+    @Bean
+    open fun orderUseCaseFacade(placeOrderUseCase: PlaceOrderUseCase, readOrdersUseCase: ReadOrdersUseCase): OrderUseCaseFacade {
+        return OrderUseCaseFacade(placeOrderUseCase, readOrdersUseCase)
+    }
+
+    @Bean
+    open fun placeOrderUseCase(cartRepository: CartRepository, orderRepository: OrderRepository): PlaceOrderUseCase {
+        return PlaceOrderUseCase(cartRepository, orderRepository)
+    }
+
+    @Bean
+    open fun readOrdersUseCase(orderRepository: OrderRepository): ReadOrdersUseCase {
+        return ReadOrdersUseCase(orderRepository)
     }
 }

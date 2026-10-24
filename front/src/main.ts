@@ -25,7 +25,7 @@ const pinia = createPinia();
 const routes = [
   { path: '/', component: Home },
   { path: '/cart', component: Cart },
-  { path: '/orders', component: Orders },
+  { path: '/orders', component: Orders, meta: { requiresAuth: true } },
   { path: '/user-profile', component: UserProfile },
   { path: '/products/', component: Products },
   { path: '/products/clothing', component: Products, props: { category: 'CLOTHING' } },

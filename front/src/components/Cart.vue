@@ -1,13 +1,39 @@
 <script setup lang="ts">
-  import { computed, onMounted } from 'vue';
+  import { computed, onMounted, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
+  import { useRouter } from 'vue-router';
+  import { useAuthStore } from '@/stores/auth.store';
   import { useCartStore } from '@/stores/cart.store';
+  import { useOrdersStore } from '@/stores/orders.store';
   import type { Item } from '@/models/cart';
   import CartLine from '@/components/cart/CartLine.vue';
   import { formatPrice } from '@/utils/price';
 
   const cartStore = useCartStore();
+  const authStore = useAuthStore();
+  const ordersStore = useOrdersStore();
+  const router = useRouter();
   const { t, locale } = useI18n();
+
+  const placingOrder = ref(false);
+  const orderError = ref(false);
+
+  // A visitor signs in first and comes back to the cart, whose items are kept (merged into the account cart)
+  async function placeOrder() {
+    if (!authStore.isAuthenticated) {
+      router.push({ path: '/login', query: { redirect: '/cart' } });
+      return;
+    }
+    placingOrder.value = true;
+    orderError.value = false;
+    const result = await ordersStore.placeOrder();
+    placingOrder.value = false;
+    if (result.status === 'placed') {
+      router.push({ path: '/orders', query: { placed: result.order.id } });
+    } else {
+      orderError.value = true;
+    }
+  }
 
   onMounted(() => {
     cartStore.fetchCartItems();
@@ -69,6 +95,23 @@
             <v-spacer />
             <span class="text-h5 font-weight-bold">{{ total }}</span>
           </div>
+          <v-alert v-if="orderError" type="error" variant="tonal" density="compact" class="mb-4">
+            {{ t('cart.orderError') }}
+          </v-alert>
+          <v-btn
+            color="secondary"
+            size="large"
+            block
+            class="mb-3"
+            prepend-icon="mdi-check"
+            :loading="placingOrder"
+            @click="placeOrder"
+          >
+            {{ t('cart.placeOrder') }}
+          </v-btn>
+          <p v-if="!authStore.isAuthenticated" class="text-caption text-medium-emphasis text-center mb-3">
+            {{ t('cart.signInToOrder') }}
+          </p>
           <v-btn to="/products/" variant="outlined" color="primary" block prepend-icon="mdi-arrow-left">
             {{ t('cart.continue') }}
           </v-btn>

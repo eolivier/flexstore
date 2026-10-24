@@ -65,6 +65,12 @@ data class Cart(val owner: CartOwner, val items: List<Item> = emptyList()) {
 
     fun findBy(productId: ProductId): Item? = items.firstOrNull { productIdOf(it) == productId }
 
+    fun isEmpty() = items.isEmpty()
+
+    fun hasItems() = items.isNotEmpty()
+
+    fun emptied() = copy(items = emptyList())
+
     fun toItems() = Items(items)
 
     private fun productIdOf(item: Item): ProductId? = when (item) {

@@ -1,0 +1,94 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { setActivePinia, createPinia } from 'pinia';
+import { useOrdersStore } from './orders.store';
+import { useAuthStore } from './auth.store';
+
+const mockFetch = vi.fn();
+vi.stubGlobal('fetch', mockFetch);
+
+const order = {
+  id: '3f2b8c1e-0000-0000-0000-000000000000',
+  placedAt: '2026-10-24T10:00:00Z',
+  status: 'PROCESSING',
+  lines: [{ productId: '6', productName: 'Laptop', unitPrice: 799, quantity: 1, linePrice: 799 }],
+  totalPrice: 799,
+  currency: '€',
+};
+const emptyCart = { items: [], totalItemsPrice: 0, itemsCurrency: '€' };
+
+// Answers each API call by method and path
+function respondWith(responses: Record<string, { status: number; body?: unknown }>) {
+  mockFetch.mockImplementation((url: string, init?: RequestInit) => {
+    const key = Object.keys(responses).find(k => {
+      const [method, path] = k.split(' ');
+      return (init?.method ?? 'GET') === method && url.endsWith(path);
+    });
+    const { status, body } = key ? responses[key] : { status: 404, body: undefined };
+    return Promise.resolve({ ok: status < 300, status, json: () => Promise.resolve(body) });
+  });
+}
+
+async function signIn() {
+  respondWith({
+    'POST /api/users/login': {
+      status: 200,
+      body: { token: 'jwt-token', expiresAt: '2030-01-01T00:00:00Z', user: { id: 'u-1', name: 'John', email: 'john@example.com', role: 'USER' } },
+    },
+  });
+  await useAuthStore().login('john@example.com', 'secret');
+}
+
+describe('orders.store', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia());
+    mockFetch.mockReset();
+    localStorage.clear();
+  });
+
+  it('should load the orders of the signed-in customer', async () => {
+    // Arrange
+    await signIn();
+    respondWith({ 'GET /api/orders': { status: 200, body: [order] } });
+    const store = useOrdersStore();
+    // Act
+    await store.fetchOrders();
+    // Assert
+    expect(store.orders).toEqual([order]);
+    const [, init] = mockFetch.mock.calls.find(([url]) => url.endsWith('/api/orders'))!;
+    expect(new Headers(init.headers).get('Authorization')).toBe('Bearer jwt-token');
+  });
+
+  it('should place an order and reload the emptied cart', async () => {
+    // Arrange
+    await signIn();
+    respondWith({ 'POST /api/orders': { status: 201, body: order }, 'GET /api/cart/cart-items': { status: 200, body: emptyCart } });
+    const store = useOrdersStore();
+    // Act
+    const result = await store.placeOrder();
+    // Assert
+    expect(result).toEqual({ status: 'placed', order });
+    expect(mockFetch.mock.calls.some(([url]) => url.endsWith('/api/cart/cart-items'))).toBe(true);
+  });
+
+  it('should report an empty cart', async () => {
+    // Arrange
+    await signIn();
+    respondWith({ 'POST /api/orders': { status: 422 } });
+    const store = useOrdersStore();
+    // Act
+    const result = await store.placeOrder();
+    // Assert
+    expect(result).toEqual({ status: 'emptyCart' });
+  });
+
+  it('should report a loading error', async () => {
+    // Arrange
+    await signIn();
+    respondWith({ 'GET /api/orders': { status: 500 } });
+    const store = useOrdersStore();
+    // Act
+    await store.fetchOrders();
+    // Assert
+    expect(store.loadError).toBe(true);
+  });
+});
