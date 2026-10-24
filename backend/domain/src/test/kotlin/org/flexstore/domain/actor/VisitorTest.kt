@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*
 import java.math.BigDecimal
 
-class GuestTest {
+class VisitorTest {
 
     @Test
     fun `should perform add item to cart use case`() {
@@ -30,9 +30,9 @@ class GuestTest {
         val owner = CartOwner.Visitor(VisitorCartId.nextId())
         val cartRepository = InMemoryCartRepository()
         val addItemToCartUseCase = AddItemToCartUseCase(cartRepository, InMemoryProductRepository().apply { save(product) })
-        val guest = Guest(addItemToCartUseCase)
+        val visitor = Visitor(addItemToCartUseCase)
         // Act
-        guest.performAddItemToCart(AddItemToCartRequest(owner, product.productId, Quantity(1)))
+        visitor.performAddItemToCart(AddItemToCartRequest(owner, product.productId, Quantity(1)))
         // Assert
         assertThat(cartRepository.load(owner).findBy(product.productId)).isNotNull
     }
