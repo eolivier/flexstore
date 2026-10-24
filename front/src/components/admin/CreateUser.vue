@@ -73,9 +73,12 @@
         />
         <PasswordField v-model="password" :label="t('createUser.password')" :rules="[rules.required, rules.passwordLength]" class="mb-4" />
         <UserRoleField v-model="role" />
-        <v-btn type="submit" color="primary" size="large" block :loading="saving" :disabled="!valid">
-          {{ t('createUser.label') }}
-        </v-btn>
+        <div class="d-flex ga-3">
+          <v-btn to="/admin/users" variant="outlined" color="primary" size="large" class="flex-grow-1">{{ t('createUser.cancel') }}</v-btn>
+          <v-btn type="submit" color="primary" size="large" class="flex-grow-1" :loading="saving" :disabled="!valid">
+            {{ t('createUser.label') }}
+          </v-btn>
+        </div>
       </v-form>
     </v-card>
     <v-snackbar v-model="feedback.show" :color="feedback.success ? 'primary' : 'error'" timeout="3000" location="bottom right">
