@@ -276,6 +276,7 @@ export default {
       pay: 'Pay the order',
       paymentError: 'The payment could not start. Please try again.',
       awaitingPaymentText: 'This order awaits its payment.',
+      payBefore: 'Pay it before {deadline}: after that, the order is cancelled and its items go back on sale.',
       cancelledText:
         'This order was cancelled because it was not paid in time. Your cart still holds its items: you can order again.',
       orderAgain: 'Go to my cart',
@@ -739,6 +740,8 @@ export default {
       pay: 'Payer la commande',
       paymentError: "Le paiement n'a pas pu démarrer. Veuillez réessayer.",
       awaitingPaymentText: 'Cette commande attend son paiement.',
+      payBefore:
+        'À payer avant le {deadline} : passé ce délai, la commande est annulée et ses articles sont remis en vente.',
       cancelledText:
         "Cette commande a été annulée car elle n'a pas été payée à temps. Votre panier contient toujours ses articles : vous pouvez commander à nouveau.",
       orderAgain: 'Voir mon panier',

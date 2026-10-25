@@ -7,6 +7,7 @@ import org.flexstore.domain.order.*
 import org.flexstore.domain.order.usecase.*
 import org.flexstore.domain.payment.*
 import org.flexstore.domain.product.*
+import org.flexstore.domain.settings.ReadShopSettingsUseCase
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.infra.repository.*
@@ -41,7 +42,9 @@ class PaymentServiceTest : WithAssertions {
         val paymentUseCases = PaymentUseCases(startPaymentUseCase, confirmPaymentUseCase, readPaymentUseCase)
         val placeOrderUseCase =
             PlaceOrderUseCase(cartRepository, orderRepository, userRepository, stockRepository)
-        val orderUseCases = OrderUseCases(placeOrderUseCase, readOrdersUseCase, sendEmailUseCase)
+        val readShopSettingsUseCase = ReadShopSettingsUseCase(shopSettingsRepository)
+        val orderUseCases =
+            OrderUseCases(placeOrderUseCase, readOrdersUseCase, sendEmailUseCase, readShopSettingsUseCase)
         return PaymentService(paymentUseCases, orderUseCases)
     }
 

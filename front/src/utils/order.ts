@@ -17,6 +17,17 @@ export function placedOn(order: JsonOrder, locale: string): string {
   });
 }
 
+// The day and the time the order must be paid by, while it awaits its payment (null otherwise)
+export function paymentDeadline(order: JsonOrder, locale: string): string | null {
+  if (!order.paymentDeadline) return null;
+  return new Date(order.paymentDeadline).toLocaleString(locale, {
+    day: 'numeric',
+    month: 'long',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
 // full: every step with its label (order detail);
 // compact: smaller markers, only the current step labelled (orders list)
 export type OrderStepsLayout = 'full' | 'compact';

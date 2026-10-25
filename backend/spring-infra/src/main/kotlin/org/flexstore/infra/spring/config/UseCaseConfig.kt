@@ -188,8 +188,14 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     @Bean
     open fun orderUseCases(placeOrderUseCase: PlaceOrderUseCase,
                            readOrdersUseCase: ReadOrdersUseCase,
-                           sendOrderConfirmationEmailUseCase: SendOrderConfirmationEmailUseCase) =
-        OrderUseCases(placeOrderUseCase, readOrdersUseCase, sendOrderConfirmationEmailUseCase)
+                           sendOrderConfirmationEmailUseCase: SendOrderConfirmationEmailUseCase,
+                           readShopSettingsUseCase: ReadShopSettingsUseCase) =
+        OrderUseCases(
+            placeOrderUseCase,
+            readOrdersUseCase,
+            sendOrderConfirmationEmailUseCase,
+            readShopSettingsUseCase
+        )
 
     @Bean
     open fun readStockUseCase(stockRepository: StockRepository) = ReadStockUseCase(stockRepository)

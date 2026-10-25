@@ -1,6 +1,14 @@
-import { describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { JsonOrder } from '@/generated';
-import { hasNextStatus, nextStatus, orderItemsCount, orderNumber, orderStepState, placedOn } from './order';
+import {
+  hasNextStatus,
+  nextStatus,
+  orderItemsCount,
+  orderNumber,
+  orderStepState,
+  paymentDeadline,
+  placedOn,
+} from './order';
 import { twoLinesOrder } from '@/components/orders/orderFixture';
 
 const order: JsonOrder = {
@@ -11,6 +19,14 @@ const order: JsonOrder = {
 };
 
 describe('order utils', () => {
+  // The times are shown in the time zone of the browser: the tests fix it
+  beforeAll(() => {
+    vi.stubEnv('TZ', 'UTC');
+  });
+  afterAll(() => {
+    vi.unstubAllEnvs();
+  });
+
   it('the order number is the beginning of the id, in capitals', () => {
     // Act
     const number = orderNumber(order);
@@ -26,6 +42,29 @@ describe('order utils', () => {
     const date = placedOn(order, locale);
     // Assert
     expect(date).toBe(expected);
+  });
+
+  it.each([
+    { locale: 'fr', expected: '24 octobre à 10:10' },
+    { locale: 'en', expected: 'October 24 at 10:10 AM' },
+  ])('the payment deadline in $locale is "$expected"', ({ locale, expected }) => {
+    // Arrange
+    const awaitingOrder: JsonOrder = {
+      ...order,
+      status: 'AWAITING_PAYMENT',
+      paymentDeadline: '2026-10-24T10:10:00Z',
+    };
+    // Act
+    const deadline = paymentDeadline(awaitingOrder, locale);
+    // Assert
+    expect(deadline).toBe(expected);
+  });
+
+  it('an order without payment deadline has none to show', () => {
+    // Act
+    const deadline = paymentDeadline(order, 'fr');
+    // Assert
+    expect(deadline).toBeNull();
   });
 
   it.each([
