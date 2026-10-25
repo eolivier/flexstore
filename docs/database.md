@@ -2,7 +2,12 @@
 
 The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V17**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
 
+![Physical data model](database.png)
+
+The image is generated from the diagram below by `docs/render-database-diagram.sh`.
+
 ```mermaid
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#DBEAFE", "primaryTextColor": "#111827", "primaryBorderColor": "#1D4ED8", "lineColor": "#374151", "secondaryColor": "#F3F4F6", "tertiaryColor": "#FFFFFF", "attributeBackgroundColorOdd": "#FFFFFF", "attributeBackgroundColorEven": "#F1F5F9"}}}%%
 erDiagram
     user {
         varchar(50) id PK
