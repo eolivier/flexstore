@@ -17,6 +17,7 @@ data class EmailVerificationEntity(
     @Column(name = "user_id", nullable = false, updatable = false)
     val userId: String,
 
-    @Column(name = "expires_at", nullable = false, updatable = false)
+    // Brought forward when a newer link is sent
+    @Column(name = "expires_at", nullable = false)
     val expiresAt: Instant
 ) : TimestampedEntity()

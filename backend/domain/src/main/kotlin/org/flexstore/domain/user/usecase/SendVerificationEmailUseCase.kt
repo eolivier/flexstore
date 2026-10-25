@@ -10,7 +10,7 @@ import java.time.Instant
 data class VerificationEmailRequest(val userId: UserId, val requestedAt: Instant)
 
 // Sends a verification link, valid for 1 hour, to a customer whose email is not verified yet;
-// a new link replaces the previous ones
+// a new link expires the previous ones: opening one of them tells the customer it has expired
 class SendVerificationEmailUseCase(
     private val userRepository: UserRepository,
     private val emailRepository: EmailRepository,
@@ -24,7 +24,7 @@ class SendVerificationEmailUseCase(
         NominalScenario(Step { request ->
             val user = user(request.userId)
             val verification = EmailVerification.requestedAt(user.id, request.requestedAt)
-            emailRepository.deleteAllVerificationsOf(user.id)
+            emailRepository.expireAllVerificationsOf(user.id, ExpirationDate(request.requestedAt))
             emailRepository.save(verification)
             emailRepository.send(EmailVerificationLink(user.email, user.fullName, verificationPage, verification.token, verification.expiresAt))
         })

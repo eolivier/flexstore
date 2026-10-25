@@ -37,6 +37,10 @@ class EmailRepositoryAdapter(
         jpaVerifications.findByTokenHash(hash(token))
             ?.let { EmailVerification(UserId.ValidUserId(it.userId), token, ExpirationDate(it.expiresAt)) }
 
+    override fun expireAllVerificationsOf(userId: UserId, expiration: ExpirationDate) {
+        jpaVerifications.expireAllByUserId(userId.value, expiration.value)
+    }
+
     override fun deleteAllVerificationsOf(userId: UserId) {
         jpaVerifications.deleteAllByUserId(userId.value)
     }

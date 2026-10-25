@@ -11,6 +11,9 @@ interface EmailRepository {
     fun save(verification: EmailVerification)
     fun findBy(token: VerificationToken): EmailVerification?
     fun isUnknown(token: VerificationToken): Boolean = findBy(token) == null
-    // A new link replaces the previous ones, and a verified email needs no link any more
+    // The links of the user expire at the given date, unless they already expired before
+    fun expireAllVerificationsOf(userId: UserId, expiration: ExpirationDate)
+
+    // A verified email needs no link any more
     fun deleteAllVerificationsOf(userId: UserId)
 }
