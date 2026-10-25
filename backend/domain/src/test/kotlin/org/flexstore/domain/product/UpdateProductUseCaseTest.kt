@@ -14,7 +14,9 @@ class UpdateProductUseCaseTest : WithAssertions {
 
     private val productRepository = InMemoryProductRepository()
     private val useCase = UpdateProductUseCase(productRepository)
-    private val facade = ProductUseCaseFacade(CreateProductUseCase(productRepository), ReadProductUseCase(productRepository), useCase)
+    private val readProductUseCase = ReadProductUseCase(productRepository)
+    private val createProductUseCase = CreateProductUseCase(productRepository)
+    private val productUseCases = ProductUseCases(createProductUseCase, readProductUseCase, useCase)
 
     companion object {
         private val tShirt = clothes.first()
@@ -59,11 +61,11 @@ class UpdateProductUseCaseTest : WithAssertions {
     }
 
     @Test
-    fun `the facade should return the edited product`() {
+    fun `the product use cases should return the edited product`() {
         // Arrange
         val editedProduct = tShirt.copy(name = Name("Linen T-shirt"))
         // Act
-        val returnedProduct = facade.updateProduct(editedProduct)
+        val returnedProduct = productUseCases.updateProduct(editedProduct)
         // Assert
         assertThat(returnedProduct).isEqualTo(editedProduct)
     }

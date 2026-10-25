@@ -26,7 +26,7 @@ const val CART_ID_HEADER = "X-Cart-Id"
 @Tag(name = "Cart")
 @RestController
 @RequestMapping("/api/cart")
-class CartController(private val cartUseCaseFacade: CartUseCaseFacade) {
+class CartController(private val cartUseCases: CartUseCases) {
 
     @Operation(summary = "Retrieve the items of the cart of the customer or of the visitor")
     @GetMapping("/cart-items")
@@ -35,7 +35,7 @@ class CartController(private val cartUseCaseFacade: CartUseCaseFacade) {
         @RequestHeader(CART_ID_HEADER, required = false) cartId: String?
     ): JsonCartItems {
         val owner = customer(jwt) ?: visitor(cartId) ?: return JsonCartItems(emptyList(), BigDecimal.ZERO, "€")
-        return cartUseCaseFacade.getCart(owner).items.toJsonCartItems()
+        return cartUseCases.getCart(owner).items.toJsonCartItems()
     }
 
     @Operation(summary = "Add an item to the cart, or change the quantity of an item (0 removes it)",
@@ -49,9 +49,10 @@ class CartController(private val cartUseCaseFacade: CartUseCaseFacade) {
         val owner = customer(jwt) ?: visitor(cartId) ?: CartOwner.Visitor(VisitorCartId.nextId())
         val quantity = Quantity(jsonItem.productQuantity)
         if (ItemId.isValid(jsonItem.itemId)) {
-            cartUseCaseFacade.changeQuantity(ChangeCartItemQuantityRequest(owner, ItemId(Identity(jsonItem.itemId!!)), quantity))
+            val itemId = ItemId(Identity(jsonItem.itemId!!))
+            cartUseCases.changeQuantity(ChangeCartItemQuantityRequest(owner, itemId, quantity))
         } else {
-            cartUseCaseFacade.addItem(AddItemToCartRequest(owner, ProductId(Identity(jsonItem.productId)), quantity))
+            cartUseCases.addItem(AddItemToCartRequest(owner, ProductId(Identity(jsonItem.productId)), quantity))
         }
         return JsonSaveItemResponse("ok", (owner as? CartOwner.Visitor)?.cartId?.value)
     }
@@ -64,7 +65,7 @@ class CartController(private val cartUseCaseFacade: CartUseCaseFacade) {
         @RequestHeader(CART_ID_HEADER, required = false) cartId: String?
     ) {
         val visitor = visitor(cartId) ?: return
-        cartUseCaseFacade.mergeCarts(MergeCartsRequest(visitor, customer(jwt)!!))
+        cartUseCases.mergeCarts(MergeCartsRequest(visitor, customer(jwt)!!))
     }
 
     private fun customer(jwt: Jwt?) = jwt?.let { CartOwner.Customer(UserId.ValidUserId(it.subject)) }

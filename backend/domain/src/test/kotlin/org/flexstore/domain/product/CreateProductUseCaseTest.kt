@@ -10,7 +10,9 @@ class CreateProductUseCaseTest : WithAssertions {
 
     private val productRepository = InMemoryProductRepository()
     private val useCase = CreateProductUseCase(productRepository)
-    private val facade = ProductUseCaseFacade(useCase, ReadProductUseCase(productRepository), UpdateProductUseCase(productRepository))
+    private val readProductUseCase = ReadProductUseCase(productRepository)
+    private val updateProductUseCase = UpdateProductUseCase(productRepository)
+    private val productUseCases = ProductUseCases(useCase, readProductUseCase, updateProductUseCase)
     private val lamp = DraftProduct(Name("Desk lamp"), Description("Warm light"), Category.HOME, Price(Amount(BigDecimal(35)), Currency.EUR))
     private val mug = DraftProduct(Name("Mug"), Description("Ceramic"), Category.HOME, Price(Amount(BigDecimal(12)), Currency.EUR))
 
@@ -35,11 +37,11 @@ class CreateProductUseCaseTest : WithAssertions {
     }
 
     @Test
-    fun `each creation through the shared facade should return its own product`() {
+    fun `each creation through the shared product use cases should return its own product`() {
         // Arrange
-        val createdLamp = facade.createProduct(lamp)
+        val createdLamp = productUseCases.createProduct(lamp)
         // Act
-        val createdMug = facade.createProduct(mug)
+        val createdMug = productUseCases.createProduct(mug)
         // Assert
         assertThat(createdLamp.name).isEqualTo(Name("Desk lamp"))
         assertThat(createdMug.name).isEqualTo(Name("Mug"))

@@ -9,7 +9,7 @@ import org.flexstore.domain.payment.*
 // All through the use cases
 class PaymentService(
     private val paymentUseCases: PaymentUseCases,
-    private val paidOrderUseCases: PaidOrderUseCases
+    private val orderUseCases: OrderUseCases
 ) {
     fun pay(orderPayment: OrderPayment): PaymentSession {
         paymentUseCases.startPaymentUseCase.unfold(orderPayment)
@@ -20,11 +20,11 @@ class PaymentService(
 
     // The provider may notify the same payment several times: an order already paid stays as it is
     fun confirm(orderId: OrderId) {
-        val order = paidOrderUseCases.readOrdersUseCase.getAnyOrder(orderId)
+        val order = orderUseCases.getAnyOrder(orderId)
         if (order.isPaid()) return
         paymentUseCases.confirmPaymentUseCase.unfold(orderId)
-        val paidOrder = paidOrderUseCases.readOrdersUseCase.getAnyOrder(orderId)
-        paidOrderUseCases.sendOrderConfirmationEmailUseCase.unfold(paidOrder)
+        val paidOrder = orderUseCases.getAnyOrder(orderId)
+        orderUseCases.sendConfirmationOf(paidOrder)
     }
 }
 
@@ -33,10 +33,4 @@ data class PaymentUseCases(
     val startPaymentUseCase: StartPaymentUseCase,
     val confirmPaymentUseCase: ConfirmPaymentUseCase,
     val readPaymentUseCase: ReadPaymentUseCase
-)
-
-// The use cases of the order that the payment needs: reading it, confirming it to the customer
-data class PaidOrderUseCases(
-    val readOrdersUseCase: ReadOrdersUseCase,
-    val sendOrderConfirmationEmailUseCase: SendOrderConfirmationEmailUseCase
 )
