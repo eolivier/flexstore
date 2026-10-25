@@ -77,15 +77,14 @@ class PostgresOrderRepositoryAdapter(
         val orderStamp = OrderStamp(OrderId(id), placedAt)
         val orderAddresses = OrderAddresses(deliveryAddress.toDomain(), billingAddress.toDomain())
         val checkout = Checkout(CartOwner.Customer(UserId.ValidUserId(userId)), orderAddresses)
-        val orderLines = OrderLines(lines.map {
-            OrderLine(
-                productId = ProductId(Identity(it.productId)),
-                productName = Name(it.productName),
-                unitPrice = Price(Amount(it.unitPrice), Currency.valueOf(it.currency)),
-                quantity = Quantity(it.quantity)
-            )
-        })
+        val orderLines = OrderLines(lines.map { it.toDomain() })
         val orderDetail = OrderDetail(OrderPlacement(orderStamp, checkout), orderLines)
         return Order(orderDetail, OrderStatus.valueOf(status))
+    }
+
+    private fun OrderLineEntity.toDomain(): OrderLine {
+        val orderedProduct = OrderedProduct(ProductId(Identity(productId)), Name(productName))
+        val unitPrice = Price(Amount(unitPrice), Currency.valueOf(currency))
+        return OrderLine(PricedProduct(orderedProduct, unitPrice), Quantity(quantity))
     }
 }

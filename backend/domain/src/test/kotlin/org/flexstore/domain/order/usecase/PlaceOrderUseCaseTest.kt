@@ -38,7 +38,7 @@ class PlaceOrderUseCaseTest : WithAssertions {
         useCase.unfold(orderPlacement)
         // Assert
         val order = orderRepository.findById(OrderId("order-1"))
-        assertThat(order?.lines?.asList()).containsExactly(OrderLine(deskLamp.productId, Name("Desk lamp"), deskLamp.price, Quantity(2)))
+        assertThat(order?.lines?.asList()).containsExactly(OrderLine.of(deskLamp, Quantity(2)))
     }
 
     @Test

@@ -56,17 +56,30 @@ data class LegalEntity(val company: Company, val contact: FullName) : Recipient 
     override fun isComplete() = company.isComplete()
 }
 
-// Where an address is: the complement is optional
-data class Location(
-    val street: Street,
-    val complement: AddressComplement?,
-    val postalCode: PostalCode,
-    val city: City,
-    val country: Country
-) {
-    // An address without complement (building, floor...)
-    constructor(street: Street, postalCode: PostalCode, city: City, country: Country) :
-        this(street, null, postalCode, city, country)
+// The street of an address, with its complement (building, floor...) when there is one
+data class StreetAddress(val street: Street, val complement: AddressComplement?) {
+    // An address without complement
+    constructor(street: Street) : this(street, null)
+}
+
+// The town of an address: its postal code and its city
+data class Town(val postalCode: PostalCode, val city: City)
+
+// The town of an address and its country
+data class Locality(val town: Town, val country: Country)
+
+// Where an address is: its street (the complement is optional), then its town and its country
+data class Location(val streetAddress: StreetAddress, val locality: Locality) {
+
+    val street get() = streetAddress.street
+
+    val complement get() = streetAddress.complement
+
+    val postalCode get() = locality.town.postalCode
+
+    val city get() = locality.town.city
+
+    val country get() = locality.country
 
     fun isComplete() = listOf(street.value, postalCode.value, city.value, country.value).none { it.isBlank() }
 }
