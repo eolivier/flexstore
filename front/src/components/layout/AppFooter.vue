@@ -1,9 +1,11 @@
 <script setup>
   import { useI18n } from 'vue-i18n';
   import { shopLinks } from '../menu/navigation';
+  import { useAuthStore } from '@/stores/auth.store';
 
   const { t } = useI18n();
   const year = new Date().getFullYear();
+  const authStore = useAuthStore();
 </script>
 
 <template>
@@ -35,12 +37,14 @@
           <router-link to="/about" class="footer-link d-block text-body-2 mb-1">{{
             t('nav.about')
           }}</router-link>
-          <router-link to="/orders" class="footer-link d-block text-body-2 mb-1">{{
-            t('nav.orders')
-          }}</router-link>
-          <router-link to="/user-profile" class="footer-link d-block text-body-2 mb-1">{{
-            t('nav.account')
-          }}</router-link>
+          <template v-if="authStore.isAuthenticated">
+            <router-link to="/orders" class="footer-link d-block text-body-2 mb-1">{{
+              t('nav.orders')
+            }}</router-link>
+            <router-link to="/user-profile" class="footer-link d-block text-body-2 mb-1">{{
+              t('nav.account')
+            }}</router-link>
+          </template>
         </v-col>
       </v-row>
       <v-divider class="my-6" />
