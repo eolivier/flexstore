@@ -1,6 +1,6 @@
 ---
 name: fluent-code-reading-semantic
-description: Principles that make code read like the business language - wrapping collections in their own class, naming boolean methods affirmatively, naming variables after their type, intermediate variables, strong types rather than nullable ones. Use before writing, changing or reviewing domain or application code (entities, value objects, aggregates, use cases), in any language.
+description: Principles that make code read like the business language - wrapping collections in their own class, naming boolean methods affirmatively, naming variables after their type, intermediate variables, strong types rather than nullable ones, one or two arguments per method. Use before writing, changing or reviewing domain or application code (entities, value objects, aggregates, use cases), in any language.
 ---
 
 # Fluent code reading semantic
@@ -257,3 +257,28 @@ Details:
 - Do not make a property nullable to support old data: migrate the data (see the `database-convention` skill) so that the type stays strong.
 - A real absence is named: `PostalAddresses.none()`, `User.UndefinedUser`, rather than `null`.
 - Nullable types remain where a framework imposes them (an optional JSON field, a nullable column of a JPA entity mapped from an optional value): convert them at the boundary, in the adapter.
+
+## 10. One argument per method and constructor, two at most
+
+A method or a constructor ideally takes a single argument, two at most. When it needs more values, group the ones that go together into an intermediate class named after the business concept, and pass that class.
+
+Avoid:
+
+```kotlin
+val user = User(userId, firstName, lastName)
+```
+
+Prefer:
+
+```kotlin
+val fullName = FullName(firstName, lastName)
+val user = User(userId, fullName)
+```
+
+Why: each argument is one concept that reads at once; the intermediate class names what the values form together (a full name, an address, a placement), holds their rules (`FullName.isComplete()`), and can be passed on without spreading its parts across the signatures.
+
+Details:
+- Look for values that always travel together (a first name and a last name, a street and a city, an amount and a currency): they are a value object (`FullName`, `PostalAddress`, `Price`).
+- The intermediate class is built in its own variable before the call (principle 8), so that the call reads with its business arguments.
+- A class may still have more properties than that, built from such intermediate classes; the rule bounds what each call has to pass.
+- An existing signature with more arguments is pointed out in reviews, and changed when the code is changed anyway; a JPA entity or a JSON class mapping each column or field keeps one property per column.
