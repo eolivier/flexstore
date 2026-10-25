@@ -18,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -184,6 +185,20 @@ class AccountIT {
         val response = mockMvc.perform(post("/api/accounts/me/verification-email"))
         // Assert
         response.andExpect(status().isUnauthorized)
+    }
+
+    @Test
+    fun `the signed-in customer should read their account, with their phone number and postal address`() {
+        // Arrange
+        register(registration()).andExpect(status().isCreated)
+        val customerId = userRepository.findByEmail(CUSTOMER_EMAIL)!!.id
+        // Act
+        val response = mockMvc.perform(get("/api/accounts/me").with(asUser(customerId)))
+        // Assert
+        response.andExpect(status().isOk)
+            .andExpect(jsonPath("\$.phoneNumber").value("+33 6 12 34 56 78"))
+            .andExpect(jsonPath("\$.postalAddresses[0].city").value("Paris"))
+            .andExpect(jsonPath("\$.password").doesNotExist())
     }
 
     private fun lastToken() = emailSender.sentVerificationLinks().last().token.value

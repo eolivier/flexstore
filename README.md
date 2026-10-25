@@ -27,7 +27,7 @@ This repo is meant to be a learning vehicle and a ready-to-fork base for real pr
 - Cart: quantity per line, remove, total, item count badge in the header; one cart per visitor and per customer, merged at sign-in
 
 **Orders** (sign-in required)
-- Place an order from the cart: the order keeps the name and the price of the products, the cart is emptied, and a confirmation email is sent to the customer (can be turned off in the administration settings)
+- Place an order from the cart, on a checkout page: the customer chooses the delivery address and the billing address (the same by default) among their addresses or enters another one, which is added to their addresses; the order refers to both addresses and keeps the name and the price of the products, the cart is emptied, and a confirmation email is sent to the customer (can be turned off in the administration settings)
 - Orders page: the customer's orders, newest first, with their status and total
 - Order detail: date, status, lines (product, unit price, quantity, total) and order total; shown right after the order is placed
 
@@ -165,13 +165,14 @@ npm run gen:api
 | `GET` | `/api/cart/cart-items` | public | Items and total of the cart of the customer (token) or of the visitor (`X-Cart-Id`) |
 | `POST` | `/api/cart/save` | public | Add or update a cart item (quantity `0` removes it); returns the visitor cart id |
 | `POST` | `/api/cart/merge` | signed in | Merge the visitor cart (`X-Cart-Id`) into the customer cart |
-| `POST` | `/api/orders` | signed in | Place an order from the cart of the customer, then empty the cart (`422` if the cart is empty) |
+| `POST` | `/api/orders` | signed in | Place an order from the cart of the customer, with `{ deliveryAddress, billingAddress? }` (the delivery address when no billing address), then empty the cart (`400` incomplete address, `422` empty cart) |
 | `GET` | `/api/orders` | signed in | Orders of the customer, newest first |
 | `GET` | `/api/orders/{id}` | signed in | One order of the customer (`404` for the order of another customer) |
 | `GET` | `/api/admin/settings` | `ADMIN` | Settings of the shop (`orderConfirmationEmail`: `ENABLED` / `DISABLED`) |
 | `POST` | `/api/admin/settings/order-confirmation-email/enable` | `ADMIN` | Send a confirmation email when an order is placed |
 | `POST` | `/api/admin/settings/order-confirmation-email/disable` | `ADMIN` | Stop sending the order confirmation email |
 | `POST` | `/api/accounts` | public | Create the account of a customer, status `PENDING_VERIFICATION` and send a verification link valid for 1 hour (`409` if the email is used, `422` if a field is missing or the password is too short) |
+| `GET` | `/api/accounts/me` | signed in | The account of the signed-in user, with their phone number and postal addresses |
 | `POST` | `/api/accounts/email-verification` | public | Verify the email with the token of the link: the account becomes `ACTIVE` (`404` unknown or used link, `410` link older than 1 hour) |
 | `POST` | `/api/accounts/me/verification-email` | signed in | Send a new verification link; the previous ones stop working (`409` if already verified) |
 | `POST` | `/api/users/login` | public | Sign in: returns a token and the user (`401` on wrong credentials) |

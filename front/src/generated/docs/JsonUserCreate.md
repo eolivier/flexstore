@@ -5,7 +5,8 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**name** | **string** |  | [default to undefined]
+**firstName** | **string** |  | [default to undefined]
+**lastName** | **string** |  | [default to undefined]
 **email** | **string** |  | [default to undefined]
 **password** | **string** | User\&#39;s password (will be hashed by the server) | [default to undefined]
 **role** | **string** | Role of the new user (USER when absent) | [optional] [default to undefined]
@@ -16,7 +17,8 @@ Name | Type | Description | Notes
 import { JsonUserCreate } from './api';
 
 const instance: JsonUserCreate = {
-    name,
+    firstName,
+    lastName,
     email,
     password,
     role,

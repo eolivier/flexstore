@@ -72,7 +72,7 @@ class OrderIT {
     @Test
     fun `placing an order should require a signed-in customer`() {
         // Act
-        val response = mockMvc.perform(post("/api/orders"))
+        val response = mockMvc.perform(post("/api/orders").withHomeAddresses())
         // Assert
         response.andExpect(status().isUnauthorized)
     }
@@ -83,7 +83,7 @@ class OrderIT {
         addToCart(CUSTOMER_ID, productId = "6", quantity = 2)
         addToCart(CUSTOMER_ID, productId = "9", quantity = 1)
         // Act
-        val response = mockMvc.perform(post("/api/orders").with(asUser(CUSTOMER_ID)))
+        val response = mockMvc.perform(post("/api/orders").withHomeAddresses().with(asUser(CUSTOMER_ID)))
         // Assert
         response.andExpect(status().isCreated)
             .andExpect(jsonPath("$.id").isNotEmpty)
@@ -101,16 +101,57 @@ class OrderIT {
         // Arrange
         addToCart(CUSTOMER_ID, productId = "6", quantity = 1)
         // Act
-        mockMvc.perform(post("/api/orders").with(asUser(CUSTOMER_ID))).andExpect(status().isCreated)
+        mockMvc.perform(post("/api/orders").withHomeAddresses().with(asUser(CUSTOMER_ID))).andExpect(status().isCreated)
         // Assert
         mockMvc.perform(get("/api/cart/cart-items").with(asUser(CUSTOMER_ID)))
             .andExpect(jsonPath("$.items.length()").value(0))
     }
 
     @Test
+    fun `an order should be billed to its delivery address when no billing address is given`() {
+        // Arrange
+        addToCart(CUSTOMER_ID, productId = "6", quantity = 1)
+        // Act
+        val response = mockMvc.perform(post("/api/orders").withHomeAddresses().with(asUser(CUSTOMER_ID)))
+        // Assert
+        response.andExpect(status().isCreated)
+            .andExpect(jsonPath("$.deliveryAddress.city").value("Paris"))
+            .andExpect(jsonPath("$.deliveryAddress.complement").value("Bâtiment B"))
+            .andExpect(jsonPath("$.billingAddress.city").value("Paris"))
+    }
+
+    @Test
+    fun `an order should keep a billing address different from its delivery address`() {
+        // Arrange
+        addToCart(CUSTOMER_ID, productId = "6", quantity = 1)
+        val addresses = """{"deliveryAddress": {"street": "12 rue des Lilas", "postalCode": "75011", "city": "Paris", "country": "France"},
+            "billingAddress": {"street": "3 place du Marché", "postalCode": "69001", "city": "Lyon", "country": "France"}}"""
+        val orderId = objectMapper.readTree(
+            mockMvc.perform(post("/api/orders").with(asUser(CUSTOMER_ID)).contentType(MediaType.APPLICATION_JSON).content(addresses))
+                .andExpect(status().isCreated).andReturn().response.contentAsString
+        )["id"].asText()
+        // Act
+        val response = mockMvc.perform(get("/api/orders/$orderId").with(asUser(CUSTOMER_ID)))
+        // Assert
+        response.andExpect(jsonPath("$.deliveryAddress.city").value("Paris"))
+            .andExpect(jsonPath("$.billingAddress.city").value("Lyon"))
+    }
+
+    @Test
+    fun `an order should not be placed with an incomplete address`() {
+        // Arrange
+        addToCart(CUSTOMER_ID, productId = "6", quantity = 1)
+        val addresses = """{"deliveryAddress": {"street": "12 rue des Lilas", "postalCode": "75011", "city": "", "country": "France"}}"""
+        // Act
+        val response = mockMvc.perform(post("/api/orders").with(asUser(CUSTOMER_ID)).contentType(MediaType.APPLICATION_JSON).content(addresses))
+        // Assert
+        response.andExpect(status().isBadRequest)
+    }
+
+    @Test
     fun `should not place an order from an empty cart`() {
         // Act
-        val response = mockMvc.perform(post("/api/orders").with(asUser(CUSTOMER_ID)))
+        val response = mockMvc.perform(post("/api/orders").withHomeAddresses().with(asUser(CUSTOMER_ID)))
         // Assert
         response.andExpect(status().isUnprocessableEntity)
     }
@@ -159,7 +200,7 @@ class OrderIT {
 
     private fun placeOrder(customerId: String, productId: String): String {
         addToCart(customerId, productId, quantity = 1)
-        val body = mockMvc.perform(post("/api/orders").with(asUser(customerId)))
+        val body = mockMvc.perform(post("/api/orders").withHomeAddresses().with(asUser(customerId)))
             .andExpect(status().isCreated).andReturn().response.contentAsString
         return objectMapper.readTree(body)["id"].asText()
     }

@@ -7,6 +7,7 @@ All URIs are relative to *http://localhost:8080*
 |[**create**](#create) | **POST** /api/products | Create a product|
 |[**getProduct**](#getproduct) | **GET** /api/products/{id} | Retrieve a product by ID|
 |[**getProducts**](#getproducts) | **GET** /api/products/ | Retrieve all products|
+|[**updateProduct**](#updateproduct) | **PUT** /api/products/{id} | Edit a product (name, description, category, price)|
 
 # **create**
 > JsonProduct create(draftJsonProduct)
@@ -151,6 +152,64 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | Successfully retrieved the list of products |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **updateProduct**
+> JsonProduct updateProduct(editedJsonProduct)
+
+Reserved to an administrator
+
+### Example
+
+```typescript
+import {
+    ProductsApi,
+    Configuration,
+    EditedJsonProduct
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ProductsApi(configuration);
+
+let id: string; // (default to undefined)
+let editedJsonProduct: EditedJsonProduct; //
+
+const { status, data } = await apiInstance.updateProduct(
+    id,
+    editedJsonProduct
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **editedJsonProduct** | **EditedJsonProduct**|  | |
+| **id** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**JsonProduct**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The edited product |  -  |
+|**401** | Not signed in |  -  |
+|**403** | Not an administrator |  -  |
+|**404** | Unknown product |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

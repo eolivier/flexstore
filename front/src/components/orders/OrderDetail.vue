@@ -5,6 +5,7 @@
   import { orderItemsCount, orderNumber, placedOn } from '@/utils/order';
   import OrderStatusSteps from './OrderStatusSteps.vue';
   import OrderLinesTable from './OrderLinesTable.vue';
+  import OrderAddressesCard from './OrderAddressesCard.vue';
 
   const props = defineProps<{ id: string }>();
 
@@ -51,6 +52,7 @@
         {{ t('orders.placedOn', { date: placedOn(order, locale) }) }} · {{ t('orders.itemsCount', orderItemsCount(order)) }}
       </p>
       <OrderLinesTable :order="order" />
+      <OrderAddressesCard :order="order" />
     </template>
   </v-container>
 </template>

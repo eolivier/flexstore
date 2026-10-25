@@ -103,25 +103,34 @@ This endpoint does not have any parameters.
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **placeOrder**
-> JsonOrder placeOrder()
+> JsonOrder placeOrder(jsonOrderAddresses)
 
+The order is delivered and billed to the given addresses (the delivery address when no billing address is given), which become addresses of the customer when they are new
 
 ### Example
 
 ```typescript
 import {
     OrdersApi,
-    Configuration
+    Configuration,
+    JsonOrderAddresses
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new OrdersApi(configuration);
 
-const { status, data } = await apiInstance.placeOrder();
+let jsonOrderAddresses: JsonOrderAddresses; //
+
+const { status, data } = await apiInstance.placeOrder(
+    jsonOrderAddresses
+);
 ```
 
 ### Parameters
-This endpoint does not have any parameters.
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **jsonOrderAddresses** | **JsonOrderAddresses**|  | |
 
 
 ### Return type
@@ -134,7 +143,7 @@ This endpoint does not have any parameters.
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
+ - **Content-Type**: application/json
  - **Accept**: application/json
 
 
@@ -143,6 +152,8 @@ This endpoint does not have any parameters.
 |-------------|-------------|------------------|
 |**201** | Order placed |  -  |
 |**401** | Not signed in |  -  |
+|**400** | Incomplete delivery or billing address |  -  |
+|**403** | The account is SUSPENDED, LOCKED or DISABLED: { error, status } |  -  |
 |**422** | The cart is empty |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
