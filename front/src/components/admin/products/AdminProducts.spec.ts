@@ -82,4 +82,25 @@ describe('AdminProducts.vue', () => {
     expect(rows.find((row) => row.includes('Organic T-shirt'))).toMatch(/0$/);
     expect(rows.find((row) => row.includes('Smartwatch'))).toMatch(/42$/);
   });
+
+  it('filters the products by name or description', async () => {
+    // Arrange
+    const wrapper = await mountAdminProducts();
+    // Act
+    await wrapper.find('input[type="text"]').setValue('smart');
+    // Assert
+    const rows = wrapper.findAll('tbody tr').map((row) => row.text());
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toContain('Smartwatch');
+    expect(wrapper.text()).toContain('1 product');
+  });
+
+  it('tells when no product matches the filters', async () => {
+    // Arrange
+    const wrapper = await mountAdminProducts();
+    // Act
+    await wrapper.find('input[type="text"]').setValue('no such product');
+    // Assert
+    expect(wrapper.text()).toContain('No product matches the filters.');
+  });
 });
