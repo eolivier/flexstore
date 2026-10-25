@@ -223,6 +223,80 @@ paths:
                 $ref: "#/components/schemas/JsonAccount"
         "401":
           description: Not signed in
+  /api/accounts/me/addresses:
+    get:
+      tags:
+      - Accounts
+      summary: Retrieve the postal addresses of the signed-in user, in their order
+      operationId: getAddresses
+      security:
+      - bearerAuth: []
+      responses:
+        "200":
+          description: The addresses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/JsonPostalAddress"
+  /api/accounts/me/addresses/{position}:
+    put:
+      tags:
+      - Accounts
+      summary: Change an address of the signed-in user (0 for the first one); the orders keep theirs
+      operationId: changeAddress
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: position
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonPostalAddress"
+      responses:
+        "200":
+          description: The addresses, with the changed one at its place
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/JsonPostalAddress"
+        "400":
+          description: Incomplete address
+        "404":
+          description: No address at this position
+    delete:
+      tags:
+      - Accounts
+      summary: Remove an address of the signed-in user (0 for the first one); the orders keep theirs
+      operationId: removeAddress
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: position
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: The remaining addresses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/JsonPostalAddress"
+        "404":
+          description: No address at this position
   /api/accounts/email-verification:
     post:
       tags:

@@ -41,7 +41,10 @@ class RestExceptionHandler {
             is InvalidCurrentPasswordException -> ResponseEntity
                 .status(400)
                 .body(mapOf("error" to (ex.message ?: "Wrong current password")))
-            is ProductNotFoundException, is OrderNotFoundException -> ResponseEntity
+            is IncompleteAddressException -> ResponseEntity
+                .status(400)
+                .body(mapOf("error" to (ex.message ?: "Incomplete address")))
+            is ProductNotFoundException, is OrderNotFoundException, is AddressNotFoundException -> ResponseEntity
                 .status(404)
                 .body(mapOf("error" to (ex.message ?: "Not found")))
             is VerificationLinkUnknownException -> ResponseEntity

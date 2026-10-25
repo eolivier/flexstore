@@ -25,6 +25,8 @@ sealed class User(open val id: UserId) {
         // The addresses where a customer has an order delivered or billed become addresses of the customer
         fun withPostalAddressesIncluding(vararg addresses: PostalAddress) = copy(postalAddresses = postalAddresses.including(*addresses))
 
+        fun withPostalAddresses(postalAddresses: PostalAddresses) = copy(postalAddresses = postalAddresses)
+
         fun account() = Account(id, fullName, email, role, status, phoneNumber, postalAddresses)
 
         fun isAdministrator() = role == Role.ADMIN

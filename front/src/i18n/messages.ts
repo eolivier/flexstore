@@ -172,6 +172,7 @@ export default {
       deliveryAddress: "Delivery address",
       billingAddress: "Billing address",
       iAmACompany: "I am a company",
+      completeRecipient: "Who receives this address? Complete their name.",
       companyName: "Company name",
       vatNumber: "VAT number (optional)",
       billedToDelivery: "The billing address is the delivery address",
@@ -183,6 +184,22 @@ export default {
         refused: "Your account does not allow ordering (suspended, locked or disabled). Contact the shop.",
         incompleteAddress: "Complete the delivery address and the billing address.",
         error: "The order could not be placed. Please try again."
+      }
+    },
+    addressBook: {
+      title: "My addresses",
+      subtitle: "Edit or remove your addresses. Your orders keep the address they were sent to.",
+      empty: "No address yet: the addresses you enter when ordering appear here.",
+      loadError: "Your addresses could not be loaded.",
+      edit: "Edit",
+      remove: "Remove",
+      editTitle: "Edit the address",
+      save: "Save",
+      cancel: "Cancel",
+      errors: {
+        incomplete: "The address is incomplete.",
+        error: "The address could not be saved.",
+        removal: "The address could not be removed."
       }
     },
     adminOrders: {
@@ -283,6 +300,7 @@ export default {
       accessories: "Accessories",
       cart: "Cart",
       orders: "Orders",
+      addresses: "My addresses",
       profile: "Profile",
       account: "My account",
       admin: "Administration",
@@ -553,6 +571,7 @@ export default {
       deliveryAddress: "Adresse de livraison",
       billingAddress: "Adresse de facturation",
       iAmACompany: "Je suis une entreprise",
+      completeRecipient: "Qui reçoit à cette adresse ? Complétez son nom.",
       companyName: "Nom de l'entreprise",
       vatNumber: "Numéro de TVA (facultatif)",
       billedToDelivery: "L'adresse de facturation est l'adresse de livraison",
@@ -564,6 +583,22 @@ export default {
         refused: "Votre compte ne permet pas de commander (suspendu, verrouillé ou désactivé). Contactez la boutique.",
         incompleteAddress: "Complétez l'adresse de livraison et l'adresse de facturation.",
         error: "La commande n'a pas pu être passée. Veuillez réessayer."
+      }
+    },
+    addressBook: {
+      title: "Mes adresses",
+      subtitle: "Modifiez ou supprimez vos adresses. Vos commandes gardent l'adresse où elles ont été envoyées.",
+      empty: "Aucune adresse pour l'instant : les adresses saisies en commandant apparaissent ici.",
+      loadError: "Vos adresses n'ont pas pu être chargées.",
+      edit: "Modifier",
+      remove: "Supprimer",
+      editTitle: "Modifier l'adresse",
+      save: "Enregistrer",
+      cancel: "Annuler",
+      errors: {
+        incomplete: "L'adresse est incomplète.",
+        error: "L'adresse n'a pas pu être enregistrée.",
+        removal: "L'adresse n'a pas pu être supprimée."
       }
     },
     adminOrders: {
@@ -664,6 +699,7 @@ export default {
       accessories: "Accessoires",
       cart: "Panier",
       orders: "Commandes",
+      addresses: "Mes adresses",
       profile: "Profil",
       account: "Mon compte",
       admin: "Administration",

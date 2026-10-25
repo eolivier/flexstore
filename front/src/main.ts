@@ -23,6 +23,7 @@ import CreateProduct from './components/admin/products/CreateProduct.vue';
 import AdminProducts from './components/admin/products/AdminProducts.vue';
 import EditProduct from './components/admin/products/EditProduct.vue';
 import AdminOrders from './components/admin/orders/AdminOrders.vue';
+import AddressBook from './components/account/addresses/AddressBook.vue';
 import ShopSettings from './components/admin/settings/ShopSettings.vue';
 import Login from './components/Login.vue';
 import SignUp from './components/account/SignUp.vue';
@@ -37,6 +38,7 @@ const routes = [
   { path: '/cart', component: Cart },
   { path: '/checkout', component: Checkout, meta: { requiresAuth: true } },
   { path: '/orders', component: Orders, meta: { requiresAuth: true } },
+  { path: '/account/addresses', component: AddressBook, meta: { requiresAuth: true } },
   { path: '/orders/:id', component: OrderDetail, props: true, meta: { requiresAuth: true } },
   {
     path: '/orders/:id/confirmation',

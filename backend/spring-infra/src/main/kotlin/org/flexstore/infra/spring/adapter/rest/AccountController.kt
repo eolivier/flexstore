@@ -9,6 +9,7 @@ import org.flexstore.infra.spring.adapter.mapping.toJsonUser
 import org.flexstore.infra.spring.adapter.rest.json.JsonAccount
 import org.flexstore.infra.spring.adapter.rest.json.JsonAccountRegistration
 import org.flexstore.infra.spring.adapter.rest.json.JsonEmailVerification
+import org.flexstore.infra.spring.adapter.rest.json.JsonPostalAddress
 import org.flexstore.infra.spring.adapter.rest.json.JsonUser
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -19,7 +20,10 @@ import org.springframework.web.bind.annotation.*
 @Tag(name = "Accounts")
 @RestController
 @RequestMapping("/api/accounts")
-class AccountController(private val customerRegistrationService: CustomerRegistrationService) {
+class AccountController(
+    private val customerRegistrationService: CustomerRegistrationService,
+    private val addressBookService: AddressBookService
+) {
 
     @Operation(summary = "Create the account of a customer and send them a verification link, valid for 1 hour")
     @PostMapping
@@ -31,6 +35,32 @@ class AccountController(private val customerRegistrationService: CustomerRegistr
     @GetMapping("/me")
     fun getAccount(@AuthenticationPrincipal user: Jwt): JsonAccount =
         JsonAccount(customerRegistrationService.getAccount(UserId.of(user.subject)))
+
+    @Operation(summary = "Retrieve the postal addresses of the signed-in user, in their order")
+    @GetMapping("/me/addresses")
+    fun getAddresses(@AuthenticationPrincipal user: Jwt): List<JsonPostalAddress> =
+        addressBookService.getAddresses(UserId.of(user.subject)).toJson()
+
+    @Operation(summary = "Change an address of the signed-in user (0 for the first one); the orders keep theirs")
+    @PutMapping("/me/addresses/{position}")
+    fun changeAddress(
+        @AuthenticationPrincipal user: Jwt,
+        @PathVariable position: Int,
+        @RequestBody address: JsonPostalAddress
+    ): List<JsonPostalAddress> {
+        val userAddress = UserAddress(UserId.of(user.subject), AddressPosition(position))
+        val addressChange = AddressChange(userAddress, address.toPostalAddress())
+        return addressBookService.change(addressChange).toJson()
+    }
+
+    @Operation(summary = "Remove an address of the signed-in user (0 for the first one); the orders keep theirs")
+    @DeleteMapping("/me/addresses/{position}")
+    fun removeAddress(@AuthenticationPrincipal user: Jwt, @PathVariable position: Int): List<JsonPostalAddress> {
+        val userAddress = UserAddress(UserId.of(user.subject), AddressPosition(position))
+        return addressBookService.remove(userAddress).toJson()
+    }
+
+    private fun PostalAddresses.toJson() = asList().map { JsonPostalAddress.of(it) }
 
     @Operation(summary = "Verify the email of an account with the token of the link: the account becomes active")
     @PostMapping("/email-verification")
