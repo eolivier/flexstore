@@ -1,8 +1,8 @@
 package org.flexstore.infra.spring.adapter.payment
 
-import org.flexstore.domain.order.Order
 import org.flexstore.domain.payment.CheckoutPage
 import org.flexstore.domain.payment.PaymentOutcome
+import org.flexstore.domain.payment.PaymentRequest
 import org.flexstore.domain.sharedkernel.Identity
 import org.slf4j.LoggerFactory
 
@@ -12,7 +12,8 @@ class SimulatedPaymentProvider(private val frontUrl: String) : PaymentProvider {
 
     private val logger = LoggerFactory.getLogger(SimulatedPaymentProvider::class.java)
 
-    override fun checkout(order: Order): ProviderCheckout {
+    override fun checkout(paymentRequest: PaymentRequest): ProviderCheckout {
+        val order = paymentRequest.order
         logger.info("Simulated payment of order {} (no Stripe key)", order.number())
         val orderPage = "${frontUrl.trimEnd('/')}/orders/${order.orderId.value}"
         val confirmationPage = CheckoutPage("$orderPage/confirmation")

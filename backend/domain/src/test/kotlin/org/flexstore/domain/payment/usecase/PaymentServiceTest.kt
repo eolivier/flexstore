@@ -32,7 +32,7 @@ class PaymentServiceTest : WithAssertions {
         SendOrderConfirmationEmailUseCase(shopSettingsRepository, userRepository, emailRepository)
 
     private fun paymentServiceWith(paymentRepository: PaymentRepository): PaymentService {
-        val startPaymentUseCase = StartPaymentUseCase(orderRepository, paymentRepository)
+        val startPaymentUseCase = StartPaymentUseCase(orderRepository, paymentRepository, userRepository)
         val confirmPaymentUseCase = ConfirmPaymentUseCase(orderRepository, cartRepository)
         val readPaymentUseCase = ReadPaymentUseCase(paymentRepository)
         val paymentUseCases = PaymentUseCases(startPaymentUseCase, confirmPaymentUseCase, readPaymentUseCase)
@@ -40,7 +40,8 @@ class PaymentServiceTest : WithAssertions {
     }
 
     private val paidAtOnce = paymentServiceWith(InMemoryPaymentRepository(PaymentOutcome.PAID))
-    private val paidLater = paymentServiceWith(InMemoryPaymentRepository(PaymentOutcome.PENDING))
+    private val pendingPaymentRepository = InMemoryPaymentRepository(PaymentOutcome.PENDING)
+    private val paidLater = paymentServiceWith(pendingPaymentRepository)
 
     private fun placeOrder() {
         val cart = Cart(customer).add(deskLamp, Quantity(1))
@@ -62,6 +63,16 @@ class PaymentServiceTest : WithAssertions {
         assertThat(paymentSession.checkoutPage).isEqualTo(CheckoutPage("https://pay.example/order-1"))
         assertThat(storedStatus()).isEqualTo(OrderStatus.AWAITING_PAYMENT)
         assertThat(cartRepository.load(customer).hasItems()).isTrue()
+    }
+
+    @Test
+    fun `the payment page should be prefilled with the email and the name of the customer`() {
+        // Arrange
+        placeOrder()
+        // Act
+        paidLater.pay(OrderPayment(customer, orderId))
+        // Assert
+        assertThat(pendingPaymentRepository.payerOf(orderId)).isEqualTo(Payer(email, Cardholder.Named(janeDoe)))
     }
 
     @Test
