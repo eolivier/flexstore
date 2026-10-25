@@ -69,14 +69,16 @@ Prefer: `infra/src/main/kotlin/org/flexstore/infra/image/JavaImageResizerReposit
 
 Why: the adapter stays independent of the framework, can be reused and tested on its own, and `spring-infra` keeps only what really needs Spring. If an adapter later needs Spring, move it to `spring-infra` then.
 
-The rule is about the adapter as a whole, not about each class: a class without Spring that only serves a Spring adapter stays next to it in `spring-infra`. Examples are the wording of an email sent by the mail adapter, the payment providers used by the JPA payment adapter, and the JSON DTOs of the controllers.
+The rule is about the adapter as a whole, not about each class: a class without Spring that only serves a Spring adapter stays next to it in `spring-infra`. Examples are the payment providers used by the JPA payment adapter (Stripe SDK, signature of the webhook) and the JSON DTOs of the controllers.
 
-For such a class, the question to ask is not "`infra` or `spring-infra`?" but "is this domain?". It belongs in the domain when it holds a business rule or a business value: which facts a document must state, a duration, a threshold, a state. The adapter keeps only the technical part (the wording, the formatting, the calls to the SDK) and reads the business values from the domain instead of copying them.
+For such a class, the question to ask is not "`infra` or `spring-infra`?" but "is this domain?". Whatever the product owner specifies is domain: a business rule, a business value (a duration, a threshold, a state), and what the shop says to its customers. The adapter keeps only the technical part: transport, persistence, the calls to an SDK.
 
-Avoid, in `EmailVerificationLinkContent`:
+The emails are the main case. Their content (subject, body, wording, the facts they state) is specified by the product owner, so it is built in the domain (`org.flexstore.domain.email`). The mail adapter only sends a ready content through SMTP, or writes it to the logs. The content reads the business values from the domain instead of copying them.
+
+Avoid, in `spring-infra/.../adapter/email/EmailVerificationLinkContent.kt`:
 
 ```kotlin
-appendLine("Ce lien est valable 1 heure (...)")   // copies EmailVerification.VALIDITY
+appendLine("Ce lien est valable 1 heure (...)")   // wording outside the domain, and a copy of EmailVerification.VALIDITY
 ```
 
-Prefer: derive the text from `EmailVerification.VALIDITY`, so that changing the rule in the domain changes the email.
+Prefer: `EmailVerificationLinkContent` in `domain/.../email`, tested in the domain, with the validity taken from `EmailVerification.VALIDITY`, and a mail adapter that only sends its subject and body.
