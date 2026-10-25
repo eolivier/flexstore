@@ -4,7 +4,7 @@ The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `back
 
 ![Physical data model](database.png)
 
-The image is generated from the diagram below by `docs/render-database-diagram.sh`. The diagram is laid out from left to right by ELK, without crossing links: the relations are written from the table that holds the foreign key towards the table it references when that one should be placed on the right (`address`, `payment`, `product`).
+The image is generated from the diagram below by `docs/render-database-diagram.sh`. Each column is written with its name first, then its type, so that the image shows them in this order. The diagram is laid out from left to right by ELK, without crossing links: the relations are written from the table that holds the foreign key towards the table it references when that one should be placed on the right (`address`, `payment`, `product`).
 
 ```mermaid
 %%{init: {"layout": "elk", "theme": "base", "themeVariables": {"primaryColor": "#DBEAFE", "primaryTextColor": "#111827", "primaryBorderColor": "#1D4ED8", "lineColor": "#374151", "secondaryColor": "#F3F4F6", "tertiaryColor": "#FFFFFF", "attributeBackgroundColorOdd": "#FFFFFF", "attributeBackgroundColorEven": "#F1F5F9"}}}%%
@@ -12,118 +12,118 @@ erDiagram
     direction LR
 
     user {
-        varchar(50) id PK
-        varchar(255) first_name
-        varchar(255) last_name
-        text email UK
-        text password "bcrypt hash"
-        text role "USER or ADMIN"
-        varchar(30) status "PENDING_VERIFICATION, ACTIVE, SUSPENDED, LOCKED or DISABLED"
-        varchar(30) phone_number "nullable"
-        timestamp created_at
-        timestamp updated_at
+        id varchar(50) PK
+        first_name varchar(255)
+        last_name varchar(255)
+        email text UK
+        password text "bcrypt hash"
+        role text "USER or ADMIN"
+        status varchar(30) "PENDING_VERIFICATION, ACTIVE, SUSPENDED, LOCKED or DISABLED"
+        phone_number varchar(30) "nullable"
+        created_at timestamp
+        updated_at timestamp
     }
 
     email_verification {
-        varchar(50) id PK
-        varchar(64) token_hash UK "SHA-256 of the token of the link"
-        varchar(50) user_id FK "a user may have several links over time"
-        timestamptz expires_at
-        timestamp created_at
-        timestamp updated_at
+        id varchar(50) PK
+        token_hash varchar(64) UK "SHA-256 of the token of the link"
+        user_id varchar(50) FK "a user may have several links over time"
+        expires_at timestamptz
+        created_at timestamp
+        updated_at timestamp
     }
 
     user_address {
-        varchar(50) id PK
-        varchar(50) user_id FK,UK "unique with address_id"
-        varchar(50) address_id FK,UK
-        int position "order of the addresses of the user"
-        timestamp created_at
-        timestamp updated_at
+        id varchar(50) PK
+        user_id varchar(50) FK,UK "unique with address_id"
+        address_id varchar(50) FK,UK
+        position int "order of the addresses of the user"
+        created_at timestamp
+        updated_at timestamp
     }
 
     customer_order {
-        varchar(50) id PK
-        varchar(50) user_id FK
-        varchar(20) status "AWAITING_PAYMENT, PAID, PROCESSING, SHIPPED or DELIVERED"
-        timestamptz placed_at
-        varchar(50) delivery_address_id FK
-        varchar(50) billing_address_id FK
-        varchar(50) payment_id FK "nullable: last payment started"
-        timestamp created_at
-        timestamp updated_at
+        id varchar(50) PK
+        user_id varchar(50) FK
+        status varchar(20) "AWAITING_PAYMENT, PAID, PROCESSING, SHIPPED or DELIVERED"
+        placed_at timestamptz
+        delivery_address_id varchar(50) FK
+        billing_address_id varchar(50) FK
+        payment_id varchar(50) FK "nullable: last payment started"
+        created_at timestamp
+        updated_at timestamp
     }
 
     cart {
-        varchar(50) id PK
-        varchar(50) user_id FK,UK "nullable: the cart of a visitor"
-        timestamp created_at
-        timestamp updated_at
+        id varchar(50) PK
+        user_id varchar(50) FK,UK "nullable: the cart of a visitor"
+        created_at timestamp
+        updated_at timestamp
     }
 
     address {
-        varchar(50) id PK
-        varchar(20) recipient_type "PRIVATE_INDIVIDUAL or LEGAL_ENTITY"
-        varchar(255) first_name "required for a person, optional contact of a company"
-        varchar(255) last_name "required for a person, optional contact of a company"
-        varchar(255) company_name "required for a company"
-        varchar(30) vat_number "nullable"
-        varchar(255) street
-        varchar(255) complement "nullable"
-        varchar(20) postal_code
-        varchar(100) city
-        varchar(100) country
-        timestamp created_at
-        timestamp updated_at
+        id varchar(50) PK
+        recipient_type varchar(20) "PRIVATE_INDIVIDUAL or LEGAL_ENTITY"
+        first_name varchar(255) "required for a person, optional contact of a company"
+        last_name varchar(255) "required for a person, optional contact of a company"
+        company_name varchar(255) "required for a company"
+        vat_number varchar(30) "nullable"
+        street varchar(255)
+        complement varchar(255) "nullable"
+        postal_code varchar(20)
+        city varchar(100)
+        country varchar(100)
+        created_at timestamp
+        updated_at timestamp
     }
 
     payment {
-        varchar(50) id PK
-        varchar(255) provider_reference UK "id of the Stripe Checkout session"
-        text checkout_url
-        varchar(10) outcome "PENDING or PAID"
-        timestamp created_at
-        timestamp updated_at
+        id varchar(50) PK
+        provider_reference varchar(255) UK "id of the Stripe Checkout session"
+        checkout_url text
+        outcome varchar(10) "PENDING or PAID"
+        created_at timestamp
+        updated_at timestamp
     }
 
     customer_order_line {
-        varchar(50) id PK
-        varchar(50) customer_order_id FK,UK "unique with position"
-        int position UK
-        varchar(50) product_id "copy, no foreign key: the order history does not depend on the catalog"
-        text product_name "copy at the time of the order"
-        numeric unit_price "copy at the time of the order"
-        varchar(3) currency
-        int quantity "greater than 0"
-        timestamp created_at
-        timestamp updated_at
+        id varchar(50) PK
+        customer_order_id varchar(50) FK,UK "unique with position"
+        position int UK
+        product_id varchar(50) "copy, no foreign key: the order history does not depend on the catalog"
+        product_name text "copy at the time of the order"
+        unit_price numeric "copy at the time of the order"
+        currency varchar(3)
+        quantity int "greater than 0"
+        created_at timestamp
+        updated_at timestamp
     }
 
     cart_item {
-        varchar(50) id PK
-        varchar(50) cart_id FK,UK "unique with product_id"
-        varchar(50) product_id FK,UK
-        int quantity "greater than 0"
-        timestamp created_at
-        timestamp updated_at
+        id varchar(50) PK
+        cart_id varchar(50) FK,UK "unique with product_id"
+        product_id varchar(50) FK,UK
+        quantity int "greater than 0"
+        created_at timestamp
+        updated_at timestamp
     }
 
     product {
-        varchar(50) id PK
-        text name
-        text description
-        varchar(30) category "CLOTHING, ELECTRONICS or ACCESSORIES"
-        numeric price
-        varchar(3) currency
-        timestamp created_at
-        timestamp updated_at
+        id varchar(50) PK
+        name text
+        description text
+        category varchar(30) "CLOTHING, ELECTRONICS or ACCESSORIES"
+        price numeric
+        currency varchar(3)
+        created_at timestamp
+        updated_at timestamp
     }
 
     shop_settings {
-        int id PK "a single row (id = 1)"
-        varchar(10) order_confirmation_email "ENABLED or DISABLED"
-        timestamp created_at
-        timestamp updated_at
+        id int PK "a single row (id = 1)"
+        order_confirmation_email varchar(10) "ENABLED or DISABLED"
+        created_at timestamp
+        updated_at timestamp
     }
 
     user ||--o{ email_verification : "user_id (cascade)"
