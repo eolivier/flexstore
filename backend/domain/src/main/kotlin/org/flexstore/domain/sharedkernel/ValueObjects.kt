@@ -1,9 +1,20 @@
 package org.flexstore.domain.sharedkernel
 
 import java.math.BigDecimal
+import java.text.NumberFormat
+import java.util.Locale
 
 data class Price(val amount: Amount, val currency: Currency) {
     fun multiply(quantity: Quantity) = Price(amount.multiply(quantity), currency)
+
+    // The price as the customer reads it in the given language, with 2 decimals (e.g. 1 598,00 € in French)
+    fun formattedIn(locale: Locale): String {
+        val format = NumberFormat.getNumberInstance(locale).apply {
+            minimumFractionDigits = 2
+            maximumFractionDigits = 2
+        }
+        return "${format.format(amount.value)} ${currency.symbol}"
+    }
 }
 data class Amount(val value: BigDecimal) {
     fun multiply(quantity: Quantity) = Amount(this.value.multiply(BigDecimal(quantity.value)))
