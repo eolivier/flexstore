@@ -75,20 +75,34 @@ open class UseCaseConfig(@Value("\${flexstore.front-url}") private val frontUrl:
         return OrderUseCaseFacade(placeOrderUseCase, readOrdersUseCase)
     }
 
+    // The payment: the repositories, then the use cases, then the domain service
     @Bean
-    open fun paymentService(paymentRepository: PaymentRepository,
-                            userRepository: UserRepository,
-                            orderRepository: OrderRepository,
-                            cartRepository: CartRepository,
-                            readOrdersUseCase: ReadOrdersUseCase,
-                            sendEmailUseCase: SendOrderConfirmationEmailUseCase): PaymentService {
-        val paymentUseCases = PaymentUseCases(
-            StartPaymentUseCase(orderRepository, paymentRepository, userRepository),
-            ConfirmPaymentUseCase(orderRepository, cartRepository),
-            ReadPaymentUseCase(paymentRepository)
-        )
-        return PaymentService(paymentUseCases, PaidOrderUseCases(readOrdersUseCase, sendEmailUseCase))
-    }
+    open fun startPaymentUseCase(orderRepository: OrderRepository,
+                                 paymentRepository: PaymentRepository,
+                                 userRepository: UserRepository) =
+        StartPaymentUseCase(orderRepository, paymentRepository, userRepository)
+
+    @Bean
+    open fun confirmPaymentUseCase(orderRepository: OrderRepository, cartRepository: CartRepository) =
+        ConfirmPaymentUseCase(orderRepository, cartRepository)
+
+    @Bean
+    open fun readPaymentUseCase(paymentRepository: PaymentRepository) = ReadPaymentUseCase(paymentRepository)
+
+    @Bean
+    open fun paymentUseCases(startPaymentUseCase: StartPaymentUseCase,
+                             confirmPaymentUseCase: ConfirmPaymentUseCase,
+                             readPaymentUseCase: ReadPaymentUseCase) =
+        PaymentUseCases(startPaymentUseCase, confirmPaymentUseCase, readPaymentUseCase)
+
+    @Bean
+    open fun paidOrderUseCases(readOrdersUseCase: ReadOrdersUseCase,
+                               sendOrderConfirmationEmailUseCase: SendOrderConfirmationEmailUseCase) =
+        PaidOrderUseCases(readOrdersUseCase, sendOrderConfirmationEmailUseCase)
+
+    @Bean
+    open fun paymentService(paymentUseCases: PaymentUseCases, paidOrderUseCases: PaidOrderUseCases) =
+        PaymentService(paymentUseCases, paidOrderUseCases)
 
     @Bean
     open fun sendOrderConfirmationEmailUseCase(shopSettingsRepository: ShopSettingsRepository,
