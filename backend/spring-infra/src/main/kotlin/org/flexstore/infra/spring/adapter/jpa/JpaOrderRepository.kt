@@ -71,7 +71,7 @@ class PostgresOrderRepositoryAdapter(
                 quantity = Quantity(it.quantity)
             )
         })
-        val orderDetails = OrderDetails(OrderPlacement(orderStamp, checkout), orderLines)
-        return Order(orderDetails, OrderStatus.valueOf(status))
+        val orderDetail = OrderDetail(OrderPlacement(orderStamp, checkout), orderLines)
+        return Order(orderDetail, OrderStatus.valueOf(status))
     }
 }
