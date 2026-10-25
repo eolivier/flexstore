@@ -130,6 +130,7 @@ How to apply:
 - Draw the relation of a new foreign key with its cardinality (`||--o{`, `|o--o|`...), labelled with the column that holds it.
 - Update the version of the last migration written at the top of the document.
 - Regenerate the image with `docs/render-database-diagram.sh`, and look at it: it must render, and be readable.
+- Place the tables so that the links do not cross (or as little as possible): the diagram is laid out from left to right by ELK (`"layout": "elk"` and `direction LR`); write a relation from the table that holds the foreign key when the referenced table should be on the right, declare the tables in reading order, and compare with another layout when links still cross.
 - Keep the colors clear and readable: a light theme (light backgrounds, dark text with a strong contrast, visible lines), set once in the `%%{init: ...}%%` line of the diagram; no dark or saturated backgrounds, no light text.
 
 Why: the diagram gives at a glance the tables, their keys and their relations, which the migrations only give one change at a time; a diagram that is not updated with the schema misleads more than it helps.
