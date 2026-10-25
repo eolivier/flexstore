@@ -26,6 +26,7 @@ export default {
       createUserText: "Add an account that can sign in.",
       productsText: "See and edit the products of the catalog.",
       createProductText: "Add a product to the catalog.",
+      ordersText: "Follow the orders of the customers and move them to their next status.",
       settingsText: "Turn the features of the shop on or off."
     },
     settings: {
@@ -184,6 +185,21 @@ export default {
         error: "The order could not be placed. Please try again."
       }
     },
+    adminOrders: {
+      title: "Orders",
+      count: "No orders | 1 order | {n} orders",
+      loading: "Loading the orders…",
+      loadError: "The orders could not be loaded.",
+      number: "Order",
+      placedOn: "Placed on",
+      recipient: "Delivered to",
+      total: "Total",
+      status: "Status",
+      advanceTo: "Move to: {status}",
+      lastStatus: "Last status",
+      statusChanged: "The status of this order changed in the meantime: the orders were reloaded.",
+      error: "The status of the order could not be changed."
+    },
     orders: {
       title: "Orders",
       number: "Order {number}",
@@ -267,6 +283,7 @@ export default {
       createUser: "Create a user",
       products: "Products",
       createProduct: "Create a product",
+      adminOrders: "Orders",
       settings: "Settings",
       about: "About",
       login: "Sign in",
@@ -383,6 +400,7 @@ export default {
       createUserText: "Ajouter un compte qui pourra se connecter.",
       productsText: "Consulter et modifier les produits du catalogue.",
       createProductText: "Ajouter un produit au catalogue.",
+      ordersText: "Suivre les commandes des clients et les faire passer à l'état suivant.",
       settingsText: "Activer ou désactiver les fonctionnalités de la boutique."
     },
     settings: {
@@ -541,6 +559,21 @@ export default {
         error: "La commande n'a pas pu être passée. Veuillez réessayer."
       }
     },
+    adminOrders: {
+      title: "Commandes",
+      count: "Aucune commande | 1 commande | {n} commandes",
+      loading: "Chargement des commandes…",
+      loadError: "Les commandes n'ont pas pu être chargées.",
+      number: "Commande",
+      placedOn: "Passée le",
+      recipient: "Livrée à",
+      total: "Total",
+      status: "État",
+      advanceTo: "Passer à : {status}",
+      lastStatus: "Dernier état",
+      statusChanged: "L'état de cette commande a changé entre-temps : les commandes ont été rechargées.",
+      error: "L'état de la commande n'a pas pu être changé."
+    },
     orders: {
       title: "Commandes",
       number: "Commande {number}",
@@ -624,6 +657,7 @@ export default {
       createUser: "Créer un utilisateur",
       products: "Produits",
       createProduct: "Créer un produit",
+      adminOrders: "Commandes",
       settings: "Paramètres",
       about: "À propos",
       login: "Se connecter",

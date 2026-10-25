@@ -9,6 +9,7 @@
     '/admin/create-user': 'admin.createUserText',
     '/admin/products': 'admin.productsText',
     '/admin/create-product': 'admin.createProductText',
+    '/admin/orders': 'admin.ordersText',
     '/admin/settings': 'admin.settingsText',
   };
 </script>

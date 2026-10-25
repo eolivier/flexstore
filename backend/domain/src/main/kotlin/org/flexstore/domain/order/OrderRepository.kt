@@ -13,4 +13,7 @@ interface OrderRepository {
     fun orderIsMissing(orderId: OrderId): Boolean = !orderExists(orderId)
 
     fun findAllBy(customer: UserId.ValidUserId): Orders
+
+    // The orders of all the customers
+    fun findAll(): Orders
 }

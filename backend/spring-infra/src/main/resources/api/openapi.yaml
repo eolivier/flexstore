@@ -511,6 +511,58 @@ paths:
                 $ref: "#/components/schemas/JsonOrder"
         "404":
           description: No order with this id for the signed-in customer
+  /api/admin/orders:
+    get:
+      tags:
+      - Administration
+      summary: Retrieve the orders of all the customers, newest first (ADMIN role)
+      operationId: getAllOrders
+      security:
+      - bearerAuth: []
+      responses:
+        "200":
+          description: The orders of all the customers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/JsonOrder"
+        "403":
+          description: The signed-in user is not an administrator
+  /api/admin/orders/{id}/status/advance:
+    post:
+      tags:
+      - Administration
+      summary: Move an order to the next status of its life cycle, PROCESSING then SHIPPED then DELIVERED (ADMIN role)
+      operationId: advanceOrderStatus
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonOrderStatusAdvance"
+      responses:
+        "200":
+          description: The order at its next status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonOrder"
+        "403":
+          description: The signed-in user is not an administrator
+        "404":
+          description: No order with this id
+        "409":
+          description: The order no longer has the given status, or it is delivered (no next status)
 components:
   parameters:
     CartId:
@@ -797,6 +849,14 @@ components:
           $ref: "#/components/schemas/JsonPostalAddress"
         billingAddress:
           $ref: "#/components/schemas/JsonPostalAddress"
+    JsonOrderStatusAdvance:
+      type: object
+      description: The status of the order when the administrator asks to move it to the next one
+      required: [currentStatus]
+      properties:
+        currentStatus:
+          type: string
+          enum: [PROCESSING, SHIPPED, DELIVERED]
     JsonOrderAddresses:
       type: object
       required: [deliveryAddress]

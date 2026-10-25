@@ -109,6 +109,17 @@ open class UseCaseConfig(@Value("\${flexstore.front-url}") private val frontUrl:
     }
 
     @Bean
+    open fun advanceOrderStatusUseCase(orderRepository: OrderRepository): AdvanceOrderStatusUseCase {
+        return AdvanceOrderStatusUseCase(orderRepository)
+    }
+
+    @Bean
+    open fun orderAdministrationService(readOrdersUseCase: ReadOrdersUseCase,
+                                        advanceOrderStatusUseCase: AdvanceOrderStatusUseCase): OrderAdministrationService {
+        return OrderAdministrationService(readOrdersUseCase, advanceOrderStatusUseCase)
+    }
+
+    @Bean
     open fun customerRegistrationService(registerCustomerUseCase: RegisterCustomerUseCase,
                                          sendVerificationEmailUseCase: SendVerificationEmailUseCase,
                                          verifyEmailUseCase: VerifyEmailUseCase,
