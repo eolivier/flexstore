@@ -30,6 +30,12 @@ data class JsonPostalAddress @JsonCreator constructor(
     @JsonProperty("city") val city: String,
     @JsonProperty("country") val country: String
 ) {
+    companion object {
+        fun of(address: PostalAddress) = JsonPostalAddress(
+            address.street.value, address.complement?.value, address.postalCode.value, address.city.value, address.country.value
+        )
+    }
+
     fun toPostalAddress() = PostalAddress(
         street = Street(street.trim()),
         complement = complement?.trim()?.ifEmpty { null }?.let { AddressComplement(it) },

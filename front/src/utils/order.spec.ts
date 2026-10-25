@@ -4,12 +4,10 @@ import { orderItemsCount, orderNumber, orderStepState, placedOn } from './order'
 import { twoLinesOrder } from '@/components/orders/orderFixture';
 
 const order: JsonOrder = {
+  ...twoLinesOrder,
   id: '7687ab84-a48e-49ee-80b3-d218997b31d7',
-  placedAt: '2026-10-24T10:00:00Z',
-  status: 'PROCESSING',
   lines: [],
   totalPrice: 0,
-  currency: '€',
 };
 
 describe('order utils', () => {

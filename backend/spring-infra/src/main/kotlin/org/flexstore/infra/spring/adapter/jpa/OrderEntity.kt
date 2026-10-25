@@ -18,6 +18,15 @@ data class OrderEntity(
     @Column(name = "placed_at", nullable = false, updatable = false)
     val placedAt: Instant,
 
+    // Addresses of the customer (rows of the address table, owned by UserEntity)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "delivery_address_id", nullable = false)
+    val deliveryAddress: AddressEntity,
+
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "billing_address_id", nullable = false)
+    val billingAddress: AddressEntity,
+
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "order_id", nullable = false)
     @OrderBy("position")

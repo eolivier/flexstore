@@ -1,39 +1,22 @@
 <script setup lang="ts">
-  import { computed, onMounted, ref } from 'vue';
+  import { computed, onMounted } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useRouter } from 'vue-router';
   import { useAuthStore } from '@/stores/auth.store';
   import { useCartStore } from '@/stores/cart.store';
-  import { useOrdersStore } from '@/stores/orders.store';
   import type { Item } from '@/models/cart';
   import CartLine from '@/components/cart/CartLine.vue';
   import { formatPrice } from '@/utils/price';
 
   const cartStore = useCartStore();
   const authStore = useAuthStore();
-  const ordersStore = useOrdersStore();
   const router = useRouter();
   const { t, locale } = useI18n();
 
-  const placingOrder = ref(false);
-  // Why the order was not placed: refused (account suspended, locked or disabled) or another error
-  const orderError = ref<'refused' | 'error' | null>(null);
-
-  // A visitor signs in first and comes back to the cart, whose items are kept (merged into the account cart)
-  async function placeOrder() {
-    if (!authStore.isAuthenticated) {
-      router.push({ path: '/login', query: { redirect: '/cart' } });
-      return;
-    }
-    placingOrder.value = true;
-    orderError.value = null;
-    const placement = await ordersStore.placeOrder();
-    placingOrder.value = false;
-    if (placement.status === 'placed') {
-      router.push(`/orders/${placement.order.id}/confirmation`);
-    } else {
-      orderError.value = placement.status === 'refused' ? 'refused' : 'error';
-    }
+  // The order is placed on the checkout page, where the customer chooses the addresses. A visitor signs in first
+  // (the checkout page needs a signed-in customer) and their cart is kept, merged into the account cart
+  function goToCheckout() {
+    router.push('/checkout');
   }
 
   onMounted(() => {
@@ -96,17 +79,13 @@
             <v-spacer />
             <span class="text-h5 font-weight-bold">{{ total }}</span>
           </div>
-          <v-alert v-if="orderError" type="error" variant="tonal" density="compact" class="mb-4">
-            {{ t(orderError === 'refused' ? 'cart.orderRefused' : 'cart.orderError') }}
-          </v-alert>
           <v-btn
             color="secondary"
             size="large"
             block
             class="mb-3"
             prepend-icon="mdi-check"
-            :loading="placingOrder"
-            @click="placeOrder"
+            @click="goToCheckout"
           >
             {{ t('cart.placeOrder') }}
           </v-btn>

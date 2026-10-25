@@ -13,22 +13,26 @@ import java.time.Instant
 
 class ReadOrdersUseCaseTest : WithAssertions {
 
-    private val lamp = DefinedProduct(ProductId(Identity("lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR))
+    private val deskLamp = DefinedProduct(ProductId(Identity("desk-lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR))
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val otherCustomer = CartOwner.Customer(UserId.ValidUserId("user-2"))
     private val placedAt = Instant.parse("2026-10-24T10:00:00Z")
     private val orderRepository = InMemoryOrderRepository()
     private val useCase = ReadOrdersUseCase(orderRepository)
 
-    private fun placeOrder(orderId: String, owner: CartOwner.Customer, at: Instant) =
-        orderRepository.save(Order.place(OrderPlacement(OrderId(orderId), owner, at), Cart(owner).add(lamp, Quantity(1))))
+    private fun placeOrder(orderId: OrderId, customer: CartOwner.Customer, placedAt: Instant): Order {
+        val orderPlacement = OrderPlacement(orderId, customer, placedAt, homeOrderAddresses)
+        val cart = Cart(customer).add(deskLamp, Quantity(1))
+        val order = Order.place(orderPlacement, cart)
+        return orderRepository.save(order)
+    }
 
     @Test
     fun `should list the orders of the customer only, newest first`() {
         // Arrange
-        val older = placeOrder("older", customer, placedAt)
-        val newer = placeOrder("newer", customer, placedAt.plusSeconds(60))
-        placeOrder("other", otherCustomer, placedAt)
+        val older = placeOrder(OrderId("older"), customer, placedAt)
+        val newer = placeOrder(OrderId("newer"), customer, placedAt.plusSeconds(60))
+        placeOrder(OrderId("other"), otherCustomer, placedAt)
         // Act
         val orders = useCase.getOrders(customer.userId)
         // Assert
@@ -38,7 +42,7 @@ class ReadOrdersUseCaseTest : WithAssertions {
     @Test
     fun `should read an order of the customer`() {
         // Arrange
-        val order = placeOrder("order-1", customer, placedAt)
+        val order = placeOrder(OrderId("order-1"), customer, placedAt)
         // Act
         val readOrder = useCase.getOrder(customer.userId, OrderId("order-1"))
         // Assert
@@ -48,7 +52,7 @@ class ReadOrdersUseCaseTest : WithAssertions {
     @Test
     fun `the order of another customer should not be found`() {
         // Arrange
-        placeOrder("other", otherCustomer, placedAt)
+        placeOrder(OrderId("other"), otherCustomer, placedAt)
         // Act
         val thrown = catchThrowable { useCase.getOrder(customer.userId, OrderId("other")) }
         // Assert

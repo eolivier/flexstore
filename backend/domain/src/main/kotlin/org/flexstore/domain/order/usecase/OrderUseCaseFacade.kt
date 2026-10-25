@@ -11,9 +11,9 @@ class OrderUseCaseFacade(private val placeOrderUseCase: PlaceOrderUseCase,
 
     // The use cases are shared by all the requests: the placed order is read back with its id,
     // then confirmed to the customer by email
-    fun placeOrder(customer: CartOwner.Customer): Order {
+    fun placeOrder(customer: CartOwner.Customer, addresses: OrderAddresses): Order {
         val orderId = OrderId.nextId()
-        placeOrderUseCase.unfold(OrderPlacement(orderId, customer, Instant.now()))
+        placeOrderUseCase.unfold(OrderPlacement(orderId, customer, Instant.now(), addresses))
         val placedOrder = readOrdersUseCase.getOrder(customer.userId, orderId)
         sendOrderConfirmationEmailUseCase.unfold(placedOrder)
         return placedOrder

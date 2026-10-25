@@ -4,13 +4,71 @@ All URIs are relative to *http://localhost:8080*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
+|[**changeAccountStatus**](#changeaccountstatus) | **PUT** /api/users/{id}/status | Change the status of an account|
 |[**changePassword**](#changepassword) | **POST** /api/users/{id}/password | Change the password of a user|
 |[**createUser**](#createuser) | **POST** /api/users | Create a user|
 |[**deleteUser**](#deleteuser) | **DELETE** /api/users/{id} | Delete a user by ID|
 |[**getAllUsers**](#getallusers) | **GET** /api/users | Retrieve all users|
 |[**getUser**](#getuser) | **GET** /api/users/{id} | Retrieve a user by ID|
 |[**loginUser**](#loginuser) | **POST** /api/users/login | Authenticate a user|
-|[**updateUser**](#updateuser) | **PUT** /api/users/{id} | Edit a user by ID (name, email, role; not the password)|
+|[**updateUser**](#updateuser) | **PUT** /api/users/{id} | Edit a user by ID (first name, last name, email, role; not the password)|
+
+# **changeAccountStatus**
+> JsonUser changeAccountStatus(jsonAccountStatus)
+
+Reserved to an administrator, on another account than their own. ACTIVE, SUSPENDED, LOCKED or DISABLED; a suspended, locked or disabled account can neither sign in nor order.
+
+### Example
+
+```typescript
+import {
+    UsersApi,
+    Configuration,
+    JsonAccountStatus
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new UsersApi(configuration);
+
+let id: string; // (default to undefined)
+let jsonAccountStatus: JsonAccountStatus; //
+
+const { status, data } = await apiInstance.changeAccountStatus(
+    id,
+    jsonAccountStatus
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **jsonAccountStatus** | **JsonAccountStatus**|  | |
+| **id** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**JsonUser**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The user with their new status |  -  |
+|**403** | The editor is not an administrator |  -  |
+|**422** | Own account, PENDING_VERIFICATION or unknown status |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **changePassword**
 > changePassword(jsonChangePasswordRequest)
@@ -315,6 +373,7 @@ No authorization required
 |-------------|-------------|------------------|
 |**200** | Successfully authenticated |  -  |
 |**401** | Invalid credentials |  -  |
+|**403** | The account is SUSPENDED, LOCKED or DISABLED: { error, status } |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

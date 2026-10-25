@@ -6,7 +6,8 @@ The fields an administrator can edit; the password is changed by a separate oper
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**name** | **string** |  | [default to undefined]
+**firstName** | **string** |  | [default to undefined]
+**lastName** | **string** |  | [default to undefined]
 **email** | **string** |  | [default to undefined]
 **role** | **string** | Role of the user (USER when absent) | [optional] [default to undefined]
 
@@ -16,7 +17,8 @@ Name | Type | Description | Notes
 import { JsonUserUpdate } from './api';
 
 const instance: JsonUserUpdate = {
-    name,
+    firstName,
+    lastName,
     email,
     role,
 };
