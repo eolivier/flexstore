@@ -150,6 +150,17 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     }
 
     @Bean
+    open fun requestPasswordResetUseCase(userRepository: UserRepository,
+                                         passwordResetRepository: PasswordResetRepository,
+                                         emailRepository: EmailRepository) =
+        RequestPasswordResetUseCase(userRepository, passwordResetRepository, emailRepository)
+
+    @Bean
+    open fun resetPasswordUseCase(userRepository: UserRepository,
+                                  passwordResetRepository: PasswordResetRepository) =
+        ResetPasswordUseCase(userRepository, passwordResetRepository)
+
+    @Bean
     open fun readAccountUseCase(userRepository: UserRepository): ReadAccountUseCase {
         return ReadAccountUseCase(userRepository)
     }

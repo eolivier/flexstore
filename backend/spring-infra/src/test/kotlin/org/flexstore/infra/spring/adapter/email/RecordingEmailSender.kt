@@ -2,6 +2,7 @@ package org.flexstore.infra.spring.adapter.email
 
 import org.flexstore.domain.email.EmailVerificationLink
 import org.flexstore.domain.email.OrderConfirmationEmail
+import org.flexstore.domain.email.PasswordResetEmail
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Primary
@@ -11,6 +12,7 @@ class RecordingEmailSender : EmailSender {
 
     private val sentEmails = mutableListOf<OrderConfirmationEmail>()
     private val sentVerificationLinks = mutableListOf<EmailVerificationLink>()
+    private val sentPasswordResetEmails = mutableListOf<PasswordResetEmail>()
 
     override fun send(email: OrderConfirmationEmail) {
         sentEmails.add(email)
@@ -20,13 +22,20 @@ class RecordingEmailSender : EmailSender {
         sentVerificationLinks.add(link)
     }
 
+    override fun send(email: PasswordResetEmail) {
+        sentPasswordResetEmails.add(email)
+    }
+
     fun sentEmails(): List<OrderConfirmationEmail> = sentEmails.toList()
 
     fun sentVerificationLinks(): List<EmailVerificationLink> = sentVerificationLinks.toList()
 
+    fun sentPasswordResetEmails(): List<PasswordResetEmail> = sentPasswordResetEmails.toList()
+
     fun clear() {
         sentEmails.clear()
         sentVerificationLinks.clear()
+        sentPasswordResetEmails.clear()
     }
 }
 

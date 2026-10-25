@@ -5,10 +5,9 @@ import org.flexstore.domain.email.*
 import org.flexstore.domain.user.model.UserId
 import org.flexstore.infra.spring.adapter.jpa.EmailVerificationEntity
 import org.flexstore.infra.spring.adapter.jpa.JpaEmailVerificationRepository
+import org.flexstore.infra.spring.adapter.jpa.hash
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
-import java.security.MessageDigest
-import java.util.HexFormat
 
 // The emails of the shop: sent by the EmailSender (SMTP or logs), the verifications kept in PostgreSQL
 @Repository
@@ -22,10 +21,12 @@ class EmailRepositoryAdapter(
 
     override fun send(link: EmailVerificationLink) = emailSender.send(link)
 
+    override fun send(email: PasswordResetEmail) = emailSender.send(email)
+
     override fun save(verification: EmailVerification) {
         val verificationEntity = EmailVerificationEntity(
             Identity.nextId().value,
-            tokenHash = hash(verification.token),
+            tokenHash = verification.token.hash(),
             userId = verification.userId.value,
             expiresAt = verification.expiresAt.value
         )
@@ -34,7 +35,7 @@ class EmailRepositoryAdapter(
 
     @Transactional(readOnly = true)
     override fun findBy(token: VerificationToken): EmailVerification? =
-        jpaVerifications.findByTokenHash(hash(token))
+        jpaVerifications.findByTokenHash(token.hash())
             ?.let { EmailVerification(UserId.ValidUserId(it.userId), token, ExpirationDate(it.expiresAt)) }
 
     override fun expireAllVerificationsOf(userId: UserId, expiration: ExpirationDate) {
@@ -44,9 +45,4 @@ class EmailRepositoryAdapter(
     override fun deleteAllVerificationsOf(userId: UserId) {
         jpaVerifications.deleteAllByUserId(userId.value)
     }
-
-    // The token is the secret of the link: the database only keeps its hash, and the token is found back by
-    // hashing it
-    private fun hash(token: VerificationToken): String =
-        HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(token.value.toByteArray()))
 }

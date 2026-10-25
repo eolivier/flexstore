@@ -59,8 +59,13 @@
           prepend-inner-icon="mdi-lock-outline"
           autocomplete="current-password"
           required
-          class="mb-4"
+          class="mb-1"
         />
+        <div class="text-right mb-4">
+          <router-link :to="{ path: '/forgot-password', query: email ? { email } : {} }" class="text-body-2">
+            {{ t('login.forgotPassword') }}
+          </router-link>
+        </div>
 
         <v-alert v-if="authStore.loginError" type="error" density="compact" class="mb-4">
           {{ authStore.refusedStatus ? t(`login.refused.${authStore.refusedStatus}`) : t('login.error') }}

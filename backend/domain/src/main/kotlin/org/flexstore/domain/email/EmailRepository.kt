@@ -7,6 +7,7 @@ import org.flexstore.domain.user.model.UserId
 interface EmailRepository {
     fun send(email: OrderConfirmationEmail)
     fun send(link: EmailVerificationLink)
+    fun send(email: PasswordResetEmail)
 
     fun save(verification: EmailVerification)
     fun findBy(token: VerificationToken): EmailVerification?

@@ -11,6 +11,7 @@ import org.springframework.mail.javamail.JavaMailSender
 interface EmailSender {
     fun send(email: OrderConfirmationEmail)
     fun send(link: EmailVerificationLink)
+    fun send(email: PasswordResetEmail)
 }
 
 /**
@@ -41,6 +42,13 @@ class SmtpEmailSender(
             .onFailure { logger.error("Verification email to ${link.recipient.value} not sent", it) }
     }
 
+    override fun send(email: PasswordResetEmail) {
+        val content = PasswordResetEmailContent(email, shopUrl)
+        runCatching { mailSender.send(message(email.recipient, content)) }
+            .onSuccess { logger.info("Password reset email sent to {}", email.recipient.value) }
+            .onFailure { logger.error("Password reset email to ${email.recipient.value} not sent", it) }
+    }
+
     private fun message(recipient: Email, content: EmailContent) = SimpleMailMessage().apply {
         from = sender
         setTo(recipient.value)
@@ -62,6 +70,10 @@ class LoggingEmailSender(private val shopUrl: ShopUrl) : EmailSender {
     override fun send(link: EmailVerificationLink) {
         val content = EmailVerificationLinkContent(link)
         log(link.recipient, content)
+    }
+
+    override fun send(email: PasswordResetEmail) {
+        log(email.recipient, PasswordResetEmailContent(email, shopUrl))
     }
 
     private fun log(recipient: Email, content: EmailContent) = logger.info(

@@ -1,6 +1,6 @@
 # Physical data model
 
-The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V20**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
+The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V21**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
 
 ![Physical data model](database.png)
 
@@ -28,6 +28,15 @@ erDiagram
         id varchar(50) PK
         token_hash varchar(64) UK "SHA-256 of the token of the link"
         user_id varchar(50) FK "a user may have several links over time"
+        expires_at timestamptz
+        created_at timestamp
+        updated_at timestamp
+    }
+
+    password_reset {
+        id varchar(50) PK
+        token_hash varchar(64) UK "SHA-256 of the token of the link"
+        user_id varchar(50) FK,UK "only the last link asked"
         expires_at timestamptz
         created_at timestamp
         updated_at timestamp
@@ -145,6 +154,7 @@ erDiagram
     }
 
     user ||--o{ email_verification : "user_id (cascade)"
+    user ||--o| password_reset : "user_id (cascade)"
     user ||--o{ user_address : "user_id (cascade)"
     user_address }o--|| address : "address_id"
     user ||--o{ customer_order : "user_id (cascade)"

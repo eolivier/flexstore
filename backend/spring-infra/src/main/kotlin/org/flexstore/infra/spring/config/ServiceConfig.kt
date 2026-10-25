@@ -48,6 +48,11 @@ open class ServiceConfig {
     }
 
     @Bean
+    open fun passwordResetService(requestPasswordResetUseCase: RequestPasswordResetUseCase,
+                                  resetPasswordUseCase: ResetPasswordUseCase) =
+        PasswordResetService(requestPasswordResetUseCase, resetPasswordUseCase)
+
+    @Bean
     open fun addressBookService(readAccountUseCase: ReadAccountUseCase, addressUseCases: AddressUseCases) =
         AddressBookService(readAccountUseCase, addressUseCases)
 

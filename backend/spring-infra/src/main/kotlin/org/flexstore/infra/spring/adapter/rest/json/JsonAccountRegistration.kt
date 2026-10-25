@@ -2,7 +2,9 @@ package org.flexstore.infra.spring.adapter.rest.json
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
+import org.flexstore.domain.email.VerificationToken
 import org.flexstore.domain.user.model.*
+import org.flexstore.domain.user.usecase.ChosenPassword
 
 // The account a customer creates for themselves
 data class JsonAccountRegistration @JsonCreator constructor(
@@ -86,3 +88,14 @@ data class JsonPostalAddress @JsonCreator constructor(
 
 // The token of the verification link
 data class JsonEmailVerification @JsonCreator constructor(@JsonProperty("token") val token: String)
+
+// The email of the account whose password is forgotten
+data class JsonPasswordResetRequest @JsonCreator constructor(@JsonProperty("email") val email: String)
+
+// The token of the link to choose a new password, and the new password
+data class JsonChosenPassword @JsonCreator constructor(
+    @JsonProperty("token") val token: String,
+    @JsonProperty("password") val password: String
+) {
+    fun toChosenPassword() = ChosenPassword(VerificationToken(token), PlainPassword(password))
+}
