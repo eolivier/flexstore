@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.adapter.email
 
+import org.flexstore.domain.sharedkernel.ShopUrl
 import org.flexstore.domain.email.*
 import org.slf4j.LoggerFactory
 import org.springframework.mail.SimpleMailMessage
@@ -18,13 +19,13 @@ interface EmailSender {
 class SmtpEmailSender(
     private val mailSender: JavaMailSender,
     private val sender: String,
-    private val frontUrl: String
+    private val shopUrl: ShopUrl
 ) : EmailSender {
 
     private val logger = LoggerFactory.getLogger(SmtpEmailSender::class.java)
 
     override fun send(email: OrderConfirmationEmail) {
-        val content = OrderConfirmationEmailContent(email, frontUrl)
+        val content = OrderConfirmationEmailContent(email, shopUrl)
         val orderNumber = email.order.number()
         runCatching { mailSender.send(message(email.recipient.value, content.subject, content.body)) }
             .onSuccess { logger.info("Order confirmation email of order {} sent to {}", orderNumber, email.recipient.value) }
@@ -47,12 +48,12 @@ class SmtpEmailSender(
 }
 
 // Without SMTP server: the emails are written to the logs (local development, tests)
-class LoggingEmailSender(private val frontUrl: String) : EmailSender {
+class LoggingEmailSender(private val shopUrl: ShopUrl) : EmailSender {
 
     private val logger = LoggerFactory.getLogger(LoggingEmailSender::class.java)
 
     override fun send(email: OrderConfirmationEmail) {
-        val content = OrderConfirmationEmailContent(email, frontUrl)
+        val content = OrderConfirmationEmailContent(email, shopUrl)
         log(email.recipient.value, content.subject, content.body)
     }
 

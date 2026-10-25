@@ -1,5 +1,7 @@
 package org.flexstore.infra.spring.adapter.email
 
+import org.flexstore.domain.order.OrderPage
+import org.flexstore.domain.sharedkernel.ShopUrl
 import org.flexstore.domain.email.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.sharedkernel.*
@@ -12,7 +14,7 @@ private val FRENCH = Locale.FRANCE
 private val DATE_FORMAT = DateTimeFormatter.ofPattern("d MMMM yyyy", FRENCH).withZone(ZoneId.of("Europe/Paris"))
 
 // The wording of the order confirmation email (in French, the language of the shop)
-class OrderConfirmationEmailContent(email: OrderConfirmationEmail, frontUrl: String) {
+class OrderConfirmationEmailContent(email: OrderConfirmationEmail, shopUrl: ShopUrl) {
 
     private val order = email.order
 
@@ -29,7 +31,7 @@ class OrderConfirmationEmailContent(email: OrderConfirmationEmail, frontUrl: Str
         appendLine()
         appendLine("Total : ${amount(order.totalPrice())}")
         appendLine()
-        appendLine("Suivez votre commande depuis votre compte : ${frontUrl.trimEnd('/')}/orders/${order.orderId.value}")
+        appendLine("Suivez votre commande depuis votre compte : ${OrderPage.of(shopUrl, order.orderId).url}")
         appendLine()
         append("L'équipe Flexstore")
     }

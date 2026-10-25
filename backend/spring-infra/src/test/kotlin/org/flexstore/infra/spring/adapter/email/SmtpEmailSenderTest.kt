@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.adapter.email
 
+import org.flexstore.domain.sharedkernel.ShopUrl
 import org.assertj.core.api.Assertions.assertThat
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.email.*
@@ -35,7 +36,8 @@ class SmtpEmailSenderTest {
     private val order = Order.place(orderPlacement, Cart(customer).add(lamp, Quantity(1)))
     private val email = OrderConfirmationEmail(Email("jane@example.com"), FullName(FirstName("Jane"), LastName("Doe")), order)
     private val mailSender = mock(JavaMailSender::class.java)
-    private val adapter = SmtpEmailSender(mailSender, "Flexstore <no-reply@flexstore.com>", "https://flexstore.example")
+    private val shopUrl = ShopUrl("https://flexstore.example")
+    private val adapter = SmtpEmailSender(mailSender, "Flexstore <no-reply@flexstore.com>", shopUrl)
 
     @Test
     fun `should log the email sent`(output: CapturedOutput) {

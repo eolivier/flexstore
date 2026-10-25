@@ -14,7 +14,7 @@ class EmailConfigTest {
 
     private val contextRunner = ApplicationContextRunner()
         .withConfiguration(AutoConfigurations.of(MailSenderAutoConfiguration::class.java))
-        .withUserConfiguration(EmailConfig::class.java)
+        .withUserConfiguration(ShopConfig::class.java, EmailConfig::class.java)
         .withPropertyValues("flexstore.mail.from=Flexstore <no-reply@flexstore.com>", "flexstore.front-url=http://localhost:5173")
 
     @ParameterizedTest(name = "spring.mail.host = \"{0}\" -> {1}")
