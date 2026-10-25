@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import AdminBreadcrumbs from '@/components/admin/AdminBreadcrumbs.vue';
   import { computed, nextTick, onMounted, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useUsersStore, type EditedUser, type UserEdition } from '@/stores/users.store';
@@ -61,6 +62,7 @@
 
 <template>
   <v-container class="page py-10">
+    <AdminBreadcrumbs />
     <h1 class="text-h4 font-weight-bold mb-6">{{ t('editUser.title') }}</h1>
     <v-skeleton-loader v-if="editedUser === null" type="article" class="rounded-xl" />
     <v-alert v-else-if="editedUser === false" type="error" variant="tonal">{{

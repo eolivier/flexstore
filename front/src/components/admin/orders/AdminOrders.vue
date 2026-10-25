@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import AdminBreadcrumbs from '@/components/admin/AdminBreadcrumbs.vue';
   import { computed, onMounted, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import type { JsonOrder } from '@/generated';
@@ -39,6 +40,7 @@
 
 <template>
   <v-container class="py-10">
+    <AdminBreadcrumbs />
     <h1 class="text-h4 font-weight-bold">{{ t('adminOrders.title') }}</h1>
     <p class="text-body-2 text-medium-emphasis mt-1 mb-6">
       {{ t('adminOrders.count', adminOrdersStore.orders.length) }}

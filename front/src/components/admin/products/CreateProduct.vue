@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import AdminBreadcrumbs from '@/components/admin/AdminBreadcrumbs.vue';
   import { nextTick, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useProductsStore } from '@/stores/products.store.ts';
@@ -47,6 +48,7 @@
 
 <template>
   <v-container class="page py-10">
+    <AdminBreadcrumbs />
     <h1 class="text-h4 font-weight-bold mb-6">{{ t('createProduct.title') }}</h1>
     <v-card class="pa-6">
       <v-form ref="formRef" v-model="valid" @submit.prevent="submitForm">

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import AdminBreadcrumbs from '@/components/admin/AdminBreadcrumbs.vue';
   import { onMounted } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useSettingsStore } from '@/stores/settings.store';
@@ -14,6 +15,7 @@
 
 <template>
   <v-container class="page py-10">
+    <AdminBreadcrumbs />
     <h1 class="text-h4 font-weight-bold mb-1">{{ t('settings.title') }}</h1>
     <p class="text-body-2 text-medium-emphasis mb-8">{{ t('settings.subtitle') }}</p>
 
