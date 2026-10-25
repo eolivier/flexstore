@@ -15,6 +15,8 @@ describe('matchesFilter', () => {
     { filter: { ...noFilter }, stock: 3, matches: true },
     { filter: { ...noFilter, text: 'jacket' }, stock: 3, matches: true },
     { filter: { ...noFilter, text: 'RAIN' }, stock: 3, matches: true },
+    { filter: { ...noFilter, text: 'rain jacket' }, stock: 3, matches: true },
+    { filter: { ...noFilter, text: 'jacket snow' }, stock: 3, matches: false },
     { filter: { ...noFilter, text: 'laptop' }, stock: 3, matches: false },
     { filter: { ...noFilter, category: 'CLOTHING' }, stock: 3, matches: true },
     { filter: { ...noFilter, category: 'ELECTRONICS' }, stock: 3, matches: false },
