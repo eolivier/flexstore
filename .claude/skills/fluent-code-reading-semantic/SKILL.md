@@ -1,6 +1,6 @@
 ---
 name: fluent-code-reading-semantic
-description: Principles that make code read like the business language - wrapping collections in their own class, naming boolean methods affirmatively, naming variables after their type, intermediate variables, strong types rather than nullable ones, one or two arguments per method, lines of 113 characters at most, singular or plural names. Use before writing, changing or reviewing domain or application code (entities, value objects, aggregates, use cases), in any language.
+description: Principles that make code read like the business language - wrapping collections in their own class, naming boolean methods affirmatively, naming variables after their type, intermediate variables, strong types rather than nullable ones, one or two arguments per method, lines of 113 characters at most, singular or plural names, no repeated names. Use before writing, changing or reviewing domain or application code (entities, value objects, aggregates, use cases), in any language.
 ---
 
 # Fluent code reading semantic
@@ -334,3 +334,33 @@ Why: the reader expects one value behind a singular name and a collection behind
 Details:
 - A plural class is the wrapper of the singular one: `Items` wraps `Item`, `OrderLines` wraps `OrderLine`, `PostalAddresses` wraps `PostalAddress`.
 - Variables and properties follow the same rule: `orderDetail` for one, `orderDetails` for the collection.
+
+## 13. Do not repeat a name: `location = location`
+
+When the value passed has the same name as the parameter or the property it fills, do not write the name twice. Pass it positionally in Kotlin, or use the shorthand property in TypeScript; when a named argument is the only way (a `copy` of a data class), build the object with its constructor instead.
+
+Avoid:
+
+```kotlin
+private fun addressAt(location: Location) = address.copy(location = location)
+CustomerRegistration(userId = userId, fullName = fullName, email = email)
+```
+```ts
+const postalAddress = { firstName: firstName, lastName: lastName };
+```
+
+Prefer:
+
+```kotlin
+private fun addressAt(location: Location) = PostalAddress(janeDoe, location)
+CustomerRegistration(userId, fullName, email)
+```
+```ts
+const postalAddress = { firstName, lastName };
+```
+
+Why: the repeated name adds nothing to read, and hides among the arguments the one that really says something (`city = City("")`).
+
+Details:
+- A named argument stays useful when the name says what the value means and the value does not (`quantity = 1`, `status = AccountStatus.ACTIVE`), or to skip default parameters.
+- A mapping between layers with different names keeps the names (`street = location.street.value`).
