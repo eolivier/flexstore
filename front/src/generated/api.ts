@@ -182,6 +182,21 @@ export interface JsonOrderLine {
     'linePrice': number;
 }
 /**
+ * The status of the order when the administrator asks to move it to the next one
+ */
+export interface JsonOrderStatusAdvance {
+    'currentStatus': JsonOrderStatusAdvanceCurrentStatusEnum;
+}
+
+export const JsonOrderStatusAdvanceCurrentStatusEnum = {
+    Processing: 'PROCESSING',
+    Shipped: 'SHIPPED',
+    Delivered: 'DELIVERED'
+} as const;
+
+export type JsonOrderStatusAdvanceCurrentStatusEnum = typeof JsonOrderStatusAdvanceCurrentStatusEnum[keyof typeof JsonOrderStatusAdvanceCurrentStatusEnum];
+
+/**
  * A postal address: its recipient, maybe someone else than the user, and where it is. The recipient is a person (PRIVATE_INDIVIDUAL, with firstName and lastName) or a company (LEGAL_ENTITY, with companyName and an optional vatNumber) 
  */
 export interface JsonPostalAddress {
@@ -590,6 +605,185 @@ export class AccountsApi extends BaseAPI {
      */
     public verifyEmail(jsonEmailVerification: JsonEmailVerification, options?: RawAxiosRequestConfig) {
         return AccountsApiFp(this.configuration).verifyEmail(jsonEmailVerification, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * AdministrationApi - axios parameter creator
+ */
+export const AdministrationApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Move an order to the next status of its life cycle, PROCESSING then SHIPPED then DELIVERED (ADMIN role)
+         * @param {string} id 
+         * @param {JsonOrderStatusAdvance} jsonOrderStatusAdvance 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        advanceOrderStatus: async (id: string, jsonOrderStatusAdvance: JsonOrderStatusAdvance, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('advanceOrderStatus', 'id', id)
+            // verify required parameter 'jsonOrderStatusAdvance' is not null or undefined
+            assertParamExists('advanceOrderStatus', 'jsonOrderStatusAdvance', jsonOrderStatusAdvance)
+            const localVarPath = `/api/admin/orders/{id}/status/advance`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonOrderStatusAdvance, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Retrieve the orders of all the customers, newest first (ADMIN role)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAllOrders: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/orders`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * AdministrationApi - functional programming interface
+ */
+export const AdministrationApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = AdministrationApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Move an order to the next status of its life cycle, PROCESSING then SHIPPED then DELIVERED (ADMIN role)
+         * @param {string} id 
+         * @param {JsonOrderStatusAdvance} jsonOrderStatusAdvance 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async advanceOrderStatus(id: string, jsonOrderStatusAdvance: JsonOrderStatusAdvance, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonOrder>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.advanceOrderStatus(id, jsonOrderStatusAdvance, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdministrationApi.advanceOrderStatus']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Retrieve the orders of all the customers, newest first (ADMIN role)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getAllOrders(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<JsonOrder>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getAllOrders(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdministrationApi.getAllOrders']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * AdministrationApi - factory interface
+ */
+export const AdministrationApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = AdministrationApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Move an order to the next status of its life cycle, PROCESSING then SHIPPED then DELIVERED (ADMIN role)
+         * @param {string} id 
+         * @param {JsonOrderStatusAdvance} jsonOrderStatusAdvance 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        advanceOrderStatus(id: string, jsonOrderStatusAdvance: JsonOrderStatusAdvance, options?: RawAxiosRequestConfig): AxiosPromise<JsonOrder> {
+            return localVarFp.advanceOrderStatus(id, jsonOrderStatusAdvance, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Retrieve the orders of all the customers, newest first (ADMIN role)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAllOrders(options?: RawAxiosRequestConfig): AxiosPromise<Array<JsonOrder>> {
+            return localVarFp.getAllOrders(options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * AdministrationApi - object-oriented interface
+ */
+export class AdministrationApi extends BaseAPI {
+    /**
+     * 
+     * @summary Move an order to the next status of its life cycle, PROCESSING then SHIPPED then DELIVERED (ADMIN role)
+     * @param {string} id 
+     * @param {JsonOrderStatusAdvance} jsonOrderStatusAdvance 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public advanceOrderStatus(id: string, jsonOrderStatusAdvance: JsonOrderStatusAdvance, options?: RawAxiosRequestConfig) {
+        return AdministrationApiFp(this.configuration).advanceOrderStatus(id, jsonOrderStatusAdvance, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Retrieve the orders of all the customers, newest first (ADMIN role)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getAllOrders(options?: RawAxiosRequestConfig) {
+        return AdministrationApiFp(this.configuration).getAllOrders(options).then((request) => request(this.axios, this.basePath));
     }
 }
 

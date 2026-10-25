@@ -17,11 +17,12 @@ import UserProfile from './components/UserProfile.vue';
 import Orders from './components/orders/Orders.vue';
 import OrderDetail from './components/orders/OrderDetail.vue';
 import OrderConfirmation from './components/orders/OrderConfirmation.vue';
-import Products from "./components/products/Products.vue";
+import Products from './components/products/Products.vue';
 import ProductDetail from './components/products/ProductDetail.vue';
 import CreateProduct from './components/admin/products/CreateProduct.vue';
 import AdminProducts from './components/admin/products/AdminProducts.vue';
 import EditProduct from './components/admin/products/EditProduct.vue';
+import AdminOrders from './components/admin/orders/AdminOrders.vue';
 import ShopSettings from './components/admin/settings/ShopSettings.vue';
 import Login from './components/Login.vue';
 import SignUp from './components/account/SignUp.vue';
@@ -37,7 +38,12 @@ const routes = [
   { path: '/checkout', component: Checkout, meta: { requiresAuth: true } },
   { path: '/orders', component: Orders, meta: { requiresAuth: true } },
   { path: '/orders/:id', component: OrderDetail, props: true, meta: { requiresAuth: true } },
-  { path: '/orders/:id/confirmation', component: OrderConfirmation, props: true, meta: { requiresAuth: true } },
+  {
+    path: '/orders/:id/confirmation',
+    component: OrderConfirmation,
+    props: true,
+    meta: { requiresAuth: true },
+  },
   { path: '/user-profile', component: UserProfile },
   { path: '/products/', component: Products },
   { path: '/products/clothing', component: Products, props: { category: 'CLOTHING' } },
@@ -49,12 +55,43 @@ const routes = [
   { path: '/verify-email', component: VerifyEmail },
   { path: '/admin', component: AdminHome, meta: { requiresAuth: true, requiresAdmin: true } },
   { path: '/admin/users', component: Users, meta: { requiresAuth: true, requiresAdmin: true } },
-  { path: '/admin/users/:id/edit', component: EditUser, props: true, meta: { requiresAuth: true, requiresAdmin: true } },
-  { path: '/admin/create-user', component: CreateUser, meta: { requiresAuth: true, requiresAdmin: true } },
-  { path: '/admin/products', component: AdminProducts, meta: { requiresAuth: true, requiresAdmin: true } },
-  { path: '/admin/products/:id/edit', component: EditProduct, props: true, meta: { requiresAuth: true, requiresAdmin: true } },
-  { path: '/admin/create-product', component: CreateProduct, meta: { requiresAuth: true, requiresAdmin: true } },
-  { path: '/admin/settings', component: ShopSettings, meta: { requiresAuth: true, requiresAdmin: true } },
+  {
+    path: '/admin/users/:id/edit',
+    component: EditUser,
+    props: true,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/admin/create-user',
+    component: CreateUser,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/admin/products',
+    component: AdminProducts,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/admin/orders',
+    component: AdminOrders,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/admin/products/:id/edit',
+    component: EditProduct,
+    props: true,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/admin/create-product',
+    component: CreateProduct,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/admin/settings',
+    component: ShopSettings,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
   { path: '/about', component: About },
 ];
 const router = createRouter({

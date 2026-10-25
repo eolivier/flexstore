@@ -1,0 +1,148 @@
+package org.flexstore.infra.spring.rest
+
+import com.fasterxml.jackson.databind.ObjectMapper
+import org.flexstore.infra.spring.adapter.jpa.JpaCartItemRepository
+import org.flexstore.infra.spring.adapter.jpa.JpaCartRepository
+import org.flexstore.infra.spring.adapter.jpa.JpaOrderRepository
+import org.flexstore.infra.spring.adapter.jpa.JpaUserRepository
+import org.flexstore.infra.spring.adapter.jpa.UserEntity
+import org.flexstore.infra.spring.adapter.rest.json.JsonItem
+import org.flexstore.infra.spring.security.asAdmin
+import org.flexstore.infra.spring.security.asUser
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.http.MediaType
+import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.math.BigDecimal
+
+private const val CUSTOMER_ID = "it-admin-order-customer"
+
+@ActiveProfiles("test")
+@SpringBootTest
+@AutoConfigureMockMvc
+class AdminOrderIT {
+
+    @Autowired
+    private lateinit var mockMvc: MockMvc
+
+    @Autowired
+    private lateinit var objectMapper: ObjectMapper
+
+    @Autowired
+    private lateinit var orderRepository: JpaOrderRepository
+
+    @Autowired
+    private lateinit var cartItemRepository: JpaCartItemRepository
+
+    @Autowired
+    private lateinit var cartRepository: JpaCartRepository
+
+    @Autowired
+    private lateinit var userRepository: JpaUserRepository
+
+    @BeforeEach
+    fun createCustomer() {
+        cleanUp()
+        userRepository.save(UserEntity(CUSTOMER_ID, "Jane", "Doe", "it-admin-order-customer@example.com", "not-used"))
+    }
+
+    @AfterEach
+    fun cleanUp() {
+        orderRepository.deleteAll(orderRepository.findAllByUserId(CUSTOMER_ID))
+        cartRepository.findByUserId(CUSTOMER_ID)?.let { cart ->
+            cartItemRepository.deleteAll(cartItemRepository.findAll().filter { it.cartId == cart.id })
+            cartRepository.delete(cart)
+        }
+        if (userRepository.existsById(CUSTOMER_ID)) userRepository.deleteById(CUSTOMER_ID)
+    }
+
+    @Test
+    fun `only an administrator should list the orders of all the customers`() {
+        // Act
+        val response = mockMvc.perform(get("/api/admin/orders").with(asUser(CUSTOMER_ID)))
+        // Assert
+        response.andExpect(status().isForbidden)
+    }
+
+    @Test
+    fun `an administrator should list the orders of the other customers`() {
+        // Arrange
+        val orderId = placeOrder()
+        // Act
+        val response = mockMvc.perform(get("/api/admin/orders").with(asAdmin()))
+        // Assert
+        response.andExpect(status().isOk)
+            .andExpect(jsonPath("$[?(@.id == '$orderId')].status").value("PROCESSING"))
+    }
+
+    @ParameterizedTest(name = "advancing {0} times should make the order {1}")
+    @CsvSource("1, SHIPPED", "2, DELIVERED")
+    fun `an administrator should move an order along its life cycle`(advances: Int, expectedStatus: String) {
+        // Arrange
+        val orderId = placeOrder()
+        val statuses = listOf("PROCESSING", "SHIPPED").take(advances)
+        statuses.dropLast(1).forEach { advance(orderId, it).andExpect(status().isOk) }
+        // Act
+        val response = advance(orderId, statuses.last())
+        // Assert
+        response.andExpect(status().isOk).andExpect(jsonPath("$.status").value(expectedStatus))
+    }
+
+    @Test
+    fun `an order whose status changed in the meantime should not move`() {
+        // Arrange
+        val orderId = placeOrder()
+        advance(orderId, "PROCESSING").andExpect(status().isOk)
+        // Act
+        val response = advance(orderId, "PROCESSING")
+        // Assert
+        response.andExpect(status().isConflict)
+    }
+
+    @Test
+    fun `a delivered order should not move`() {
+        // Arrange
+        val orderId = placeOrder()
+        advance(orderId, "PROCESSING").andExpect(status().isOk)
+        advance(orderId, "SHIPPED").andExpect(status().isOk)
+        // Act
+        val response = advance(orderId, "DELIVERED")
+        // Assert
+        response.andExpect(status().isConflict)
+    }
+
+    @Test
+    fun `an unknown order should not be found`() {
+        // Act
+        val response = advance("unknown-order", "PROCESSING")
+        // Assert
+        response.andExpect(status().isNotFound)
+    }
+
+    private fun advance(orderId: String, currentStatus: String) = mockMvc.perform(
+        post("/api/admin/orders/$orderId/status/advance").with(asAdmin())
+            .contentType(MediaType.APPLICATION_JSON).content("""{"currentStatus": "$currentStatus"}""")
+    )
+
+    private fun placeOrder(): String {
+        val item = JsonItem("", "6", "Product", "Description", "ELECTRONICS", BigDecimal.TEN, "€", 1)
+        mockMvc.perform(
+            post("/api/cart/save").with(asUser(CUSTOMER_ID)).contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(item))
+        ).andExpect(status().isOk)
+        val body = mockMvc.perform(post("/api/orders").withHomeAddresses().with(asUser(CUSTOMER_ID)))
+            .andExpect(status().isCreated).andReturn().response.contentAsString
+        return objectMapper.readTree(body)["id"].asText()
+    }
+}

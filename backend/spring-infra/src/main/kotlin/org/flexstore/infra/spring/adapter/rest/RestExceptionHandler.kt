@@ -50,6 +50,10 @@ class RestExceptionHandler {
             is VerificationLinkExpiredException -> ResponseEntity
                 .status(410)
                 .body(mapOf("error" to (ex.message ?: "Expired verification link")))
+            // The order changed status in the meantime, or is already delivered: the front reloads the orders
+            is OrderStatusChangedException, is OrderStatusCannotAdvanceException -> ResponseEntity
+                .status(409)
+                .body(mapOf("error" to (ex.message ?: "The status of the order cannot advance")))
             is AccountAlreadyVerifiedException -> ResponseEntity
                 .status(409)
                 .body(mapOf("error" to (ex.message ?: "Email already verified")))

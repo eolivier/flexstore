@@ -17,4 +17,6 @@ class InMemoryOrderRepository : OrderRepository {
     override fun orderExists(orderId: OrderId): Boolean = orders.containsKey(orderId)
 
     override fun findAllBy(customer: UserId.ValidUserId) = Orders(orders.values.filter { it.customer == customer })
+
+    override fun findAll() = Orders(orders.values.toList())
 }

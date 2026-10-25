@@ -38,6 +38,9 @@ data class Order(val detail: OrderDetail, val status: OrderStatus) {
 
     fun belongsTo(customer: UserId.ValidUserId) = this.customer == customer
 
+    // The order at the next status of its life cycle
+    fun advanced() = copy(status = status.next())
+
     companion object {
         fun place(orderPlacement: OrderPlacement, cart: Cart): Order {
             if (cart.isEmpty()) {
@@ -94,7 +97,23 @@ data class OrderId(val value: String) {
     }
 }
 
-enum class OrderStatus { PROCESSING, SHIPPED, DELIVERED }
+// The life cycle of an order: being processed, then shipped, then delivered (the last status)
+enum class OrderStatus {
+    PROCESSING, SHIPPED, DELIVERED;
+
+    fun hasNext() = this != DELIVERED
+
+    fun isLast() = this == DELIVERED
+
+    fun next(): OrderStatus = when (this) {
+        PROCESSING -> SHIPPED
+        SHIPPED -> DELIVERED
+        DELIVERED -> throw OrderStatusCannotAdvanceException(ErrorMessage("A delivered order has no next status"))
+    }
+}
+
+// An order to move to the next status of its life cycle, from the status it has when the administrator sees it
+data class OrderStatusAdvance(val orderId: OrderId, val currentStatus: OrderStatus)
 
 data class OrderLine(val productId: ProductId, val productName: Name, val unitPrice: Price, val quantity: Quantity) {
     fun linePrice() = unitPrice.multiply(quantity)
@@ -132,5 +151,9 @@ data class Orders(private val orders: List<Order>) {
 data class EmptyCartException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class IncompleteOrderAddressException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class OrderRefusedException(val status: AccountStatus, override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class OrderStatusCannotAdvanceException(override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
+data class OrderStatusChangedException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class OrderStatusAdvanceFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class OrderNotFoundException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class OrderPlacementFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
