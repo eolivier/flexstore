@@ -4,12 +4,15 @@ import org.flexstore.domain.cart.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.payment.*
 import org.flexstore.domain.sharedkernel.ErrorMessage
+import org.flexstore.domain.stock.StockRepository
 import org.ucop.domain.entity.*
 
-// The payment provider confirms the payment of an order: the order is paid, and the cart of its customer emptied
+// The payment provider confirms the payment of an order: the order is paid, its units are taken out of the
+// stock, and the cart of its customer emptied
 class ConfirmPaymentUseCase(
     private val orderRepository: OrderRepository,
-    private val cartRepository: CartRepository
+    private val cartRepository: CartRepository,
+    private val stockRepository: StockRepository
 ) : UseCase<OrderId> {
 
     override fun getPreConditions(): PreConditions<OrderId> =
@@ -24,7 +27,14 @@ class ConfirmPaymentUseCase(
             val customer = CartOwner.Customer(orderRepository.findById(orderId)!!.customer)
             cartRepository.save(cartRepository.load(customer).emptied())
         }
-        return NominalScenario(listOf(payStep, emptyCartStep))
+        val withdrawStockStep = Step<OrderId> { orderId ->
+            val order = orderRepository.findById(orderId)!!
+            order.lines.asList().forEach { line ->
+                val stock = stockRepository.stockOf(line.productId)
+                stockRepository.save(stock.withdrawn(line.quantity))
+            }
+        }
+        return NominalScenario(listOf(payStep, withdrawStockStep, emptyCartStep))
     }
 
     override fun getPostConditions(): PostConditions<OrderId> = PostConditions(orderIsPaidCondition())

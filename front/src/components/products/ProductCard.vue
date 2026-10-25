@@ -4,8 +4,10 @@
   import type { Product } from '@/models/product';
   import { categoryInfo } from './categories';
   import { formatPrice } from '@/utils/price';
+  import StockBadge from './StockBadge.vue';
 
-  const props = defineProps<{ product: Product; adding?: boolean }>();
+  // stock: the units of the product, null while unknown
+  const props = defineProps<{ product: Product; stock?: number | null; adding?: boolean }>();
   defineEmits<{ (e: 'add', product: Product): void }>();
 
   const { t, locale } = useI18n();
@@ -34,12 +36,16 @@
       <p class="product-description text-body-2 text-medium-emphasis mb-4">{{ product.description }}</p>
 
       <div class="mt-auto">
-        <div class="text-h6 font-weight-bold mb-3">{{ price }}</div>
+        <div class="d-flex align-center justify-space-between flex-wrap ga-2 mb-3">
+          <span class="text-h6 font-weight-bold">{{ price }}</span>
+          <StockBadge v-if="stock !== null && stock !== undefined" :quantity="stock" />
+        </div>
         <v-btn
           color="primary"
           prepend-icon="mdi-cart-plus"
           block
           :loading="adding"
+          :disabled="stock === 0"
           @click="$emit('add', product)"
         >
           {{ t('products.addToCart') }}

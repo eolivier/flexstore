@@ -14,6 +14,7 @@ export type OrderPlacement =
   | { status: 'emptyCart' }
   | { status: 'refused' }
   | { status: 'incompleteAddress' }
+  | { status: 'outOfStock' }
   | { status: 'error' };
 
 // The orders of the signed-in customer
@@ -62,6 +63,7 @@ export const useOrdersStore = defineStore('orders', () => {
       });
       if (response.status === 400) return { status: 'incompleteAddress' };
       if (response.status === 403) return { status: 'refused' };
+      if (response.status === 409) return { status: 'outOfStock' };
       if (response.status === 422) return { status: 'emptyCart' };
       if (!response.ok) return { status: 'error' };
       const order: JsonOrder = await response.json();

@@ -11,12 +11,16 @@
   import CartSnackbar from '@/components/cart/CartSnackbar.vue';
   import { categoryInfo, shopCategories } from './categories';
   import { formatPrice } from '@/utils/price';
+  import { useStocksStore } from '@/stores/stocks.store';
+  import StockBadge from './StockBadge.vue';
 
   const props = defineProps<{ id: string }>();
 
   const { t, locale } = useI18n();
   const productsStore = useProductsStore();
   const cartStore = useCartStore();
+  const stocksStore = useStocksStore();
+  stocksStore.fetchStocks();
   const { addingProductId, feedback, addToCart } = useAddToCart();
 
   const product = ref<Product | null>(null);
@@ -49,6 +53,7 @@
   const categoryLink = computed(
     () => shopCategories.find((c) => c.code === product.value?.category)?.to ?? '/products/'
   );
+  const stock = computed(() => (product.value ? stocksStore.quantityOf(product.value.id) : null));
   const price = computed(() => formatPrice(product.value?.price, product.value?.currency, locale.value));
   const quantityInCart = computed(
     () => cartStore.cartItems?.items.find((item) => item.productId === product.value?.id)?.productQuantity ?? 0
@@ -118,7 +123,10 @@
             {{ t(category.label) }}
           </router-link>
           <h1 class="text-h4 font-weight-bold mb-3">{{ product.name }}</h1>
-          <div class="text-h4 font-weight-bold text-primary mb-5">{{ price }}</div>
+          <div class="d-flex align-center flex-wrap ga-3 mb-5">
+            <span class="text-h4 font-weight-bold text-primary">{{ price }}</span>
+            <StockBadge v-if="stock !== null" :quantity="stock" />
+          </div>
           <p class="text-body-1 text-medium-emphasis mb-8">{{ product.description }}</p>
 
           <div class="d-flex flex-wrap align-center ga-4 mb-3">
@@ -132,6 +140,7 @@
               prepend-icon="mdi-cart-plus"
               class="flex-grow-1 align-self-end"
               :loading="addingProductId === product.id"
+              :disabled="stock === 0"
               @click="add"
             >
               {{ t('products.addToCart') }}

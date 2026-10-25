@@ -3,6 +3,7 @@ package org.flexstore.domain.order.usecase
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.sharedkernel.ErrorMessage
+import org.flexstore.domain.stock.*
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
 import org.ucop.domain.entity.*
@@ -10,7 +11,8 @@ import org.ucop.domain.entity.*
 class PlaceOrderUseCase(
     private val cartRepository: CartRepository,
     private val orderRepository: OrderRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val stockRepository: StockRepository
 ) : UseCase<OrderPlacement> {
 
     override fun getPreConditions(): PreConditions<OrderPlacement> =
@@ -18,6 +20,7 @@ class PlaceOrderUseCase(
             customerIsKnownCondition(),
             accountAllowsOrderingCondition(),
             cartHasItemsCondition(),
+            stockCoversTheCartCondition(),
             addressesAreCompleteCondition()
         )
 
@@ -64,6 +67,19 @@ class PlaceOrderUseCase(
     private fun cartHasItemsCondition() = PreCondition<OrderPlacement> { orderPlacement ->
         if (cartRepository.load(orderPlacement.customer).isEmpty()) {
             throw EmptyCartException(ErrorMessage("An order cannot be placed from an empty cart."))
+        }
+    }
+
+    // The stock is checked again when the payment is confirmed, which takes the units out of it
+    private fun stockCoversTheCartCondition() = PreCondition<OrderPlacement> { orderPlacement ->
+        val cart = cartRepository.load(orderPlacement.customer)
+        val missingProducts = cart.items.fold(emptyList<String>()) { missing, product, quantity ->
+            val stock = stockRepository.stockOf(product.productId)
+            if (stock.doesNotCover(quantity)) missing + product.name.value else missing
+        }
+        if (missingProducts.isNotEmpty()) {
+            val message = ErrorMessage("Not enough units in stock for: ${missingProducts.joinToString()}.")
+            throw OutOfStockException(message)
         }
     }
 

@@ -135,6 +135,7 @@ describe('orders.store', () => {
     { status: 422, expected: 'emptyCart' },
     { status: 403, expected: 'refused' },
     { status: 400, expected: 'incompleteAddress' },
+    { status: 409, expected: 'outOfStock' },
     { status: 500, expected: 'error' },
   ])('an order answered $status is $expected', async ({ status, expected }) => {
     // Arrange

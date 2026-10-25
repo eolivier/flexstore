@@ -1,5 +1,6 @@
 package org.flexstore.domain.payment.usecase
 
+import org.flexstore.domain.stock.*
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.order.*
@@ -23,6 +24,8 @@ class PaymentServiceTest : WithAssertions {
     private val definedUser = User.DefinedUser(customer.userId, janeDoe, email, PlainPassword("pwd"))
     private val orderId = OrderId("order-1")
     private val orderRepository = InMemoryOrderRepository()
+    private val deskLampStock = Stock(deskLamp.productId, StockQuantity(5))
+    private val stockRepository = InMemoryStockRepository().apply { save(deskLampStock) }
     private val cartRepository = InMemoryCartRepository()
     private val userRepository = InMemoryUserRepository().apply { save(definedUser) }
     private val emailRepository = InMemoryEmailRepository()
@@ -33,10 +36,11 @@ class PaymentServiceTest : WithAssertions {
 
     private fun paymentServiceWith(paymentRepository: PaymentRepository): PaymentService {
         val startPaymentUseCase = StartPaymentUseCase(orderRepository, paymentRepository, userRepository)
-        val confirmPaymentUseCase = ConfirmPaymentUseCase(orderRepository, cartRepository)
+        val confirmPaymentUseCase = ConfirmPaymentUseCase(orderRepository, cartRepository, stockRepository)
         val readPaymentUseCase = ReadPaymentUseCase(paymentRepository)
         val paymentUseCases = PaymentUseCases(startPaymentUseCase, confirmPaymentUseCase, readPaymentUseCase)
-        val placeOrderUseCase = PlaceOrderUseCase(cartRepository, orderRepository, userRepository)
+        val placeOrderUseCase =
+            PlaceOrderUseCase(cartRepository, orderRepository, userRepository, stockRepository)
         val orderUseCases = OrderUseCases(placeOrderUseCase, readOrdersUseCase, sendEmailUseCase)
         return PaymentService(paymentUseCases, orderUseCases)
     }
@@ -88,6 +92,16 @@ class PaymentServiceTest : WithAssertions {
         assertThat(storedStatus()).isEqualTo(OrderStatus.PAID)
         assertThat(cartRepository.load(customer).isEmpty()).isTrue()
         assertThat(emailRepository.sentEmails()).hasSize(1)
+    }
+
+    @Test
+    fun `a confirmed payment should take the ordered units out of the stock`() {
+        // Arrange
+        placeOrder()
+        // Act
+        paidAtOnce.pay(OrderPayment(customer, orderId))
+        // Assert
+        assertThat(stockRepository.stockOf(deskLamp.productId).quantity).isEqualTo(StockQuantity(4))
     }
 
     @Test

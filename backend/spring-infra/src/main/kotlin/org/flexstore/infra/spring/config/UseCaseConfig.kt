@@ -9,6 +9,8 @@ import org.flexstore.domain.order.*
 import org.flexstore.domain.order.usecase.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.settings.*
+import org.flexstore.domain.stock.*
+import org.flexstore.domain.stock.usecase.*
 import org.flexstore.domain.sharedkernel.ShopUrl
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
@@ -63,8 +65,10 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         StartPaymentUseCase(orderRepository, paymentRepository, userRepository)
 
     @Bean
-    open fun confirmPaymentUseCase(orderRepository: OrderRepository, cartRepository: CartRepository) =
-        ConfirmPaymentUseCase(orderRepository, cartRepository)
+    open fun confirmPaymentUseCase(orderRepository: OrderRepository,
+                                   cartRepository: CartRepository,
+                                   stockRepository: StockRepository) =
+        ConfirmPaymentUseCase(orderRepository, cartRepository, stockRepository)
 
     @Bean
     open fun readPaymentUseCase(paymentRepository: PaymentRepository) = ReadPaymentUseCase(paymentRepository)
@@ -94,9 +98,11 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     }
 
     @Bean
-    open fun placeOrderUseCase(cartRepository: CartRepository, orderRepository: OrderRepository,
-                               userRepository: UserRepository): PlaceOrderUseCase {
-        return PlaceOrderUseCase(cartRepository, orderRepository, userRepository)
+    open fun placeOrderUseCase(cartRepository: CartRepository,
+                               orderRepository: OrderRepository,
+                               userRepository: UserRepository,
+                               stockRepository: StockRepository): PlaceOrderUseCase {
+        return PlaceOrderUseCase(cartRepository, orderRepository, userRepository, stockRepository)
     }
 
     @Bean
@@ -165,4 +171,15 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
                            readOrdersUseCase: ReadOrdersUseCase,
                            sendOrderConfirmationEmailUseCase: SendOrderConfirmationEmailUseCase) =
         OrderUseCases(placeOrderUseCase, readOrdersUseCase, sendOrderConfirmationEmailUseCase)
+
+    @Bean
+    open fun readStockUseCase(stockRepository: StockRepository) = ReadStockUseCase(stockRepository)
+
+    @Bean
+    open fun changeStockUseCase(stockRepository: StockRepository, productRepository: ProductRepository) =
+        ChangeStockUseCase(stockRepository, productRepository)
+
+    @Bean
+    open fun stockUseCases(readStockUseCase: ReadStockUseCase, changeStockUseCase: ChangeStockUseCase) =
+        StockUseCases(readStockUseCase, changeStockUseCase)
 }

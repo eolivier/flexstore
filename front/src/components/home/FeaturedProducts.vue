@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import { useStocksStore } from '@/stores/stocks.store';
   import { computed } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useProductsStore } from '@/stores/products.store';
@@ -11,6 +12,8 @@
 
   const { t } = useI18n();
   const productsStore = useProductsStore();
+  const stocksStore = useStocksStore();
+  stocksStore.fetchStocks();
   const { addingProductId, feedback, addToCart } = useAddToCart();
 
   // Up to 4 products, taken in turn from each category so that the selection is varied
@@ -49,7 +52,12 @@
         </v-col>
       </template>
       <v-col v-for="product in featuredProducts" v-else :key="product.id" cols="12" sm="6" lg="3">
-        <ProductCard :product="product" :adding="addingProductId === product.id" @add="addToCart" />
+        <ProductCard
+          :product="product"
+          :stock="stocksStore.quantityOf(product.id)"
+          :adding="addingProductId === product.id"
+          @add="addToCart"
+        />
       </v-col>
     </v-row>
     <CartSnackbar v-model="feedback" />

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import { useStocksStore } from '@/stores/stocks.store';
   import { computed, onMounted, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useRoute } from 'vue-router';
@@ -15,6 +16,7 @@
   const route = useRoute();
 
   const productsStore = useProductsStore();
+  const stocksStore = useStocksStore();
   const { addingProductId, feedback, addToCart } = useAddToCart();
 
   const title = computed(() => t(props.category ? categoryInfo(props.category).label : 'nav.allProducts'));
@@ -40,6 +42,7 @@
 
   onMounted(() => {
     productsStore.fetchProducts();
+    stocksStore.fetchStocks();
   });
 </script>
 
@@ -96,7 +99,12 @@
 
     <v-row v-else>
       <v-col v-for="product in products" :key="product.id" cols="12" sm="6" md="4" lg="3">
-        <ProductCard :product="product" :adding="addingProductId === product.id" @add="addToCart" />
+        <ProductCard
+          :product="product"
+          :stock="stocksStore.quantityOf(product.id)"
+          :adding="addingProductId === product.id"
+          @add="addToCart"
+        />
       </v-col>
     </v-row>
 
