@@ -19,7 +19,9 @@ data class JsonOrder(
         order.placedAt.toString(),
         order.status.name,
         order.lines.asList().map {
-            JsonOrderLine(it.productId.id.value, it.productName.value, it.unitPrice.amount.value, it.quantity.value, it.linePrice().amount.value)
+            val unitPrice = it.unitPrice.amount.value
+            val linePrice = it.linePrice().amount.value
+            JsonOrderLine(it.productId.id.value, it.productName.value, unitPrice, it.quantity.value, linePrice)
         },
         order.totalPrice().amount.value,
         order.totalPrice().currency.symbol,

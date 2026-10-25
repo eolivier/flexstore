@@ -8,7 +8,8 @@ data class UpdateProductRequest(val product: DefinedProduct)
 
 class UpdateProductUseCase(private val productRepository: ProductRepository) : UseCase<UpdateProductRequest> {
 
-    override fun getPreConditions(): PreConditions<UpdateProductRequest> = PreConditions(productExistsCondition())
+    override fun getPreConditions(): PreConditions<UpdateProductRequest> =
+        PreConditions(productExistsCondition())
 
     override fun getNominalScenario(): NominalScenario<UpdateProductRequest> =
         NominalScenario(Step { request -> productRepository.save(request.product) })
@@ -17,7 +18,8 @@ class UpdateProductUseCase(private val productRepository: ProductRepository) : U
 
     private fun productExistsCondition() = PreCondition<UpdateProductRequest> { request ->
         if (productRepository.productIsMissing(request.product.productId)) {
-            throw ProductNotFoundException(ErrorMessage("Product with ID ${request.product.productId.id.value} does not exist."))
+            val message = ErrorMessage("Product with ID ${request.product.productId.id.value} does not exist.")
+            throw ProductNotFoundException(message)
         }
     }
 }

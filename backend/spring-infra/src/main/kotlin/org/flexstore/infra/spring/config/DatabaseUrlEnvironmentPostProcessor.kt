@@ -22,7 +22,8 @@ open class DatabaseUrlEnvironmentPostProcessor : EnvironmentPostProcessor {
         if (databaseUrl.isNullOrEmpty()) {
             return
         }
-        environment.propertySources.addFirst(MapPropertySource(DATABASE_URL_ENV, datasourceProperties(databaseUrl)))
+        val datasourcePropertySource = MapPropertySource(DATABASE_URL_ENV, datasourceProperties(databaseUrl))
+        environment.propertySources.addFirst(datasourcePropertySource)
     }
 }
 

@@ -116,7 +116,9 @@ data class PostalAddresses(private val addresses: List<PostalAddress>) {
 
     // The given addresses are added at the end, unless they are already there
     fun including(vararg newAddresses: PostalAddress): PostalAddresses {
-        val includedAddresses = newAddresses.fold(addresses) { kept, address -> if (address in kept) kept else kept + address }
+        val includedAddresses = newAddresses.fold(addresses) { kept, address ->
+            if (address in kept) kept else kept + address
+        }
         return PostalAddresses(includedAddresses)
     }
 

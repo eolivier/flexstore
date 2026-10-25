@@ -28,7 +28,8 @@ class PlaceOrderUseCaseTest : WithAssertions {
     private val orderStamp = OrderStamp(OrderId("order-1"), placedAt)
     private val orderPlacement = OrderPlacement(orderStamp, Checkout(customer, homeOrderAddresses))
 
-    private fun postalAddressesOfTheDefinedUser() = (userRepository.findById(customer.userId) as User.DefinedUser).postalAddresses.asList()
+    private fun postalAddressesOfTheDefinedUser() =
+        (userRepository.findById(customer.userId) as User.DefinedUser).postalAddresses.asList()
 
     @Test
     fun `should store the order placed from the cart`() {
@@ -65,7 +66,8 @@ class PlaceOrderUseCaseTest : WithAssertions {
         // Arrange
         val unknownCustomer = CartOwner.Customer(UserId.ValidUserId("unknown-customer"))
         cartRepository.save(Cart(unknownCustomer).add(deskLamp, Quantity(2)))
-        val unknownCustomerOrderPlacement = OrderPlacement(orderStamp, Checkout(unknownCustomer, homeOrderAddresses))
+        val unknownCustomerCheckout = Checkout(unknownCustomer, homeOrderAddresses)
+        val unknownCustomerOrderPlacement = OrderPlacement(orderStamp, unknownCustomerCheckout)
         // Act
         val thrown = catchThrowable { useCase.unfold(unknownCustomerOrderPlacement) }
         // Assert
@@ -76,7 +78,8 @@ class PlaceOrderUseCaseTest : WithAssertions {
     fun `the addresses entered when ordering should become addresses of the customer`() {
         // Arrange
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
-        val orderPlacementBilledToTheOffice = orderPlacement.copy(checkout = Checkout(customer, OrderAddresses(homeAddress, officeAddress)))
+        val billedToTheOffice = Checkout(customer, OrderAddresses(homeAddress, officeAddress))
+        val orderPlacementBilledToTheOffice = orderPlacement.copy(checkout = billedToTheOffice)
         // Act
         useCase.unfold(orderPlacementBilledToTheOffice)
         // Assert

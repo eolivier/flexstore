@@ -18,7 +18,8 @@ class RegisterCustomerUseCase(private val userRepository: UserRepository) : UseC
         // The repository hashes the password
         NominalScenario(Step { registration -> userRepository.save(registration.customer()) })
 
-    override fun getPostConditions(): PostConditions<CustomerRegistration> = PostConditions(accountExistsCondition())
+    override fun getPostConditions(): PostConditions<CustomerRegistration> =
+        PostConditions(accountExistsCondition())
 
     private fun registrationIsCompleteCondition() = PreCondition<CustomerRegistration> { registration ->
         if (registration.isIncomplete()) {
@@ -30,7 +31,8 @@ class RegisterCustomerUseCase(private val userRepository: UserRepository) : UseC
 
     private fun passwordIsLongEnoughCondition() = PreCondition<CustomerRegistration> { registration ->
         if (registration.password.value.length < PASSWORD_MIN_LENGTH) {
-            throw InvalidPasswordException(ErrorMessage("Password must be at least $PASSWORD_MIN_LENGTH characters."))
+            val message = ErrorMessage("Password must be at least $PASSWORD_MIN_LENGTH characters.")
+            throw InvalidPasswordException(message)
         }
     }
 

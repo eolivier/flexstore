@@ -26,7 +26,9 @@ class CartTest : WithAssertions {
         // Act
         val updatedCart = cart.add(product2, Quantity(2))
         // Assert
-        assertThat(updatedCart.items.asList()).containsExactly(DraftItem(product1, Quantity(1)), DraftItem(product2, Quantity(2)))
+        val firstItem = DraftItem(product1, Quantity(1))
+        val secondItem = DraftItem(product2, Quantity(2))
+        assertThat(updatedCart.items.asList()).containsExactly(firstItem, secondItem)
     }
 
     @Test
@@ -117,7 +119,11 @@ class CartTest : WithAssertions {
 
     @ParameterizedTest(name = "customer {0}, visitor {1}: the merged cart has {2}")
     @CsvSource("1, 3, 3", "4, 1, 4", "2, 2, 2")
-    fun `merging should keep the larger quantity of a product in both carts`(customerQuantity: Int, visitorQuantity: Int, mergedQuantity: Int) {
+    fun `merging should keep the larger quantity of a product in both carts`(
+        customerQuantity: Int,
+        visitorQuantity: Int,
+        mergedQuantity: Int
+    ) {
         // Arrange
         val customerCart = Cart(customer, item1.copy(quantity = Quantity(customerQuantity)))
         val visitorCart = Cart(visitor, CartItem(ItemId(Identity("item-2")), product1, Quantity(visitorQuantity)))

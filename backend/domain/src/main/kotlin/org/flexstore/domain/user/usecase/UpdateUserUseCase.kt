@@ -5,7 +5,8 @@ import org.flexstore.domain.user.model.*
 import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.entity.*
 
-// A user is edited by an administrator (the editor): name, email and role. The password is changed by a separate operation
+// A user is edited by an administrator (the editor): name, email and role. The password is changed by a separate
+// operation
 data class UpdateUserRequest(val editor: UserId, val user: User)
 
 class UpdateUserUseCase(private val userRepository: UserRepository) : UseCase<UpdateUserRequest> {
@@ -18,7 +19,9 @@ class UpdateUserUseCase(private val userRepository: UserRepository) : UseCase<Up
     )
 
     override fun getNominalScenario(): NominalScenario<UpdateUserRequest> {
-        val updateUserStep = Step<UpdateUserRequest> { request -> userRepository.save(withStoredAccount(request.user)) }
+        val updateUserStep = Step<UpdateUserRequest> { request ->
+            userRepository.save(withStoredAccount(request.user))
+        }
         return NominalScenario(listOf(updateUserStep))
     }
 

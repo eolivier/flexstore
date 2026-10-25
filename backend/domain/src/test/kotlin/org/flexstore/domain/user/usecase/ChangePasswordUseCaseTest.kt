@@ -44,8 +44,9 @@ class ChangePasswordUseCaseTest {
     fun `should fail if the current password is wrong`() {
         // Arrange
         val userRepository = repository(currentPasswordMatches = false)
+        val changePasswordRequest = ChangePasswordRequest(userId, currentPassword, newPassword)
         // Act
-        val thrown = catchThrowable { ChangePasswordUseCase(userRepository).unfold(ChangePasswordRequest(userId, currentPassword, newPassword)) }
+        val thrown = catchThrowable { ChangePasswordUseCase(userRepository).unfold(changePasswordRequest) }
         // Assert
         assertThat(thrown).isInstanceOf(InvalidCurrentPasswordException::class.java).hasMessage("The current password is wrong.")
         verify(exactly = 0) { userRepository.save(ofType<DefinedUser>()) }
@@ -67,8 +68,9 @@ class ChangePasswordUseCaseTest {
         // Arrange
         val userRepository = mockk<UserRepository>()
         every { userRepository.notExists(userId) } returns true
+        val changePasswordRequest = ChangePasswordRequest(userId, currentPassword, newPassword)
         // Act
-        val thrown = catchThrowable { ChangePasswordUseCase(userRepository).unfold(ChangePasswordRequest(userId, currentPassword, newPassword)) }
+        val thrown = catchThrowable { ChangePasswordUseCase(userRepository).unfold(changePasswordRequest) }
         // Assert
         assertThat(thrown).isInstanceOf(UserNotFoundException::class.java).hasMessage("User with ID 123 does not exist.")
     }

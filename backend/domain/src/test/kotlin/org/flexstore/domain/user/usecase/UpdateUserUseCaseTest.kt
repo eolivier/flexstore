@@ -54,8 +54,9 @@ class UpdateUserUseCaseTest {
     fun `should refuse an editor who is not an administrator`(editorId: String) {
         // Arrange
         val editedJohn = john.copy(fullName = FullName(FirstName("Jane"), LastName("Doe")))
+        val updateUserRequest = UpdateUserRequest(ValidUserId(editorId), editedJohn)
         // Act
-        val thrown = catchThrowable { updateUserUseCase.unfold(UpdateUserRequest(ValidUserId(editorId), editedJohn)) }
+        val thrown = catchThrowable { updateUserUseCase.unfold(updateUserRequest) }
         // Assert
         assertThat(thrown).isInstanceOf(UserUpdateForbiddenException::class.java)
         assertThat(stored(john.id).fullName.value).isEqualTo("John Doe")
@@ -75,8 +76,9 @@ class UpdateUserUseCaseTest {
     fun `should fail to update if user does not exist`() {
         // Arrange
         val unknownUser = john.copy(id = ValidUserId("unknown"))
+        val updateUserRequest = UpdateUserRequest(administrator.id, unknownUser)
         // Act
-        val thrown = catchThrowable { updateUserUseCase.unfold(UpdateUserRequest(administrator.id, unknownUser)) }
+        val thrown = catchThrowable { updateUserUseCase.unfold(updateUserRequest) }
         // Assert
         assertThat(thrown).isInstanceOf(UserNotFoundException::class.java).hasMessage("User with ID unknown does not exist.")
     }

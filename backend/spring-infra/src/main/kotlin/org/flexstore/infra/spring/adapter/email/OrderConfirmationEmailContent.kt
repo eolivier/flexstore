@@ -37,7 +37,10 @@ class OrderConfirmationEmailContent(email: OrderConfirmationEmail, shopUrl: Shop
     }
 
     private fun amount(price: Price): String {
-        val format = NumberFormat.getNumberInstance(FRENCH).apply { minimumFractionDigits = 2; maximumFractionDigits = 2 }
+        val format = NumberFormat.getNumberInstance(FRENCH).apply {
+            minimumFractionDigits = 2
+            maximumFractionDigits = 2
+        }
         return "${format.format(price.amount.value)} ${price.currency.symbol}"
     }
 }

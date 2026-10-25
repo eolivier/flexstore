@@ -14,7 +14,10 @@ class EmptyUseCaseHandler<T> : UseCaseHandler<T> {
     override fun canHandle(t: T) = false
 }
 
-class DefaultUseCaseHandler<T>(val useCase: UseCase<T>, private var nextUseCaseHandler: UseCaseHandler<T> = EmptyUseCaseHandler()) : UseCaseHandler<T> {
+class DefaultUseCaseHandler<T>(
+    val useCase: UseCase<T>,
+    private var nextUseCaseHandler: UseCaseHandler<T> = EmptyUseCaseHandler()
+) : UseCaseHandler<T> {
 
     override fun setNext(useCaseHandler: UseCaseHandler<T>) {
         nextUseCaseHandler = useCaseHandler

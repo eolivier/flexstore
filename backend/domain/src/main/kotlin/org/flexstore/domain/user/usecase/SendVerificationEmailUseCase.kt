@@ -26,7 +26,10 @@ class SendVerificationEmailUseCase(
             val verification = EmailVerification.requestedAt(user.id, request.requestedAt)
             emailRepository.expireAllVerificationsOf(user.id, ExpirationDate(request.requestedAt))
             emailRepository.save(verification)
-            emailRepository.send(EmailVerificationLink(user.email, user.fullName, verificationPage, verification.token, verification.expiresAt))
+            val link = EmailVerificationLink(
+                user.email, user.fullName, verificationPage, verification.token, verification.expiresAt
+            )
+            emailRepository.send(link)
         })
 
     override fun getPostConditions(): PostConditions<VerificationEmailRequest> = PostConditions.none()
@@ -41,7 +44,8 @@ class SendVerificationEmailUseCase(
 
     private fun accountNeedsVerificationCondition() = PreCondition<VerificationEmailRequest> { request ->
         if (EmailVerification.isAlreadyDoneFor(user(request.userId))) {
-            throw AccountAlreadyVerifiedException(ErrorMessage("The email of user ${request.userId.value} is already verified."))
+            val message = ErrorMessage("The email of user ${request.userId.value} is already verified.")
+            throw AccountAlreadyVerifiedException(message)
         }
     }
 }

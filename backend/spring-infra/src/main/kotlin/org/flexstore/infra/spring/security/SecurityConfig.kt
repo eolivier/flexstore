@@ -73,7 +73,9 @@ open class SecurityConfig(@Value("\${flexstore.security.jwt-secret:}") private v
                     .requestMatchers(HttpMethod.PUT, "/api/products/{id}").hasRole("ADMIN")
                     .anyRequest().authenticated()
             }
-            .oauth2ResourceServer { it.jwt { jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()) } }
+            .oauth2ResourceServer {
+                it.jwt { jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()) }
+            }
         return http.build()
     }
 
@@ -87,7 +89,8 @@ open class SecurityConfig(@Value("\${flexstore.security.jwt-secret:}") private v
     open fun jwtEncoder(): JwtEncoder = NimbusJwtEncoder(ImmutableSecret(secretKey))
 
     @Bean
-    open fun jwtDecoder(): JwtDecoder = NimbusJwtDecoder.withSecretKey(secretKey).macAlgorithm(MacAlgorithm.HS256).build()
+    open fun jwtDecoder(): JwtDecoder =
+        NimbusJwtDecoder.withSecretKey(secretKey).macAlgorithm(MacAlgorithm.HS256).build()
 
     private fun jwtAuthenticationConverter() = JwtAuthenticationConverter().apply {
         setJwtGrantedAuthoritiesConverter(JwtGrantedAuthoritiesConverter().apply {

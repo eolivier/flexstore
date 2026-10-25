@@ -44,7 +44,10 @@ class ShopSettingsIT {
 
     @ParameterizedTest(name = "{0} the order confirmation email -> {1}")
     @CsvSource("disable, DISABLED", "enable, ENABLED")
-    fun `an admin should enable or disable the order confirmation email`(action: String, expectedActivation: String) {
+    fun `an admin should enable or disable the order confirmation email`(
+        action: String,
+        expectedActivation: String
+    ) {
         // Act
         val response = mockMvc.perform(post("/api/admin/settings/order-confirmation-email/$action").with(asAdmin()))
         // Assert

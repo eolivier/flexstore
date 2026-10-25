@@ -41,6 +41,10 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Lines of 113 characters at most
+        working-directory: backend
+        run: ./gradlew checkLineLength
+
       - name: Unit tests
         working-directory: backend
         run: ./gradlew test

@@ -34,7 +34,8 @@ class PostgresOrderRepositoryAdapter(
     }
 
     @Transactional(readOnly = true)
-    override fun findById(orderId: OrderId): Order? = jpaRepo.findById(orderId.value).map { it.toDomain() }.orElse(null)
+    override fun findById(orderId: OrderId): Order? =
+        jpaRepo.findById(orderId.value).map { it.toDomain() }.orElse(null)
 
     @Transactional(readOnly = true)
     override fun orderExists(orderId: OrderId): Boolean = jpaRepo.existsById(orderId.value)
@@ -43,7 +44,8 @@ class PostgresOrderRepositoryAdapter(
     override fun findAll() = Orders(jpaRepo.findAll().map { it.toDomain() })
 
     @Transactional(readOnly = true)
-    override fun findAllBy(customer: UserId.ValidUserId) = Orders(jpaRepo.findAllByUserId(customer.value).map { it.toDomain() })
+    override fun findAllBy(customer: UserId.ValidUserId) =
+        Orders(jpaRepo.findAllByUserId(customer.value).map { it.toDomain() })
 
     private fun Order.toEntity(): OrderEntity {
         val customerEntity = jpaUserRepository.findById(customer.value).orElseThrow()

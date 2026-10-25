@@ -120,7 +120,8 @@ class AccountIT {
         // Act
         register(registration()).andExpect(status().isCreated)
         // Assert
-        assertThat(emailSender.sentVerificationLinks().map { it.recipient.value }).containsExactly(CUSTOMER_EMAIL)
+        val recipients = emailSender.sentVerificationLinks().map { it.recipient.value }
+        assertThat(recipients).containsExactly(CUSTOMER_EMAIL)
     }
 
     @Test

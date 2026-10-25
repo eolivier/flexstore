@@ -17,7 +17,11 @@ class CreateUserUseCase(
     lateinit var createdUser: User
 
     override fun getPreConditions(): PreConditions<CreateUserRequest> {
-        return PreConditions(creatorIsAdministratorCondition(), userDoesNotExistCondition(), passwordIsNotBlankCondition())
+        return PreConditions(
+            creatorIsAdministratorCondition(),
+            userDoesNotExistCondition(),
+            passwordIsNotBlankCondition()
+        )
     }
 
     override fun getNominalScenario(): NominalScenario<CreateUserRequest> {
@@ -34,7 +38,8 @@ class CreateUserUseCase(
         return PostConditions(userExistsCondition())
     }
 
-    override fun getAlternativeScenarii(): Map<KClass<out NominalException>, AlternativeScenario<CreateUserRequest>> {
+    override fun getAlternativeScenarii():
+        Map<KClass<out NominalException>, AlternativeScenario<CreateUserRequest>> {
         return emptyMap()
     }
 

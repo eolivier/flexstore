@@ -20,11 +20,13 @@ class RestExceptionHandler {
             is UserAlreadyExists -> ResponseEntity
                 .status(409)
                 .body(mapOf("error" to (ex.message ?: "User already exists")))
-            // Same answer for an unknown email and a wrong password, so that the login does not reveal which accounts exist
+            // Same answer for an unknown email and a wrong password, so that the login does not reveal which
+            // accounts exist
             is InvalidCredentialsException, is UserNotFoundByEmailException -> ResponseEntity
                 .status(401)
                 .body(mapOf("error" to "Invalid credentials."))
-            // The password is right, but the account is suspended, locked or disabled: the front tells the user why
+            // The password is right, but the account is suspended, locked or disabled: the front tells the user
+            // why
             is AccountSignInRefusedException -> ResponseEntity
                 .status(403)
                 .body(mapOf("error" to (ex.message ?: "Sign-in refused"), "status" to ex.status.name))

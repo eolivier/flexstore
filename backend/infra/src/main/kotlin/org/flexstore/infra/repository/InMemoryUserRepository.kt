@@ -20,7 +20,7 @@ class InMemoryUserRepository : UserRepository {
         val userToSave = when (user) {
             is User.DefinedUser -> hashPasswordIfNeeded(user)
             is User.DraftUser -> hashPasswordIfNeeded(
-                User.DefinedUser(UserId.ValidUserId(Identity.nextId().value), user.fullName, user.email, user.password, user.role)
+                User.DefinedUser(UserId.nextId(), user.fullName, user.email, user.password, user.role)
             )
             else -> user
         }
@@ -55,7 +55,8 @@ class InMemoryUserRepository : UserRepository {
         return when (user) {
             is User.DefinedUser -> when (user.password) {
                 is HashedPassword -> {
-                    val verification = bcryptVerifier.verify(password.value.toCharArray(), user.password.value.toCharArray())
+                    val givenPassword = password.value.toCharArray()
+                    val verification = bcryptVerifier.verify(givenPassword, user.password.value.toCharArray())
                     verification.verified
                 }
                 else -> false

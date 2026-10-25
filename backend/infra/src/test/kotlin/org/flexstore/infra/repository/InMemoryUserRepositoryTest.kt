@@ -113,7 +113,11 @@ class InMemoryUserRepositoryTest {
 
     @ParameterizedTest(name = "the email of user \"{0}\" checked for user \"{1}\": used by another one = {2}")
     @CsvSource("user-1, user-1, false", "user-1, user-2, true")
-    fun `an email is used by another user when it belongs to someone else`(owner: String, checkedFor: String, usedByAnother: Boolean) {
+    fun `an email is used by another user when it belongs to someone else`(
+        owner: String,
+        checkedFor: String,
+        usedByAnother: Boolean
+    ) {
         // Arrange
         val userRepository = InMemoryUserRepository()
         userRepository.save(DefinedUser(ValidUserId(owner), FullName(FirstName("Simple"), LastName("User")), Email("user@example.com"), PlainPassword("password123")))

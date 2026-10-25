@@ -45,7 +45,8 @@ class EmailRepositoryAdapter(
         jpaVerifications.deleteAllByUserId(userId.value)
     }
 
-    // The token is the secret of the link: the database only keeps its hash, and the token is found back by hashing it
+    // The token is the secret of the link: the database only keeps its hash, and the token is found back by
+    // hashing it
     private fun hash(token: VerificationToken): String =
         HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(token.value.toByteArray()))
 }

@@ -7,9 +7,15 @@ import org.flexstore.infra.spring.adapter.rest.json.JsonUser
 fun List<User>.toJsonUsers() = this.map { it.toJsonUser() }
 
 fun User.toJsonUser(): JsonUser = when (this) {
-    is User.DefinedUser -> DefinedJsonUser(this.id.value, this.fullName.firstName.value, this.fullName.lastName.value, this.email.value, role = this.role.name, status = this.status.name)
+    is User.DefinedUser -> account().toJsonUser()
     is User.UndefinedUser -> DefinedJsonUser(this.id.value, "Undefined", "User", this.reason)
-    is User.DraftUser -> DefinedJsonUser(this.id.value, this.fullName.firstName.value, this.fullName.lastName.value, this.email.value)
+    is User.DraftUser -> {
+        val (firstName, lastName) = fullName
+        DefinedJsonUser(id.value, firstName.value, lastName.value, email.value)
+    }
 }
-fun Account.toJsonUser(): JsonUser =
-    DefinedJsonUser(id.value, fullName.firstName.value, fullName.lastName.value, email.value, role = role.name, status = status.name)
+fun Account.toJsonUser(): JsonUser {
+    val (firstName, lastName) = fullName
+    val jsonUser = DefinedJsonUser(id.value, firstName.value, lastName.value, email.value)
+    return jsonUser.copy(role = role.name, status = status.name)
+}

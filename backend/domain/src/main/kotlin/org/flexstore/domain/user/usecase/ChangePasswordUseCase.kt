@@ -9,14 +9,22 @@ import kotlin.reflect.KClass
 
 const val PASSWORD_MIN_LENGTH = 8
 
-data class ChangePasswordRequest(val userId: UserId, val currentPassword: PlainPassword, val newPassword: PlainPassword)
+data class ChangePasswordRequest(
+    val userId: UserId,
+    val currentPassword: PlainPassword,
+    val newPassword: PlainPassword
+)
 
 class ChangePasswordUseCase(
     private val userRepository: UserRepository
 ) : UseCase<ChangePasswordRequest> {
 
     override fun getPreConditions(): PreConditions<ChangePasswordRequest> {
-        return PreConditions(userExistsCondition(), currentPasswordMatchesCondition(), newPasswordIsLongEnoughCondition())
+        return PreConditions(
+            userExistsCondition(),
+            currentPasswordMatchesCondition(),
+            newPasswordIsLongEnoughCondition()
+        )
     }
 
     override fun getNominalScenario(): NominalScenario<ChangePasswordRequest> {
@@ -33,7 +41,8 @@ class ChangePasswordUseCase(
         return PostConditions(newPasswordMatchesCondition())
     }
 
-    override fun getAlternativeScenarii(): Map<KClass<out NominalException>, AlternativeScenario<ChangePasswordRequest>> {
+    override fun getAlternativeScenarii():
+        Map<KClass<out NominalException>, AlternativeScenario<ChangePasswordRequest>> {
         return emptyMap()
     }
 
@@ -57,7 +66,8 @@ class ChangePasswordUseCase(
 
     private fun newPasswordIsLongEnoughCondition() = PreCondition<ChangePasswordRequest> { request ->
         if (request.newPassword.value.length < PASSWORD_MIN_LENGTH) {
-            throw InvalidPasswordException(ErrorMessage("Password must be at least $PASSWORD_MIN_LENGTH characters."))
+            val message = ErrorMessage("Password must be at least $PASSWORD_MIN_LENGTH characters.")
+            throw InvalidPasswordException(message)
         }
     }
 
@@ -68,6 +78,8 @@ class ChangePasswordUseCase(
     }
 }
 
-// Not InvalidCredentialsException: the user is authenticated, only the confirmation of the current password failed
-data class InvalidCurrentPasswordException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+// Not InvalidCredentialsException: the user is authenticated, only the confirmation of the current password
+// failed
+data class InvalidCurrentPasswordException(override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
 data class PasswordChangeFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

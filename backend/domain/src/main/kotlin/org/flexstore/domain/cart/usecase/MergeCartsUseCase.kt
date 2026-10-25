@@ -21,11 +21,13 @@ class MergeCartsUseCase(private val cartRepository: CartRepository) : UseCase<Me
         return NominalScenario(listOf(mergeStep))
     }
 
-    override fun getPostConditions(): PostConditions<MergeCartsRequest> = PostConditions(visitorCartIsDeletedCondition())
+    override fun getPostConditions(): PostConditions<MergeCartsRequest> =
+        PostConditions(visitorCartIsDeletedCondition())
 
     private fun visitorCartIsDeletedCondition() = PostCondition<MergeCartsRequest> { request ->
         if (cartRepository.load(request.visitor).hasItems()) {
-            throw CartUpdateFailed(ErrorMessage("The visitor cart ${request.visitor.cartId.value} was not merged."))
+            val message = ErrorMessage("The visitor cart ${request.visitor.cartId.value} was not merged.")
+            throw CartUpdateFailed(message)
         }
     }
 }

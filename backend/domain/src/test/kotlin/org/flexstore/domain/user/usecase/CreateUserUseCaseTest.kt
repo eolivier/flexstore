@@ -116,8 +116,9 @@ class CreateUserUseCaseTest {
         existing(administrator)
         val draftUserWithBlankPassword = draftUser.copy(password = PlainPassword(" "))
         every { userRepository.emailIsAlreadyUsed(draftUserWithBlankPassword.email) } returns false
+        val createUserRequest = CreateUserRequest(administrator.id, draftUserWithBlankPassword)
         // Act
-        val thrown = catchThrowable { createUserUseCase.unfold(CreateUserRequest(administrator.id, draftUserWithBlankPassword)) }
+        val thrown = catchThrowable { createUserUseCase.unfold(createUserRequest) }
         // Assert
         assertThat(thrown).isInstanceOf(InvalidPasswordException::class.java).hasMessage("Password must not be blank.")
     }

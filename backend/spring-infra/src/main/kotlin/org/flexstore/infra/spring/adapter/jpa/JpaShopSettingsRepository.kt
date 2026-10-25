@@ -11,13 +11,17 @@ interface JpaShopSettingsRepository : JpaRepository<ShopSettingsEntity, Int>
 // The single row of the shop settings, created by the migrations
 @Repository
 @Transactional
-class PostgresShopSettingsRepositoryAdapter(private val jpaRepo: JpaShopSettingsRepository) : ShopSettingsRepository {
+class PostgresShopSettingsRepositoryAdapter(private val jpaRepo: JpaShopSettingsRepository) :
+    ShopSettingsRepository {
 
     @Transactional(readOnly = true)
     override fun load(): ShopSettings = jpaRepo.getReferenceById(SHOP_SETTINGS_ID).toDomain()
 
-    override fun save(settings: ShopSettings): ShopSettings =
-        jpaRepo.save(ShopSettingsEntity(orderConfirmationEmail = settings.orderConfirmationEmail.name)).toDomain()
+    override fun save(settings: ShopSettings): ShopSettings {
+        val settingsEntity = ShopSettingsEntity(orderConfirmationEmail = settings.orderConfirmationEmail.name)
+        return jpaRepo.save(settingsEntity).toDomain()
+    }
 
-    private fun ShopSettingsEntity.toDomain() = ShopSettings(orderConfirmationEmail = Activation.valueOf(orderConfirmationEmail))
+    private fun ShopSettingsEntity.toDomain() =
+        ShopSettings(orderConfirmationEmail = Activation.valueOf(orderConfirmationEmail))
 }

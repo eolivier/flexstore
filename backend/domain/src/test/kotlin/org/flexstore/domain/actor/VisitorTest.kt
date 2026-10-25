@@ -29,7 +29,8 @@ class VisitorTest {
         )
         val owner = CartOwner.Visitor(VisitorCartId.nextId())
         val cartRepository = InMemoryCartRepository()
-        val addItemToCartUseCase = AddItemToCartUseCase(cartRepository, InMemoryProductRepository().apply { save(product) })
+        val productRepository = InMemoryProductRepository().apply { save(product) }
+        val addItemToCartUseCase = AddItemToCartUseCase(cartRepository, productRepository)
         val visitor = Visitor(addItemToCartUseCase)
         // Act
         visitor.performAddItemToCart(AddItemToCartRequest(owner, product.productId, Quantity(1)))

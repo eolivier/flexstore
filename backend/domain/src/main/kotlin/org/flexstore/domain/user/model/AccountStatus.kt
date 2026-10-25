@@ -27,5 +27,6 @@ enum class AccountStatus {
     fun cannotBeChosenByAnAdministrator() = !canBeChosenByAnAdministrator()
 }
 
-data class AccountSignInRefusedException(val status: AccountStatus, override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class AccountSignInRefusedException(val status: AccountStatus, override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
 data class InvalidStatusChangeException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

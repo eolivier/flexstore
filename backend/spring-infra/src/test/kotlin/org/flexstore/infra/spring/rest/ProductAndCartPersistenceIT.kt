@@ -148,7 +148,8 @@ class ProductAndCartPersistenceIT {
         response.andExpect(status().isNotFound)
     }
 
-    private fun draftProduct(price: String) = """{"name": "$TEST_PRODUCT_NAME", "description": "Stored in PostgreSQL",
+    private fun draftProduct(price: String) =
+        """{"name": "$TEST_PRODUCT_NAME", "description": "Stored in PostgreSQL",
         "category": "HOME", "price": $price, "currency": "EUR"}"""
 
     private fun createProduct(draft: String) =

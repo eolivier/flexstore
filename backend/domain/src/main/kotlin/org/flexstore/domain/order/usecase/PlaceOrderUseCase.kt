@@ -14,15 +14,22 @@ class PlaceOrderUseCase(
 ) : UseCase<OrderPlacement> {
 
     override fun getPreConditions(): PreConditions<OrderPlacement> =
-        PreConditions(customerIsKnownCondition(), accountAllowsOrderingCondition(), cartHasItemsCondition(), addressesAreCompleteCondition())
+        PreConditions(
+            customerIsKnownCondition(),
+            accountAllowsOrderingCondition(),
+            cartHasItemsCondition(),
+            addressesAreCompleteCondition()
+        )
 
-    // The addresses of the order are kept among the addresses of the customer (an address entered when ordering is
+    // The addresses of the order are kept among the addresses of the customer (an address entered when ordering
+    // is
     // added), so that the order refers to them; then the order is placed. The cart is emptied once it is paid
     override fun getNominalScenario(): NominalScenario<OrderPlacement> {
         val keepAddressesStep = Step<OrderPlacement> { orderPlacement ->
             val definedUser = userRepository.findById(orderPlacement.customer.userId) as User.DefinedUser
             val orderAddresses = orderPlacement.addresses
-            val definedUserWithAddresses = definedUser.withPostalAddressesIncluding(orderAddresses.delivery, orderAddresses.billing)
+            val (delivery, billing) = orderAddresses
+            val definedUserWithAddresses = definedUser.withPostalAddressesIncluding(delivery, billing)
             userRepository.save(definedUserWithAddresses)
         }
         val placeOrderStep = Step<OrderPlacement> { orderPlacement ->
@@ -39,15 +46,18 @@ class PlaceOrderUseCase(
     private fun customerIsKnownCondition() = PreCondition<OrderPlacement> { orderPlacement ->
         val userId = orderPlacement.customer.userId
         if (userRepository.notExists(userId)) {
-            throw UserNotFoundException(ErrorMessage("The customer ${userId.value} is unknown: they cannot order."))
+            val message = ErrorMessage("The customer ${userId.value} is unknown: they cannot order.")
+            throw UserNotFoundException(message)
         }
     }
 
-    // A token stays valid after the account is suspended, locked or disabled: the status is checked at each order
+    // A token stays valid after the account is suspended, locked or disabled: the status is checked at each
+    // order
     private fun accountAllowsOrderingCondition() = PreCondition<OrderPlacement> { orderPlacement ->
         val definedUser = userRepository.findById(orderPlacement.customer.userId) as User.DefinedUser
         if (definedUser.status.refusesOrdering()) {
-            throw OrderRefusedException(definedUser.status, ErrorMessage("The account ${definedUser.id.value} is ${definedUser.status}: it cannot order."))
+            val message = ErrorMessage("The account ${definedUser.id.value} is ${definedUser.status}: it cannot order.")
+            throw OrderRefusedException(definedUser.status, message)
         }
     }
 
@@ -59,7 +69,8 @@ class PlaceOrderUseCase(
 
     private fun addressesAreCompleteCondition() = PreCondition<OrderPlacement> { orderPlacement ->
         if (orderPlacement.addresses.isIncomplete()) {
-            throw IncompleteOrderAddressException(ErrorMessage("An order needs a complete delivery address and billing address."))
+            val message = ErrorMessage("An order needs a complete delivery address and billing address.")
+            throw IncompleteOrderAddressException(message)
         }
     }
 

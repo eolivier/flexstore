@@ -23,7 +23,10 @@ data class ProductId(val id: Identity) {
     }
 }
 
-enum class Category { ELECTRONICS, BOOKS, CLOTHING, HOME, BEAUTY, TOYS, SPORTS, AUTOMOTIVE, GROCERY, HEALTH, ACCESSORIES, NOT_DEFINED }
+enum class Category {
+    ELECTRONICS, BOOKS, CLOTHING, HOME, BEAUTY, TOYS, SPORTS,
+    AUTOMOTIVE, GROCERY, HEALTH, ACCESSORIES, NOT_DEFINED
+}
 
 data class ProductAlreadyExists(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class ProductCreationFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

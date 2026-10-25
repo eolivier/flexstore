@@ -17,7 +17,8 @@ private const val ORDER_NUMBER_LENGTH = 8
  * - an order is placed from a cart that has items
  * - its lines keep the name and the price of the products when the order is placed
  * - a new order awaits its payment
- * - it is always delivered to a delivery address and billed to a billing address (often the same), both addresses of the customer
+ * - it is always delivered to a delivery address and billed to a billing address (often the same),
+ *   both addresses of the customer
  */
 data class Order(val detail: OrderDetail, val status: OrderStatus) {
 
@@ -51,7 +52,8 @@ data class Order(val detail: OrderDetail, val status: OrderStatus) {
                 throw EmptyCartException(ErrorMessage("An order cannot be placed from an empty cart."))
             }
             if (orderPlacement.addresses.isIncomplete()) {
-                throw IncompleteOrderAddressException(ErrorMessage("An order needs a complete delivery address and billing address."))
+                val message = ErrorMessage("An order needs a complete delivery address and billing address.")
+                throw IncompleteOrderAddressException(message)
             }
             val orderLines = OrderLines.from(cart)
             val orderDetail = OrderDetail(orderPlacement, orderLines)
@@ -60,7 +62,8 @@ data class Order(val detail: OrderDetail, val status: OrderStatus) {
     }
 }
 
-// What was ordered, fixed once the order is placed: how it was placed and its lines (the status changes afterwards)
+// What was ordered, fixed once the order is placed: how it was placed and its lines (the status changes
+// afterwards)
 data class OrderDetail(val placement: OrderPlacement, val lines: OrderLines)
 
 // An order to place: its stamp (id and date) and its checkout (customer and addresses)
@@ -182,8 +185,10 @@ data class Orders(private val orders: List<Order>) {
 }
 
 data class EmptyCartException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
-data class IncompleteOrderAddressException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
-data class OrderRefusedException(val status: AccountStatus, override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class IncompleteOrderAddressException(override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
+data class OrderRefusedException(val status: AccountStatus, override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
 data class OrderStatusCannotAdvanceException(override val errorMessage: ErrorMessage) :
     NominalException(errorMessage)
 data class OrderStatusChangedException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

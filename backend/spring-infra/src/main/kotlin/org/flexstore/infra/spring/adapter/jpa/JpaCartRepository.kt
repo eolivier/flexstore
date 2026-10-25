@@ -17,7 +17,8 @@ interface JpaCartItemRepository : JpaRepository<CartItemEntity, String> {
     fun findAllByCartId(cartId: String, sort: Sort): List<CartItemEntity>
 }
 
-// The carts stored in the database: an item keeps the product id and the quantity, the product is read from the catalog
+// The carts stored in the database: an item keeps the product id and the quantity, the product is read from the
+// catalog
 @Repository
 @Transactional
 class PostgresCartRepositoryAdapter(
@@ -74,7 +75,8 @@ class PostgresCartRepositoryAdapter(
         is CartOwner.Visitor -> CartEntity(id = owner.cartId.value)
     }
 
-    private fun items(cartEntity: CartEntity) = itemRepo.findAllByCartId(cartEntity.id, Sort.by("createdAt", "id"))
+    private fun items(cartEntity: CartEntity) =
+        itemRepo.findAllByCartId(cartEntity.id, Sort.by("createdAt", "id"))
 
     private fun CartItemEntity.toDomain() = CartItem(
         itemId = ItemId(Identity(id)),

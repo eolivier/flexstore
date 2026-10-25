@@ -30,4 +30,5 @@ data class CustomerRegistration(
     fun isIncomplete() = !isComplete()
 }
 
-data class IncompleteRegistrationException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class IncompleteRegistrationException(override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)

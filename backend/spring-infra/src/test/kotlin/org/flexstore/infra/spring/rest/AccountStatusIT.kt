@@ -63,7 +63,9 @@ class AccountStatusIT {
 
     @ParameterizedTest(name = "{0}")
     @ValueSource(strings = ["SUSPENDED", "LOCKED", "DISABLED"])
-    fun `a suspended, locked or disabled account should not sign in, and should know why`(accountStatus: String) {
+    fun `a suspended, locked or disabled account should not sign in, and should know why`(
+        accountStatus: String
+    ) {
         // Arrange
         changeStatus(accountStatus).andExpect(status().isOk)
         // Act
