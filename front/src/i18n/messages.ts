@@ -278,6 +278,9 @@ export default {
       edit: 'Edit {name}',
     },
     adminProducts: {
+      search: 'Search by name or description',
+      fewLeft: 'Low stock (5 or fewer)',
+      noMatch: 'No product matches the filters.',
       title: 'Products',
       count: 'No products | 1 product | {n} products',
       loading: 'Loading the products…',
@@ -696,6 +699,9 @@ export default {
       edit: 'Modifier {name}',
     },
     adminProducts: {
+      search: 'Rechercher par nom ou description',
+      fewLeft: 'Stock faible (5 ou moins)',
+      noMatch: 'Aucun produit ne correspond aux filtres.',
       title: 'Produits',
       count: 'Aucun produit | 1 produit | {n} produits',
       loading: 'Chargement des produits…',

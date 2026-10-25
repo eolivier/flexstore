@@ -1,10 +1,13 @@
 <script setup lang="ts">
-  import { computed, onMounted } from 'vue';
+  import { computed, onMounted, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useProductsStore } from '@/stores/products.store.ts';
   import { useStocksStore } from '@/stores/stocks.store';
   import { categoryInfo } from '@/components/products/categories';
   import { formatPrice } from '@/utils/price';
+  import { stockStateOf } from '@/utils/stock';
+  import { matchesFilter, noFilter, type ProductFilter } from '@/utils/productFilter';
+  import AdminProductFilters from './AdminProductFilters.vue';
 
   const productsStore = useProductsStore();
   const stocksStore = useStocksStore();
@@ -15,13 +18,17 @@
     stocksStore.fetchStocks();
   });
 
-  const FEW_UNITS = 5;
+  const filter = ref<ProductFilter>({ ...noFilter });
+  const filteredProducts = computed(() =>
+    productsStore.products.filter((product) =>
+      matchesFilter(product, stocksStore.quantityOf(product.id), filter.value)
+    )
+  );
 
   // Out of stock in red, a few units left in orange
+  const stockColors = { outOfStock: 'error', fewLeft: 'warning', inStock: undefined };
   function stockColor(quantity: number | null) {
-    if (quantity === 0) return 'error';
-    if (quantity !== null && quantity <= FEW_UNITS) return 'warning';
-    return undefined;
+    return quantity === null ? undefined : stockColors[stockStateOf(quantity)];
   }
 
   const headers = computed(() => [
@@ -44,7 +51,7 @@
       <div>
         <h1 class="text-h4 font-weight-bold">{{ t('adminProducts.title') }}</h1>
         <p class="text-body-2 text-medium-emphasis mt-1">
-          {{ t('adminProducts.count', productsStore.products.length) }}
+          {{ t('adminProducts.count', filteredProducts.length) }}
         </p>
       </div>
       <v-spacer />
@@ -53,12 +60,15 @@
       }}</v-btn>
     </div>
 
+    <AdminProductFilters v-model="filter" />
+
     <v-data-table
       :headers="headers"
-      :items="productsStore.products"
+      :items="filteredProducts"
       :loading="productsStore.loading"
       :loading-text="t('adminProducts.loading')"
       item-value="id"
+      :no-data-text="t('adminProducts.noMatch')"
     >
       <template #item.name="{ item }">
         <div class="py-2">
