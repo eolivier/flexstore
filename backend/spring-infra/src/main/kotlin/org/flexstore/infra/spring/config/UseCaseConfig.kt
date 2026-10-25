@@ -143,6 +143,16 @@ open class UseCaseConfig(@Value("\${flexstore.front-url}") private val frontUrl:
     }
 
     @Bean
+    open fun addressBookService(userRepository: UserRepository,
+                                readAccountUseCase: ReadAccountUseCase): AddressBookService {
+        val addressUseCases = AddressUseCases(
+            ChangePostalAddressUseCase(userRepository),
+            RemovePostalAddressUseCase(userRepository)
+        )
+        return AddressBookService(readAccountUseCase, addressUseCases)
+    }
+
+    @Bean
     open fun registerCustomerUseCase(userRepository: UserRepository): RegisterCustomerUseCase {
         return RegisterCustomerUseCase(userRepository)
     }
