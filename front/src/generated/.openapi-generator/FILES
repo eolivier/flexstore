@@ -27,12 +27,15 @@ docs/JsonPaymentSession.md
 docs/JsonPostalAddress.md
 docs/JsonProduct.md
 docs/JsonSaveItemResponse.md
+docs/JsonStock.md
+docs/JsonStockQuantity.md
 docs/JsonUser.md
 docs/JsonUserCreate.md
 docs/JsonUserUpdate.md
 docs/OrdersApi.md
 docs/PaymentsApi.md
 docs/ProductsApi.md
+docs/StocksApi.md
 docs/UsersApi.md
 git_push.sh
 index.ts

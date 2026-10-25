@@ -1,5 +1,7 @@
 package org.flexstore.domain.order.usecase
 
+import org.flexstore.infra.repository.InMemoryStockRepository
+import org.flexstore.domain.stock.*
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.product.*
@@ -23,7 +25,9 @@ class PlaceOrderUseCaseTest : WithAssertions {
     private val cartRepository = InMemoryCartRepository()
     private val orderRepository = InMemoryOrderRepository()
     private val userRepository = InMemoryUserRepository().apply { save(definedUser) }
-    private val useCase = PlaceOrderUseCase(cartRepository, orderRepository, userRepository)
+    private val deskLampStock = Stock(deskLamp.productId, StockQuantity(10))
+    private val stockRepository = InMemoryStockRepository().apply { save(deskLampStock) }
+    private val useCase = PlaceOrderUseCase(cartRepository, orderRepository, userRepository, stockRepository)
     private val placedAt = Instant.parse("2026-10-24T10:00:00Z")
     private val orderStamp = OrderStamp(OrderId("order-1"), placedAt)
     private val orderPlacement = OrderPlacement(orderStamp, Checkout(customer, homeOrderAddresses))
@@ -108,5 +112,16 @@ class PlaceOrderUseCaseTest : WithAssertions {
         // Assert
         assertThat(orderRepository.orderIsMissing(orderPlacement.orderId)).isEqualTo(!placed)
         if (!placed) assertThat(thrown).isInstanceOf(OrderRefusedException::class.java)
+    }
+
+    @Test
+    fun `an order should not be placed when the stock does not cover the cart`() {
+        // Arrange
+        cartRepository.save(Cart(customer).add(deskLamp, Quantity(11)))
+        // Act
+        val thrown = catchThrowable { useCase.unfold(orderPlacement) }
+        // Assert
+        assertThat(thrown).isInstanceOf(OutOfStockException::class.java).hasMessageContaining("Desk lamp")
+        assertThat(orderRepository.orderIsMissing(orderPlacement.orderId)).isTrue()
     }
 }

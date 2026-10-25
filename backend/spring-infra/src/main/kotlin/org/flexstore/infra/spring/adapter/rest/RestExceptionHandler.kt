@@ -4,6 +4,7 @@ import org.flexstore.domain.email.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.payment.*
 import org.flexstore.domain.product.*
+import org.flexstore.domain.stock.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.usecase.*
 import org.springframework.http.ResponseEntity
@@ -60,6 +61,13 @@ class RestExceptionHandler {
             is OrderStatusChangedException, is OrderStatusCannotAdvanceException -> ResponseEntity
                 .status(409)
                 .body(mapOf("error" to (ex.message ?: "The status of the order cannot advance")))
+            // Not 422, which tells the front that the cart is empty
+            is OutOfStockException -> ResponseEntity
+                .status(409)
+                .body(mapOf("error" to (ex.message ?: "Not enough units in stock")))
+            is NegativeStockException -> ResponseEntity
+                .status(400)
+                .body(mapOf("error" to (ex.message ?: "Negative stock")))
             is OrderAlreadyPaidException -> ResponseEntity
                 .status(409)
                 .body(mapOf("error" to (ex.message ?: "Order already paid")))

@@ -262,6 +262,16 @@ export interface JsonSaveItemResponse {
      */
     'cartId'?: string | null;
 }
+export interface JsonStock {
+    'productId': string;
+    /**
+     * The number of units that the shop has
+     */
+    'quantity': number;
+}
+export interface JsonStockQuantity {
+    'quantity': number;
+}
 export interface JsonUser {
     'id'?: string;
     'firstName'?: string;
@@ -2027,6 +2037,249 @@ export class ProductsApi extends BaseAPI {
      */
     public updateProduct(id: string, editedJsonProduct: EditedJsonProduct, options?: RawAxiosRequestConfig) {
         return ProductsApiFp(this.configuration).updateProduct(id, editedJsonProduct, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * StocksApi - axios parameter creator
+ */
+export const StocksApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Give the number of units of a product that the shop has (ADMIN role)
+         * @param {string} productId 
+         * @param {JsonStockQuantity} jsonStockQuantity 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        changeStock: async (productId: string, jsonStockQuantity: JsonStockQuantity, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'productId' is not null or undefined
+            assertParamExists('changeStock', 'productId', productId)
+            // verify required parameter 'jsonStockQuantity' is not null or undefined
+            assertParamExists('changeStock', 'jsonStockQuantity', jsonStockQuantity)
+            const localVarPath = `/api/admin/stocks/{productId}`
+                .replace(`{${"productId"}}`, encodeURIComponent(String(productId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonStockQuantity, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Retrieve the stock of a product (0 when it was never given)
+         * @param {string} productId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getStock: async (productId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'productId' is not null or undefined
+            assertParamExists('getStock', 'productId', productId)
+            const localVarPath = `/api/stocks/{productId}`
+                .replace(`{${"productId"}}`, encodeURIComponent(String(productId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Retrieve the stocks of the products (a product without stock has none)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getStocks: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/stocks`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * StocksApi - functional programming interface
+ */
+export const StocksApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = StocksApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Give the number of units of a product that the shop has (ADMIN role)
+         * @param {string} productId 
+         * @param {JsonStockQuantity} jsonStockQuantity 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async changeStock(productId: string, jsonStockQuantity: JsonStockQuantity, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonStock>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.changeStock(productId, jsonStockQuantity, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['StocksApi.changeStock']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Retrieve the stock of a product (0 when it was never given)
+         * @param {string} productId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getStock(productId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonStock>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getStock(productId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['StocksApi.getStock']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Retrieve the stocks of the products (a product without stock has none)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getStocks(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<JsonStock>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getStocks(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['StocksApi.getStocks']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * StocksApi - factory interface
+ */
+export const StocksApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = StocksApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Give the number of units of a product that the shop has (ADMIN role)
+         * @param {string} productId 
+         * @param {JsonStockQuantity} jsonStockQuantity 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        changeStock(productId: string, jsonStockQuantity: JsonStockQuantity, options?: RawAxiosRequestConfig): AxiosPromise<JsonStock> {
+            return localVarFp.changeStock(productId, jsonStockQuantity, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Retrieve the stock of a product (0 when it was never given)
+         * @param {string} productId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getStock(productId: string, options?: RawAxiosRequestConfig): AxiosPromise<JsonStock> {
+            return localVarFp.getStock(productId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Retrieve the stocks of the products (a product without stock has none)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getStocks(options?: RawAxiosRequestConfig): AxiosPromise<Array<JsonStock>> {
+            return localVarFp.getStocks(options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * StocksApi - object-oriented interface
+ */
+export class StocksApi extends BaseAPI {
+    /**
+     * 
+     * @summary Give the number of units of a product that the shop has (ADMIN role)
+     * @param {string} productId 
+     * @param {JsonStockQuantity} jsonStockQuantity 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public changeStock(productId: string, jsonStockQuantity: JsonStockQuantity, options?: RawAxiosRequestConfig) {
+        return StocksApiFp(this.configuration).changeStock(productId, jsonStockQuantity, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Retrieve the stock of a product (0 when it was never given)
+     * @param {string} productId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getStock(productId: string, options?: RawAxiosRequestConfig) {
+        return StocksApiFp(this.configuration).getStock(productId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Retrieve the stocks of the products (a product without stock has none)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getStocks(options?: RawAxiosRequestConfig) {
+        return StocksApiFp(this.configuration).getStocks(options).then((request) => request(this.axios, this.basePath));
     }
 }
 

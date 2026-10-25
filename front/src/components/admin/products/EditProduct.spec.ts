@@ -6,6 +6,10 @@ import EditProduct from './EditProduct.vue';
 import { vuetify, i18n } from '@/test/setup';
 import { getProduct } from '@/services/product.service';
 
+vi.mock('@/api', () => ({
+  stocksApi: { getStocks: vi.fn(() => Promise.resolve({ data: [{ productId: 'p-1', quantity: 12 }] })) },
+}));
+
 vi.mock('@/services/product.service', () => ({
   getProduct: vi.fn(),
   getAllProducts: vi.fn(() => Promise.resolve([])),
@@ -47,7 +51,9 @@ describe('EditProduct.vue', () => {
     // Assert
     expect((wrapper.find('input[type="text"]').element as HTMLInputElement).value).toBe('Organic T-shirt');
     expect((wrapper.find('textarea').element as HTMLTextAreaElement).value).toBe('Eco-friendly');
-    expect((wrapper.find('input[type="number"]').element as HTMLInputElement).value).toBe('25');
+    const [price, stock] = wrapper.findAll('input[type="number"]');
+    expect((price.element as HTMLInputElement).value).toBe('25');
+    expect((stock.element as HTMLInputElement).value).toBe('12');
   });
 
   it('saves the edited product', async () => {
@@ -97,5 +103,20 @@ describe('EditProduct.vue', () => {
     // Assert
     const cancel = wrapper.findAll('a').find((link) => link.text() === 'Cancel')!;
     expect(cancel.attributes('href')).toBe('/admin/products');
+  });
+
+  it('saves the stock of the product with it', async () => {
+    // Arrange
+    const wrapper = await mountEditProduct();
+    const [, stock] = wrapper.findAll('input[type="number"]');
+    await stock.setValue('7');
+    await flushPromises();
+    // Act
+    await wrapper.find('form').trigger('submit.prevent');
+    await flushPromises();
+    // Assert
+    const [url, init] = mockFetch.mock.calls.find(([url]) => url.includes('/api/admin/stocks/'))!;
+    expect(url).toMatch(/\/api\/admin\/stocks\/p-1$/);
+    expect(JSON.parse(init.body)).toEqual({ quantity: 7 });
   });
 });

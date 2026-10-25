@@ -28,6 +28,7 @@ This repo is meant to be a learning vehicle and a ready-to-fork base for real pr
 
 **Orders** (sign-in required)
 - Place an order from the cart, on a checkout page: the customer chooses the delivery address and the billing address (the same by default) among their addresses or enters another one (with its recipient, the customer by default, maybe a company), which is added to their addresses; the order refers to both addresses and keeps the name and the price of the products, and awaits its payment
+- Stock: the number of units of each product is shown in the catalog (out of stock, a few left); an order asking for more than the stock is refused, a paid order takes its units out; the administrators give the stock of each product
 - Pay an order with Stripe Checkout (the card is entered on the page of Stripe, never on the shop), or with a simulated payment without a Stripe key; once paid, the cart is emptied and a confirmation email is sent to the customer (can be turned off in the administration settings)
 - Orders page: the customer's orders, newest first, with their status and total
 - Order detail: date, status, lines (product, unit price, quantity, total) and order total; shown right after the order is placed
@@ -180,6 +181,8 @@ npm run gen:api
 | `POST` | `/api/payments/stripe/webhook` | Stripe signature | Notification of Stripe (`checkout.session.completed`): the order is paid (`404` without Stripe key) |
 | `GET` | `/api/orders` | signed in | Orders of the customer, newest first |
 | `GET` | `/api/orders/{id}` | signed in | One order of the customer (`404` for the order of another customer) |
+| `GET` | `/api/stocks`, `/api/stocks/{productId}` | public | The stocks of the products (`0` for a product without stock) |
+| `PUT` | `/api/admin/stocks/{productId}` | `ADMIN` | Give the stock of a product, `{ quantity }` (`400` negative, `404` unknown product) |
 | `GET` | `/api/admin/settings` | `ADMIN` | Settings of the shop (`orderConfirmationEmail`: `ENABLED` / `DISABLED`) |
 | `POST` | `/api/admin/settings/order-confirmation-email/enable` | `ADMIN` | Send a confirmation email when an order is placed |
 | `POST` | `/api/admin/settings/order-confirmation-email/disable` | `ADMIN` | Stop sending the order confirmation email |

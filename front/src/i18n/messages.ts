@@ -132,6 +132,13 @@ export default {
       total: 'Total',
       status: 'Status',
     },
+    stock: {
+      inStock: 'In stock',
+      fewLeft: 'Only 1 left in stock | Only {n} left in stock',
+      outOfStock: 'Out of stock',
+      units: 'Units in stock',
+      invalid: 'Give a number of units, 0 or more.',
+    },
     products: {
       addToCart: 'Add to cart',
       count: 'No products | 1 product | {n} products',
@@ -187,6 +194,7 @@ export default {
         emptyCart: 'Your cart is empty.',
         refused: 'Your account does not allow ordering (suspended, locked or disabled). Contact the shop.',
         incompleteAddress: 'Complete the delivery address and the billing address.',
+        outOfStock: 'A product of your cart no longer has enough units in stock: change its quantity.',
         error: 'The order could not be placed. Please try again.',
       },
     },
@@ -538,6 +546,13 @@ export default {
       total: 'Total',
       status: 'Statut',
     },
+    stock: {
+      inStock: 'En stock',
+      fewLeft: 'Plus qu\'1 en stock | Plus que {n} en stock',
+      outOfStock: 'Rupture de stock',
+      units: 'Unités en stock',
+      invalid: 'Indiquez un nombre d\'unités, 0 ou plus.',
+    },
     products: {
       addToCart: 'Ajouter au panier',
       count: 'Aucun produit | 1 produit | {n} produits',
@@ -595,6 +610,7 @@ export default {
         refused:
           'Votre compte ne permet pas de commander (suspendu, verrouillé ou désactivé). Contactez la boutique.',
         incompleteAddress: "Complétez l'adresse de livraison et l'adresse de facturation.",
+        outOfStock: "Un produit de votre panier n'a plus assez d'unités en stock : modifiez sa quantité.",
         error: "La commande n'a pas pu être passée. Veuillez réessayer.",
       },
     },

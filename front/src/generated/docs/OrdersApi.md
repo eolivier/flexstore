@@ -153,6 +153,7 @@ const { status, data } = await apiInstance.placeOrder(
 |**201** | Order placed |  -  |
 |**401** | Not signed in |  -  |
 |**400** | Incomplete delivery or billing address |  -  |
+|**409** | Not enough units in stock for a product of the cart |  -  |
 |**403** | The account is SUSPENDED, LOCKED or DISABLED: { error, status } |  -  |
 |**422** | The cart is empty |  -  |
 

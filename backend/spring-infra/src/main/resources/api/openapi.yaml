@@ -545,6 +545,8 @@ paths:
           description: Not signed in
         "400":
           description: Incomplete delivery or billing address
+        "409":
+          description: Not enough units in stock for a product of the cart
         "403":
           description: "The account is SUSPENDED, LOCKED or DISABLED: { error, status }"
         "422":
@@ -643,6 +645,73 @@ paths:
           description: Invalid signature
         "404":
           description: No Stripe key configured (simulated payments)
+  /api/stocks:
+    get:
+      tags:
+      - Stocks
+      summary: Retrieve the stocks of the products (a product without stock has none)
+      operationId: getStocks
+      responses:
+        "200":
+          description: The stocks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/JsonStock"
+  /api/stocks/{productId}:
+    get:
+      tags:
+      - Stocks
+      summary: Retrieve the stock of a product (0 when it was never given)
+      operationId: getStock
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: The stock of the product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonStock"
+  /api/admin/stocks/{productId}:
+    put:
+      tags:
+      - Stocks
+      summary: Give the number of units of a product that the shop has (ADMIN role)
+      operationId: changeStock
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonStockQuantity"
+      responses:
+        "200":
+          description: The new stock of the product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonStock"
+        "400":
+          description: Negative stock
+        "403":
+          description: The signed-in user is not an administrator
+        "404":
+          description: Unknown product
   /api/admin/orders:
     get:
       tags:
@@ -992,6 +1061,22 @@ components:
           type: string
           enum: [PENDING, PAID]
           description: PAID when the payment is already confirmed (simulated payment)
+    JsonStock:
+      type: object
+      required: [productId, quantity]
+      properties:
+        productId:
+          type: string
+        quantity:
+          type: integer
+          description: The number of units that the shop has
+    JsonStockQuantity:
+      type: object
+      required: [quantity]
+      properties:
+        quantity:
+          type: integer
+          minimum: 0
     JsonOrderStatusAdvance:
       type: object
       description: The status of the order when the administrator asks to move it to the next one
