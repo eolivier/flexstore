@@ -127,6 +127,7 @@ The physical data model of the database (MPD) is kept in two forms, updated toge
 Every migration that changes the schema (a table, a column, a type, a key, a constraint) updates both in the same pull request.
 
 How to apply:
+- In each table of the diagram, the **first column is the name of the column and the second its type**: write each attribute `name type` (`id varchar(50) PK`), Mermaid showing its first word in the first column.
 - Add, rename or remove the table or the column in the diagram, with its type, `PK`, `FK` or `UK`, and a comment for what is not obvious (a nullable column, an enumeration such as `PENDING` / `PAID`).
 - Draw the relation of a new foreign key with its cardinality (`||--o{`, `|o--o|`...), labelled with the column that holds it.
 - Update the version of the last migration written at the top of the document.
