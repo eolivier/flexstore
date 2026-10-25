@@ -2,6 +2,7 @@ package org.flexstore.infra.spring.adapter.email
 
 import org.flexstore.domain.sharedkernel.ShopUrl
 import org.flexstore.domain.email.*
+import org.flexstore.domain.user.model.Email
 import org.slf4j.LoggerFactory
 import org.springframework.mail.SimpleMailMessage
 import org.springframework.mail.javamail.JavaMailSender
@@ -28,23 +29,23 @@ class SmtpEmailSender(
     override fun send(email: OrderConfirmationEmail) {
         val content = OrderConfirmationEmailContent(email, shopUrl)
         val orderNumber = email.order.number()
-        runCatching { mailSender.send(message(email.recipient.value, content.subject, content.body)) }
+        runCatching { mailSender.send(message(email.recipient, content)) }
             .onSuccess { logger.info("Order confirmation email of order {} sent to {}", orderNumber, email.recipient.value) }
             .onFailure { logger.error("Order confirmation email of order $orderNumber to ${email.recipient.value} not sent", it) }
     }
 
     override fun send(link: EmailVerificationLink) {
         val content = EmailVerificationLinkContent(link)
-        runCatching { mailSender.send(message(link.recipient.value, content.subject, content.body)) }
+        runCatching { mailSender.send(message(link.recipient, content)) }
             .onSuccess { logger.info("Verification email sent to {}", link.recipient.value) }
             .onFailure { logger.error("Verification email to ${link.recipient.value} not sent", it) }
     }
 
-    private fun message(recipient: String, subject: String, body: String) = SimpleMailMessage().apply {
+    private fun message(recipient: Email, content: EmailContent) = SimpleMailMessage().apply {
         from = sender
-        setTo(recipient)
-        this.subject = subject
-        text = body
+        setTo(recipient.value)
+        subject = content.subject.value
+        text = content.body.value
     }
 }
 
@@ -55,14 +56,16 @@ class LoggingEmailSender(private val shopUrl: ShopUrl) : EmailSender {
 
     override fun send(email: OrderConfirmationEmail) {
         val content = OrderConfirmationEmailContent(email, shopUrl)
-        log(email.recipient.value, content.subject, content.body)
+        log(email.recipient, content)
     }
 
     override fun send(link: EmailVerificationLink) {
         val content = EmailVerificationLinkContent(link)
-        log(link.recipient.value, content.subject, content.body)
+        log(link.recipient, content)
     }
 
-    private fun log(recipient: String, subject: String, body: String) =
-        logger.info("Email to {} (no SMTP server configured)\nSubject: {}\n{}", recipient, subject, body)
+    private fun log(recipient: Email, content: EmailContent) = logger.info(
+        "Email to {} (no SMTP server configured)\nSubject: {}\n{}",
+        recipient.value, content.subject.value, content.body.value
+    )
 }

@@ -1,8 +1,7 @@
-package org.flexstore.infra.spring.adapter.email
+package org.flexstore.domain.email
 
 import org.flexstore.domain.order.OrderPage
 import org.flexstore.domain.sharedkernel.ShopUrl
-import org.flexstore.domain.email.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.sharedkernel.*
 import java.text.NumberFormat
@@ -14,13 +13,13 @@ private val FRENCH = Locale.FRANCE
 private val DATE_FORMAT = DateTimeFormatter.ofPattern("d MMMM yyyy", FRENCH).withZone(ZoneId.of("Europe/Paris"))
 
 // The wording of the order confirmation email (in French, the language of the shop)
-class OrderConfirmationEmailContent(email: OrderConfirmationEmail, shopUrl: ShopUrl) {
+class OrderConfirmationEmailContent(email: OrderConfirmationEmail, shopUrl: ShopUrl) : EmailContent {
 
     private val order = email.order
 
-    val subject = "Flexstore - Confirmation de votre commande ${order.number()}"
+    override val subject = EmailSubject("Flexstore - Confirmation de votre commande ${order.number()}")
 
-    val body = buildString {
+    override val body = EmailBody(buildString {
         appendLine("Bonjour ${email.customerName.value},")
         appendLine()
         appendLine("Merci pour votre commande ${order.number()} du ${DATE_FORMAT.format(order.placedAt)}.")
@@ -34,7 +33,7 @@ class OrderConfirmationEmailContent(email: OrderConfirmationEmail, shopUrl: Shop
         appendLine("Suivez votre commande depuis votre compte : ${OrderPage.of(shopUrl, order.orderId).url}")
         appendLine()
         append("L'équipe Flexstore")
-    }
+    })
 
     private fun amount(price: Price): String {
         val format = NumberFormat.getNumberInstance(FRENCH).apply {

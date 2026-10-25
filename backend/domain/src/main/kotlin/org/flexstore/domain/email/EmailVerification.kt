@@ -59,7 +59,7 @@ data class VerificationPage(val value: String) {
 
 data class Link(val value: String)
 
-// The email with the link that verifies the address of a customer; its wording is up to the infrastructure
+// The email with the link that verifies the address of a customer; its wording is EmailVerificationLinkContent
 data class EmailVerificationLink(
     val recipient: Email,
     val customerName: FullName,

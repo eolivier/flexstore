@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.flexstore.infra.spring.adapter.email.RecordingEmailConfig
 import org.flexstore.infra.spring.adapter.email.RecordingEmailSender
-import org.flexstore.infra.spring.adapter.email.OrderConfirmationEmailContent
+import org.flexstore.domain.email.OrderConfirmationEmailContent
 import org.flexstore.infra.spring.adapter.jpa.JpaCartItemRepository
 import org.flexstore.infra.spring.adapter.jpa.JpaCartRepository
 import org.flexstore.infra.spring.adapter.jpa.JpaOrderRepository
@@ -108,8 +108,8 @@ class OrderConfirmationEmailIT {
         val email = emailSender.sentEmails().single()
         val content = OrderConfirmationEmailContent(email, ShopUrl("https://flexstore.example"))
         assertThat(email.recipient).isEqualTo(Email("admin@flexstore.com"))
-        assertThat(content.subject).isEqualTo("Flexstore - Confirmation de votre commande ${email.order.number()}")
-        assertThat(content.body).contains("2 × Laptop : 1\u202F598,00 €", "https://flexstore.example/orders/${email.order.orderId.value}")
+        assertThat(content.subject.value).isEqualTo("Flexstore - Confirmation de votre commande ${email.order.number()}")
+        assertThat(content.body.value).contains("2 × Laptop : 1\u202F598,00 €", "https://flexstore.example/orders/${email.order.orderId.value}")
     }
 
     private fun placeOrder(): String {
