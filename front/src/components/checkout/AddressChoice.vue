@@ -1,8 +1,8 @@
 <script setup lang="ts">
-  import { ref, watch } from 'vue';
+  import { computed, ref, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
   import type { PostalAddress, Recipient } from '@/models/account';
-  import { formatAddress } from '@/utils/address';
+  import { formatAddress, isRecipientComplete } from '@/utils/address';
   import PostalAddressFields from '@/components/account/PostalAddressFields.vue';
   import RecipientFields from '@/components/account/RecipientFields.vue';
 
@@ -19,11 +19,20 @@
   const choice = ref<number | 'other'>(props.addresses.length > 0 ? 0 : 'other');
   const otherLocation = { street: '', complement: '', postalCode: '', city: '', country: 'France' };
   const otherAddress = ref<PostalAddress>({ ...props.customer, ...otherLocation });
+  // A saved address whose recipient is incomplete is completed here before ordering: it is edited in a copy
+  const savedAddresses = ref<PostalAddress[]>(props.addresses.map((saved) => ({ ...saved })));
+  const incompleteChoices = props.addresses
+    .map((saved, index) => (isRecipientComplete(saved) ? null : index))
+    .filter((index) => index !== null);
+  const recipientToComplete = computed(
+    () => choice.value !== 'other' && incompleteChoices.includes(choice.value)
+  );
 
   watch(
-    [choice, otherAddress],
+    [choice, otherAddress, savedAddresses],
     () => {
-      address.value = choice.value === 'other' ? otherAddress.value : props.addresses[choice.value];
+      address.value =
+        choice.value === 'other' ? otherAddress.value : savedAddresses.value[choice.value];
     },
     { deep: true, immediate: true }
   );
@@ -43,6 +52,10 @@
       />
       <v-radio value="other" :label="t('checkout.otherAddress')" />
     </v-radio-group>
+    <template v-if="recipientToComplete && choice !== 'other'">
+      <p class="text-body-2 text-medium-emphasis mb-2">{{ t('checkout.completeRecipient') }}</p>
+      <RecipientFields v-model="savedAddresses[choice]" :purpose="purpose" />
+    </template>
     <template v-if="choice === 'other'">
       <RecipientFields v-model="otherAddress" :purpose="purpose" />
       <PostalAddressFields v-model="otherAddress" />
