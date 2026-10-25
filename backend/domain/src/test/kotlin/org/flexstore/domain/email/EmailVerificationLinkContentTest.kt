@@ -1,7 +1,6 @@
-package org.flexstore.infra.spring.adapter.email
+package org.flexstore.domain.email
 
 import org.assertj.core.api.Assertions.assertThat
-import org.flexstore.domain.email.*
 import org.flexstore.domain.user.model.*
 import org.junit.jupiter.api.Test
 import java.time.Instant
@@ -21,7 +20,7 @@ class EmailVerificationLinkContentTest {
         // Act
         val content = EmailVerificationLinkContent(link)
         // Assert
-        assertThat(content.body).contains("https://flexstore.example/verify-email?token=abc123")
+        assertThat(content.body.value).contains("https://flexstore.example/verify-email?token=abc123")
     }
 
     @Test
@@ -29,7 +28,7 @@ class EmailVerificationLinkContentTest {
         // Act
         val content = EmailVerificationLinkContent(link)
         // Assert
-        assertThat(content.body).startsWith("Bonjour Jane Doe,")
-        assertThat(content.body).contains("valable 1 heure (jusqu'à 13h00)")
+        assertThat(content.body.value).startsWith("Bonjour Jane Doe,")
+        assertThat(content.body.value).contains("valable 1 heure (jusqu'à 13h00)")
     }
 }
