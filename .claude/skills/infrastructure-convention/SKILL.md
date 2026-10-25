@@ -68,3 +68,15 @@ Avoid: `spring-infra/.../adapter/image/JavaImageResizerRepository.kt`, which dra
 Prefer: `infra/src/main/kotlin/org/flexstore/infra/image/JavaImageResizerRepository.kt`, its test in `infra/src/test`, and `imageio-webp` in `infra/build.gradle.kts`.
 
 Why: the adapter stays independent of the framework, can be reused and tested on its own, and `spring-infra` keeps only what really needs Spring. If an adapter later needs Spring, move it to `spring-infra` then.
+
+The rule is about the adapter as a whole, not about each class: a class without Spring that only serves a Spring adapter stays next to it in `spring-infra`. Examples are the wording of an email sent by the mail adapter, the payment providers used by the JPA payment adapter, and the JSON DTOs of the controllers.
+
+For such a class, the question to ask is not "`infra` or `spring-infra`?" but "is this domain?". It belongs in the domain when it holds a business rule or a business value: which facts a document must state, a duration, a threshold, a state. The adapter keeps only the technical part (the wording, the formatting, the calls to the SDK) and reads the business values from the domain instead of copying them.
+
+Avoid, in `EmailVerificationLinkContent`:
+
+```kotlin
+appendLine("Ce lien est valable 1 heure (...)")   // copies EmailVerification.VALIDITY
+```
+
+Prefer: derive the text from `EmailVerification.VALIDITY`, so that changing the rule in the domain changes the email.
