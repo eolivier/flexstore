@@ -9,6 +9,8 @@ import org.flexstore.domain.order.*
 import org.flexstore.domain.order.usecase.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.settings.*
+import org.flexstore.domain.image.*
+import org.flexstore.domain.image.usecase.*
 import org.flexstore.domain.stock.*
 import org.flexstore.domain.stock.usecase.*
 import org.flexstore.domain.sharedkernel.ShopUrl
@@ -182,4 +184,24 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     @Bean
     open fun stockUseCases(readStockUseCase: ReadStockUseCase, changeStockUseCase: ChangeStockUseCase) =
         StockUseCases(readStockUseCase, changeStockUseCase)
+
+    @Bean
+    open fun addProductImageUseCase(productImageRepository: ProductImageRepository,
+                                    productRepository: ProductRepository,
+                                    imageResizerRepository: ImageResizerRepository) =
+        AddProductImageUseCase(productImageRepository, productRepository, imageResizerRepository)
+
+    @Bean
+    open fun removeProductImageUseCase(productImageRepository: ProductImageRepository) =
+        RemoveProductImageUseCase(productImageRepository)
+
+    @Bean
+    open fun readProductImageUseCase(productImageRepository: ProductImageRepository) =
+        ReadProductImageUseCase(productImageRepository)
+
+    @Bean
+    open fun productImageUseCases(addProductImageUseCase: AddProductImageUseCase,
+                                  removeProductImageUseCase: RemoveProductImageUseCase,
+                                  readProductImageUseCase: ReadProductImageUseCase) =
+        ProductImageUseCases(addProductImageUseCase, removeProductImageUseCase, readProductImageUseCase)
 }

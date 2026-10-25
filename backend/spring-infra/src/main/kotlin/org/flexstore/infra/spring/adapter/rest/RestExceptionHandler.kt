@@ -4,12 +4,14 @@ import org.flexstore.domain.email.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.payment.*
 import org.flexstore.domain.product.*
+import org.flexstore.domain.image.*
 import org.flexstore.domain.stock.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.usecase.*
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.multipart.MaxUploadSizeExceededException
 import org.ucop.domain.NominalException
 
 @RestControllerAdvice
@@ -68,6 +70,15 @@ class RestExceptionHandler {
             is NegativeStockException -> ResponseEntity
                 .status(400)
                 .body(mapOf("error" to (ex.message ?: "Negative stock")))
+            is ImageTooLargeException -> ResponseEntity
+                .status(413)
+                .body(mapOf("error" to (ex.message ?: "Image too large")))
+            is UnreadableImageException -> ResponseEntity
+                .status(415)
+                .body(mapOf("error" to (ex.message ?: "Unreadable image")))
+            is ProductImageNotFoundException -> ResponseEntity
+                .status(404)
+                .body(mapOf("error" to (ex.message ?: "No image")))
             is OrderAlreadyPaidException -> ResponseEntity
                 .status(409)
                 .body(mapOf("error" to (ex.message ?: "Order already paid")))
@@ -79,4 +90,9 @@ class RestExceptionHandler {
                 .body(mapOf("error" to (ex.message ?: "Nominal exception")))
         }
     }
+
+    // An uploaded file larger than spring.servlet.multipart.max-file-size, refused before reaching the domain
+    @ExceptionHandler(MaxUploadSizeExceededException::class)
+    fun handleTooLargeUpload(ex: MaxUploadSizeExceededException): ResponseEntity<Map<String, String>> =
+        ResponseEntity.status(413).body(mapOf("error" to "An image is 2 MB at most."))
 }

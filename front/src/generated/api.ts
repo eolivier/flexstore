@@ -1726,6 +1726,339 @@ export class PaymentsApi extends BaseAPI {
 
 
 /**
+ * ProductImagesApi - axios parameter creator
+ */
+export const ProductImagesApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * The image is kept in two formats, as JPEG: LARGE (1600 px, 500 KB at most) for the page of the product, SMALL (400 px, 60 KB at most) for the cards of the catalog and the cart. It replaces the previous one 
+         * @summary Give the image of a product, 2 MB at most (JPEG, PNG or WebP), kept resized (ADMIN role)
+         * @param {string} productId 
+         * @param {File} image 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        addProductImage: async (productId: string, image: File, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'productId' is not null or undefined
+            assertParamExists('addProductImage', 'productId', productId)
+            // verify required parameter 'image' is not null or undefined
+            assertParamExists('addProductImage', 'image', image)
+            const localVarPath = `/api/admin/products/{productId}/image`
+                .replace(`{${"productId"}}`, encodeURIComponent(String(productId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+            const localVarFormParams = new ((configuration && configuration.formDataCtor) || FormData)();
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+            if (image !== undefined) { 
+                localVarFormParams.append('image', image as any);
+            }
+    
+    
+            localVarHeaderParameter['Content-Type'] = 'multipart/form-data';
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = localVarFormParams;
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * A JPEG, with an ETag; the browser asks again with If-None-Match and gets 304 when unchanged
+         * @summary Retrieve the image of a product, in the small (cards, cart) or large (page) format
+         * @param {string} productId 
+         * @param {GetProductImageFormatEnum} [format] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getProductImage: async (productId: string, format?: GetProductImageFormatEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'productId' is not null or undefined
+            assertParamExists('getProductImage', 'productId', productId)
+            const localVarPath = `/api/products/{productId}/image`
+                .replace(`{${"productId"}}`, encodeURIComponent(String(productId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (format !== undefined) {
+                localVarQueryParameter['format'] = format;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Retrieve the ids of the products that have an image
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getProductsWithImage: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/product-images`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Remove the image of a product (ADMIN role)
+         * @param {string} productId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        removeProductImage: async (productId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'productId' is not null or undefined
+            assertParamExists('removeProductImage', 'productId', productId)
+            const localVarPath = `/api/admin/products/{productId}/image`
+                .replace(`{${"productId"}}`, encodeURIComponent(String(productId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * ProductImagesApi - functional programming interface
+ */
+export const ProductImagesApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ProductImagesApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * The image is kept in two formats, as JPEG: LARGE (1600 px, 500 KB at most) for the page of the product, SMALL (400 px, 60 KB at most) for the cards of the catalog and the cart. It replaces the previous one 
+         * @summary Give the image of a product, 2 MB at most (JPEG, PNG or WebP), kept resized (ADMIN role)
+         * @param {string} productId 
+         * @param {File} image 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async addProductImage(productId: string, image: File, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.addProductImage(productId, image, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProductImagesApi.addProductImage']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * A JPEG, with an ETag; the browser asks again with If-None-Match and gets 304 when unchanged
+         * @summary Retrieve the image of a product, in the small (cards, cart) or large (page) format
+         * @param {string} productId 
+         * @param {GetProductImageFormatEnum} [format] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getProductImage(productId: string, format?: GetProductImageFormatEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<File>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getProductImage(productId, format, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProductImagesApi.getProductImage']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Retrieve the ids of the products that have an image
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getProductsWithImage(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<string>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getProductsWithImage(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProductImagesApi.getProductsWithImage']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Remove the image of a product (ADMIN role)
+         * @param {string} productId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async removeProductImage(productId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.removeProductImage(productId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProductImagesApi.removeProductImage']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * ProductImagesApi - factory interface
+ */
+export const ProductImagesApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ProductImagesApiFp(configuration)
+    return {
+        /**
+         * The image is kept in two formats, as JPEG: LARGE (1600 px, 500 KB at most) for the page of the product, SMALL (400 px, 60 KB at most) for the cards of the catalog and the cart. It replaces the previous one 
+         * @summary Give the image of a product, 2 MB at most (JPEG, PNG or WebP), kept resized (ADMIN role)
+         * @param {string} productId 
+         * @param {File} image 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        addProductImage(productId: string, image: File, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.addProductImage(productId, image, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * A JPEG, with an ETag; the browser asks again with If-None-Match and gets 304 when unchanged
+         * @summary Retrieve the image of a product, in the small (cards, cart) or large (page) format
+         * @param {string} productId 
+         * @param {GetProductImageFormatEnum} [format] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getProductImage(productId: string, format?: GetProductImageFormatEnum, options?: RawAxiosRequestConfig): AxiosPromise<File> {
+            return localVarFp.getProductImage(productId, format, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Retrieve the ids of the products that have an image
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getProductsWithImage(options?: RawAxiosRequestConfig): AxiosPromise<Array<string>> {
+            return localVarFp.getProductsWithImage(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Remove the image of a product (ADMIN role)
+         * @param {string} productId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        removeProductImage(productId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.removeProductImage(productId, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * ProductImagesApi - object-oriented interface
+ */
+export class ProductImagesApi extends BaseAPI {
+    /**
+     * The image is kept in two formats, as JPEG: LARGE (1600 px, 500 KB at most) for the page of the product, SMALL (400 px, 60 KB at most) for the cards of the catalog and the cart. It replaces the previous one 
+     * @summary Give the image of a product, 2 MB at most (JPEG, PNG or WebP), kept resized (ADMIN role)
+     * @param {string} productId 
+     * @param {File} image 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public addProductImage(productId: string, image: File, options?: RawAxiosRequestConfig) {
+        return ProductImagesApiFp(this.configuration).addProductImage(productId, image, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * A JPEG, with an ETag; the browser asks again with If-None-Match and gets 304 when unchanged
+     * @summary Retrieve the image of a product, in the small (cards, cart) or large (page) format
+     * @param {string} productId 
+     * @param {GetProductImageFormatEnum} [format] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getProductImage(productId: string, format?: GetProductImageFormatEnum, options?: RawAxiosRequestConfig) {
+        return ProductImagesApiFp(this.configuration).getProductImage(productId, format, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Retrieve the ids of the products that have an image
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getProductsWithImage(options?: RawAxiosRequestConfig) {
+        return ProductImagesApiFp(this.configuration).getProductsWithImage(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Remove the image of a product (ADMIN role)
+     * @param {string} productId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public removeProductImage(productId: string, options?: RawAxiosRequestConfig) {
+        return ProductImagesApiFp(this.configuration).removeProductImage(productId, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+export const GetProductImageFormatEnum = {
+    Small: 'small',
+    Large: 'large'
+} as const;
+export type GetProductImageFormatEnum = typeof GetProductImageFormatEnum[keyof typeof GetProductImageFormatEnum];
+
+
+/**
  * ProductsApi - axios parameter creator
  */
 export const ProductsApiAxiosParamCreator = function (configuration?: Configuration) {

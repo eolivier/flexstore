@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import { useProductImagesStore } from '@/stores/productImages.store';
   import { useStocksStore } from '@/stores/stocks.store';
   import { computed, onMounted, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
@@ -43,6 +44,7 @@
   onMounted(() => {
     productsStore.fetchProducts();
     stocksStore.fetchStocks();
+    useProductImagesStore().fetchProductsWithImage();
   });
 </script>
 

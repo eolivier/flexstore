@@ -3,6 +3,8 @@ import { createPinia, setActivePinia } from 'pinia';
 import { useStocksStore } from './stocks.store';
 
 vi.mock('@/api', () => ({
+  apiBaseUrl: 'https://api.example',
+  productImagesApi: { getProductsWithImage: vi.fn(() => Promise.resolve({ data: [] })) },
   stocksApi: { getStocks: vi.fn(() => Promise.resolve({ data: [{ productId: 'p-1', quantity: 4 }] })) },
 }));
 

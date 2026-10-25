@@ -8,6 +8,8 @@ import { getAllProducts, getProduct } from '@/services/product.service';
 
 vi.mock('@/services/product.service', () => ({ getAllProducts: vi.fn(), getProduct: vi.fn() }));
 vi.mock('@/api', () => ({
+  apiBaseUrl: 'https://api.example',
+  productImagesApi: { getProductsWithImage: vi.fn(() => Promise.resolve({ data: [] })) },
   stocksApi: {
     getStocks: vi.fn(() =>
       Promise.resolve({

@@ -4,6 +4,7 @@
   import type { Item } from '@/models/cart';
   import QuantityStepper from './QuantityStepper.vue';
   import { categoryInfo } from '@/components/products/categories';
+  import ProductVisual from '@/components/products/ProductVisual.vue';
   import { formatPrice } from '@/utils/price';
 
   const props = defineProps<{ item: Item }>();
@@ -27,7 +28,12 @@
       :style="{ background: category.tint }"
       :aria-label="item.productName"
     >
-      <v-icon :icon="category.icon" size="32" color="primary" />
+      <ProductVisual
+        :product-id="item.productId"
+        :category="item.productCategory"
+        format="small"
+        :icon-size="32"
+      />
     </router-link>
 
     <div class="flex-grow-1 line-info">

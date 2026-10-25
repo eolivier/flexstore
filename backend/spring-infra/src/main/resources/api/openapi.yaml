@@ -645,6 +645,110 @@ paths:
           description: Invalid signature
         "404":
           description: No Stripe key configured (simulated payments)
+  /api/product-images:
+    get:
+      tags:
+      - Product images
+      summary: Retrieve the ids of the products that have an image
+      operationId: getProductsWithImage
+      responses:
+        "200":
+          description: The ids of the products with an image
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /api/products/{productId}/image:
+    get:
+      tags:
+      - Product images
+      summary: Retrieve the image of a product, in the small (cards, cart) or large (page) format
+      description: A JPEG, with an ETag; the browser asks again with If-None-Match and gets 304 when unchanged
+      operationId: getProductImage
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: format
+        in: query
+        required: false
+        schema:
+          type: string
+          enum: [small, large]
+          default: large
+      responses:
+        "200":
+          description: The image
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+        "304":
+          description: The image did not change
+        "404":
+          description: The product has no image
+  /api/admin/products/{productId}/image:
+    put:
+      tags:
+      - Product images
+      summary: Give the image of a product, 2 MB at most (JPEG, PNG or WebP), kept resized (ADMIN role)
+      description: >
+        The image is kept in two formats, as JPEG: LARGE (1600 px, 500 KB at most) for the page of the product,
+        SMALL (400 px, 60 KB at most) for the cards of the catalog and the cart. It replaces the previous one
+      operationId: addProductImage
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [image]
+              properties:
+                image:
+                  type: string
+                  format: binary
+      responses:
+        "204":
+          description: The image is kept
+        "403":
+          description: The signed-in user is not an administrator
+        "404":
+          description: Unknown product
+        "413":
+          description: The image is larger than 2 MB
+        "415":
+          description: The file is not a JPEG, PNG or WebP image
+    delete:
+      tags:
+      - Product images
+      summary: Remove the image of a product (ADMIN role)
+      operationId: removeProductImage
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: The image is removed
+        "404":
+          description: The product has no image
   /api/stocks:
     get:
       tags:

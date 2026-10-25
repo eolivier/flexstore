@@ -5,6 +5,7 @@
   import { categoryInfo } from './categories';
   import { formatPrice } from '@/utils/price';
   import StockBadge from './StockBadge.vue';
+  import ProductVisual from './ProductVisual.vue';
 
   // stock: the units of the product, null while unknown
   const props = defineProps<{ product: Product; stock?: number | null; adding?: boolean }>();
@@ -25,7 +26,7 @@
       :style="{ background: category.tint }"
       :aria-label="product.name"
     >
-      <v-icon :icon="category.icon" size="64" color="primary" class="product-icon" />
+      <ProductVisual :product-id="product.id" :category="product.category" format="small" :icon-size="64" />
     </router-link>
 
     <v-card-text class="d-flex flex-column flex-grow-1 pa-5">
@@ -68,6 +69,7 @@
   .product-visual {
     aspect-ratio: 16 / 10;
     text-decoration: none;
+    overflow: hidden;
   }
   .product-link {
     color: inherit;

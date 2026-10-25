@@ -4,6 +4,7 @@
   import { useProductsStore } from '@/stores/products.store.ts';
   import { useStocksStore } from '@/stores/stocks.store';
   import ProductFields from './ProductFields.vue';
+  import ProductImageField from './ProductImageField.vue';
 
   interface EditedProduct {
     name: string;
@@ -64,6 +65,8 @@
       t('editProduct.loadError')
     }}</v-alert>
     <v-card v-else class="pa-6">
+      <ProductImageField :product-id="id" />
+      <v-divider class="mb-4" />
       <v-form v-model="valid" @submit.prevent="save">
         <ProductFields
           v-model:name="editedProduct.name"
