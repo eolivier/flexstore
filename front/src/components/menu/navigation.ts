@@ -12,6 +12,11 @@ export const accountLinks = [
   { to: '/account/addresses', icon: 'mdi-map-marker-outline', label: 'nav.addresses' },
 ];
 
+// The links of the account only make sense once signed in
+export function accountLinksOf(signedIn: boolean) {
+  return signedIn ? accountLinks : [];
+}
+
 export const adminLinks = [
   { to: '/admin/users', icon: 'mdi-account-multiple-outline', label: 'nav.users' },
   { to: '/admin/create-user', icon: 'mdi-account-plus-outline', label: 'nav.createUser' },

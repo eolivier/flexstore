@@ -7,7 +7,7 @@
   import { FullName } from '@/models/user';
   import Language from '../Language.vue';
   import LoadingBar from '@/components/layout/LoadingBar.vue';
-  import { accountLinks, adminLinks, shopLinks } from './navigation';
+  import { accountLinksOf, adminLinks, shopLinks } from './navigation';
   import { useAuthStore } from '@/stores/auth.store';
   import { useCartStore } from '@/stores/cart.store';
 
@@ -18,6 +18,8 @@
   const cartStore = useCartStore();
 
   const drawer = ref(false);
+
+  const accountLinks = computed(() => accountLinksOf(authStore.isAuthenticated));
 
   const cartCount = computed(() =>
     (cartStore.cartItems?.items ?? []).reduce((count, item) => count + item.productQuantity, 0)
@@ -114,7 +116,7 @@
               :title="t(link.label)"
             />
           </template>
-          <v-divider class="my-1" />
+          <v-divider v-if="authStore.isAuthenticated" class="my-1" />
           <v-list-item
             v-if="authStore.isAuthenticated"
             prepend-icon="mdi-logout"
