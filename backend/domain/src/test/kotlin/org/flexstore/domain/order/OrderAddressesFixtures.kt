@@ -3,7 +3,7 @@ package org.flexstore.domain.order
 import org.flexstore.domain.user.model.*
 
 // The customer of the tests, who receives the orders
-val janeDoe = Recipient(FullName(FirstName("Jane"), LastName("Doe")))
+val janeDoe = PrivateIndividual(FullName(FirstName("Jane"), LastName("Doe")))
 
 private val homeStreet = Street("12 rue des Lilas")
 private val homeComplement = AddressComplement("Bâtiment B")

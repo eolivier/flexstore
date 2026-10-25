@@ -26,7 +26,7 @@ class SmtpEmailSenderTest {
 
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val lamp = DefinedProduct(ProductId(Identity("lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR))
-    private val janeDoe = Recipient(FullName(FirstName("Jane"), LastName("Doe")))
+    private val janeDoe = PrivateIndividual(FullName(FirstName("Jane"), LastName("Doe")))
     private val homeStreet = Street("12 rue des Lilas")
     private val homeLocation = Location(homeStreet, null, PostalCode("75011"), City("Paris"), Country("France"))
     private val checkout = Checkout(customer, OrderAddresses.sameFor(PostalAddress(janeDoe, homeLocation)))

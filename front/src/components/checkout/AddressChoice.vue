@@ -8,7 +8,11 @@
 
   // One of the addresses of the customer, or another address entered here, sent by default to the customer
   const address = defineModel<PostalAddress>({ required: true });
-  const props = defineProps<{ addresses: PostalAddress[]; customer: Recipient; legend: string }>();
+  const props = defineProps<{
+    addresses: PostalAddress[];
+    customer: Recipient;
+    purpose: 'delivery' | 'billing';
+  }>();
 
   const { t } = useI18n();
 
@@ -27,13 +31,20 @@
 
 <template>
   <fieldset class="address-choice mb-4">
-    <legend class="text-subtitle-1 font-weight-bold mb-2">{{ legend }}</legend>
+    <legend class="text-subtitle-1 font-weight-bold mb-2">
+      {{ t(`checkout.${purpose}Address`) }}
+    </legend>
     <v-radio-group v-model="choice" hide-details class="mb-2">
-      <v-radio v-for="(saved, index) in addresses" :key="index" :value="index" :label="formatAddress(saved)" />
+      <v-radio
+        v-for="(saved, index) in addresses"
+        :key="index"
+        :value="index"
+        :label="formatAddress(saved)"
+      />
       <v-radio value="other" :label="t('checkout.otherAddress')" />
     </v-radio-group>
     <template v-if="choice === 'other'">
-      <RecipientFields v-model="otherAddress" />
+      <RecipientFields v-model="otherAddress" :purpose="purpose" />
       <PostalAddressFields v-model="otherAddress" />
     </template>
   </fieldset>

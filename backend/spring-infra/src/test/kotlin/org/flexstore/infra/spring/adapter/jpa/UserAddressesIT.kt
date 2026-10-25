@@ -19,8 +19,9 @@ class UserAddressesIT {
     @Autowired
     private lateinit var jpaUserRepository: JpaUserRepository
 
-    private val janeDoe = Recipient(FullName(FirstName("Jane"), LastName("Doe")))
-    private val acme = Recipient(FullName(FirstName("John"), LastName("Smith")), CompanyName("Acme"))
+    private val janeDoe = PrivateIndividual(FullName(FirstName("Jane"), LastName("Doe")))
+    private val acmeCompany = Company(CompanyName("Acme"), VatNumber("FR12345678901"))
+    private val acme = LegalEntity(acmeCompany, FullName(FirstName("John"), LastName("Smith")))
 
     private val homeStreet = Street("12 rue des Lilas")
     private val homeComplement = AddressComplement("Bâtiment B")

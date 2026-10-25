@@ -4,8 +4,26 @@ import OrderAddressesCard from './OrderAddressesCard.vue';
 import { twoLinesOrder } from './orderFixture';
 import { vuetify, i18n } from '@/test/setup';
 
-const home = { firstName: 'Jane', lastName: 'Doe', street: '12 rue des Lilas', complement: null, postalCode: '75011', city: 'Paris', country: 'France' };
-const office = { firstName: 'Jane', lastName: 'Doe', street: '3 place du Marché', complement: null, postalCode: '69001', city: 'Lyon', country: 'France' };
+const home = {
+  recipientType: 'PRIVATE_INDIVIDUAL' as const,
+  firstName: 'Jane',
+  lastName: 'Doe',
+  street: '12 rue des Lilas',
+  complement: null,
+  postalCode: '75011',
+  city: 'Paris',
+  country: 'France',
+};
+const office = {
+  recipientType: 'PRIVATE_INDIVIDUAL' as const,
+  firstName: 'Jane',
+  lastName: 'Doe',
+  street: '3 place du Marché',
+  complement: null,
+  postalCode: '69001',
+  city: 'Lyon',
+  country: 'France',
+};
 
 function mountCard(order = twoLinesOrder) {
   return mount(OrderAddressesCard, { props: { order }, global: { plugins: [vuetify, i18n] } });
@@ -26,5 +44,4 @@ describe('OrderAddressesCard.vue', () => {
     // Assert
     expect(wrapper.text()).toContain('Jane Doe, 3 place du Marché, 69001 Lyon, France');
   });
-
 });

@@ -1,8 +1,13 @@
-// Who receives what is sent to an address, maybe someone else than the customer: the company is optional
+// Who receives what is sent to an address, maybe someone else than the customer:
+// a person (PRIVATE_INDIVIDUAL, by their names) or a company (LEGAL_ENTITY, by its name, VAT number optional)
+export type RecipientType = 'PRIVATE_INDIVIDUAL' | 'LEGAL_ENTITY';
+
 export interface Recipient {
+  recipientType: RecipientType;
   firstName: string;
   lastName: string;
   companyName: string;
+  vatNumber: string;
 }
 
 // Where an address is: the complement (building, floor...) is optional

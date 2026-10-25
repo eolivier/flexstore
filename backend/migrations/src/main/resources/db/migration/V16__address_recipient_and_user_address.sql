@@ -1,19 +1,26 @@
--- An address has its own recipient, who may be someone else than the user (a gift, a company),
--- and belongs to no user: the users refer to their addresses through user_address, the orders through their
--- delivery and billing addresses
+-- An address has its own recipient, maybe someone else than the user:
+-- a person (PRIVATE_INDIVIDUAL, first name and last name)
+-- or a company (LEGAL_ENTITY, company name and VAT number when given).
+-- It belongs to no user: the users refer to their addresses through user_address,
+-- the orders through their delivery and billing addresses
 
 -- The recipient of the existing addresses is their user
 ALTER TABLE address
+    ADD COLUMN recipient_type VARCHAR(20) NOT NULL DEFAULT 'PRIVATE_INDIVIDUAL',
     ADD COLUMN first_name VARCHAR(255),
     ADD COLUMN last_name VARCHAR(255),
-    ADD COLUMN company_name VARCHAR(255);
+    ADD COLUMN company_name VARCHAR(255),
+    ADD COLUMN vat_number VARCHAR(30);
 
 UPDATE address SET first_name = "user".first_name, last_name = "user".last_name
 FROM "user" WHERE "user".id = address.user_id;
 
 ALTER TABLE address
-    ALTER COLUMN first_name SET NOT NULL,
-    ALTER COLUMN last_name SET NOT NULL;
+    ALTER COLUMN recipient_type DROP DEFAULT,
+    ADD CONSTRAINT address_recipient_check CHECK (
+        (recipient_type = 'PRIVATE_INDIVIDUAL' AND first_name IS NOT NULL AND last_name IS NOT NULL)
+        OR (recipient_type = 'LEGAL_ENTITY' AND company_name IS NOT NULL)
+    );
 
 -- The addresses of a user, in the order they were given
 CREATE TABLE user_address (

@@ -76,7 +76,8 @@ class PostgresUserRepositoryAdapter(
         }
     }
 
-    // The stored rows of an address that did not change are kept (same ids, same creation dates); the others are new rows
+    // The stored rows of an address that did not change are kept (same ids, same creation dates);
+    // the others are new rows
     private fun addressEntities(user: User.DefinedUser): List<UserAddressEntity> {
         val storedUser = jpaRepo.findById(user.id.value)
         val storedUserAddresses = storedUser.map { it.addresses }.orElse(emptyList()).toMutableList()

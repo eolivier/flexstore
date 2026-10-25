@@ -10,14 +10,21 @@ data class AddressEntity(
     @Id
     val id: String,
 
-    @Column(name = "first_name", nullable = false)
-    val firstName: String,
+    // PRIVATE_INDIVIDUAL (first name and last name) or LEGAL_ENTITY (company name, VAT number when given)
+    @Column(name = "recipient_type", nullable = false)
+    val recipientType: String,
 
-    @Column(name = "last_name", nullable = false)
-    val lastName: String,
+    @Column(name = "first_name")
+    val firstName: String? = null,
+
+    @Column(name = "last_name")
+    val lastName: String? = null,
 
     @Column(name = "company_name")
     val companyName: String? = null,
+
+    @Column(name = "vat_number")
+    val vatNumber: String? = null,
 
     @Column(nullable = false)
     val street: String,

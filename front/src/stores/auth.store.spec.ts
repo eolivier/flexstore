@@ -5,9 +5,19 @@ import { useAuthStore } from './auth.store';
 const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
-const createMockUser = () => ({ id: '1', firstName: 'John', lastName: 'Doe', email: 'john@example.com', role: 'USER' as 'USER' | 'ADMIN' });
+const createMockUser = () => ({
+  id: '1',
+  firstName: 'John',
+  lastName: 'Doe',
+  email: 'john@example.com',
+  role: 'USER' as 'USER' | 'ADMIN',
+});
 // Body of a successful login: the token and the user
-const loginResponse = (user = createMockUser()) => ({ token: 'jwt-token', expiresAt: '2030-01-01T00:00:00Z', user });
+const loginResponse = (user = createMockUser()) => ({
+  token: 'jwt-token',
+  expiresAt: '2030-01-01T00:00:00Z',
+  user,
+});
 const loginSucceeds = (user = createMockUser()) =>
   mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(loginResponse(user)) });
 
@@ -166,7 +176,9 @@ describe('auth.store', () => {
       const [url, init] = mockFetch.mock.lastCall!;
       expect(url).toBe('http://localhost:8080/api/users/1/password');
       expect(init.method).toBe('POST');
-      expect(init.body).toBe(JSON.stringify({ currentPassword: 'secret', newPassword: 'new-password' }));
+      expect(init.body).toBe(
+        JSON.stringify({ currentPassword: 'secret', newPassword: 'new-password' })
+      );
       expect(new Headers(init.headers).get('Authorization')).toBe('Bearer jwt-token');
     });
 
@@ -221,10 +233,13 @@ describe('auth.store', () => {
 
     it.each([
       { what: 'signing out', end: (store: ReturnType<typeof useAuthStore>) => store.logout() },
-      { what: 'a rejected token', end: async (store: ReturnType<typeof useAuthStore>) => {
-        mockFetch.mockResolvedValueOnce({ ok: false, status: 401 });
-        await store.authFetch('/api/users');
-      } },
+      {
+        what: 'a rejected token',
+        end: async (store: ReturnType<typeof useAuthStore>) => {
+          mockFetch.mockResolvedValueOnce({ ok: false, status: 401 });
+          await store.authFetch('/api/users');
+        },
+      },
     ])('should be signed out after a reload that follows $what', async ({ end }) => {
       // Arrange
       const store = await signedIn();
@@ -237,7 +252,10 @@ describe('auth.store', () => {
 
     it('should not restore an expired session', () => {
       // Arrange
-      sessionStorage.setItem('flexstore.session', JSON.stringify({ ...loginResponse(), expiresAt: '2020-01-01T00:00:00Z' }));
+      sessionStorage.setItem(
+        'flexstore.session',
+        JSON.stringify({ ...loginResponse(), expiresAt: '2020-01-01T00:00:00Z' })
+      );
       // Act
       const store = reloadedStore();
       // Assert
@@ -247,8 +265,23 @@ describe('auth.store', () => {
 
   describe('register', () => {
     const registration = {
-      firstName: 'Jane', lastName: 'Doe', email: 'jane@example.com', password: 'password123', phoneNumber: '+33 6 12 34 56 78',
-      postalAddress: { firstName: 'Jane', lastName: 'Doe', companyName: '', street: '12 rue des Lilas', complement: '', postalCode: '75011', city: 'Paris', country: 'France' },
+      firstName: 'Jane',
+      lastName: 'Doe',
+      email: 'jane@example.com',
+      password: 'password123',
+      phoneNumber: '+33 6 12 34 56 78',
+      postalAddress: {
+        recipientType: 'PRIVATE_INDIVIDUAL' as const,
+        firstName: 'Jane',
+        lastName: 'Doe',
+        companyName: '',
+        vatNumber: '',
+        street: '12 rue des Lilas',
+        complement: '',
+        postalCode: '75011',
+        city: 'Paris',
+        country: 'France',
+      },
     };
 
     it('should create the account, then sign the customer in', async () => {
@@ -269,15 +302,18 @@ describe('auth.store', () => {
     it.each([
       { status: 409, expected: 'emailUsed' },
       { status: 422, expected: 'error' },
-    ])('a registration answered $status is $expected, without signing in', async ({ status, expected }) => {
-      // Arrange
-      mockFetch.mockResolvedValueOnce({ ok: false, status });
-      const store = useAuthStore();
-      // Act
-      const result = await store.register(registration);
-      // Assert
-      expect(result).toBe(expected);
-      expect(store.isAuthenticated).toBe(false);
-    });
+    ])(
+      'a registration answered $status is $expected, without signing in',
+      async ({ status, expected }) => {
+        // Arrange
+        mockFetch.mockResolvedValueOnce({ ok: false, status });
+        const store = useAuthStore();
+        // Act
+        const result = await store.register(registration);
+        // Assert
+        expect(result).toBe(expected);
+        expect(store.isAuthenticated).toBe(false);
+      }
+    );
   });
 });

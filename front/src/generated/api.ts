@@ -182,15 +182,17 @@ export interface JsonOrderLine {
     'linePrice': number;
 }
 /**
- * A postal address, its recipient (maybe someone else than the user) and where it is
+ * A postal address: its recipient, maybe someone else than the user, and where it is. The recipient is a person (PRIVATE_INDIVIDUAL, with firstName and lastName) or a company (LEGAL_ENTITY, with companyName and an optional vatNumber) 
  */
 export interface JsonPostalAddress {
-    'firstName': string;
-    'lastName': string;
-    /**
-     * The company of the recipient (optional)
-     */
+    'recipientType': JsonPostalAddressRecipientTypeEnum;
+    'firstName'?: string | null;
+    'lastName'?: string | null;
     'companyName'?: string | null;
+    /**
+     * The VAT identification number of the company (optional)
+     */
+    'vatNumber'?: string | null;
     'street': string;
     /**
      * Building, floor... (optional)
@@ -200,6 +202,14 @@ export interface JsonPostalAddress {
     'city': string;
     'country': string;
 }
+
+export const JsonPostalAddressRecipientTypeEnum = {
+    PrivateIndividual: 'PRIVATE_INDIVIDUAL',
+    LegalEntity: 'LEGAL_ENTITY'
+} as const;
+
+export type JsonPostalAddressRecipientTypeEnum = typeof JsonPostalAddressRecipientTypeEnum[keyof typeof JsonPostalAddressRecipientTypeEnum];
+
 export interface JsonProduct {
     'id'?: string;
     'name'?: string;

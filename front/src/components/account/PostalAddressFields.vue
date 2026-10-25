@@ -22,16 +22,39 @@
       class="mb-2"
       required
     />
-    <v-text-field v-model="address.complement" :label="t('signUp.complement')" autocomplete="address-line2" class="mb-2" />
+    <v-text-field
+      v-model="address.complement"
+      :label="t('signUp.complement')"
+      autocomplete="address-line2"
+      class="mb-2"
+    />
     <v-row dense>
       <v-col cols="12" sm="4">
-        <v-text-field v-model="address.postalCode" :label="t('signUp.postalCode')" :rules="[required]" autocomplete="postal-code" required />
+        <v-text-field
+          v-model="address.postalCode"
+          :label="t('signUp.postalCode')"
+          :rules="[required]"
+          autocomplete="postal-code"
+          required
+        />
       </v-col>
       <v-col cols="12" sm="8">
-        <v-text-field v-model="address.city" :label="t('signUp.city')" :rules="[required]" autocomplete="address-level2" required />
+        <v-text-field
+          v-model="address.city"
+          :label="t('signUp.city')"
+          :rules="[required]"
+          autocomplete="address-level2"
+          required
+        />
       </v-col>
     </v-row>
-    <v-text-field v-model="address.country" :label="t('signUp.country')" :rules="[required]" autocomplete="country-name" required />
+    <v-text-field
+      v-model="address.country"
+      :label="t('signUp.country')"
+      :rules="[required]"
+      autocomplete="country-name"
+      required
+    />
   </fieldset>
 </template>
 

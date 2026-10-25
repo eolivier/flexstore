@@ -217,7 +217,8 @@ class AccountIT {
     private fun registration(password: String = "password123", phoneNumber: String = "+33 6 12 34 56 78", city: String = "Paris") = """
         {"firstName": "Jane", "lastName": "Doe", "email": "$CUSTOMER_EMAIL", "password": "$password",
          "phoneNumber": "$phoneNumber",
-         "postalAddress": {"firstName": "Jane", "lastName": "Doe",
+         "postalAddress": {"recipientType": "PRIVATE_INDIVIDUAL",
+             "firstName": "Jane", "lastName": "Doe",
             "street": "12 rue des Lilas", "complement": "",
             "postalCode": "75011", "city": "$city", "country": "France"}}
     """

@@ -19,12 +19,12 @@ class RegisterCustomerUseCaseTest : WithAssertions {
         private val complement = AddressComplement("Bâtiment B")
         private val paris = City("Paris")
         private val location = Location(street, complement, PostalCode("75011"), paris, Country("France"))
-        private val address = PostalAddress(Recipient(janeDoe), location)
+        private val address = PostalAddress(PrivateIndividual(janeDoe), location)
 
-        private val noPostalCode = PostalCode("")
-        private val nobody = Recipient(FullName(FirstName(""), LastName("")))
+        private val noPostalCode = location.copy(postalCode = PostalCode(""))
+        private val nobody = PrivateIndividual(FullName(FirstName(""), LastName("")))
 
-        private fun addressAt(location: Location) = address.copy(location = location)
+        private fun addressAt(location: Location) = PostalAddress(PrivateIndividual(janeDoe), location)
 
         val jane = CustomerRegistration(
             UserId.ValidUserId("jane-1"),
@@ -42,7 +42,7 @@ class RegisterCustomerUseCaseTest : WithAssertions {
             Arguments.of("email", jane.copy(email = Email(""))),
             Arguments.of("phone number", jane.copy(phoneNumber = PhoneNumber(""))),
             Arguments.of("street", jane.copy(postalAddress = addressAt(location.copy(street = Street(""))))),
-            Arguments.of("postal code", jane.copy(postalAddress = addressAt(location.copy(postalCode = noPostalCode)))),
+            Arguments.of("postal code", jane.copy(postalAddress = addressAt(noPostalCode))),
             Arguments.of("city", jane.copy(postalAddress = addressAt(location.copy(city = City(""))))),
             Arguments.of("country", jane.copy(postalAddress = addressAt(location.copy(country = Country(""))))),
             Arguments.of("recipient", jane.copy(postalAddress = address.copy(recipient = nobody))),

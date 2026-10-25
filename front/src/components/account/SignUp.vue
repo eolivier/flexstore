@@ -21,7 +21,13 @@
     phoneNumber: '',
   });
   // The customer receives what is sent to the address they give
-  const location = ref<Location>({ street: '', complement: '', postalCode: '', city: '', country: 'France' });
+  const location = ref<Location>({
+    street: '',
+    complement: '',
+    postalCode: '',
+    city: '',
+    country: 'France',
+  });
   const valid = ref(false);
   const saving = ref(false);
   const result = ref<Registration | null>(null);
@@ -30,7 +36,8 @@
     required: (v: string) => !!v?.trim() || t('createUser.mandatoryField'),
     email: (v: string) => /.+@.+\..+/.test(v) || t('createUser.invalidEmail'),
     passwordLength: (v: string) => v.length >= 8 || t('createUser.passwordTooShort'),
-    phoneNumber: (v: string) => /^\+?[0-9][0-9 .()-]{5,19}$/.test(v.trim()) || t('signUp.invalidPhoneNumber'),
+    phoneNumber: (v: string) =>
+      /^\+?[0-9][0-9 .()-]{5,19}$/.test(v.trim()) || t('signUp.invalidPhoneNumber'),
   };
 
   // Once signed in, the customer goes back to where they came from (e.g. the cart, to order)
@@ -38,7 +45,14 @@
     if (!valid.value) return;
     saving.value = true;
     const { firstName, lastName } = registration.value;
-    const postalAddress = { ...location.value, firstName, lastName, companyName: '' };
+    const recipient = {
+      recipientType: 'PRIVATE_INDIVIDUAL' as const,
+      firstName,
+      lastName,
+      companyName: '',
+      vatNumber: '',
+    };
+    const postalAddress = { ...location.value, ...recipient };
     result.value = await authStore.register({ ...registration.value, postalAddress });
     saving.value = false;
     if (result.value === 'signedIn') {
@@ -53,7 +67,10 @@
     <p class="text-body-2 text-medium-emphasis mb-6">{{ t('signUp.subtitle') }}</p>
     <v-card class="pa-6">
       <v-form v-model="valid" @submit.prevent="submit">
-        <UserNameFields v-model:first-name="registration.firstName" v-model:last-name="registration.lastName" />
+        <UserNameFields
+          v-model:first-name="registration.firstName"
+          v-model:last-name="registration.lastName"
+        />
         <v-text-field
           v-model="registration.email"
           :label="t('login.email')"
@@ -64,7 +81,12 @@
           class="mb-2"
           required
         />
-        <PasswordField v-model="registration.password" :label="t('signUp.password')" :rules="[rules.required, rules.passwordLength]" class="mb-2" />
+        <PasswordField
+          v-model="registration.password"
+          :label="t('signUp.password')"
+          :rules="[rules.required, rules.passwordLength]"
+          class="mb-2"
+        />
         <v-text-field
           v-model="registration.phoneNumber"
           :label="t('signUp.phoneNumber')"
@@ -76,10 +98,25 @@
           required
         />
         <PostalAddressFields v-model="location" />
-        <v-alert v-if="result === 'emailUsed' || result === 'error'" type="error" variant="tonal" density="compact" class="my-4">
+        <v-alert
+          v-if="result === 'emailUsed' || result === 'error'"
+          type="error"
+          variant="tonal"
+          density="compact"
+          class="my-4"
+        >
           {{ t(`signUp.${result}`) }}
         </v-alert>
-        <v-btn type="submit" color="primary" size="large" block class="mt-2" :loading="saving" :disabled="!valid">{{ t('signUp.submit') }}</v-btn>
+        <v-btn
+          type="submit"
+          color="primary"
+          size="large"
+          block
+          class="mt-2"
+          :loading="saving"
+          :disabled="!valid"
+          >{{ t('signUp.submit') }}</v-btn
+        >
       </v-form>
       <p class="text-body-2 text-center mt-6">
         {{ t('signUp.haveAccount') }}

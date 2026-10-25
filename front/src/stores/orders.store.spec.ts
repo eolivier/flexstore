@@ -14,13 +14,24 @@ const order = {
   totalPrice: 799,
   currency: '€',
 };
-const homeAddresses = { deliveryAddress: { firstName: 'Jane', lastName: 'Doe', street: '12 rue des Lilas', complement: '', postalCode: '75011', city: 'Paris', country: 'France' } };
+const homeAddresses = {
+  deliveryAddress: {
+    recipientType: 'PRIVATE_INDIVIDUAL' as const,
+    firstName: 'Jane',
+    lastName: 'Doe',
+    street: '12 rue des Lilas',
+    complement: '',
+    postalCode: '75011',
+    city: 'Paris',
+    country: 'France',
+  },
+};
 const emptyCart = { items: [], totalItemsPrice: 0, itemsCurrency: '€' };
 
 // Answers each API call by method and path
 function respondWith(responses: Record<string, { status: number; body?: unknown }>) {
   mockFetch.mockImplementation((url: string, init?: RequestInit) => {
-    const key = Object.keys(responses).find(k => {
+    const key = Object.keys(responses).find((k) => {
       const [method, path] = k.split(' ');
       return (init?.method ?? 'GET') === method && url.endsWith(path);
     });
@@ -33,7 +44,17 @@ async function signIn() {
   respondWith({
     'POST /api/users/login': {
       status: 200,
-      body: { token: 'jwt-token', expiresAt: '2030-01-01T00:00:00Z', user: { id: 'u-1', firstName: 'John', lastName: 'Doe', email: 'john@example.com', role: 'USER' } },
+      body: {
+        token: 'jwt-token',
+        expiresAt: '2030-01-01T00:00:00Z',
+        user: {
+          id: 'u-1',
+          firstName: 'John',
+          lastName: 'Doe',
+          email: 'john@example.com',
+          role: 'USER',
+        },
+      },
     },
   });
   await useAuthStore().login('john@example.com', 'secret');
@@ -62,7 +83,10 @@ describe('orders.store', () => {
   it('should place an order and reload the emptied cart', async () => {
     // Arrange
     await signIn();
-    respondWith({ 'POST /api/orders': { status: 201, body: order }, 'GET /api/cart/cart-items': { status: 200, body: emptyCart } });
+    respondWith({
+      'POST /api/orders': { status: 201, body: order },
+      'GET /api/cart/cart-items': { status: 200, body: emptyCart },
+    });
     const store = useOrdersStore();
     // Act
     const placement = await store.placeOrder(homeAddresses);
@@ -74,12 +98,17 @@ describe('orders.store', () => {
   it('should send the addresses of the order', async () => {
     // Arrange
     await signIn();
-    respondWith({ 'POST /api/orders': { status: 201, body: order }, 'GET /api/cart/cart-items': { status: 200, body: emptyCart } });
+    respondWith({
+      'POST /api/orders': { status: 201, body: order },
+      'GET /api/cart/cart-items': { status: 200, body: emptyCart },
+    });
     const store = useOrdersStore();
     // Act
     await store.placeOrder(homeAddresses);
     // Assert
-    const [, init] = mockFetch.mock.calls.find(([url, init]) => url.endsWith('/api/orders') && init?.method === 'POST')!;
+    const [, init] = mockFetch.mock.calls.find(
+      ([url, init]) => url.endsWith('/api/orders') && init?.method === 'POST'
+    )!;
     expect(JSON.parse(init.body)).toEqual(homeAddresses);
   });
 
@@ -114,14 +143,19 @@ describe('orders.store', () => {
     { status: 200, expected: { status: 'found', order } },
     { status: 404, expected: { status: 'notFound' } },
     { status: 500, expected: { status: 'error' } },
-  ])('should look up an order: HTTP $status gives $expected.status', async ({ status, expected }) => {
-    // Arrange
-    await signIn();
-    respondWith({ [`GET /api/orders/${order.id}`]: { status, body: status === 200 ? order : undefined } });
-    const store = useOrdersStore();
-    // Act
-    const orderLookup = await store.fetchOrder(order.id);
-    // Assert
-    expect(orderLookup).toEqual(expected);
-  });
+  ])(
+    'should look up an order: HTTP $status gives $expected.status',
+    async ({ status, expected }) => {
+      // Arrange
+      await signIn();
+      respondWith({
+        [`GET /api/orders/${order.id}`]: { status, body: status === 200 ? order : undefined },
+      });
+      const store = useOrdersStore();
+      // Act
+      const orderLookup = await store.fetchOrder(order.id);
+      // Assert
+      expect(orderLookup).toEqual(expected);
+    }
+  );
 });
