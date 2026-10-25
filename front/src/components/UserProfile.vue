@@ -33,7 +33,12 @@
       <v-icon icon="mdi-account-circle-outline" size="56" class="text-medium-emphasis mb-3" />
       <h2 class="text-h6 font-weight-bold mb-1">{{ t('profile.notSignedIn') }}</h2>
       <p class="text-body-2 text-medium-emphasis mb-6">{{ t('profile.notSignedInText') }}</p>
-      <v-btn :to="{ path: '/login', query: { redirect: '/user-profile' } }" color="primary" size="large" prepend-icon="mdi-login">
+      <v-btn
+        :to="{ path: '/login', query: { redirect: '/user-profile' } }"
+        color="primary"
+        size="large"
+        prepend-icon="mdi-login"
+      >
         {{ t('nav.login') }}
       </v-btn>
     </v-card>
@@ -48,7 +53,9 @@
           <div class="text-caption text-medium-emphasis">{{ t('profile.email') }}</div>
           <div class="text-body-1">{{ authStore.currentUser?.email }}</div>
         </div>
-        <v-btn variant="outlined" color="primary" prepend-icon="mdi-logout" @click="logout">{{ t('nav.logout') }}</v-btn>
+        <v-btn variant="outlined" color="primary" prepend-icon="mdi-logout" @click="logout">{{
+          t('nav.logout')
+        }}</v-btn>
       </v-card>
 
       <ChangePasswordForm class="mb-6" />

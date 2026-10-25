@@ -34,7 +34,7 @@
 </script>
 
 <template>
-  <v-container class="py-12 d-flex justify-center align-center" style="min-height: 70vh;">
+  <v-container class="py-12 d-flex justify-center align-center" style="min-height: 70vh">
     <v-card width="100%" max-width="420" class="pa-8">
       <h1 class="text-h5 font-weight-bold mb-1">{{ t('login.title') }}</h1>
       <p class="text-body-2 text-medium-emphasis mb-6">{{ t('login.subtitle') }}</p>
@@ -62,23 +62,11 @@
           class="mb-4"
         />
 
-        <v-alert
-          v-if="authStore.loginError"
-          type="error"
-          density="compact"
-          class="mb-4"
-        >
+        <v-alert v-if="authStore.loginError" type="error" density="compact" class="mb-4">
           {{ authStore.refusedStatus ? t(`login.refused.${authStore.refusedStatus}`) : t('login.error') }}
         </v-alert>
 
-        <v-btn
-          type="submit"
-          color="primary"
-          size="large"
-          block
-          :loading="loading"
-          :disabled="!valid"
-        >
+        <v-btn type="submit" color="primary" size="large" block :loading="loading" :disabled="!valid">
           {{ t('login.submit') }}
         </v-btn>
       </v-form>

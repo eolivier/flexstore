@@ -22,7 +22,12 @@ const router = createRouter({
 // Body of a successful login for a user with the given role
 const loginSuccess = (role: 'ADMIN' | 'USER') => ({
   ok: true,
-  json: () => Promise.resolve({ token: 'jwt-token', expiresAt: '2030-01-01T00:00:00Z', user: { id: '1', firstName: 'John', lastName: 'Doe', email: 'john@example.com', role } }),
+  json: () =>
+    Promise.resolve({
+      token: 'jwt-token',
+      expiresAt: '2030-01-01T00:00:00Z',
+      user: { id: '1', firstName: 'John', lastName: 'Doe', email: 'john@example.com', role },
+    }),
 });
 
 describe('Login.vue', () => {
@@ -120,16 +125,19 @@ describe('Login.vue', () => {
     { role: 'ADMIN' as const, query: {}, expectedPath: '/admin' },
     { role: 'USER' as const, query: {}, expectedPath: '/user-profile' },
     { role: 'ADMIN' as const, query: { redirect: '/admin/users' }, expectedPath: '/admin/users' },
-  ])('redirects a $role user to $expectedPath after login (query $query)', async ({ role, query, expectedPath }) => {
-    // Arrange
-    mockFetch.mockResolvedValueOnce(loginSuccess(role));
-    const wrapper = await mountComponent(query);
-    await fillForm(wrapper, 'john@example.com', 'password123');
-    // Act
-    await submit(wrapper);
-    // Assert
-    expect(router.currentRoute.value.path).toBe(expectedPath);
-  });
+  ])(
+    'redirects a $role user to $expectedPath after login (query $query)',
+    async ({ role, query, expectedPath }) => {
+      // Arrange
+      mockFetch.mockResolvedValueOnce(loginSuccess(role));
+      const wrapper = await mountComponent(query);
+      await fillForm(wrapper, 'john@example.com', 'password123');
+      // Act
+      await submit(wrapper);
+      // Assert
+      expect(router.currentRoute.value.path).toBe(expectedPath);
+    }
+  );
 
   it.each([
     { status: 'SUSPENDED', expected: 'Your account is suspended. Contact the shop to know more.' },
@@ -137,7 +145,11 @@ describe('Login.vue', () => {
     { status: 'DISABLED', expected: 'Your account is disabled.' },
   ])('a $status account is told why it cannot sign in', async ({ status, expected }) => {
     // Arrange
-    mockFetch.mockResolvedValueOnce({ ok: false, status: 403, json: () => Promise.resolve({ error: 'refused', status }) });
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 403,
+      json: () => Promise.resolve({ error: 'refused', status }),
+    });
     const wrapper = await mountComponent();
     await fillForm(wrapper, 'jane@example.com', 'password123');
     // Act
@@ -151,7 +163,7 @@ describe('Login.vue', () => {
     // Act
     const wrapper = await mountComponent({ redirect: '/cart' });
     // Assert
-    const signUp = wrapper.findAll('a').find(link => link.text() === 'Create an account')!;
+    const signUp = wrapper.findAll('a').find((link) => link.text() === 'Create an account')!;
     expect(signUp.attributes('href')).toBe('/sign-up?redirect=/cart');
   });
 });

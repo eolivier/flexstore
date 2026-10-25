@@ -14,9 +14,7 @@
   const ordersStore = useOrdersStore();
 
   const orderLookup = ref<OrderLookup | null>(null);
-  const order = computed(() =>
-    orderLookup.value?.status === 'found' ? orderLookup.value.order : null
-  );
+  const order = computed(() => (orderLookup.value?.status === 'found' ? orderLookup.value.order : null));
 
   async function load() {
     orderLookup.value = null;
@@ -33,11 +31,7 @@
       {{ t('orders.backToOrders') }}
     </v-btn>
 
-    <v-skeleton-loader
-      v-if="!orderLookup"
-      type="heading, list-item-two-line@3"
-      class="rounded-xl"
-    />
+    <v-skeleton-loader v-if="!orderLookup" type="heading, list-item-two-line@3" class="rounded-xl" />
 
     <v-card v-else-if="orderLookup.status === 'notFound'" class="pa-10 text-center">
       <v-icon icon="mdi-package-variant-remove" size="56" class="text-medium-emphasis mb-3" />

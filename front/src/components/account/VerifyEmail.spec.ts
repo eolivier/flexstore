@@ -9,7 +9,10 @@ const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
 async function openLink(query: Record<string, string>) {
-  const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/:any(.*)', component: { template: '<div />' } }] });
+  const router = createRouter({
+    history: createMemoryHistory(),
+    routes: [{ path: '/:any(.*)', component: { template: '<div />' } }],
+  });
   await router.push({ path: '/verify-email', query });
   const wrapper = mount(VerifyEmail, { global: { plugins: [vuetify, i18n, router] } });
   await flushPromises();
@@ -50,7 +53,7 @@ describe('VerifyEmail.vue', () => {
     // Act
     const wrapper = await openLink({ token: 'the-token' });
     // Assert
-    const signIn = wrapper.findAll('a').find(link => link.text() === 'Sign in to receive a new link')!;
+    const signIn = wrapper.findAll('a').find((link) => link.text() === 'Sign in to receive a new link')!;
     expect(signIn.attributes('href')).toBe('/login?redirect=/user-profile');
   });
 });

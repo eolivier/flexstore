@@ -20,7 +20,7 @@ export function useAddToCart() {
 
   async function addToCart(product: Product, quantity = 1) {
     addingProductId.value = product.id;
-    const existingItem = cartStore.cartItems?.items.find(i => i.productId === product.id);
+    const existingItem = cartStore.cartItems?.items.find((i) => i.productId === product.id);
     const item = existingItem
       ? { ...existingItem, productQuantity: existingItem.productQuantity + quantity }
       : productToCartItem(product, quantity);

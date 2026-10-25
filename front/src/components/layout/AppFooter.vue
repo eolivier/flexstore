@@ -32,9 +32,15 @@
         </v-col>
         <v-col cols="6" md="3">
           <div class="text-overline footer-muted mb-2">Flexstore</div>
-          <router-link to="/about" class="footer-link d-block text-body-2 mb-1">{{ t('nav.about') }}</router-link>
-          <router-link to="/orders" class="footer-link d-block text-body-2 mb-1">{{ t('nav.orders') }}</router-link>
-          <router-link to="/user-profile" class="footer-link d-block text-body-2 mb-1">{{ t('nav.account') }}</router-link>
+          <router-link to="/about" class="footer-link d-block text-body-2 mb-1">{{
+            t('nav.about')
+          }}</router-link>
+          <router-link to="/orders" class="footer-link d-block text-body-2 mb-1">{{
+            t('nav.orders')
+          }}</router-link>
+          <router-link to="/user-profile" class="footer-link d-block text-body-2 mb-1">{{
+            t('nav.account')
+          }}</router-link>
         </v-col>
       </v-row>
       <v-divider class="my-6" />

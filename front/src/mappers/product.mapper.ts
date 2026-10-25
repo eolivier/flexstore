@@ -9,6 +9,6 @@ export function fromApi(jsonProduct: JsonProduct): Product {
     description: jsonProduct.description ?? '',
     category: jsonProduct.category ?? '',
     price: jsonProduct.price,
-    currency: jsonProduct.currency ?? 'EUR'
+    currency: jsonProduct.currency ?? 'EUR',
   };
 }

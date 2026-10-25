@@ -1,47 +1,46 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
-import { useI18n } from "vue-i18n";
-import { useRoute } from "vue-router";
-import { useProductsStore } from "@/stores/products.store.ts";
-import ProductCard from './ProductCard.vue';
-import CartSnackbar from '@/components/cart/CartSnackbar.vue';
-import { useAddToCart } from '@/composables/useAddToCart';
-import { categoryInfo } from './categories';
-import { shopLinks } from '@/components/menu/navigation';
+  import { computed, onMounted, ref } from 'vue';
+  import { useI18n } from 'vue-i18n';
+  import { useRoute } from 'vue-router';
+  import { useProductsStore } from '@/stores/products.store.ts';
+  import ProductCard from './ProductCard.vue';
+  import CartSnackbar from '@/components/cart/CartSnackbar.vue';
+  import { useAddToCart } from '@/composables/useAddToCart';
+  import { categoryInfo } from './categories';
+  import { shopLinks } from '@/components/menu/navigation';
 
-const props = defineProps<{ category?: string }>();
+  const props = defineProps<{ category?: string }>();
 
-const { t } = useI18n();
-const route = useRoute();
+  const { t } = useI18n();
+  const route = useRoute();
 
-const productsStore = useProductsStore();
-const { addingProductId, feedback, addToCart } = useAddToCart();
+  const productsStore = useProductsStore();
+  const { addingProductId, feedback, addToCart } = useAddToCart();
 
-const title = computed(() => t(props.category ? categoryInfo(props.category).label : 'nav.allProducts'));
+  const title = computed(() => t(props.category ? categoryInfo(props.category).label : 'nav.allProducts'));
 
-type SortKey = 'name' | 'priceAsc' | 'priceDesc';
-const sort = ref<SortKey>('name');
-const sortOptions = computed(() => [
-  { title: t('products.sortName'), value: 'name' },
-  { title: t('products.sortPriceAsc'), value: 'priceAsc' },
-  { title: t('products.sortPriceDesc'), value: 'priceDesc' },
-]);
+  type SortKey = 'name' | 'priceAsc' | 'priceDesc';
+  const sort = ref<SortKey>('name');
+  const sortOptions = computed(() => [
+    { title: t('products.sortName'), value: 'name' },
+    { title: t('products.sortPriceAsc'), value: 'priceAsc' },
+    { title: t('products.sortPriceDesc'), value: 'priceDesc' },
+  ]);
 
-const products = computed(() => {
-  const filtered = props.category
-    ? productsStore.products.filter(product => product.category === props.category)
-    : [...productsStore.products];
-  return filtered.sort((a, b) => {
-    if (sort.value === 'priceAsc') return (a.price ?? 0) - (b.price ?? 0);
-    if (sort.value === 'priceDesc') return (b.price ?? 0) - (a.price ?? 0);
-    return (a.name ?? '').localeCompare(b.name ?? '');
+  const products = computed(() => {
+    const filtered = props.category
+      ? productsStore.products.filter((product) => product.category === props.category)
+      : [...productsStore.products];
+    return filtered.sort((a, b) => {
+      if (sort.value === 'priceAsc') return (a.price ?? 0) - (b.price ?? 0);
+      if (sort.value === 'priceDesc') return (b.price ?? 0) - (a.price ?? 0);
+      return (a.name ?? '').localeCompare(b.name ?? '');
+    });
   });
-});
 
-onMounted(() => {
-  productsStore.fetchProducts();
-});
-
+  onMounted(() => {
+    productsStore.fetchProducts();
+  });
 </script>
 
 <template>

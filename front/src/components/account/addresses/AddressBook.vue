@@ -60,12 +60,7 @@
       <p class="text-body-1">{{ t('addressBook.empty') }}</p>
     </v-card>
     <v-row v-else>
-      <v-col
-        v-for="(address, position) in addressBookStore.addresses"
-        :key="position"
-        cols="12"
-        md="6"
-      >
+      <v-col v-for="(address, position) in addressBookStore.addresses" :key="position" cols="12" md="6">
         <AddressCard :address="address" @edit="edit(position)" @remove="remove(position)" />
       </v-col>
     </v-row>

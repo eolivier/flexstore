@@ -9,19 +9,26 @@
 
   const { t, locale } = useI18n();
 
-  const linesSummary = props.order.lines.map(line => `${line.quantity} × ${line.productName}`).join(', ');
+  const linesSummary = props.order.lines.map((line) => `${line.quantity} × ${line.productName}`).join(', ');
 </script>
 
 <template>
-  <v-card :to="`/orders/${order.id}`" :aria-label="t('orders.viewDetail', { number: orderNumber(order) })" class="pa-5">
+  <v-card
+    :to="`/orders/${order.id}`"
+    :aria-label="t('orders.viewDetail', { number: orderNumber(order) })"
+    class="pa-5"
+  >
     <div class="d-flex flex-wrap align-center ga-4">
       <v-avatar color="surface-variant" rounded="lg" size="48">
         <v-icon icon="mdi-package-variant-closed" color="primary" />
       </v-avatar>
       <div class="order-info flex-grow-1">
-        <div class="text-subtitle-1 font-weight-bold">{{ t('orders.number', { number: orderNumber(order) }) }}</div>
+        <div class="text-subtitle-1 font-weight-bold">
+          {{ t('orders.number', { number: orderNumber(order) }) }}
+        </div>
         <div class="text-body-2 text-medium-emphasis">
-          {{ t('orders.placedOn', { date: placedOn(order, locale) }) }} · {{ t('orders.itemsCount', orderItemsCount(order)) }}
+          {{ t('orders.placedOn', { date: placedOn(order, locale) }) }} ·
+          {{ t('orders.itemsCount', orderItemsCount(order)) }}
         </div>
         <div class="lines-summary text-body-2 text-medium-emphasis">{{ linesSummary }}</div>
       </div>

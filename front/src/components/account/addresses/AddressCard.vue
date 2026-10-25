@@ -21,12 +21,7 @@
     </div>
     <v-spacer />
     <div class="d-flex ga-2">
-      <v-btn
-        variant="tonal"
-        color="primary"
-        prepend-icon="mdi-pencil-outline"
-        @click="emit('edit')"
-      >
+      <v-btn variant="tonal" color="primary" prepend-icon="mdi-pencil-outline" @click="emit('edit')">
         {{ t('addressBook.edit') }}
       </v-btn>
       <v-btn variant="text" color="error" prepend-icon="mdi-delete-outline" @click="emit('remove')">

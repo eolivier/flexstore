@@ -15,7 +15,14 @@ const httpError = (status: number) =>
     config: { headers: new AxiosHeaders() },
   });
 
-const jeans = { id: '3', name: 'Slim Jeans', description: 'Modern fit', category: 'CLOTHING', price: 49, currency: '€' };
+const jeans = {
+  id: '3',
+  name: 'Slim Jeans',
+  description: 'Modern fit',
+  category: 'CLOTHING',
+  price: 49,
+  currency: '€',
+};
 
 describe('getProduct', () => {
   beforeEach(() => {

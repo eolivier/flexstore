@@ -35,12 +35,18 @@ describe('OrderConfirmationEmailSetting.vue', () => {
     { activation: 'DISABLED' as const, wished: true, path: 'enable' },
   ])('turning the switch of an $activation email calls /$path', async ({ activation, wished, path }) => {
     // Arrange
-    mockFetch.mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve({ orderConfirmationEmail: activation }) });
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({ orderConfirmationEmail: activation }),
+    });
     const wrapper = mountSetting(activation);
     // Act
     await wrapper.find('input[type="checkbox"]').setValue(wished);
     await flushPromises();
     // Assert
-    expect(mockFetch.mock.lastCall![0]).toBe(`http://localhost:8080/api/admin/settings/order-confirmation-email/${path}`);
+    expect(mockFetch.mock.lastCall![0]).toBe(
+      `http://localhost:8080/api/admin/settings/order-confirmation-email/${path}`
+    );
   });
 });

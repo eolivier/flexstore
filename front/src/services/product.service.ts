@@ -1,6 +1,6 @@
-import { isAxiosError } from "axios";
-import { productsApi } from "@/api";
-import type { Product } from "@/models/product";
+import { isAxiosError } from 'axios';
+import { productsApi } from '@/api';
+import type { Product } from '@/models/product';
 import { fromApi } from '@/mappers/product.mapper';
 import { useLoadingStore } from '@/stores/loading.store';
 

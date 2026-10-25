@@ -6,12 +6,20 @@ import { useAuthStore } from './auth.store';
 const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
-const pendingCustomer = { id: 'u-1', firstName: 'Jane', lastName: 'Doe', email: 'jane@example.com', role: 'USER', status: 'PENDING_VERIFICATION' };
+const pendingCustomer = {
+  id: 'u-1',
+  firstName: 'Jane',
+  lastName: 'Doe',
+  email: 'jane@example.com',
+  role: 'USER',
+  status: 'PENDING_VERIFICATION',
+};
 
 async function signedInPendingCustomer() {
   mockFetch.mockResolvedValueOnce({
     ok: true,
-    json: () => Promise.resolve({ token: 'jwt-token', expiresAt: '2030-01-01T00:00:00Z', user: pendingCustomer }),
+    json: () =>
+      Promise.resolve({ token: 'jwt-token', expiresAt: '2030-01-01T00:00:00Z', user: pendingCustomer }),
   });
   const authStore = useAuthStore();
   await authStore.login('jane@example.com', 'password123');

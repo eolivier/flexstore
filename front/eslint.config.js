@@ -72,6 +72,28 @@ export default [
         // ...autres options de config
     },
 
-    // Désactive les règles en conflit avec Prettier (à garder en dernier)
+    // Désactive les règles en conflit avec Prettier
     prettier,
+
+    // A line of code is 113 characters at most (fluent-code-reading-semantic skill): Prettier wraps the code at
+    // this width, these rules catch what it cannot wrap; long strings and URLs are the only exceptions
+    {
+        files: ["**/*.{js,ts}"],
+        rules: {
+            "max-len": ["error", { code: 113, ignoreUrls: true, ignoreStrings: true, ignoreTemplateLiterals: true }],
+        },
+    },
+    {
+        files: ["**/*.vue"],
+        rules: {
+            "vue/max-len": ["error", {
+                code: 113,
+                template: 113,
+                ignoreUrls: true,
+                ignoreStrings: true,
+                ignoreTemplateLiterals: true,
+                ignoreHTMLTextContents: true,
+            }],
+        },
+    },
 ];

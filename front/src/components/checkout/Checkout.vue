@@ -56,9 +56,7 @@
 
   // A company is billed by its name and VAT number only: the names of a contact are not collected
   function billingRecipientOnly(address: PostalAddress): PostalAddress {
-    return address.recipientType === 'LEGAL_ENTITY'
-      ? { ...address, firstName: '', lastName: '' }
-      : address;
+    return address.recipientType === 'LEGAL_ENTITY' ? { ...address, firstName: '', lastName: '' } : address;
   }
 
   async function placeOrder() {

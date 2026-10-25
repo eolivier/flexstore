@@ -58,11 +58,13 @@ export const useAuthStore = defineStore('auth', () => {
     loginError.value = null;
     refusedStatus.value = null;
     try {
-      const response = await loadingStore.track(fetch(`${apiUrl}/api/users/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      }));
+      const response = await loadingStore.track(
+        fetch(`${apiUrl}/api/users/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        })
+      );
 
       if (response.ok) {
         const session: LoginResponse = await response.json();
@@ -89,11 +91,13 @@ export const useAuthStore = defineStore('auth', () => {
   // Creates the account of a customer, then signs them in
   async function register(registration: AccountRegistration): Promise<Registration> {
     try {
-      const response = await loadingStore.track(fetch(`${apiUrl}/api/accounts`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(registration),
-      }));
+      const response = await loadingStore.track(
+        fetch(`${apiUrl}/api/accounts`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(registration),
+        })
+      );
       if (response.status === 409) return 'emailUsed';
       if (!response.ok) return 'error';
       return (await login(registration.email, registration.password)) ? 'signedIn' : 'error';

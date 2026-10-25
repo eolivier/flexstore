@@ -22,12 +22,10 @@
     :aria-current="state === 'current' ? 'step' : undefined"
   >
     <span class="step-marker d-flex align-center justify-center">
-      <v-icon
-        :icon="state === 'done' ? 'mdi-check' : stepIcons[step]"
-        :size="layout === 'compact' ? 14 : 18"
-      />
+      <v-icon :icon="state === 'done' ? 'mdi-check' : stepIcons[step]" :size="layout === 'compact' ? 14 : 18" />
     </span>
-    <!-- In the compact layout, only the current step shows its label; the others stay readable by screen readers -->
+    <!-- In the compact layout, only the current step shows its label;
+         the others stay readable by screen readers -->
     <span :class="['step-label', { 'd-sr-only': layout === 'compact' && state !== 'current' }]">{{
       t(`orders.status.${step}`)
     }}</span>

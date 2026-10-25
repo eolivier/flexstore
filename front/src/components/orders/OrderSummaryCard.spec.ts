@@ -5,12 +5,18 @@ import OrderSummaryCard from './OrderSummaryCard.vue';
 import { twoLinesOrder } from './orderFixture';
 import { vuetify, i18n } from '@/test/setup';
 
-const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/:any(.*)', component: { template: '<div />' } }] });
+const router = createRouter({
+  history: createMemoryHistory(),
+  routes: [{ path: '/:any(.*)', component: { template: '<div />' } }],
+});
 
 describe('OrderSummaryCard.vue', () => {
   it('summarises the order and links to its detail', () => {
     // Act
-    const wrapper = mount(OrderSummaryCard, { props: { order: twoLinesOrder }, global: { plugins: [vuetify, i18n, router] } });
+    const wrapper = mount(OrderSummaryCard, {
+      props: { order: twoLinesOrder },
+      global: { plugins: [vuetify, i18n, router] },
+    });
     // Assert
     expect(wrapper.find('a').attributes('href')).toBe(`/orders/${twoLinesOrder.id}`);
     expect(wrapper.text()).toContain('Order 46555C9F');

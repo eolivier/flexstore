@@ -31,7 +31,13 @@
     if (!valid.value) return;
     saving.value = true;
     const createdName = FullName.of({ firstName: firstName.value, lastName: lastName.value }).value;
-    const created = await usersStore.addUser({ firstName: firstName.value, lastName: lastName.value, email: email.value, password: password.value, role: role.value });
+    const created = await usersStore.addUser({
+      firstName: firstName.value,
+      lastName: lastName.value,
+      email: email.value,
+      password: password.value,
+      role: role.value,
+    });
     saving.value = false;
     feedback.value = {
       show: true,
@@ -67,17 +73,36 @@
           class="mb-2"
           required
         />
-        <PasswordField v-model="password" :label="t('createUser.password')" :rules="[rules.required, rules.passwordLength]" class="mb-4" />
+        <PasswordField
+          v-model="password"
+          :label="t('createUser.password')"
+          :rules="[rules.required, rules.passwordLength]"
+          class="mb-4"
+        />
         <UserRoleField v-model="role" />
         <div class="d-flex ga-3">
-          <v-btn to="/admin/users" variant="outlined" color="primary" size="large" class="flex-grow-1">{{ t('createUser.cancel') }}</v-btn>
-          <v-btn type="submit" color="primary" size="large" class="flex-grow-1" :loading="saving" :disabled="!valid">
+          <v-btn to="/admin/users" variant="outlined" color="primary" size="large" class="flex-grow-1">{{
+            t('createUser.cancel')
+          }}</v-btn>
+          <v-btn
+            type="submit"
+            color="primary"
+            size="large"
+            class="flex-grow-1"
+            :loading="saving"
+            :disabled="!valid"
+          >
             {{ t('createUser.label') }}
           </v-btn>
         </div>
       </v-form>
     </v-card>
-    <v-snackbar v-model="feedback.show" :color="feedback.success ? 'primary' : 'error'" timeout="3000" location="bottom right">
+    <v-snackbar
+      v-model="feedback.show"
+      :color="feedback.success ? 'primary' : 'error'"
+      timeout="3000"
+      location="bottom right"
+    >
       {{ feedback.text }}
       <template v-if="feedback.success" #actions>
         <v-btn to="/admin/users" variant="text" color="secondary">{{ t('nav.users') }}</v-btn>

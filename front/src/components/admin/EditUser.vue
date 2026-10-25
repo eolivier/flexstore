@@ -35,9 +35,12 @@
 
   onMounted(async () => {
     const user = await usersStore.fetchUser(props.id);
-    editedUser.value = user ? { firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role ?? 'USER' } : false;
+    editedUser.value = user
+      ? { firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role ?? 'USER' }
+      : false;
     status.value = storedStatus.value = user?.status ?? null;
-    // A field that the stored user leaves empty (e.g. the last name of a one-word name split by the migration) is
+    // A field that the stored user leaves empty
+    // (e.g. the last name of a one-word name split by the migration) is
     // shown in error at once: otherwise the save button would stay disabled without telling why
     await nextTick();
     await formRef.value?.validate();
@@ -60,24 +63,55 @@
   <v-container class="page py-10">
     <h1 class="text-h4 font-weight-bold mb-6">{{ t('editUser.title') }}</h1>
     <v-skeleton-loader v-if="editedUser === null" type="article" class="rounded-xl" />
-    <v-alert v-else-if="editedUser === false" type="error" variant="tonal">{{ t('editUser.loadError') }}</v-alert>
+    <v-alert v-else-if="editedUser === false" type="error" variant="tonal">{{
+      t('editUser.loadError')
+    }}</v-alert>
     <v-card v-else class="pa-6">
       <v-form ref="formRef" v-model="valid" @submit.prevent="save">
         <UserNameFields v-model:first-name="editedUser.firstName" v-model:last-name="editedUser.lastName" />
-        <v-text-field v-model="editedUser.email" :label="t('createUser.email')" :rules="[rules.required, rules.email]" type="email" prepend-inner-icon="mdi-email-outline" class="mb-2" />
+        <v-text-field
+          v-model="editedUser.email"
+          :label="t('createUser.email')"
+          :rules="[rules.required, rules.email]"
+          type="email"
+          prepend-inner-icon="mdi-email-outline"
+          class="mb-2"
+        />
         <UserRoleField v-model="editedUser.role" />
         <AccountStatusField v-if="status" v-model="status" :disabled="ownAccount" />
         <p class="text-caption text-medium-emphasis mb-4">{{ t('editUser.passwordNote') }}</p>
-        <v-alert v-if="edition === 'emailUsed' || edition === 'error'" type="error" variant="tonal" density="compact" class="mb-4">
+        <v-alert
+          v-if="edition === 'emailUsed' || edition === 'error'"
+          type="error"
+          variant="tonal"
+          density="compact"
+          class="mb-4"
+        >
           {{ t(`editUser.${edition}`) }}
         </v-alert>
         <div class="d-flex ga-3">
-          <v-btn to="/admin/users" variant="outlined" color="primary" size="large" class="flex-grow-1">{{ t('editUser.cancel') }}</v-btn>
-          <v-btn type="submit" color="primary" size="large" class="flex-grow-1" :loading="saving" :disabled="!valid">{{ t('editUser.save') }}</v-btn>
+          <v-btn to="/admin/users" variant="outlined" color="primary" size="large" class="flex-grow-1">{{
+            t('editUser.cancel')
+          }}</v-btn>
+          <v-btn
+            type="submit"
+            color="primary"
+            size="large"
+            class="flex-grow-1"
+            :loading="saving"
+            :disabled="!valid"
+            >{{ t('editUser.save') }}</v-btn
+          >
         </div>
       </v-form>
     </v-card>
-    <v-snackbar :model-value="edition === 'saved'" color="primary" timeout="3000" location="bottom right" @update:model-value="edition = null">
+    <v-snackbar
+      :model-value="edition === 'saved'"
+      color="primary"
+      timeout="3000"
+      location="bottom right"
+      @update:model-value="edition = null"
+    >
       {{ t('editUser.saved') }}
       <template #actions>
         <v-btn to="/admin/users" variant="text" color="secondary">{{ t('nav.users') }}</v-btn>

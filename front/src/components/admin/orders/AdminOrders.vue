@@ -61,18 +61,12 @@
       </template>
       <template #item.placedAt="{ item }">{{ placedOn(item, locale) }}</template>
       <template #item.recipient="{ item }">{{ recipientName(item.deliveryAddress) }}</template>
-      <template #item.totalPrice="{ item }">{{
-        formatPrice(item.totalPrice, item.currency, locale)
-      }}</template>
+      <template #item.totalPrice="{ item }">{{ formatPrice(item.totalPrice, item.currency, locale) }}</template>
       <template #item.status="{ item }">
         <v-chip variant="tonal" size="small">{{ t(`orders.status.${item.status}`) }}</v-chip>
       </template>
       <template #item.actions="{ item }">
-        <AdvanceOrderStatusButton
-          :order="item"
-          :advancing="advancingOrderId === item.id"
-          @advance="advance"
-        />
+        <AdvanceOrderStatusButton :order="item" :advancing="advancingOrderId === item.id" @advance="advance" />
       </template>
     </v-data-table>
   </v-container>

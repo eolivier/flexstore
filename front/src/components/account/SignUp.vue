@@ -36,8 +36,7 @@
     required: (v: string) => !!v?.trim() || t('createUser.mandatoryField'),
     email: (v: string) => /.+@.+\..+/.test(v) || t('createUser.invalidEmail'),
     passwordLength: (v: string) => v.length >= 8 || t('createUser.passwordTooShort'),
-    phoneNumber: (v: string) =>
-      /^\+?[0-9][0-9 .()-]{5,19}$/.test(v.trim()) || t('signUp.invalidPhoneNumber'),
+    phoneNumber: (v: string) => /^\+?[0-9][0-9 .()-]{5,19}$/.test(v.trim()) || t('signUp.invalidPhoneNumber'),
   };
 
   // Once signed in, the customer goes back to where they came from (e.g. the cart, to order)
@@ -67,10 +66,7 @@
     <p class="text-body-2 text-medium-emphasis mb-6">{{ t('signUp.subtitle') }}</p>
     <v-card class="pa-6">
       <v-form v-model="valid" @submit.prevent="submit">
-        <UserNameFields
-          v-model:first-name="registration.firstName"
-          v-model:last-name="registration.lastName"
-        />
+        <UserNameFields v-model:first-name="registration.firstName" v-model:last-name="registration.lastName" />
         <v-text-field
           v-model="registration.email"
           :label="t('login.email')"

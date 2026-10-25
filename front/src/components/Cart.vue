@@ -62,7 +62,7 @@
         <v-card class="px-5">
           <template v-for="(item, index) in items" :key="item.itemId">
             <v-divider v-if="index > 0" />
-            <CartLine :item="item" @update:quantity="quantity => updateQuantityAndSave(item, quantity)" />
+            <CartLine :item="item" @update:quantity="(quantity) => updateQuantityAndSave(item, quantity)" />
           </template>
         </v-card>
       </v-col>

@@ -13,7 +13,7 @@
 
   watch(
     () => loadingStore.isLoading,
-    loading => {
+    (loading) => {
       clearTimeout(showTimer);
       if (loading) {
         showTimer = setTimeout(() => (visible.value = true), SHOW_DELAY_MS);

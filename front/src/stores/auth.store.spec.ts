@@ -176,9 +176,7 @@ describe('auth.store', () => {
       const [url, init] = mockFetch.mock.lastCall!;
       expect(url).toBe('http://localhost:8080/api/users/1/password');
       expect(init.method).toBe('POST');
-      expect(init.body).toBe(
-        JSON.stringify({ currentPassword: 'secret', newPassword: 'new-password' })
-      );
+      expect(init.body).toBe(JSON.stringify({ currentPassword: 'secret', newPassword: 'new-password' }));
       expect(new Headers(init.headers).get('Authorization')).toBe('Bearer jwt-token');
     });
 
@@ -302,18 +300,15 @@ describe('auth.store', () => {
     it.each([
       { status: 409, expected: 'emailUsed' },
       { status: 422, expected: 'error' },
-    ])(
-      'a registration answered $status is $expected, without signing in',
-      async ({ status, expected }) => {
-        // Arrange
-        mockFetch.mockResolvedValueOnce({ ok: false, status });
-        const store = useAuthStore();
-        // Act
-        const result = await store.register(registration);
-        // Assert
-        expect(result).toBe(expected);
-        expect(store.isAuthenticated).toBe(false);
-      }
-    );
+    ])('a registration answered $status is $expected, without signing in', async ({ status, expected }) => {
+      // Arrange
+      mockFetch.mockResolvedValueOnce({ ok: false, status });
+      const store = useAuthStore();
+      // Act
+      const result = await store.register(registration);
+      // Assert
+      expect(result).toBe(expected);
+      expect(store.isAuthenticated).toBe(false);
+    });
   });
 });

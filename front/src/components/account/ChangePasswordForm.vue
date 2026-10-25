@@ -100,14 +100,24 @@
         </v-col>
       </v-row>
       <div class="d-flex flex-wrap align-center ga-4 mt-2">
-        <v-checkbox v-model="showPasswords" :label="t('createUser.showPassword')" density="compact" hide-details />
+        <v-checkbox
+          v-model="showPasswords"
+          :label="t('createUser.showPassword')"
+          density="compact"
+          hide-details
+        />
         <v-spacer />
         <v-btn type="submit" color="primary" :loading="saving" :disabled="!valid" prepend-icon="mdi-check">
           {{ t('profile.changePassword') }}
         </v-btn>
       </div>
     </v-form>
-    <v-snackbar v-model="feedback.show" :color="feedback.success ? 'primary' : 'error'" timeout="3000" location="bottom right">
+    <v-snackbar
+      v-model="feedback.show"
+      :color="feedback.success ? 'primary' : 'error'"
+      timeout="3000"
+      location="bottom right"
+    >
       {{ feedback.text }}
     </v-snackbar>
   </v-card>

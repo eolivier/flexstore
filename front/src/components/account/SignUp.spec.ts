@@ -24,10 +24,10 @@ async function mountSignUp(redirect?: string) {
   return { wrapper, router };
 }
 
-// Fills in the form: the text fields in their order on the screen, then the email, the password and the phone number
+// Fills in the form: the text fields in their order on the screen,
+// then the email, the password and the phone number
 async function fillAndSubmit(wrapper: Awaited<ReturnType<typeof mountSignUp>>['wrapper']) {
-  const [firstName, lastName, street, complement, postalCode, city] =
-    wrapper.findAll('input[type="text"]');
+  const [firstName, lastName, street, complement, postalCode, city] = wrapper.findAll('input[type="text"]');
   await firstName.setValue('Jane');
   await lastName.setValue('Doe');
   await wrapper.find('input[type="email"]').setValue('jane@example.com');

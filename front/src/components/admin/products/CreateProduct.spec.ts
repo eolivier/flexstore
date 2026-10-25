@@ -5,7 +5,10 @@ import { createMemoryHistory, createRouter } from 'vue-router';
 import CreateProduct from './CreateProduct.vue';
 import { vuetify, i18n } from '@/test/setup';
 
-const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/:any(.*)', component: { template: '<div />' } }] });
+const router = createRouter({
+  history: createMemoryHistory(),
+  routes: [{ path: '/:any(.*)', component: { template: '<div />' } }],
+});
 
 describe('CreateProduct.vue', () => {
   beforeEach(() => {
@@ -16,7 +19,7 @@ describe('CreateProduct.vue', () => {
     // Act
     const wrapper = mount(CreateProduct, { global: { plugins: [vuetify, i18n, router] } });
     // Assert
-    const cancel = wrapper.findAll('a').find(link => link.text() === 'Cancel')!;
+    const cancel = wrapper.findAll('a').find((link) => link.text() === 'Cancel')!;
     expect(cancel.attributes('href')).toBe('/admin/products');
   });
 });
