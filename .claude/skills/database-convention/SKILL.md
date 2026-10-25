@@ -61,11 +61,23 @@ CREATE TABLE customer_order (
 Prefer:
 
 ```sql
+-- The recipient of an address may differ from the user: its own names, no user_id
 CREATE TABLE address (
     id VARCHAR(50) PRIMARY KEY,
-    user_id VARCHAR(50) NOT NULL REFERENCES "user"(id),
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
+    company_name VARCHAR(255),
     street VARCHAR(255) NOT NULL,
     ...
+);
+
+-- The addresses of a user, in the order they were given
+CREATE TABLE user_address (
+    id VARCHAR(50) PRIMARY KEY,
+    user_id VARCHAR(50) NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+    address_id VARCHAR(50) NOT NULL REFERENCES address(id),
+    position INT NOT NULL,
+    UNIQUE (user_id, address_id)
 );
 
 CREATE TABLE customer_order (
@@ -82,6 +94,8 @@ Why: the data is stored once, the database guarantees that the referenced row ex
 Details:
 - Choose the `ON DELETE` behaviour on purpose: `CASCADE` when the row cannot exist without the referenced one (the lines of an order), the default (`RESTRICT`) when the referenced row must be kept while it is used (an address used by an order).
 - Index the foreign key columns used to search (`CREATE INDEX customer_order_user_id_idx ON customer_order(user_id)`).
+- A foreign key is not a shortcut for values that can differ from the referenced row: a row that has its own values stores them in its own columns. The recipient of an address (`first_name`, `last_name`, `company_name`) can be someone other than the user (a gift, a company), so the address holds it and does not take it from `user_id`.
+- A row that can be used by several others (an address used by a user and by their orders) does not point to one of them: the link goes in the tables that use it (`customer_order.delivery_address_id`), or in a link table when it is many to many (`user_address`).
 - A copy is only kept when the business needs the value at a given time and the referenced row can change: say why in a comment of the migration (the name and the price of a product in an order line).
 
 ## 3. Mandatory columns are `NOT NULL`, old rows are migrated
