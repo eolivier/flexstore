@@ -50,16 +50,35 @@
     <h1 class="text-h4 font-weight-bold mb-6">{{ t('createProduct.title') }}</h1>
     <v-card class="pa-6">
       <v-form ref="formRef" v-model="valid" @submit.prevent="submitForm">
-        <ProductFields v-model:name="name" v-model:description="description" v-model:category="category" v-model:price="price" />
+        <ProductFields
+          v-model:name="name"
+          v-model:description="description"
+          v-model:category="category"
+          v-model:price="price"
+        />
         <div class="d-flex ga-3 mt-2">
-          <v-btn to="/admin/products" variant="outlined" color="primary" size="large" class="flex-grow-1">{{ t('createProduct.cancel') }}</v-btn>
-          <v-btn type="submit" color="primary" size="large" class="flex-grow-1" :loading="saving" :disabled="!valid">
+          <v-btn to="/admin/products" variant="outlined" color="primary" size="large" class="flex-grow-1">{{
+            t('createProduct.cancel')
+          }}</v-btn>
+          <v-btn
+            type="submit"
+            color="primary"
+            size="large"
+            class="flex-grow-1"
+            :loading="saving"
+            :disabled="!valid"
+          >
             {{ t('createProduct.submit') }}
           </v-btn>
         </div>
       </v-form>
     </v-card>
-    <v-snackbar v-model="feedback.show" :color="feedback.success ? 'primary' : 'error'" timeout="3000" location="bottom right">
+    <v-snackbar
+      v-model="feedback.show"
+      :color="feedback.success ? 'primary' : 'error'"
+      timeout="3000"
+      location="bottom right"
+    >
       {{ feedback.text }}
       <template v-if="feedback.success" #actions>
         <v-btn to="/admin/products" variant="text" color="secondary">{{ t('nav.products') }}</v-btn>

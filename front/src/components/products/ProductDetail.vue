@@ -46,14 +46,16 @@
   }
 
   const category = computed(() => categoryInfo(product.value?.category));
-  const categoryLink = computed(() => shopCategories.find(c => c.code === product.value?.category)?.to ?? '/products/');
+  const categoryLink = computed(
+    () => shopCategories.find((c) => c.code === product.value?.category)?.to ?? '/products/'
+  );
   const price = computed(() => formatPrice(product.value?.price, product.value?.currency, locale.value));
   const quantityInCart = computed(
-    () => cartStore.cartItems?.items.find(item => item.productId === product.value?.id)?.productQuantity ?? 0
+    () => cartStore.cartItems?.items.find((item) => item.productId === product.value?.id)?.productQuantity ?? 0
   );
   const similarProducts = computed(() =>
     productsStore.products
-      .filter(p => p.category === product.value?.category && p.id !== product.value?.id)
+      .filter((p) => p.category === product.value?.category && p.id !== product.value?.id)
       .slice(0, 4)
   );
 
@@ -72,12 +74,20 @@
     </v-row>
 
     <v-card v-else-if="!product" class="pa-10 text-center">
-      <v-icon :icon="failed ? 'mdi-alert-circle-outline' : 'mdi-package-variant-remove'" size="56" class="text-medium-emphasis mb-3" />
+      <v-icon
+        :icon="failed ? 'mdi-alert-circle-outline' : 'mdi-package-variant-remove'"
+        size="56"
+        class="text-medium-emphasis mb-3"
+      />
       <h1 class="text-h6 font-weight-bold mb-1">{{ failed ? t('products.error') : t('products.notFound') }}</h1>
       <p v-if="!failed" class="text-body-2 text-medium-emphasis mb-6">{{ t('products.notFoundText') }}</p>
       <div class="d-flex justify-center ga-2">
-        <v-btn v-if="failed" variant="outlined" color="primary" @click="loadProduct">{{ t('products.retry') }}</v-btn>
-        <v-btn to="/products/" color="secondary" prepend-icon="mdi-arrow-left">{{ t('products.backToShop') }}</v-btn>
+        <v-btn v-if="failed" variant="outlined" color="primary" @click="loadProduct">{{
+          t('products.retry')
+        }}</v-btn>
+        <v-btn to="/products/" color="secondary" prepend-icon="mdi-arrow-left">{{
+          t('products.backToShop')
+        }}</v-btn>
       </div>
     </v-card>
 
@@ -101,7 +111,10 @@
         </v-col>
 
         <v-col cols="12" md="6" class="d-flex flex-column">
-          <router-link :to="categoryLink" class="category-link text-caption text-secondary font-weight-bold text-uppercase mb-2">
+          <router-link
+            :to="categoryLink"
+            class="category-link text-caption text-secondary font-weight-bold text-uppercase mb-2"
+          >
             {{ t(category.label) }}
           </router-link>
           <h1 class="text-h4 font-weight-bold mb-3">{{ product.name }}</h1>
@@ -128,7 +141,9 @@
           <div class="text-body-2 text-medium-emphasis mb-8">
             <v-icon icon="mdi-cart-outline" size="16" class="mr-1" />
             {{ t('products.inCart', quantityInCart) }}
-            <router-link v-if="quantityInCart > 0" to="/cart" class="text-secondary ml-1">{{ t('products.viewCart') }}</router-link>
+            <router-link v-if="quantityInCart > 0" to="/cart" class="text-secondary ml-1">{{
+              t('products.viewCart')
+            }}</router-link>
           </div>
 
           <v-divider class="mb-6" />

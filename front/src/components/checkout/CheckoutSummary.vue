@@ -11,8 +11,12 @@
   const { t, locale } = useI18n();
   const cartStore = useCartStore();
 
-  const itemsCount = computed(() => (cartStore.cartItems?.items ?? []).reduce((count, item) => count + item.productQuantity, 0));
-  const total = computed(() => formatPrice(cartStore.cartItems?.totalItemsPrice, cartStore.cartItems?.itemsCurrency, locale.value));
+  const itemsCount = computed(() =>
+    (cartStore.cartItems?.items ?? []).reduce((count, item) => count + item.productQuantity, 0)
+  );
+  const total = computed(() =>
+    formatPrice(cartStore.cartItems?.totalItemsPrice, cartStore.cartItems?.itemsCurrency, locale.value)
+  );
 </script>
 
 <template>
@@ -25,8 +29,18 @@
       <v-spacer />
       <span class="text-h5 font-weight-bold">{{ total }}</span>
     </div>
-    <v-alert v-if="error" type="error" variant="tonal" density="compact" class="mb-4">{{ t(`checkout.errors.${error}`) }}</v-alert>
-    <v-btn color="secondary" size="large" block prepend-icon="mdi-check" :loading="placing" :disabled="disabled" @click="emit('place')">
+    <v-alert v-if="error" type="error" variant="tonal" density="compact" class="mb-4">{{
+      t(`checkout.errors.${error}`)
+    }}</v-alert>
+    <v-btn
+      color="secondary"
+      size="large"
+      block
+      prepend-icon="mdi-check"
+      :loading="placing"
+      :disabled="disabled"
+      @click="emit('place')"
+    >
       {{ t('checkout.placeOrder') }}
     </v-btn>
   </v-card>

@@ -41,9 +41,5 @@
       requirement="optional"
     />
   </template>
-  <UserNameFields
-    v-else
-    v-model:first-name="recipient.firstName"
-    v-model:last-name="recipient.lastName"
-  />
+  <UserNameFields v-else v-model:first-name="recipient.firstName" v-model:last-name="recipient.lastName" />
 </template>

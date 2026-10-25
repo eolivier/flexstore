@@ -18,7 +18,7 @@
   };
 
   const statuses = computed(() =>
-    (Object.keys(icons) as AccountStatus[]).map(value => ({
+    (Object.keys(icons) as AccountStatus[]).map((value) => ({
       title: t(`accountStatus.${value}`),
       value,
       props: { prependIcon: icons[value], disabled: value === 'PENDING_VERIFICATION' },

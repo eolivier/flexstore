@@ -26,7 +26,12 @@
   onMounted(async () => {
     const product = await productsStore.fetchProduct(props.id);
     editedProduct.value = product
-      ? { name: product.name ?? '', description: product.description, category: product.category, price: String(product.price ?? '') }
+      ? {
+          name: product.name ?? '',
+          description: product.description,
+          category: product.category,
+          price: String(product.price ?? ''),
+        }
       : false;
   });
 
@@ -46,7 +51,9 @@
   <v-container class="page py-10">
     <h1 class="text-h4 font-weight-bold mb-6">{{ t('editProduct.title') }}</h1>
     <v-skeleton-loader v-if="editedProduct === null" type="article" class="rounded-xl" />
-    <v-alert v-else-if="editedProduct === false" type="error" variant="tonal">{{ t('editProduct.loadError') }}</v-alert>
+    <v-alert v-else-if="editedProduct === false" type="error" variant="tonal">{{
+      t('editProduct.loadError')
+    }}</v-alert>
     <v-card v-else class="pa-6">
       <v-form v-model="valid" @submit.prevent="save">
         <ProductFields
@@ -55,14 +62,32 @@
           v-model:category="editedProduct.category"
           v-model:price="editedProduct.price"
         />
-        <v-alert v-if="saved === false" type="error" variant="tonal" density="compact" class="my-4">{{ t('editProduct.error') }}</v-alert>
+        <v-alert v-if="saved === false" type="error" variant="tonal" density="compact" class="my-4">{{
+          t('editProduct.error')
+        }}</v-alert>
         <div class="d-flex ga-3 mt-2">
-          <v-btn to="/admin/products" variant="outlined" color="primary" size="large" class="flex-grow-1">{{ t('editProduct.cancel') }}</v-btn>
-          <v-btn type="submit" color="primary" size="large" class="flex-grow-1" :loading="saving" :disabled="!valid">{{ t('editProduct.save') }}</v-btn>
+          <v-btn to="/admin/products" variant="outlined" color="primary" size="large" class="flex-grow-1">{{
+            t('editProduct.cancel')
+          }}</v-btn>
+          <v-btn
+            type="submit"
+            color="primary"
+            size="large"
+            class="flex-grow-1"
+            :loading="saving"
+            :disabled="!valid"
+            >{{ t('editProduct.save') }}</v-btn
+          >
         </div>
       </v-form>
     </v-card>
-    <v-snackbar :model-value="saved === true" color="primary" timeout="3000" location="bottom right" @update:model-value="saved = null">
+    <v-snackbar
+      :model-value="saved === true"
+      color="primary"
+      timeout="3000"
+      location="bottom right"
+      @update:model-value="saved = null"
+    >
       {{ t('editProduct.saved') }}
       <template #actions>
         <v-btn to="/admin/products" variant="text" color="secondary">{{ t('nav.products') }}</v-btn>

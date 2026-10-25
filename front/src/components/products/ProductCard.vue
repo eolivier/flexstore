@@ -51,7 +51,9 @@
 
 <style scoped>
   .product-card {
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    transition:
+      transform 0.15s ease,
+      box-shadow 0.15s ease;
   }
   .product-card:hover {
     transform: translateY(-2px);

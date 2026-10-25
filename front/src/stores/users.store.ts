@@ -79,7 +79,8 @@ export const useUsersStore = defineStore('users', () => {
     return 'saved';
   }
 
-  // An administrator activates, suspends, locks or disables the account of another user. Returns whether it changed
+  // An administrator activates, suspends, locks or disables the account of another user.
+  // Returns whether it changed
   async function changeStatus(id: string, status: AccountStatus): Promise<boolean> {
     const response = await authStore
       .authFetch(`/api/users/${encodeURIComponent(id)}/status`, {

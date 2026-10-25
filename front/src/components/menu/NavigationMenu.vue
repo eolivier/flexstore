@@ -23,9 +23,12 @@
     (cartStore.cartItems?.items ?? []).reduce((count, item) => count + item.productQuantity, 0)
   );
 
-  watch(() => route.fullPath, () => {
-    drawer.value = false;
-  });
+  watch(
+    () => route.fullPath,
+    () => {
+      drawer.value = false;
+    }
+  );
 
   onMounted(() => {
     cartStore.fetchCartItems();
@@ -41,11 +44,7 @@
   <v-app-bar flat border="b" color="surface" height="72">
     <LoadingBar />
     <div class="header-inner d-flex align-center w-100 px-4">
-      <v-app-bar-nav-icon
-        class="d-md-none mr-1"
-        :aria-label="t('nav.openMenu')"
-        @click="drawer = !drawer"
-      />
+      <v-app-bar-nav-icon class="d-md-none mr-1" :aria-label="t('nav.openMenu')" @click="drawer = !drawer" />
 
       <router-link to="/" class="brand d-flex align-center text-decoration-none mr-8">
         <span class="brand-mark d-flex align-center justify-center mr-2">
@@ -83,11 +82,18 @@
 
       <v-menu location="bottom end">
         <template #activator="{ props }">
-          <v-btn v-bind="props" icon="mdi-account-circle-outline" variant="text" :aria-label="t('nav.account')" />
+          <v-btn
+            v-bind="props"
+            icon="mdi-account-circle-outline"
+            variant="text"
+            :aria-label="t('nav.account')"
+          />
         </template>
         <v-list density="comfortable" min-width="240">
           <v-list-item v-if="authStore.isAuthenticated" :subtitle="authStore.currentUser?.email">
-            <v-list-item-title class="font-weight-bold">{{ FullName.of(authStore.currentUser).value }}</v-list-item-title>
+            <v-list-item-title class="font-weight-bold">{{
+              FullName.of(authStore.currentUser).value
+            }}</v-list-item-title>
           </v-list-item>
           <v-divider v-if="authStore.isAuthenticated" class="my-1" />
           <v-list-item

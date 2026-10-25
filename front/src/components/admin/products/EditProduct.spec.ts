@@ -6,13 +6,26 @@ import EditProduct from './EditProduct.vue';
 import { vuetify, i18n } from '@/test/setup';
 import { getProduct } from '@/services/product.service';
 
-vi.mock('@/services/product.service', () => ({ getProduct: vi.fn(), getAllProducts: vi.fn(() => Promise.resolve([])) }));
+vi.mock('@/services/product.service', () => ({
+  getProduct: vi.fn(),
+  getAllProducts: vi.fn(() => Promise.resolve([])),
+}));
 
 const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
-const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/:any(.*)', component: { template: '<div />' } }] });
-const tShirt = { id: 'p-1', name: 'Organic T-shirt', description: 'Eco-friendly', category: 'CLOTHING', price: 25, currency: '€' };
+const router = createRouter({
+  history: createMemoryHistory(),
+  routes: [{ path: '/:any(.*)', component: { template: '<div />' } }],
+});
+const tShirt = {
+  id: 'p-1',
+  name: 'Organic T-shirt',
+  description: 'Eco-friendly',
+  category: 'CLOTHING',
+  price: 25,
+  currency: '€',
+};
 
 async function mountEditProduct() {
   const wrapper = mount(EditProduct, { props: { id: 'p-1' }, global: { plugins: [vuetify, i18n, router] } });
@@ -50,7 +63,11 @@ describe('EditProduct.vue', () => {
     const [url, init] = mockFetch.mock.calls.find(([, init]) => init?.method === 'PUT')!;
     expect(url).toMatch(/\/api\/products\/p-1$/);
     expect(JSON.parse(init.body)).toEqual({
-      name: 'Linen T-shirt', description: 'Eco-friendly', category: 'CLOTHING', price: 29.5, currency: 'EUR',
+      name: 'Linen T-shirt',
+      description: 'Eco-friendly',
+      category: 'CLOTHING',
+      price: 29.5,
+      currency: 'EUR',
     });
   });
 
@@ -78,7 +95,7 @@ describe('EditProduct.vue', () => {
     // Act
     const wrapper = await mountEditProduct();
     // Assert
-    const cancel = wrapper.findAll('a').find(link => link.text() === 'Cancel')!;
+    const cancel = wrapper.findAll('a').find((link) => link.text() === 'Cancel')!;
     expect(cancel.attributes('href')).toBe('/admin/products');
   });
 });

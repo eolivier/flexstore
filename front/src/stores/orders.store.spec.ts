@@ -162,19 +162,16 @@ describe('orders.store', () => {
     { status: 200, expected: { status: 'found', order } },
     { status: 404, expected: { status: 'notFound' } },
     { status: 500, expected: { status: 'error' } },
-  ])(
-    'should look up an order: HTTP $status gives $expected.status',
-    async ({ status, expected }) => {
-      // Arrange
-      await signIn();
-      respondWith({
-        [`GET /api/orders/${order.id}`]: { status, body: status === 200 ? order : undefined },
-      });
-      const store = useOrdersStore();
-      // Act
-      const orderLookup = await store.fetchOrder(order.id);
-      // Assert
-      expect(orderLookup).toEqual(expected);
-    }
-  );
+  ])('should look up an order: HTTP $status gives $expected.status', async ({ status, expected }) => {
+    // Arrange
+    await signIn();
+    respondWith({
+      [`GET /api/orders/${order.id}`]: { status, body: status === 200 ? order : undefined },
+    });
+    const store = useOrdersStore();
+    // Act
+    const orderLookup = await store.fetchOrder(order.id);
+    // Assert
+    expect(orderLookup).toEqual(expected);
+  });
 });

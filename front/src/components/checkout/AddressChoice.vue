@@ -31,8 +31,7 @@
   watch(
     [choice, otherAddress, savedAddresses],
     () => {
-      address.value =
-        choice.value === 'other' ? otherAddress.value : savedAddresses.value[choice.value];
+      address.value = choice.value === 'other' ? otherAddress.value : savedAddresses.value[choice.value];
     },
     { deep: true, immediate: true }
   );
@@ -44,12 +43,7 @@
       {{ t(`checkout.${purpose}Address`) }}
     </legend>
     <v-radio-group v-model="choice" hide-details class="mb-2">
-      <v-radio
-        v-for="(saved, index) in addresses"
-        :key="index"
-        :value="index"
-        :label="formatAddress(saved)"
-      />
+      <v-radio v-for="(saved, index) in addresses" :key="index" :value="index" :label="formatAddress(saved)" />
       <v-radio value="other" :label="t('checkout.otherAddress')" />
     </v-radio-group>
     <template v-if="recipientToComplete && choice !== 'other'">

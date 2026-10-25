@@ -10,7 +10,7 @@ const jane = { id: 'u-1', firstName: 'Jane', lastName: 'Doe', email: 'jane@examp
 // Answers each API call by method and path
 function respondWith(responses: Record<string, { status: number; body?: unknown }>) {
   mockFetch.mockImplementation((url: string, init?: RequestInit) => {
-    const key = Object.keys(responses).find(k => {
+    const key = Object.keys(responses).find((k) => {
       const [method, path] = k.split(' ');
       return (init?.method ?? 'GET') === method && url.endsWith(path);
     });
@@ -41,22 +41,43 @@ describe('users.store', () => {
     { status: 403, expected: 'error' },
   ])('an edit answered $status is $expected', async ({ status, expected }) => {
     // Arrange
-    respondWith({ 'PUT /api/users/u-1': { status, body: jane }, 'GET /api/users': { status: 200, body: [jane] } });
+    respondWith({
+      'PUT /api/users/u-1': { status, body: jane },
+      'GET /api/users': { status: 200, body: [jane] },
+    });
     const store = useUsersStore();
     // Act
-    const edition = await store.updateUser('u-1', { firstName: 'Jane', lastName: 'Doe', email: 'jane@example.com', role: 'ADMIN' });
+    const edition = await store.updateUser('u-1', {
+      firstName: 'Jane',
+      lastName: 'Doe',
+      email: 'jane@example.com',
+      role: 'ADMIN',
+    });
     // Assert
     expect(edition).toBe(expected);
   });
 
   it('should send the first name, the last name, the email and the role, but no password', async () => {
     // Arrange
-    respondWith({ 'PUT /api/users/u-1': { status: 200, body: jane }, 'GET /api/users': { status: 200, body: [jane] } });
+    respondWith({
+      'PUT /api/users/u-1': { status: 200, body: jane },
+      'GET /api/users': { status: 200, body: [jane] },
+    });
     const store = useUsersStore();
     // Act
-    await store.updateUser('u-1', { firstName: 'Jane', lastName: 'Doe', email: 'jane@example.com', role: 'ADMIN' });
+    await store.updateUser('u-1', {
+      firstName: 'Jane',
+      lastName: 'Doe',
+      email: 'jane@example.com',
+      role: 'ADMIN',
+    });
     // Assert
     const [, init] = mockFetch.mock.calls.find(([, init]) => init?.method === 'PUT')!;
-    expect(JSON.parse(init.body)).toEqual({ firstName: 'Jane', lastName: 'Doe', email: 'jane@example.com', role: 'ADMIN' });
+    expect(JSON.parse(init.body)).toEqual({
+      firstName: 'Jane',
+      lastName: 'Doe',
+      email: 'jane@example.com',
+      role: 'ADMIN',
+    });
   });
 });

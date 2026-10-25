@@ -8,7 +8,12 @@
 </script>
 
 <template>
-  <v-snackbar v-model="feedback.show" :color="feedback.success ? 'primary' : 'error'" timeout="3000" location="bottom right">
+  <v-snackbar
+    v-model="feedback.show"
+    :color="feedback.success ? 'primary' : 'error'"
+    timeout="3000"
+    location="bottom right"
+  >
     <v-icon :icon="feedback.success ? 'mdi-check-circle-outline' : 'mdi-alert-circle-outline'" class="mr-2" />
     {{ feedback.text }}
     <template v-if="feedback.success" #actions>

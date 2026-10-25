@@ -5,12 +5,18 @@ import OrderLinesTable from './OrderLinesTable.vue';
 import { twoLinesOrder } from './orderFixture';
 import { vuetify, i18n } from '@/test/setup';
 
-const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/:any(.*)', component: { template: '<div />' } }] });
+const router = createRouter({
+  history: createMemoryHistory(),
+  routes: [{ path: '/:any(.*)', component: { template: '<div />' } }],
+});
 
 describe('OrderLinesTable.vue', () => {
   it('shows a row per line, with a link to the product, and the order total', () => {
     // Act
-    const wrapper = mount(OrderLinesTable, { props: { order: twoLinesOrder }, global: { plugins: [vuetify, i18n, router] } });
+    const wrapper = mount(OrderLinesTable, {
+      props: { order: twoLinesOrder },
+      global: { plugins: [vuetify, i18n, router] },
+    });
     // Assert
     const rows = wrapper.findAll('tbody tr');
     expect(rows).toHaveLength(2);

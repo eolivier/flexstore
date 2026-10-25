@@ -11,11 +11,12 @@ vi.stubGlobal('fetch', mockFetch);
 async function signedInWithStatus(status: string) {
   mockFetch.mockResolvedValueOnce({
     ok: true,
-    json: () => Promise.resolve({
-      token: 'jwt-token',
-      expiresAt: '2030-01-01T00:00:00Z',
-      user: { id: 'u-1', firstName: 'Jane', lastName: 'Doe', email: 'jane@example.com', role: 'USER', status },
-    }),
+    json: () =>
+      Promise.resolve({
+        token: 'jwt-token',
+        expiresAt: '2030-01-01T00:00:00Z',
+        user: { id: 'u-1', firstName: 'Jane', lastName: 'Doe', email: 'jane@example.com', role: 'USER', status },
+      }),
   });
   await useAuthStore().login('jane@example.com', 'password123');
   return mount(EmailVerificationBanner, { global: { plugins: [vuetify, i18n] } });

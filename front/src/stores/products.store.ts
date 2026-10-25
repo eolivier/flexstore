@@ -5,7 +5,6 @@ import { getAllProducts, getProduct } from '@/services/product.service';
 import { useAuthStore } from './auth.store';
 
 export const useProductsStore = defineStore('products', () => {
-
   const products = ref<Product[]>([]);
   const loading = ref(false);
   const error = ref<string | null>(null);

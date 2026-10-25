@@ -12,11 +12,13 @@ export const useEmailVerificationStore = defineStore('emailVerification', () => 
   // The link can be opened without being signed in
   async function verifyEmail(token: string): Promise<EmailVerification> {
     try {
-      const response = await useLoadingStore().track(fetch(`${apiUrl}/api/accounts/email-verification`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token }),
-      }));
+      const response = await useLoadingStore().track(
+        fetch(`${apiUrl}/api/accounts/email-verification`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token }),
+        })
+      );
       if (response.ok) {
         useAuthStore().markEmailVerified();
         return 'verified';

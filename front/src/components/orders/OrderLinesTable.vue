@@ -22,7 +22,10 @@
       <tbody>
         <tr v-for="line in order.lines" :key="line.productId">
           <td>
-            <router-link :to="`/products/${line.productId}`" class="product-link text-high-emphasis font-weight-medium">
+            <router-link
+              :to="`/products/${line.productId}`"
+              class="product-link text-high-emphasis font-weight-medium"
+            >
               {{ line.productName }}
             </router-link>
           </td>
@@ -30,7 +33,9 @@
             {{ formatPrice(line.unitPrice, order.currency, locale) }}
           </td>
           <td class="text-right">{{ line.quantity }}</td>
-          <td class="text-right text-no-wrap font-weight-medium">{{ formatPrice(line.linePrice, order.currency, locale) }}</td>
+          <td class="text-right text-no-wrap font-weight-medium">
+            {{ formatPrice(line.linePrice, order.currency, locale) }}
+          </td>
         </tr>
       </tbody>
     </v-table>

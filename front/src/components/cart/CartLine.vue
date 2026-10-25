@@ -12,7 +12,9 @@
   const { t, locale } = useI18n();
 
   const category = computed(() => categoryInfo(props.item.productCategory));
-  const unitPrice = computed(() => formatPrice(props.item.productPrice, props.item.productCurrency, locale.value));
+  const unitPrice = computed(() =>
+    formatPrice(props.item.productPrice, props.item.productCurrency, locale.value)
+  );
   const detailLink = computed(() => `/products/${props.item.productId}`);
   const linePrice = computed(() => formatPrice(props.item.itemPrice, props.item.productCurrency, locale.value));
 </script>
@@ -30,12 +32,18 @@
 
     <div class="flex-grow-1 line-info">
       <div class="text-caption text-secondary font-weight-bold text-uppercase">{{ t(category.label) }}</div>
-      <router-link :to="detailLink" class="line-link text-subtitle-1 font-weight-bold">{{ item.productName }}</router-link>
+      <router-link :to="detailLink" class="line-link text-subtitle-1 font-weight-bold">{{
+        item.productName
+      }}</router-link>
       <div class="text-body-2 text-medium-emphasis">{{ t('cart.unitPrice', { price: unitPrice }) }}</div>
     </div>
 
     <div class="line-actions d-flex align-center ga-4">
-      <QuantityStepper :model-value="item.productQuantity" :min="1" @update:model-value="$emit('update:quantity', $event)" />
+      <QuantityStepper
+        :model-value="item.productQuantity"
+        :min="1"
+        @update:model-value="$emit('update:quantity', $event)"
+      />
       <div class="line-price text-subtitle-1 font-weight-bold text-right">{{ linePrice }}</div>
       <v-btn
         icon="mdi-close"

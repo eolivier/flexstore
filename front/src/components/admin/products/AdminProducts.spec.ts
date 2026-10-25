@@ -8,10 +8,27 @@ import { getAllProducts } from '@/services/product.service';
 
 vi.mock('@/services/product.service', () => ({ getAllProducts: vi.fn(), getProduct: vi.fn() }));
 
-const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/:any(.*)', component: { template: '<div />' } }] });
+const router = createRouter({
+  history: createMemoryHistory(),
+  routes: [{ path: '/:any(.*)', component: { template: '<div />' } }],
+});
 const products = [
-  { id: 'p-1', name: 'Organic T-shirt', description: 'Eco-friendly', category: 'CLOTHING', price: 25, currency: '€' },
-  { id: 'p-2', name: 'Smartwatch', description: 'Activity tracking', category: 'ACCESSORIES', price: 99, currency: '€' },
+  {
+    id: 'p-1',
+    name: 'Organic T-shirt',
+    description: 'Eco-friendly',
+    category: 'CLOTHING',
+    price: 25,
+    currency: '€',
+  },
+  {
+    id: 'p-2',
+    name: 'Smartwatch',
+    description: 'Activity tracking',
+    category: 'ACCESSORIES',
+    price: 99,
+    currency: '€',
+  },
 ];
 
 async function mountAdminProducts() {

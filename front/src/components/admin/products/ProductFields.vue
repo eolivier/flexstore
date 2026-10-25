@@ -12,7 +12,11 @@
   const { t } = useI18n();
 
   const categories = computed(() =>
-    shopCategories.map(({ code }) => ({ title: t(categoryInfo(code).label), value: code, props: { prependIcon: categoryInfo(code).icon } }))
+    shopCategories.map(({ code }) => ({
+      title: t(categoryInfo(code).label),
+      value: code,
+      props: { prependIcon: categoryInfo(code).icon },
+    }))
   );
 
   const rules = {
@@ -22,7 +26,13 @@
 </script>
 
 <template>
-  <v-text-field v-model="name" :label="t('createProduct.name')" :rules="[rules.required]" class="mb-2" required />
+  <v-text-field
+    v-model="name"
+    :label="t('createProduct.name')"
+    :rules="[rules.required]"
+    class="mb-2"
+    required
+  />
   <v-textarea
     v-model="description"
     :label="t('createProduct.description')"

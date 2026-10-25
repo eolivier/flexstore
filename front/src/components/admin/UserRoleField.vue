@@ -24,7 +24,9 @@
             <v-icon :icon="choice.icon" size="20" />
             <span>
               <span class="font-weight-medium">{{ t(`createUser.roles.${choice.value}.label`) }}</span>
-              <span class="d-block text-caption text-medium-emphasis">{{ t(`createUser.roles.${choice.value}.text`) }}</span>
+              <span class="d-block text-caption text-medium-emphasis">{{
+                t(`createUser.roles.${choice.value}.text`)
+              }}</span>
             </span>
           </div>
         </template>

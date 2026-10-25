@@ -82,7 +82,9 @@
           <div class="d-flex">
             <v-icon :icon="commitment.icon" color="primary" size="28" class="mr-4 mt-1" />
             <div>
-              <h3 class="text-subtitle-1 font-weight-bold">{{ t(`home.commitments.${commitment.key}.title`) }}</h3>
+              <h3 class="text-subtitle-1 font-weight-bold">
+                {{ t(`home.commitments.${commitment.key}.title`) }}
+              </h3>
               <p class="text-body-2 text-medium-emphasis">{{ t(`home.commitments.${commitment.key}.text`) }}</p>
             </div>
           </div>
@@ -90,7 +92,11 @@
       </v-row>
     </section>
 
-    <v-sheet color="primary" rounded="xl" class="cta pa-8 pa-md-10 d-flex flex-column flex-md-row align-md-center">
+    <v-sheet
+      color="primary"
+      rounded="xl"
+      class="cta pa-8 pa-md-10 d-flex flex-column flex-md-row align-md-center"
+    >
       <div class="mb-6 mb-md-0">
         <h2 class="text-h5 font-weight-bold mb-1">{{ t('home.ctaTitle') }}</h2>
         <p class="text-body-1 cta-text">{{ t('home.ctaText') }}</p>

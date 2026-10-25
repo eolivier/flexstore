@@ -5,7 +5,7 @@ import { useLoadingStore } from './loading.store';
 // A request whose answer the test decides
 function pendingRequest() {
   let answer!: () => void;
-  const request = new Promise<void>(resolve => (answer = resolve));
+  const request = new Promise<void>((resolve) => (answer = resolve));
   return { request, answer };
 }
 

@@ -5,7 +5,8 @@
   import { formatPrice } from '@/utils/price';
   import { orderItemsCount, orderNumber, placedOn } from '@/utils/order';
 
-  // The page the customer comes back to after paying: the payment provider may confirm the payment a little later
+  // The page the customer comes back to after paying:
+  // the payment provider may confirm the payment a little later
   const props = defineProps<{ id: string }>();
   const CONFIRMATION_CHECKS = 10;
   const CONFIRMATION_CHECK_DELAY_MS = 2000;
@@ -14,9 +15,7 @@
   const ordersStore = useOrdersStore();
 
   const orderLookup = ref<OrderLookup | null>(null);
-  const order = computed(() =>
-    orderLookup.value?.status === 'found' ? orderLookup.value.order : null
-  );
+  const order = computed(() => (orderLookup.value?.status === 'found' ? orderLookup.value.order : null));
   const orderPath = computed(() => `/orders/${props.id}`);
 
   const awaitingPayment = computed(() => order.value?.status === 'AWAITING_PAYMENT');
@@ -47,9 +46,7 @@
       <h1 class="text-h4 font-weight-bold mb-2">{{ t('orders.thanks') }}</h1>
       <i18n-t keypath="orders.confirmation" tag="p" class="text-body-1 text-medium-emphasis mb-6">
         <template #number>
-          <router-link :to="orderPath" class="order-link font-weight-bold">{{
-            orderNumber(order)
-          }}</router-link>
+          <router-link :to="orderPath" class="order-link font-weight-bold">{{ orderNumber(order) }}</router-link>
         </template>
         <template #date>{{ placedOn(order, locale) }}</template>
       </i18n-t>
@@ -64,18 +61,11 @@
         class="summary d-flex justify-space-between align-center pa-4 mb-8 mx-auto"
       >
         <span class="text-body-2">{{ t('orders.itemsCount', orderItemsCount(order)) }}</span>
-        <span class="text-h6 font-weight-bold">{{
-          formatPrice(order.totalPrice, order.currency, locale)
-        }}</span>
+        <span class="text-h6 font-weight-bold">{{ formatPrice(order.totalPrice, order.currency, locale) }}</span>
       </v-sheet>
 
       <div class="d-flex flex-column flex-sm-row justify-center ga-3">
-        <v-btn
-          :to="orderPath"
-          color="secondary"
-          size="large"
-          prepend-icon="mdi-receipt-text-outline"
-        >
+        <v-btn :to="orderPath" color="secondary" size="large" prepend-icon="mdi-receipt-text-outline">
           {{ t('orders.seeDetail') }}
         </v-btn>
         <v-btn to="/products/" variant="outlined" color="primary" size="large">

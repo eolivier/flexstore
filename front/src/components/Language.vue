@@ -20,15 +20,15 @@
 </template>
 
 <script setup>
-import { useI18n } from 'vue-i18n';
+  import { useI18n } from 'vue-i18n';
 
-const { locale, t } = useI18n();
-const languages = [
-  { title: 'Français', value: 'fr' },
-  { title: 'English', value: 'en' }
-];
+  const { locale, t } = useI18n();
+  const languages = [
+    { title: 'Français', value: 'fr' },
+    { title: 'English', value: 'en' },
+  ];
 
-function changeLocale(val) {
-  locale.value = val;
-}
+  function changeLocale(val) {
+    locale.value = val;
+  }
 </script>

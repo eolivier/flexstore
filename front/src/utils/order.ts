@@ -17,7 +17,8 @@ export function placedOn(order: JsonOrder, locale: string): string {
   });
 }
 
-// full: every step with its label (order detail); compact: smaller markers, only the current step labelled (orders list)
+// full: every step with its label (order detail);
+// compact: smaller markers, only the current step labelled (orders list)
 export type OrderStepsLayout = 'full' | 'compact';
 
 // The statuses an order goes through, in order
@@ -48,10 +49,7 @@ export function nextStatus(status: JsonOrder['status']): JsonOrder['status'] {
 }
 
 // Where a step stands for an order in the given status
-export function orderStepState(
-  step: JsonOrder['status'],
-  currentStatus: JsonOrder['status']
-): OrderStepState {
+export function orderStepState(step: JsonOrder['status'], currentStatus: JsonOrder['status']): OrderStepState {
   const stepIndex = orderStatusSteps.indexOf(step);
   const currentIndex = orderStatusSteps.indexOf(currentStatus);
   if (stepIndex < currentIndex) return 'done';

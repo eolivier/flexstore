@@ -21,7 +21,7 @@
     }
     const queues = [...byCategory.values()];
     const featured: Product[] = [];
-    while (featured.length < FEATURED_COUNT && queues.some(queue => queue.length)) {
+    while (featured.length < FEATURED_COUNT && queues.some((queue) => queue.length)) {
       for (const queue of queues) {
         const product = queue.shift();
         if (product && featured.length < FEATURED_COUNT) featured.push(product);
@@ -32,7 +32,11 @@
 </script>
 
 <template>
-  <section v-if="productsStore.loading || featuredProducts.length" class="mb-14" :aria-busy="productsStore.loading">
+  <section
+    v-if="productsStore.loading || featuredProducts.length"
+    class="mb-14"
+    :aria-busy="productsStore.loading"
+  >
     <div class="d-flex align-center mb-6">
       <h2 class="text-h5 font-weight-bold">{{ t('home.featuredTitle') }}</h2>
       <v-spacer />

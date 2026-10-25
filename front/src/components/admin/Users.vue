@@ -24,7 +24,11 @@
     if (userIdToDelete.value !== null) {
       const deleted = await usersStore.deleteUser(userIdToDelete.value);
       userIdToDelete.value = null;
-      feedback.value = { show: true, success: deleted, text: t(deleted ? 'users.deleted' : 'users.deleteError') };
+      feedback.value = {
+        show: true,
+        success: deleted,
+        text: t(deleted ? 'users.deleted' : 'users.deleteError'),
+      };
     }
   }
 
@@ -54,7 +58,9 @@
         <p class="text-body-2 text-medium-emphasis mt-1">{{ t('users.count', usersStore.users.length) }}</p>
       </div>
       <v-spacer />
-      <v-btn to="/admin/create-user" color="primary" prepend-icon="mdi-account-plus-outline">{{ t('nav.createUser') }}</v-btn>
+      <v-btn to="/admin/create-user" color="primary" prepend-icon="mdi-account-plus-outline">{{
+        t('nav.createUser')
+      }}</v-btn>
     </div>
 
     <v-data-table
@@ -66,7 +72,9 @@
     >
       <template #item.name="{ item }">
         <div class="d-flex align-center py-2">
-          <v-avatar color="surface-variant" size="36" class="mr-3 text-caption font-weight-bold">{{ FullName.of(item).initials }}</v-avatar>
+          <v-avatar color="surface-variant" size="36" class="mr-3 text-caption font-weight-bold">{{
+            FullName.of(item).initials
+          }}</v-avatar>
           <span class="font-weight-medium">{{ FullName.of(item).value }}</span>
         </div>
       </template>
@@ -105,7 +113,12 @@
       :message="t('confirmUserDeletion')"
       @confirm="confirmDelete"
     />
-    <v-snackbar v-model="feedback.show" :color="feedback.success ? 'primary' : 'error'" timeout="3000" location="bottom right">
+    <v-snackbar
+      v-model="feedback.show"
+      :color="feedback.success ? 'primary' : 'error'"
+      timeout="3000"
+      location="bottom right"
+    >
       {{ feedback.text }}
     </v-snackbar>
   </v-container>

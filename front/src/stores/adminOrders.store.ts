@@ -40,9 +40,7 @@ export const useAdminOrdersStore = defineStore('adminOrders', () => {
     }
     if (!response?.ok) return 'error';
     const advancedOrder: JsonOrder = await response.json();
-    orders.value = orders.value.map((stored) =>
-      stored.id === advancedOrder.id ? advancedOrder : stored
-    );
+    orders.value = orders.value.map((stored) => (stored.id === advancedOrder.id ? advancedOrder : stored));
     return 'advanced';
   }
 

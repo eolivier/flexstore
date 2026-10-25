@@ -4,7 +4,6 @@ import { useAuthStore } from './auth.store';
 
 // The account of the signed-in customer, with their phone number and postal addresses
 export const useAccountStore = defineStore('account', () => {
-
   // Returns null when the account cannot be read
   async function fetchAccount(): Promise<JsonAccount | null> {
     try {

@@ -1,10 +1,10 @@
-import { Configuration, ProductsApi } from "./generated";
+import { Configuration, ProductsApi } from './generated';
 
 const config = new Configuration({
-  basePath: import.meta.env.VITE_API_URL || "http://localhost:8080"
+  basePath: import.meta.env.VITE_API_URL || 'http://localhost:8080',
 });
 
 export const productsApi = new ProductsApi(config);
 
-console.log("API URL:", config.basePath);
-console.log("import.meta.env.VITE_API_URL:", import.meta.env.VITE_API_URL);
+console.log('API URL:', config.basePath);
+console.log('import.meta.env.VITE_API_URL:', import.meta.env.VITE_API_URL);

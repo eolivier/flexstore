@@ -9,7 +9,11 @@ vi.stubGlobal('fetch', mockFetch);
 const CART_ID = '7c9e6679-7425-40de-944b-e07fc1f90ae7';
 const emptyCart = { items: [], totalItemsPrice: 0, itemsCurrency: '€' };
 const cartWith = (lines: number) => ({
-  items: Array.from({ length: lines }, (_, i) => ({ itemId: `item-${i}`, productId: `${i}`, productQuantity: 1 })),
+  items: Array.from({ length: lines }, (_, i) => ({
+    itemId: `item-${i}`,
+    productId: `${i}`,
+    productQuantity: 1,
+  })),
   totalItemsPrice: lines * 10,
   itemsCurrency: '€',
 });
@@ -18,7 +22,7 @@ const item = { itemId: '', productId: '1', productQuantity: 1 };
 // Answers each API call with a JSON body chosen by path
 function respondWith(bodies: Record<string, unknown>) {
   mockFetch.mockImplementation((url: string) => {
-    const path = Object.keys(bodies).find(p => url.endsWith(p));
+    const path = Object.keys(bodies).find((p) => url.endsWith(p));
     if (url.endsWith('/api/cart/merge')) return Promise.resolve({ ok: true, status: 204 });
     return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(path ? bodies[path] : {}) });
   });
@@ -80,7 +84,11 @@ describe('cart.store', () => {
   it('should load the cart of the customer with the token at sign-in', async () => {
     // Arrange
     respondWith({
-      '/api/users/login': { token: 'jwt-token', expiresAt: '2030-01-01T00:00:00Z', user: { id: 'u-1', name: 'John', email: 'john@example.com', role: 'USER' } },
+      '/api/users/login': {
+        token: 'jwt-token',
+        expiresAt: '2030-01-01T00:00:00Z',
+        user: { id: 'u-1', name: 'John', email: 'john@example.com', role: 'USER' },
+      },
       '/api/cart/cart-items': cartWith(2),
     });
     const store = useCartStore();
@@ -95,7 +103,11 @@ describe('cart.store', () => {
     // Arrange
     localStorage.setItem('flexstore.cartId', CART_ID);
     respondWith({
-      '/api/users/login': { token: 'jwt-token', expiresAt: '2030-01-01T00:00:00Z', user: { id: 'u-1', name: 'John', email: 'john@example.com', role: 'USER' } },
+      '/api/users/login': {
+        token: 'jwt-token',
+        expiresAt: '2030-01-01T00:00:00Z',
+        user: { id: 'u-1', name: 'John', email: 'john@example.com', role: 'USER' },
+      },
       '/api/cart/cart-items': cartWith(3),
     });
     const store = useCartStore();

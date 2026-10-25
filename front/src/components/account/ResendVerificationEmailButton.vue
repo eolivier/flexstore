@@ -19,7 +19,14 @@
 
 <template>
   <div>
-    <v-btn variant="tonal" color="primary" prepend-icon="mdi-email-fast-outline" :loading="sending" :disabled="sent === true" @click="resend">
+    <v-btn
+      variant="tonal"
+      color="primary"
+      prepend-icon="mdi-email-fast-outline"
+      :loading="sending"
+      :disabled="sent === true"
+      @click="resend"
+    >
       {{ t('emailVerification.resend') }}
     </v-btn>
     <p v-if="sent === true" class="text-body-2 mt-2">{{ t('emailVerification.sent') }}</p>

@@ -25,10 +25,14 @@
     <div class="d-flex flex-wrap align-end ga-4 mb-6">
       <div>
         <h1 class="text-h4 font-weight-bold">{{ t('adminProducts.title') }}</h1>
-        <p class="text-body-2 text-medium-emphasis mt-1">{{ t('adminProducts.count', productsStore.products.length) }}</p>
+        <p class="text-body-2 text-medium-emphasis mt-1">
+          {{ t('adminProducts.count', productsStore.products.length) }}
+        </p>
       </div>
       <v-spacer />
-      <v-btn to="/admin/create-product" color="primary" prepend-icon="mdi-package-variant-plus">{{ t('nav.createProduct') }}</v-btn>
+      <v-btn to="/admin/create-product" color="primary" prepend-icon="mdi-package-variant-plus">{{
+        t('nav.createProduct')
+      }}</v-btn>
     </div>
 
     <v-data-table

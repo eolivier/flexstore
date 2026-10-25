@@ -6,7 +6,8 @@ import { useLoadingStore } from '@/stores/loading.store';
 import { vuetify, i18n } from '@/test/setup';
 
 const mountBar = () => mount(LoadingBar, { global: { plugins: [vuetify, i18n] } });
-const isShown = (wrapper: ReturnType<typeof mountBar>) => wrapper.find('[role="progressbar"]').attributes('aria-busy') === 'true';
+const isShown = (wrapper: ReturnType<typeof mountBar>) =>
+  wrapper.find('[role="progressbar"]').attributes('aria-busy') === 'true';
 
 describe('LoadingBar.vue', () => {
   beforeEach(() => {

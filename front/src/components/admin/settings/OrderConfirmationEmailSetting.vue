@@ -12,7 +12,9 @@
   // The switch gives the wished state: it is turned into the matching intent right away
   async function switchOrderConfirmationEmail(wished: boolean | null) {
     saving.value = true;
-    const saved = wished ? await settingsStore.enableOrderConfirmationEmail() : await settingsStore.disableOrderConfirmationEmail();
+    const saved = wished
+      ? await settingsStore.enableOrderConfirmationEmail()
+      : await settingsStore.disableOrderConfirmationEmail();
     saveError.value = !saved;
     saving.value = false;
   }
