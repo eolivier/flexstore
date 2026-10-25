@@ -1,4 +1,4 @@
-package org.flexstore.infra.spring.adapter.image
+package org.flexstore.infra.image
 
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.image.*
@@ -11,9 +11,9 @@ import java.io.ByteArrayOutputStream
 import javax.imageio.ImageIO
 import kotlin.random.Random
 
-class JavaImageResizerTest : WithAssertions {
+class JavaImageResizerRepositoryTest : WithAssertions {
 
-    private val resizer = JavaImageResizer()
+    private val resizer = JavaImageResizerRepository()
 
     // Random pixels: the hardest image to compress
     private fun noisyPng(width: Int, height: Int, type: Int = BufferedImage.TYPE_INT_RGB): ImageContent {

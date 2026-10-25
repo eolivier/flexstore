@@ -10,7 +10,7 @@ import org.ucop.domain.entity.*
 class AddProductImageUseCase(
     private val productImageRepository: ProductImageRepository,
     private val productRepository: ProductRepository,
-    private val imageResizer: ImageResizer
+    private val imageResizerRepository: ImageResizerRepository
 ) : UseCase<UploadedImage> {
 
     override fun getPreConditions(): PreConditions<UploadedImage> =
@@ -19,7 +19,7 @@ class AddProductImageUseCase(
     override fun getNominalScenario(): NominalScenario<UploadedImage> {
         val resizeStep = Step<UploadedImage> { uploadedImage ->
             ImageFormat.entries.forEach { format ->
-                val resizedContent = imageResizer.resize(uploadedImage.content, format)
+                val resizedContent = imageResizerRepository.resize(uploadedImage.content, format)
                 productImageRepository.save(ProductImage(uploadedImage.productId, format, resizedContent))
             }
         }

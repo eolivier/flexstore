@@ -188,8 +188,8 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     @Bean
     open fun addProductImageUseCase(productImageRepository: ProductImageRepository,
                                     productRepository: ProductRepository,
-                                    imageResizer: ImageResizer) =
-        AddProductImageUseCase(productImageRepository, productRepository, imageResizer)
+                                    imageResizerRepository: ImageResizerRepository) =
+        AddProductImageUseCase(productImageRepository, productRepository, imageResizerRepository)
 
     @Bean
     open fun removeProductImageUseCase(productImageRepository: ProductImageRepository) =

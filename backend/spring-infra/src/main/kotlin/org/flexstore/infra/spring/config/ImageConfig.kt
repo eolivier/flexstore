@@ -1,7 +1,7 @@
 package org.flexstore.infra.spring.config
 
-import org.flexstore.domain.image.ImageResizer
-import org.flexstore.infra.spring.adapter.image.JavaImageResizer
+import org.flexstore.domain.image.ImageResizerRepository
+import org.flexstore.infra.image.JavaImageResizerRepository
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -9,5 +9,5 @@ import org.springframework.context.annotation.Configuration
 open class ImageConfig {
 
     @Bean
-    open fun imageResizer(): ImageResizer = JavaImageResizer()
+    open fun imageResizerRepository(): ImageResizerRepository = JavaImageResizerRepository()
 }

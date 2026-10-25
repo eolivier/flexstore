@@ -17,7 +17,7 @@ class ProductImageUseCasesTest : WithAssertions {
     private val productImageRepository = InMemoryProductImageRepository()
 
     // A resizer that keeps as many bytes as the format allows
-    private val truncatingResizer = object : ImageResizer {
+    private val truncatingResizer = object : ImageResizerRepository {
         override fun resize(content: ImageContent, format: ImageFormat): ImageContent {
             val bytes = content.bytes.value.copyOf(minOf(content.size(), format.maxBytes))
             return ImageContent(ImageBytes(bytes), ImageType.JPEG)
@@ -25,12 +25,12 @@ class ProductImageUseCasesTest : WithAssertions {
     }
 
     // A resizer that does not reduce the image
-    private val lazyResizer = object : ImageResizer {
+    private val lazyResizer = object : ImageResizerRepository {
         override fun resize(content: ImageContent, format: ImageFormat) = content
     }
 
-    private fun productImageUseCases(imageResizer: ImageResizer) = ProductImageUseCases(
-        AddProductImageUseCase(productImageRepository, productRepository, imageResizer),
+    private fun productImageUseCases(imageResizerRepository: ImageResizerRepository) = ProductImageUseCases(
+        AddProductImageUseCase(productImageRepository, productRepository, imageResizerRepository),
         RemoveProductImageUseCase(productImageRepository),
         ReadProductImageUseCase(productImageRepository)
     )

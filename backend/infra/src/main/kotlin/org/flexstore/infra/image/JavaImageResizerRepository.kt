@@ -1,4 +1,4 @@
-package org.flexstore.infra.spring.adapter.image
+package org.flexstore.infra.image
 
 import org.flexstore.domain.image.*
 import org.flexstore.domain.sharedkernel.ErrorMessage
@@ -19,7 +19,7 @@ private const val SHRINK_FACTOR = 0.8
 // Resizes with ImageIO (JPEG, PNG; WebP through the TwelveMonkeys reader) and encodes as JPEG: the image is
 // scaled down to the largest side of the format, then its quality is lowered, then it is scaled down again,
 // until it fits the number of bytes of the format
-class JavaImageResizer : ImageResizer {
+class JavaImageResizerRepository : ImageResizerRepository {
 
     override fun resize(content: ImageContent, format: ImageFormat): ImageContent {
         val image = ImageIO.read(ByteArrayInputStream(content.bytes.value))
