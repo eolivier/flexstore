@@ -1,6 +1,6 @@
 ---
 name: fluent-code-reading-semantic
-description: Principles that make code read like the business language - wrapping collections in their own class, naming boolean methods affirmatively instead of negating them. Use before writing, changing or reviewing domain or application code (entities, value objects, aggregates, use cases), in any language.
+description: Principles that make code read like the business language - wrapping collections in their own class, naming boolean methods affirmatively, naming variables after their type, intermediate variables, strong types rather than nullable ones. Use before writing, changing or reviewing domain or application code (entities, value objects, aggregates, use cases), in any language.
 ---
 
 # Fluent code reading semantic
@@ -169,3 +169,85 @@ Details:
 - A state with two values that must be stored is a small enum named after the business (`Activation`), not a `Boolean`; the same holds for the API (`/order-confirmation-email/enable` and `/disable`, or `"ENABLED"`) and the database column.
 - Returning a boolean is fine (`sendsOrderConfirmationEmail()`, `orderExists(id)`); it is the boolean argument that hides the intent.
 - Arguments imposed by a framework keep their type (the `modelValue` of a Vue `v-model`).
+
+## 7. Name a variable after its type
+
+When a variable holds a domain object, name it after its type, in lower camel case: an `OrderPlacement` is `orderPlacement`, a `Cart` is `cart`, an `OrderAddresses` is `orderAddresses`. Do not use the name of its role in the code (`request`, `command`, `input`, `param`, `payload`).
+
+Avoid:
+
+```kotlin
+private val request = OrderPlacement(OrderId("order-1"), customer, placedAt, homeAddresses)
+val placeOrderStep = Step<OrderPlacement> { request -> ... }
+```
+
+Prefer:
+
+```kotlin
+private val orderPlacement = OrderPlacement(OrderId("order-1"), customer, placedAt, homeAddresses)
+val placeOrderStep = Step<OrderPlacement> { orderPlacement -> ... }
+```
+
+Why: the reader knows at once what the variable holds and which operations it offers, wherever it is used, without going back to its declaration.
+
+Details:
+- Add a qualifier when several variables have the same type, keeping the type in the name: `older` and `newer` orders, `deliveryAddress` and `billingAddress`, `updatedCart`, `storedOrder`.
+- A value whose type is generic (`String`, `Boolean`, `Response`) is named after what it represents (principle 5).
+
+## 8. Intermediate variables to read step by step
+
+Do not nest calls inside the arguments of other calls. Give each intermediate value a variable named after what it is, then use the variables: the code reads as a sequence of sentences.
+
+Avoid:
+
+```kotlin
+private fun placeOrder(orderId: String, owner: CartOwner.Customer, at: Instant) =
+    orderRepository.save(Order.place(OrderPlacement(OrderId(orderId), owner, at, homeAddresses), Cart(owner).add(lamp, Quantity(1))))
+```
+
+Prefer:
+
+```kotlin
+private fun placeOrder(orderId: String, owner: CartOwner.Customer, at: Instant): Order {
+    val orderPlacement = OrderPlacement(OrderId(orderId), owner, at, homeAddresses)
+    val cart = Cart(owner).add(lamp, Quantity(1))
+    val order = Order.place(orderPlacement, cart)
+    return orderRepository.save(order)
+}
+```
+
+Why: each line does one thing and names its outcome; the reader does not have to unfold the expression from the inside out to know what is built, in which order, and what is finally saved.
+
+Details:
+- A simple value object built inline stays inline (`Quantity(1)`, `OrderId(orderId)`): extract what is a step of the reasoning, not every constructor call.
+- A chain that reads as a sentence (`cart.add(lamp, Quantity(2)).emptied()`) may stay on one line.
+
+## 9. Strong types rather than nullable types
+
+Avoid nullable types (`Address?`, `String?`) as much as possible. When the business says a value is always there, its type says it too: a non-null property, filled when the object is created. When a value may really be missing, give the absence a name with a type instead of `null`: a sealed class, a dedicated value, or a collection that may be empty.
+
+Avoid:
+
+```kotlin
+data class Order(..., val addresses: OrderAddresses? = null)
+
+addresses = if (deliveryAddress != null && billingAddress != null) {
+    OrderAddresses(deliveryAddress.toDomain(), billingAddress.toDomain())
+} else null
+```
+
+Prefer:
+
+```kotlin
+// An order always has a delivery address and a billing address
+data class Order(..., val addresses: OrderAddresses)
+
+addresses = OrderAddresses(deliveryAddress.toDomain(), billingAddress.toDomain())
+```
+
+Why: a nullable type spreads `?.`, `?:` and `if (x != null)` to every caller, and each of them must decide what the absence means; a strong type states the rule once, and the compiler checks it everywhere.
+
+Details:
+- Do not make a property nullable to support old data: migrate the data (see the `database-convention` skill) so that the type stays strong.
+- A real absence is named: `PostalAddresses.none()`, `User.UndefinedUser`, rather than `null`.
+- Nullable types remain where a framework imposes them (an optional JSON field, a nullable column of a JPA entity mapped from an optional value): convert them at the boundary, in the adapter.
