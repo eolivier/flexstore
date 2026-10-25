@@ -55,6 +55,13 @@ class RestExceptionHandler {
             is VerificationLinkUnknownException -> ResponseEntity
                 .status(404)
                 .body(mapOf("error" to (ex.message ?: "Unknown verification link")))
+            is PasswordResetLinkUnknownException -> ResponseEntity
+                .status(404)
+                .body(mapOf("error" to (ex.message ?: "Unknown link to choose a new password")))
+            // The link was right but is too old: the customer can ask for a new one
+            is PasswordResetLinkExpiredException -> ResponseEntity
+                .status(410)
+                .body(mapOf("error" to (ex.message ?: "Expired link to choose a new password")))
             // The link was right but is too old: the customer can ask for a new one
             is VerificationLinkExpiredException -> ResponseEntity
                 .status(410)

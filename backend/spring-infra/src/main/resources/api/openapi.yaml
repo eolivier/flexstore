@@ -334,6 +334,47 @@ paths:
           description: Not signed in
         "409":
           description: The email is already verified
+  /api/password-reset-requests:
+    post:
+      tags:
+      - Accounts
+      summary: Send a link to choose a new password (valid for 1 hour) to the email, if it has an account
+      description: "Public. The answer is the same whether the email has an account or not. A new link replaces the\
+        \ previous one."
+      operationId: requestPasswordReset
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonPasswordResetRequest"
+        required: true
+      responses:
+        "204":
+          description: Link sent if the email has an account
+  /api/password-resets:
+    post:
+      tags:
+      - Accounts
+      summary: Choose a new password with the token of the link sent by email
+      description: "Public. The link cannot be used again."
+      operationId: resetPassword
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonChosenPassword"
+        required: true
+      responses:
+        "204":
+          description: Password changed
+        "404":
+          description: Unknown link, or link already used
+        "410":
+          description: Link older than 1 hour
+        "422":
+          description: Password shorter than 8 characters
   /api/users/login:
     post:
       tags:
@@ -985,6 +1026,23 @@ components:
         token:
           type: string
           description: The token of the link (query parameter token of the verification page)
+    JsonPasswordResetRequest:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          description: The email of the account whose password is forgotten
+    JsonChosenPassword:
+      type: object
+      required: [token, password]
+      properties:
+        token:
+          type: string
+          description: The token of the link (query parameter token of the page to choose a new password)
+        password:
+          type: string
+          description: The new password, 8 characters at least
     JsonPostalAddress:
       type: object
       description: >

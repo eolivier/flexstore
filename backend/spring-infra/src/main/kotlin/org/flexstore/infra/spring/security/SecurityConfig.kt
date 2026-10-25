@@ -68,6 +68,9 @@ open class SecurityConfig(@Value("\${flexstore.security.jwt-secret:}") private v
                     // Stripe calls it: the signature of the notification authenticates it
                     .requestMatchers(HttpMethod.POST, "/api/payments/stripe/webhook").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/accounts/email-verification").permitAll()
+                    // A customer who forgot their password is not signed in
+                    .requestMatchers(HttpMethod.POST, "/api/password-reset-requests", "/api/password-resets")
+                    .permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/users/{id}/password").access(isUserFromPath())
                     .requestMatchers("/api/users/**").hasRole("ADMIN")
                     .requestMatchers("/api/admin/**").hasRole("ADMIN")
