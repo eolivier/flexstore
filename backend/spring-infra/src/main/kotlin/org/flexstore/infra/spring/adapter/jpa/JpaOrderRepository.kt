@@ -33,7 +33,8 @@ class PostgresOrderRepositoryAdapter(
     override fun findAllBy(customer: UserId.ValidUserId) = Orders(jpaRepo.findAllByUserId(customer.value).map { it.toDomain() })
 
     private fun Order.toEntity(): OrderEntity {
-        val addressesOfTheCustomer = jpaUserRepository.findById(customer.value).orElseThrow().addresses
+        val customerEntity = jpaUserRepository.findById(customer.value).orElseThrow()
+        val addressesOfTheCustomer = customerEntity.addresses.map { it.address }
         return OrderEntity(
             id = orderId.value,
             userId = customer.value,

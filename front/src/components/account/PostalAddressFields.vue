@@ -1,9 +1,9 @@
 <script setup lang="ts">
   import { useI18n } from 'vue-i18n';
-  import type { PostalAddress } from '@/models/account';
+  import type { Location } from '@/models/account';
 
-  // The fields of a postal address: everything is required but the complement
-  const address = defineModel<PostalAddress>({ required: true });
+  // The fields of where an address is: everything is required but the complement
+  const address = defineModel<Location>({ required: true });
 
   const { t } = useI18n();
 

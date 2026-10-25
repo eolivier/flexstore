@@ -5,7 +5,7 @@
   import { useAccountStore } from '@/stores/account.store';
   import { useCartStore } from '@/stores/cart.store';
   import { useOrdersStore } from '@/stores/orders.store';
-  import type { PostalAddress } from '@/models/account';
+  import type { PostalAddress, Recipient } from '@/models/account';
   import AddressChoice from './AddressChoice.vue';
   import CheckoutSummary from './CheckoutSummary.vue';
 
@@ -17,8 +17,11 @@
 
   // null while the addresses of the customer are loaded
   const savedAddresses = ref<PostalAddress[] | null>(null);
-  const delivery = ref<PostalAddress>({ street: '', complement: '', postalCode: '', city: '', country: 'France' });
-  const billing = ref<PostalAddress>({ street: '', complement: '', postalCode: '', city: '', country: 'France' });
+  // The recipient of another address entered here, by default
+  const customer = ref<Recipient>({ firstName: '', lastName: '', companyName: '' });
+  const emptyLocation = { street: '', complement: '', postalCode: '', city: '', country: 'France' };
+  const delivery = ref<PostalAddress>({ ...customer.value, ...emptyLocation });
+  const billing = ref<PostalAddress>({ ...customer.value, ...emptyLocation });
   // Most orders are billed to their delivery address
   const billedToDelivery = ref(true);
   const valid = ref<boolean | null>(null);
@@ -28,7 +31,13 @@
   onMounted(async () => {
     cartStore.fetchCartItems();
     const account = await accountStore.fetchAccount();
-    savedAddresses.value = (account?.postalAddresses ?? []).map(address => ({ ...address, complement: address.complement ?? '' }));
+    customer.value = { firstName: account?.firstName ?? '', lastName: account?.lastName ?? '', companyName: '' };
+    const accountAddresses = account?.postalAddresses ?? [];
+    savedAddresses.value = accountAddresses.map(address => ({
+      ...address,
+      companyName: address.companyName ?? '',
+      complement: address.complement ?? '',
+    }));
   });
 
   async function placeOrder() {
@@ -55,9 +64,20 @@
         <v-skeleton-loader v-if="savedAddresses === null" type="article" class="rounded-xl" />
         <v-card v-else class="pa-6">
           <v-form v-model="valid">
-            <AddressChoice v-model="delivery" :addresses="savedAddresses" :legend="t('checkout.deliveryAddress')" />
+            <AddressChoice
+              v-model="delivery"
+              :addresses="savedAddresses"
+              :customer="customer"
+              :legend="t('checkout.deliveryAddress')"
+            />
             <v-checkbox v-model="billedToDelivery" :label="t('checkout.billedToDelivery')" hide-details class="mb-2" />
-            <AddressChoice v-if="!billedToDelivery" v-model="billing" :addresses="savedAddresses" :legend="t('checkout.billingAddress')" />
+            <AddressChoice
+              v-if="!billedToDelivery"
+              v-model="billing"
+              :addresses="savedAddresses"
+              :customer="customer"
+              :legend="t('checkout.billingAddress')"
+            />
           </v-form>
         </v-card>
       </v-col>

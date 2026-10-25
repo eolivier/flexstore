@@ -1,10 +1,14 @@
 # JsonPostalAddress
 
+A postal address, its recipient (maybe someone else than the user) and where it is
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**firstName** | **string** |  | [default to undefined]
+**lastName** | **string** |  | [default to undefined]
+**companyName** | **string** | The company of the recipient (optional) | [optional] [default to undefined]
 **street** | **string** |  | [default to undefined]
 **complement** | **string** | Building, floor... (optional) | [optional] [default to undefined]
 **postalCode** | **string** |  | [default to undefined]
@@ -17,6 +21,9 @@ Name | Type | Description | Notes
 import { JsonPostalAddress } from './api';
 
 const instance: JsonPostalAddress = {
+    firstName,
+    lastName,
+    companyName,
     street,
     complement,
     postalCode,

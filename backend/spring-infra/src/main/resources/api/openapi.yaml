@@ -630,8 +630,17 @@ components:
           description: The token of the link (query parameter token of the verification page)
     JsonPostalAddress:
       type: object
-      required: [street, postalCode, city, country]
+      description: A postal address, its recipient (maybe someone else than the user) and where it is
+      required: [firstName, lastName, street, postalCode, city, country]
       properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        companyName:
+          type: string
+          nullable: true
+          description: The company of the recipient (optional)
         street:
           type: string
         complement:

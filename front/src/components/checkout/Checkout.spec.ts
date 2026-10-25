@@ -8,14 +8,14 @@ import { vuetify, i18n } from '@/test/setup';
 const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
-const home = { street: '12 rue des Lilas', complement: 'Bâtiment B', postalCode: '75011', city: 'Paris', country: 'France' };
-const office = { street: '3 place du Marché', complement: null, postalCode: '69001', city: 'Lyon', country: 'France' };
+const home = { firstName: 'Jane', lastName: 'Doe', street: '12 rue des Lilas', complement: 'Bâtiment B', postalCode: '75011', city: 'Paris', country: 'France' };
+const office = { firstName: 'Jane', lastName: 'Doe', street: '3 place du Marché', complement: null, postalCode: '69001', city: 'Lyon', country: 'France' };
 const cart = { items: [{ itemId: 'i-1', productId: '1', productName: 'Lamp', productPrice: 35, productQuantity: 2, itemPrice: 70 }], totalItemsPrice: 70, itemsCurrency: '€' };
 
 // Answers the account (with the given addresses), the cart and the order
 function respondWith(postalAddresses: object[], orderStatus = 201) {
   mockFetch.mockImplementation((url: string, init?: RequestInit) => {
-    const body = url.endsWith('/api/accounts/me') ? { id: 'u-1', postalAddresses }
+    const body = url.endsWith('/api/accounts/me') ? { id: 'u-1', firstName: 'Jane', lastName: 'Doe', postalAddresses }
       : url.endsWith('/api/cart/cart-items') ? cart
       : { id: 'order-1' };
     const status = init?.method === 'POST' ? orderStatus : 200;
@@ -53,8 +53,8 @@ describe('Checkout.vue', () => {
     // Act
     const { wrapper } = await mountCheckout();
     // Assert
-    expect(wrapper.text()).toContain('12 rue des Lilas, Bâtiment B, 75011 Paris, France');
-    expect(wrapper.text()).toContain('3 place du Marché, 69001 Lyon, France');
+    expect(wrapper.text()).toContain('Jane Doe, 12 rue des Lilas, Bâtiment B, 75011 Paris, France');
+    expect(wrapper.text()).toContain('Jane Doe, 3 place du Marché, 69001 Lyon, France');
   });
 
   it('by default, delivers and bills the order to the first address of the customer', async () => {
@@ -64,7 +64,7 @@ describe('Checkout.vue', () => {
     // Act
     await placeOrder(wrapper);
     // Assert
-    expect(sentAddresses()).toEqual({ deliveryAddress: home });
+    expect(sentAddresses()).toEqual({ deliveryAddress: { ...home, companyName: '' } });
   });
 
   it('bills the order to another address of the customer', async () => {
@@ -79,7 +79,8 @@ describe('Checkout.vue', () => {
     // Act
     await placeOrder(wrapper);
     // Assert
-    expect(sentAddresses()).toEqual({ deliveryAddress: home, billingAddress: { ...office, complement: '' } });
+    const billingAddress = { ...office, companyName: '', complement: '' };
+    expect(sentAddresses()).toEqual({ deliveryAddress: { ...home, companyName: '' }, billingAddress });
   });
 
   it('a customer without address enters the delivery address', async () => {
@@ -89,6 +90,17 @@ describe('Checkout.vue', () => {
     const { wrapper } = await mountCheckout();
     // Assert
     expect(wrapper.text()).toContain('Street address');
+  });
+
+  it('another address is sent by default to the customer, without company', async () => {
+    // Arrange
+    respondWith([]);
+    // Act
+    const { wrapper } = await mountCheckout();
+    // Assert
+    const [firstName, lastName, companyName] = wrapper.findAll('input[type="text"]');
+    const recipient = [firstName, lastName, companyName].map(input => (input.element as HTMLInputElement).value);
+    expect(recipient).toEqual(['Jane', 'Doe', '']);
   });
 
   it.each([

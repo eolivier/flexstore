@@ -14,7 +14,7 @@ const order = {
   totalPrice: 799,
   currency: '€',
 };
-const homeAddresses = { deliveryAddress: { street: '12 rue des Lilas', complement: '', postalCode: '75011', city: 'Paris', country: 'France' } };
+const homeAddresses = { deliveryAddress: { firstName: 'Jane', lastName: 'Doe', street: '12 rue des Lilas', complement: '', postalCode: '75011', city: 'Paris', country: 'France' } };
 const emptyCart = { items: [], totalItemsPrice: 0, itemsCurrency: '€' };
 
 // Answers each API call by method and path

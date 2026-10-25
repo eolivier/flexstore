@@ -181,7 +181,16 @@ export interface JsonOrderLine {
     'quantity': number;
     'linePrice': number;
 }
+/**
+ * A postal address, its recipient (maybe someone else than the user) and where it is
+ */
 export interface JsonPostalAddress {
+    'firstName': string;
+    'lastName': string;
+    /**
+     * The company of the recipient (optional)
+     */
+    'companyName'?: string | null;
     'street': string;
     /**
      * Building, floor... (optional)

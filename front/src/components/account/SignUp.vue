@@ -3,7 +3,7 @@
   import { useI18n } from 'vue-i18n';
   import { useRoute, useRouter } from 'vue-router';
   import { useAuthStore, type Registration } from '@/stores/auth.store';
-  import type { AccountRegistration } from '@/models/account';
+  import type { AccountRegistration, Location } from '@/models/account';
   import UserNameFields from './UserNameFields.vue';
   import PasswordField from './PasswordField.vue';
   import PostalAddressFields from './PostalAddressFields.vue';
@@ -13,14 +13,15 @@
   const router = useRouter();
   const authStore = useAuthStore();
 
-  const registration = ref<AccountRegistration>({
+  const registration = ref<Omit<AccountRegistration, 'postalAddress'>>({
     firstName: '',
     lastName: '',
     email: '',
     password: '',
     phoneNumber: '',
-    postalAddress: { street: '', complement: '', postalCode: '', city: '', country: 'France' },
   });
+  // The customer receives what is sent to the address they give
+  const location = ref<Location>({ street: '', complement: '', postalCode: '', city: '', country: 'France' });
   const valid = ref(false);
   const saving = ref(false);
   const result = ref<Registration | null>(null);
@@ -36,7 +37,9 @@
   async function submit() {
     if (!valid.value) return;
     saving.value = true;
-    result.value = await authStore.register(registration.value);
+    const { firstName, lastName } = registration.value;
+    const postalAddress = { ...location.value, firstName, lastName, companyName: '' };
+    result.value = await authStore.register({ ...registration.value, postalAddress });
     saving.value = false;
     if (result.value === 'signedIn') {
       router.push((route.query.redirect as string) || '/user-profile');
@@ -72,7 +75,7 @@
           class="mb-4"
           required
         />
-        <PostalAddressFields v-model="registration.postalAddress" />
+        <PostalAddressFields v-model="location" />
         <v-alert v-if="result === 'emailUsed' || result === 'error'" type="error" variant="tonal" density="compact" class="my-4">
           {{ t(`signUp.${result}`) }}
         </v-alert>

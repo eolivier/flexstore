@@ -11,6 +11,6 @@ export const twoLinesOrder: JsonOrder = {
   ],
   totalPrice: 857,
   currency: '€',
-  deliveryAddress: { street: '12 rue des Lilas', complement: null, postalCode: '75011', city: 'Paris', country: 'France' },
-  billingAddress: { street: '12 rue des Lilas', complement: null, postalCode: '75011', city: 'Paris', country: 'France' },
+  deliveryAddress: { firstName: 'Jane', lastName: 'Doe', street: '12 rue des Lilas', complement: null, postalCode: '75011', city: 'Paris', country: 'France' },
+  billingAddress: { firstName: 'Jane', lastName: 'Doe', street: '12 rue des Lilas', complement: null, postalCode: '75011', city: 'Paris', country: 'France' },
 };

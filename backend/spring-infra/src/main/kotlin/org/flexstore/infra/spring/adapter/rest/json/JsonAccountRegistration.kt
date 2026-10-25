@@ -23,7 +23,11 @@ data class JsonAccountRegistration @JsonCreator constructor(
     )
 }
 
+// A postal address: its recipient (the company is optional) and where it is (the complement is optional)
 data class JsonPostalAddress @JsonCreator constructor(
+    @JsonProperty("firstName") val firstName: String,
+    @JsonProperty("lastName") val lastName: String,
+    @JsonProperty("companyName") val companyName: String? = null,
     @JsonProperty("street") val street: String,
     @JsonProperty("complement") val complement: String? = null,
     @JsonProperty("postalCode") val postalCode: String,
@@ -31,18 +35,34 @@ data class JsonPostalAddress @JsonCreator constructor(
     @JsonProperty("country") val country: String
 ) {
     companion object {
-        fun of(address: PostalAddress) = JsonPostalAddress(
-            address.street.value, address.complement?.value, address.postalCode.value, address.city.value, address.country.value
-        )
+        fun of(address: PostalAddress): JsonPostalAddress {
+            val recipient = address.recipient
+            val location = address.location
+            return JsonPostalAddress(
+                firstName = recipient.fullName.firstName.value,
+                lastName = recipient.fullName.lastName.value,
+                companyName = recipient.companyName.value.ifEmpty { null },
+                street = location.street.value,
+                complement = location.complement?.value,
+                postalCode = location.postalCode.value,
+                city = location.city.value,
+                country = location.country.value
+            )
+        }
     }
 
-    fun toPostalAddress() = PostalAddress(
-        street = Street(street.trim()),
-        complement = complement?.trim()?.ifEmpty { null }?.let { AddressComplement(it) },
-        postalCode = PostalCode(postalCode.trim()),
-        city = City(city.trim()),
-        country = Country(country.trim())
-    )
+    fun toPostalAddress(): PostalAddress {
+        val fullName = FullName(FirstName(firstName.trim()), LastName(lastName.trim()))
+        val recipient = Recipient(fullName, CompanyName(companyName?.trim().orEmpty()))
+        val location = Location(
+            street = Street(street.trim()),
+            complement = complement?.trim()?.ifEmpty { null }?.let { AddressComplement(it) },
+            postalCode = PostalCode(postalCode.trim()),
+            city = City(city.trim()),
+            country = Country(country.trim())
+        )
+        return PostalAddress(recipient, location)
+    }
 }
 
 // The token of the verification link

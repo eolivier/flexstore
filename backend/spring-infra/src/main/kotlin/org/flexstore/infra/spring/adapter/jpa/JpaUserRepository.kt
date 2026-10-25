@@ -76,24 +76,18 @@ class PostgresUserRepositoryAdapter(
         }
     }
 
-    // The stored row of an address that did not change is kept (same id, same creation date); the others are new rows
-    private fun addressEntities(user: User.DefinedUser): List<AddressEntity> {
-        val storedAddresses = jpaRepo.findById(user.id.value).map { it.addresses }.orElse(emptyList()).toMutableList()
+    // The stored rows of an address that did not change are kept (same ids, same creation dates); the others are new rows
+    private fun addressEntities(user: User.DefinedUser): List<UserAddressEntity> {
+        val storedUser = jpaRepo.findById(user.id.value)
+        val storedUserAddresses = storedUser.map { it.addresses }.orElse(emptyList()).toMutableList()
         return user.postalAddresses.asList().mapIndexed { position, address ->
-            val stored = storedAddresses.firstOrNull { it.toDomain() == address }
+            val stored = storedUserAddresses.firstOrNull { it.address.toDomain() == address }
             if (stored != null) {
-                storedAddresses.remove(stored)
+                storedUserAddresses.remove(stored)
                 stored.copy(position = position).also { it.createdAt = stored.createdAt }
             } else {
-                AddressEntity(
-                    id = Identity.nextId().value,
-                    position = position,
-                    street = address.street.value,
-                    complement = address.complement?.value,
-                    postalCode = address.postalCode.value,
-                    city = address.city.value,
-                    country = address.country.value
-                )
+                val addressEntity = address.toEntity(Identity.nextId().value)
+                UserAddressEntity(Identity.nextId().value, addressEntity, position)
             }
         }
     }
@@ -139,6 +133,6 @@ class PostgresUserRepositoryAdapter(
         role = Role.valueOf(this.role),
         status = AccountStatus.valueOf(this.status),
         phoneNumber = phoneNumber?.let { PhoneNumber(it) },
-        postalAddresses = PostalAddresses(addresses.map { it.toDomain() })
+        postalAddresses = PostalAddresses(addresses.map { it.address.toDomain() })
     )
 }

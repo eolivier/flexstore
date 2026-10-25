@@ -248,7 +248,7 @@ describe('auth.store', () => {
   describe('register', () => {
     const registration = {
       firstName: 'Jane', lastName: 'Doe', email: 'jane@example.com', password: 'password123', phoneNumber: '+33 6 12 34 56 78',
-      postalAddress: { street: '12 rue des Lilas', complement: '', postalCode: '75011', city: 'Paris', country: 'France' },
+      postalAddress: { firstName: 'Jane', lastName: 'Doe', companyName: '', street: '12 rue des Lilas', complement: '', postalCode: '75011', city: 'Paris', country: 'France' },
     };
 
     it('should create the account, then sign the customer in', async () => {
