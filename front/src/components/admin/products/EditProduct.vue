@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import AdminBreadcrumbs from '@/components/admin/AdminBreadcrumbs.vue';
   import { onMounted, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useProductsStore } from '@/stores/products.store.ts';
@@ -59,6 +60,7 @@
 
 <template>
   <v-container class="page py-10">
+    <AdminBreadcrumbs />
     <h1 class="text-h4 font-weight-bold mb-6">{{ t('editProduct.title') }}</h1>
     <v-skeleton-loader v-if="editedProduct === null" type="article" class="rounded-xl" />
     <v-alert v-else-if="editedProduct === false" type="error" variant="tonal">{{

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import AdminBreadcrumbs from '@/components/admin/AdminBreadcrumbs.vue';
   import { computed, onMounted, ref } from 'vue';
   import { useUsersStore } from '@/stores/users.store.ts';
   import ConfirmDialog from '@/components/ConfirmDialog.vue';
@@ -52,6 +53,7 @@
 
 <template>
   <v-container class="py-10">
+    <AdminBreadcrumbs />
     <div class="d-flex flex-wrap align-end ga-4 mb-6">
       <div>
         <h1 class="text-h4 font-weight-bold">{{ t('users.title') }}</h1>

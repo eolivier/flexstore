@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
+import { createMemoryHistory, createRouter } from 'vue-router';
 import AdminOrders from './AdminOrders.vue';
 import { twoLinesOrder } from '@/components/orders/orderFixture';
 import { vuetify, i18n } from '@/test/setup';
@@ -17,8 +18,14 @@ function respondWith(orders: object[]) {
   });
 }
 
+// The page shows the trail of the administration, which reads the route
+const router = createRouter({
+  history: createMemoryHistory(),
+  routes: [{ path: '/:any(.*)', component: { template: '<div />' } }],
+});
+
 async function mountAdminOrders() {
-  const wrapper = mount(AdminOrders, { global: { plugins: [vuetify, i18n] } });
+  const wrapper = mount(AdminOrders, { global: { plugins: [vuetify, i18n, router] } });
   await flushPromises();
   return wrapper;
 }

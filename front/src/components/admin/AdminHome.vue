@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import AdminBreadcrumbs from '@/components/admin/AdminBreadcrumbs.vue';
   import { useI18n } from 'vue-i18n';
   import { adminLinks } from '@/components/menu/navigation';
 
@@ -16,6 +17,7 @@
 
 <template>
   <v-container class="py-10">
+    <AdminBreadcrumbs />
     <h1 class="text-h4 font-weight-bold mb-1">{{ t('admin.title') }}</h1>
     <p class="text-body-2 text-medium-emphasis mb-8">{{ t('admin.subtitle') }}</p>
 
