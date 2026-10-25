@@ -12,13 +12,20 @@
     adminBreadcrumbsOf(route.path).map((breadcrumb) => ({
       title: t(breadcrumb.label),
       to: breadcrumb.to,
-      disabled: !breadcrumb.to,
+      disabled: false,
     }))
   );
 </script>
 
 <template>
   <v-breadcrumbs :items="items" density="compact" class="admin-breadcrumbs px-0 pt-0 mb-4">
+    <template #prepend>
+      <v-icon icon="mdi-shield-account-outline" size="small" color="secondary" class="mr-2" />
+    </template>
+    <!-- The pages above are links; the current page is in bold -->
+    <template #title="{ item }">
+      <span :class="item.to ? 'breadcrumb-link' : 'font-weight-bold'">{{ item.title }}</span>
+    </template>
     <template #divider>
       <v-icon icon="mdi-chevron-right" size="small" />
     </template>
@@ -28,5 +35,14 @@
 <style scoped>
   .admin-breadcrumbs {
     font-size: 0.875rem;
+  }
+  /* The current page reads as the others, not dimmed */
+  .admin-breadcrumbs :deep(.v-breadcrumbs-item) {
+    opacity: 1;
+  }
+  .breadcrumb-link {
+    color: rgb(var(--v-theme-primary));
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 </style>
