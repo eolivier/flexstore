@@ -27,8 +27,8 @@ class OrderTest : WithAssertions {
         val order = Order.place(orderPlacement, cart)
         // Assert
         assertThat(order.lines.asList()).containsExactly(
-            OrderLine(lamp.productId, Name("Desk lamp"), lamp.price, Quantity(2)),
-            OrderLine(mug.productId, Name("Mug"), mug.price, Quantity(1))
+            OrderLine.of(lamp, Quantity(2)),
+            OrderLine.of(mug, Quantity(1))
         )
         assertThat(order.customer).isEqualTo(customer.userId)
         assertThat(order.status).isEqualTo(OrderStatus.AWAITING_PAYMENT)

@@ -10,9 +10,11 @@ class AddressBookServiceTest : WithAssertions {
 
     private val janeDoe = PrivateIndividual(FullName(FirstName("Jane"), LastName("Doe")))
     private val france = Country("France")
-    private val homeLocation = Location(Street("12 rue des Lilas"), PostalCode("75011"), City("Paris"), france)
+    private val homeTown = Town(PostalCode("75011"), City("Paris"))
+    private val homeLocation = Location(StreetAddress(Street("12 rue des Lilas")), Locality(homeTown, france))
     private val officeStreet = Street("3 place du Marché")
-    private val officeLocation = Location(officeStreet, PostalCode("69001"), City("Lyon"), france)
+    private val officeTown = Town(PostalCode("69001"), City("Lyon"))
+    private val officeLocation = Location(StreetAddress(officeStreet), Locality(officeTown, france))
     private val home = PostalAddress(janeDoe, homeLocation)
     private val office = PostalAddress(janeDoe, officeLocation)
     private val userId = UserId.ValidUserId("user-1")

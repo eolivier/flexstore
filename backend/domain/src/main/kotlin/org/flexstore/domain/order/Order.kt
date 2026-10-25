@@ -126,8 +126,30 @@ enum class OrderStatus {
 // An order to move to the next status of its life cycle, from the status it has when the administrator sees it
 data class OrderStatusAdvance(val orderId: OrderId, val currentStatus: OrderStatus)
 
-data class OrderLine(val productId: ProductId, val productName: Name, val unitPrice: Price, val quantity: Quantity) {
+// A product as ordered: its id and its name when the order was placed
+data class OrderedProduct(val productId: ProductId, val productName: Name)
+
+// A product as ordered, with its unit price when the order was placed
+data class PricedProduct(val product: OrderedProduct, val unitPrice: Price)
+
+// A line of an order: a product, at its price when the order was placed, and its quantity
+data class OrderLine(val product: PricedProduct, val quantity: Quantity) {
+
+    val productId get() = product.product.productId
+
+    val productName get() = product.product.productName
+
+    val unitPrice get() = product.unitPrice
+
     fun linePrice() = unitPrice.multiply(quantity)
+
+    companion object {
+        // The line of a product of the catalog, with its name and its price at this time
+        fun of(definedProduct: DefinedProduct, quantity: Quantity): OrderLine {
+            val orderedProduct = OrderedProduct(definedProduct.productId, definedProduct.name)
+            return OrderLine(PricedProduct(orderedProduct, definedProduct.price), quantity)
+        }
+    }
 }
 
 data class OrderLines(private val lines: List<OrderLine>) {
@@ -145,7 +167,7 @@ data class OrderLines(private val lines: List<OrderLine>) {
 
     companion object {
         fun from(cart: Cart) = OrderLines(cart.items.fold(emptyList()) { lines, product, quantity ->
-            lines + OrderLine(product.productId, product.name, product.price, quantity)
+            lines + OrderLine.of(product, quantity)
         })
     }
 }

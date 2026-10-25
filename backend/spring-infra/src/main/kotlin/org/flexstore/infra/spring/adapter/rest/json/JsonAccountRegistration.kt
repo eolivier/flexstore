@@ -62,13 +62,10 @@ data class JsonPostalAddress @JsonCreator constructor(
     }
 
     fun toPostalAddress(): PostalAddress {
-        val location = Location(
-            street = Street(street.trim()),
-            complement = complement?.trim()?.ifEmpty { null }?.let { AddressComplement(it) },
-            postalCode = PostalCode(postalCode.trim()),
-            city = City(city.trim()),
-            country = Country(country.trim())
-        )
+        val addressComplement = complement?.trim()?.ifEmpty { null }?.let { AddressComplement(it) }
+        val streetAddress = StreetAddress(Street(street.trim()), addressComplement)
+        val town = Town(PostalCode(postalCode.trim()), City(city.trim()))
+        val location = Location(streetAddress, Locality(town, Country(country.trim())))
         return PostalAddress(recipient(), location)
     }
 

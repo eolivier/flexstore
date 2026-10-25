@@ -20,7 +20,10 @@ class OrderAddressesTest : WithAssertions {
 
     companion object {
         private val nameless = LegalEntity(Company(CompanyName("")))
-        private val incompleteAddress = homeAddress.copy(location = homeLocation.copy(city = City("")))
+        private val townWithoutCity = Town(PostalCode("75011"), City(""))
+        private val localityWithoutCity = Locality(townWithoutCity, Country("France"))
+        private val locationWithoutCity = homeLocation.copy(locality = localityWithoutCity)
+        private val incompleteAddress = homeAddress.copy(location = locationWithoutCity)
 
         @JvmStatic
         fun incompleteAddresses() = listOf(

@@ -18,10 +18,16 @@ class RegisterCustomerUseCaseTest : WithAssertions {
         private val street = Street("12 rue des Lilas")
         private val complement = AddressComplement("Bâtiment B")
         private val paris = City("Paris")
-        private val location = Location(street, complement, PostalCode("75011"), paris, Country("France"))
+        private val streetAddress = StreetAddress(street, complement)
+        private val parisTown = Town(PostalCode("75011"), paris)
+        private val france = Country("France")
+        private val location = Location(streetAddress, Locality(parisTown, france))
         private val address = PostalAddress(PrivateIndividual(janeDoe), location)
 
-        private val noPostalCode = location.copy(postalCode = PostalCode(""))
+        private val noPostalCode = Location(streetAddress, Locality(Town(PostalCode(""), paris), france))
+        private val noStreet = Location(StreetAddress(Street("")), Locality(parisTown, france))
+        private val noCity = Location(streetAddress, Locality(Town(PostalCode("75011"), City("")), france))
+        private val noCountry = Location(streetAddress, Locality(parisTown, Country("")))
         private val nobody = PrivateIndividual(FullName(FirstName(""), LastName("")))
 
         private fun addressAt(location: Location) = PostalAddress(PrivateIndividual(janeDoe), location)
@@ -41,10 +47,10 @@ class RegisterCustomerUseCaseTest : WithAssertions {
             Arguments.of("last name", jane.copy(fullName = FullName(FirstName("Jane"), LastName("")))),
             Arguments.of("email", jane.copy(email = Email(""))),
             Arguments.of("phone number", jane.copy(phoneNumber = PhoneNumber(""))),
-            Arguments.of("street", jane.copy(postalAddress = addressAt(location.copy(street = Street(""))))),
+            Arguments.of("street", jane.copy(postalAddress = addressAt(noStreet))),
             Arguments.of("postal code", jane.copy(postalAddress = addressAt(noPostalCode))),
-            Arguments.of("city", jane.copy(postalAddress = addressAt(location.copy(city = City(""))))),
-            Arguments.of("country", jane.copy(postalAddress = addressAt(location.copy(country = Country(""))))),
+            Arguments.of("city", jane.copy(postalAddress = addressAt(noCity))),
+            Arguments.of("country", jane.copy(postalAddress = addressAt(noCountry))),
             Arguments.of("recipient", jane.copy(postalAddress = address.copy(recipient = nobody))),
         )
     }
@@ -81,7 +87,8 @@ class RegisterCustomerUseCaseTest : WithAssertions {
     @Test
     fun `the address complement should be optional`() {
         // Arrange
-        val withoutComplement = jane.copy(postalAddress = addressAt(Location(street, PostalCode("75011"), paris, Country("France"))))
+        val locationWithoutComplement = Location(StreetAddress(street), Locality(parisTown, france))
+        val withoutComplement = jane.copy(postalAddress = addressAt(locationWithoutComplement))
         // Act
         useCase.unfold(withoutComplement)
         // Assert
