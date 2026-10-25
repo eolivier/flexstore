@@ -58,9 +58,11 @@
   const quantityInCart = computed(
     () => cartStore.cartItems?.items.find((item) => item.productId === product.value?.id)?.productQuantity ?? 0
   );
+  // The other products of the category that can be ordered: the products out of stock are left out
   const similarProducts = computed(() =>
     productsStore.products
       .filter((p) => p.category === product.value?.category && p.id !== product.value?.id)
+      .filter((p) => stocksStore.quantityOf(p.id) !== 0)
       .slice(0, 4)
   );
 
@@ -177,7 +179,12 @@
         <h2 class="text-h5 font-weight-bold mb-6">{{ t('products.similar') }}</h2>
         <v-row>
           <v-col v-for="similar in similarProducts" :key="similar.id" cols="12" sm="6" lg="3">
-            <ProductCard :product="similar" :adding="addingProductId === similar.id" @add="addToCart" />
+            <ProductCard
+              :product="similar"
+              :stock="stocksStore.quantityOf(similar.id)"
+              :adding="addingProductId === similar.id"
+              @add="addToCart"
+            />
           </v-col>
         </v-row>
       </section>

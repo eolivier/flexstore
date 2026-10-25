@@ -7,6 +7,18 @@ import { vuetify, i18n } from '@/test/setup';
 import { getAllProducts } from '@/services/product.service';
 
 vi.mock('@/services/product.service', () => ({ getAllProducts: vi.fn(), getProduct: vi.fn() }));
+vi.mock('@/api', () => ({
+  stocksApi: {
+    getStocks: vi.fn(() =>
+      Promise.resolve({
+        data: [
+          { productId: 'p-1', quantity: 0 },
+          { productId: 'p-2', quantity: 42 },
+        ],
+      })
+    ),
+  },
+}));
 
 const router = createRouter({
   history: createMemoryHistory(),
@@ -60,5 +72,14 @@ describe('AdminProducts.vue', () => {
     const wrapper = await mountAdminProducts();
     // Assert
     expect(wrapper.find(`a[aria-label="Edit ${name}"]`).attributes('href')).toBe(expectedLink);
+  });
+
+  it('shows the stock of each product', async () => {
+    // Act
+    const wrapper = await mountAdminProducts();
+    // Assert
+    const rows = wrapper.findAll('tbody tr').map((row) => row.text());
+    expect(rows.find((row) => row.includes('Organic T-shirt'))).toMatch(/0$/);
+    expect(rows.find((row) => row.includes('Smartwatch'))).toMatch(/42$/);
   });
 });
