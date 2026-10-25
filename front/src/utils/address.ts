@@ -11,6 +11,13 @@ interface AddressParts {
   country: string;
 }
 
+// A person needs a first name and a last name, a company its name (the addresses created before the recipients
+// have the names of their user, maybe without last name)
+export function isRecipientComplete(address: AddressParts): boolean {
+  if (address.recipientType === 'LEGAL_ENTITY') return !!address.companyName?.trim();
+  return !!address.firstName?.trim() && !!address.lastName?.trim();
+}
+
 // Who receives what is sent to the address: the name of the company, or of the person
 export function recipientName(address: AddressParts): string {
   const person = [address.firstName, address.lastName].filter(Boolean).join(' ');
