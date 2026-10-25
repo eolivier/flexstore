@@ -1,5 +1,7 @@
 package org.flexstore.infra.spring.config
 
+import org.flexstore.domain.payment.*
+import org.flexstore.domain.payment.usecase.*
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.cart.usecase.*
 import org.flexstore.domain.email.*
@@ -69,9 +71,22 @@ open class UseCaseConfig(@Value("\${flexstore.front-url}") private val frontUrl:
 
     @Bean
     open fun orderUseCaseFacade(placeOrderUseCase: PlaceOrderUseCase,
-                                readOrdersUseCase: ReadOrdersUseCase,
-                                sendOrderConfirmationEmailUseCase: SendOrderConfirmationEmailUseCase): OrderUseCaseFacade {
-        return OrderUseCaseFacade(placeOrderUseCase, readOrdersUseCase, sendOrderConfirmationEmailUseCase)
+                                readOrdersUseCase: ReadOrdersUseCase): OrderUseCaseFacade {
+        return OrderUseCaseFacade(placeOrderUseCase, readOrdersUseCase)
+    }
+
+    @Bean
+    open fun paymentService(paymentRepository: PaymentRepository,
+                            orderRepository: OrderRepository,
+                            cartRepository: CartRepository,
+                            readOrdersUseCase: ReadOrdersUseCase,
+                            sendEmailUseCase: SendOrderConfirmationEmailUseCase): PaymentService {
+        val paymentUseCases = PaymentUseCases(
+            StartPaymentUseCase(orderRepository, paymentRepository),
+            ConfirmPaymentUseCase(orderRepository, cartRepository),
+            ReadPaymentUseCase(paymentRepository)
+        )
+        return PaymentService(paymentUseCases, PaidOrderUseCases(readOrdersUseCase, sendEmailUseCase))
     }
 
     @Bean

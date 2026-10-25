@@ -27,6 +27,9 @@ dependencies {
     implementation("org.springframework.security:spring-security-crypto")
     implementation("org.bouncycastle:bcprov-jdk18on:1.78")
 
+    // Payment provider (Stripe Checkout); without a secret key, the payments are simulated
+    implementation("com.stripe:stripe-java:28.2.0")
+
     // JPA + Hibernate
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 

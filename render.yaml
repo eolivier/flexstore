@@ -29,7 +29,14 @@ services:
         sync: false
       - key: FLEXSTORE_MAIL_FROM
         sync: false
-      # Address of the shop, for the links of the emails
+      # Stripe Checkout (values set in the Render dashboard): the secret key (sk_test_... or sk_live_...)
+      # and the secret of the webhook endpoint /api/payments/stripe/webhook (whsec_...);
+      # without FLEXSTORE_STRIPE_SECRET_KEY, the payments are simulated (confirmed at once)
+      - key: FLEXSTORE_STRIPE_SECRET_KEY
+        sync: false
+      - key: FLEXSTORE_STRIPE_WEBHOOK_SECRET
+        sync: false
+      # Address of the shop, for the links of the emails and the return from the payment
       - key: FLEXSTORE_FRONT_URL
         value: https://flexstore-front.pages.dev
 

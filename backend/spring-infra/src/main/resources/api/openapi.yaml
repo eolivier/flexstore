@@ -446,8 +446,11 @@ paths:
     post:
       tags:
       - Orders
-      summary: Place an order from the cart of the signed-in customer, then empty the cart
-      description: The order is delivered and billed to the given addresses (the delivery address when no billing address is given), which become addresses of the customer when they are new
+      summary: Place an order from the cart of the signed-in customer; it awaits its payment
+      description: >
+        The order is delivered and billed to the given addresses (the delivery address when no billing address
+        is given), which become addresses of the customer when they are new. The cart is kept until the order
+        is paid (POST /api/orders/{id}/payment)
       operationId: placeOrder
       security:
       - bearerAuth: []
@@ -511,6 +514,61 @@ paths:
                 $ref: "#/components/schemas/JsonOrder"
         "404":
           description: No order with this id for the signed-in customer
+  /api/orders/{id}/payment:
+    post:
+      tags:
+      - Payments
+      summary: Start the payment of an order of the signed-in customer, then open its checkout page
+      description: >
+        With Stripe, the customer pays on the checkout page of Stripe, which confirms the payment later with its
+        webhook (outcome PENDING). Without a Stripe key, the payment is simulated and confirmed at once (outcome
+        PAID). Once paid, the cart is emptied and the order confirmed to the customer by email
+      operationId: payOrder
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "201":
+          description: The payment is started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonPaymentSession"
+        "404":
+          description: No order with this id for the signed-in customer
+        "409":
+          description: The order is already paid
+  /api/payments/stripe/webhook:
+    post:
+      tags:
+      - Payments
+      summary: "Notification of Stripe: a checkout session is completed (called by Stripe, not by the front)"
+      description: Authenticated by its Stripe-Signature header, verified with the secret of the webhook
+      operationId: stripeNotification
+      parameters:
+      - name: Stripe-Signature
+        in: header
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "200":
+          description: Notification handled
+        "400":
+          description: Invalid signature
+        "404":
+          description: No Stripe key configured (simulated payments)
   /api/admin/orders:
     get:
       tags:
@@ -836,7 +894,7 @@ components:
           format: date-time
         status:
           type: string
-          enum: [PROCESSING, SHIPPED, DELIVERED]
+          enum: [AWAITING_PAYMENT, PAID, PROCESSING, SHIPPED, DELIVERED]
         lines:
           type: array
           items:
@@ -849,6 +907,17 @@ components:
           $ref: "#/components/schemas/JsonPostalAddress"
         billingAddress:
           $ref: "#/components/schemas/JsonPostalAddress"
+    JsonPaymentSession:
+      type: object
+      required: [checkoutUrl, outcome]
+      properties:
+        checkoutUrl:
+          type: string
+          description: The page where the customer pays the order
+        outcome:
+          type: string
+          enum: [PENDING, PAID]
+          description: PAID when the payment is already confirmed (simulated payment)
     JsonOrderStatusAdvance:
       type: object
       description: The status of the order when the administrator asks to move it to the next one
@@ -856,7 +925,7 @@ components:
       properties:
         currentStatus:
           type: string
-          enum: [PROCESSING, SHIPPED, DELIVERED]
+          enum: [AWAITING_PAYMENT, PAID, PROCESSING, SHIPPED, DELIVERED]
     JsonOrderAddresses:
       type: object
       required: [deliveryAddress]

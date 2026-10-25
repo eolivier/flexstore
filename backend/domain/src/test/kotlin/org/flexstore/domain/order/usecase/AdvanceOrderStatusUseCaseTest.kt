@@ -32,7 +32,7 @@ class AdvanceOrderStatusUseCaseTest : WithAssertions {
     private fun storedStatus() = orderRepository.findById(orderId)?.status
 
     @ParameterizedTest(name = "an order {0} should become {1}")
-    @CsvSource("PROCESSING, SHIPPED", "SHIPPED, DELIVERED")
+    @CsvSource("PAID, PROCESSING", "PROCESSING, SHIPPED", "SHIPPED, DELIVERED")
     fun `an order should move to the next status of its life cycle`(status: OrderStatus, next: OrderStatus) {
         // Arrange
         storeOrder(status)
@@ -42,15 +42,16 @@ class AdvanceOrderStatusUseCaseTest : WithAssertions {
         assertThat(storedStatus()).isEqualTo(next)
     }
 
-    @Test
-    fun `a delivered order should not move`() {
+    @ParameterizedTest(name = "an order {0} should not be moved by an administrator")
+    @CsvSource("AWAITING_PAYMENT", "DELIVERED")
+    fun `an order awaiting its payment or delivered should not be moved`(status: OrderStatus) {
         // Arrange
-        storeOrder(OrderStatus.DELIVERED)
+        storeOrder(status)
         // Act
-        val thrown = catchThrowable { useCase.unfold(OrderStatusAdvance(orderId, OrderStatus.DELIVERED)) }
+        val thrown = catchThrowable { useCase.unfold(OrderStatusAdvance(orderId, status)) }
         // Assert
         assertThat(thrown).isInstanceOf(OrderStatusCannotAdvanceException::class.java)
-        assertThat(storedStatus()).isEqualTo(OrderStatus.DELIVERED)
+        assertThat(storedStatus()).isEqualTo(status)
     }
 
     @Test

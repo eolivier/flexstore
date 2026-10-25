@@ -87,7 +87,7 @@ class OrderIT {
         // Assert
         response.andExpect(status().isCreated)
             .andExpect(jsonPath("$.id").isNotEmpty)
-            .andExpect(jsonPath("$.status").value("PROCESSING"))
+            .andExpect(jsonPath("$.status").value("AWAITING_PAYMENT"))
             .andExpect(jsonPath("$.lines.length()").value(2))
             .andExpect(jsonPath("$.lines[0].productName").value("Laptop"))
             .andExpect(jsonPath("$.lines[0].quantity").value(2))
@@ -97,14 +97,60 @@ class OrderIT {
     }
 
     @Test
-    fun `placing an order should empty the cart`() {
+    fun `placing an order should keep the cart until the order is paid`() {
         // Arrange
         addToCart(CUSTOMER_ID, productId = "6", quantity = 1)
         // Act
         mockMvc.perform(post("/api/orders").withHomeAddresses().with(asUser(CUSTOMER_ID))).andExpect(status().isCreated)
         // Assert
         mockMvc.perform(get("/api/cart/cart-items").with(asUser(CUSTOMER_ID)))
+            .andExpect(jsonPath("$.items.length()").value(1))
+    }
+
+    @Test
+    fun `paying an order should make it paid and empty the cart`() {
+        // Arrange
+        val orderId = placeOrder(CUSTOMER_ID, productId = "6")
+        // Act
+        val response = mockMvc.pay(orderId, CUSTOMER_ID)
+        // Assert
+        response.andExpect(status().isCreated).andExpect(jsonPath("$.outcome").value("PAID"))
+        mockMvc.perform(get("/api/orders/$orderId").with(asUser(CUSTOMER_ID)))
+            .andExpect(jsonPath("$.status").value("PAID"))
+        mockMvc.perform(get("/api/cart/cart-items").with(asUser(CUSTOMER_ID)))
             .andExpect(jsonPath("$.items.length()").value(0))
+    }
+
+    @Test
+    fun `a paid order should not be paid again`() {
+        // Arrange
+        val orderId = placeOrder(CUSTOMER_ID, productId = "6")
+        mockMvc.pay(orderId, CUSTOMER_ID).andExpect(status().isCreated)
+        // Act
+        val response = mockMvc.pay(orderId, CUSTOMER_ID)
+        // Assert
+        response.andExpect(status().isConflict)
+    }
+
+    @Test
+    fun `the order of another customer should not be paid`() {
+        // Arrange
+        val orderId = placeOrder(OTHER_CUSTOMER_ID, productId = "6")
+        // Act
+        val response = mockMvc.pay(orderId, CUSTOMER_ID)
+        // Assert
+        response.andExpect(status().isNotFound)
+    }
+
+    @Test
+    fun `the Stripe webhook should not exist without a Stripe key`() {
+        // Act
+        val response = mockMvc.perform(
+            post("/api/payments/stripe/webhook").header("Stripe-Signature", "t=1,v1=fake")
+                .contentType(MediaType.APPLICATION_JSON).content("{}")
+        )
+        // Assert
+        response.andExpect(status().isNotFound)
     }
 
     @Test

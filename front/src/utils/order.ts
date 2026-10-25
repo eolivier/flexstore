@@ -21,13 +21,24 @@ export function placedOn(order: JsonOrder, locale: string): string {
 export type OrderStepsLayout = 'full' | 'compact';
 
 // The statuses an order goes through, in order
-export const orderStatusSteps: JsonOrder['status'][] = ['PROCESSING', 'SHIPPED', 'DELIVERED'];
+export const orderStatusSteps: JsonOrder['status'][] = [
+  'AWAITING_PAYMENT',
+  'PAID',
+  'PROCESSING',
+  'SHIPPED',
+  'DELIVERED',
+];
 
 export type OrderStepState = 'done' | 'current' | 'upcoming';
 
 // A delivered order has no next status
 export function hasNextStatus(status: JsonOrder['status']): boolean {
   return status !== 'DELIVERED';
+}
+
+// The payment moves an order awaiting it, the administrators move it along the next statuses
+export function isMovedByAnAdministrator(status: JsonOrder['status']): boolean {
+  return status !== 'AWAITING_PAYMENT' && hasNextStatus(status);
 }
 
 // The status that follows in the life cycle of an order (the last one stays as it is)

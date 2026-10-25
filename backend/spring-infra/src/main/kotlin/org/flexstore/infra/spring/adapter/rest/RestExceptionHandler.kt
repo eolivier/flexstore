@@ -2,6 +2,7 @@ package org.flexstore.infra.spring.adapter.rest
 
 import org.flexstore.domain.email.*
 import org.flexstore.domain.order.*
+import org.flexstore.domain.payment.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.usecase.*
@@ -54,6 +55,9 @@ class RestExceptionHandler {
             is OrderStatusChangedException, is OrderStatusCannotAdvanceException -> ResponseEntity
                 .status(409)
                 .body(mapOf("error" to (ex.message ?: "The status of the order cannot advance")))
+            is OrderAlreadyPaidException -> ResponseEntity
+                .status(409)
+                .body(mapOf("error" to (ex.message ?: "Order already paid")))
             is AccountAlreadyVerifiedException -> ResponseEntity
                 .status(409)
                 .body(mapOf("error" to (ex.message ?: "Email already verified")))

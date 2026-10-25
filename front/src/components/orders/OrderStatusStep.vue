@@ -8,6 +8,8 @@
   const { t } = useI18n();
 
   const stepIcons: Record<JsonOrder['status'], string> = {
+    AWAITING_PAYMENT: 'mdi-credit-card-clock-outline',
+    PAID: 'mdi-credit-card-check-outline',
     PROCESSING: 'mdi-package-variant-closed',
     SHIPPED: 'mdi-truck-outline',
     DELIVERED: 'mdi-home-outline',
@@ -15,12 +17,20 @@
 </script>
 
 <template>
-  <li :class="['step', `step--${state}`, `step--${layout}`]" :aria-current="state === 'current' ? 'step' : undefined">
+  <li
+    :class="['step', `step--${state}`, `step--${layout}`]"
+    :aria-current="state === 'current' ? 'step' : undefined"
+  >
     <span class="step-marker d-flex align-center justify-center">
-      <v-icon :icon="state === 'done' ? 'mdi-check' : stepIcons[step]" :size="layout === 'compact' ? 14 : 18" />
+      <v-icon
+        :icon="state === 'done' ? 'mdi-check' : stepIcons[step]"
+        :size="layout === 'compact' ? 14 : 18"
+      />
     </span>
     <!-- In the compact layout, only the current step shows its label; the others stay readable by screen readers -->
-    <span :class="['step-label', { 'd-sr-only': layout === 'compact' && state !== 'current' }]">{{ t(`orders.status.${step}`) }}</span>
+    <span :class="['step-label', { 'd-sr-only': layout === 'compact' && state !== 'current' }]">{{
+      t(`orders.status.${step}`)
+    }}</span>
   </li>
 </template>
 

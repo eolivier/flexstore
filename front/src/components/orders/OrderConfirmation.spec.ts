@@ -14,7 +14,13 @@ const order = {
   status: 'PROCESSING',
   lines: [
     { productId: '4', productName: '5G Smartphone', unitPrice: 399, quantity: 1, linePrice: 399 },
-    { productId: '8', productName: 'Bluetooth Headphones', unitPrice: 59, quantity: 1, linePrice: 59 },
+    {
+      productId: '8',
+      productName: 'Bluetooth Headphones',
+      unitPrice: 59,
+      quantity: 1,
+      linePrice: 59,
+    },
   ],
   totalPrice: 458,
   currency: '€',
@@ -29,7 +35,10 @@ const router = createRouter({
 });
 
 async function mountConfirmation() {
-  const wrapper = mount(OrderConfirmation, { props: { id: order.id }, global: { plugins: [vuetify, i18n, router] } });
+  const wrapper = mount(OrderConfirmation, {
+    props: { id: order.id },
+    global: { plugins: [vuetify, i18n, router] },
+  });
   await flushPromises();
   return wrapper;
 }
@@ -56,6 +65,29 @@ describe('OrderConfirmation.vue', () => {
     const wrapper = await mountConfirmation();
     // Assert
     const detailLinks = wrapper.findAll(`a[href="/orders/${order.id}"]`);
-    expect(detailLinks.map(link => link.text())).toEqual(['46555C9F', 'See the order details']);
+    expect(detailLinks.map((link) => link.text())).toEqual(['46555C9F', 'See the order details']);
+  });
+
+  it('waits for the confirmation of a payment, then shows the order as paid', async () => {
+    // Arrange
+    vi.useFakeTimers();
+    const awaitingPayment = { ...order, status: 'AWAITING_PAYMENT' };
+    const paid = { ...order, status: 'PAID' };
+    mockFetch
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve(awaitingPayment),
+      })
+      .mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve(paid) });
+    const wrapper = await mountConfirmation();
+    const whileAwaiting = wrapper.text();
+    // Act
+    await vi.advanceTimersByTimeAsync(2000);
+    await flushPromises();
+    // Assert
+    expect(whileAwaiting).toContain('Your payment is being confirmed');
+    expect(wrapper.text()).not.toContain('Your payment is being confirmed');
+    vi.useRealTimers();
   });
 });

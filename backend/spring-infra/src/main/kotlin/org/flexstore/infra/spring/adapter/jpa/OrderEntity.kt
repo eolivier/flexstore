@@ -27,6 +27,10 @@ data class OrderEntity(
     @JoinColumn(name = "billing_address_id", nullable = false)
     val billingAddress: AddressEntity,
 
+    // The last payment started for the order, none before
+    @Column(name = "payment_id")
+    val paymentId: String? = null,
+
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "order_id", nullable = false)
     @OrderBy("position")

@@ -1,10 +1,14 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { JsonOrder, JsonOrderAddresses } from '@/generated';
+import type { JsonOrder, JsonOrderAddresses, JsonPaymentSession } from '@/generated';
 import { useAuthStore } from '@/stores/auth.store';
 import { useCartStore } from '@/stores/cart.store';
 
-export type OrderLookup = { status: 'found'; order: JsonOrder } | { status: 'notFound' } | { status: 'error' };
+// started: the customer opens the checkout page of the payment provider
+export type PaymentStart =
+  { status: 'started'; checkoutUrl: string } | { status: 'alreadyPaid' } | { status: 'error' };
+export type OrderLookup =
+  { status: 'found'; order: JsonOrder } | { status: 'notFound' } | { status: 'error' };
 // refused: the account of the customer is suspended, locked or disabled
 export type OrderPlacement =
   | { status: 'placed'; order: JsonOrder }
@@ -48,7 +52,7 @@ export const useOrdersStore = defineStore('orders', () => {
     }
   }
 
-  // Places an order from the cart of the customer; the server empties the cart
+  // Places an order from the cart of the customer: it awaits its payment, the cart is emptied once it is paid
   // Without billing address, the order is billed to the delivery address
   async function placeOrder(addresses: JsonOrderAddresses): Promise<OrderPlacement> {
     try {
@@ -62,7 +66,6 @@ export const useOrdersStore = defineStore('orders', () => {
       if (response.status === 422) return { status: 'emptyCart' };
       if (!response.ok) return { status: 'error' };
       const order: JsonOrder = await response.json();
-      await cartStore.fetchCartItems();
       return { status: 'placed', order };
     } catch (error) {
       console.error('Failed to place the order', error);
@@ -70,5 +73,29 @@ export const useOrdersStore = defineStore('orders', () => {
     }
   }
 
-  return { orders, loadError, fetchOrders, fetchOrder, placeOrder };
+  // Starts the payment of an order: the customer then opens its checkout page
+  async function startPayment(orderId: string): Promise<PaymentStart> {
+    try {
+      const response = await authStore.authFetch(
+        `/api/orders/${encodeURIComponent(orderId)}/payment`,
+        {
+          method: 'POST',
+        }
+      );
+      if (response.status === 409) return { status: 'alreadyPaid' };
+      if (!response.ok) return { status: 'error' };
+      const paymentSession: JsonPaymentSession = await response.json();
+      return { status: 'started', checkoutUrl: paymentSession.checkoutUrl };
+    } catch (error) {
+      console.error('Failed to start the payment', error);
+      return { status: 'error' };
+    }
+  }
+
+  // The cart is emptied once the order is paid
+  async function refreshCart() {
+    await cartStore.fetchCartItems();
+  }
+
+  return { orders, loadError, fetchOrders, fetchOrder, placeOrder, startPayment, refreshCart };
 });

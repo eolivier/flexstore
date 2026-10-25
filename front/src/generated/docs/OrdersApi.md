@@ -6,7 +6,7 @@ All URIs are relative to *http://localhost:8080*
 |------------- | ------------- | -------------|
 |[**getOrder**](#getorder) | **GET** /api/orders/{id} | Retrieve an order of the signed-in customer|
 |[**getOrders**](#getorders) | **GET** /api/orders | Retrieve the orders of the signed-in customer, newest first|
-|[**placeOrder**](#placeorder) | **POST** /api/orders | Place an order from the cart of the signed-in customer, then empty the cart|
+|[**placeOrder**](#placeorder) | **POST** /api/orders | Place an order from the cart of the signed-in customer; it awaits its payment|
 
 # **getOrder**
 > JsonOrder getOrder()
@@ -105,7 +105,7 @@ This endpoint does not have any parameters.
 # **placeOrder**
 > JsonOrder placeOrder(jsonOrderAddresses)
 
-The order is delivered and billed to the given addresses (the delivery address when no billing address is given), which become addresses of the customer when they are new
+The order is delivered and billed to the given addresses (the delivery address when no billing address is given), which become addresses of the customer when they are new. The cart is kept until the order is paid (POST /api/orders/{id}/payment) 
 
 ### Example
 

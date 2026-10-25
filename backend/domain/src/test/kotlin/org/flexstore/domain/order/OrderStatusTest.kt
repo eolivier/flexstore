@@ -8,12 +8,21 @@ import org.junit.jupiter.params.provider.CsvSource
 class OrderStatusTest : WithAssertions {
 
     @ParameterizedTest(name = "an order {0} should then be {1}")
-    @CsvSource("PROCESSING, SHIPPED", "SHIPPED, DELIVERED")
+    @CsvSource("AWAITING_PAYMENT, PAID", "PAID, PROCESSING", "PROCESSING, SHIPPED", "SHIPPED, DELIVERED")
     fun `an order should go through its life cycle`(status: OrderStatus, nextStatus: OrderStatus) {
         // Act
         val next = status.next()
         // Assert
         assertThat(next).isEqualTo(nextStatus)
+    }
+
+    @ParameterizedTest(name = "an order {0} is moved by an administrator: {1}")
+    @CsvSource("AWAITING_PAYMENT, false", "PAID, true", "PROCESSING, true", "SHIPPED, true", "DELIVERED, false")
+    fun `only the payment should move an order awaiting it`(status: OrderStatus, byAnAdministrator: Boolean) {
+        // Act
+        val movedByAnAdministrator = status.isMovedByAnAdministrator()
+        // Assert
+        assertThat(movedByAnAdministrator).isEqualTo(byAnAdministrator)
     }
 
     @Test

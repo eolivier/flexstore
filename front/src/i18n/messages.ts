@@ -177,7 +177,7 @@ export default {
       billedToDelivery: "The billing address is the delivery address",
       sameAsDelivery: "Same as the delivery address",
       otherAddress: "Another address",
-      placeOrder: "Place the order",
+      placeOrder: "Order and pay",
       errors: {
         emptyCart: "Your cart is empty.",
         refused: "Your account does not allow ordering (suspended, locked or disabled). Contact the shop.",
@@ -197,6 +197,7 @@ export default {
       status: "Status",
       advanceTo: "Move to: {status}",
       lastStatus: "Last status",
+      awaitingPayment: "Awaiting payment",
       statusChanged: "The status of this order changed in the meantime: the orders were reloaded.",
       error: "The status of the order could not be changed."
     },
@@ -222,7 +223,13 @@ export default {
       notFound: "Order not found",
       notFoundText: "This order does not exist or does not belong to your account.",
       orderLoadError: "The order could not be loaded.",
+      pay: "Pay the order",
+      paymentError: "The payment could not start. Please try again.",
+      awaitingPaymentText: "This order awaits its payment.",
+      awaitingPaymentConfirmation: "Your payment is being confirmed: this page updates as soon as it is.",
       status: {
+        AWAITING_PAYMENT: "Awaiting payment",
+        PAID: "Paid",
         PROCESSING: "Processing",
         SHIPPED: "Shipped",
         DELIVERED: "Delivered"
@@ -551,7 +558,7 @@ export default {
       billedToDelivery: "L'adresse de facturation est l'adresse de livraison",
       sameAsDelivery: "Identique à l'adresse de livraison",
       otherAddress: "Une autre adresse",
-      placeOrder: "Passer la commande",
+      placeOrder: "Commander et payer",
       errors: {
         emptyCart: "Votre panier est vide.",
         refused: "Votre compte ne permet pas de commander (suspendu, verrouillé ou désactivé). Contactez la boutique.",
@@ -571,6 +578,7 @@ export default {
       status: "État",
       advanceTo: "Passer à : {status}",
       lastStatus: "Dernier état",
+      awaitingPayment: "En attente de paiement",
       statusChanged: "L'état de cette commande a changé entre-temps : les commandes ont été rechargées.",
       error: "L'état de la commande n'a pas pu être changé."
     },
@@ -596,7 +604,13 @@ export default {
       notFound: "Commande introuvable",
       notFoundText: "Cette commande n'existe pas ou n'appartient pas à votre compte.",
       orderLoadError: "La commande n'a pas pu être chargée.",
+      pay: "Payer la commande",
+      paymentError: "Le paiement n'a pas pu démarrer. Veuillez réessayer.",
+      awaitingPaymentText: "Cette commande attend son paiement.",
+      awaitingPaymentConfirmation: "Votre paiement est en cours de confirmation : cette page se met à jour dès qu'il l'est.",
       status: {
+        AWAITING_PAYMENT: "En attente de paiement",
+        PAID: "Payée",
         PROCESSING: "En préparation",
         SHIPPED: "Expédiée",
         DELIVERED: "Livrée"

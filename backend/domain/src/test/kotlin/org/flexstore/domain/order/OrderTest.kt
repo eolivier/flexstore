@@ -31,7 +31,7 @@ class OrderTest : WithAssertions {
             OrderLine(mug.productId, Name("Mug"), mug.price, Quantity(1))
         )
         assertThat(order.customer).isEqualTo(customer.userId)
-        assertThat(order.status).isEqualTo(OrderStatus.PROCESSING)
+        assertThat(order.status).isEqualTo(OrderStatus.AWAITING_PAYMENT)
     }
 
     @Test

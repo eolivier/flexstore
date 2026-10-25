@@ -17,7 +17,7 @@ class PlaceOrderUseCase(
         PreConditions(customerIsKnownCondition(), accountAllowsOrderingCondition(), cartHasItemsCondition(), addressesAreCompleteCondition())
 
     // The addresses of the order are kept among the addresses of the customer (an address entered when ordering is
-    // added), so that the order refers to them; then the order is placed and the cart emptied
+    // added), so that the order refers to them; then the order is placed. The cart is emptied once it is paid
     override fun getNominalScenario(): NominalScenario<OrderPlacement> {
         val keepAddressesStep = Step<OrderPlacement> { orderPlacement ->
             val definedUser = userRepository.findById(orderPlacement.customer.userId) as User.DefinedUser
@@ -29,13 +29,12 @@ class PlaceOrderUseCase(
             val cart = cartRepository.load(orderPlacement.customer)
             val order = Order.place(orderPlacement, cart)
             orderRepository.save(order)
-            cartRepository.save(cart.emptied())
         }
         return NominalScenario(listOf(keepAddressesStep, placeOrderStep))
     }
 
     override fun getPostConditions(): PostConditions<OrderPlacement> =
-        PostConditions(orderIsStoredCondition(), cartIsEmptyCondition())
+        PostConditions(orderIsStoredCondition())
 
     private fun customerIsKnownCondition() = PreCondition<OrderPlacement> { orderPlacement ->
         val userId = orderPlacement.customer.userId
@@ -67,12 +66,6 @@ class PlaceOrderUseCase(
     private fun orderIsStoredCondition() = PostCondition<OrderPlacement> { orderPlacement ->
         if (orderRepository.orderIsMissing(orderPlacement.orderId)) {
             throw OrderPlacementFailed(ErrorMessage("Order ${orderPlacement.orderId.value} was not stored."))
-        }
-    }
-
-    private fun cartIsEmptyCondition() = PostCondition<OrderPlacement> { orderPlacement ->
-        if (cartRepository.load(orderPlacement.customer).hasItems()) {
-            throw OrderPlacementFailed(ErrorMessage("The cart was not emptied after order ${orderPlacement.orderId.value}."))
         }
     }
 }

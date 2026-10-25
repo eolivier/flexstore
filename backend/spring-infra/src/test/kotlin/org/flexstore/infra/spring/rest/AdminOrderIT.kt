@@ -83,15 +83,15 @@ class AdminOrderIT {
         val response = mockMvc.perform(get("/api/admin/orders").with(asAdmin()))
         // Assert
         response.andExpect(status().isOk)
-            .andExpect(jsonPath("$[?(@.id == '$orderId')].status").value("PROCESSING"))
+            .andExpect(jsonPath("$[?(@.id == '$orderId')].status").value("PAID"))
     }
 
     @ParameterizedTest(name = "advancing {0} times should make the order {1}")
-    @CsvSource("1, SHIPPED", "2, DELIVERED")
+    @CsvSource("1, PROCESSING", "2, SHIPPED", "3, DELIVERED")
     fun `an administrator should move an order along its life cycle`(advances: Int, expectedStatus: String) {
         // Arrange
         val orderId = placeOrder()
-        val statuses = listOf("PROCESSING", "SHIPPED").take(advances)
+        val statuses = listOf("PAID", "PROCESSING", "SHIPPED").take(advances)
         statuses.dropLast(1).forEach { advance(orderId, it).andExpect(status().isOk) }
         // Act
         val response = advance(orderId, statuses.last())
@@ -103,9 +103,9 @@ class AdminOrderIT {
     fun `an order whose status changed in the meantime should not move`() {
         // Arrange
         val orderId = placeOrder()
-        advance(orderId, "PROCESSING").andExpect(status().isOk)
+        advance(orderId, "PAID").andExpect(status().isOk)
         // Act
-        val response = advance(orderId, "PROCESSING")
+        val response = advance(orderId, "PAID")
         // Assert
         response.andExpect(status().isConflict)
     }
@@ -114,10 +114,19 @@ class AdminOrderIT {
     fun `a delivered order should not move`() {
         // Arrange
         val orderId = placeOrder()
-        advance(orderId, "PROCESSING").andExpect(status().isOk)
-        advance(orderId, "SHIPPED").andExpect(status().isOk)
+        listOf("PAID", "PROCESSING", "SHIPPED").forEach { advance(orderId, it).andExpect(status().isOk) }
         // Act
         val response = advance(orderId, "DELIVERED")
+        // Assert
+        response.andExpect(status().isConflict)
+    }
+
+    @Test
+    fun `an order awaiting its payment should not be moved by an administrator`() {
+        // Arrange
+        val orderId = placeOrder(paid = false)
+        // Act
+        val response = advance(orderId, "AWAITING_PAYMENT")
         // Assert
         response.andExpect(status().isConflict)
     }
@@ -135,7 +144,8 @@ class AdminOrderIT {
             .contentType(MediaType.APPLICATION_JSON).content("""{"currentStatus": "$currentStatus"}""")
     )
 
-    private fun placeOrder(): String {
+    // A paid order, unless said otherwise
+    private fun placeOrder(paid: Boolean = true): String {
         val item = JsonItem("", "6", "Product", "Description", "ELECTRONICS", BigDecimal.TEN, "€", 1)
         mockMvc.perform(
             post("/api/cart/save").with(asUser(CUSTOMER_ID)).contentType(MediaType.APPLICATION_JSON)
@@ -143,6 +153,8 @@ class AdminOrderIT {
         ).andExpect(status().isOk)
         val body = mockMvc.perform(post("/api/orders").withHomeAddresses().with(asUser(CUSTOMER_ID)))
             .andExpect(status().isCreated).andReturn().response.contentAsString
-        return objectMapper.readTree(body)["id"].asText()
+        val orderId = objectMapper.readTree(body)["id"].asText()
+        if (paid) mockMvc.pay(orderId, CUSTOMER_ID).andExpect(status().isCreated)
+        return orderId
     }
 }

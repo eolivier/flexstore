@@ -43,6 +43,10 @@ describe('AdminOrders.vue', () => {
   it.each([
     { order: twoLinesOrder, expected: 'Move to: Shipped' },
     { order: deliveredOrder, expected: 'Last status' },
+    {
+      order: { ...twoLinesOrder, status: 'AWAITING_PAYMENT' as const },
+      expected: 'Awaiting payment',
+    },
   ])('an order $order.status offers "$expected"', async ({ order, expected }) => {
     // Arrange
     respondWith([order]);

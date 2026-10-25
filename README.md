@@ -27,7 +27,8 @@ This repo is meant to be a learning vehicle and a ready-to-fork base for real pr
 - Cart: quantity per line, remove, total, item count badge in the header; one cart per visitor and per customer, merged at sign-in
 
 **Orders** (sign-in required)
-- Place an order from the cart, on a checkout page: the customer chooses the delivery address and the billing address (the same by default) among their addresses or enters another one (with its recipient, the customer by default, maybe a company), which is added to their addresses; the order refers to both addresses and keeps the name and the price of the products, the cart is emptied, and a confirmation email is sent to the customer (can be turned off in the administration settings)
+- Place an order from the cart, on a checkout page: the customer chooses the delivery address and the billing address (the same by default) among their addresses or enters another one (with its recipient, the customer by default, maybe a company), which is added to their addresses; the order refers to both addresses and keeps the name and the price of the products, and awaits its payment
+- Pay an order with Stripe Checkout (the card is entered on the page of Stripe, never on the shop), or with a simulated payment without a Stripe key; once paid, the cart is emptied and a confirmation email is sent to the customer (can be turned off in the administration settings)
 - Orders page: the customer's orders, newest first, with their status and total
 - Order detail: date, status, lines (product, unit price, quantity, total) and order total; shown right after the order is placed
 
@@ -35,7 +36,7 @@ This repo is meant to be a learning vehicle and a ready-to-fork base for real pr
 - Create an account (first name, last name, email, password, phone number, postal address): the account waits for the verification of the email (`PENDING_VERIFICATION`), the customer is signed in at once and can order
 - Verify the email with the link received by email (valid for 1 hour): the account becomes `ACTIVE`; a new link can be asked for from the profile
 - Sign in, profile, change password
-- Administration (`ADMIN` role): users (list with their role, create with a role, edit first name/last name/email/role, change the status of the account (active, suspended, locked, disabled), delete), products (list, create, edit name/description/category/price), orders (list the orders of all the customers, move each one to its next status: processing, shipped, delivered), settings (order confirmation email on/off)
+- Administration (`ADMIN` role): users (list with their role, create with a role, edit first name/last name/email/role, change the status of the account (active, suspended, locked, disabled), delete), products (list, create, edit name/description/category/price), orders (list the orders of all the customers, move each one to its next status: paid, processing, shipped, delivered; the payment moves an order awaiting it), settings (order confirmation email on/off)
 
 ---
 
@@ -105,9 +106,13 @@ The server starts on [http://localhost:8080](http://localhost:8080) (health chec
 | `FLEXSTORE_MAIL_USERNAME` / `FLEXSTORE_MAIL_PASSWORD` | empty | credentials given by the provider |
 | `FLEXSTORE_MAIL_SMTP_AUTH` / `FLEXSTORE_MAIL_SMTP_STARTTLS` | `true` / `true` | `false` / `false` for a local server such as Mailpit |
 | `FLEXSTORE_MAIL_FROM` | `Flexstore <no-reply@flexstore.com>` | sender (often to be validated at the provider) |
-| `FLEXSTORE_FRONT_URL` | `http://localhost:5173` | address of the shop, for the link to the order |
+| `FLEXSTORE_FRONT_URL` | `http://localhost:5173` | address of the shop, for the link to the order and the return from the payment |
+| `FLEXSTORE_STRIPE_SECRET_KEY` | empty | secret key of Stripe (`sk_test_...`); empty: simulated payments, confirmed at once |
+| `FLEXSTORE_STRIPE_WEBHOOK_SECRET` | empty | secret of the webhook endpoint (`whsec_...`), to verify the notifications of Stripe |
 
 Locally, `docker compose up -d mailpit` starts an SMTP server that catches the emails ([http://localhost:8025](http://localhost:8025)): start the back end with `FLEXSTORE_MAIL_HOST=localhost FLEXSTORE_MAIL_PORT=1025 FLEXSTORE_MAIL_SMTP_AUTH=false FLEXSTORE_MAIL_SMTP_STARTTLS=false` (the `app` service of docker compose is already configured so). On Render, the variables are declared in `render.yaml` and their values set in the dashboard. Sending can be turned off in Administration > Paramètres.
+
+To pay with Stripe (test mode): create a Stripe account, copy its test secret key (`sk_test_...`), and add a webhook endpoint `https://<back end>/api/payments/stripe/webhook` for the event `checkout.session.completed`, whose signing secret (`whsec_...`) goes in `FLEXSTORE_STRIPE_WEBHOOK_SECRET`. Locally, `stripe listen --forward-to localhost:8080/api/payments/stripe/webhook` gives a signing secret and forwards the notifications. The test card `4242 4242 4242 4242` pays with any future date and any code.
 
 Set `FLEXSTORE_JWT_SECRET` (at least 32 characters) to sign the authentication tokens. Without it, a random secret is used and tokens stop working when the back end restarts.
 
@@ -165,7 +170,9 @@ npm run gen:api
 | `GET` | `/api/cart/cart-items` | public | Items and total of the cart of the customer (token) or of the visitor (`X-Cart-Id`) |
 | `POST` | `/api/cart/save` | public | Add or update a cart item (quantity `0` removes it); returns the visitor cart id |
 | `POST` | `/api/cart/merge` | signed in | Merge the visitor cart (`X-Cart-Id`) into the customer cart |
-| `POST` | `/api/orders` | signed in | Place an order from the cart of the customer, with `{ deliveryAddress, billingAddress? }` (the delivery address when no billing address), then empty the cart (`400` incomplete address, `422` empty cart) |
+| `POST` | `/api/orders` | signed in | Place an order from the cart of the customer, with `{ deliveryAddress, billingAddress? }` (the delivery address when no billing address); the order awaits its payment, the cart is kept (`400` incomplete address, `422` empty cart) |
+| `POST` | `/api/orders/{id}/payment` | signed in | Start the payment of an order: `{ checkoutUrl, outcome }`, the page to open (`PAID` at once when simulated); once paid, the cart is emptied and the order confirmed by email (`409` already paid) |
+| `POST` | `/api/payments/stripe/webhook` | Stripe signature | Notification of Stripe (`checkout.session.completed`): the order is paid (`404` without Stripe key) |
 | `GET` | `/api/orders` | signed in | Orders of the customer, newest first |
 | `GET` | `/api/orders/{id}` | signed in | One order of the customer (`404` for the order of another customer) |
 | `GET` | `/api/admin/settings` | `ADMIN` | Settings of the shop (`orderConfirmationEmail`: `ENABLED` / `DISABLED`) |
