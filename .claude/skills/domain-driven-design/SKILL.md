@@ -1,6 +1,6 @@
 ---
 name: domain-driven-design
-description: Domain-Driven Design and hexagonal architecture principles to follow when writing or reviewing back-end code - where business rules live, what entities, value objects and aggregates may reference (value objects rather than primitive types), the role of use cases, domain services, repositories and adapters. Use before creating or changing an entity, aggregate, value object, use case, domain service, port (repository interface) or infrastructure adapter, and when reviewing domain code.
+description: Domain-Driven Design and hexagonal architecture principles to follow when writing or reviewing back-end code - where business rules live, what entities, value objects and aggregates may reference (value objects rather than primitive types), the role of use cases, domain services, repositories and adapters, groups of use cases named after their sub-domain (OrderUseCases, not a facade). Use before creating or changing an entity, aggregate, value object, use case, domain service, port (repository interface) or infrastructure adapter, and when reviewing domain code.
 ---
 
 # Domain-Driven Design
@@ -316,3 +316,32 @@ Consequences:
 - the adapters convert between the primitives of their technology (columns, JSON fields) and the value objects, at the edge of the domain;
 - a method that answers a business question may return a `Boolean` (`isComplete()`, `isExpiredAt(instant)`): the question is in its name;
 - a value object shared by several functions goes into the shared kernel (section 4).
+
+## 9. A group of use cases is named after its sub-domain, in the plural: `OrderUseCases`
+
+A class that holds references to several use cases of a sub-domain is named after that sub-domain followed by `UseCases`, in the plural: the plural says that it gathers several use cases (see principle 12 of the `fluent-code-reading-semantic` skill). Do not suffix it with `Facade`.
+
+Avoid:
+
+```kotlin
+class OrderUseCaseFacade(
+    private val placeOrderUseCase: PlaceOrderUseCase,
+    private val readOrdersUseCase: ReadOrdersUseCase
+)
+```
+
+Prefer:
+
+```kotlin
+class OrderUseCases(
+    private val placeOrderUseCase: PlaceOrderUseCase,
+    private val readOrdersUseCase: ReadOrdersUseCase
+)
+```
+
+Why: the name says what the class is, the use cases of the orders, in the language of the domain; `Facade` names a technical pattern, says nothing of what is behind it, and reads as one object where there are several use cases.
+
+Details:
+- The name is the one of the sub-domain (the package of principle 4): `OrderUseCases`, `CartUseCases`, `ProductUseCases`, `PaymentUseCases`, `AddressUseCases`.
+- A domain service that receives such a group keeps the `Service` suffix (principle 7): `PaymentService(paymentUseCases, ...)`.
+- A group used only to pass use cases together to a service (a holder without behaviour) follows the same rule.
