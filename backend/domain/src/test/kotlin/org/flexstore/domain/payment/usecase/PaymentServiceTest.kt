@@ -36,7 +36,9 @@ class PaymentServiceTest : WithAssertions {
         val confirmPaymentUseCase = ConfirmPaymentUseCase(orderRepository, cartRepository)
         val readPaymentUseCase = ReadPaymentUseCase(paymentRepository)
         val paymentUseCases = PaymentUseCases(startPaymentUseCase, confirmPaymentUseCase, readPaymentUseCase)
-        return PaymentService(paymentUseCases, PaidOrderUseCases(readOrdersUseCase, sendEmailUseCase))
+        val placeOrderUseCase = PlaceOrderUseCase(cartRepository, orderRepository, userRepository)
+        val orderUseCases = OrderUseCases(placeOrderUseCase, readOrdersUseCase, sendEmailUseCase)
+        return PaymentService(paymentUseCases, orderUseCases)
     }
 
     private val paidAtOnce = paymentServiceWith(InMemoryPaymentRepository(PaymentOutcome.PAID))

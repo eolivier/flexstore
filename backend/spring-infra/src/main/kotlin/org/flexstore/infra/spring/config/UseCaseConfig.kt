@@ -76,10 +76,6 @@ open class UseCaseConfig(@Value("\${flexstore.front-url}") private val frontUrl:
                              readPaymentUseCase: ReadPaymentUseCase) =
         PaymentUseCases(startPaymentUseCase, confirmPaymentUseCase, readPaymentUseCase)
 
-    @Bean
-    open fun paidOrderUseCases(readOrdersUseCase: ReadOrdersUseCase,
-                               sendOrderConfirmationEmailUseCase: SendOrderConfirmationEmailUseCase) =
-        PaidOrderUseCases(readOrdersUseCase, sendOrderConfirmationEmailUseCase)
 
     @Bean
     open fun sendOrderConfirmationEmailUseCase(shopSettingsRepository: ShopSettingsRepository,
@@ -150,4 +146,24 @@ open class UseCaseConfig(@Value("\${flexstore.front-url}") private val frontUrl:
     open fun readAccountUseCase(userRepository: UserRepository): ReadAccountUseCase {
         return ReadAccountUseCase(userRepository)
     }
+
+    // The groups of use cases of a sub-domain
+    @Bean
+    open fun productUseCases(createProductUseCase: CreateProductUseCase,
+                             readProductUseCase: ReadProductUseCase,
+                             updateProductUseCase: UpdateProductUseCase) =
+        ProductUseCases(createProductUseCase, readProductUseCase, updateProductUseCase)
+
+    @Bean
+    open fun cartUseCases(addItemToCartUseCase: AddItemToCartUseCase,
+                          changeCartItemQuantityUseCase: ChangeCartItemQuantityUseCase,
+                          readCartUseCase: ReadCartUseCase,
+                          mergeCartsUseCase: MergeCartsUseCase) =
+        CartUseCases(addItemToCartUseCase, changeCartItemQuantityUseCase, readCartUseCase, mergeCartsUseCase)
+
+    @Bean
+    open fun orderUseCases(placeOrderUseCase: PlaceOrderUseCase,
+                           readOrdersUseCase: ReadOrdersUseCase,
+                           sendOrderConfirmationEmailUseCase: SendOrderConfirmationEmailUseCase) =
+        OrderUseCases(placeOrderUseCase, readOrdersUseCase, sendOrderConfirmationEmailUseCase)
 }

@@ -15,36 +15,13 @@ import org.flexstore.domain.user.usecase.*
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
-// The domain services and the facades, each one a bean that receives its use cases (see UseCaseConfig)
+// The domain services, each one a bean that receives its use cases or groups of use cases (see UseCaseConfig)
 @Configuration
 open class ServiceConfig {
 
     @Bean
-    open fun productUseCaseFacade(createProductUseCase: CreateProductUseCase,
-                                 readProductUseCase: ReadProductUseCase,
-                                 updateProductUseCase: UpdateProductUseCase): ProductUseCaseFacade {
-        return ProductUseCaseFacade(createProductUseCase, readProductUseCase, updateProductUseCase)
-    }
-
-    @Bean
-    open fun cartUseCaseFacade(addItemToCartUseCase: AddItemToCartUseCase,
-                               changeCartItemQuantityUseCase: ChangeCartItemQuantityUseCase,
-                               readCartUseCase: ReadCartUseCase,
-                               mergeCartsUseCase: MergeCartsUseCase): CartUseCaseFacade {
-        return CartUseCaseFacade(
-            addItemToCartUseCase, changeCartItemQuantityUseCase, readCartUseCase, mergeCartsUseCase
-        )
-    }
-
-    @Bean
-    open fun orderUseCaseFacade(placeOrderUseCase: PlaceOrderUseCase,
-                                readOrdersUseCase: ReadOrdersUseCase): OrderUseCaseFacade {
-        return OrderUseCaseFacade(placeOrderUseCase, readOrdersUseCase)
-    }
-
-    @Bean
-    open fun paymentService(paymentUseCases: PaymentUseCases, paidOrderUseCases: PaidOrderUseCases) =
-        PaymentService(paymentUseCases, paidOrderUseCases)
+    open fun paymentService(paymentUseCases: PaymentUseCases, orderUseCases: OrderUseCases) =
+        PaymentService(paymentUseCases, orderUseCases)
 
     @Bean
     open fun shopSettingsAdministrationService(readShopSettingsUseCase: ReadShopSettingsUseCase,

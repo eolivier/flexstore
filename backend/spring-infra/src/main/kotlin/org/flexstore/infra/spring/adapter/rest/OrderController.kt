@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*
 @Tag(name = "Orders")
 @RestController
 @RequestMapping("/api/orders")
-class OrderController(private val orderUseCaseFacade: OrderUseCaseFacade) {
+class OrderController(private val orderUseCases: OrderUseCases) {
 
     @Operation(summary = "Place an order from the cart of the signed-in customer, delivered and billed to the given addresses, then empty the cart")
     @PostMapping
@@ -27,19 +27,19 @@ class OrderController(private val orderUseCaseFacade: OrderUseCaseFacade) {
     @Transactional
     fun placeOrder(@AuthenticationPrincipal jwt: Jwt, @RequestBody addresses: JsonOrderAddresses): JsonOrder {
         val checkout = Checkout(CartOwner.Customer(customer(jwt)), addresses.toOrderAddresses())
-        val placedOrder = orderUseCaseFacade.placeOrder(checkout)
+        val placedOrder = orderUseCases.placeOrder(checkout)
         return JsonOrder(placedOrder)
     }
 
     @Operation(summary = "Retrieve the orders of the signed-in customer, newest first")
     @GetMapping
     fun getOrders(@AuthenticationPrincipal jwt: Jwt): List<JsonOrder> =
-        orderUseCaseFacade.getOrders(customer(jwt)).asList().map { JsonOrder(it) }
+        orderUseCases.getOrders(customer(jwt)).asList().map { JsonOrder(it) }
 
     @Operation(summary = "Retrieve an order of the signed-in customer")
     @GetMapping("/{id}")
     fun getOrder(@AuthenticationPrincipal jwt: Jwt, @PathVariable id: String): JsonOrder =
-        JsonOrder(orderUseCaseFacade.getOrder(customer(jwt), OrderId(id)))
+        JsonOrder(orderUseCases.getOrder(customer(jwt), OrderId(id)))
 
     private fun customer(jwt: Jwt) = UserId.ValidUserId(jwt.subject)
 }

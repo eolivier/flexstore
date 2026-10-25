@@ -1,6 +1,7 @@
 package org.flexstore.domain.product
 
-class ProductUseCaseFacade(private val createProductUseCase: CreateProductUseCase,
+// The use cases of the products of the catalog
+class ProductUseCases(private val createProductUseCase: CreateProductUseCase,
                            private val readProductUseCase: ReadProductUseCase,
                            private val updateProductUseCase: UpdateProductUseCase) {
 

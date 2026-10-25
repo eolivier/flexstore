@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*
 @Tag(name = "Products")
 @RestController
 @RequestMapping("/api/products")
-class ProductController(private val productUseCaseFacade: ProductUseCaseFacade,
+class ProductController(private val productUseCases: ProductUseCases,
                         private val mapper: ProductMapper,
                         private val productMetrics: ProductMetrics) {
 
@@ -32,7 +32,7 @@ class ProductController(private val productUseCaseFacade: ProductUseCaseFacade,
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun create(@RequestBody draftJsonProduct: DraftJsonProduct): JsonProduct {
-        val createProduct = productUseCaseFacade.createProduct(mapper.toDomain(draftJsonProduct))
+        val createProduct = productUseCases.createProduct(mapper.toDomain(draftJsonProduct))
         val toJson = mapper.toJson(createProduct)
         productMetrics.incrementCreated()
         return toJson
@@ -45,7 +45,7 @@ class ProductController(private val productUseCaseFacade: ProductUseCaseFacade,
     @ApiResponse(responseCode = "404", description = "Unknown product")
     @PutMapping("/{id}")
     fun update(@PathVariable id: String, @RequestBody editedJsonProduct: EditedJsonProduct): JsonProduct =
-        mapper.toJson(productUseCaseFacade.updateProduct(mapper.toDomain(ProductId(Identity(id)), editedJsonProduct)))
+        mapper.toJson(productUseCases.updateProduct(mapper.toDomain(ProductId(Identity(id)), editedJsonProduct)))
 
     @Operation(
         summary = "Retrieve all products",
@@ -72,7 +72,7 @@ class ProductController(private val productUseCaseFacade: ProductUseCaseFacade,
     @GetMapping("/")
     fun getProducts(): List<JsonProduct> {
         val start = System.nanoTime()
-        val jsonProducts = productUseCaseFacade.getProducts().toJsonProducts()
+        val jsonProducts = productUseCases.getProducts().toJsonProducts()
         // --- Observability metrics ---
         val businessDuration = System.nanoTime() - start
         productMetrics.recordList(businessDuration)
@@ -94,5 +94,5 @@ class ProductController(private val productUseCaseFacade: ProductUseCaseFacade,
     )
     @GetMapping("/{id}")
     fun getProduct(@PathVariable id: String): JsonProduct =
-        mapper.toJson(productUseCaseFacade.getProduct(ProductId(Identity(id))))
+        mapper.toJson(productUseCases.getProduct(ProductId(Identity(id))))
 }
