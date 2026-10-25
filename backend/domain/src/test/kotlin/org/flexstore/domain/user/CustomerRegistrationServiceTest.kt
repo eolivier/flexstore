@@ -86,15 +86,28 @@ class CustomerRegistrationServiceTest : WithAssertions {
     }
 
     @Test
-    fun `a new link should replace the previous one`() {
+    fun `a new link should expire the previous one, which tells the customer it has expired`() {
         // Arrange
         service.register(jane)
         val previousLink = lastLink()
-        // Act
         service.sendVerificationEmail(jane.userId)
+        // Act
+        val thrown = catchThrowable { service.verifyEmail(previousLink) }
         // Assert
         assertThat(emailRepository.sentVerificationLinks()).hasSize(2)
-        assertThat(catchThrowable { service.verifyEmail(previousLink) }).isInstanceOf(VerificationLinkUnknownException::class.java)
+        assertThat(thrown).isInstanceOf(VerificationLinkExpiredException::class.java)
+        assertThat(stored().status).isEqualTo(AccountStatus.PENDING_VERIFICATION)
+    }
+
+    @Test
+    fun `the new link should still activate the account`() {
+        // Arrange
+        service.register(jane)
+        service.sendVerificationEmail(jane.userId)
+        // Act
+        service.verifyEmail(lastLink())
+        // Assert
+        assertThat(stored().status).isEqualTo(AccountStatus.ACTIVE)
     }
 
     @Test

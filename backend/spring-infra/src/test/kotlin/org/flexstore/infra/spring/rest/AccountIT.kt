@@ -170,7 +170,7 @@ class AccountIT {
     }
 
     @Test
-    fun `a signed-in customer should receive a new link, which replaces the previous one`() {
+    fun `a signed-in customer should receive a new link, which expires the previous one`() {
         // Arrange
         register(registration()).andExpect(status().isCreated)
         val previousToken = lastToken()
@@ -180,7 +180,8 @@ class AccountIT {
         // Assert
         response.andExpect(status().isNoContent)
         assertThat(emailSender.sentVerificationLinks()).hasSize(2)
-        verify(previousToken).andExpect(status().isNotFound)
+        verify(previousToken).andExpect(status().isGone)
+        verify(lastToken()).andExpect(status().isNoContent)
     }
 
     @Test
