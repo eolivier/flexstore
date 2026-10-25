@@ -1,6 +1,6 @@
 ---
 name: fluent-code-reading-semantic
-description: Principles that make code read like the business language - wrapping collections in their own class, naming boolean methods affirmatively, naming variables after their type, intermediate variables, strong types rather than nullable ones, one or two arguments per method, lines of 113 characters at most, singular or plural names, no repeated names. Use before writing, changing or reviewing domain or application code (entities, value objects, aggregates, use cases), in any language.
+description: Principles that make code read like the business language - wrapping collections in their own class, naming boolean methods affirmatively, naming variables after their type, intermediate variables, strong types rather than nullable ones, one or two arguments per method, lines of 113 characters at most, singular or plural names, no repeated names, no null arguments. Use before writing, changing or reviewing domain or application code (entities, value objects, aggregates, use cases), in any language.
 ---
 
 # Fluent code reading semantic
@@ -364,3 +364,37 @@ Why: the repeated name adds nothing to read, and hides among the arguments the o
 Details:
 - A named argument stays useful when the name says what the value means and the value does not (`quantity = 1`, `status = AccountStatus.ACTIVE`), or to skip default parameters.
 - A mapping between layers with different names keeps the names (`street = location.street.value`).
+
+## 14. No `null` argument: a constructor without it
+
+A caller never passes `null` to say that an optional value is missing. The class declares a constructor (or a factory method) without that argument, which fills the absence itself.
+
+Avoid:
+
+```kotlin
+private val officeLocation = Location(officeStreet, null, PostalCode("69001"), lyon, france)
+```
+
+Prefer:
+
+```kotlin
+data class Location(
+    val street: Street,
+    val complement: AddressComplement?,
+    val postalCode: PostalCode,
+    val city: City,
+    val country: Country
+) {
+    // An address without complement (building, floor...)
+    constructor(street: Street, postalCode: PostalCode, city: City, country: Country) :
+        this(street, null, postalCode, city, country)
+}
+
+private val officeLocation = Location(officeStreet, PostalCode("69001"), lyon, france)
+```
+
+Why: a `null` among the arguments says nothing about what is missing, and the reader has to look up the signature to know which value it stands for; the constructor without the argument names the case, and keeps the absence inside the class (where principle 9 may later replace it with a named value).
+
+Details:
+- The same goes for any function: `send(email)` next to `send(email, attachment)`, rather than `send(email, null)`.
+- An adapter that maps a value which may be missing (a nullable column, an optional JSON field) may still pass it through: `complement?.let { AddressComplement(it) }` is a value, not a literal `null`.
