@@ -16,15 +16,9 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
+// The use cases, each one a bean that receives its repositories (see RepositoryConfig and the adapters)
 @Configuration
 open class UseCaseConfig(@Value("\${flexstore.front-url}") private val frontUrl: String) {
-
-    @Bean
-    open fun productUseCaseFacade(createProductUseCase: CreateProductUseCase,
-                                 readProductUseCase: ReadProductUseCase,
-                                 updateProductUseCase: UpdateProductUseCase): ProductUseCaseFacade {
-        return ProductUseCaseFacade(createProductUseCase, readProductUseCase, updateProductUseCase)
-    }
 
     @Bean
     open fun createProductUseCase(productRepository: ProductRepository): CreateProductUseCase {
@@ -42,15 +36,8 @@ open class UseCaseConfig(@Value("\${flexstore.front-url}") private val frontUrl:
     }
 
     @Bean
-    open fun cartUseCaseFacade(addItemToCartUseCase: AddItemToCartUseCase,
-                               changeCartItemQuantityUseCase: ChangeCartItemQuantityUseCase,
-                               readCartUseCase: ReadCartUseCase,
-                               mergeCartsUseCase: MergeCartsUseCase): CartUseCaseFacade {
-        return CartUseCaseFacade(addItemToCartUseCase, changeCartItemQuantityUseCase, readCartUseCase, mergeCartsUseCase)
-    }
-
-    @Bean
-    open fun addItemToCartUseCase(cartRepository: CartRepository, productRepository: ProductRepository): AddItemToCartUseCase {
+    open fun addItemToCartUseCase(cartRepository: CartRepository,
+                                  productRepository: ProductRepository): AddItemToCartUseCase {
         return AddItemToCartUseCase(cartRepository, productRepository)
     }
 
@@ -69,13 +56,6 @@ open class UseCaseConfig(@Value("\${flexstore.front-url}") private val frontUrl:
         return MergeCartsUseCase(cartRepository)
     }
 
-    @Bean
-    open fun orderUseCaseFacade(placeOrderUseCase: PlaceOrderUseCase,
-                                readOrdersUseCase: ReadOrdersUseCase): OrderUseCaseFacade {
-        return OrderUseCaseFacade(placeOrderUseCase, readOrdersUseCase)
-    }
-
-    // The payment: the repositories, then the use cases, then the domain service
     @Bean
     open fun startPaymentUseCase(orderRepository: OrderRepository,
                                  paymentRepository: PaymentRepository,
@@ -101,21 +81,10 @@ open class UseCaseConfig(@Value("\${flexstore.front-url}") private val frontUrl:
         PaidOrderUseCases(readOrdersUseCase, sendOrderConfirmationEmailUseCase)
 
     @Bean
-    open fun paymentService(paymentUseCases: PaymentUseCases, paidOrderUseCases: PaidOrderUseCases) =
-        PaymentService(paymentUseCases, paidOrderUseCases)
-
-    @Bean
     open fun sendOrderConfirmationEmailUseCase(shopSettingsRepository: ShopSettingsRepository,
                                                userRepository: UserRepository,
-                                               emailRepository: EmailRepository): SendOrderConfirmationEmailUseCase {
-        return SendOrderConfirmationEmailUseCase(shopSettingsRepository, userRepository, emailRepository)
-    }
-
-    @Bean
-    open fun shopSettingsAdministrationService(readShopSettingsUseCase: ReadShopSettingsUseCase,
-                                        updateShopSettingsUseCase: UpdateShopSettingsUseCase): ShopSettingsAdministrationService {
-        return ShopSettingsAdministrationService(readShopSettingsUseCase, updateShopSettingsUseCase)
-    }
+                                               emailRepository: EmailRepository) =
+        SendOrderConfirmationEmailUseCase(shopSettingsRepository, userRepository, emailRepository)
 
     @Bean
     open fun readShopSettingsUseCase(shopSettingsRepository: ShopSettingsRepository): ReadShopSettingsUseCase {
@@ -123,7 +92,8 @@ open class UseCaseConfig(@Value("\${flexstore.front-url}") private val frontUrl:
     }
 
     @Bean
-    open fun updateShopSettingsUseCase(shopSettingsRepository: ShopSettingsRepository): UpdateShopSettingsUseCase {
+    open fun updateShopSettingsUseCase(shopSettingsRepository: ShopSettingsRepository):
+        UpdateShopSettingsUseCase {
         return UpdateShopSettingsUseCase(shopSettingsRepository)
     }
 
@@ -144,28 +114,17 @@ open class UseCaseConfig(@Value("\${flexstore.front-url}") private val frontUrl:
     }
 
     @Bean
-    open fun orderAdministrationService(readOrdersUseCase: ReadOrdersUseCase,
-                                        advanceOrderStatusUseCase: AdvanceOrderStatusUseCase): OrderAdministrationService {
-        return OrderAdministrationService(readOrdersUseCase, advanceOrderStatusUseCase)
-    }
+    open fun changePostalAddressUseCase(userRepository: UserRepository) =
+        ChangePostalAddressUseCase(userRepository)
 
     @Bean
-    open fun customerRegistrationService(registerCustomerUseCase: RegisterCustomerUseCase,
-                                         sendVerificationEmailUseCase: SendVerificationEmailUseCase,
-                                         verifyEmailUseCase: VerifyEmailUseCase,
-                                         readAccountUseCase: ReadAccountUseCase): CustomerRegistrationService {
-        return CustomerRegistrationService(registerCustomerUseCase, sendVerificationEmailUseCase, verifyEmailUseCase, readAccountUseCase)
-    }
+    open fun removePostalAddressUseCase(userRepository: UserRepository) =
+        RemovePostalAddressUseCase(userRepository)
 
     @Bean
-    open fun addressBookService(userRepository: UserRepository,
-                                readAccountUseCase: ReadAccountUseCase): AddressBookService {
-        val addressUseCases = AddressUseCases(
-            ChangePostalAddressUseCase(userRepository),
-            RemovePostalAddressUseCase(userRepository)
-        )
-        return AddressBookService(readAccountUseCase, addressUseCases)
-    }
+    open fun addressUseCases(changePostalAddressUseCase: ChangePostalAddressUseCase,
+                             removePostalAddressUseCase: RemovePostalAddressUseCase) =
+        AddressUseCases(changePostalAddressUseCase, removePostalAddressUseCase)
 
     @Bean
     open fun registerCustomerUseCase(userRepository: UserRepository): RegisterCustomerUseCase {
@@ -176,7 +135,8 @@ open class UseCaseConfig(@Value("\${flexstore.front-url}") private val frontUrl:
     // The links of the verification emails open the page /verify-email of the front
     open fun sendVerificationEmailUseCase(userRepository: UserRepository,
                                           emailRepository: EmailRepository): SendVerificationEmailUseCase {
-        return SendVerificationEmailUseCase(userRepository, emailRepository, VerificationPage("${frontUrl.trimEnd('/')}/verify-email"))
+        val verificationPage = VerificationPage("${frontUrl.trimEnd('/')}/verify-email")
+        return SendVerificationEmailUseCase(userRepository, emailRepository, verificationPage)
     }
 
     @Bean
