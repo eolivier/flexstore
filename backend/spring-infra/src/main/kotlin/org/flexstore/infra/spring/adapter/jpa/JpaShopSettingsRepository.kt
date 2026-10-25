@@ -18,10 +18,13 @@ class PostgresShopSettingsRepositoryAdapter(private val jpaRepo: JpaShopSettings
     override fun load(): ShopSettings = jpaRepo.getReferenceById(SHOP_SETTINGS_ID).toDomain()
 
     override fun save(settings: ShopSettings): ShopSettings {
-        val settingsEntity = ShopSettingsEntity(orderConfirmationEmail = settings.orderConfirmationEmail.name)
+        val settingsEntity = ShopSettingsEntity(
+            orderConfirmationEmail = settings.orderConfirmationEmail.name,
+            paymentDelayMinutes = settings.paymentDelay.minutes
+        )
         return jpaRepo.save(settingsEntity).toDomain()
     }
 
     private fun ShopSettingsEntity.toDomain() =
-        ShopSettings(orderConfirmationEmail = Activation.valueOf(orderConfirmationEmail))
+        ShopSettings(Activation.valueOf(orderConfirmationEmail), PaymentDelay(paymentDelayMinutes))
 }

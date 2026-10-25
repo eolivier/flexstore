@@ -1199,7 +1199,7 @@ components:
           format: date-time
         status:
           type: string
-          enum: [AWAITING_PAYMENT, PAID, PROCESSING, SHIPPED, DELIVERED]
+          enum: [AWAITING_PAYMENT, PAID, PROCESSING, SHIPPED, DELIVERED, CANCELLED]
         lines:
           type: array
           items:
@@ -1246,7 +1246,7 @@ components:
       properties:
         currentStatus:
           type: string
-          enum: [AWAITING_PAYMENT, PAID, PROCESSING, SHIPPED, DELIVERED]
+          enum: [AWAITING_PAYMENT, PAID, PROCESSING, SHIPPED, DELIVERED, CANCELLED]
     JsonOrderAddresses:
       type: object
       required: [deliveryAddress]

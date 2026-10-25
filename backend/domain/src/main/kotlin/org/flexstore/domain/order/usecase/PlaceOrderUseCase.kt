@@ -40,7 +40,14 @@ class PlaceOrderUseCase(
             val order = Order.place(orderPlacement, cart)
             orderRepository.save(order)
         }
-        return NominalScenario(listOf(keepAddressesStep, placeOrderStep))
+        // The units of the order are reserved until it is paid, or cancelled for lack of payment
+        val reserveStockStep = Step<OrderPlacement> { orderPlacement ->
+            val order = orderRepository.findById(orderPlacement.orderId)!!
+            order.lines.asList().forEach { line ->
+                stockRepository.save(stockRepository.stockOf(line.productId).withdrawn(line.quantity))
+            }
+        }
+        return NominalScenario(listOf(keepAddressesStep, placeOrderStep, reserveStockStep))
     }
 
     override fun getPostConditions(): PostConditions<OrderPlacement> =
@@ -70,7 +77,7 @@ class PlaceOrderUseCase(
         }
     }
 
-    // The stock is checked again when the payment is confirmed, which takes the units out of it
+    // The order reserves the units, so that they cannot be sold twice while it is paid
     private fun stockCoversTheCartCondition() = PreCondition<OrderPlacement> { orderPlacement ->
         val cart = cartRepository.load(orderPlacement.customer)
         val missingProducts = cart.items.fold(emptyList<String>()) { missing, product, quantity ->

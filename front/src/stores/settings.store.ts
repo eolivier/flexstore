@@ -4,7 +4,12 @@ import { useAuthStore } from '@/stores/auth.store';
 
 export interface ShopSettings {
   orderConfirmationEmail: 'ENABLED' | 'DISABLED';
+  // The time a customer has to pay an order once placed; unpaid, it is cancelled
+  paymentDelayMinutes: number;
 }
+
+// From 1 minute to 1 day
+export const MAX_PAYMENT_DELAY_MINUTES = 24 * 60;
 
 // The settings of the shop, for the administrators
 export const useSettingsStore = defineStore('settings', () => {
@@ -36,5 +41,26 @@ export const useSettingsStore = defineStore('settings', () => {
 
   const disableOrderConfirmationEmail = () => changeOrderConfirmationEmail('disable');
 
-  return { settings, loadError, fetchSettings, enableOrderConfirmationEmail, disableOrderConfirmationEmail };
+  // Returns whether the change was saved
+  async function changePaymentDelay(minutes: number): Promise<boolean> {
+    const response = await authStore
+      .authFetch('/api/admin/settings/payment-delay', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ minutes }),
+      })
+      .catch(() => null);
+    if (!response?.ok) return false;
+    settings.value = await response.json();
+    return true;
+  }
+
+  return {
+    settings,
+    loadError,
+    fetchSettings,
+    enableOrderConfirmationEmail,
+    disableOrderConfirmationEmail,
+    changePaymentDelay,
+  };
 });

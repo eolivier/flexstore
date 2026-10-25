@@ -161,6 +161,12 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         ResetPasswordUseCase(userRepository, passwordResetRepository)
 
     @Bean
+    open fun cancelUnpaidOrderUseCase(orderRepository: OrderRepository,
+                                      stockRepository: StockRepository,
+                                      paymentRepository: PaymentRepository) =
+        CancelUnpaidOrderUseCase(orderRepository, stockRepository, paymentRepository)
+
+    @Bean
     open fun readAccountUseCase(userRepository: UserRepository): ReadAccountUseCase {
         return ReadAccountUseCase(userRepository)
     }

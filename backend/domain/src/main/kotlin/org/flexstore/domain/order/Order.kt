@@ -2,6 +2,7 @@ package org.flexstore.domain.order
 
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.product.*
+import org.flexstore.domain.settings.PaymentDelay
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.*
 import org.ucop.domain.NominalException
@@ -16,7 +17,7 @@ private const val ORDER_NUMBER_LENGTH = 8
  * Order aggregate: placed by a customer from their cart.
  * - an order is placed from a cart that has items
  * - its lines keep the name and the price of the products when the order is placed
- * - a new order awaits its payment
+ * - a new order awaits its payment, which reserves its units; unpaid in time, it is cancelled
  * - it is always delivered to a delivery address and billed to a billing address (often the same),
  *   both addresses of the customer
  */
@@ -42,9 +43,17 @@ data class Order(val detail: OrderDetail, val status: OrderStatus) {
     // The order at the next status of its life cycle
     fun advanced() = copy(status = status.next())
 
+    // Not paid in time: its units go back to the stock
+    fun cancelled() = copy(status = OrderStatus.CANCELLED)
+
+    // Paid, even after it was cancelled for lack of payment (the customer paid just before)
+    fun paid() = copy(status = OrderStatus.PAID)
+
     fun isAwaitingPayment() = status == OrderStatus.AWAITING_PAYMENT
 
-    fun isPaid() = !isAwaitingPayment()
+    fun isCancelled() = status == OrderStatus.CANCELLED
+
+    fun isPaid() = status.isPaid()
 
     companion object {
         fun place(orderPlacement: OrderPlacement, cart: Cart): Order {
@@ -105,11 +114,14 @@ data class OrderId(val value: String) {
 }
 
 // The life cycle of an order: awaiting its payment, paid, being processed, then shipped, then delivered (the
-// last status). The payment moves it from AWAITING_PAYMENT to PAID, the administrators along the next statuses
+// last status). The payment moves it from AWAITING_PAYMENT to PAID, the administrators along the next statuses.
+// An order not paid in time is CANCELLED, which has no next status
 enum class OrderStatus {
-    AWAITING_PAYMENT, PAID, PROCESSING, SHIPPED, DELIVERED;
+    AWAITING_PAYMENT, PAID, PROCESSING, SHIPPED, DELIVERED, CANCELLED;
 
-    fun hasNext() = this != DELIVERED
+    fun hasNext() = this != DELIVERED && this != CANCELLED
+
+    fun isPaid() = this in listOf(PAID, PROCESSING, SHIPPED, DELIVERED)
 
     fun isLast() = this == DELIVERED
 
@@ -123,6 +135,7 @@ enum class OrderStatus {
         PROCESSING -> SHIPPED
         SHIPPED -> DELIVERED
         DELIVERED -> throw OrderStatusCannotAdvanceException(ErrorMessage("A delivered order has no next status"))
+        CANCELLED -> throw OrderStatusCannotAdvanceException(ErrorMessage("A cancelled order has no next status"))
     }
 }
 
@@ -181,9 +194,29 @@ data class Orders(private val orders: List<Order>) {
 
     fun newestFirst() = Orders(orders.sortedByDescending { it.placedAt })
 
+    // The orders still awaiting their payment once the time limit is exceeded
+    fun latePaymentsAt(timeLimit: PaymentTimeLimit) = Orders(orders.filter { timeLimit.isExceededFor(it) })
+
     fun asList(): List<Order> = orders.toList()
 }
 
+// The time a customer has to pay, checked at a given moment
+data class PaymentTimeLimit(val paymentDelay: PaymentDelay, val checkedAt: Instant) {
+
+    // The order still awaits its payment, and was placed at least the payment delay ago
+    fun isExceededFor(order: Order) =
+        order.isAwaitingPayment() && !checkedAt.isBefore(order.placedAt + paymentDelay.asDuration())
+}
+
+// An order to cancel because it was not paid in time
+data class UnpaidOrderCancellation(val orderId: OrderId, val timeLimit: PaymentTimeLimit)
+
+data class OrderNotAwaitingPaymentException(override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
+data class PaymentTimeLimitNotExceededException(override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
+data class OrderCancelledException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class OrderCancellationFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class EmptyCartException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class IncompleteOrderAddressException(override val errorMessage: ErrorMessage) :
     NominalException(errorMessage)
