@@ -84,6 +84,23 @@ data class PostalAddresses(private val addresses: List<PostalAddress>) {
     // Read-only view for the adapters (JSON, persistence)
     fun asList(): List<PostalAddress> = addresses.toList()
 
+    fun has(position: AddressPosition) = position.value in addresses.indices
+
+    fun hasNo(position: AddressPosition) = !has(position)
+
+    fun at(position: AddressPosition) = addresses[position.value]
+
+    // The addresses with a new version of the one at the given position, at the same place
+    fun replacedAt(position: AddressPosition, newAddress: PostalAddress): PostalAddresses {
+        val changedAddresses = addresses.toMutableList().apply { set(position.value, newAddress) }
+        return PostalAddresses(changedAddresses)
+    }
+
+    fun withoutAt(position: AddressPosition): PostalAddresses {
+        val remainingAddresses = addresses.toMutableList().apply { removeAt(position.value) }
+        return PostalAddresses(remainingAddresses)
+    }
+
     // The given addresses are added at the end, unless they are already there
     fun including(vararg newAddresses: PostalAddress): PostalAddresses {
         val includedAddresses = newAddresses.fold(addresses) { kept, address -> if (address in kept) kept else kept + address }

@@ -4,10 +4,69 @@ All URIs are relative to *http://localhost:8080*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
+|[**changeAddress**](#changeaddress) | **PUT** /api/accounts/me/addresses/{position} | Change an address of the signed-in user (0 for the first one); the orders keep theirs|
 |[**getAccount**](#getaccount) | **GET** /api/accounts/me | Retrieve the account of the signed-in user, with their phone number and postal addresses|
+|[**getAddresses**](#getaddresses) | **GET** /api/accounts/me/addresses | Retrieve the postal addresses of the signed-in user, in their order|
 |[**registerAccount**](#registeraccount) | **POST** /api/accounts | Create the account of a customer and send them a verification link, valid for 1 hour|
+|[**removeAddress**](#removeaddress) | **DELETE** /api/accounts/me/addresses/{position} | Remove an address of the signed-in user (0 for the first one); the orders keep theirs|
 |[**sendVerificationEmail**](#sendverificationemail) | **POST** /api/accounts/me/verification-email | Send a new verification link (valid for 1 hour) to the signed-in customer|
 |[**verifyEmail**](#verifyemail) | **POST** /api/accounts/email-verification | Verify the email of an account with the token of the link sent by email|
+
+# **changeAddress**
+> Array<JsonPostalAddress> changeAddress(jsonPostalAddress)
+
+
+### Example
+
+```typescript
+import {
+    AccountsApi,
+    Configuration,
+    JsonPostalAddress
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AccountsApi(configuration);
+
+let position: number; // (default to undefined)
+let jsonPostalAddress: JsonPostalAddress; //
+
+const { status, data } = await apiInstance.changeAddress(
+    position,
+    jsonPostalAddress
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **jsonPostalAddress** | **JsonPostalAddress**|  | |
+| **position** | [**number**] |  | defaults to undefined|
+
+
+### Return type
+
+**Array<JsonPostalAddress>**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The addresses, with the changed one at its place |  -  |
+|**400** | Incomplete address |  -  |
+|**404** | No address at this position |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getAccount**
 > JsonAccount getAccount()
@@ -50,6 +109,49 @@ This endpoint does not have any parameters.
 |-------------|-------------|------------------|
 |**200** | The account (never the password) |  -  |
 |**401** | Not signed in |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getAddresses**
+> Array<JsonPostalAddress> getAddresses()
+
+
+### Example
+
+```typescript
+import {
+    AccountsApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AccountsApi(configuration);
+
+const { status, data } = await apiInstance.getAddresses();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**Array<JsonPostalAddress>**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The addresses |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -104,6 +206,57 @@ No authorization required
 |**201** | Account created |  -  |
 |**409** | The email is already used |  -  |
 |**422** | A required field is missing or the password has fewer than 8 characters |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **removeAddress**
+> Array<JsonPostalAddress> removeAddress()
+
+
+### Example
+
+```typescript
+import {
+    AccountsApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AccountsApi(configuration);
+
+let position: number; // (default to undefined)
+
+const { status, data } = await apiInstance.removeAddress(
+    position
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **position** | [**number**] |  | defaults to undefined|
+
+
+### Return type
+
+**Array<JsonPostalAddress>**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The remaining addresses |  -  |
+|**404** | No address at this position |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

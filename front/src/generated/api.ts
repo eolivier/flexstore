@@ -336,12 +336,90 @@ export const AccountsApiAxiosParamCreator = function (configuration?: Configurat
     return {
         /**
          * 
+         * @summary Change an address of the signed-in user (0 for the first one); the orders keep theirs
+         * @param {number} position 
+         * @param {JsonPostalAddress} jsonPostalAddress 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        changeAddress: async (position: number, jsonPostalAddress: JsonPostalAddress, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'position' is not null or undefined
+            assertParamExists('changeAddress', 'position', position)
+            // verify required parameter 'jsonPostalAddress' is not null or undefined
+            assertParamExists('changeAddress', 'jsonPostalAddress', jsonPostalAddress)
+            const localVarPath = `/api/accounts/me/addresses/{position}`
+                .replace(`{${"position"}}`, encodeURIComponent(String(position)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonPostalAddress, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Retrieve the account of the signed-in user, with their phone number and postal addresses
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         getAccount: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/accounts/me`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Retrieve the postal addresses of the signed-in user, in their order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAddresses: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/accounts/me/addresses`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -398,6 +476,44 @@ export const AccountsApiAxiosParamCreator = function (configuration?: Configurat
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(jsonAccountRegistration, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Remove an address of the signed-in user (0 for the first one); the orders keep theirs
+         * @param {number} position 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        removeAddress: async (position: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'position' is not null or undefined
+            assertParamExists('removeAddress', 'position', position)
+            const localVarPath = `/api/accounts/me/addresses/{position}`
+                .replace(`{${"position"}}`, encodeURIComponent(String(position)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -485,6 +601,20 @@ export const AccountsApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
+         * @summary Change an address of the signed-in user (0 for the first one); the orders keep theirs
+         * @param {number} position 
+         * @param {JsonPostalAddress} jsonPostalAddress 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async changeAddress(position: number, jsonPostalAddress: JsonPostalAddress, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<JsonPostalAddress>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.changeAddress(position, jsonPostalAddress, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AccountsApi.changeAddress']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Retrieve the account of the signed-in user, with their phone number and postal addresses
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -493,6 +623,18 @@ export const AccountsApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getAccount(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AccountsApi.getAccount']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Retrieve the postal addresses of the signed-in user, in their order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getAddresses(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<JsonPostalAddress>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getAddresses(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AccountsApi.getAddresses']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -506,6 +648,19 @@ export const AccountsApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.registerAccount(jsonAccountRegistration, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AccountsApi.registerAccount']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Remove an address of the signed-in user (0 for the first one); the orders keep theirs
+         * @param {number} position 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async removeAddress(position: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<JsonPostalAddress>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.removeAddress(position, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AccountsApi.removeAddress']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -544,12 +699,32 @@ export const AccountsApiFactory = function (configuration?: Configuration, baseP
     return {
         /**
          * 
+         * @summary Change an address of the signed-in user (0 for the first one); the orders keep theirs
+         * @param {number} position 
+         * @param {JsonPostalAddress} jsonPostalAddress 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        changeAddress(position: number, jsonPostalAddress: JsonPostalAddress, options?: RawAxiosRequestConfig): AxiosPromise<Array<JsonPostalAddress>> {
+            return localVarFp.changeAddress(position, jsonPostalAddress, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Retrieve the account of the signed-in user, with their phone number and postal addresses
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         getAccount(options?: RawAxiosRequestConfig): AxiosPromise<JsonAccount> {
             return localVarFp.getAccount(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Retrieve the postal addresses of the signed-in user, in their order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAddresses(options?: RawAxiosRequestConfig): AxiosPromise<Array<JsonPostalAddress>> {
+            return localVarFp.getAddresses(options).then((request) => request(axios, basePath));
         },
         /**
          * Public. The account waits for the verification of the email (status PENDING_VERIFICATION); the customer can already sign in and order.
@@ -560,6 +735,16 @@ export const AccountsApiFactory = function (configuration?: Configuration, baseP
          */
         registerAccount(jsonAccountRegistration: JsonAccountRegistration, options?: RawAxiosRequestConfig): AxiosPromise<JsonUser> {
             return localVarFp.registerAccount(jsonAccountRegistration, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Remove an address of the signed-in user (0 for the first one); the orders keep theirs
+         * @param {number} position 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        removeAddress(position: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<JsonPostalAddress>> {
+            return localVarFp.removeAddress(position, options).then((request) => request(axios, basePath));
         },
         /**
          * The previous links stop working
@@ -589,12 +774,34 @@ export const AccountsApiFactory = function (configuration?: Configuration, baseP
 export class AccountsApi extends BaseAPI {
     /**
      * 
+     * @summary Change an address of the signed-in user (0 for the first one); the orders keep theirs
+     * @param {number} position 
+     * @param {JsonPostalAddress} jsonPostalAddress 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public changeAddress(position: number, jsonPostalAddress: JsonPostalAddress, options?: RawAxiosRequestConfig) {
+        return AccountsApiFp(this.configuration).changeAddress(position, jsonPostalAddress, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Retrieve the account of the signed-in user, with their phone number and postal addresses
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     public getAccount(options?: RawAxiosRequestConfig) {
         return AccountsApiFp(this.configuration).getAccount(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Retrieve the postal addresses of the signed-in user, in their order
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getAddresses(options?: RawAxiosRequestConfig) {
+        return AccountsApiFp(this.configuration).getAddresses(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -606,6 +813,17 @@ export class AccountsApi extends BaseAPI {
      */
     public registerAccount(jsonAccountRegistration: JsonAccountRegistration, options?: RawAxiosRequestConfig) {
         return AccountsApiFp(this.configuration).registerAccount(jsonAccountRegistration, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Remove an address of the signed-in user (0 for the first one); the orders keep theirs
+     * @param {number} position 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public removeAddress(position: number, options?: RawAxiosRequestConfig) {
+        return AccountsApiFp(this.configuration).removeAddress(position, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

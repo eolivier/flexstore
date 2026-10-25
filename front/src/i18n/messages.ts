@@ -186,6 +186,22 @@ export default {
         error: "The order could not be placed. Please try again."
       }
     },
+    addressBook: {
+      title: "My addresses",
+      subtitle: "Edit or remove your addresses. Your orders keep the address they were sent to.",
+      empty: "No address yet: the addresses you enter when ordering appear here.",
+      loadError: "Your addresses could not be loaded.",
+      edit: "Edit",
+      remove: "Remove",
+      editTitle: "Edit the address",
+      save: "Save",
+      cancel: "Cancel",
+      errors: {
+        incomplete: "The address is incomplete.",
+        error: "The address could not be saved.",
+        removal: "The address could not be removed."
+      }
+    },
     adminOrders: {
       title: "Orders",
       count: "No orders | 1 order | {n} orders",
@@ -284,6 +300,7 @@ export default {
       accessories: "Accessories",
       cart: "Cart",
       orders: "Orders",
+      addresses: "My addresses",
       profile: "Profile",
       account: "My account",
       admin: "Administration",
@@ -568,6 +585,22 @@ export default {
         error: "La commande n'a pas pu être passée. Veuillez réessayer."
       }
     },
+    addressBook: {
+      title: "Mes adresses",
+      subtitle: "Modifiez ou supprimez vos adresses. Vos commandes gardent l'adresse où elles ont été envoyées.",
+      empty: "Aucune adresse pour l'instant : les adresses saisies en commandant apparaissent ici.",
+      loadError: "Vos adresses n'ont pas pu être chargées.",
+      edit: "Modifier",
+      remove: "Supprimer",
+      editTitle: "Modifier l'adresse",
+      save: "Enregistrer",
+      cancel: "Annuler",
+      errors: {
+        incomplete: "L'adresse est incomplète.",
+        error: "L'adresse n'a pas pu être enregistrée.",
+        removal: "L'adresse n'a pas pu être supprimée."
+      }
+    },
     adminOrders: {
       title: "Commandes",
       count: "Aucune commande | 1 commande | {n} commandes",
@@ -666,6 +699,7 @@ export default {
       accessories: "Accessoires",
       cart: "Panier",
       orders: "Commandes",
+      addresses: "Mes adresses",
       profile: "Profil",
       account: "Mon compte",
       admin: "Administration",
