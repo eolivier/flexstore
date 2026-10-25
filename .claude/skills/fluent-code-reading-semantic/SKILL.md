@@ -1,6 +1,6 @@
 ---
 name: fluent-code-reading-semantic
-description: Principles that make code read like the business language - wrapping collections in their own class, naming boolean methods affirmatively, naming variables after their type, intermediate variables, strong types rather than nullable ones, one or two arguments per method, lines of 113 characters at most, singular or plural names, no repeated names, no null arguments. Use before writing, changing or reviewing domain or application code (entities, value objects, aggregates, use cases), in any language.
+description: Principles that make code read like the business language - wrapping collections in their own class, naming boolean methods affirmatively, naming variables after their type, intermediate variables, strong types rather than nullable ones, one or two arguments per method, lines of 113 characters at most, singular or plural names, no repeated names, no null arguments, beans declared step by step (repository, use case, service). Use before writing, changing or reviewing domain or application code (entities, value objects, aggregates, use cases), in any language.
 ---
 
 # Fluent code reading semantic
@@ -398,3 +398,49 @@ Why: a `null` among the arguments says nothing about what is missing, and the re
 Details:
 - The same goes for any function: `send(email)` next to `send(email, attachment)`, rather than `send(email, null)`.
 - An adapter that maps a value which may be missing (a nullable column, an optional JSON field) may still pass it through: `complement?.let { AddressComplement(it) }` is a value, not a literal `null`.
+
+## 15. Beans declared step by step: repository, use case, service
+
+In the Spring configuration, each layer is its own bean, which receives the beans of the layer below:
+1. the **repository** (the adapter of a port) is a bean;
+2. each **use case** is a bean that receives its repositories;
+3. the **domain service** (or the facade) is a bean that receives its use cases.
+
+A bean never builds the objects of another layer inline (`PaymentService(StartPaymentUseCase(orderRepository, ...), ...)`).
+
+Avoid:
+
+```kotlin
+@Bean
+open fun paymentService(paymentRepository: PaymentRepository, orderRepository: OrderRepository,
+                        cartRepository: CartRepository): PaymentService {
+    val paymentUseCases = PaymentUseCases(
+        StartPaymentUseCase(orderRepository, paymentRepository),
+        ConfirmPaymentUseCase(orderRepository, cartRepository),
+        ReadPaymentUseCase(paymentRepository)
+    )
+    return PaymentService(paymentUseCases, ...)
+}
+```
+
+Prefer:
+
+```kotlin
+@Bean
+open fun startPaymentUseCase(orderRepository: OrderRepository, paymentRepository: PaymentRepository) =
+    StartPaymentUseCase(orderRepository, paymentRepository)
+
+@Bean
+open fun confirmPaymentUseCase(orderRepository: OrderRepository, cartRepository: CartRepository) =
+    ConfirmPaymentUseCase(orderRepository, cartRepository)
+
+@Bean
+open fun paymentService(paymentUseCases: PaymentUseCases, paidOrderUseCases: PaidOrderUseCases) =
+    PaymentService(paymentUseCases, paidOrderUseCases)
+```
+
+Why: the configuration reads as the architecture (each layer depends only on the layer below), every use case exists once and can be shared, and a bean says in its signature what it needs.
+
+Details:
+- When the configuration class grows too big, split it by layer: `RepositoryConfig` (the repositories that are not already components), `UseCaseConfig` (the use cases), `ServiceConfig` (the domain services and facades).
+- A group of use cases passed together (`PaymentUseCases`) is a bean too, built from the use case beans.

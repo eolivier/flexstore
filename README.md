@@ -66,7 +66,11 @@ backend/
   spring-infra/   # Spring adapters (REST controllers, JPA), OpenAPI spec
   migrations/     # Flyway SQL migrations
 front/            # Vue 3 + Vuetify + Pinia + vue-i18n shop
+docs/
+  database.md     # Physical data model of the database (Mermaid diagram)
 ```
+
+The tables, their keys and their relations are drawn in [docs/database.md](docs/database.md), updated with every migration.
 
 ---
 
