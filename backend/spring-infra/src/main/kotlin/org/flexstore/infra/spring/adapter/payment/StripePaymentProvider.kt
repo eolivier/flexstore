@@ -1,5 +1,8 @@
 package org.flexstore.infra.spring.adapter.payment
 
+import org.flexstore.domain.order.OrderPage
+import org.flexstore.domain.order.OrderConfirmationPage
+import org.flexstore.domain.sharedkernel.ShopUrl
 import com.stripe.model.Customer
 import com.stripe.model.checkout.Session
 import com.stripe.net.RequestOptions
@@ -16,19 +19,20 @@ import java.math.BigDecimal
 // Stripe Checkout: the customer pays on the page of Stripe (the card never reaches the shop),
 // then comes back to the confirmation page of the order. Stripe confirms the payment later, with its webhook.
 // The page is prefilled through a Stripe customer: the email of the payer and the name of the cardholder
-class StripePaymentProvider(private val secretKey: String, private val frontUrl: String) : PaymentProvider {
+class StripePaymentProvider(private val secretKey: String, private val shopUrl: ShopUrl) : PaymentProvider {
 
     private val requestOptions = RequestOptions.builder().setApiKey(secretKey).build()
 
     override fun checkout(paymentRequest: PaymentRequest): ProviderCheckout {
         val order = paymentRequest.order
-        val orderPage = "${frontUrl.trimEnd('/')}/orders/${order.orderId.value}"
+        val orderPage = OrderPage.of(shopUrl, order.orderId)
+        val confirmationPage = OrderConfirmationPage.of(shopUrl, order.orderId)
         val params = SessionCreateParams.builder()
             .setMode(SessionCreateParams.Mode.PAYMENT)
             .setClientReferenceId(order.orderId.value)
             .setCustomer(stripeCustomerOf(paymentRequest.payer).id)
-            .setSuccessUrl("$orderPage/confirmation")
-            .setCancelUrl(orderPage)
+            .setSuccessUrl(confirmationPage.url)
+            .setCancelUrl(orderPage.url)
             .addAllLineItem(order.lines.asList().map { it.toLineItem() })
             .build()
         val session = Session.create(params, requestOptions)

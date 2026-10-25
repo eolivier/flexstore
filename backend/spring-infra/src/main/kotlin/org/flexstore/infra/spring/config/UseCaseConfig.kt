@@ -13,13 +13,12 @@ import org.flexstore.domain.sharedkernel.ShopUrl
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.usecase.*
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 // The use cases, each one a bean that receives its repositories (the adapters of the ports, @Repository)
 @Configuration
-open class UseCaseConfig(@Value("\${flexstore.front-url}") private val frontUrl: String) {
+open class UseCaseConfig(private val shopUrl: ShopUrl) {
 
     @Bean
     open fun createProductUseCase(productRepository: ProductRepository): CreateProductUseCase {
@@ -132,7 +131,7 @@ open class UseCaseConfig(@Value("\${flexstore.front-url}") private val frontUrl:
     // The links of the verification emails open the page /verify-email of the front
     open fun sendVerificationEmailUseCase(userRepository: UserRepository,
                                           emailRepository: EmailRepository): SendVerificationEmailUseCase {
-        val verificationPage = VerificationPage.of(ShopUrl(frontUrl))
+        val verificationPage = VerificationPage.of(shopUrl)
         return SendVerificationEmailUseCase(userRepository, emailRepository, verificationPage)
     }
 

@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.config
 
+import org.flexstore.domain.sharedkernel.ShopUrl
 import org.flexstore.infra.spring.adapter.email.EmailSender
 import org.flexstore.infra.spring.adapter.email.LoggingEmailSender
 import org.flexstore.infra.spring.adapter.email.SmtpEmailSender
@@ -13,16 +14,16 @@ import org.springframework.mail.javamail.JavaMailSender
 @Configuration
 open class EmailConfig(
     @Value("\${flexstore.mail.from}") private val sender: String,
-    @Value("\${flexstore.front-url}") private val frontUrl: String
+    private val shopUrl: ShopUrl
 ) {
 
     // spring.mail.host is always defined (application.yml): it is its value that chooses SMTP or the logs
     @Bean
     @ConditionalOnExpression("!'\${spring.mail.host:}'.isBlank()")
     open fun smtpEmailSender(mailSender: JavaMailSender): EmailSender =
-        SmtpEmailSender(mailSender, sender, frontUrl)
+        SmtpEmailSender(mailSender, sender, shopUrl)
 
     @Bean
     @ConditionalOnExpression("'\${spring.mail.host:}'.isBlank()")
-    open fun loggingEmailSender(): EmailSender = LoggingEmailSender(frontUrl)
+    open fun loggingEmailSender(): EmailSender = LoggingEmailSender(shopUrl)
 }

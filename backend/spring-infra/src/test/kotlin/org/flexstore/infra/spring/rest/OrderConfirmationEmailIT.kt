@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.rest
 
+import org.flexstore.domain.sharedkernel.ShopUrl
 import org.flexstore.domain.settings.*
 import org.flexstore.domain.user.model.*
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -105,7 +106,7 @@ class OrderConfirmationEmailIT {
         mockMvc.pay(orderId, CUSTOMER_ID).andExpect(status().isCreated)
         // Assert
         val email = emailSender.sentEmails().single()
-        val content = OrderConfirmationEmailContent(email, "https://flexstore.example")
+        val content = OrderConfirmationEmailContent(email, ShopUrl("https://flexstore.example"))
         assertThat(email.recipient).isEqualTo(Email("admin@flexstore.com"))
         assertThat(content.subject).isEqualTo("Flexstore - Confirmation de votre commande ${email.order.number()}")
         assertThat(content.body).contains("2 × Laptop : 1\u202F598,00 €", "https://flexstore.example/orders/${email.order.orderId.value}")
