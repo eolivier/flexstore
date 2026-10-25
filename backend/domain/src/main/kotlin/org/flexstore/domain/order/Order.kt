@@ -17,7 +17,7 @@ private const val ORDER_NUMBER_LENGTH = 8
  * - an order is placed from a cart that has items
  * - its lines keep the name and the price of the products when the order is placed
  * - a new order is being processed
- * - it keeps a copy of its delivery and billing addresses: changing an address of the customer later does not change it
+ * - it is always delivered to a delivery address and billed to a billing address (often the same), both addresses of the customer
  */
 data class Order(
     val orderId: OrderId,
@@ -25,8 +25,7 @@ data class Order(
     val lines: OrderLines,
     val status: OrderStatus,
     val placedAt: Instant,
-    // null for the orders placed before the addresses were asked for
-    val addresses: OrderAddresses? = null
+    val addresses: OrderAddresses
 ) {
     fun totalPrice() = lines.totalPrice()
 
@@ -36,16 +35,17 @@ data class Order(
     fun belongsTo(customer: UserId.ValidUserId) = this.customer == customer
 
     companion object {
-        fun place(placement: OrderPlacement, cart: Cart): Order {
+        fun place(orderPlacement: OrderPlacement, cart: Cart): Order {
             if (cart.isEmpty()) {
                 throw EmptyCartException(ErrorMessage("An order cannot be placed from an empty cart."))
             }
-            if (placement.addresses.isIncomplete()) {
+            if (orderPlacement.addresses.isIncomplete()) {
                 throw IncompleteOrderAddressException(ErrorMessage("An order needs a complete delivery address and billing address."))
             }
+            val orderLines = OrderLines.from(cart)
             return Order(
-                placement.orderId, placement.customer.userId, OrderLines.from(cart), OrderStatus.PROCESSING, placement.placedAt,
-                placement.addresses
+                orderPlacement.orderId, orderPlacement.customer.userId, orderLines, OrderStatus.PROCESSING, orderPlacement.placedAt,
+                orderPlacement.addresses
             )
         }
     }

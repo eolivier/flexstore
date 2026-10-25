@@ -447,7 +447,7 @@ paths:
       tags:
       - Orders
       summary: Place an order from the cart of the signed-in customer, then empty the cart
-      description: The order keeps a copy of its delivery address and billing address (the delivery address when no billing address is given)
+      description: The order is delivered and billed to the given addresses (the delivery address when no billing address is given), which become addresses of the customer when they are new
       operationId: placeOrder
       security:
       - bearerAuth: []
@@ -755,7 +755,7 @@ components:
           type: number
     JsonOrder:
       type: object
-      required: [id, placedAt, status, lines, totalPrice, currency]
+      required: [id, placedAt, status, lines, totalPrice, currency, deliveryAddress, billingAddress]
       properties:
         id:
           type: string

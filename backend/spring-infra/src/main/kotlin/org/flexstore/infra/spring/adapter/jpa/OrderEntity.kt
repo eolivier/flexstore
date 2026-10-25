@@ -18,26 +18,14 @@ data class OrderEntity(
     @Column(name = "placed_at", nullable = false, updatable = false)
     val placedAt: Instant,
 
-    // null for the orders placed before the addresses were asked for
-    @Embedded
-    @AttributeOverrides(
-        AttributeOverride(name = "street", column = Column(name = "delivery_street")),
-        AttributeOverride(name = "complement", column = Column(name = "delivery_complement")),
-        AttributeOverride(name = "postalCode", column = Column(name = "delivery_postal_code")),
-        AttributeOverride(name = "city", column = Column(name = "delivery_city")),
-        AttributeOverride(name = "country", column = Column(name = "delivery_country"))
-    )
-    val deliveryAddress: OrderAddressEmbeddable? = null,
+    // Addresses of the customer (rows of the address table, owned by UserEntity)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "delivery_address_id", nullable = false)
+    val deliveryAddress: AddressEntity,
 
-    @Embedded
-    @AttributeOverrides(
-        AttributeOverride(name = "street", column = Column(name = "billing_street")),
-        AttributeOverride(name = "complement", column = Column(name = "billing_complement")),
-        AttributeOverride(name = "postalCode", column = Column(name = "billing_postal_code")),
-        AttributeOverride(name = "city", column = Column(name = "billing_city")),
-        AttributeOverride(name = "country", column = Column(name = "billing_country"))
-    )
-    val billingAddress: OrderAddressEmbeddable? = null,
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "billing_address_id", nullable = false)
+    val billingAddress: AddressEntity,
 
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "order_id", nullable = false)

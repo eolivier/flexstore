@@ -27,10 +27,4 @@ describe('OrderAddressesCard.vue', () => {
     expect(wrapper.text()).toContain('3 place du Marché, 69001 Lyon, France');
   });
 
-  it('shows nothing for an order placed before the addresses', () => {
-    // Act
-    const wrapper = mountCard();
-    // Assert
-    expect(wrapper.text()).toBe('');
-  });
 });

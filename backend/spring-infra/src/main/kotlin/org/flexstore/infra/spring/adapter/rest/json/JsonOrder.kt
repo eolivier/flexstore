@@ -11,9 +11,8 @@ data class JsonOrder(
     @JsonProperty("lines") val lines: List<JsonOrderLine>,
     @JsonProperty("totalPrice") val totalPrice: BigDecimal,
     @JsonProperty("currency") val currency: String,
-    // null for the orders placed before the addresses were asked for
-    @JsonProperty("deliveryAddress") val deliveryAddress: JsonPostalAddress? = null,
-    @JsonProperty("billingAddress") val billingAddress: JsonPostalAddress? = null
+    @JsonProperty("deliveryAddress") val deliveryAddress: JsonPostalAddress,
+    @JsonProperty("billingAddress") val billingAddress: JsonPostalAddress
 ) {
     constructor(order: Order) : this(
         order.orderId.value,
@@ -24,8 +23,8 @@ data class JsonOrder(
         },
         order.totalPrice().amount.value,
         order.totalPrice().currency.symbol,
-        order.addresses?.delivery?.let { JsonPostalAddress.of(it) },
-        order.addresses?.billing?.let { JsonPostalAddress.of(it) }
+        JsonPostalAddress.of(order.addresses.delivery),
+        JsonPostalAddress.of(order.addresses.billing)
     )
 }
 

@@ -9,7 +9,6 @@ describe('formatAddress', () => {
     },
     { address: { street: '3 place du Marché', complement: '', postalCode: '69001', city: 'Lyon', country: 'France' }, expected: '3 place du Marché, 69001 Lyon, France' },
     { address: { street: '3 place du Marché', complement: null, postalCode: '69001', city: 'Lyon', country: 'France' }, expected: '3 place du Marché, 69001 Lyon, France' },
-    { address: undefined, expected: '' },
   ])('$address reads "$expected"', ({ address, expected }) => {
     // Act
     const line = formatAddress(address);

@@ -141,8 +141,4 @@ class PostgresUserRepositoryAdapter(
         phoneNumber = phoneNumber?.let { PhoneNumber(it) },
         postalAddresses = PostalAddresses(addresses.map { it.toDomain() })
     )
-
-    private fun AddressEntity.toDomain() = PostalAddress(
-        Street(street), complement?.let { AddressComplement(it) }, PostalCode(postalCode), City(city), Country(country)
-    )
 }

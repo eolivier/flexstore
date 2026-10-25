@@ -4,7 +4,7 @@
   import type { JsonOrder } from '@/generated';
   import { formatAddress } from '@/utils/address';
 
-  // Where the order is delivered and billed; the orders placed before the addresses have none
+  // Where the order is delivered and billed
   const props = defineProps<{ order: JsonOrder }>();
 
   const { t } = useI18n();
@@ -14,7 +14,7 @@
 </script>
 
 <template>
-  <v-card v-if="order.deliveryAddress" class="pa-5 mt-6">
+  <v-card class="pa-5 mt-6">
     <v-row>
       <v-col cols="12" sm="6">
         <div class="text-caption text-medium-emphasis">{{ t('checkout.deliveryAddress') }}</div>

@@ -15,7 +15,10 @@ interface JpaOrderRepository : JpaRepository<OrderEntity, String> {
 
 @Repository
 @Transactional
-class PostgresOrderRepositoryAdapter(private val jpaRepo: JpaOrderRepository) : OrderRepository {
+class PostgresOrderRepositoryAdapter(
+    private val jpaRepo: JpaOrderRepository,
+    private val jpaUserRepository: JpaUserRepository
+) : OrderRepository {
 
     override fun save(order: Order): Order = jpaRepo.save(order.toEntity()).toDomain()
 
@@ -28,25 +31,32 @@ class PostgresOrderRepositoryAdapter(private val jpaRepo: JpaOrderRepository) : 
     @Transactional(readOnly = true)
     override fun findAllBy(customer: UserId.ValidUserId) = Orders(jpaRepo.findAllByUserId(customer.value).map { it.toDomain() })
 
-    private fun Order.toEntity() = OrderEntity(
-        id = orderId.value,
-        userId = customer.value,
-        status = status.name,
-        placedAt = placedAt,
-        deliveryAddress = addresses?.delivery?.toEmbeddable(),
-        billingAddress = addresses?.billing?.toEmbeddable(),
-        lines = lines.asList().mapIndexed { position, line ->
-            OrderLineEntity(
-                id = Identity.nextId().value,
-                position = position,
-                productId = line.productId.id.value,
-                productName = line.productName.value,
-                unitPrice = line.unitPrice.amount.value,
-                currency = line.unitPrice.currency.name,
-                quantity = line.quantity.value
-            )
-        }
-    )
+    private fun Order.toEntity(): OrderEntity {
+        val addressesOfTheCustomer = jpaUserRepository.findById(customer.value).orElseThrow().addresses
+        return OrderEntity(
+            id = orderId.value,
+            userId = customer.value,
+            status = status.name,
+            placedAt = placedAt,
+            deliveryAddress = addressesOfTheCustomer.rowOf(addresses.delivery),
+            billingAddress = addressesOfTheCustomer.rowOf(addresses.billing),
+            lines = lines.asList().mapIndexed { position, line ->
+                OrderLineEntity(
+                    id = Identity.nextId().value,
+                    position = position,
+                    productId = line.productId.id.value,
+                    productName = line.productName.value,
+                    unitPrice = line.unitPrice.amount.value,
+                    currency = line.unitPrice.currency.name,
+                    quantity = line.quantity.value
+                )
+            }
+        )
+    }
+
+    // The domain keeps the addresses of an order among the addresses of its customer
+    private fun List<AddressEntity>.rowOf(address: PostalAddress) =
+        firstOrNull { it.toDomain() == address } ?: throw IllegalStateException("The address of the order is not an address of its customer")
 
     private fun OrderEntity.toDomain() = Order(
         orderId = OrderId(id),
@@ -61,14 +71,6 @@ class PostgresOrderRepositoryAdapter(private val jpaRepo: JpaOrderRepository) : 
         }),
         status = OrderStatus.valueOf(status),
         placedAt = placedAt,
-        addresses = if (deliveryAddress != null && billingAddress != null) {
-            OrderAddresses(deliveryAddress.toDomain(), billingAddress.toDomain())
-        } else null
+        addresses = OrderAddresses(deliveryAddress.toDomain(), billingAddress.toDomain())
     )
-
-    private fun PostalAddress.toEmbeddable() =
-        OrderAddressEmbeddable(street.value, complement?.value, postalCode.value, city.value, country.value)
-
-    private fun OrderAddressEmbeddable.toDomain() =
-        PostalAddress(Street(street), complement?.let { AddressComplement(it) }, PostalCode(postalCode), City(city), Country(country))
 }

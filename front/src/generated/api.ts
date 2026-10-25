@@ -158,8 +158,8 @@ export interface JsonOrder {
     'lines': Array<JsonOrderLine>;
     'totalPrice': number;
     'currency': string;
-    'deliveryAddress'?: JsonPostalAddress;
-    'billingAddress'?: JsonPostalAddress;
+    'deliveryAddress': JsonPostalAddress;
+    'billingAddress': JsonPostalAddress;
 }
 
 export const JsonOrderStatusEnum = {
@@ -912,7 +912,7 @@ export const OrdersApiAxiosParamCreator = function (configuration?: Configuratio
             };
         },
         /**
-         * The order keeps a copy of its delivery address and billing address (the delivery address when no billing address is given)
+         * The order is delivered and billed to the given addresses (the delivery address when no billing address is given), which become addresses of the customer when they are new
          * @summary Place an order from the cart of the signed-in customer, then empty the cart
          * @param {JsonOrderAddresses} jsonOrderAddresses 
          * @param {*} [options] Override http request option.
@@ -986,7 +986,7 @@ export const OrdersApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * The order keeps a copy of its delivery address and billing address (the delivery address when no billing address is given)
+         * The order is delivered and billed to the given addresses (the delivery address when no billing address is given), which become addresses of the customer when they are new
          * @summary Place an order from the cart of the signed-in customer, then empty the cart
          * @param {JsonOrderAddresses} jsonOrderAddresses 
          * @param {*} [options] Override http request option.
@@ -1027,7 +1027,7 @@ export const OrdersApiFactory = function (configuration?: Configuration, basePat
             return localVarFp.getOrders(options).then((request) => request(axios, basePath));
         },
         /**
-         * The order keeps a copy of its delivery address and billing address (the delivery address when no billing address is given)
+         * The order is delivered and billed to the given addresses (the delivery address when no billing address is given), which become addresses of the customer when they are new
          * @summary Place an order from the cart of the signed-in customer, then empty the cart
          * @param {JsonOrderAddresses} jsonOrderAddresses 
          * @param {*} [options] Override http request option.
@@ -1065,7 +1065,7 @@ export class OrdersApi extends BaseAPI {
     }
 
     /**
-     * The order keeps a copy of its delivery address and billing address (the delivery address when no billing address is given)
+     * The order is delivered and billed to the given addresses (the delivery address when no billing address is given), which become addresses of the customer when they are new
      * @summary Place an order from the cart of the signed-in customer, then empty the cart
      * @param {JsonOrderAddresses} jsonOrderAddresses 
      * @param {*} [options] Override http request option.

@@ -34,6 +34,12 @@ data class PostalAddresses(private val addresses: List<PostalAddress>) {
     // Read-only view for the adapters (JSON, persistence)
     fun asList(): List<PostalAddress> = addresses.toList()
 
+    // The given addresses are added at the end, unless they are already there
+    fun including(vararg newAddresses: PostalAddress): PostalAddresses {
+        val includedAddresses = newAddresses.fold(addresses) { kept, address -> if (address in kept) kept else kept + address }
+        return PostalAddresses(includedAddresses)
+    }
+
     companion object {
         // A user created by an administrator has no postal address
         fun none() = PostalAddresses(emptyList())

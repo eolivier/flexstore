@@ -11,8 +11,8 @@ Name | Type | Description | Notes
 **lines** | [**Array&lt;JsonOrderLine&gt;**](JsonOrderLine.md) |  | [default to undefined]
 **totalPrice** | **number** |  | [default to undefined]
 **currency** | **string** |  | [default to undefined]
-**deliveryAddress** | [**JsonPostalAddress**](JsonPostalAddress.md) |  | [optional] [default to undefined]
-**billingAddress** | [**JsonPostalAddress**](JsonPostalAddress.md) |  | [optional] [default to undefined]
+**deliveryAddress** | [**JsonPostalAddress**](JsonPostalAddress.md) |  | [default to undefined]
+**billingAddress** | [**JsonPostalAddress**](JsonPostalAddress.md) |  | [default to undefined]
 
 ## Example
 

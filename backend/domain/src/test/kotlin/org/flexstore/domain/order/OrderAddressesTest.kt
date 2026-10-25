@@ -15,8 +15,8 @@ import java.time.Instant
 class OrderAddressesTest : WithAssertions {
 
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
-    private val lamp = DefinedProduct(ProductId(Identity("lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR))
-    private val cart = Cart(customer).add(lamp, Quantity(1))
+    private val deskLamp = DefinedProduct(ProductId(Identity("desk-lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR))
+    private val cart = Cart(customer).add(deskLamp, Quantity(1))
     private val office = PostalAddress(Street("3 place du Marché"), null, PostalCode("69001"), City("Lyon"), Country("France"))
 
     companion object {
@@ -29,30 +29,36 @@ class OrderAddressesTest : WithAssertions {
         )
     }
 
-    private fun placementWith(addresses: OrderAddresses) =
+    private fun orderPlacementWith(addresses: OrderAddresses) =
         OrderPlacement(OrderId("order-1"), customer, Instant.parse("2026-10-24T10:00:00Z"), addresses)
 
     @Test
     fun `an order should keep its delivery address and its billing address`() {
+        // Arrange
+        val orderPlacement = orderPlacementWith(OrderAddresses(home, office))
         // Act
-        val order = Order.place(placementWith(OrderAddresses(home, office)), cart)
+        val order = Order.place(orderPlacement, cart)
         // Assert
         assertThat(order.addresses).isEqualTo(OrderAddresses(delivery = home, billing = office))
     }
 
     @Test
     fun `an order should be billed to the delivery address when it is the same`() {
+        // Arrange
+        val orderPlacement = orderPlacementWith(OrderAddresses.sameFor(home))
         // Act
-        val order = Order.place(placementWith(OrderAddresses.sameFor(home)), cart)
+        val order = Order.place(orderPlacement, cart)
         // Assert
-        assertThat(order.addresses!!.isBilledToTheDeliveryAddress()).isTrue()
+        assertThat(order.addresses.isBilledToTheDeliveryAddress()).isTrue()
     }
 
     @ParameterizedTest(name = "an incomplete {0} address should be refused")
     @MethodSource("incompleteAddresses")
     fun `an order should not be placed with an incomplete address`(@Suppress("UNUSED_PARAMETER") which: String, addresses: OrderAddresses) {
+        // Arrange
+        val orderPlacement = orderPlacementWith(addresses)
         // Act
-        val thrown = catchThrowable { Order.place(placementWith(addresses), cart) }
+        val thrown = catchThrowable { Order.place(orderPlacement, cart) }
         // Assert
         assertThat(thrown).isInstanceOf(IncompleteOrderAddressException::class.java)
     }

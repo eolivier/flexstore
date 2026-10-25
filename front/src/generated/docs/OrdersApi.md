@@ -105,7 +105,7 @@ This endpoint does not have any parameters.
 # **placeOrder**
 > JsonOrder placeOrder(jsonOrderAddresses)
 
-The order keeps a copy of its delivery address and billing address (the delivery address when no billing address is given)
+The order is delivered and billed to the given addresses (the delivery address when no billing address is given), which become addresses of the customer when they are new
 
 ### Example
 
