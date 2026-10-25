@@ -77,12 +77,13 @@ open class UseCaseConfig(@Value("\${flexstore.front-url}") private val frontUrl:
 
     @Bean
     open fun paymentService(paymentRepository: PaymentRepository,
+                            userRepository: UserRepository,
                             orderRepository: OrderRepository,
                             cartRepository: CartRepository,
                             readOrdersUseCase: ReadOrdersUseCase,
                             sendEmailUseCase: SendOrderConfirmationEmailUseCase): PaymentService {
         val paymentUseCases = PaymentUseCases(
-            StartPaymentUseCase(orderRepository, paymentRepository),
+            StartPaymentUseCase(orderRepository, paymentRepository, userRepository),
             ConfirmPaymentUseCase(orderRepository, cartRepository),
             ReadPaymentUseCase(paymentRepository)
         )
