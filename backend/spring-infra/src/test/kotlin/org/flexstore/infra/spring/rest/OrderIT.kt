@@ -13,6 +13,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
@@ -34,6 +35,9 @@ private const val OTHER_CUSTOMER_ID = "it-order-customer"
 class OrderIT {
 
     @Autowired
+    private lateinit var jdbcTemplate: JdbcTemplate
+
+    @Autowired
     private lateinit var mockMvc: MockMvc
 
     @Autowired
@@ -50,6 +54,9 @@ class OrderIT {
 
     @Autowired
     private lateinit var userRepository: JpaUserRepository
+
+    @BeforeEach
+    fun refillStocks() = jdbcTemplate.refillStocks()
 
     @BeforeEach
     fun createOtherCustomer() {

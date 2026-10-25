@@ -95,12 +95,24 @@ class PaymentServiceTest : WithAssertions {
     }
 
     @Test
-    fun `a confirmed payment should take the ordered units out of the stock`() {
+    fun `a confirmed payment should not take the units reserved by the order out a second time`() {
         // Arrange
         placeOrder()
         // Act
         paidAtOnce.pay(OrderPayment(customer, orderId))
         // Assert
+        assertThat(stockRepository.stockOf(deskLamp.productId).quantity).isEqualTo(StockQuantity(5))
+    }
+
+    @Test
+    fun `an order cancelled while its customer was paying should be paid, and take its units out again`() {
+        // Arrange
+        placeOrder()
+        orderRepository.save(orderRepository.findById(orderId)!!.cancelled())
+        // Act
+        paidLater.confirm(orderId)
+        // Assert
+        assertThat(storedStatus()).isEqualTo(OrderStatus.PAID)
         assertThat(stockRepository.stockOf(deskLamp.productId).quantity).isEqualTo(StockQuantity(4))
     }
 

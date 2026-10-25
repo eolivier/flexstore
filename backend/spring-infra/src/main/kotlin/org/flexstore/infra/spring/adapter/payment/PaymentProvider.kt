@@ -11,4 +11,8 @@ data class ProviderCheckout(val reference: String, val checkoutPage: CheckoutPag
 // The payment provider used by the PaymentRepositoryAdapter: Stripe, or a simulated one without a Stripe key
 interface PaymentProvider {
     fun checkout(paymentRequest: PaymentRequest): ProviderCheckout
+
+    // The checkout with this reference can no longer be paid; throws PaymentAlreadyCompletedException when it
+    // was paid
+    fun stop(reference: String)
 }

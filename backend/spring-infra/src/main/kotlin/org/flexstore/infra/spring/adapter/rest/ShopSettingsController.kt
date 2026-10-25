@@ -3,6 +3,7 @@ package org.flexstore.infra.spring.adapter.rest
 import org.flexstore.domain.settings.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.flexstore.infra.spring.adapter.rest.json.JsonPaymentDelay
 import org.flexstore.infra.spring.adapter.rest.json.JsonShopSettings
 import org.springframework.web.bind.annotation.*
 
@@ -25,4 +26,9 @@ class ShopSettingsController(private val shopSettingsAdministrationService: Shop
     @PostMapping("/order-confirmation-email/disable")
     fun disableOrderConfirmationEmail() =
         JsonShopSettings(shopSettingsAdministrationService.disableOrderConfirmationEmail())
+
+    @Operation(summary = "Change the time a customer has to pay an order (1 to 1440 minutes); unpaid, it is cancelled")
+    @PutMapping("/payment-delay")
+    fun changePaymentDelay(@RequestBody paymentDelay: JsonPaymentDelay) =
+        JsonShopSettings(shopSettingsAdministrationService.changePaymentDelay(paymentDelay.toPaymentDelay()))
 }

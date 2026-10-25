@@ -26,6 +26,9 @@
   >
     {{ t('adminOrders.advanceTo', { status: next }) }}
   </v-btn>
+  <span v-else-if="order.status === 'CANCELLED'" class="text-caption text-error">
+    {{ t('orders.status.CANCELLED') }}
+  </span>
   <span v-else-if="order.status === 'AWAITING_PAYMENT'" class="text-caption text-medium-emphasis">
     {{ t('adminOrders.awaitingPayment') }}
   </span>
