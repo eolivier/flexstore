@@ -20,10 +20,10 @@ class PlaceOrderUseCase(
     // added), so that the order refers to them; then the order is placed and the cart emptied
     override fun getNominalScenario(): NominalScenario<OrderPlacement> {
         val keepAddressesStep = Step<OrderPlacement> { orderPlacement ->
-            val customer = userRepository.findById(orderPlacement.customer.userId) as User.DefinedUser
+            val definedUser = userRepository.findById(orderPlacement.customer.userId) as User.DefinedUser
             val orderAddresses = orderPlacement.addresses
-            val customerWithAddresses = customer.withPostalAddressesIncluding(orderAddresses.delivery, orderAddresses.billing)
-            userRepository.save(customerWithAddresses)
+            val definedUserWithAddresses = definedUser.withPostalAddressesIncluding(orderAddresses.delivery, orderAddresses.billing)
+            userRepository.save(definedUserWithAddresses)
         }
         val placeOrderStep = Step<OrderPlacement> { orderPlacement ->
             val cart = cartRepository.load(orderPlacement.customer)
@@ -38,17 +38,17 @@ class PlaceOrderUseCase(
         PostConditions(orderIsStoredCondition(), cartIsEmptyCondition())
 
     private fun customerIsKnownCondition() = PreCondition<OrderPlacement> { orderPlacement ->
-        val customerId = orderPlacement.customer.userId
-        if (userRepository.notExists(customerId)) {
-            throw UserNotFoundException(ErrorMessage("The customer ${customerId.value} is unknown: they cannot order."))
+        val userId = orderPlacement.customer.userId
+        if (userRepository.notExists(userId)) {
+            throw UserNotFoundException(ErrorMessage("The customer ${userId.value} is unknown: they cannot order."))
         }
     }
 
     // A token stays valid after the account is suspended, locked or disabled: the status is checked at each order
     private fun accountAllowsOrderingCondition() = PreCondition<OrderPlacement> { orderPlacement ->
-        val customer = userRepository.findById(orderPlacement.customer.userId) as User.DefinedUser
-        if (customer.status.refusesOrdering()) {
-            throw OrderRefusedException(customer.status, ErrorMessage("The account ${customer.id.value} is ${customer.status}: it cannot order."))
+        val definedUser = userRepository.findById(orderPlacement.customer.userId) as User.DefinedUser
+        if (definedUser.status.refusesOrdering()) {
+            throw OrderRefusedException(definedUser.status, ErrorMessage("The account ${definedUser.id.value} is ${definedUser.status}: it cannot order."))
         }
     }
 

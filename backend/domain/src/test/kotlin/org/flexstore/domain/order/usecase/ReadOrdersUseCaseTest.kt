@@ -21,7 +21,7 @@ class ReadOrdersUseCaseTest : WithAssertions {
     private val useCase = ReadOrdersUseCase(orderRepository)
 
     private fun placeOrder(orderId: OrderId, customer: CartOwner.Customer, placedAt: Instant): Order {
-        val orderPlacement = OrderPlacement(orderId, customer, placedAt, homeAddresses)
+        val orderPlacement = OrderPlacement(orderId, customer, placedAt, homeOrderAddresses)
         val cart = Cart(customer).add(deskLamp, Quantity(1))
         val order = Order.place(orderPlacement, cart)
         return orderRepository.save(order)

@@ -19,16 +19,16 @@ class PlaceOrderUseCaseTest : WithAssertions {
 
     private val deskLamp = DefinedProduct(ProductId(Identity("desk-lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR))
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
-    private val jane = User.DefinedUser(customer.userId, FullName(FirstName("Jane"), LastName("Doe")), Email("jane@example.com"), PlainPassword("password"))
-    private val office = PostalAddress(Street("3 place du Marché"), null, PostalCode("69001"), City("Lyon"), Country("France"))
+    private val definedUser = User.DefinedUser(customer.userId, FullName(FirstName("Jane"), LastName("Doe")), Email("jane@example.com"), PlainPassword("password"))
+    private val officeAddress = PostalAddress(Street("3 place du Marché"), null, PostalCode("69001"), City("Lyon"), Country("France"))
     private val cartRepository = InMemoryCartRepository()
     private val orderRepository = InMemoryOrderRepository()
-    private val userRepository = InMemoryUserRepository().apply { save(jane) }
+    private val userRepository = InMemoryUserRepository().apply { save(definedUser) }
     private val useCase = PlaceOrderUseCase(cartRepository, orderRepository, userRepository)
     private val placedAt = Instant.parse("2026-10-24T10:00:00Z")
-    private val orderPlacement = OrderPlacement(OrderId("order-1"), customer, placedAt, homeAddresses)
+    private val orderPlacement = OrderPlacement(OrderId("order-1"), customer, placedAt, homeOrderAddresses)
 
-    private fun addressesOfJane() = (userRepository.findById(customer.userId) as User.DefinedUser).postalAddresses.asList()
+    private fun postalAddressesOfTheDefinedUser() = (userRepository.findById(customer.userId) as User.DefinedUser).postalAddresses.asList()
 
     @Test
     fun `should store the order placed from the cart`() {
@@ -63,11 +63,11 @@ class PlaceOrderUseCaseTest : WithAssertions {
     @Test
     fun `an unknown customer should not place an order`() {
         // Arrange
-        val stranger = CartOwner.Customer(UserId.ValidUserId("stranger"))
-        cartRepository.save(Cart(stranger).add(deskLamp, Quantity(2)))
-        val strangerOrderPlacement = OrderPlacement(OrderId("order-1"), stranger, placedAt, homeAddresses)
+        val unknownCustomer = CartOwner.Customer(UserId.ValidUserId("unknown-customer"))
+        cartRepository.save(Cart(unknownCustomer).add(deskLamp, Quantity(2)))
+        val unknownCustomerOrderPlacement = OrderPlacement(OrderId("order-1"), unknownCustomer, placedAt, homeOrderAddresses)
         // Act
-        val thrown = catchThrowable { useCase.unfold(strangerOrderPlacement) }
+        val thrown = catchThrowable { useCase.unfold(unknownCustomerOrderPlacement) }
         // Assert
         assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
     }
@@ -76,29 +76,29 @@ class PlaceOrderUseCaseTest : WithAssertions {
     fun `the addresses entered when ordering should become addresses of the customer`() {
         // Arrange
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
-        val deliveredHomeBilledToTheOffice = orderPlacement.copy(addresses = OrderAddresses(home, office))
+        val orderPlacementBilledToTheOffice = orderPlacement.copy(addresses = OrderAddresses(homeAddress, officeAddress))
         // Act
-        useCase.unfold(deliveredHomeBilledToTheOffice)
+        useCase.unfold(orderPlacementBilledToTheOffice)
         // Assert
-        assertThat(addressesOfJane()).containsExactly(home, office)
+        assertThat(postalAddressesOfTheDefinedUser()).containsExactly(homeAddress, officeAddress)
     }
 
     @Test
     fun `an address the customer already has should not be added twice`() {
         // Arrange
-        userRepository.save(jane.copy(postalAddresses = PostalAddresses(home)))
+        userRepository.save(definedUser.copy(postalAddresses = PostalAddresses(homeAddress)))
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
         // Act
         useCase.unfold(orderPlacement)
         // Assert
-        assertThat(addressesOfJane()).containsExactly(home)
+        assertThat(postalAddressesOfTheDefinedUser()).containsExactly(homeAddress)
     }
 
     @ParameterizedTest(name = "an account {0}: order placed = {1}")
     @CsvSource("PENDING_VERIFICATION, true", "ACTIVE, true", "SUSPENDED, false", "LOCKED, false", "DISABLED, false")
     fun `only an account that allows ordering should place an order`(status: AccountStatus, placed: Boolean) {
         // Arrange
-        userRepository.save(jane.copy(status = status))
+        userRepository.save(definedUser.copy(status = status))
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
         // Act
         val thrown = catchThrowable { useCase.unfold(orderPlacement) }
