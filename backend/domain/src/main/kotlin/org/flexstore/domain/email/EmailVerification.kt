@@ -1,5 +1,6 @@
 package org.flexstore.domain.email
 
+import org.flexstore.domain.sharedkernel.ShopUrl
 import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.model.*
 import org.ucop.domain.NominalException
@@ -49,7 +50,12 @@ data class EmailVerification(val userId: UserId, val token: VerificationToken, v
 }
 
 // The address of the page of the shop that verifies an email (e.g. https://shop.example/verify-email)
-data class VerificationPage(val value: String)
+data class VerificationPage(val value: String) {
+    companion object {
+        // The page of the shop that verifies the email of a customer
+        fun of(shopUrl: ShopUrl) = VerificationPage(shopUrl.pageAt("verify-email"))
+    }
+}
 
 data class Link(val value: String)
 
