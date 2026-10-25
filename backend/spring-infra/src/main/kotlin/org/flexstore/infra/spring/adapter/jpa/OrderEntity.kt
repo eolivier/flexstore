@@ -32,7 +32,7 @@ data class OrderEntity(
     val paymentId: String? = null,
 
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
-    @JoinColumn(name = "order_id", nullable = false)
+    @JoinColumn(name = "customer_order_id", nullable = false)
     @OrderBy("position")
     val lines: List<OrderLineEntity> = emptyList()
 ) : TimestampedEntity()

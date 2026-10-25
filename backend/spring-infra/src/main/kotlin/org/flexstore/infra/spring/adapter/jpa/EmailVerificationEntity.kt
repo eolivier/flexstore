@@ -3,12 +3,15 @@ package org.flexstore.infra.spring.adapter.jpa
 import jakarta.persistence.*
 import java.time.Instant
 
+// A verification link sent to a user (a user may have several over time)
 @Entity
 @Table(name = "email_verification")
 data class EmailVerificationEntity(
-    // SHA-256 of the token sent by email, never the token itself
     @Id
-    @Column(name = "token_hash")
+    val id: String,
+
+    // SHA-256 of the token sent by email, never the token itself
+    @Column(name = "token_hash", nullable = false, unique = true, updatable = false)
     val tokenHash: String,
 
     @Column(name = "user_id", nullable = false, updatable = false)

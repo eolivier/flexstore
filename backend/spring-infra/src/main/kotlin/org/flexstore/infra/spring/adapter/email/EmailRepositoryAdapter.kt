@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.adapter.email
 
+import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.email.*
 import org.flexstore.domain.user.model.UserId
 import org.flexstore.infra.spring.adapter.jpa.EmailVerificationEntity
@@ -22,14 +23,19 @@ class EmailRepositoryAdapter(
     override fun send(link: EmailVerificationLink) = emailSender.send(link)
 
     override fun save(verification: EmailVerification) {
-        jpaVerifications.save(EmailVerificationEntity(hash(verification.token), verification.userId.value, verification.expiresAt.value))
+        val verificationEntity = EmailVerificationEntity(
+            Identity.nextId().value,
+            tokenHash = hash(verification.token),
+            userId = verification.userId.value,
+            expiresAt = verification.expiresAt.value
+        )
+        jpaVerifications.save(verificationEntity)
     }
 
     @Transactional(readOnly = true)
     override fun findBy(token: VerificationToken): EmailVerification? =
-        jpaVerifications.findById(hash(token))
-            .map { EmailVerification(UserId.ValidUserId(it.userId), token, ExpirationDate(it.expiresAt)) }
-            .orElse(null)
+        jpaVerifications.findByTokenHash(hash(token))
+            ?.let { EmailVerification(UserId.ValidUserId(it.userId), token, ExpirationDate(it.expiresAt)) }
 
     override fun deleteAllVerificationsOf(userId: UserId) {
         jpaVerifications.deleteAllByUserId(userId.value)
