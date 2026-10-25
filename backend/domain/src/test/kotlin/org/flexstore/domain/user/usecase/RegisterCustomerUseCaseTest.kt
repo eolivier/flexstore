@@ -81,7 +81,7 @@ class RegisterCustomerUseCaseTest : WithAssertions {
     @Test
     fun `the address complement should be optional`() {
         // Arrange
-        val withoutComplement = jane.copy(postalAddress = addressAt(location.copy(complement = null)))
+        val withoutComplement = jane.copy(postalAddress = addressAt(Location(street, PostalCode("75011"), paris, Country("France"))))
         // Act
         useCase.unfold(withoutComplement)
         // Assert

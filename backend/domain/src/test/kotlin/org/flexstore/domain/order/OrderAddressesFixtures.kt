@@ -15,7 +15,7 @@ val homeAddress = PostalAddress(janeDoe, homeLocation)
 
 private val officeStreet = Street("3 place du Marché")
 
-private val officeLocation = Location(officeStreet, null, PostalCode("69001"), City("Lyon"), Country("France"))
+private val officeLocation = Location(officeStreet, PostalCode("69001"), City("Lyon"), Country("France"))
 
 val officeAddress = PostalAddress(janeDoe, officeLocation)
 

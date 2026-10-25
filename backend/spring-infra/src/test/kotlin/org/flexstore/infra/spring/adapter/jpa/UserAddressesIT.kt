@@ -28,9 +28,9 @@ class UserAddressesIT {
     private val france = Country("France")
     private val homeLocation = Location(homeStreet, homeComplement, PostalCode("75011"), City("Paris"), france)
     private val officeStreet = Street("3 place du Marché")
-    private val officeLocation = Location(officeStreet, null, PostalCode("69001"), City("Lyon"), france)
+    private val officeLocation = Location(officeStreet, PostalCode("69001"), City("Lyon"), france)
     private val holidaysStreet = Street("1 chemin des Vignes")
-    private val holidaysLocation = Location(holidaysStreet, null, PostalCode("33000"), City("Bordeaux"), france)
+    private val holidaysLocation = Location(holidaysStreet, PostalCode("33000"), City("Bordeaux"), france)
 
     private val home = PostalAddress(janeDoe, homeLocation)
     private val office = PostalAddress(acme, officeLocation)

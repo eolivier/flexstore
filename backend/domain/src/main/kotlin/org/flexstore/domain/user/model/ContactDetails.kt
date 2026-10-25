@@ -64,6 +64,10 @@ data class Location(
     val city: City,
     val country: Country
 ) {
+    // An address without complement (building, floor...)
+    constructor(street: Street, postalCode: PostalCode, city: City, country: Country) :
+        this(street, null, postalCode, city, country)
+
     fun isComplete() = listOf(street.value, postalCode.value, city.value, country.value).none { it.isBlank() }
 }
 
