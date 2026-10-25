@@ -1,6 +1,6 @@
 ---
 name: fluent-code-reading-semantic
-description: Principles that make code read like the business language - wrapping collections in their own class, naming boolean methods affirmatively, naming variables after their type, intermediate variables, strong types rather than nullable ones, one or two arguments per method, lines of 113 characters at most. Use before writing, changing or reviewing domain or application code (entities, value objects, aggregates, use cases), in any language.
+description: Principles that make code read like the business language - wrapping collections in their own class, naming boolean methods affirmatively, naming variables after their type, intermediate variables, strong types rather than nullable ones, one or two arguments per method, lines of 113 characters at most, singular or plural names. Use before writing, changing or reviewing domain or application code (entities, value objects, aggregates, use cases), in any language.
 ---
 
 # Fluent code reading semantic
@@ -308,3 +308,29 @@ Details:
 - The limit applies to every language of the project (Kotlin, TypeScript, Vue, SQL); a long string or a URL that cannot be split is the only exception.
 - When the variables are not enough (a declaration with many parameters), put one parameter per line, as the existing data classes do.
 - Comments follow the same limit: split them over several lines.
+
+## 12. Singular or plural: one thing, or a collection of things
+
+The name of a class is singular when an instance is one thing, plural only when it wraps a collection of those things (principle 1).
+
+Avoid:
+
+```kotlin
+// One detail of an order (its placement and its lines), not several details
+data class OrderDetails(val placement: OrderPlacement, val lines: OrderLines)
+```
+
+Prefer:
+
+```kotlin
+data class OrderDetail(val placement: OrderPlacement, val lines: OrderLines)
+
+// A collection of order details: the plural is then appropriate
+data class OrderDetails(private val orderDetails: List<OrderDetail>)
+```
+
+Why: the reader expects one value behind a singular name and a collection behind a plural one; a plural name on a single value suggests operations (iterate, count, search) that it does not offer.
+
+Details:
+- A plural class is the wrapper of the singular one: `Items` wraps `Item`, `OrderLines` wraps `OrderLine`, `PostalAddresses` wraps `PostalAddress`.
+- Variables and properties follow the same rule: `orderDetail` for one, `orderDetails` for the collection.
