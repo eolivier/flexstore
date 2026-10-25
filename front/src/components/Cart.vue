@@ -4,6 +4,7 @@
   import { useRouter } from 'vue-router';
   import { useAuthStore } from '@/stores/auth.store';
   import { useCartStore } from '@/stores/cart.store';
+  import { useProductImagesStore } from '@/stores/productImages.store';
   import type { Item } from '@/models/cart';
   import CartLine from '@/components/cart/CartLine.vue';
   import { formatPrice } from '@/utils/price';
@@ -20,6 +21,7 @@
   }
 
   onMounted(() => {
+    useProductImagesStore().fetchProductsWithImage();
     cartStore.fetchCartItems();
   });
 

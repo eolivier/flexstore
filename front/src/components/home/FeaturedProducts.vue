@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import { useProductImagesStore } from '@/stores/productImages.store';
   import { useStocksStore } from '@/stores/stocks.store';
   import { computed } from 'vue';
   import { useI18n } from 'vue-i18n';
@@ -14,6 +15,7 @@
   const productsStore = useProductsStore();
   const stocksStore = useStocksStore();
   stocksStore.fetchStocks();
+  useProductImagesStore().fetchProductsWithImage();
   const { addingProductId, feedback, addToCart } = useAddToCart();
 
   // Up to 4 products, taken in turn from each category so that the selection is varied

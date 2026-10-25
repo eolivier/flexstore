@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { createPinia, setActivePinia } from 'pinia';
 import { mount } from '@vue/test-utils';
 import { createMemoryHistory, createRouter } from 'vue-router';
 import ProductCard from './ProductCard.vue';
@@ -22,6 +23,10 @@ function mountCard(stock: number | null) {
 }
 
 describe('ProductCard.vue', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia());
+  });
+
   it.each([
     { stock: 0, disabled: true },
     { stock: 3, disabled: false },

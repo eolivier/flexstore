@@ -30,6 +30,9 @@ dependencies {
     // Payment provider (Stripe Checkout); without a secret key, the payments are simulated
     implementation("com.stripe:stripe-java:28.2.0")
 
+    // Reading of the WebP images given by the administrators (ImageIO reads JPEG and PNG on its own)
+    implementation("com.twelvemonkeys.imageio:imageio-webp:3.12.0")
+
     // JPA + Hibernate
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 

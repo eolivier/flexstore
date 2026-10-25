@@ -13,6 +13,8 @@
   import { formatPrice } from '@/utils/price';
   import { useStocksStore } from '@/stores/stocks.store';
   import StockBadge from './StockBadge.vue';
+  import ProductVisual from './ProductVisual.vue';
+  import { useProductImagesStore } from '@/stores/productImages.store';
 
   const props = defineProps<{ id: string }>();
 
@@ -21,6 +23,7 @@
   const cartStore = useCartStore();
   const stocksStore = useStocksStore();
   stocksStore.fetchStocks();
+  useProductImagesStore().fetchProductsWithImage();
   const { addingProductId, feedback, addToCart } = useAddToCart();
 
   const product = ref<Product | null>(null);
@@ -113,7 +116,12 @@
       <v-row class="mb-12">
         <v-col cols="12" md="6">
           <div class="detail-visual d-flex align-center justify-center" :style="{ background: category.tint }">
-            <v-icon :icon="category.icon" size="140" color="primary" class="detail-icon" />
+            <ProductVisual
+              :product-id="product.id"
+              :category="product.category"
+              format="large"
+              :icon-size="140"
+            />
           </div>
         </v-col>
 
@@ -198,6 +206,7 @@
   .detail-visual {
     aspect-ratio: 4 / 3;
     border-radius: 24px;
+    overflow: hidden;
   }
   .detail-icon {
     opacity: 0.85;

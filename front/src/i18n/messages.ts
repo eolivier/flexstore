@@ -133,6 +133,19 @@ export default {
       total: 'Total',
       status: 'Status',
     },
+    productImage: {
+      title: 'Image',
+      add: 'Add an image',
+      replace: 'Replace the image',
+      remove: 'Remove the image',
+      hint: 'JPEG, PNG or WebP, 2 MB at most: it is resized for the catalog.',
+      errors: {
+        tooLarge: 'The image is larger than 2 MB.',
+        unsupported: 'The file is not a JPEG, PNG or WebP image.',
+        error: 'The image could not be saved.',
+        removalError: 'The image could not be removed.',
+      },
+    },
     stock: {
       inStock: 'In stock',
       fewLeft: 'Only 1 left in stock | Only {n} left in stock',
@@ -550,6 +563,19 @@ export default {
       items: 'Articles',
       total: 'Total',
       status: 'Statut',
+    },
+    productImage: {
+      title: 'Image',
+      add: 'Ajouter une image',
+      replace: "Remplacer l'image",
+      remove: "Supprimer l'image",
+      hint: 'JPEG, PNG ou WebP, 2 Mo au plus : elle est redimensionnée pour le catalogue.',
+      errors: {
+        tooLarge: "L'image dépasse 2 Mo.",
+        unsupported: "Le fichier n'est pas une image JPEG, PNG ou WebP.",
+        error: "L'image n'a pas pu être enregistrée.",
+        removalError: "L'image n'a pas pu être supprimée.",
+      },
     },
     stock: {
       inStock: 'En stock',

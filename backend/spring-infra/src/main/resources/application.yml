@@ -17,6 +17,11 @@ spring:
       # Most providers require authentication and STARTTLS; set both to false for a local server such as Mailpit
       mail.smtp.auth: ${FLEXSTORE_MAIL_SMTP_AUTH:true}
       mail.smtp.starttls.enable: ${FLEXSTORE_MAIL_SMTP_STARTTLS:true}
+  servlet:
+    multipart:
+      # The images of the products are 2 MB at most (checked again by the domain)
+      max-file-size: 2MB
+      max-request-size: 3MB
 flexstore:
   mail:
     from: ${FLEXSTORE_MAIL_FROM:Flexstore <no-reply@flexstore.com>}
