@@ -82,10 +82,14 @@ class AccountIT {
         register(registration()).andExpect(status().isCreated)
         // Assert
         val stored = userRepository.findByEmail(CUSTOMER_EMAIL)!!
-        val address = stored.addresses.single()
+        val address = stored.addresses.single().address
         assertThat(stored.phoneNumber).isEqualTo("+33 6 12 34 56 78")
-        assertThat(listOf(address.street, address.complement, address.postalCode, address.city, address.country))
-            .containsExactly("12 rue des Lilas", null, "75011", "Paris", "France")
+        val recipient = listOf(address.firstName, address.lastName, address.companyName)
+        val street = listOf(address.street, address.complement)
+        val town = listOf(address.postalCode, address.city, address.country)
+        assertThat(recipient).containsExactly("Jane", "Doe", null)
+        assertThat(street).containsExactly("12 rue des Lilas", null)
+        assertThat(town).containsExactly("75011", "Paris", "France")
     }
 
     @Test
@@ -213,6 +217,9 @@ class AccountIT {
     private fun registration(password: String = "password123", phoneNumber: String = "+33 6 12 34 56 78", city: String = "Paris") = """
         {"firstName": "Jane", "lastName": "Doe", "email": "$CUSTOMER_EMAIL", "password": "$password",
          "phoneNumber": "$phoneNumber",
-         "postalAddress": {"street": "12 rue des Lilas", "complement": "", "postalCode": "75011", "city": "$city", "country": "France"}}
+         "postalAddress": {"recipientType": "PRIVATE_INDIVIDUAL",
+             "firstName": "Jane", "lastName": "Doe",
+            "street": "12 rue des Lilas", "complement": "",
+            "postalCode": "75011", "city": "$city", "country": "France"}}
     """
 }

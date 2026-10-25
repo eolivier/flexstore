@@ -33,5 +33,5 @@ data class UserEntity(
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     @OrderBy("position")
-    val addresses: List<AddressEntity> = emptyList()
+    val addresses: List<UserAddressEntity> = emptyList()
 ) : TimestampedEntity()

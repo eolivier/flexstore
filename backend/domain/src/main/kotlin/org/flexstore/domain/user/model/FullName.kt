@@ -12,4 +12,9 @@ data class FullName(val firstName: FirstName, val lastName: LastName) {
         get() = listOf(firstName.value, lastName.value).filter { it.isNotBlank() }.joinToString(" ")
 
     fun isComplete() = firstName.value.isNotBlank() && lastName.value.isNotBlank()
+
+    companion object {
+        // No person named: a company without contact
+        fun none() = FullName(FirstName(""), LastName(""))
+    }
 }

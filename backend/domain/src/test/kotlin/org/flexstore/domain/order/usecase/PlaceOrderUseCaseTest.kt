@@ -20,7 +20,6 @@ class PlaceOrderUseCaseTest : WithAssertions {
     private val deskLamp = DefinedProduct(ProductId(Identity("desk-lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR))
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val definedUser = User.DefinedUser(customer.userId, FullName(FirstName("Jane"), LastName("Doe")), Email("jane@example.com"), PlainPassword("password"))
-    private val officeAddress = PostalAddress(Street("3 place du Marché"), null, PostalCode("69001"), City("Lyon"), Country("France"))
     private val cartRepository = InMemoryCartRepository()
     private val orderRepository = InMemoryOrderRepository()
     private val userRepository = InMemoryUserRepository().apply { save(definedUser) }

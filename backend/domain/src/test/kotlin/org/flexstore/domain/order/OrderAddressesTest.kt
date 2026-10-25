@@ -17,15 +17,16 @@ class OrderAddressesTest : WithAssertions {
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val deskLamp = DefinedProduct(ProductId(Identity("desk-lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR))
     private val cart = Cart(customer).add(deskLamp, Quantity(1))
-    private val officeAddress = PostalAddress(Street("3 place du Marché"), null, PostalCode("69001"), City("Lyon"), Country("France"))
 
     companion object {
-        private val incompleteAddress = homeAddress.copy(city = City(""))
+        private val nameless = LegalEntity(Company(CompanyName("")))
+        private val incompleteAddress = homeAddress.copy(location = homeLocation.copy(city = City("")))
 
         @JvmStatic
         fun incompleteAddresses() = listOf(
             Arguments.of("delivery", OrderAddresses(incompleteAddress, homeAddress)),
             Arguments.of("billing", OrderAddresses(homeAddress, incompleteAddress)),
+            Arguments.of("company", OrderAddresses(homeAddress, PostalAddress(nameless, homeLocation))),
         )
     }
 
@@ -40,6 +41,17 @@ class OrderAddressesTest : WithAssertions {
         val order = Order.place(orderPlacement, cart)
         // Assert
         assertThat(order.addresses).isEqualTo(OrderAddresses(delivery = homeAddress, billing = officeAddress))
+    }
+
+    @Test
+    fun `an order should be billed to a company, without the name of a person`() {
+        // Arrange
+        val acme = LegalEntity(Company(CompanyName("Acme"), VatNumber("FR12345678901")))
+        val orderPlacement = orderPlacementWith(OrderAddresses(homeAddress, PostalAddress(acme, homeLocation)))
+        // Act
+        val order = Order.place(orderPlacement, cart)
+        // Assert
+        assertThat(order.addresses.billing.recipient).isEqualTo(acme)
     }
 
     @Test

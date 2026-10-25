@@ -630,8 +630,28 @@ components:
           description: The token of the link (query parameter token of the verification page)
     JsonPostalAddress:
       type: object
-      required: [street, postalCode, city, country]
+      description: >
+        A postal address: its recipient, maybe someone else than the user, and where it is.
+        The recipient is a person (PRIVATE_INDIVIDUAL, with firstName and lastName)
+        or a company (LEGAL_ENTITY, with companyName and an optional vatNumber)
+      required: [recipientType, street, postalCode, city, country]
       properties:
+        recipientType:
+          type: string
+          enum: [PRIVATE_INDIVIDUAL, LEGAL_ENTITY]
+        firstName:
+          type: string
+          nullable: true
+        lastName:
+          type: string
+          nullable: true
+        companyName:
+          type: string
+          nullable: true
+        vatNumber:
+          type: string
+          nullable: true
+          description: The VAT identification number of the company (optional)
         street:
           type: string
         complement:

@@ -27,7 +27,7 @@ This repo is meant to be a learning vehicle and a ready-to-fork base for real pr
 - Cart: quantity per line, remove, total, item count badge in the header; one cart per visitor and per customer, merged at sign-in
 
 **Orders** (sign-in required)
-- Place an order from the cart, on a checkout page: the customer chooses the delivery address and the billing address (the same by default) among their addresses or enters another one, which is added to their addresses; the order refers to both addresses and keeps the name and the price of the products, the cart is emptied, and a confirmation email is sent to the customer (can be turned off in the administration settings)
+- Place an order from the cart, on a checkout page: the customer chooses the delivery address and the billing address (the same by default) among their addresses or enters another one (with its recipient, the customer by default, maybe a company), which is added to their addresses; the order refers to both addresses and keeps the name and the price of the products, the cart is emptied, and a confirmation email is sent to the customer (can be turned off in the administration settings)
 - Orders page: the customer's orders, newest first, with their status and total
 - Order detail: date, status, lines (product, unit price, quantity, total) and order total; shown right after the order is placed
 

@@ -5,7 +5,7 @@
   import { useAccountStore } from '@/stores/account.store';
   import { useCartStore } from '@/stores/cart.store';
   import { useOrdersStore } from '@/stores/orders.store';
-  import type { PostalAddress } from '@/models/account';
+  import type { PostalAddress, Recipient } from '@/models/account';
   import AddressChoice from './AddressChoice.vue';
   import CheckoutSummary from './CheckoutSummary.vue';
 
@@ -17,8 +17,17 @@
 
   // null while the addresses of the customer are loaded
   const savedAddresses = ref<PostalAddress[] | null>(null);
-  const delivery = ref<PostalAddress>({ street: '', complement: '', postalCode: '', city: '', country: 'France' });
-  const billing = ref<PostalAddress>({ street: '', complement: '', postalCode: '', city: '', country: 'France' });
+  // The recipient of another address entered here, by default
+  const customer = ref<Recipient>({
+    recipientType: 'PRIVATE_INDIVIDUAL',
+    firstName: '',
+    lastName: '',
+    companyName: '',
+    vatNumber: '',
+  });
+  const emptyLocation = { street: '', complement: '', postalCode: '', city: '', country: 'France' };
+  const delivery = ref<PostalAddress>({ ...customer.value, ...emptyLocation });
+  const billing = ref<PostalAddress>({ ...customer.value, ...emptyLocation });
   // Most orders are billed to their delivery address
   const billedToDelivery = ref(true);
   const valid = ref<boolean | null>(null);
@@ -28,15 +37,35 @@
   onMounted(async () => {
     cartStore.fetchCartItems();
     const account = await accountStore.fetchAccount();
-    savedAddresses.value = (account?.postalAddresses ?? []).map(address => ({ ...address, complement: address.complement ?? '' }));
+    customer.value = {
+      ...customer.value,
+      firstName: account?.firstName ?? '',
+      lastName: account?.lastName ?? '',
+    };
+    const accountAddresses = account?.postalAddresses ?? [];
+    savedAddresses.value = accountAddresses.map((address) => ({
+      ...address,
+      firstName: address.firstName ?? '',
+      lastName: address.lastName ?? '',
+      companyName: address.companyName ?? '',
+      vatNumber: address.vatNumber ?? '',
+      complement: address.complement ?? '',
+    }));
   });
+
+  // A company is billed by its name and VAT number only: the names of a contact are not collected
+  function billingRecipientOnly(address: PostalAddress): PostalAddress {
+    return address.recipientType === 'LEGAL_ENTITY'
+      ? { ...address, firstName: '', lastName: '' }
+      : address;
+  }
 
   async function placeOrder() {
     placing.value = true;
     error.value = null;
     const placement = await ordersStore.placeOrder({
       deliveryAddress: delivery.value,
-      billingAddress: billedToDelivery.value ? undefined : billing.value,
+      billingAddress: billedToDelivery.value ? undefined : billingRecipientOnly(billing.value),
     });
     placing.value = false;
     if (placement.status === 'placed') {
@@ -55,14 +84,35 @@
         <v-skeleton-loader v-if="savedAddresses === null" type="article" class="rounded-xl" />
         <v-card v-else class="pa-6">
           <v-form v-model="valid">
-            <AddressChoice v-model="delivery" :addresses="savedAddresses" :legend="t('checkout.deliveryAddress')" />
-            <v-checkbox v-model="billedToDelivery" :label="t('checkout.billedToDelivery')" hide-details class="mb-2" />
-            <AddressChoice v-if="!billedToDelivery" v-model="billing" :addresses="savedAddresses" :legend="t('checkout.billingAddress')" />
+            <AddressChoice
+              v-model="delivery"
+              :addresses="savedAddresses"
+              :customer="customer"
+              purpose="delivery"
+            />
+            <v-checkbox
+              v-model="billedToDelivery"
+              :label="t('checkout.billedToDelivery')"
+              hide-details
+              class="mb-2"
+            />
+            <AddressChoice
+              v-if="!billedToDelivery"
+              v-model="billing"
+              :addresses="savedAddresses"
+              :customer="customer"
+              purpose="billing"
+            />
           </v-form>
         </v-card>
       </v-col>
       <v-col cols="12" md="4">
-        <CheckoutSummary :placing="placing" :disabled="savedAddresses === null || valid === false" :error="error" @place="placeOrder" />
+        <CheckoutSummary
+          :placing="placing"
+          :disabled="savedAddresses === null || valid === false"
+          :error="error"
+          @place="placeOrder"
+        />
       </v-col>
     </v-row>
   </v-container>

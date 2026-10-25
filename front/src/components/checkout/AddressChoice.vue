@@ -1,18 +1,24 @@
 <script setup lang="ts">
   import { ref, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
-  import type { PostalAddress } from '@/models/account';
+  import type { PostalAddress, Recipient } from '@/models/account';
   import { formatAddress } from '@/utils/address';
   import PostalAddressFields from '@/components/account/PostalAddressFields.vue';
+  import RecipientFields from '@/components/account/RecipientFields.vue';
 
-  // One of the addresses of the customer, or another address entered here
+  // One of the addresses of the customer, or another address entered here, sent by default to the customer
   const address = defineModel<PostalAddress>({ required: true });
-  const props = defineProps<{ addresses: PostalAddress[]; legend: string }>();
+  const props = defineProps<{
+    addresses: PostalAddress[];
+    customer: Recipient;
+    purpose: 'delivery' | 'billing';
+  }>();
 
   const { t } = useI18n();
 
   const choice = ref<number | 'other'>(props.addresses.length > 0 ? 0 : 'other');
-  const otherAddress = ref<PostalAddress>({ street: '', complement: '', postalCode: '', city: '', country: 'France' });
+  const otherLocation = { street: '', complement: '', postalCode: '', city: '', country: 'France' };
+  const otherAddress = ref<PostalAddress>({ ...props.customer, ...otherLocation });
 
   watch(
     [choice, otherAddress],
@@ -25,12 +31,22 @@
 
 <template>
   <fieldset class="address-choice mb-4">
-    <legend class="text-subtitle-1 font-weight-bold mb-2">{{ legend }}</legend>
+    <legend class="text-subtitle-1 font-weight-bold mb-2">
+      {{ t(`checkout.${purpose}Address`) }}
+    </legend>
     <v-radio-group v-model="choice" hide-details class="mb-2">
-      <v-radio v-for="(saved, index) in addresses" :key="index" :value="index" :label="formatAddress(saved)" />
+      <v-radio
+        v-for="(saved, index) in addresses"
+        :key="index"
+        :value="index"
+        :label="formatAddress(saved)"
+      />
       <v-radio value="other" :label="t('checkout.otherAddress')" />
     </v-radio-group>
-    <PostalAddressFields v-if="choice === 'other'" v-model="otherAddress" />
+    <template v-if="choice === 'other'">
+      <RecipientFields v-model="otherAddress" :purpose="purpose" />
+      <PostalAddressFields v-model="otherAddress" />
+    </template>
   </fieldset>
 </template>
 

@@ -124,8 +124,12 @@ class OrderIT {
     fun `an order should keep a billing address different from its delivery address`() {
         // Arrange
         addToCart(CUSTOMER_ID, productId = "6", quantity = 1)
-        val addresses = """{"deliveryAddress": {"street": "12 rue des Lilas", "postalCode": "75011", "city": "Paris", "country": "France"},
-            "billingAddress": {"street": "3 place du Marché", "postalCode": "69001", "city": "Lyon", "country": "France"}}"""
+        val addresses = """{"deliveryAddress": {"recipientType": "PRIVATE_INDIVIDUAL",
+            "firstName": "Jane", "lastName": "Doe",
+                "street": "12 rue des Lilas", "postalCode": "75011", "city": "Paris", "country": "France"},
+            "billingAddress": {"recipientType": "LEGAL_ENTITY", "companyName": "Acme",
+                "vatNumber": "FR12345678901",
+                "street": "3 place du Marché", "postalCode": "69001", "city": "Lyon", "country": "France"}}"""
         val orderId = objectMapper.readTree(
             mockMvc.perform(post("/api/orders").with(asUser(CUSTOMER_ID)).contentType(MediaType.APPLICATION_JSON).content(addresses))
                 .andExpect(status().isCreated).andReturn().response.contentAsString
@@ -135,13 +139,18 @@ class OrderIT {
         // Assert
         response.andExpect(jsonPath("$.deliveryAddress.city").value("Paris"))
             .andExpect(jsonPath("$.billingAddress.city").value("Lyon"))
+            .andExpect(jsonPath("$.billingAddress.companyName").value("Acme"))
+            .andExpect(jsonPath("$.billingAddress.recipientType").value("LEGAL_ENTITY"))
+            .andExpect(jsonPath("$.billingAddress.vatNumber").value("FR12345678901"))
     }
 
     @Test
     fun `an order should not be placed with an incomplete address`() {
         // Arrange
         addToCart(CUSTOMER_ID, productId = "6", quantity = 1)
-        val addresses = """{"deliveryAddress": {"street": "12 rue des Lilas", "postalCode": "75011", "city": "", "country": "France"}}"""
+        val addresses = """{"deliveryAddress": {"recipientType": "PRIVATE_INDIVIDUAL",
+            "firstName": "Jane", "lastName": "Doe",
+            "street": "12 rue des Lilas", "postalCode": "75011", "city": "", "country": "France"}}"""
         // Act
         val response = mockMvc.perform(post("/api/orders").with(asUser(CUSTOMER_ID)).contentType(MediaType.APPLICATION_JSON).content(addresses))
         // Assert
