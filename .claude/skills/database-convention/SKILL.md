@@ -1,6 +1,6 @@
 ---
 name: database-convention
-description: Rules for the database schema of the back end (Flyway migrations in backend/migrations) - primary keys named id, foreign keys named after the table they reference instead of copied columns, data migrated rather than left incomplete, the physical data model (docs/database.md and its PNG image, readable colors) updated with the schema. Use before writing or reviewing a migration, a table, a column or a JPA mapping of a table.
+description: Rules for the database schema of the back end (Flyway migrations in backend/migrations) - primary keys named id, foreign keys named after the table they reference instead of copied columns, data migrated rather than left incomplete, the physical data model (docs/database.md and its PNG image, readable colors) updated with the schema, no circular dependency between tables. Use before writing or reviewing a migration, a table, a column or a JPA mapping of a table.
 ---
 
 # Database convention
@@ -134,3 +134,29 @@ How to apply:
 - Keep the colors clear and readable: a light theme (light backgrounds, dark text with a strong contrast, visible lines), set once in the `%%{init: ...}%%` line of the diagram; no dark or saturated backgrounds, no light text.
 
 Why: the diagram gives at a glance the tables, their keys and their relations, which the migrations only give one change at a time; a diagram that is not updated with the schema misleads more than it helps.
+
+## 5. No circular dependency between tables
+
+The foreign keys never form a cycle: a table never references, directly or through other tables, a table that references it. The tables can always be ordered so that each one only references the tables before it.
+
+Avoid:
+
+```sql
+-- The user references their last email verification, and the verification references its user
+ALTER TABLE "user" ADD COLUMN email_verification_id VARCHAR(50) REFERENCES email_verification(id);
+ALTER TABLE email_verification ADD COLUMN user_id VARCHAR(50) REFERENCES "user"(id);
+```
+
+Prefer:
+
+```sql
+-- Only the owner references what it has (see principle 2)
+ALTER TABLE "user" ADD COLUMN email_verification_id VARCHAR(50) REFERENCES email_verification(id);
+```
+
+Why: with a cycle, no row can be inserted or deleted first without a nullable column or a deferred constraint, the deletions in cascade loop, and the data of a table cannot be loaded, copied or emptied on its own; the cycle also hides which table owns the other.
+
+How to apply:
+- Before adding a foreign key, follow the arrows of the physical data model (`docs/database.md`, principle 4) from the referenced table: the new key must not lead back to its own table.
+- A relation in both directions keeps a single foreign key, held by the owner (principle 2); the other direction is a query, not a column.
+- A table that must reference rows of its own kind (a hierarchy) is the only accepted self-reference, with a nullable key, and is said in a comment of the migration.
