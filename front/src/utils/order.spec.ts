@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import type { JsonOrder } from '@/generated';
-import { orderItemsCount, orderNumber, orderStepState, placedOn } from './order';
+import {
+  hasNextStatus,
+  nextStatus,
+  orderItemsCount,
+  orderNumber,
+  orderStepState,
+  placedOn,
+} from './order';
 import { twoLinesOrder } from '@/components/orders/orderFixture';
 
 const order: JsonOrder = {
@@ -34,7 +41,9 @@ describe('order utils', () => {
     { currentStatus: 'DELIVERED', expected: ['done', 'done', 'current'] },
   ] as const)('an order $currentStatus has the steps $expected', ({ currentStatus, expected }) => {
     // Act
-    const states = (['PROCESSING', 'SHIPPED', 'DELIVERED'] as const).map(step => orderStepState(step, currentStatus));
+    const states = (['PROCESSING', 'SHIPPED', 'DELIVERED'] as const).map((step) =>
+      orderStepState(step, currentStatus)
+    );
     // Assert
     expect(states).toEqual(expected);
   });
@@ -45,4 +54,18 @@ describe('order utils', () => {
     // Assert
     expect(itemsCount).toBe(3);
   });
+
+  it.each([
+    { status: 'PROCESSING' as const, next: 'SHIPPED', hasNext: true },
+    { status: 'SHIPPED' as const, next: 'DELIVERED', hasNext: true },
+    { status: 'DELIVERED' as const, next: 'DELIVERED', hasNext: false },
+  ])(
+    'an order $status is followed by $next (has a next status: $hasNext)',
+    ({ status, next, hasNext }) => {
+      // Act
+      const following = [nextStatus(status), hasNextStatus(status)];
+      // Assert
+      expect(following).toEqual([next, hasNext]);
+    }
+  );
 });

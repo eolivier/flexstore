@@ -21,13 +21,26 @@ class PostgresOrderRepositoryAdapter(
     private val jpaUserRepository: JpaUserRepository
 ) : OrderRepository {
 
-    override fun save(order: Order): Order = jpaRepo.save(order.toEntity()).toDomain()
+    // An order is placed once, then only its status changes: the stored rows of its lines are kept
+    override fun save(order: Order): Order {
+        val storedOrder = jpaRepo.findById(order.orderId.value).orElse(null)
+        val orderEntity = storedOrder?.withStatusOf(order) ?: order.toEntity()
+        return jpaRepo.save(orderEntity).toDomain()
+    }
+
+    private fun OrderEntity.withStatusOf(order: Order): OrderEntity {
+        val storedCreatedAt = createdAt
+        return copy(status = order.status.name).also { it.createdAt = storedCreatedAt }
+    }
 
     @Transactional(readOnly = true)
     override fun findById(orderId: OrderId): Order? = jpaRepo.findById(orderId.value).map { it.toDomain() }.orElse(null)
 
     @Transactional(readOnly = true)
     override fun orderExists(orderId: OrderId): Boolean = jpaRepo.existsById(orderId.value)
+
+    @Transactional(readOnly = true)
+    override fun findAll() = Orders(jpaRepo.findAll().map { it.toDomain() })
 
     @Transactional(readOnly = true)
     override fun findAllBy(customer: UserId.ValidUserId) = Orders(jpaRepo.findAllByUserId(customer.value).map { it.toDomain() })

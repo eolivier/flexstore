@@ -10,7 +10,11 @@ export function orderItemsCount(order: JsonOrder): number {
 }
 
 export function placedOn(order: JsonOrder, locale: string): string {
-  return new Date(order.placedAt).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' });
+  return new Date(order.placedAt).toLocaleDateString(locale, {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
 }
 
 // full: every step with its label (order detail); compact: smaller markers, only the current step labelled (orders list)
@@ -21,8 +25,22 @@ export const orderStatusSteps: JsonOrder['status'][] = ['PROCESSING', 'SHIPPED',
 
 export type OrderStepState = 'done' | 'current' | 'upcoming';
 
+// A delivered order has no next status
+export function hasNextStatus(status: JsonOrder['status']): boolean {
+  return status !== 'DELIVERED';
+}
+
+// The status that follows in the life cycle of an order (the last one stays as it is)
+export function nextStatus(status: JsonOrder['status']): JsonOrder['status'] {
+  const nextIndex = Math.min(orderStatusSteps.indexOf(status) + 1, orderStatusSteps.length - 1);
+  return orderStatusSteps[nextIndex];
+}
+
 // Where a step stands for an order in the given status
-export function orderStepState(step: JsonOrder['status'], currentStatus: JsonOrder['status']): OrderStepState {
+export function orderStepState(
+  step: JsonOrder['status'],
+  currentStatus: JsonOrder['status']
+): OrderStepState {
   const stepIndex = orderStatusSteps.indexOf(step);
   const currentIndex = orderStatusSteps.indexOf(currentStatus);
   if (stepIndex < currentIndex) return 'done';

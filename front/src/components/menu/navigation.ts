@@ -16,5 +16,6 @@ export const adminLinks = [
   { to: '/admin/create-user', icon: 'mdi-account-plus-outline', label: 'nav.createUser' },
   { to: '/admin/products', icon: 'mdi-package-variant-closed', label: 'nav.products' },
   { to: '/admin/create-product', icon: 'mdi-package-variant-plus', label: 'nav.createProduct' },
+  { to: '/admin/orders', icon: 'mdi-truck-delivery-outline', label: 'nav.adminOrders' },
   { to: '/admin/settings', icon: 'mdi-cog-outline', label: 'nav.settings' },
 ];

@@ -5,6 +5,7 @@ base.ts
 common.ts
 configuration.ts
 docs/AccountsApi.md
+docs/AdministrationApi.md
 docs/CartApi.md
 docs/DraftJsonProduct.md
 docs/EditedJsonProduct.md
@@ -21,6 +22,7 @@ docs/JsonLoginResponse.md
 docs/JsonOrder.md
 docs/JsonOrderAddresses.md
 docs/JsonOrderLine.md
+docs/JsonOrderStatusAdvance.md
 docs/JsonPostalAddress.md
 docs/JsonProduct.md
 docs/JsonSaveItemResponse.md

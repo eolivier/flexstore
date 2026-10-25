@@ -35,7 +35,7 @@ This repo is meant to be a learning vehicle and a ready-to-fork base for real pr
 - Create an account (first name, last name, email, password, phone number, postal address): the account waits for the verification of the email (`PENDING_VERIFICATION`), the customer is signed in at once and can order
 - Verify the email with the link received by email (valid for 1 hour): the account becomes `ACTIVE`; a new link can be asked for from the profile
 - Sign in, profile, change password
-- Administration (`ADMIN` role): users (list with their role, create with a role, edit first name/last name/email/role, change the status of the account (active, suspended, locked, disabled), delete), products (list, create, edit name/description/category/price), settings (order confirmation email on/off)
+- Administration (`ADMIN` role): users (list with their role, create with a role, edit first name/last name/email/role, change the status of the account (active, suspended, locked, disabled), delete), products (list, create, edit name/description/category/price), orders (list the orders of all the customers, move each one to its next status: processing, shipped, delivered), settings (order confirmation email on/off)
 
 ---
 
