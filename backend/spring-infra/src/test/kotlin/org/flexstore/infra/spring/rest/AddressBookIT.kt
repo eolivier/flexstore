@@ -146,6 +146,18 @@ class AddressBookIT {
             .andExpect(jsonPath("$.deliveryAddress.firstName").value("Jane"))
     }
 
+    @Test
+    fun `a customer should remove an address used by an order, which keeps it`() {
+        // Arrange
+        val orderId = placeOrderDeliveredHome()
+        // Act
+        val response = removeAddress(0)
+        // Assert
+        response.andExpect(status().isOk).andExpect(jsonPath("$.length()").value(1))
+        mockMvc.perform(get("/api/orders/$orderId").with(asUser(CUSTOMER_ID)))
+            .andExpect(jsonPath("$.deliveryAddress.city").value("Paris"))
+    }
+
     private fun removeAddress(position: Int) =
         mockMvc.perform(delete("/api/accounts/me/addresses/$position").with(asUser(CUSTOMER_ID)))
 
