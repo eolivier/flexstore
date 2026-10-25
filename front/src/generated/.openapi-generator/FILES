@@ -23,6 +23,7 @@ docs/JsonOrder.md
 docs/JsonOrderAddresses.md
 docs/JsonOrderLine.md
 docs/JsonOrderStatusAdvance.md
+docs/JsonPaymentSession.md
 docs/JsonPostalAddress.md
 docs/JsonProduct.md
 docs/JsonSaveItemResponse.md
@@ -30,6 +31,7 @@ docs/JsonUser.md
 docs/JsonUserCreate.md
 docs/JsonUserUpdate.md
 docs/OrdersApi.md
+docs/PaymentsApi.md
 docs/ProductsApi.md
 docs/UsersApi.md
 git_push.sh

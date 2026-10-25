@@ -6,18 +6,15 @@ import org.flexstore.domain.user.model.*
 import java.time.Instant
 
 class OrderUseCaseFacade(private val placeOrderUseCase: PlaceOrderUseCase,
-                         private val readOrdersUseCase: ReadOrdersUseCase,
-                         private val sendOrderConfirmationEmailUseCase: SendOrderConfirmationEmailUseCase) {
+                         private val readOrdersUseCase: ReadOrdersUseCase) {
 
-    // The use cases are shared by all the requests: the placed order is read back with its id,
-    // then confirmed to the customer by email
+    // The use cases are shared by all the requests: the placed order is read back with its id.
+    // It awaits its payment, which confirms it to the customer by email (see PaymentService)
     fun placeOrder(checkout: Checkout): Order {
         val orderStamp = OrderStamp(OrderId.nextId(), Instant.now())
         val orderPlacement = OrderPlacement(orderStamp, checkout)
         placeOrderUseCase.unfold(orderPlacement)
-        val placedOrder = readOrdersUseCase.getOrder(checkout.customer.userId, orderStamp.orderId)
-        sendOrderConfirmationEmailUseCase.unfold(placedOrder)
-        return placedOrder
+        return readOrdersUseCase.getOrder(checkout.customer.userId, orderStamp.orderId)
     }
 
     fun getOrders(customer: UserId.ValidUserId) = readOrdersUseCase.getOrders(customer)

@@ -42,13 +42,13 @@ class PlaceOrderUseCaseTest : WithAssertions {
     }
 
     @Test
-    fun `should empty the cart`() {
+    fun `should keep the cart until the order is paid`() {
         // Arrange
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
         // Act
         useCase.unfold(orderPlacement)
         // Assert
-        assertThat(cartRepository.load(customer).isEmpty()).isTrue()
+        assertThat(cartRepository.load(customer).hasItems()).isTrue()
     }
 
     @Test

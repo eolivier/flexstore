@@ -16,7 +16,7 @@ private const val ORDER_NUMBER_LENGTH = 8
  * Order aggregate: placed by a customer from their cart.
  * - an order is placed from a cart that has items
  * - its lines keep the name and the price of the products when the order is placed
- * - a new order is being processed
+ * - a new order awaits its payment
  * - it is always delivered to a delivery address and billed to a billing address (often the same), both addresses of the customer
  */
 data class Order(val detail: OrderDetail, val status: OrderStatus) {
@@ -41,6 +41,10 @@ data class Order(val detail: OrderDetail, val status: OrderStatus) {
     // The order at the next status of its life cycle
     fun advanced() = copy(status = status.next())
 
+    fun isAwaitingPayment() = status == OrderStatus.AWAITING_PAYMENT
+
+    fun isPaid() = !isAwaitingPayment()
+
     companion object {
         fun place(orderPlacement: OrderPlacement, cart: Cart): Order {
             if (cart.isEmpty()) {
@@ -51,7 +55,7 @@ data class Order(val detail: OrderDetail, val status: OrderStatus) {
             }
             val orderLines = OrderLines.from(cart)
             val orderDetail = OrderDetail(orderPlacement, orderLines)
-            return Order(orderDetail, OrderStatus.PROCESSING)
+            return Order(orderDetail, OrderStatus.AWAITING_PAYMENT)
         }
     }
 }
@@ -97,15 +101,22 @@ data class OrderId(val value: String) {
     }
 }
 
-// The life cycle of an order: being processed, then shipped, then delivered (the last status)
+// The life cycle of an order: awaiting its payment, paid, being processed, then shipped, then delivered (the
+// last status). The payment moves it from AWAITING_PAYMENT to PAID, the administrators along the next statuses
 enum class OrderStatus {
-    PROCESSING, SHIPPED, DELIVERED;
+    AWAITING_PAYMENT, PAID, PROCESSING, SHIPPED, DELIVERED;
 
     fun hasNext() = this != DELIVERED
 
     fun isLast() = this == DELIVERED
 
+    fun isMovedByAnAdministrator() = this != AWAITING_PAYMENT && hasNext()
+
+    fun isNotMovedByAnAdministrator() = !isMovedByAnAdministrator()
+
     fun next(): OrderStatus = when (this) {
+        AWAITING_PAYMENT -> PAID
+        PAID -> PROCESSING
         PROCESSING -> SHIPPED
         SHIPPED -> DELIVERED
         DELIVERED -> throw OrderStatusCannotAdvanceException(ErrorMessage("A delivered order has no next status"))

@@ -4,6 +4,9 @@ import { createPinia, setActivePinia } from 'pinia';
 import { createMemoryHistory, createRouter } from 'vue-router';
 import Checkout from './Checkout.vue';
 import { vuetify, i18n } from '@/test/setup';
+import { openExternalPage } from '@/utils/navigation';
+
+vi.mock('@/utils/navigation', () => ({ openExternalPage: vi.fn() }));
 
 const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
@@ -43,14 +46,18 @@ const cart = {
   itemsCurrency: '€',
 };
 
-// Answers the account (with the given addresses), the cart and the order
+const checkoutUrl = 'https://checkout.stripe.com/c/pay/cs_1';
+
+// Answers the account (with the given addresses), the cart, the order and its payment
 function respondWith(postalAddresses: object[], orderStatus = 201) {
   mockFetch.mockImplementation((url: string, init?: RequestInit) => {
     const body = url.endsWith('/api/accounts/me')
       ? { id: 'u-1', firstName: 'Jane', lastName: 'Doe', postalAddresses }
       : url.endsWith('/api/cart/cart-items')
         ? cart
-        : { id: 'order-1' };
+        : url.endsWith('/payment')
+          ? { checkoutUrl, outcome: 'PENDING' }
+          : { id: 'order-1' };
     const status = init?.method === 'POST' ? orderStatus : 200;
     return Promise.resolve({ ok: status < 300, status, json: () => Promise.resolve(body) });
   });
@@ -70,7 +77,7 @@ async function mountCheckout() {
 async function placeOrder(wrapper: Awaited<ReturnType<typeof mountCheckout>>['wrapper']) {
   await wrapper
     .findAll('button')
-    .find((button) => button.text() === 'Place the order')!
+    .find((button) => button.text() === 'Order and pay')!
     .trigger('click');
   await flushPromises();
 }
@@ -86,6 +93,7 @@ describe('Checkout.vue', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     mockFetch.mockReset();
+    vi.mocked(openExternalPage).mockReset();
   });
 
   it('offers the addresses of the customer', async () => {
@@ -177,21 +185,26 @@ describe('Checkout.vue', () => {
     expect(recipient).toEqual(['Jane', 'Doe', '']);
   });
 
-  it.each([
-    { orderStatus: 201, expectedPath: '/orders/order-1/confirmation' },
-    { orderStatus: 403, expectedPath: '/checkout' },
-  ])(
-    'an order answered $orderStatus leads to $expectedPath',
-    async ({ orderStatus, expectedPath }) => {
-      // Arrange
-      respondWith([home], orderStatus);
-      const { wrapper, router } = await mountCheckout();
-      // Act
-      await placeOrder(wrapper);
-      // Assert
-      expect(router.currentRoute.value.path).toBe(expectedPath);
-    }
-  );
+  it('a placed order is paid on the checkout page of the payment provider', async () => {
+    // Arrange
+    respondWith([home]);
+    const { wrapper } = await mountCheckout();
+    // Act
+    await placeOrder(wrapper);
+    // Assert
+    expect(openExternalPage).toHaveBeenCalledWith(checkoutUrl);
+  });
+
+  it('a refused order stays on the checkout page', async () => {
+    // Arrange
+    respondWith([home], 403);
+    const { wrapper, router } = await mountCheckout();
+    // Act
+    await placeOrder(wrapper);
+    // Assert
+    expect(router.currentRoute.value.path).toBe('/checkout');
+    expect(openExternalPage).not.toHaveBeenCalled();
+  });
 
   it('tells a refused customer why the order was not placed', async () => {
     // Arrange

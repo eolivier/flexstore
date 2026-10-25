@@ -163,6 +163,8 @@ export interface JsonOrder {
 }
 
 export const JsonOrderStatusEnum = {
+    AwaitingPayment: 'AWAITING_PAYMENT',
+    Paid: 'PAID',
     Processing: 'PROCESSING',
     Shipped: 'SHIPPED',
     Delivered: 'DELIVERED'
@@ -189,12 +191,32 @@ export interface JsonOrderStatusAdvance {
 }
 
 export const JsonOrderStatusAdvanceCurrentStatusEnum = {
+    AwaitingPayment: 'AWAITING_PAYMENT',
+    Paid: 'PAID',
     Processing: 'PROCESSING',
     Shipped: 'SHIPPED',
     Delivered: 'DELIVERED'
 } as const;
 
 export type JsonOrderStatusAdvanceCurrentStatusEnum = typeof JsonOrderStatusAdvanceCurrentStatusEnum[keyof typeof JsonOrderStatusAdvanceCurrentStatusEnum];
+
+export interface JsonPaymentSession {
+    /**
+     * The page where the customer pays the order
+     */
+    'checkoutUrl': string;
+    /**
+     * PAID when the payment is already confirmed (simulated payment)
+     */
+    'outcome': JsonPaymentSessionOutcomeEnum;
+}
+
+export const JsonPaymentSessionOutcomeEnum = {
+    Pending: 'PENDING',
+    Paid: 'PAID'
+} as const;
+
+export type JsonPaymentSessionOutcomeEnum = typeof JsonPaymentSessionOutcomeEnum[keyof typeof JsonPaymentSessionOutcomeEnum];
 
 /**
  * A postal address: its recipient, maybe someone else than the user, and where it is. The recipient is a person (PRIVATE_INDIVIDUAL, with firstName and lastName) or a company (LEGAL_ENTITY, with companyName and an optional vatNumber) 
@@ -1125,8 +1147,8 @@ export const OrdersApiAxiosParamCreator = function (configuration?: Configuratio
             };
         },
         /**
-         * The order is delivered and billed to the given addresses (the delivery address when no billing address is given), which become addresses of the customer when they are new
-         * @summary Place an order from the cart of the signed-in customer, then empty the cart
+         * The order is delivered and billed to the given addresses (the delivery address when no billing address is given), which become addresses of the customer when they are new. The cart is kept until the order is paid (POST /api/orders/{id}/payment) 
+         * @summary Place an order from the cart of the signed-in customer; it awaits its payment
          * @param {JsonOrderAddresses} jsonOrderAddresses 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1199,8 +1221,8 @@ export const OrdersApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * The order is delivered and billed to the given addresses (the delivery address when no billing address is given), which become addresses of the customer when they are new
-         * @summary Place an order from the cart of the signed-in customer, then empty the cart
+         * The order is delivered and billed to the given addresses (the delivery address when no billing address is given), which become addresses of the customer when they are new. The cart is kept until the order is paid (POST /api/orders/{id}/payment) 
+         * @summary Place an order from the cart of the signed-in customer; it awaits its payment
          * @param {JsonOrderAddresses} jsonOrderAddresses 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1240,8 +1262,8 @@ export const OrdersApiFactory = function (configuration?: Configuration, basePat
             return localVarFp.getOrders(options).then((request) => request(axios, basePath));
         },
         /**
-         * The order is delivered and billed to the given addresses (the delivery address when no billing address is given), which become addresses of the customer when they are new
-         * @summary Place an order from the cart of the signed-in customer, then empty the cart
+         * The order is delivered and billed to the given addresses (the delivery address when no billing address is given), which become addresses of the customer when they are new. The cart is kept until the order is paid (POST /api/orders/{id}/payment) 
+         * @summary Place an order from the cart of the signed-in customer; it awaits its payment
          * @param {JsonOrderAddresses} jsonOrderAddresses 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1278,14 +1300,198 @@ export class OrdersApi extends BaseAPI {
     }
 
     /**
-     * The order is delivered and billed to the given addresses (the delivery address when no billing address is given), which become addresses of the customer when they are new
-     * @summary Place an order from the cart of the signed-in customer, then empty the cart
+     * The order is delivered and billed to the given addresses (the delivery address when no billing address is given), which become addresses of the customer when they are new. The cart is kept until the order is paid (POST /api/orders/{id}/payment) 
+     * @summary Place an order from the cart of the signed-in customer; it awaits its payment
      * @param {JsonOrderAddresses} jsonOrderAddresses 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     public placeOrder(jsonOrderAddresses: JsonOrderAddresses, options?: RawAxiosRequestConfig) {
         return OrdersApiFp(this.configuration).placeOrder(jsonOrderAddresses, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * PaymentsApi - axios parameter creator
+ */
+export const PaymentsApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * With Stripe, the customer pays on the checkout page of Stripe, which confirms the payment later with its webhook (outcome PENDING). Without a Stripe key, the payment is simulated and confirmed at once (outcome PAID). Once paid, the cart is emptied and the order confirmed to the customer by email 
+         * @summary Start the payment of an order of the signed-in customer, then open its checkout page
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        payOrder: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('payOrder', 'id', id)
+            const localVarPath = `/api/orders/{id}/payment`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Authenticated by its Stripe-Signature header, verified with the secret of the webhook
+         * @summary Notification of Stripe: a checkout session is completed (called by Stripe, not by the front)
+         * @param {string} stripeSignature 
+         * @param {object} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        stripeNotification: async (stripeSignature: string, body: object, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'stripeSignature' is not null or undefined
+            assertParamExists('stripeNotification', 'stripeSignature', stripeSignature)
+            // verify required parameter 'body' is not null or undefined
+            assertParamExists('stripeNotification', 'body', body)
+            const localVarPath = `/api/payments/stripe/webhook`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            if (stripeSignature != null) {
+                localVarHeaderParameter['Stripe-Signature'] = String(stripeSignature);
+            }
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(body, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * PaymentsApi - functional programming interface
+ */
+export const PaymentsApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = PaymentsApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * With Stripe, the customer pays on the checkout page of Stripe, which confirms the payment later with its webhook (outcome PENDING). Without a Stripe key, the payment is simulated and confirmed at once (outcome PAID). Once paid, the cart is emptied and the order confirmed to the customer by email 
+         * @summary Start the payment of an order of the signed-in customer, then open its checkout page
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async payOrder(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonPaymentSession>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.payOrder(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PaymentsApi.payOrder']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Authenticated by its Stripe-Signature header, verified with the secret of the webhook
+         * @summary Notification of Stripe: a checkout session is completed (called by Stripe, not by the front)
+         * @param {string} stripeSignature 
+         * @param {object} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async stripeNotification(stripeSignature: string, body: object, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.stripeNotification(stripeSignature, body, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PaymentsApi.stripeNotification']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * PaymentsApi - factory interface
+ */
+export const PaymentsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = PaymentsApiFp(configuration)
+    return {
+        /**
+         * With Stripe, the customer pays on the checkout page of Stripe, which confirms the payment later with its webhook (outcome PENDING). Without a Stripe key, the payment is simulated and confirmed at once (outcome PAID). Once paid, the cart is emptied and the order confirmed to the customer by email 
+         * @summary Start the payment of an order of the signed-in customer, then open its checkout page
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        payOrder(id: string, options?: RawAxiosRequestConfig): AxiosPromise<JsonPaymentSession> {
+            return localVarFp.payOrder(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Authenticated by its Stripe-Signature header, verified with the secret of the webhook
+         * @summary Notification of Stripe: a checkout session is completed (called by Stripe, not by the front)
+         * @param {string} stripeSignature 
+         * @param {object} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        stripeNotification(stripeSignature: string, body: object, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.stripeNotification(stripeSignature, body, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * PaymentsApi - object-oriented interface
+ */
+export class PaymentsApi extends BaseAPI {
+    /**
+     * With Stripe, the customer pays on the checkout page of Stripe, which confirms the payment later with its webhook (outcome PENDING). Without a Stripe key, the payment is simulated and confirmed at once (outcome PAID). Once paid, the cart is emptied and the order confirmed to the customer by email 
+     * @summary Start the payment of an order of the signed-in customer, then open its checkout page
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public payOrder(id: string, options?: RawAxiosRequestConfig) {
+        return PaymentsApiFp(this.configuration).payOrder(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Authenticated by its Stripe-Signature header, verified with the secret of the webhook
+     * @summary Notification of Stripe: a checkout session is completed (called by Stripe, not by the front)
+     * @param {string} stripeSignature 
+     * @param {object} body 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public stripeNotification(stripeSignature: string, body: object, options?: RawAxiosRequestConfig) {
+        return PaymentsApiFp(this.configuration).stripeNotification(stripeSignature, body, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

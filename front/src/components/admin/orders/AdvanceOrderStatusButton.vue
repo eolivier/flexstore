@@ -2,9 +2,10 @@
   import { computed } from 'vue';
   import { useI18n } from 'vue-i18n';
   import type { JsonOrder } from '@/generated';
-  import { hasNextStatus, nextStatus } from '@/utils/order';
+  import { isMovedByAnAdministrator, nextStatus } from '@/utils/order';
 
-  // Moves an order to the next status of its life cycle; a delivered order has none
+  // Moves an order to the next status of its life cycle; the payment moves an order awaiting it,
+  // and a delivered order has no next status
   const props = defineProps<{ order: JsonOrder; advancing: boolean }>();
   const emit = defineEmits<{ advance: [order: JsonOrder] }>();
 
@@ -15,7 +16,7 @@
 
 <template>
   <v-btn
-    v-if="hasNextStatus(order.status)"
+    v-if="isMovedByAnAdministrator(order.status)"
     :loading="advancing"
     color="primary"
     variant="tonal"
@@ -25,5 +26,8 @@
   >
     {{ t('adminOrders.advanceTo', { status: next }) }}
   </v-btn>
+  <span v-else-if="order.status === 'AWAITING_PAYMENT'" class="text-caption text-medium-emphasis">
+    {{ t('adminOrders.awaitingPayment') }}
+  </span>
   <span v-else class="text-caption text-medium-emphasis">{{ t('adminOrders.lastStatus') }}</span>
 </template>

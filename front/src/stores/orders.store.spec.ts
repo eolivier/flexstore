@@ -80,19 +80,38 @@ describe('orders.store', () => {
     expect(new Headers(init.headers).get('Authorization')).toBe('Bearer jwt-token');
   });
 
-  it('should place an order and reload the emptied cart', async () => {
+  it('should place an order awaiting its payment, keeping the cart', async () => {
     // Arrange
     await signIn();
-    respondWith({
-      'POST /api/orders': { status: 201, body: order },
-      'GET /api/cart/cart-items': { status: 200, body: emptyCart },
-    });
+    respondWith({ 'POST /api/orders': { status: 201, body: order } });
     const store = useOrdersStore();
     // Act
     const placement = await store.placeOrder(homeAddresses);
     // Assert
     expect(placement).toEqual({ status: 'placed', order });
-    expect(mockFetch.mock.calls.some(([url]) => url.endsWith('/api/cart/cart-items'))).toBe(true);
+    expect(mockFetch.mock.calls.some(([url]) => url.endsWith('/api/cart/cart-items'))).toBe(false);
+  });
+
+  it.each([
+    {
+      status: 201,
+      expected: { status: 'started', checkoutUrl: 'https://checkout.stripe.com/c/pay/cs_1' },
+    },
+    { status: 409, expected: { status: 'alreadyPaid' } },
+    { status: 500, expected: { status: 'error' } },
+  ])('a payment answered $status is $expected.status', async ({ status, expected }) => {
+    // Arrange
+    await signIn();
+    const paymentSession = {
+      checkoutUrl: 'https://checkout.stripe.com/c/pay/cs_1',
+      outcome: 'PENDING',
+    };
+    respondWith({ [`POST /api/orders/${order.id}/payment`]: { status, body: paymentSession } });
+    const store = useOrdersStore();
+    // Act
+    const paymentStart = await store.startPayment(order.id);
+    // Assert
+    expect(paymentStart).toEqual(expected);
   });
 
   it('should send the addresses of the order', async () => {

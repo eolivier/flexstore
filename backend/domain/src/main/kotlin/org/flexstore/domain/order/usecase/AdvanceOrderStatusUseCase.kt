@@ -4,7 +4,8 @@ import org.flexstore.domain.order.*
 import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.entity.*
 
-// An administrator moves an order to the next status of its life cycle: processing -> shipped -> delivered.
+// An administrator moves an order to the next status of its life cycle: paid -> processing -> shipped ->
+// delivered (the payment moves an order awaiting it).
 // The initial status is checked before: the order still has the status the administrator saw,
 // and it has a next one. The final status is checked after: the order has the next status of the initial one
 class AdvanceOrderStatusUseCase(private val orderRepository: OrderRepository) : UseCase<OrderStatusAdvance> {
@@ -39,8 +40,8 @@ class AdvanceOrderStatusUseCase(private val orderRepository: OrderRepository) : 
     }
 
     private fun initialStatusHasNextCondition() = PreCondition<OrderStatusAdvance> { orderStatusAdvance ->
-        if (orderStatusAdvance.currentStatus.isLast()) {
-            val message = "An order ${orderStatusAdvance.currentStatus} has no next status."
+        if (orderStatusAdvance.currentStatus.isNotMovedByAnAdministrator()) {
+            val message = "An order ${orderStatusAdvance.currentStatus} is not moved by an administrator."
             throw OrderStatusCannotAdvanceException(ErrorMessage(message))
         }
     }

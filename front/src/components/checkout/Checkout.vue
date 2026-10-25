@@ -6,6 +6,7 @@
   import { useCartStore } from '@/stores/cart.store';
   import { useOrdersStore } from '@/stores/orders.store';
   import type { PostalAddress, Recipient } from '@/models/account';
+  import { openExternalPage } from '@/utils/navigation';
   import AddressChoice from './AddressChoice.vue';
   import CheckoutSummary from './CheckoutSummary.vue';
 
@@ -67,11 +68,18 @@
       deliveryAddress: delivery.value,
       billingAddress: billedToDelivery.value ? undefined : billingRecipientOnly(billing.value),
     });
-    placing.value = false;
-    if (placement.status === 'placed') {
-      router.push(`/orders/${placement.order.id}/confirmation`);
-    } else {
+    if (placement.status !== 'placed') {
+      placing.value = false;
       error.value = placement.status;
+      return;
+    }
+    // The order is placed: the customer pays it on the checkout page, or later from the page of the order
+    const paymentStart = await ordersStore.startPayment(placement.order.id);
+    placing.value = false;
+    if (paymentStart.status === 'started') {
+      openExternalPage(paymentStart.checkoutUrl);
+    } else {
+      router.push(`/orders/${placement.order.id}`);
     }
   }
 </script>

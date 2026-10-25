@@ -75,29 +75,47 @@ class OrderConfirmationEmailIT {
 
     @ParameterizedTest(name = "order confirmation email {0} -> {1} email(s) sent")
     @CsvSource("ENABLED, 1", "DISABLED, 0")
-    fun `placing an order should send the confirmation email when the settings enable it`(activation: Activation, sentCount: Int) {
+    fun `paying an order should send the confirmation email when the settings enable it`(
+        activation: Activation,
+        sentCount: Int
+    ) {
         // Arrange
         shopSettingsRepository.save(ShopSettings(orderConfirmationEmail = activation))
-        addToCart(productId = "6", quantity = 2)
+        val orderId = placeOrder()
         // Act
-        val response = mockMvc.perform(post("/api/orders").withHomeAddresses().with(asUser(CUSTOMER_ID)))
+        val response = mockMvc.pay(orderId, CUSTOMER_ID)
         // Assert
         response.andExpect(status().isCreated)
         assertThat(emailSender.sentEmails()).hasSize(sentCount)
     }
 
     @Test
+    fun `an order awaiting its payment should not be confirmed by email`() {
+        // Act
+        placeOrder()
+        // Assert
+        assertThat(emailSender.sentEmails()).isEmpty()
+    }
+
+    @Test
     fun `the confirmation email should be sent to the customer and list the order`() {
         // Arrange
-        addToCart(productId = "6", quantity = 2)
+        val orderId = placeOrder()
         // Act
-        mockMvc.perform(post("/api/orders").withHomeAddresses().with(asUser(CUSTOMER_ID))).andExpect(status().isCreated)
+        mockMvc.pay(orderId, CUSTOMER_ID).andExpect(status().isCreated)
         // Assert
         val email = emailSender.sentEmails().single()
         val content = OrderConfirmationEmailContent(email, "https://flexstore.example")
         assertThat(email.recipient).isEqualTo(Email("admin@flexstore.com"))
         assertThat(content.subject).isEqualTo("Flexstore - Confirmation de votre commande ${email.order.number()}")
         assertThat(content.body).contains("2 × Laptop : 1\u202F598,00 €", "https://flexstore.example/orders/${email.order.orderId.value}")
+    }
+
+    private fun placeOrder(): String {
+        addToCart(productId = "6", quantity = 2)
+        val body = mockMvc.perform(post("/api/orders").withHomeAddresses().with(asUser(CUSTOMER_ID)))
+            .andExpect(status().isCreated).andReturn().response.contentAsString
+        return objectMapper.readTree(body)["id"].asText()
     }
 
     private fun addToCart(productId: String, quantity: Int) {

@@ -6,6 +6,7 @@
   import OrderStatusSteps from './OrderStatusSteps.vue';
   import OrderLinesTable from './OrderLinesTable.vue';
   import OrderAddressesCard from './OrderAddressesCard.vue';
+  import PayOrderButton from './PayOrderButton.vue';
 
   const props = defineProps<{ id: string }>();
 
@@ -13,7 +14,9 @@
   const ordersStore = useOrdersStore();
 
   const orderLookup = ref<OrderLookup | null>(null);
-  const order = computed(() => (orderLookup.value?.status === 'found' ? orderLookup.value.order : null));
+  const order = computed(() =>
+    orderLookup.value?.status === 'found' ? orderLookup.value.order : null
+  );
 
   async function load() {
     orderLookup.value = null;
@@ -30,7 +33,11 @@
       {{ t('orders.backToOrders') }}
     </v-btn>
 
-    <v-skeleton-loader v-if="!orderLookup" type="heading, list-item-two-line@3" class="rounded-xl" />
+    <v-skeleton-loader
+      v-if="!orderLookup"
+      type="heading, list-item-two-line@3"
+      class="rounded-xl"
+    />
 
     <v-card v-else-if="orderLookup.status === 'notFound'" class="pa-10 text-center">
       <v-icon icon="mdi-package-variant-remove" size="56" class="text-medium-emphasis mb-3" />
@@ -47,10 +54,17 @@
       <v-card class="pa-5 mb-6">
         <OrderStatusSteps :status="order.status" />
       </v-card>
-      <h1 class="text-h4 font-weight-bold">{{ t('orders.number', { number: orderNumber(order) }) }}</h1>
+      <h1 class="text-h4 font-weight-bold">
+        {{ t('orders.number', { number: orderNumber(order) }) }}
+      </h1>
       <p class="text-body-2 text-medium-emphasis mt-1 mb-6">
-        {{ t('orders.placedOn', { date: placedOn(order, locale) }) }} · {{ t('orders.itemsCount', orderItemsCount(order)) }}
+        {{ t('orders.placedOn', { date: placedOn(order, locale) }) }} ·
+        {{ t('orders.itemsCount', orderItemsCount(order)) }}
       </p>
+      <v-card v-if="order.status === 'AWAITING_PAYMENT'" class="pa-5 mb-6">
+        <p class="text-body-2 text-medium-emphasis mb-3">{{ t('orders.awaitingPaymentText') }}</p>
+        <PayOrderButton :order="order" />
+      </v-card>
       <OrderLinesTable :order="order" />
       <OrderAddressesCard :order="order" />
     </template>

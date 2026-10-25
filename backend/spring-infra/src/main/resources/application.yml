@@ -20,8 +20,14 @@ spring:
 flexstore:
   mail:
     from: ${FLEXSTORE_MAIL_FROM:Flexstore <no-reply@flexstore.com>}
-  # Address of the shop, for the links of the emails
+  # Address of the shop, for the links of the emails and the return from the payment
   front-url: ${FLEXSTORE_FRONT_URL:http://localhost:5173}
+  payment:
+    # Stripe Checkout (test or live keys); without a secret key, the payments are simulated (confirmed at once)
+    stripe:
+      secret-key: ${FLEXSTORE_STRIPE_SECRET_KEY:}
+      # Secret of the webhook endpoint /api/payments/stripe/webhook (whsec_...), to verify the notifications
+      webhook-secret: ${FLEXSTORE_STRIPE_WEBHOOK_SECRET:}
   security:
     # Secret used to sign the JWT (at least 32 characters); a random one is used when missing
     jwt-secret: ${FLEXSTORE_JWT_SECRET:}
