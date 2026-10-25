@@ -4,11 +4,13 @@ The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `back
 
 ![Physical data model](database.png)
 
-The image is generated from the diagram below by `docs/render-database-diagram.sh`.
+The image is generated from the diagram below by `docs/render-database-diagram.sh`. The diagram is laid out from left to right by ELK, without crossing links: the relations are written from the table that holds the foreign key towards the table it references when that one should be placed on the right (`address`, `payment`, `product`).
 
 ```mermaid
-%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#DBEAFE", "primaryTextColor": "#111827", "primaryBorderColor": "#1D4ED8", "lineColor": "#374151", "secondaryColor": "#F3F4F6", "tertiaryColor": "#FFFFFF", "attributeBackgroundColorOdd": "#FFFFFF", "attributeBackgroundColorEven": "#F1F5F9"}}}%%
+%%{init: {"layout": "elk", "theme": "base", "themeVariables": {"primaryColor": "#DBEAFE", "primaryTextColor": "#111827", "primaryBorderColor": "#1D4ED8", "lineColor": "#374151", "secondaryColor": "#F3F4F6", "tertiaryColor": "#FFFFFF", "attributeBackgroundColorOdd": "#FFFFFF", "attributeBackgroundColorEven": "#F1F5F9"}}}%%
 erDiagram
+    direction LR
+
     user {
         varchar(50) id PK
         varchar(255) first_name
@@ -30,6 +32,34 @@ erDiagram
         timestamp updated_at
     }
 
+    user_address {
+        varchar(50) id PK
+        varchar(50) user_id FK,UK "unique with address_id"
+        varchar(50) address_id FK,UK
+        int position "order of the addresses of the user"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    customer_order {
+        varchar(50) id PK
+        varchar(50) user_id FK
+        varchar(20) status "AWAITING_PAYMENT, PAID, PROCESSING, SHIPPED or DELIVERED"
+        timestamptz placed_at
+        varchar(50) delivery_address_id FK
+        varchar(50) billing_address_id FK
+        varchar(50) payment_id FK "nullable: last payment started"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    cart {
+        varchar(50) id PK
+        varchar(50) user_id FK,UK "nullable: the cart of a visitor"
+        timestamp created_at
+        timestamp updated_at
+    }
+
     address {
         varchar(50) id PK
         varchar(20) recipient_type "PRIVATE_INDIVIDUAL or LEGAL_ENTITY"
@@ -46,50 +76,11 @@ erDiagram
         timestamp updated_at
     }
 
-    user_address {
+    payment {
         varchar(50) id PK
-        varchar(50) user_id FK,UK "unique with address_id"
-        varchar(50) address_id FK,UK
-        int position "order of the addresses of the user"
-        timestamp created_at
-        timestamp updated_at
-    }
-
-    product {
-        varchar(50) id PK
-        text name
-        text description
-        varchar(30) category "CLOTHING, ELECTRONICS or ACCESSORIES"
-        numeric price
-        varchar(3) currency
-        timestamp created_at
-        timestamp updated_at
-    }
-
-    cart {
-        varchar(50) id PK
-        varchar(50) user_id FK,UK "nullable: the cart of a visitor"
-        timestamp created_at
-        timestamp updated_at
-    }
-
-    cart_item {
-        varchar(50) id PK
-        varchar(50) cart_id FK,UK "unique with product_id"
-        varchar(50) product_id FK,UK
-        int quantity "greater than 0"
-        timestamp created_at
-        timestamp updated_at
-    }
-
-    customer_order {
-        varchar(50) id PK
-        varchar(50) user_id FK
-        varchar(20) status "AWAITING_PAYMENT, PAID, PROCESSING, SHIPPED or DELIVERED"
-        timestamptz placed_at
-        varchar(50) delivery_address_id FK
-        varchar(50) billing_address_id FK
-        varchar(50) payment_id FK "nullable: last payment started"
+        varchar(255) provider_reference UK "id of the Stripe Checkout session"
+        text checkout_url
+        varchar(10) outcome "PENDING or PAID"
         timestamp created_at
         timestamp updated_at
     }
@@ -107,11 +98,22 @@ erDiagram
         timestamp updated_at
     }
 
-    payment {
+    cart_item {
         varchar(50) id PK
-        varchar(255) provider_reference UK "id of the Stripe Checkout session"
-        text checkout_url
-        varchar(10) outcome "PENDING or PAID"
+        varchar(50) cart_id FK,UK "unique with product_id"
+        varchar(50) product_id FK,UK
+        int quantity "greater than 0"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    product {
+        varchar(50) id PK
+        text name
+        text description
+        varchar(30) category "CLOTHING, ELECTRONICS or ACCESSORIES"
+        numeric price
+        varchar(3) currency
         timestamp created_at
         timestamp updated_at
     }
@@ -125,15 +127,15 @@ erDiagram
 
     user ||--o{ email_verification : "user_id (cascade)"
     user ||--o{ user_address : "user_id (cascade)"
-    address ||--o{ user_address : "address_id"
+    user_address }o--|| address : "address_id"
+    user ||--o{ customer_order : "user_id (cascade)"
+    customer_order }o--|| address : "delivery_address_id"
+    customer_order }o--|| address : "billing_address_id"
+    customer_order }o--o| payment : "payment_id"
+    customer_order ||--|{ customer_order_line : "order_id (cascade)"
     user |o--o| cart : "user_id (cascade)"
     cart ||--o{ cart_item : "cart_id (cascade)"
-    product ||--o{ cart_item : "product_id (cascade)"
-    user ||--o{ customer_order : "user_id (cascade)"
-    customer_order ||--|{ customer_order_line : "order_id (cascade)"
-    address ||--o{ customer_order : "delivery_address_id"
-    address ||--o{ customer_order : "billing_address_id"
-    payment |o--o{ customer_order : "payment_id"
+    cart_item }o--|| product : "product_id (cascade)"
 ```
 
 ## Notes
