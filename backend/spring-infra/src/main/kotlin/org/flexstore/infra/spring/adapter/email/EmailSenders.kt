@@ -13,7 +13,8 @@ interface EmailSender {
 }
 
 /**
- * Sends the emails with the SMTP server of spring.mail (FLEXSTORE_MAIL_HOST...). A failure to send is logged and does not
+ * Sends the emails with the SMTP server of spring.mail (FLEXSTORE_MAIL_HOST...).
+ * A failure to send is logged and does not
  * fail the action: the order is placed, and the customer can ask for a new verification link from their account.
  */
 class SmtpEmailSender(

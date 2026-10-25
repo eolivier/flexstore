@@ -54,7 +54,10 @@ class EmailVerificationTest : WithAssertions {
         "LOCKED, LOCKED",
         "DISABLED, DISABLED",
     )
-    fun `confirming the email should only activate an account that waits for it`(status: AccountStatus, expected: AccountStatus) {
+    fun `confirming the email should only activate an account that waits for it`(
+        status: AccountStatus,
+        expected: AccountStatus
+    ) {
         // Arrange
         val verification = EmailVerification.requestedAt(userId, requestedAt)
         // Act
@@ -65,7 +68,9 @@ class EmailVerificationTest : WithAssertions {
 
     @ParameterizedTest(name = "{0}")
     @EnumSource(AccountStatus::class)
-    fun `only an account that waits for the verification of its email should need a link`(status: AccountStatus) {
+    fun `only an account that waits for the verification of its email should need a link`(
+        status: AccountStatus
+    ) {
         // Act
         val needed = EmailVerification.isNeededFor(userWith(status))
         // Assert

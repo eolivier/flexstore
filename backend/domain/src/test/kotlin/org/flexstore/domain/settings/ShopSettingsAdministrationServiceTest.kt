@@ -7,7 +7,10 @@ import org.junit.jupiter.api.Test
 class ShopSettingsAdministrationServiceTest : WithAssertions {
 
     private val repository = InMemoryShopSettingsRepository()
-    private val administration = ShopSettingsAdministrationService(ReadShopSettingsUseCase(repository), UpdateShopSettingsUseCase(repository))
+    private val readShopSettingsUseCase = ReadShopSettingsUseCase(repository)
+    private val updateShopSettingsUseCase = UpdateShopSettingsUseCase(repository)
+    private val administration =
+        ShopSettingsAdministrationService(readShopSettingsUseCase, updateShopSettingsUseCase)
 
     @Test
     fun `the order confirmation email should be sent by default`() {

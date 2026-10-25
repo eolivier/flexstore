@@ -13,7 +13,11 @@ class FullNameTest : WithAssertions {
         "Admin, '', Admin",
         "'', Doe, Doe",
     )
-    fun `the full name should read as the first name followed by the last name`(firstName: String, lastName: String, expected: String) {
+    fun `the full name should read as the first name followed by the last name`(
+        firstName: String,
+        lastName: String,
+        expected: String
+    ) {
         // Arrange
         val fullName = FullName(FirstName(firstName), LastName(lastName))
         // Act
@@ -29,7 +33,11 @@ class FullNameTest : WithAssertions {
         "'', Doe, false",
         "' ', Doe, false",
     )
-    fun `a full name should be complete with a first name and a last name`(firstName: String, lastName: String, complete: Boolean) {
+    fun `a full name should be complete with a first name and a last name`(
+        firstName: String,
+        lastName: String,
+        complete: Boolean
+    ) {
         // Arrange
         val fullName = FullName(FirstName(firstName), LastName(lastName))
         // Act

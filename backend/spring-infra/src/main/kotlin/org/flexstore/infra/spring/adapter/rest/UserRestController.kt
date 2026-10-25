@@ -37,7 +37,8 @@ class UserRestController(val userService: UserService, private val jwtTokenServi
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun createUser(@AuthenticationPrincipal creator: Jwt, @RequestBody draftJsonUser: DraftJsonUser): JsonUser {
-        return userService.createUser(CreateUserRequest(UserId.of(creator.subject), draftJsonUser.toUser())).toJsonUser()
+        val createUserRequest = CreateUserRequest(UserId.of(creator.subject), draftJsonUser.toUser())
+        return userService.createUser(createUserRequest).toJsonUser()
     }
     @Operation(
         summary = "Retrieve all users",
@@ -84,7 +85,11 @@ class UserRestController(val userService: UserService, private val jwtTokenServi
     )
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    fun updateUser(@AuthenticationPrincipal editor: Jwt, @PathVariable id: String, @RequestBody editedUser: EditedJsonUser): JsonUser {
+    fun updateUser(
+        @AuthenticationPrincipal editor: Jwt,
+        @PathVariable id: String,
+        @RequestBody editedUser: EditedJsonUser
+    ): JsonUser {
         userService.updateUser(UpdateUserRequest(UserId.of(editor.subject), editedUser.toUser(id)))
         return userService.readUser(UserId.of(id)).toJsonUser()
     }
@@ -92,8 +97,15 @@ class UserRestController(val userService: UserService, private val jwtTokenServi
     @Operation(summary = "Change the status of an account: ACTIVE, SUSPENDED, LOCKED or DISABLED (administrator only)")
     @PutMapping("/{id}/status")
     @ResponseStatus(HttpStatus.OK)
-    fun changeAccountStatus(@AuthenticationPrincipal editor: Jwt, @PathVariable id: String, @RequestBody status: JsonAccountStatus): JsonUser =
-        userService.changeAccountStatus(AccountStatusChange(UserId.of(editor.subject), UserId.of(id), status.toAccountStatus())).toJsonUser()
+    fun changeAccountStatus(
+        @AuthenticationPrincipal editor: Jwt,
+        @PathVariable id: String,
+        @RequestBody status: JsonAccountStatus
+    ): JsonUser {
+        val editorId = UserId.of(editor.subject)
+        val accountStatusChange = AccountStatusChange(editorId, UserId.of(id), status.toAccountStatus())
+        return userService.changeAccountStatus(accountStatusChange).toJsonUser()
+    }
 
     @Operation(summary = "Delete a user by ID",
         responses = [

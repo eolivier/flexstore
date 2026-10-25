@@ -70,6 +70,9 @@ data class EmailVerificationLink(
     fun link() = Link("${page.value.trimEnd('/')}?token=${token.value}")
 }
 
-data class VerificationLinkUnknownException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
-data class VerificationLinkExpiredException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
-data class AccountAlreadyVerifiedException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class VerificationLinkUnknownException(override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
+data class VerificationLinkExpiredException(override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
+data class AccountAlreadyVerifiedException(override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)

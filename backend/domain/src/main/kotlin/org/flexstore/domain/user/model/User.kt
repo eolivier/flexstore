@@ -23,7 +23,8 @@ sealed class User(open val id: UserId) {
         override fun user(userId: UserId) = copy(id = userId)
 
         // The addresses where a customer has an order delivered or billed become addresses of the customer
-        fun withPostalAddressesIncluding(vararg addresses: PostalAddress) = copy(postalAddresses = postalAddresses.including(*addresses))
+        fun withPostalAddressesIncluding(vararg addresses: PostalAddress) =
+            copy(postalAddresses = postalAddresses.including(*addresses))
 
         fun withPostalAddresses(postalAddresses: PostalAddresses) = copy(postalAddresses = postalAddresses)
 
@@ -103,7 +104,8 @@ enum class Role {
 }
 
 data class UserUpdateForbiddenException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
-data class UserCreationForbiddenException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class UserCreationForbiddenException(override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
 data class InvalidRoleException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 
 sealed class Password {

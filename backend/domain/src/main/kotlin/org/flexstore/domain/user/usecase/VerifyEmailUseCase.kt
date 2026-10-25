@@ -9,7 +9,8 @@ import java.time.Instant
 
 data class EmailVerificationConfirmation(val token: VerificationToken, val confirmedAt: Instant)
 
-// The customer opens the link of the verification email: their account becomes active, and the link cannot be used again
+// The customer opens the link of the verification email: their account becomes active, and the link cannot be
+// used again
 class VerifyEmailUseCase(
     private val userRepository: UserRepository,
     private val emailRepository: EmailRepository
@@ -29,11 +30,13 @@ class VerifyEmailUseCase(
     override fun getPostConditions(): PostConditions<EmailVerificationConfirmation> = PostConditions.none()
 
     // Only called once the link is known
-    private fun verification(confirmation: EmailVerificationConfirmation) = emailRepository.findBy(confirmation.token)!!
+    private fun verification(confirmation: EmailVerificationConfirmation) =
+        emailRepository.findBy(confirmation.token)!!
 
     private fun linkIsKnownCondition() = PreCondition<EmailVerificationConfirmation> { confirmation ->
         if (emailRepository.isUnknown(confirmation.token)) {
-            throw VerificationLinkUnknownException(ErrorMessage("This verification link is unknown or was already used."))
+            val message = ErrorMessage("This verification link is unknown or was already used.")
+            throw VerificationLinkUnknownException(message)
         }
     }
 

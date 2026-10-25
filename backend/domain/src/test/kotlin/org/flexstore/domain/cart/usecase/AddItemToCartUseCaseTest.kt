@@ -15,7 +15,8 @@ class AddItemToCartUseCaseTest : WithAssertions {
     private val product = DefinedProduct(ProductId(Identity("product-1")), Name("Product1"), Price(Amount(BigDecimal(10)), Currency.EUR))
     private val owner = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val cartRepository = InMemoryCartRepository()
-    private val useCase = AddItemToCartUseCase(cartRepository, InMemoryProductRepository().apply { save(product) })
+    private val productRepository = InMemoryProductRepository().apply { save(product) }
+    private val useCase = AddItemToCartUseCase(cartRepository, productRepository)
 
     @Test
     fun `should add the catalog product to the cart`() {
@@ -37,7 +38,8 @@ class AddItemToCartUseCaseTest : WithAssertions {
         useCase.unfold(AddItemToCartRequest(owner, product.productId, Quantity(3)))
         // Assert
         assertThat(cartRepository.load(owner).items.asList()).hasSize(1)
-        assertThat((cartRepository.load(owner).findBy(product.productId) as CartItem).quantity).isEqualTo(Quantity(3))
+        val cartItem = cartRepository.load(owner).findBy(product.productId) as CartItem
+        assertThat(cartItem.quantity).isEqualTo(Quantity(3))
     }
 
     @Test

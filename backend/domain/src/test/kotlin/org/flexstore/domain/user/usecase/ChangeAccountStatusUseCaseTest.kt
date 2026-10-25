@@ -40,24 +40,28 @@ class ChangeAccountStatusUseCaseTest : WithAssertions {
 
     @Test
     fun `only an administrator should change the status of an account`() {
+        val accountStatusChange = AccountStatusChange(jane.id, administrator.id, AccountStatus.SUSPENDED)
         // Act
-        val thrown = catchThrowable { useCase.unfold(AccountStatusChange(jane.id, administrator.id, AccountStatus.SUSPENDED)) }
+        val thrown = catchThrowable { useCase.unfold(accountStatusChange) }
         // Assert
         assertThat(thrown).isInstanceOf(UserUpdateForbiddenException::class.java)
     }
 
     @Test
     fun `an administrator should not change the status of their own account`() {
+        val accountStatusChange = AccountStatusChange(administrator.id, administrator.id, AccountStatus.DISABLED)
         // Act
-        val thrown = catchThrowable { useCase.unfold(AccountStatusChange(administrator.id, administrator.id, AccountStatus.DISABLED)) }
+        val thrown = catchThrowable { useCase.unfold(accountStatusChange) }
         // Assert
         assertThat(thrown).isInstanceOf(InvalidStatusChangeException::class.java)
     }
 
     @Test
     fun `an administrator should not set the account back to the verification of the email`() {
+        val pendingVerification = AccountStatus.PENDING_VERIFICATION
+        val accountStatusChange = AccountStatusChange(administrator.id, jane.id, pendingVerification)
         // Act
-        val thrown = catchThrowable { useCase.unfold(AccountStatusChange(administrator.id, jane.id, AccountStatus.PENDING_VERIFICATION)) }
+        val thrown = catchThrowable { useCase.unfold(accountStatusChange) }
         // Assert
         assertThat(thrown).isInstanceOf(InvalidStatusChangeException::class.java)
         assertThat(stored().status).isEqualTo(AccountStatus.ACTIVE)

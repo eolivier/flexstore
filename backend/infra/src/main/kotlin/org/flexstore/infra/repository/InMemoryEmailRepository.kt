@@ -22,7 +22,8 @@ class InMemoryEmailRepository : EmailRepository {
         verifications.add(verification)
     }
 
-    override fun findBy(token: VerificationToken): EmailVerification? = verifications.firstOrNull { it.token == token }
+    override fun findBy(token: VerificationToken): EmailVerification? =
+        verifications.firstOrNull { it.token == token }
 
     override fun expireAllVerificationsOf(userId: UserId, expiration: ExpirationDate) {
         verifications.replaceAll { verification ->

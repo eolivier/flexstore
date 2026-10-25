@@ -15,7 +15,8 @@ class ChangeCartItemQuantityUseCaseTest : WithAssertions {
     private val owner = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val cartRepository = InMemoryCartRepository()
     private val useCase = ChangeCartItemQuantityUseCase(cartRepository)
-    private val itemId = cartRepository.save(Cart(owner).add(product, Quantity(1))).items.cartItems().itemIds().single()
+    private val savedCart = cartRepository.save(Cart(owner).add(product, Quantity(1)))
+    private val itemId = savedCart.items.cartItems().itemIds().single()
 
     @Test
     fun `should change the quantity of the item`() {

@@ -70,8 +70,9 @@ class CustomerRegistrationServiceTest : WithAssertions {
     fun `an expired link should leave the account waiting for the verification`() {
         // Arrange
         service.register(jane)
+        val emailVerificationConfirmation = EmailVerificationConfirmation(lastLink(), now + Duration.ofHours(1))
         // Act
-        val thrown = catchThrowable { verifyEmailUseCase.unfold(EmailVerificationConfirmation(lastLink(), now + Duration.ofHours(1))) }
+        val thrown = catchThrowable { verifyEmailUseCase.unfold(emailVerificationConfirmation) }
         // Assert
         assertThat(thrown).isInstanceOf(VerificationLinkExpiredException::class.java)
         assertThat(stored().status).isEqualTo(AccountStatus.PENDING_VERIFICATION)

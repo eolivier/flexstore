@@ -3,7 +3,8 @@ package org.flexstore.domain.settings
 import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.entity.*
 
-class UpdateShopSettingsUseCase(private val shopSettingsRepository: ShopSettingsRepository) : UseCase<ShopSettings> {
+class UpdateShopSettingsUseCase(private val shopSettingsRepository: ShopSettingsRepository) :
+    UseCase<ShopSettings> {
 
     override fun getPreConditions(): PreConditions<ShopSettings> = PreConditions.none()
 

@@ -29,9 +29,13 @@ class SendOrderConfirmationEmailUseCaseTest : WithAssertions {
 
     @ParameterizedTest(name = "order confirmation email {0} -> {1} email(s) sent")
     @CsvSource("ENABLED, 1", "DISABLED, 0")
-    fun `should send the confirmation email only when the shop settings enable it`(activation: Activation, sentCount: Int) {
+    fun `should send the confirmation email only when the shop settings enable it`(
+        activation: Activation,
+        sentCount: Int
+    ) {
         // Arrange
-        val settingsRepository = InMemoryShopSettingsRepository(ShopSettings(orderConfirmationEmail = activation))
+        val shopSettings = ShopSettings(orderConfirmationEmail = activation)
+        val settingsRepository = InMemoryShopSettingsRepository(shopSettings)
         val useCase = SendOrderConfirmationEmailUseCase(settingsRepository, userRepository, emailRepository)
         // Act
         useCase.unfold(order)

@@ -16,11 +16,15 @@ class AdminOrderController(private val orderAdministrationService: OrderAdminist
 
     @Operation(summary = "Retrieve the orders of all the customers, newest first")
     @GetMapping
-    fun getAllOrders(): List<JsonOrder> = orderAdministrationService.getAllOrders().asList().map { JsonOrder(it) }
+    fun getAllOrders(): List<JsonOrder> =
+        orderAdministrationService.getAllOrders().asList().map { JsonOrder(it) }
 
     @Operation(summary = "Move an order to the next status of its life cycle: PROCESSING, SHIPPED, then DELIVERED")
     @PostMapping("/{orderId}/status/advance")
-    fun advanceStatus(@PathVariable orderId: String, @RequestBody statusAdvance: JsonOrderStatusAdvance): JsonOrder {
+    fun advanceStatus(
+        @PathVariable orderId: String,
+        @RequestBody statusAdvance: JsonOrderStatusAdvance
+    ): JsonOrder {
         val orderStatusAdvance = statusAdvance.toOrderStatusAdvance(OrderId(orderId))
         val advancedOrder = orderAdministrationService.advance(orderStatusAdvance)
         return JsonOrder(advancedOrder)

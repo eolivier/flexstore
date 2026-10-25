@@ -3,7 +3,8 @@ package org.flexstore.infra.spring.security
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt
 
-// The administration account created by the migrations: the domain checks that a user creator is an administrator
+// The administration account created by the migrations: the domain checks that a user creator is an
+// administrator
 const val ADMIN_ACCOUNT_ID = "u-admin"
 
 // Requests authenticated with a JWT, as issued by the login

@@ -5,10 +5,12 @@ import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.entity.*
 
-// A quantity of zero or less removes the item; an item of another cart is unknown to the owner's cart, hence ignored
+// A quantity of zero or less removes the item; an item of another cart is unknown to the owner's cart, hence
+// ignored
 data class ChangeCartItemQuantityRequest(val owner: CartOwner, val itemId: ItemId, val quantity: Quantity)
 
-class ChangeCartItemQuantityUseCase(private val cartRepository: CartRepository) : UseCase<ChangeCartItemQuantityRequest> {
+class ChangeCartItemQuantityUseCase(private val cartRepository: CartRepository) :
+    UseCase<ChangeCartItemQuantityRequest> {
 
     override fun getPreConditions(): PreConditions<ChangeCartItemQuantityRequest> = PreConditions.none()
 
@@ -20,12 +22,14 @@ class ChangeCartItemQuantityUseCase(private val cartRepository: CartRepository) 
         return NominalScenario(listOf(changeQuantityStep))
     }
 
-    override fun getPostConditions(): PostConditions<ChangeCartItemQuantityRequest> = PostConditions(quantityChangedCondition())
+    override fun getPostConditions(): PostConditions<ChangeCartItemQuantityRequest> =
+        PostConditions(quantityChangedCondition())
 
     private fun quantityChangedCondition() = PostCondition<ChangeCartItemQuantityRequest> { request ->
         val item = cartRepository.load(request.owner).findBy(request.itemId)
         // An item kept with another quantity than requested, or kept when it should have been removed
-        val quantityNotApplied = item != null && (request.quantity.isZeroOrNegative() || item.quantity != request.quantity)
+        val quantityStillThere = request.quantity.isZeroOrNegative() || item?.quantity != request.quantity
+        val quantityNotApplied = item != null && quantityStillThere
         if (quantityNotApplied) {
             throw CartUpdateFailed(ErrorMessage("Quantity of item ${request.itemId.id.value} was not changed."))
         }

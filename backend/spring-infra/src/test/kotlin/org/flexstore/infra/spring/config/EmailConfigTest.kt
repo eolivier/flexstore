@@ -19,7 +19,10 @@ class EmailConfigTest {
 
     @ParameterizedTest(name = "spring.mail.host = \"{0}\" -> {1}")
     @CsvSource("smtp-relay.example.com, SMTP", "'', logs", "'  ', logs")
-    fun `the mail host chooses between sending with SMTP and writing the emails to the logs`(host: String, expected: String) {
+    fun `the mail host chooses between sending with SMTP and writing the emails to the logs`(
+        host: String,
+        expected: String
+    ) {
         // Arrange
         val expectedAdapter = if (expected == "SMTP") SmtpEmailSender::class.java else LoggingEmailSender::class.java
         // Act

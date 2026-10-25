@@ -83,7 +83,8 @@ class UserRestControllerIT {
         // Assert
         response.andExpect(status().isCreated)
             .andExpect(jsonPath("$.role").value(expectedRole))
-        assertThat((userRepository.findByEmail(Email(DRAFT_USER_EMAIL)) as User.DefinedUser).role).isEqualTo(Role.valueOf(expectedRole))
+        val createdUser = userRepository.findByEmail(Email(DRAFT_USER_EMAIL)) as User.DefinedUser
+        assertThat(createdUser.role).isEqualTo(Role.valueOf(expectedRole))
     }
 
     @Test
@@ -96,7 +97,8 @@ class UserRestControllerIT {
         )
         // Assert
         response.andExpect(status().isForbidden)
-        assertThat(userRepository.findByEmail(Email(DRAFT_USER_EMAIL))).isNotInstanceOf(User.DefinedUser::class.java)
+        val draftUser = userRepository.findByEmail(Email(DRAFT_USER_EMAIL))
+        assertThat(draftUser).isNotInstanceOf(User.DefinedUser::class.java)
     }
 
     @Test

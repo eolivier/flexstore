@@ -14,7 +14,8 @@ class AddItemToCartUseCase(
     private val productRepository: ProductRepository
 ) : UseCase<AddItemToCartRequest> {
 
-    override fun getPreConditions(): PreConditions<AddItemToCartRequest> = PreConditions(productExistsCondition())
+    override fun getPreConditions(): PreConditions<AddItemToCartRequest> =
+        PreConditions(productExistsCondition())
 
     override fun getNominalScenario(): NominalScenario<AddItemToCartRequest> {
         val addItemStep = Step<AddItemToCartRequest> { request ->
@@ -24,7 +25,8 @@ class AddItemToCartUseCase(
         return NominalScenario(listOf(addItemStep))
     }
 
-    override fun getPostConditions(): PostConditions<AddItemToCartRequest> = PostConditions(itemHasQuantityCondition())
+    override fun getPostConditions(): PostConditions<AddItemToCartRequest> =
+        PostConditions(itemHasQuantityCondition())
 
     private fun catalogProduct(productId: ProductId): DefinedProduct =
         productRepository.findById(productId)
@@ -37,7 +39,8 @@ class AddItemToCartUseCase(
     private fun itemHasQuantityCondition() = PostCondition<AddItemToCartRequest> { request ->
         val item = cartRepository.load(request.owner).findBy(request.productId)
         if (item !is CartItem || item.quantity != request.quantity) {
-            throw CartUpdateFailed(ErrorMessage("Product ${request.productId.id.value} was not added to the cart."))
+            val message = ErrorMessage("Product ${request.productId.id.value} was not added to the cart.")
+            throw CartUpdateFailed(message)
         }
     }
 }

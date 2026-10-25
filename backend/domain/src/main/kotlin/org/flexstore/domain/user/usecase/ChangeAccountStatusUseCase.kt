@@ -27,7 +27,8 @@ class ChangeAccountStatusUseCase(private val userRepository: UserRepository) : U
     // The editor must be an existing user with the ADMIN role (read from the users, not from the request)
     private fun editorIsAdministratorCondition() = PreCondition<AccountStatusChange> { change ->
         if (userRepository.isNotAdministrator(change.editor)) {
-            throw UserUpdateForbiddenException(ErrorMessage("Only an administrator can change the status of an account."))
+            val message = ErrorMessage("Only an administrator can change the status of an account.")
+            throw UserUpdateForbiddenException(message)
         }
     }
 
@@ -40,13 +41,15 @@ class ChangeAccountStatusUseCase(private val userRepository: UserRepository) : U
     // An administrator cannot lock themselves out
     private fun accountIsNotTheEditorsCondition() = PreCondition<AccountStatusChange> { change ->
         if (change.userId == change.editor) {
-            throw InvalidStatusChangeException(ErrorMessage("An administrator cannot change the status of their own account."))
+            val message = ErrorMessage("An administrator cannot change the status of their own account.")
+            throw InvalidStatusChangeException(message)
         }
     }
 
     private fun statusCanBeChosenCondition() = PreCondition<AccountStatusChange> { change ->
         if (change.status.cannotBeChosenByAnAdministrator()) {
-            throw InvalidStatusChangeException(ErrorMessage("The status ${change.status} is given by the verification of the email only."))
+            val message = ErrorMessage("The status ${change.status} is given by the verification of the email only.")
+            throw InvalidStatusChangeException(message)
         }
     }
 }
