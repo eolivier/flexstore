@@ -3,7 +3,6 @@ package org.flexstore.infra.spring.adapter.jpa
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
-import org.springframework.context.annotation.Primary
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Repository
@@ -15,7 +14,6 @@ interface JpaUserRepository : JpaRepository<UserEntity, String> {
 }
 
 @Repository
-@Primary
 class PostgresUserRepositoryAdapter(
     private val jpaRepo: JpaUserRepository
 ) : UserRepository {
