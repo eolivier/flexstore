@@ -1,6 +1,6 @@
 ---
 name: fluent-code-reading-semantic
-description: Principles that make code read like the business language - wrapping collections in their own class, naming boolean methods affirmatively, naming variables after their type, intermediate variables, strong types rather than nullable ones, one or two arguments per method. Use before writing, changing or reviewing domain or application code (entities, value objects, aggregates, use cases), in any language.
+description: Principles that make code read like the business language - wrapping collections in their own class, naming boolean methods affirmatively, naming variables after their type, intermediate variables, strong types rather than nullable ones, one or two arguments per method, lines of 113 characters at most. Use before writing, changing or reviewing domain or application code (entities, value objects, aggregates, use cases), in any language.
 ---
 
 # Fluent code reading semantic
@@ -282,3 +282,29 @@ Details:
 - The intermediate class is built in its own variable before the call (principle 8), so that the call reads with its business arguments.
 - A class may still have more properties than that, built from such intermediate classes; the rule bounds what each call has to pass.
 - An existing signature with more arguments is pointed out in reviews, and changed when the code is changed anyway; a JPA entity or a JSON class mapping each column or field keeps one property per column.
+
+## 11. A line of code is 113 characters at most
+
+No line of code is longer than 113 characters, indentation included. A line that would be longer is split by introducing intermediate variables named after what they hold (principle 8), not by wrapping the arguments of a single expression over several lines.
+
+Avoid:
+
+```kotlin
+private val order = Order.place(OrderPlacement(OrderStamp(OrderId("order-1"), placedAt), Checkout(owner, homeOrderAddresses)), Cart(owner).add(deskLamp, Quantity(2)))
+```
+
+Prefer:
+
+```kotlin
+private val orderStamp = OrderStamp(OrderId("order-1"), placedAt)
+private val orderPlacement = OrderPlacement(orderStamp, Checkout(owner, homeOrderAddresses))
+private val cart = Cart(owner).add(deskLamp, Quantity(2))
+private val order = Order.place(orderPlacement, cart)
+```
+
+Why: a line that fits on the screen is read at once, without scrolling or following a wrapped expression; the intermediate variables that keep it short also name each step.
+
+Details:
+- The limit applies to every language of the project (Kotlin, TypeScript, Vue, SQL); a long string or a URL that cannot be split is the only exception.
+- When the variables are not enough (a declaration with many parameters), put one parameter per line, as the existing data classes do.
+- Comments follow the same limit: split them over several lines.
