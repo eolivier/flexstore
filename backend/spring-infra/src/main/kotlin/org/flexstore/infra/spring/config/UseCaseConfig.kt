@@ -9,6 +9,7 @@ import org.flexstore.domain.order.*
 import org.flexstore.domain.order.usecase.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.settings.*
+import org.flexstore.domain.sharedkernel.ShopUrl
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.usecase.*
@@ -135,7 +136,7 @@ open class UseCaseConfig(@Value("\${flexstore.front-url}") private val frontUrl:
     // The links of the verification emails open the page /verify-email of the front
     open fun sendVerificationEmailUseCase(userRepository: UserRepository,
                                           emailRepository: EmailRepository): SendVerificationEmailUseCase {
-        val verificationPage = VerificationPage("${frontUrl.trimEnd('/')}/verify-email")
+        val verificationPage = VerificationPage.of(ShopUrl(frontUrl))
         return SendVerificationEmailUseCase(userRepository, emailRepository, verificationPage)
     }
 
