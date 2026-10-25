@@ -1,6 +1,6 @@
 ---
 name: database-convention
-description: Rules for the database schema of the back end (Flyway migrations in backend/migrations) - primary keys named id, foreign keys named after the table they reference instead of copied columns, data migrated rather than left incomplete. Use before writing or reviewing a migration, a table, a column or a JPA mapping of a table.
+description: Rules for the database schema of the back end (Flyway migrations in backend/migrations) - primary keys named id, foreign keys named after the table they reference instead of copied columns, data migrated rather than left incomplete, the physical data model (docs/database.md) updated with the schema. Use before writing or reviewing a migration, a table, a column or a JPA mapping of a table.
 ---
 
 # Database convention
@@ -116,3 +116,15 @@ Why: a nullable column for old data makes every reader of the table, and the dom
 
 Details:
 - When some old rows cannot be filled, say in the migration what is done with them and why, and point it out in the pull request.
+
+## 4. A schema change updates the physical data model
+
+The physical data model of the database (MPD) is kept in `docs/database.md`, as a Mermaid `erDiagram` (a text that GitHub and most editors render as an image). Every migration that changes the schema (a table, a column, a type, a key, a constraint) updates it in the same pull request.
+
+How to apply:
+- Add, rename or remove the table or the column in the diagram, with its type, `PK`, `FK` or `UK`, and a comment for what is not obvious (a nullable column, an enumeration such as `PENDING` / `PAID`).
+- Draw the relation of a new foreign key with its cardinality (`||--o{`, `|o--o|`...), labelled with the column that holds it.
+- Update the version of the last migration written at the top of the document.
+- Check that the diagram still renders (GitHub preview, or `npx @mermaid-js/mermaid-cli -i docs/database.md`).
+
+Why: the diagram gives at a glance the tables, their keys and their relations, which the migrations only give one change at a time; a diagram that is not updated with the schema misleads more than it helps.
