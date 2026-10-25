@@ -3,12 +3,15 @@ package org.flexstore.domain.payment.usecase
 import org.flexstore.domain.order.*
 import org.flexstore.domain.payment.*
 import org.flexstore.domain.sharedkernel.ErrorMessage
+import org.flexstore.domain.user.UserRepository
+import org.flexstore.domain.user.model.User
 import org.ucop.domain.entity.*
 
 // A customer starts the payment of one of their orders, awaiting its payment, on the payment provider
 class StartPaymentUseCase(
     private val orderRepository: OrderRepository,
-    private val paymentRepository: PaymentRepository
+    private val paymentRepository: PaymentRepository,
+    private val userRepository: UserRepository
 ) : UseCase<OrderPayment> {
 
     override fun getPreConditions(): PreConditions<OrderPayment> =
@@ -17,7 +20,8 @@ class StartPaymentUseCase(
     override fun getNominalScenario(): NominalScenario<OrderPayment> {
         val startStep = Step<OrderPayment> { orderPayment ->
             val order = orderRepository.findById(orderPayment.orderId)!!
-            paymentRepository.start(order)
+            val customer = userRepository.findById(orderPayment.customer.userId) as User.DefinedUser
+            paymentRepository.start(PaymentRequest(order, Payer.of(customer, order)))
         }
         return NominalScenario(startStep)
     }

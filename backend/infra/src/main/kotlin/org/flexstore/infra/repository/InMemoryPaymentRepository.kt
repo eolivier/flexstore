@@ -8,10 +8,16 @@ class InMemoryPaymentRepository(private val outcome: PaymentOutcome) : PaymentRe
 
     private val sessions = mutableMapOf<OrderId, PaymentSession>()
 
-    override fun start(order: Order) {
-        val checkoutPage = CheckoutPage("https://pay.example/${order.orderId.value}")
-        sessions[order.orderId] = PaymentSession(checkoutPage, outcome)
+    private val payers = mutableMapOf<OrderId, Payer>()
+
+    override fun start(paymentRequest: PaymentRequest) {
+        val orderId = paymentRequest.order.orderId
+        sessions[orderId] = PaymentSession(CheckoutPage("https://pay.example/${orderId.value}"), outcome)
+        payers[orderId] = paymentRequest.payer
     }
+
+    // Who the payment page of the order was prefilled for
+    fun payerOf(orderId: OrderId) = payers[orderId]
 
     override fun sessionOf(orderId: OrderId) = sessions[orderId]
 }

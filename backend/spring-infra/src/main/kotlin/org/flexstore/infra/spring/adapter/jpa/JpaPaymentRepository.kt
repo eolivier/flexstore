@@ -20,8 +20,9 @@ class PaymentRepositoryAdapter(
     private val jpaOrderRepository: JpaOrderRepository
 ) : PaymentRepository {
 
-    override fun start(order: Order) {
-        val providerCheckout = paymentProvider.checkout(order)
+    override fun start(paymentRequest: PaymentRequest) {
+        val order = paymentRequest.order
+        val providerCheckout = paymentProvider.checkout(paymentRequest)
         val paymentEntity = PaymentEntity(
             Identity.nextId().value,
             providerReference = providerCheckout.reference,
