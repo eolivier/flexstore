@@ -30,7 +30,7 @@ class OrderAddressesTest : WithAssertions {
     }
 
     private fun orderPlacementWith(orderAddresses: OrderAddresses) =
-        OrderPlacement(OrderId("order-1"), customer, Instant.parse("2026-10-24T10:00:00Z"), orderAddresses)
+        OrderPlacement(OrderStamp(OrderId("order-1"), Instant.parse("2026-10-24T10:00:00Z")), Checkout(customer, orderAddresses))
 
     @Test
     fun `an order should keep its delivery address and its billing address`() {
