@@ -19,14 +19,18 @@ private const val ORDER_NUMBER_LENGTH = 8
  * - a new order is being processed
  * - it is always delivered to a delivery address and billed to a billing address (often the same), both addresses of the customer
  */
-data class Order(
-    val orderId: OrderId,
-    val customer: UserId.ValidUserId,
-    val lines: OrderLines,
-    val status: OrderStatus,
-    val placedAt: Instant,
-    val addresses: OrderAddresses
-) {
+data class Order(val details: OrderDetails, val status: OrderStatus) {
+
+    val orderId get() = details.placement.orderId
+
+    val customer get() = details.placement.customer.userId
+
+    val placedAt get() = details.placement.placedAt
+
+    val addresses get() = details.placement.addresses
+
+    val lines get() = details.lines
+
     fun totalPrice() = lines.totalPrice()
 
     // The number shown to the customer: the beginning of the order id
@@ -43,16 +47,32 @@ data class Order(
                 throw IncompleteOrderAddressException(ErrorMessage("An order needs a complete delivery address and billing address."))
             }
             val orderLines = OrderLines.from(cart)
-            return Order(
-                orderPlacement.orderId, orderPlacement.customer.userId, orderLines, OrderStatus.PROCESSING, orderPlacement.placedAt,
-                orderPlacement.addresses
-            )
+            val orderDetails = OrderDetails(orderPlacement, orderLines)
+            return Order(orderDetails, OrderStatus.PROCESSING)
         }
     }
 }
 
-// An order to place: its id (chosen by the caller, which can then read the order), its customer, its date, its addresses
-data class OrderPlacement(val orderId: OrderId, val customer: CartOwner.Customer, val placedAt: Instant, val addresses: OrderAddresses)
+// What was ordered, fixed once the order is placed: how it was placed and its lines (the status changes afterwards)
+data class OrderDetails(val placement: OrderPlacement, val lines: OrderLines)
+
+// An order to place: its stamp (id and date) and its checkout (customer and addresses)
+data class OrderPlacement(val stamp: OrderStamp, val checkout: Checkout) {
+
+    val orderId get() = stamp.orderId
+
+    val placedAt get() = stamp.placedAt
+
+    val customer get() = checkout.customer
+
+    val addresses get() = checkout.addresses
+}
+
+// The id of a new order (chosen by the caller, which can then read the order) and the date it is placed
+data class OrderStamp(val orderId: OrderId, val placedAt: Instant)
+
+// What the customer chooses when checking out: who orders, where the order is delivered and billed
+data class Checkout(val customer: CartOwner.Customer, val addresses: OrderAddresses)
 
 // Where the order is delivered and to which address it is billed (often the same)
 data class OrderAddresses(val delivery: PostalAddress, val billing: PostalAddress) {

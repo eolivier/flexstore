@@ -16,13 +16,15 @@ class OrderTest : WithAssertions {
     private val mug = DefinedProduct(ProductId(Identity("mug")), Name("Mug"), Price(Amount(BigDecimal(12)), Currency.EUR))
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val placedAt = Instant.parse("2026-10-24T10:00:00Z")
+    private val checkout = Checkout(customer, homeOrderAddresses)
+    private val orderPlacement = OrderPlacement(OrderStamp(OrderId("order-1"), placedAt), checkout)
 
     @Test
     fun `should place an order with a line per cart item`() {
         // Arrange
         val cart = Cart(customer).add(lamp, Quantity(2)).add(mug, Quantity(1))
         // Act
-        val order = Order.place(OrderPlacement(OrderId("order-1"), customer, placedAt, homeOrderAddresses), cart)
+        val order = Order.place(orderPlacement, cart)
         // Assert
         assertThat(order.lines.asList()).containsExactly(
             OrderLine(lamp.productId, Name("Desk lamp"), lamp.price, Quantity(2)),
@@ -37,7 +39,7 @@ class OrderTest : WithAssertions {
         // Arrange
         val cart = Cart(customer).add(lamp, Quantity(2)).add(mug, Quantity(1))
         // Act
-        val order = Order.place(OrderPlacement(OrderId("order-1"), customer, placedAt, homeOrderAddresses), cart)
+        val order = Order.place(orderPlacement, cart)
         // Assert
         assertThat(order.totalPrice().amount.value).isEqualByComparingTo("82")
     }
@@ -47,7 +49,7 @@ class OrderTest : WithAssertions {
         // Arrange
         val cart = Cart(customer)
         // Act
-        val thrown = catchThrowable { Order.place(OrderPlacement(OrderId("order-1"), customer, placedAt, homeOrderAddresses), cart) }
+        val thrown = catchThrowable { Order.place(orderPlacement, cart) }
         // Assert
         assertThat(thrown).isInstanceOf(EmptyCartException::class.java)
     }
@@ -56,8 +58,10 @@ class OrderTest : WithAssertions {
     fun `orders should be sorted newest first`() {
         // Arrange
         val cart = Cart(customer).add(lamp, Quantity(1))
-        val older = Order.place(OrderPlacement(OrderId("older"), customer, placedAt, homeOrderAddresses), cart)
-        val newer = Order.place(OrderPlacement(OrderId("newer"), customer, placedAt.plusSeconds(60), homeOrderAddresses), cart)
+        val olderOrderPlacement = OrderPlacement(OrderStamp(OrderId("older"), placedAt), checkout)
+        val newerOrderPlacement = OrderPlacement(OrderStamp(OrderId("newer"), placedAt.plusSeconds(60)), checkout)
+        val older = Order.place(olderOrderPlacement, cart)
+        val newer = Order.place(newerOrderPlacement, cart)
         // Act
         val sorted = Orders(older, newer).newestFirst()
         // Assert

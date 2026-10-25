@@ -25,8 +25,11 @@ class OrderController(private val orderUseCaseFacade: OrderUseCaseFacade) {
     @ResponseStatus(HttpStatus.CREATED)
     // The order is stored and the cart emptied together, or not at all
     @Transactional
-    fun placeOrder(@AuthenticationPrincipal jwt: Jwt, @RequestBody addresses: JsonOrderAddresses): JsonOrder =
-        JsonOrder(orderUseCaseFacade.placeOrder(CartOwner.Customer(customer(jwt)), addresses.toOrderAddresses()))
+    fun placeOrder(@AuthenticationPrincipal jwt: Jwt, @RequestBody addresses: JsonOrderAddresses): JsonOrder {
+        val checkout = Checkout(CartOwner.Customer(customer(jwt)), addresses.toOrderAddresses())
+        val placedOrder = orderUseCaseFacade.placeOrder(checkout)
+        return JsonOrder(placedOrder)
+    }
 
     @Operation(summary = "Retrieve the orders of the signed-in customer, newest first")
     @GetMapping

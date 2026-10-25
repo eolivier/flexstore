@@ -22,7 +22,8 @@ class SendOrderConfirmationEmailUseCaseTest : WithAssertions {
     private val lamp = DefinedProduct(ProductId(Identity("lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR))
     private val customer = User.DefinedUser(UserId.ValidUserId("user-1"), FullName(FirstName("Jane"), LastName("Doe")), Email("jane@example.com"), PlainPassword("password123"))
     private val owner = CartOwner.Customer(UserId.ValidUserId("user-1"))
-    private val order = Order.place(OrderPlacement(OrderId("order-1"), owner, Instant.parse("2026-10-24T10:00:00Z"), homeOrderAddresses), Cart(owner).add(lamp, Quantity(2)))
+    private val orderPlacement = OrderPlacement(OrderStamp(OrderId("order-1"), Instant.parse("2026-10-24T10:00:00Z")), Checkout(owner, homeOrderAddresses))
+    private val order = Order.place(orderPlacement, Cart(owner).add(lamp, Quantity(2)))
     private val userRepository = InMemoryUserRepository().apply { save(customer) }
     private val emailRepository = InMemoryEmailRepository()
 

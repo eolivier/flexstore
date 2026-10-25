@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.adapter.jpa
 
+import org.flexstore.domain.cart.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
@@ -58,19 +59,19 @@ class PostgresOrderRepositoryAdapter(
     private fun List<AddressEntity>.rowOf(address: PostalAddress) =
         firstOrNull { it.toDomain() == address } ?: throw IllegalStateException("The address of the order is not an address of its customer")
 
-    private fun OrderEntity.toDomain() = Order(
-        orderId = OrderId(id),
-        customer = UserId.ValidUserId(userId),
-        lines = OrderLines(lines.map {
+    private fun OrderEntity.toDomain(): Order {
+        val orderStamp = OrderStamp(OrderId(id), placedAt)
+        val orderAddresses = OrderAddresses(deliveryAddress.toDomain(), billingAddress.toDomain())
+        val checkout = Checkout(CartOwner.Customer(UserId.ValidUserId(userId)), orderAddresses)
+        val orderLines = OrderLines(lines.map {
             OrderLine(
                 productId = ProductId(Identity(it.productId)),
                 productName = Name(it.productName),
                 unitPrice = Price(Amount(it.unitPrice), Currency.valueOf(it.currency)),
                 quantity = Quantity(it.quantity)
             )
-        }),
-        status = OrderStatus.valueOf(status),
-        placedAt = placedAt,
-        addresses = OrderAddresses(deliveryAddress.toDomain(), billingAddress.toDomain())
-    )
+        })
+        val orderDetails = OrderDetails(OrderPlacement(orderStamp, checkout), orderLines)
+        return Order(orderDetails, OrderStatus.valueOf(status))
+    }
 }

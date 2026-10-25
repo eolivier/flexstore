@@ -26,7 +26,10 @@ class SmtpEmailSenderTest {
 
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val lamp = DefinedProduct(ProductId(Identity("lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR))
-    private val order = Order.place(OrderPlacement(OrderId("c5f7326c-0000"), customer, Instant.parse("2026-10-24T10:00:00Z"), OrderAddresses.sameFor(PostalAddress(Street("12 rue des Lilas"), null, PostalCode("75011"), City("Paris"), Country("France")))), Cart(customer).add(lamp, Quantity(1)))
+    private val homeAddress = PostalAddress(Street("12 rue des Lilas"), null, PostalCode("75011"), City("Paris"), Country("France"))
+    private val checkout = Checkout(customer, OrderAddresses.sameFor(homeAddress))
+    private val orderPlacement = OrderPlacement(OrderStamp(OrderId("c5f7326c-0000"), Instant.parse("2026-10-24T10:00:00Z")), checkout)
+    private val order = Order.place(orderPlacement, Cart(customer).add(lamp, Quantity(1)))
     private val email = OrderConfirmationEmail(Email("jane@example.com"), FullName(FirstName("Jane"), LastName("Doe")), order)
     private val mailSender = mock(JavaMailSender::class.java)
     private val adapter = SmtpEmailSender(mailSender, "Flexstore <no-reply@flexstore.com>", "https://flexstore.example")
