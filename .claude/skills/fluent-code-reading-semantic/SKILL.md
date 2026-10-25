@@ -191,6 +191,8 @@ val placeOrderStep = Step<OrderPlacement> { orderPlacement -> ... }
 Why: the reader knows at once what the variable holds and which operations it offers, wherever it is used, without going back to its declaration.
 
 Details:
+- The same goes for parameters, which take the domain type rather than a primitive: `orderId: OrderId`, not `orderId: String` converted inside the function (see principle 8 of the `domain-driven-design` skill).
+- Name a test fixture after what it is in the business, never with a shortened or vague name: `deskLamp`, `homeAddress`, `customer`, not `lamp`, `addr`, `owner`.
 - Add a qualifier when several variables have the same type, keeping the type in the name: `older` and `newer` orders, `deliveryAddress` and `billingAddress`, `updatedCart`, `storedOrder`.
 - A value whose type is generic (`String`, `Boolean`, `Response`) is named after what it represents (principle 5).
 
@@ -201,16 +203,20 @@ Do not nest calls inside the arguments of other calls. Give each intermediate va
 Avoid:
 
 ```kotlin
-private fun placeOrder(orderId: String, owner: CartOwner.Customer, at: Instant) =
-    orderRepository.save(Order.place(OrderPlacement(OrderId(orderId), owner, at, homeAddresses), Cart(owner).add(lamp, Quantity(1))))
+private val deskLamp = DefinedProduct(ProductId(Identity("desk-lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR))
+
+private fun placeOrder(orderId: OrderId, customer: CartOwner.Customer, placedAt: Instant) =
+    orderRepository.save(Order.place(OrderPlacement(orderId, customer, placedAt, homeAddresses), Cart(customer).add(deskLamp, Quantity(1))))
 ```
 
 Prefer:
 
 ```kotlin
-private fun placeOrder(orderId: String, owner: CartOwner.Customer, at: Instant): Order {
-    val orderPlacement = OrderPlacement(OrderId(orderId), owner, at, homeAddresses)
-    val cart = Cart(owner).add(lamp, Quantity(1))
+private val deskLamp = DefinedProduct(ProductId(Identity("desk-lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR))
+
+private fun placeOrder(orderId: OrderId, customer: CartOwner.Customer, placedAt: Instant): Order {
+    val orderPlacement = OrderPlacement(orderId, customer, placedAt, homeAddresses)
+    val cart = Cart(customer).add(deskLamp, Quantity(1))
     val order = Order.place(orderPlacement, cart)
     return orderRepository.save(order)
 }
@@ -219,8 +225,8 @@ private fun placeOrder(orderId: String, owner: CartOwner.Customer, at: Instant):
 Why: each line does one thing and names its outcome; the reader does not have to unfold the expression from the inside out to know what is built, in which order, and what is finally saved.
 
 Details:
-- A simple value object built inline stays inline (`Quantity(1)`, `OrderId(orderId)`): extract what is a step of the reasoning, not every constructor call.
-- A chain that reads as a sentence (`cart.add(lamp, Quantity(2)).emptied()`) may stay on one line.
+- A simple value object built inline stays inline (`Quantity(1)`, `Name("Desk lamp")`): extract what is a step of the reasoning, not every constructor call.
+- A chain that reads as a sentence (`cart.add(deskLamp, Quantity(2)).emptied()`) may stay on one line.
 
 ## 9. Strong types rather than nullable types
 
