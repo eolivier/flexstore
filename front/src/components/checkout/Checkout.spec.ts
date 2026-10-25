@@ -137,6 +137,27 @@ describe('Checkout.vue', () => {
     });
   });
 
+  it('a saved address without the last name of its recipient is completed before ordering', async () => {
+    // Arrange
+    respondWith([{ ...home, lastName: null }]);
+    const { wrapper } = await mountCheckout();
+    const [, lastName] = wrapper.findAll('input[type="text"]');
+    await lastName.setValue('Doe');
+    // Act
+    await placeOrder(wrapper);
+    // Assert
+    expect(sentAddresses().deliveryAddress).toMatchObject({ firstName: 'Jane', lastName: 'Doe' });
+  });
+
+  it('asks who receives a saved address without the last name of its recipient', async () => {
+    // Arrange
+    respondWith([{ ...home, lastName: null }]);
+    // Act
+    const { wrapper } = await mountCheckout();
+    // Assert
+    expect(wrapper.text()).toContain('Who receives this address? Complete their name.');
+  });
+
   it('a company is billed without the names of a contact', async () => {
     // Arrange
     respondWith([home]);
