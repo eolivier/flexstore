@@ -55,6 +55,9 @@ data class Order(val detail: OrderDetail, val status: OrderStatus) {
 
     fun isPaid() = status.isPaid()
 
+    // The moment the order must be paid by, or it is cancelled
+    fun paymentDeadline(paymentDelay: PaymentDelay) = PaymentDeadline(placedAt + paymentDelay.asDuration())
+
     companion object {
         fun place(orderPlacement: OrderPlacement, cart: Cart): Order {
             if (cart.isEmpty()) {
@@ -203,9 +206,15 @@ data class Orders(private val orders: List<Order>) {
 // The time a customer has to pay, checked at a given moment
 data class PaymentTimeLimit(val paymentDelay: PaymentDelay, val checkedAt: Instant) {
 
-    // The order still awaits its payment, and was placed at least the payment delay ago
+    // The order still awaits its payment, and its payment deadline is reached
     fun isExceededFor(order: Order) =
-        order.isAwaitingPayment() && !checkedAt.isBefore(order.placedAt + paymentDelay.asDuration())
+        order.isAwaitingPayment() && order.paymentDeadline(paymentDelay).isReachedAt(checkedAt)
+}
+
+// The moment an order must be paid by: its placement plus the payment delay
+data class PaymentDeadline(val value: Instant) {
+
+    fun isReachedAt(instant: Instant) = instant >= value
 }
 
 // An order to cancel because it was not paid in time
