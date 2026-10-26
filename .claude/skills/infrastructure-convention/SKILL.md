@@ -1,6 +1,6 @@
 ---
 name: infrastructure-convention
-description: Rules for the infrastructure layer of the back end (infra and spring-infra) - the module an adapter belongs to, JPA entities (naming, files, creation and update dates), persistence adapters and database migrations. Use before creating, moving, renaming or changing a JPA entity, a Spring Data repository, a repository adapter or a Flyway migration, and when reviewing infrastructure code.
+description: Rules for the infrastructure layer of the back end (infra and spring-infra) - the module an adapter belongs to, JPA entities (naming, files, creation and update dates), the package of the persistence adapters (persistence, then jpa or jdbc, then entity and repository from 11 files), persistence adapters and database migrations. Use before creating, moving, renaming or changing a JPA entity, a Spring Data repository, a repository adapter or a Flyway migration, and when reviewing infrastructure code.
 ---
 
 # Infrastructure convention
@@ -11,23 +11,23 @@ The business rules never live here: an adapter only translates and stores (see s
 
 ## 1. A JPA entity is suffixed with `Entity`, and so is its file
 
-The persistence model is kept apart from the domain model: a JPA entity is a class of the adapter (`org.flexstore.infra.spring.adapter.jpa`), never of the domain, and its name ends with **`Entity`**, after the concept it stores: `ProductEntity`, `CartItemEntity`, `OrderLineEntity`.
+The persistence model is kept apart from the domain model: a JPA entity is a class of the persistence adapter (`org.flexstore.infra.spring.adapter.persistence.jpa`, see section 4), never of the domain, and its name ends with **`Entity`**, after the concept it stores: `ProductEntity`, `CartItemEntity`, `OrderLineEntity`.
 
 The `.kt` file has exactly the name of the class, suffix included, and holds one entity:
 
 Avoid:
 
 ```
-adapter/jpa/Product.kt     // holds ProductEntity
-adapter/jpa/Order.kt       // holds OrderEntity and OrderLineEntity
+adapter/persistence/jpa/Product.kt     // holds ProductEntity
+adapter/persistence/jpa/Order.kt       // holds OrderEntity and OrderLineEntity
 ```
 
 Prefer:
 
 ```
-adapter/jpa/ProductEntity.kt
-adapter/jpa/OrderEntity.kt
-adapter/jpa/OrderLineEntity.kt
+adapter/persistence/jpa/ProductEntity.kt
+adapter/persistence/jpa/OrderEntity.kt
+adapter/persistence/jpa/OrderLineEntity.kt
 ```
 
 Why: the file tree tells at once which files are persistence classes and which are adapters (`JpaProductRepository.kt`); a file named `Product.kt` reads as the domain product and hides a second class when it holds two.
@@ -82,3 +82,46 @@ appendLine("Ce lien est valable 1 heure (...)")   // wording outside the domain,
 ```
 
 Prefer: `EmailVerificationLinkContent` in `domain/.../email`, tested in the domain, with the validity taken from `EmailVerification.VALIDITY`, and a mail adapter that only sends its subject and body.
+
+## 4. The persistence goes in the `persistence` package, then `jpa` or `jdbc`
+
+The persistence adapters (repository adapters, Spring Data repositories, entities and their mappings) go in the package **`persistence`** of the adapters, then in a sub-package named after the technology they use:
+- **`persistence.jpa`** for JPA (Hibernate, Spring Data JPA);
+- **`persistence.jdbc`** for plain JDBC (`JdbcTemplate`, SQL written by hand).
+
+Inside one of these packages, the files stay at its level as long as there are **10 or fewer**. From **11 files**, split them into two sub-packages:
+- **`entity`**: the persistence model (the JPA entities, `TimestampedEntity`, the rows read by JDBC);
+- **`repository`**: the repository adapters (`JpaProductRepository`) and the Spring Data interfaces they use.
+
+The other files (a mapping shared by several entities, a technical value such as a token hash) stay at the level of `jpa` or `jdbc`, next to the two sub-packages.
+
+Avoid:
+
+```
+adapter/jpa/ProductEntity.kt
+adapter/jpa/JpaProductRepository.kt
+adapter/JdbcStockRepository.kt
+```
+
+Prefer, with fewer than 11 files:
+
+```
+adapter/persistence/jpa/ProductEntity.kt
+adapter/persistence/jpa/JpaProductRepository.kt
+adapter/persistence/jdbc/JdbcStockRepository.kt
+```
+
+and, from 11 files:
+
+```
+adapter/persistence/jpa/entity/ProductEntity.kt, OrderEntity.kt, TimestampedEntity.kt...
+adapter/persistence/jpa/repository/JpaProductRepository.kt, JpaOrderRepository.kt...
+adapter/persistence/jpa/PostalAddressMapping.kt
+```
+
+Why: the package tree tells first that the code stores data, then with which technology, so that two technologies can live side by side without mixing; once the package grows, the entities (what is stored) and the repositories (how it is read and written) are found at a glance.
+
+Details:
+- Count the files of the `jpa` (or `jdbc`) package itself, sub-packages excluded. Create the two sub-packages when the 11th file arrives, and move the files back up if fewer than 11 remain.
+- The other adapters keep their own package (`adapter.rest`, `adapter.email`, `adapter.payment`): `persistence` only holds what reads and writes the database.
+- Moving existing files to this structure is a refactoring PR of its own (see the `prompt-convention` skill).
