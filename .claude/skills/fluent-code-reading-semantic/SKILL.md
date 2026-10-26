@@ -1,6 +1,6 @@
 ---
 name: fluent-code-reading-semantic
-description: Principles that make code read like the business language - wrapping collections in their own class, naming boolean methods affirmatively, naming variables after their type, intermediate variables, strong types rather than nullable ones, one or two arguments per method, lines of 113 characters at most, singular or plural names, no repeated names, no null arguments, beans declared step by step (repository, use case, service). Use before writing, changing or reviewing domain or application code (entities, value objects, aggregates, use cases), in any language.
+description: Principles that make code read like the business language - wrapping collections in their own class, naming boolean methods affirmatively, naming a condition with a method (a deadline that is reached rather than a comparison of dates), naming variables after their type, intermediate variables, strong types rather than nullable ones, one or two arguments per method, lines of 113 characters at most, singular or plural names, no repeated names, no null arguments, beans declared step by step (repository, use case, service). Use before writing, changing or reviewing domain or application code (entities, value objects, aggregates, use cases), in any language.
 ---
 
 # Fluent code reading semantic
@@ -65,6 +65,39 @@ Why: a condition reads as the rule it expresses ("if the quantity is zero or neg
 Details:
 - Each predicate and its opposite may both exist (`isPositive()` / `isZeroOrNegative()`, `exists()` / `notExists()`), so that every caller uses the affirmative form of what it means.
 - The same applies to local booleans: `val unchanged = ...` checked as `if (unchanged)` rather than `val changed = ...` checked as `if (!changed)`.
+
+## 3. Name a condition with a method
+
+A condition built from comparisons, computations or negations (`!checkedAt.isBefore(placedAt + delay)`, `a.amount > b.amount && ...`) is not written inline: it goes into a method named after the business question it answers, on the object that holds the data. When the condition needs a value that has no name yet (a deadline, a threshold), give that value its own value object first.
+
+Avoid:
+
+```kotlin
+fun isExceededFor(order: Order) =
+    order.isAwaitingPayment() && !checkedAt.isBefore(order.placedAt + paymentDelay.asDuration())
+```
+
+Prefer:
+
+```kotlin
+data class Order(...) {
+    fun paymentDeadline(paymentDelay: PaymentDelay) = PaymentDeadline(placedAt + paymentDelay.asDuration())
+}
+
+data class PaymentDeadline(val value: Instant) {
+    fun isReachedAt(instant: Instant) = instant >= value
+}
+
+fun isExceededFor(order: Order) =
+    order.isAwaitingPayment() && order.paymentDeadline(paymentDelay).isReachedAt(checkedAt)
+```
+
+Why: the caller reads the rule ("the order awaits its payment and its payment deadline is reached") instead of working out what a comparison of dates means; the computation (placement plus delay) and the comparison live once, in the object they belong to, and can be tested on their own.
+
+Details:
+- Inside the named method, prefer the direct comparison (`instant >= value`) to a negated one (`!instant.isBefore(value)`), as in principle 2.
+- A condition that combines named methods with `&&` or `||` (`order.isAwaitingPayment() && deadline.isReachedAt(now)`) already reads as a sentence: it may stay inline.
+- The same applies in TypeScript and in templates: a `computed` or a function named after the question (`isAwaitingPayment(order)`) rather than the expression repeated in a `v-if`.
 
 ## 4. Simple constructors: the class does the recurring work
 
