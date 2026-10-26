@@ -5,6 +5,7 @@ import org.flexstore.domain.order.*
 import org.flexstore.domain.payment.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.image.*
+import org.flexstore.domain.settings.*
 import org.flexstore.domain.stock.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.usecase.*
@@ -70,6 +71,13 @@ class RestExceptionHandler {
             is OrderStatusChangedException, is OrderStatusCannotAdvanceException -> ResponseEntity
                 .status(409)
                 .body(mapOf("error" to (ex.message ?: "The status of the order cannot advance")))
+            is InvalidPaymentDelayException -> ResponseEntity
+                .status(400)
+                .body(mapOf("error" to (ex.message ?: "Invalid payment delay")))
+            // Not paid in time: the customer orders again
+            is OrderCancelledException -> ResponseEntity
+                .status(409)
+                .body(mapOf("error" to (ex.message ?: "Cancelled order")))
             // Not 422, which tells the front that the cart is empty
             is OutOfStockException -> ResponseEntity
                 .status(409)

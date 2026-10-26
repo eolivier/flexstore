@@ -4,6 +4,7 @@
   import { useI18n } from 'vue-i18n';
   import { useSettingsStore } from '@/stores/settings.store';
   import OrderConfirmationEmailSetting from './OrderConfirmationEmailSetting.vue';
+  import PaymentDelaySetting from './PaymentDelaySetting.vue';
 
   const { t } = useI18n();
   const settingsStore = useSettingsStore();
@@ -25,6 +26,8 @@
 
     <v-card v-else class="pa-6">
       <OrderConfirmationEmailSetting />
+      <v-divider class="my-6" />
+      <PaymentDelaySetting />
     </v-card>
   </v-container>
 </template>

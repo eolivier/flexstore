@@ -17,7 +17,17 @@
 </script>
 
 <template>
-  <nav :aria-label="t('orders.progress')">
+  <!-- A cancelled order left its life cycle: no steps, only its status -->
+  <v-chip
+    v-if="status === 'CANCELLED'"
+    color="error"
+    variant="tonal"
+    prepend-icon="mdi-close-circle-outline"
+    :size="layout === 'compact' ? 'small' : 'default'"
+  >
+    {{ t('orders.status.CANCELLED') }}
+  </v-chip>
+  <nav v-else :aria-label="t('orders.progress')">
     <ol :class="['steps', `steps--${layout}`, 'd-flex', 'align-center']">
       <template v-for="({ step, state }, index) in steps" :key="step">
         <li

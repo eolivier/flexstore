@@ -36,6 +36,13 @@ export default {
       orderConfirmationEmailText:
         'Send an email to the customer, with the summary of the order, when an order is placed.',
       saveError: 'The setting could not be saved.',
+      paymentDelay: 'Time to pay an order',
+      paymentDelayText:
+        'Once an order is placed, its items are reserved for this time. Not paid in time, the order is cancelled and its items go back to the stock.',
+      paymentDelayMinutes: 'Minutes',
+      paymentDelayRange: 'From 1 to 1440 minutes (1 day)',
+      save: 'Save',
+      saved: 'Saved.',
       loadError: 'The settings could not be loaded.',
     },
     createProduct: {
@@ -269,6 +276,9 @@ export default {
       pay: 'Pay the order',
       paymentError: 'The payment could not start. Please try again.',
       awaitingPaymentText: 'This order awaits its payment.',
+      cancelledText:
+        'This order was cancelled because it was not paid in time. Your cart still holds its items: you can order again.',
+      orderAgain: 'Go to my cart',
       awaitingPaymentConfirmation: 'Your payment is being confirmed: this page updates as soon as it is.',
       status: {
         AWAITING_PAYMENT: 'Awaiting payment',
@@ -276,6 +286,7 @@ export default {
         PROCESSING: 'Processing',
         SHIPPED: 'Shipped',
         DELIVERED: 'Delivered',
+        CANCELLED: 'Cancelled',
       },
     },
     loading: {
@@ -486,6 +497,13 @@ export default {
       orderConfirmationEmail: 'Email de confirmation de commande',
       orderConfirmationEmailText: "Envoyer au client un email récapitulant sa commande lorsqu'elle est passée.",
       saveError: "Le paramètre n'a pas pu être enregistré.",
+      paymentDelay: "Délai de paiement d'une commande",
+      paymentDelayText:
+        'Une fois la commande passée, ses articles sont réservés pendant ce délai. Non payée à temps, la commande est annulée et ses articles reviennent en stock.',
+      paymentDelayMinutes: 'Minutes',
+      paymentDelayRange: 'De 1 à 1440 minutes (1 jour)',
+      save: 'Enregistrer',
+      saved: 'Enregistré.',
       loadError: "Les paramètres n'ont pas pu être chargés.",
     },
     createProduct: {
@@ -721,6 +739,9 @@ export default {
       pay: 'Payer la commande',
       paymentError: "Le paiement n'a pas pu démarrer. Veuillez réessayer.",
       awaitingPaymentText: 'Cette commande attend son paiement.',
+      cancelledText:
+        "Cette commande a été annulée car elle n'a pas été payée à temps. Votre panier contient toujours ses articles : vous pouvez commander à nouveau.",
+      orderAgain: 'Voir mon panier',
       awaitingPaymentConfirmation:
         "Votre paiement est en cours de confirmation : cette page se met à jour dès qu'il l'est.",
       status: {
@@ -729,6 +750,7 @@ export default {
         PROCESSING: 'En préparation',
         SHIPPED: 'Expédiée',
         DELIVERED: 'Livrée',
+        CANCELLED: 'Annulée',
       },
     },
     loading: {

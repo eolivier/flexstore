@@ -2,6 +2,7 @@ package org.flexstore.infra.spring.rest
 
 import org.flexstore.infra.spring.security.asUser
 import org.springframework.http.MediaType
+import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.ResultActions
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder
@@ -19,3 +20,9 @@ fun MockHttpServletRequestBuilder.withHomeAddresses(): MockHttpServletRequestBui
 // Without a Stripe key, the tests pay with the simulated payment provider: the order is paid at once
 fun MockMvc.pay(orderId: String, customerId: String): ResultActions =
     perform(post("/api/orders/$orderId/payment").with(asUser(customerId)))
+
+// The tests share the database, and an order reserves its units: the stocks are refilled before each test that
+// places orders, so that they never run out
+fun JdbcTemplate.refillStocks() {
+    update("UPDATE stock SET quantity = 100")
+}

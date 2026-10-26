@@ -21,5 +21,8 @@ data class PaymentSession(val checkoutPage: CheckoutPage, val outcome: PaymentOu
 data class OrderPayment(val customer: CartOwner.Customer, val orderId: OrderId)
 
 data class OrderAlreadyPaidException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+// The customer paid, but the payment provider has not confirmed it yet
+data class PaymentAlreadyCompletedException(override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
 data class PaymentNotStartedException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class PaymentConfirmationFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

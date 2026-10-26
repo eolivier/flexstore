@@ -47,6 +47,16 @@ class PlaceOrderUseCaseTest : WithAssertions {
     }
 
     @Test
+    fun `the order should reserve its units until it is paid`() {
+        // Arrange
+        cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
+        // Act
+        useCase.unfold(orderPlacement)
+        // Assert
+        assertThat(stockRepository.stockOf(deskLamp.productId).quantity).isEqualTo(StockQuantity(8))
+    }
+
+    @Test
     fun `should keep the cart until the order is paid`() {
         // Arrange
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
