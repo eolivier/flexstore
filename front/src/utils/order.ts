@@ -32,9 +32,9 @@ export const orderStatusSteps: JsonOrder['status'][] = [
 
 export type OrderStepState = 'done' | 'current' | 'upcoming';
 
-// A delivered order has no next status
+// A delivered order has no next status, nor an order cancelled because it was not paid in time
 export function hasNextStatus(status: JsonOrder['status']): boolean {
-  return status !== 'DELIVERED';
+  return status !== 'DELIVERED' && status !== 'CANCELLED';
 }
 
 // The payment moves an order awaiting it, the administrators move it along the next statuses

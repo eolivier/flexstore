@@ -7,8 +7,9 @@ import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.stock.StockRepository
 import org.ucop.domain.entity.*
 
-// The payment provider confirms the payment of an order: the order is paid, its units are taken out of the
-// stock, and the cart of its customer emptied
+// The payment provider confirms the payment of an order: the order is paid (its units were reserved when it
+// was placed), and the cart of its customer emptied. An order cancelled while its customer was paying is paid
+// all the same: its units are taken out of the stock again
 class ConfirmPaymentUseCase(
     private val orderRepository: OrderRepository,
     private val cartRepository: CartRepository,
@@ -19,25 +20,26 @@ class ConfirmPaymentUseCase(
         PreConditions(orderExistsCondition(), orderAwaitsPaymentCondition())
 
     override fun getNominalScenario(): NominalScenario<OrderId> {
+        val withdrawStockStep = Step<OrderId> { orderId ->
+            val order = orderRepository.findById(orderId)!!
+            if (order.isCancelled()) withdrawStockOf(order)
+        }
         val payStep = Step<OrderId> { orderId ->
             val order = orderRepository.findById(orderId)!!
-            orderRepository.save(order.advanced())
+            orderRepository.save(order.paid())
         }
         val emptyCartStep = Step<OrderId> { orderId ->
             val customer = CartOwner.Customer(orderRepository.findById(orderId)!!.customer)
             cartRepository.save(cartRepository.load(customer).emptied())
         }
-        val withdrawStockStep = Step<OrderId> { orderId ->
-            val order = orderRepository.findById(orderId)!!
-            order.lines.asList().forEach { line ->
-                val stock = stockRepository.stockOf(line.productId)
-                stockRepository.save(stock.withdrawn(line.quantity))
-            }
-        }
-        return NominalScenario(listOf(payStep, withdrawStockStep, emptyCartStep))
+        return NominalScenario(listOf(withdrawStockStep, payStep, emptyCartStep))
     }
 
     override fun getPostConditions(): PostConditions<OrderId> = PostConditions(orderIsPaidCondition())
+
+    private fun withdrawStockOf(order: Order) = order.lines.asList().forEach { line ->
+        stockRepository.save(stockRepository.stockOf(line.productId).withdrawn(line.quantity))
+    }
 
     private fun orderExistsCondition() = PreCondition<OrderId> { orderId ->
         if (orderRepository.orderIsMissing(orderId)) {

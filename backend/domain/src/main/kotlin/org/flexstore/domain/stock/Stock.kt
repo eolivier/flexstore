@@ -17,6 +17,8 @@ data class StockQuantity(val value: Int) {
     // The units left once the given quantity is taken: none rather than a negative number
     fun minus(quantity: Quantity) = StockQuantity(maxOf(0, value - quantity.value))
 
+    fun plus(quantity: Quantity) = StockQuantity(value + quantity.value)
+
     companion object {
         fun none() = StockQuantity(0)
     }
@@ -29,9 +31,12 @@ data class Stock(val productId: ProductId, val quantity: StockQuantity) {
 
     fun doesNotCover(quantity: Quantity) = !covers(quantity)
 
-    // A paid order takes its units out of the stock, which never goes below zero
-    // (an order paid while another one took the last units)
+    // A placed order reserves its units: they are taken out of the stock, which never goes below zero
+    // (an order paid after it was cancelled while another one took the last units)
     fun withdrawn(quantity: Quantity) = copy(quantity = this.quantity.minus(quantity))
+
+    // An order cancelled gives its units back
+    fun returned(quantity: Quantity) = copy(quantity = this.quantity.plus(quantity))
 
     companion object {
         // A product whose stock was never given has none

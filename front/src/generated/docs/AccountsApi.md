@@ -9,6 +9,8 @@ All URIs are relative to *http://localhost:8080*
 |[**getAddresses**](#getaddresses) | **GET** /api/accounts/me/addresses | Retrieve the postal addresses of the signed-in user, in their order|
 |[**registerAccount**](#registeraccount) | **POST** /api/accounts | Create the account of a customer and send them a verification link, valid for 1 hour|
 |[**removeAddress**](#removeaddress) | **DELETE** /api/accounts/me/addresses/{position} | Remove an address of the signed-in user (0 for the first one); the orders keep theirs|
+|[**requestPasswordReset**](#requestpasswordreset) | **POST** /api/password-reset-requests | Send a link to choose a new password (valid for 1 hour) to the email, if it has an account|
+|[**resetPassword**](#resetpassword) | **POST** /api/password-resets | Choose a new password with the token of the link sent by email|
 |[**sendVerificationEmail**](#sendverificationemail) | **POST** /api/accounts/me/verification-email | Send a new verification link (valid for 1 hour) to the signed-in customer|
 |[**verifyEmail**](#verifyemail) | **POST** /api/accounts/email-verification | Verify the email of an account with the token of the link sent by email|
 
@@ -257,6 +259,113 @@ const { status, data } = await apiInstance.removeAddress(
 |-------------|-------------|------------------|
 |**200** | The remaining addresses |  -  |
 |**404** | No address at this position |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **requestPasswordReset**
+> requestPasswordReset(jsonPasswordResetRequest)
+
+Public. The answer is the same whether the email has an account or not. A new link replaces the previous one.
+
+### Example
+
+```typescript
+import {
+    AccountsApi,
+    Configuration,
+    JsonPasswordResetRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AccountsApi(configuration);
+
+let jsonPasswordResetRequest: JsonPasswordResetRequest; //
+
+const { status, data } = await apiInstance.requestPasswordReset(
+    jsonPasswordResetRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **jsonPasswordResetRequest** | **JsonPasswordResetRequest**|  | |
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: Not defined
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**204** | Link sent if the email has an account |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **resetPassword**
+> resetPassword(jsonChosenPassword)
+
+Public. The link cannot be used again.
+
+### Example
+
+```typescript
+import {
+    AccountsApi,
+    Configuration,
+    JsonChosenPassword
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AccountsApi(configuration);
+
+let jsonChosenPassword: JsonChosenPassword; //
+
+const { status, data } = await apiInstance.resetPassword(
+    jsonChosenPassword
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **jsonChosenPassword** | **JsonChosenPassword**|  | |
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: Not defined
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**204** | Password changed |  -  |
+|**404** | Unknown link, or link already used |  -  |
+|**410** | Link older than 1 hour |  -  |
+|**422** | Password shorter than 8 characters |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

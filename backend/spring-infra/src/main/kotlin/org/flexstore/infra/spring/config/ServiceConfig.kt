@@ -53,6 +53,12 @@ open class ServiceConfig {
         PasswordResetService(requestPasswordResetUseCase, resetPasswordUseCase)
 
     @Bean
+    open fun unpaidOrderService(readShopSettingsUseCase: ReadShopSettingsUseCase,
+                                readOrdersUseCase: ReadOrdersUseCase,
+                                cancelUnpaidOrderUseCase: CancelUnpaidOrderUseCase) =
+        UnpaidOrderService(readShopSettingsUseCase, readOrdersUseCase, cancelUnpaidOrderUseCase)
+
+    @Bean
     open fun addressBookService(readAccountUseCase: ReadAccountUseCase, addressUseCases: AddressUseCases) =
         AddressBookService(readAccountUseCase, addressUseCases)
 
