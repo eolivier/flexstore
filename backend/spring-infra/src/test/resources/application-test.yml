@@ -9,3 +9,7 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+flexstore:
+  # The integration tests call the services of the scheduled tasks themselves
+  scheduling:
+    enabled: false

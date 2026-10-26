@@ -117,6 +117,16 @@ export interface JsonChangePasswordRequest {
      */
     'newPassword': string;
 }
+export interface JsonChosenPassword {
+    /**
+     * The token of the link (query parameter token of the page to choose a new password)
+     */
+    'token': string;
+    /**
+     * The new password, 8 characters at least
+     */
+    'password': string;
+}
 export interface JsonEmailVerification {
     /**
      * The token of the link (query parameter token of the verification page)
@@ -167,7 +177,8 @@ export const JsonOrderStatusEnum = {
     Paid: 'PAID',
     Processing: 'PROCESSING',
     Shipped: 'SHIPPED',
-    Delivered: 'DELIVERED'
+    Delivered: 'DELIVERED',
+    Cancelled: 'CANCELLED'
 } as const;
 
 export type JsonOrderStatusEnum = typeof JsonOrderStatusEnum[keyof typeof JsonOrderStatusEnum];
@@ -195,11 +206,18 @@ export const JsonOrderStatusAdvanceCurrentStatusEnum = {
     Paid: 'PAID',
     Processing: 'PROCESSING',
     Shipped: 'SHIPPED',
-    Delivered: 'DELIVERED'
+    Delivered: 'DELIVERED',
+    Cancelled: 'CANCELLED'
 } as const;
 
 export type JsonOrderStatusAdvanceCurrentStatusEnum = typeof JsonOrderStatusAdvanceCurrentStatusEnum[keyof typeof JsonOrderStatusAdvanceCurrentStatusEnum];
 
+export interface JsonPasswordResetRequest {
+    /**
+     * The email of the account whose password is forgotten
+     */
+    'email': string;
+}
 export interface JsonPaymentSession {
     /**
      * The page where the customer pays the order
@@ -531,6 +549,78 @@ export const AccountsApiAxiosParamCreator = function (configuration?: Configurat
             };
         },
         /**
+         * Public. The answer is the same whether the email has an account or not. A new link replaces the previous one.
+         * @summary Send a link to choose a new password (valid for 1 hour) to the email, if it has an account
+         * @param {JsonPasswordResetRequest} jsonPasswordResetRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        requestPasswordReset: async (jsonPasswordResetRequest: JsonPasswordResetRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'jsonPasswordResetRequest' is not null or undefined
+            assertParamExists('requestPasswordReset', 'jsonPasswordResetRequest', jsonPasswordResetRequest)
+            const localVarPath = `/api/password-reset-requests`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonPasswordResetRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Public. The link cannot be used again.
+         * @summary Choose a new password with the token of the link sent by email
+         * @param {JsonChosenPassword} jsonChosenPassword 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        resetPassword: async (jsonChosenPassword: JsonChosenPassword, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'jsonChosenPassword' is not null or undefined
+            assertParamExists('resetPassword', 'jsonChosenPassword', jsonChosenPassword)
+            const localVarPath = `/api/password-resets`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonChosenPassword, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * The previous links stop working
          * @summary Send a new verification link (valid for 1 hour) to the signed-in customer
          * @param {*} [options] Override http request option.
@@ -674,6 +764,32 @@ export const AccountsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Public. The answer is the same whether the email has an account or not. A new link replaces the previous one.
+         * @summary Send a link to choose a new password (valid for 1 hour) to the email, if it has an account
+         * @param {JsonPasswordResetRequest} jsonPasswordResetRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async requestPasswordReset(jsonPasswordResetRequest: JsonPasswordResetRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.requestPasswordReset(jsonPasswordResetRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AccountsApi.requestPasswordReset']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Public. The link cannot be used again.
+         * @summary Choose a new password with the token of the link sent by email
+         * @param {JsonChosenPassword} jsonChosenPassword 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async resetPassword(jsonChosenPassword: JsonChosenPassword, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.resetPassword(jsonChosenPassword, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AccountsApi.resetPassword']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * The previous links stop working
          * @summary Send a new verification link (valid for 1 hour) to the signed-in customer
          * @param {*} [options] Override http request option.
@@ -757,6 +873,26 @@ export const AccountsApiFactory = function (configuration?: Configuration, baseP
             return localVarFp.removeAddress(position, options).then((request) => request(axios, basePath));
         },
         /**
+         * Public. The answer is the same whether the email has an account or not. A new link replaces the previous one.
+         * @summary Send a link to choose a new password (valid for 1 hour) to the email, if it has an account
+         * @param {JsonPasswordResetRequest} jsonPasswordResetRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        requestPasswordReset(jsonPasswordResetRequest: JsonPasswordResetRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.requestPasswordReset(jsonPasswordResetRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Public. The link cannot be used again.
+         * @summary Choose a new password with the token of the link sent by email
+         * @param {JsonChosenPassword} jsonChosenPassword 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        resetPassword(jsonChosenPassword: JsonChosenPassword, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.resetPassword(jsonChosenPassword, options).then((request) => request(axios, basePath));
+        },
+        /**
          * The previous links stop working
          * @summary Send a new verification link (valid for 1 hour) to the signed-in customer
          * @param {*} [options] Override http request option.
@@ -834,6 +970,28 @@ export class AccountsApi extends BaseAPI {
      */
     public removeAddress(position: number, options?: RawAxiosRequestConfig) {
         return AccountsApiFp(this.configuration).removeAddress(position, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Public. The answer is the same whether the email has an account or not. A new link replaces the previous one.
+     * @summary Send a link to choose a new password (valid for 1 hour) to the email, if it has an account
+     * @param {JsonPasswordResetRequest} jsonPasswordResetRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public requestPasswordReset(jsonPasswordResetRequest: JsonPasswordResetRequest, options?: RawAxiosRequestConfig) {
+        return AccountsApiFp(this.configuration).requestPasswordReset(jsonPasswordResetRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Public. The link cannot be used again.
+     * @summary Choose a new password with the token of the link sent by email
+     * @param {JsonChosenPassword} jsonChosenPassword 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public resetPassword(jsonChosenPassword: JsonChosenPassword, options?: RawAxiosRequestConfig) {
+        return AccountsApiFp(this.configuration).resetPassword(jsonChosenPassword, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

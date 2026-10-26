@@ -1,6 +1,6 @@
 # Physical data model
 
-The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V21**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
+The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V22**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
 
 ![Physical data model](database.png)
 
@@ -54,7 +54,7 @@ erDiagram
     customer_order {
         id varchar(50) PK
         user_id varchar(50) FK
-        status varchar(20) "AWAITING_PAYMENT, PAID, PROCESSING, SHIPPED or DELIVERED"
+        status varchar(20) "AWAITING_PAYMENT, PAID, PROCESSING, SHIPPED, DELIVERED or CANCELLED"
         placed_at timestamptz
         delivery_address_id varchar(50) FK
         billing_address_id varchar(50) FK
@@ -121,7 +121,7 @@ erDiagram
     stock {
         id varchar(50) PK
         product_id varchar(50) FK,UK "a product without row has none"
-        quantity int "0 or more"
+        quantity int "0 or more, orders awaiting payment reserved"
         created_at timestamp
         updated_at timestamp
     }
@@ -149,6 +149,7 @@ erDiagram
     shop_settings {
         id int PK "a single row (id = 1)"
         order_confirmation_email varchar(10) "ENABLED or DISABLED"
+        payment_delay_minutes int "1 to 1440: time to pay an order"
         created_at timestamp
         updated_at timestamp
     }

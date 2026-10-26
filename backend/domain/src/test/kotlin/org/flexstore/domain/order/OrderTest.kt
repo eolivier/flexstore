@@ -5,7 +5,10 @@ import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.*
 import org.assertj.core.api.WithAssertions
+import org.flexstore.domain.settings.PaymentDelay
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import java.math.BigDecimal
 import java.time.Instant
 
@@ -42,6 +45,28 @@ class OrderTest : WithAssertions {
         val order = Order.place(orderPlacement, cart)
         // Assert
         assertThat(order.totalPrice().amount.value).isEqualByComparingTo("82")
+    }
+
+    @Test
+    fun `the payment deadline should be the placement plus the payment delay`() {
+        // Arrange
+        val cart = Cart(customer).add(lamp, Quantity(1))
+        val order = Order.place(orderPlacement, cart)
+        // Act
+        val paymentDeadline = order.paymentDeadline(PaymentDelay(10))
+        // Assert
+        assertThat(paymentDeadline).isEqualTo(PaymentDeadline(Instant.parse("2026-10-24T10:10:00Z")))
+    }
+
+    @ParameterizedTest(name = "the deadline is reached at {0}: {1}")
+    @CsvSource("2026-10-24T10:09:59Z, false", "2026-10-24T10:10:00Z, true", "2026-10-24T10:10:01Z, true")
+    fun `a payment deadline should be reached from its moment on`(instant: Instant, reached: Boolean) {
+        // Arrange
+        val paymentDeadline = PaymentDeadline(Instant.parse("2026-10-24T10:10:00Z"))
+        // Act
+        val isReached = paymentDeadline.isReachedAt(instant)
+        // Assert
+        assertThat(isReached).isEqualTo(reached)
     }
 
     @Test

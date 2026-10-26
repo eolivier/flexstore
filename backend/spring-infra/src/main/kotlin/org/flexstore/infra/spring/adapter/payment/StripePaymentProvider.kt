@@ -10,10 +10,12 @@ import com.stripe.param.CustomerCreateParams
 import com.stripe.param.CustomerListParams
 import com.stripe.param.CustomerUpdateParams
 import com.stripe.param.checkout.SessionCreateParams
+import com.stripe.param.checkout.SessionExpireParams
 import com.stripe.param.checkout.SessionCreateParams.LineItem
 import com.stripe.param.checkout.SessionCreateParams.LineItem.PriceData
 import org.flexstore.domain.order.OrderLine
 import org.flexstore.domain.payment.*
+import org.flexstore.domain.sharedkernel.ErrorMessage
 import java.math.BigDecimal
 
 // Stripe Checkout: the customer pays on the page of Stripe (the card never reaches the shop),
@@ -38,6 +40,21 @@ class StripePaymentProvider(private val secretKey: String, private val shopUrl: 
         val session = Session.create(params, requestOptions)
         return ProviderCheckout(session.id, CheckoutPage(session.url), PaymentOutcome.PENDING)
     }
+
+    // The payment page of Stripe lasts at least 30 minutes: it is closed (expired) when the order is cancelled
+    // sooner. A session completed in the meantime means that the customer paid
+    override fun stop(reference: String) {
+        val session = Session.retrieve(reference, requestOptions)
+        if (session.status == "complete") throw alreadyPaid(reference)
+        if (session.status != "open") return
+        runCatching { session.expire(SessionExpireParams.builder().build(), requestOptions) }.onFailure {
+            if (Session.retrieve(reference, requestOptions).status == "complete") throw alreadyPaid(reference)
+            throw it
+        }
+    }
+
+    private fun alreadyPaid(reference: String) =
+        PaymentAlreadyCompletedException(ErrorMessage("The Stripe session $reference is already paid."))
 
     // One Stripe customer per email, named after the cardholder of this payment (no name when unknown)
     private fun stripeCustomerOf(payer: Payer): Customer {

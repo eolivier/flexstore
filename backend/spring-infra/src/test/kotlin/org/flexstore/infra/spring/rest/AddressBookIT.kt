@@ -13,6 +13,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
@@ -32,6 +33,9 @@ private const val CUSTOMER_ID = "it-address-book-customer"
 @SpringBootTest
 @AutoConfigureMockMvc
 class AddressBookIT {
+
+    @Autowired
+    private lateinit var jdbcTemplate: JdbcTemplate
 
     @Autowired
     private lateinit var mockMvc: MockMvc
@@ -64,6 +68,9 @@ class AddressBookIT {
 
     private val acmeAddress = """{"recipientType": "LEGAL_ENTITY", "companyName": "Acme",
         "street": "8 avenue Foch", "postalCode": "13001", "city": "Marseille", "country": "France"}"""
+
+    @BeforeEach
+    fun refillStocks() = jdbcTemplate.refillStocks()
 
     @BeforeEach
     fun createCustomer() {

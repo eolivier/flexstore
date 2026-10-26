@@ -97,7 +97,7 @@ describe('orders.store', () => {
       status: 201,
       expected: { status: 'started', checkoutUrl: 'https://checkout.stripe.com/c/pay/cs_1' },
     },
-    { status: 409, expected: { status: 'alreadyPaid' } },
+    { status: 409, expected: { status: 'statusChanged' } },
     { status: 500, expected: { status: 'error' } },
   ])('a payment answered $status is $expected.status', async ({ status, expected }) => {
     // Arrange

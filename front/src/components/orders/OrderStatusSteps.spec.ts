@@ -45,4 +45,15 @@ describe('OrderStatusSteps.vue', () => {
     expect(wrapper.findAll('.step-label')).toHaveLength(5);
     expect(wrapper.find('[aria-current="step"]').classes()).toContain('step--current');
   });
+
+  it('shows a cancelled order as cancelled, without its steps', () => {
+    // Act
+    const wrapper = mount(OrderStatusSteps, {
+      props: { status: 'CANCELLED' as const },
+      global: { plugins: [vuetify, i18n] },
+    });
+    // Assert
+    expect(wrapper.text()).toContain('Cancelled');
+    expect(wrapper.findAll('li.step')).toHaveLength(0);
+  });
 });

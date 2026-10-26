@@ -13,6 +13,7 @@
     PROCESSING: 'mdi-package-variant-closed',
     SHIPPED: 'mdi-truck-outline',
     DELIVERED: 'mdi-home-outline',
+    CANCELLED: 'mdi-close-circle-outline',
   };
 </script>
 

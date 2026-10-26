@@ -11,6 +11,8 @@ class ShopSettingsAdministrationService(private val readShopSettingsUseCase: Rea
 
     fun disableOrderConfirmationEmail() = update(getSettings().withOrderConfirmationEmailDisabled())
 
+    fun changePaymentDelay(paymentDelay: PaymentDelay) = update(getSettings().withPaymentDelay(paymentDelay))
+
     private fun update(settings: ShopSettings): ShopSettings {
         updateShopSettingsUseCase.unfold(settings)
         return readShopSettingsUseCase.getSettings()
