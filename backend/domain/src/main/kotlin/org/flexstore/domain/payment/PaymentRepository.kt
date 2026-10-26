@@ -13,4 +13,8 @@ interface PaymentRepository {
     fun sessionExistsFor(orderId: OrderId) = sessionOf(orderId) != null
 
     fun sessionIsMissingFor(orderId: OrderId) = !sessionExistsFor(orderId)
+
+    // The payment of the order can no longer complete (e.g. the payment page closes); throws
+    // PaymentAlreadyCompletedException when the customer has already paid
+    fun stop(orderId: OrderId)
 }

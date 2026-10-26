@@ -7,6 +7,8 @@
 
   // Pays an order awaiting its payment, on the checkout page of the payment provider
   const props = defineProps<{ order: JsonOrder }>();
+  // The order was paid or cancelled in the meantime: the page reloads it
+  const emit = defineEmits<{ (e: 'statusChanged'): void }>();
 
   const { t } = useI18n();
   const ordersStore = useOrdersStore();
@@ -21,6 +23,8 @@
     starting.value = false;
     if (paymentStart.status === 'started') {
       openExternalPage(paymentStart.checkoutUrl);
+    } else if (paymentStart.status === 'statusChanged') {
+      emit('statusChanged');
     } else {
       paymentError.value = true;
     }

@@ -36,6 +36,12 @@ class PaymentRepositoryAdapter(
         jpaOrderRepository.save(orderEntityWithPayment.also { it.createdAt = storedCreatedAt })
     }
 
+    // An order whose payment never started has nothing to stop
+    override fun stop(orderId: OrderId) {
+        val paymentId = jpaOrderRepository.findById(orderId.value).orElse(null)?.paymentId ?: return
+        paymentProvider.stop(jpaPaymentRepository.findById(paymentId).orElseThrow().providerReference)
+    }
+
     @Transactional(readOnly = true)
     override fun sessionOf(orderId: OrderId): PaymentSession? {
         val paymentId = jpaOrderRepository.findById(orderId.value).orElse(null)?.paymentId ?: return null

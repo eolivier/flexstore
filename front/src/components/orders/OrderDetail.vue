@@ -57,8 +57,14 @@
       </p>
       <v-card v-if="order.status === 'AWAITING_PAYMENT'" class="pa-5 mb-6">
         <p class="text-body-2 text-medium-emphasis mb-3">{{ t('orders.awaitingPaymentText') }}</p>
-        <PayOrderButton :order="order" />
+        <PayOrderButton :order="order" @status-changed="load" />
       </v-card>
+      <v-alert v-else-if="order.status === 'CANCELLED'" type="warning" variant="tonal" class="mb-6">
+        <p class="mb-3">{{ t('orders.cancelledText') }}</p>
+        <v-btn to="/cart" color="primary" variant="flat" prepend-icon="mdi-cart-outline">
+          {{ t('orders.orderAgain') }}
+        </v-btn>
+      </v-alert>
       <OrderLinesTable :order="order" />
       <OrderAddressesCard :order="order" />
     </template>
