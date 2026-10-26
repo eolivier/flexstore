@@ -3,9 +3,9 @@ package org.flexstore.infra.spring.adapter.email
 import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.email.*
 import org.flexstore.domain.user.model.UserId
-import org.flexstore.infra.spring.adapter.jpa.EmailVerificationEntity
-import org.flexstore.infra.spring.adapter.jpa.JpaEmailVerificationRepository
-import org.flexstore.infra.spring.adapter.jpa.hash
+import org.flexstore.infra.spring.adapter.persistence.jpa.entity.EmailVerificationEntity
+import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaEmailVerificationRepository
+import org.flexstore.infra.spring.adapter.persistence.jpa.hash
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 

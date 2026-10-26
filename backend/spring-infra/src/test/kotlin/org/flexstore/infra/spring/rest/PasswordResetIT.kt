@@ -3,7 +3,7 @@ package org.flexstore.infra.spring.rest
 import org.assertj.core.api.Assertions.assertThat
 import org.flexstore.infra.spring.adapter.email.RecordingEmailConfig
 import org.flexstore.infra.spring.adapter.email.RecordingEmailSender
-import org.flexstore.infra.spring.adapter.jpa.JpaUserRepository
+import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaUserRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

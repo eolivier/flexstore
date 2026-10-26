@@ -1,0 +1,141 @@
+package org.flexstore.infra.spring.adapter.persistence.jpa.repository
+
+import org.flexstore.infra.spring.adapter.persistence.jpa.entity.UserAddressEntity
+import org.flexstore.infra.spring.adapter.persistence.jpa.entity.UserEntity
+import org.flexstore.infra.spring.adapter.persistence.jpa.toDomain
+import org.flexstore.infra.spring.adapter.persistence.jpa.toEntity
+import org.flexstore.domain.sharedkernel.*
+import org.flexstore.domain.user.*
+import org.flexstore.domain.user.model.*
+import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.stereotype.Repository
+
+@Repository
+interface JpaUserRepository : JpaRepository<UserEntity, String> {
+    fun existsByEmail(email: String): Boolean
+    fun findByEmail(email: String): UserEntity?
+}
+
+@Repository
+class PostgresUserRepositoryAdapter(
+    private val jpaRepo: JpaUserRepository
+) : UserRepository {
+
+    private val passwordEncoder = BCryptPasswordEncoder()
+
+    override fun exists(userId: UserId): Boolean = jpaRepo.existsById(userId.value)
+
+    override fun notExists(userId: UserId): Boolean = !exists(userId)
+
+    override fun notExistsBasedOn(email: Email): Boolean = !jpaRepo.existsByEmail(email.value)
+
+    override fun save(user: User): User {
+        var savedUser = user
+        when(user) {
+            is User.DraftUser -> {
+                val hashedPasswordValue = hashPasswordIfNeeded(user.password)
+                val entity = UserEntity(
+                    id = generateNewUserId(),
+                    firstName = user.fullName.firstName.value,
+                    lastName = user.fullName.lastName.value,
+                    email = user.email.value,
+                    password = hashedPasswordValue,
+                    role = user.role.name
+                )
+                val saved = jpaRepo.save(entity)
+                savedUser = saved.toDomain()
+            }
+            is User.DefinedUser -> {
+                val hashedPasswordValue = hashPasswordIfNeeded(user.password)
+                val entity = UserEntity(
+                    id = user.id.value,
+                    firstName = user.fullName.firstName.value,
+                    lastName = user.fullName.lastName.value,
+                    email = user.email.value,
+                    password = hashedPasswordValue,
+                    role = user.role.name,
+                    status = user.status.name,
+                    phoneNumber = user.phoneNumber?.value,
+                    addresses = addressEntities(user)
+                )
+                val saved = jpaRepo.save(entity)
+                savedUser = saved.toDomain()
+            }
+            else -> throw IllegalArgumentException("Cannot save undefined user with id ${user.id.value}")
+        }
+        return savedUser
+    }
+
+    private fun generateNewUserId(): String {
+        return Identity.nextId().value
+    }
+
+    private fun hashPasswordIfNeeded(password: Password): String {
+        return when (password) {
+            is PlainPassword -> passwordEncoder.encode(password.value)
+            is HashedPassword -> password.value
+        }
+    }
+
+    // The stored rows of an address that did not change are kept (same ids, same creation dates);
+    // the others are new rows
+    private fun addressEntities(user: User.DefinedUser): List<UserAddressEntity> {
+        val storedUser = jpaRepo.findById(user.id.value)
+        val storedUserAddresses = storedUser.map { it.addresses }.orElse(emptyList()).toMutableList()
+        return user.postalAddresses.asList().mapIndexed { position, address ->
+            val stored = storedUserAddresses.firstOrNull { it.address.toDomain() == address }
+            if (stored != null) {
+                storedUserAddresses.remove(stored)
+                stored.copy(position = position).also { it.createdAt = stored.createdAt }
+            } else {
+                val addressEntity = address.toEntity(Identity.nextId().value)
+                UserAddressEntity(Identity.nextId().value, addressEntity, position)
+            }
+        }
+    }
+
+    override fun findById(id: UserId): User =
+        jpaRepo.findById(id.value)
+            .orElseThrow { NoSuchElementException("User ${id.value} not found") }
+            .toDomain()
+
+    override fun findByEmail(email: Email): User {
+        val entity = jpaRepo.findByEmail(email.value)
+        return entity?.toDomain() ?: User.UndefinedUser(UserId.InvalidUserId(""), "User not found with email ${email.value}")
+    }
+
+    override fun findAll(): List<User> = jpaRepo.findAll().map { it.toDomain() }
+
+    override fun delete(id: UserId): Boolean {
+        return if (jpaRepo.existsById(id.value)) {
+            jpaRepo.deleteById(id.value)
+            true
+        } else {
+           false
+        }
+    }
+
+    override fun passwordMatches(email: Email, password: Password): Boolean {
+        val user = findByEmail(email)
+        return when (user) {
+            is User.DefinedUser -> when (user.password) {
+                is HashedPassword -> passwordEncoder.matches(password.value, user.password.value)
+                else -> false
+            }
+            else -> false
+        }
+    }
+
+    // mapping helper
+    private fun UserEntity.toDomain() = User.DefinedUser(
+        id = UserId.ValidUserId(this.id),
+        fullName = FullName(FirstName(this.firstName), LastName(this.lastName)),
+        email = Email(this.email),
+        password = HashedPassword(this.password),
+        role = Role.valueOf(this.role),
+        status = AccountStatus.valueOf(this.status),
+        phoneNumber = phoneNumber?.let { PhoneNumber(it) },
+        postalAddresses = PostalAddresses(addresses.map { it.address.toDomain() })
+    )
+}
