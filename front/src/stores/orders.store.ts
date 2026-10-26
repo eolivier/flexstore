@@ -6,7 +6,7 @@ import { useCartStore } from '@/stores/cart.store';
 
 // started: the customer opens the checkout page of the payment provider
 export type PaymentStart =
-  { status: 'started'; checkoutUrl: string } | { status: 'alreadyPaid' } | { status: 'error' };
+  { status: 'started'; checkoutUrl: string } | { status: 'statusChanged' } | { status: 'error' };
 export type OrderLookup = { status: 'found'; order: JsonOrder } | { status: 'notFound' } | { status: 'error' };
 // refused: the account of the customer is suspended, locked or disabled
 export type OrderPlacement =
@@ -80,7 +80,8 @@ export const useOrdersStore = defineStore('orders', () => {
       const response = await authStore.authFetch(`/api/orders/${encodeURIComponent(orderId)}/payment`, {
         method: 'POST',
       });
-      if (response.status === 409) return { status: 'alreadyPaid' };
+      // Paid, or cancelled because it was not paid in time
+      if (response.status === 409) return { status: 'statusChanged' };
       if (!response.ok) return { status: 'error' };
       const paymentSession: JsonPaymentSession = await response.json();
       return { status: 'started', checkoutUrl: paymentSession.checkoutUrl };

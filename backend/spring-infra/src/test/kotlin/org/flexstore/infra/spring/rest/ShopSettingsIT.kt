@@ -14,6 +14,8 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
+import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
@@ -56,6 +58,30 @@ class ShopSettingsIT {
         mockMvc.perform(get("/api/admin/settings").with(asAdmin()))
             .andExpect(jsonPath("$.orderConfirmationEmail").value(expectedActivation))
     }
+
+    @Test
+    fun `an admin should change the time customers have to pay an order`() {
+        // Act
+        val response = changePaymentDelay(25)
+        // Assert
+        response.andExpect(status().isOk).andExpect(jsonPath("$.paymentDelayMinutes").value(25))
+        mockMvc.perform(get("/api/admin/settings").with(asAdmin()))
+            .andExpect(jsonPath("$.paymentDelayMinutes").value(25))
+    }
+
+    @ParameterizedTest
+    @CsvSource("0", "1441")
+    fun `a payment delay outside 1 minute to 1 day should be refused`(minutes: Int) {
+        // Act
+        val response = changePaymentDelay(minutes)
+        // Assert
+        response.andExpect(status().isBadRequest)
+    }
+
+    private fun changePaymentDelay(minutes: Int) = mockMvc.perform(
+        put("/api/admin/settings/payment-delay").with(asAdmin()).contentType(MediaType.APPLICATION_JSON)
+            .content("""{"minutes": $minutes}""")
+    )
 
     @Test
     fun `a user without the admin role should not read the settings`() {
