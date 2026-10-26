@@ -1,11 +1,11 @@
 package org.flexstore.infra.spring.rest
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.flexstore.infra.spring.adapter.jpa.JpaCartItemRepository
-import org.flexstore.infra.spring.adapter.jpa.JpaCartRepository
-import org.flexstore.infra.spring.adapter.jpa.JpaOrderRepository
-import org.flexstore.infra.spring.adapter.jpa.JpaUserRepository
-import org.flexstore.infra.spring.adapter.jpa.UserEntity
+import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaCartItemRepository
+import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaCartRepository
+import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaOrderRepository
+import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaUserRepository
+import org.flexstore.infra.spring.adapter.persistence.jpa.entity.UserEntity
 import org.flexstore.infra.spring.adapter.rest.json.JsonItem
 import org.flexstore.infra.spring.security.asAdmin
 import org.flexstore.infra.spring.security.asUser

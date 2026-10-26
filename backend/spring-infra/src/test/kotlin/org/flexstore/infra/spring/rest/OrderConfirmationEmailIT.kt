@@ -8,9 +8,9 @@ import org.assertj.core.api.Assertions.assertThat
 import org.flexstore.infra.spring.adapter.email.RecordingEmailConfig
 import org.flexstore.infra.spring.adapter.email.RecordingEmailSender
 import org.flexstore.domain.email.OrderConfirmationEmailContent
-import org.flexstore.infra.spring.adapter.jpa.JpaCartItemRepository
-import org.flexstore.infra.spring.adapter.jpa.JpaCartRepository
-import org.flexstore.infra.spring.adapter.jpa.JpaOrderRepository
+import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaCartItemRepository
+import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaCartRepository
+import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaOrderRepository
 import org.flexstore.infra.spring.adapter.rest.json.JsonItem
 import org.flexstore.infra.spring.security.asUser
 import org.junit.jupiter.api.AfterEach

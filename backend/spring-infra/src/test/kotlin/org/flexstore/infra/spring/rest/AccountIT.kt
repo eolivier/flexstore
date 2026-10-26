@@ -1,7 +1,7 @@
 package org.flexstore.infra.spring.rest
 
 import org.assertj.core.api.Assertions.assertThat
-import org.flexstore.infra.spring.adapter.jpa.JpaUserRepository
+import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaUserRepository
 import org.flexstore.infra.spring.adapter.email.RecordingEmailConfig
 import org.flexstore.infra.spring.adapter.email.RecordingEmailSender
 import org.flexstore.infra.spring.security.asUser

@@ -48,7 +48,7 @@ This repo is meant to be a learning vehicle and a ready-to-fork base for real pr
 **Domain**: pure Kotlin (entities, value objects, use cases, ports, domain errors). No framework.\
 **Infrastructure**: Spring Boot adapters implementing ports (REST controllers as *input adapters*, JPA as *output adapter*).
 
-Users, products and carts are stored in PostgreSQL (JPA adapters in `spring-infra/.../adapter/jpa`). A cart item only keeps the product id and the quantity: the product (name, price) is always read from the catalog.
+Users, products and carts are stored in PostgreSQL (JPA adapters in `spring-infra/.../adapter/persistence/jpa`: `entity` and `repository`). A cart item only keeps the product id and the quantity: the product (name, price) is always read from the catalog.
 
 **Carts**: each cart has an owner.
 - A **visitor** gets a cart id (a UUID) with their first item (`POST /api/cart/save` returns it); the front end keeps it in `localStorage` and sends it in the `X-Cart-Id` header. No server session is needed.

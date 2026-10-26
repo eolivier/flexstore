@@ -1,6 +1,6 @@
 package org.flexstore.infra.spring.rest
 
-import org.flexstore.infra.spring.adapter.jpa.JpaProductImageRepository
+import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaProductImageRepository
 import org.flexstore.infra.spring.security.asAdmin
 import org.flexstore.infra.spring.security.asUser
 import org.junit.jupiter.api.AfterEach
