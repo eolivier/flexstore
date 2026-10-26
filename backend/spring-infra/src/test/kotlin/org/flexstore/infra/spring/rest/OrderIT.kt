@@ -23,7 +23,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.assertj.core.api.Assertions.assertThat
 import java.math.BigDecimal
+import java.time.Duration
+import java.time.Instant
 
 // Orders and carts reference existing users: the administration account and a user created by the test
 private const val CUSTOMER_ID = "u-admin"
@@ -101,6 +104,31 @@ class OrderIT {
             .andExpect(jsonPath("$.lines[0].linePrice").value(1598))
             .andExpect(jsonPath("$.totalPrice").value(1637))
             .andExpect(jsonPath("$.currency").value("€"))
+    }
+
+    @Test
+    fun `an order awaiting its payment should give the deadline to pay it, after the payment delay`() {
+        // Arrange
+        val orderId = placeOrder(CUSTOMER_ID, productId = "6")
+        // Act
+        val body = mockMvc.perform(get("/api/orders/$orderId").with(asUser(CUSTOMER_ID)))
+            .andExpect(status().isOk).andReturn().response.contentAsString
+        // Assert
+        val order = objectMapper.readTree(body)
+        val placedAt = Instant.parse(order["placedAt"].asText())
+        val paymentDeadline = Instant.parse(order["paymentDeadline"].asText())
+        assertThat(Duration.between(placedAt, paymentDeadline)).isEqualTo(Duration.ofMinutes(10))
+    }
+
+    @Test
+    fun `a paid order should have no payment deadline`() {
+        // Arrange
+        val orderId = placeOrder(CUSTOMER_ID, productId = "6")
+        mockMvc.pay(orderId, CUSTOMER_ID).andExpect(status().isCreated)
+        // Act
+        val response = mockMvc.perform(get("/api/orders/$orderId").with(asUser(CUSTOMER_ID)))
+        // Assert
+        response.andExpect(status().isOk).andExpect(jsonPath("$.paymentDeadline").isEmpty)
     }
 
     @Test

@@ -28,18 +28,22 @@ class OrderController(private val orderUseCases: OrderUseCases) {
     fun placeOrder(@AuthenticationPrincipal jwt: Jwt, @RequestBody addresses: JsonOrderAddresses): JsonOrder {
         val checkout = Checkout(CartOwner.Customer(customer(jwt)), addresses.toOrderAddresses())
         val placedOrder = orderUseCases.placeOrder(checkout)
-        return JsonOrder(placedOrder)
+        return JsonOrder(placedOrder, orderUseCases.paymentDelay())
     }
 
     @Operation(summary = "Retrieve the orders of the signed-in customer, newest first")
     @GetMapping
-    fun getOrders(@AuthenticationPrincipal jwt: Jwt): List<JsonOrder> =
-        orderUseCases.getOrders(customer(jwt)).asList().map { JsonOrder(it) }
+    fun getOrders(@AuthenticationPrincipal jwt: Jwt): List<JsonOrder> {
+        val paymentDelay = orderUseCases.paymentDelay()
+        return orderUseCases.getOrders(customer(jwt)).asList().map { JsonOrder(it, paymentDelay) }
+    }
 
     @Operation(summary = "Retrieve an order of the signed-in customer")
     @GetMapping("/{id}")
-    fun getOrder(@AuthenticationPrincipal jwt: Jwt, @PathVariable id: String): JsonOrder =
-        JsonOrder(orderUseCases.getOrder(customer(jwt), OrderId(id)))
+    fun getOrder(@AuthenticationPrincipal jwt: Jwt, @PathVariable id: String): JsonOrder {
+        val order = orderUseCases.getOrder(customer(jwt), OrderId(id))
+        return JsonOrder(order, orderUseCases.paymentDelay())
+    }
 
     private fun customer(jwt: Jwt) = UserId.ValidUserId(jwt.subject)
 }

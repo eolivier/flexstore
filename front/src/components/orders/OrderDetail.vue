@@ -2,7 +2,7 @@
   import { computed, onMounted, ref, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useOrdersStore, type OrderLookup } from '@/stores/orders.store';
-  import { orderItemsCount, orderNumber, placedOn } from '@/utils/order';
+  import { orderItemsCount, orderNumber, paymentDeadline, placedOn } from '@/utils/order';
   import OrderStatusSteps from './OrderStatusSteps.vue';
   import OrderLinesTable from './OrderLinesTable.vue';
   import OrderAddressesCard from './OrderAddressesCard.vue';
@@ -15,6 +15,7 @@
 
   const orderLookup = ref<OrderLookup | null>(null);
   const order = computed(() => (orderLookup.value?.status === 'found' ? orderLookup.value.order : null));
+  const deadline = computed(() => (order.value ? paymentDeadline(order.value, locale.value) : null));
 
   async function load() {
     orderLookup.value = null;
@@ -56,7 +57,10 @@
         {{ t('orders.itemsCount', orderItemsCount(order)) }}
       </p>
       <v-card v-if="order.status === 'AWAITING_PAYMENT'" class="pa-5 mb-6">
-        <p class="text-body-2 text-medium-emphasis mb-3">{{ t('orders.awaitingPaymentText') }}</p>
+        <p v-if="deadline" class="text-body-2 text-medium-emphasis mb-3">
+          {{ t('orders.payBefore', { deadline }) }}
+        </p>
+        <p v-else class="text-body-2 text-medium-emphasis mb-3">{{ t('orders.awaitingPaymentText') }}</p>
         <PayOrderButton :order="order" @status-changed="load" />
       </v-card>
       <v-alert v-else-if="order.status === 'CANCELLED'" type="warning" variant="tonal" class="mb-6">

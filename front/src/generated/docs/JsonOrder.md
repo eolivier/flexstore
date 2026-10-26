@@ -13,6 +13,7 @@ Name | Type | Description | Notes
 **currency** | **string** |  | [default to undefined]
 **deliveryAddress** | [**JsonPostalAddress**](JsonPostalAddress.md) |  | [default to undefined]
 **billingAddress** | [**JsonPostalAddress**](JsonPostalAddress.md) |  | [default to undefined]
+**paymentDeadline** | **string** | When the order must be paid by, or it is cancelled. Only for the customer, while the order awaits its payment | [optional] [default to undefined]
 
 ## Example
 
@@ -28,6 +29,7 @@ const instance: JsonOrder = {
     currency,
     deliveryAddress,
     billingAddress,
+    paymentDeadline,
 };
 ```
 

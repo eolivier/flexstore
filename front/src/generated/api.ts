@@ -170,6 +170,10 @@ export interface JsonOrder {
     'currency': string;
     'deliveryAddress': JsonPostalAddress;
     'billingAddress': JsonPostalAddress;
+    /**
+     * When the order must be paid by, or it is cancelled. Only for the customer, while the order awaits its payment
+     */
+    'paymentDeadline'?: string | null;
 }
 
 export const JsonOrderStatusEnum = {

@@ -1212,6 +1212,11 @@ components:
           $ref: "#/components/schemas/JsonPostalAddress"
         billingAddress:
           $ref: "#/components/schemas/JsonPostalAddress"
+        paymentDeadline:
+          type: string
+          format: date-time
+          nullable: true
+          description: When the order must be paid by, or it is cancelled. Only for the customer, while the order awaits its payment
     JsonPaymentSession:
       type: object
       required: [checkoutUrl, outcome]
