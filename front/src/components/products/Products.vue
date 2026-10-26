@@ -3,18 +3,27 @@
   import { useStocksStore } from '@/stores/stocks.store';
   import { computed, onMounted, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
-  import { useRoute } from 'vue-router';
+  import { useRoute, useRouter } from 'vue-router';
   import { useProductsStore } from '@/stores/products.store.ts';
   import ProductCard from './ProductCard.vue';
   import CartSnackbar from '@/components/cart/CartSnackbar.vue';
   import { useAddToCart } from '@/composables/useAddToCart';
   import { categoryInfo } from './categories';
   import { shopLinks } from '@/components/menu/navigation';
+  import { matchesSearch } from '@/utils/productSearch';
 
   const props = defineProps<{ category?: string }>();
 
   const { t } = useI18n();
   const route = useRoute();
+  const router = useRouter();
+
+  // The text searched, kept in the address (?q=...) so that a search can be shared and found back
+  const search = computed(() => (typeof route.query.q === 'string' ? route.query.q : ''));
+
+  function clearSearch() {
+    router.replace({ query: { ...route.query, q: undefined } });
+  }
 
   const productsStore = useProductsStore();
   const stocksStore = useStocksStore();
@@ -31,9 +40,10 @@
   ]);
 
   const products = computed(() => {
-    const filtered = props.category
-      ? productsStore.products.filter((product) => product.category === props.category)
-      : [...productsStore.products];
+    const filtered = productsStore.products.filter(
+      (product) =>
+        (!props.category || product.category === props.category) && matchesSearch(product, search.value)
+    );
     return filtered.sort((a, b) => {
       if (sort.value === 'priceAsc') return (a.price ?? 0) - (b.price ?? 0);
       if (sort.value === 'priceDesc') return (b.price ?? 0) - (a.price ?? 0);
@@ -53,6 +63,7 @@
     <div class="d-flex flex-wrap align-end ga-4 mb-6">
       <div>
         <h1 class="text-h4 font-weight-bold">{{ title }}</h1>
+        <p v-if="search" class="text-body-1 mt-1">{{ t('products.resultsFor', { search }) }}</p>
         <p v-if="!productsStore.loading && !productsStore.error" class="text-body-2 text-medium-emphasis mt-1">
           {{ t('products.count', products.length) }}
         </p>
@@ -96,7 +107,12 @@
 
     <div v-else-if="products.length === 0" class="text-center py-16">
       <v-icon icon="mdi-package-variant" size="56" class="text-medium-emphasis mb-3" />
-      <p class="text-body-1 text-medium-emphasis">{{ t('products.empty') }}</p>
+      <p class="text-body-1 text-medium-emphasis">
+        {{ search ? t('products.noMatch', { search }) : t('products.empty') }}
+      </p>
+      <v-btn v-if="search" variant="tonal" color="primary" class="mt-4" @click="clearSearch">
+        {{ t('products.clearSearch') }}
+      </v-btn>
     </div>
 
     <v-row v-else>

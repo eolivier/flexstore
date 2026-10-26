@@ -7,6 +7,7 @@
   import { FullName } from '@/models/user';
   import Language from '../Language.vue';
   import LoadingBar from '@/components/layout/LoadingBar.vue';
+  import CatalogSearchField from '@/components/products/CatalogSearchField.vue';
   import { accountLinksOf, adminLinks, shopLinks } from './navigation';
   import { useAuthStore } from '@/stores/auth.store';
   import { useCartStore } from '@/stores/cart.store';
@@ -78,6 +79,10 @@
 
       <v-spacer />
 
+      <div class="d-none d-md-flex flex-grow-1 justify-end mr-2">
+        <CatalogSearchField />
+      </div>
+
       <div class="d-none d-sm-flex">
         <Language />
       </div>
@@ -146,6 +151,9 @@
       <span class="text-h6 font-weight-bold text-primary">Flexstore</span>
     </div>
     <v-divider />
+    <div class="pa-3">
+      <CatalogSearchField />
+    </div>
     <v-list nav>
       <v-list-item to="/" exact prepend-icon="mdi-home-outline" :title="t('nav.home')" />
       <ProductsSubMenu />
