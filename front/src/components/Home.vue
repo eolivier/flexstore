@@ -93,7 +93,7 @@
     </section>
 
     <v-sheet
-      color="primary"
+      color="banner"
       rounded="xl"
       class="cta pa-8 pa-md-10 d-flex flex-column flex-md-row align-md-center"
     >

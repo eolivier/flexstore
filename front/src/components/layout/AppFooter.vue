@@ -9,7 +9,7 @@
 </script>
 
 <template>
-  <v-footer color="primary" class="footer pt-10 pb-6">
+  <v-footer color="footer" class="footer pt-10 pb-6">
     <div class="footer-inner w-100 px-4">
       <v-row>
         <v-col cols="12" md="5">

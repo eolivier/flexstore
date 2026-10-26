@@ -360,6 +360,8 @@ export default {
       signUp: 'Create an account',
       logout: 'Sign out',
       language: 'Language',
+      darkMode: 'Dark mode',
+      lightMode: 'Light mode',
       openMenu: 'Open menu',
     },
     footer: {
@@ -830,6 +832,8 @@ export default {
       signUp: 'Créer un compte',
       logout: 'Se déconnecter',
       language: 'Langue',
+      darkMode: 'Mode sombre',
+      lightMode: 'Mode clair',
       openMenu: 'Ouvrir le menu',
     },
     footer: {
