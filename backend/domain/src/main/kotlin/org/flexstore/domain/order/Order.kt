@@ -214,7 +214,7 @@ data class PaymentTimeLimit(val paymentDelay: PaymentDelay, val checkedAt: Insta
 // The moment an order must be paid by: its placement plus the payment delay
 data class PaymentDeadline(val value: Instant) {
 
-    fun isReachedAt(instant: Instant) = !instant.isBefore(value)
+    fun isReachedAt(instant: Instant) = instant >= value
 }
 
 // An order to cancel because it was not paid in time
