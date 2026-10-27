@@ -8,9 +8,9 @@
   import ProductCard from './ProductCard.vue';
   import CartSnackbar from '@/components/cart/CartSnackbar.vue';
   import { useAddToCart } from '@/composables/useAddToCart';
-  import { categoryInfo } from './categories';
+  import { categoryInfo, isKnownCategory } from './categories';
   import { shopLinks } from '@/components/menu/navigation';
-  import { matchesSearch } from '@/utils/productSearch';
+  import { matchesCatalogSearch, type CatalogSearch } from '@/utils/productSearch';
 
   const props = defineProps<{ category?: string }>();
 
@@ -20,6 +20,13 @@
 
   // The text searched, kept in the address (?q=...) so that a search can be shared and found back
   const search = computed(() => (typeof route.query.q === 'string' ? route.query.q : ''));
+
+  // The name of a category in the language of the customer; none for a category without a label of its own
+  function categoryName(category: string): string {
+    return isKnownCategory(category) ? t(categoryInfo(category).label) : '';
+  }
+
+  const catalogSearch = computed<CatalogSearch>(() => ({ text: search.value, categoryName }));
 
   function clearSearch() {
     router.replace({ query: { ...route.query, q: undefined } });
@@ -40,10 +47,10 @@
   ]);
 
   const products = computed(() => {
-    const filtered = productsStore.products.filter(
-      (product) =>
-        (!props.category || product.category === props.category) && matchesSearch(product, search.value)
-    );
+    const filtered = productsStore.products.filter((product) => {
+      const inCategory = !props.category || product.category === props.category;
+      return inCategory && matchesCatalogSearch(product, catalogSearch.value);
+    });
     return filtered.sort((a, b) => {
       if (sort.value === 'priceAsc') return (a.price ?? 0) - (b.price ?? 0);
       if (sort.value === 'priceDesc') return (b.price ?? 0) - (a.price ?? 0);

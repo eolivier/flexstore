@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Product } from '@/models/product';
-import { matchesSearch } from './productSearch';
+import { matchesCatalogSearch, matchesSearch } from './productSearch';
 
 const jacket = {
   id: 'p-1',
@@ -25,5 +25,29 @@ describe('productSearch', () => {
     const result = matchesSearch(jacket, search);
     // Assert
     expect(result).toBe(matches);
+  });
+});
+
+// The names of the categories, as the catalog gives them in French
+function categoryNameInFrench(category: string): string {
+  return category === 'CLOTHING' ? 'Vêtements' : '';
+}
+
+const anyProduct = { ...jacket, category: 'UNKNOWN' } as Product;
+
+describe('catalog search', () => {
+  it.each([
+    { search: 'vetements', product: jacket, matches: true },
+    { search: 'jacket vêtements', product: jacket, matches: true },
+    { search: 'legere', product: jacket, matches: true },
+    { search: 'vetements', product: anyProduct, matches: false },
+    { search: 'electronique', product: jacket, matches: false },
+  ])('the search "$search" matches $product.category: $matches', ({ search, product, matches }) => {
+    // Arrange
+    const catalogSearch = { text: search, categoryName: categoryNameInFrench };
+    // Act
+    const matched = matchesCatalogSearch(product, catalogSearch);
+    // Assert
+    expect(matched).toBe(matches);
   });
 });
