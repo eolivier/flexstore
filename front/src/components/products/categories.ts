@@ -22,6 +22,11 @@ const unknownCategory: CategoryInfo = {
   tint: themeColor('tint-other'),
 };
 
+// A category that the shop knows, with a label of its own
+export function isKnownCategory(category: string): boolean {
+  return category in categories;
+}
+
 export function categoryInfo(category: string | undefined): CategoryInfo {
   return (category && categories[category]) || unknownCategory;
 }
