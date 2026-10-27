@@ -15,6 +15,7 @@ import org.flexstore.infra.spring.security.asUser
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mockito.doReturn
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -33,6 +34,7 @@ private const val HEADPHONES_ID = "9"
 
 // Another order takes the last headphones between the check of the stock and their reservation: the order is
 // refused, and nothing is kept of it (neither the order nor the laptop already reserved)
+@ExtendWith(RefilledStocks::class)
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -62,7 +64,6 @@ class StockTakenMeanwhileIT {
     @BeforeEach
     fun createCustomer() {
         cleanUp()
-        jdbcTemplate.refillStocks()
         userRepository.save(UserEntity(CUSTOMER_ID, "Jane", "Doe", "it-stock-taken@example.com", "not-used"))
     }
 

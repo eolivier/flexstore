@@ -5,17 +5,17 @@ import org.flexstore.domain.product.ProductId
 import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.sharedkernel.Quantity
 import org.flexstore.domain.stock.*
-import org.flexstore.infra.spring.rest.refillStocks
-import org.junit.jupiter.api.AfterEach
+import org.flexstore.infra.spring.rest.RefilledStocks
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.ActiveProfiles
 import java.util.concurrent.Callable
 import java.util.concurrent.Executors
 
 // The reservations of the database: the stock is checked and taken in one statement
+@ExtendWith(RefilledStocks::class)
 @ActiveProfiles("test")
 @SpringBootTest
 class StockReservationIT {
@@ -23,18 +23,12 @@ class StockReservationIT {
     @Autowired
     private lateinit var stockRepository: StockRepository
 
-    @Autowired
-    private lateinit var jdbcTemplate: JdbcTemplate
-
     // The Laptop of the catalog
     private val laptopId = ProductId(Identity("6"))
 
     private fun laptopStockOf(units: Int) = stockRepository.save(Stock(laptopId, StockQuantity(units)))
 
     private fun laptopUnits() = stockRepository.stockOf(laptopId).quantity
-
-    @AfterEach
-    fun refillStocks() = jdbcTemplate.refillStocks()
 
     @Test
     fun `a reservation covered by the stock should take its units out`() {

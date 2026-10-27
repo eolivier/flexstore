@@ -12,6 +12,7 @@ import org.flexstore.infra.spring.security.asUser
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -27,9 +28,10 @@ import java.math.BigDecimal
 
 private const val CUSTOMER_ID = "it-stock-customer"
 
-// Product 5 of the catalog (10" Tablet): its stock is given by the tests, then put back to 100
+// Product 5 of the catalog (10" Tablet): its stock is given by the tests
 private const val PRODUCT_ID = "5"
 
+@ExtendWith(RefilledStocks::class)
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -61,7 +63,6 @@ class StockIT {
 
     @AfterEach
     fun cleanUp() {
-        changeStock(100)
         orderRepository.deleteAll(orderRepository.findAllByUserId(CUSTOMER_ID))
         cartRepository.findByUserId(CUSTOMER_ID)?.let { cart ->
             cartItemRepository.deleteAll(cartItemRepository.findAll().filter { it.cartId == cart.id })

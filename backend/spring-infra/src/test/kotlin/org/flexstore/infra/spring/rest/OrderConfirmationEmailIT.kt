@@ -16,10 +16,10 @@ import org.flexstore.infra.spring.security.asUser
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
@@ -36,14 +36,12 @@ import java.math.BigDecimal
 // The administration account created by the migrations
 private const val CUSTOMER_ID = "u-admin"
 
+@ExtendWith(RefilledStocks::class)
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(RecordingEmailConfig::class)
 class OrderConfirmationEmailIT {
-
-    @Autowired
-    private lateinit var jdbcTemplate: JdbcTemplate
 
     @Autowired
     private lateinit var mockMvc: MockMvc
@@ -65,9 +63,6 @@ class OrderConfirmationEmailIT {
 
     @Autowired
     private lateinit var cartItemRepository: JpaCartItemRepository
-
-    @BeforeEach
-    fun refillStocks() = jdbcTemplate.refillStocks()
 
     @BeforeEach
     @AfterEach

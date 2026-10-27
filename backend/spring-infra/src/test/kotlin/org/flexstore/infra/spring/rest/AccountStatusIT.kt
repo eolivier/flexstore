@@ -8,10 +8,10 @@ import org.flexstore.infra.spring.security.asUser
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
@@ -25,22 +25,17 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 private const val CUSTOMER_ID = "account-status-it-jane"
 private const val CUSTOMER_EMAIL = "account-status-it.jane@example.com"
 
+@ExtendWith(RefilledStocks::class)
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
 class AccountStatusIT {
 
     @Autowired
-    private lateinit var jdbcTemplate: JdbcTemplate
-
-    @Autowired
     private lateinit var mockMvc: MockMvc
 
     @Autowired
     private lateinit var userRepository: UserRepository
-
-    @BeforeEach
-    fun refillStocks() = jdbcTemplate.refillStocks()
 
     @BeforeEach
     fun createCustomer() {
