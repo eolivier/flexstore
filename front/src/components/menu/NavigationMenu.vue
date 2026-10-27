@@ -6,6 +6,7 @@
   import AdminSubMenu from './submenu/AdminSubMenu.vue';
   import { FullName } from '@/models/user';
   import Language from '../Language.vue';
+  import ColorModeButton from '@/components/layout/ColorModeButton.vue';
   import LoadingBar from '@/components/layout/LoadingBar.vue';
   import CatalogSearchField from '@/components/products/CatalogSearchField.vue';
   import { accountLinksOf, adminLinks, shopLinks } from './navigation';
@@ -86,6 +87,8 @@
       <div class="d-none d-sm-flex">
         <Language />
       </div>
+
+      <ColorModeButton />
 
       <v-menu location="bottom end">
         <template #activator="{ props }">
