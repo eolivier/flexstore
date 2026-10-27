@@ -50,8 +50,8 @@ data class Stocks(private val stocks: List<Stock>) {
     fun asList(): List<Stock> = stocks.toList()
 }
 
-// The units of a reservation are taken out of the stock only if they are all there, at the moment they are taken:
-// another order may have taken them since the stock was read
+// The units of a reservation are taken out of the stock only if they are all there, at the moment they are
+// taken: another order may have taken them since the stock was read
 enum class StockReservation {
     RESERVED, NOT_COVERED;
 

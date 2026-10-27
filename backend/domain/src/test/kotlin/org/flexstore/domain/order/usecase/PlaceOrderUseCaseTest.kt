@@ -19,9 +19,12 @@ import java.time.Instant
 
 class PlaceOrderUseCaseTest : WithAssertions {
 
-    private val deskLamp = DefinedProduct(ProductId(Identity("desk-lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR))
+    private val deskLampPrice = Price(Amount(BigDecimal(35)), Currency.EUR)
+    private val deskLamp = DefinedProduct(ProductId(Identity("desk-lamp")), Name("Desk lamp"), deskLampPrice)
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
-    private val definedUser = User.DefinedUser(customer.userId, FullName(FirstName("Jane"), LastName("Doe")), Email("jane@example.com"), PlainPassword("password"))
+    private val janeDoe = FullName(FirstName("Jane"), LastName("Doe"))
+    private val janeEmail = Email("jane@example.com")
+    private val definedUser = User.DefinedUser(customer.userId, janeDoe, janeEmail, PlainPassword("password"))
     private val cartRepository = InMemoryCartRepository()
     private val orderRepository = InMemoryOrderRepository()
     private val userRepository = InMemoryUserRepository().apply { save(definedUser) }
@@ -112,7 +115,13 @@ class PlaceOrderUseCaseTest : WithAssertions {
     }
 
     @ParameterizedTest(name = "an account {0}: order placed = {1}")
-    @CsvSource("PENDING_VERIFICATION, true", "ACTIVE, true", "SUSPENDED, false", "LOCKED, false", "DISABLED, false")
+    @CsvSource(
+        "PENDING_VERIFICATION, true",
+        "ACTIVE, true",
+        "SUSPENDED, false",
+        "LOCKED, false",
+        "DISABLED, false"
+    )
     fun `only an account that allows ordering should place an order`(status: AccountStatus, placed: Boolean) {
         // Arrange
         userRepository.save(definedUser.copy(status = status))
@@ -140,7 +149,8 @@ class PlaceOrderUseCaseTest : WithAssertions {
         // Arrange
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
         val stockTakenMeanwhile = StockTakenMeanwhile(stockRepository)
-        val placeOrderUseCase = PlaceOrderUseCase(cartRepository, orderRepository, userRepository, stockTakenMeanwhile)
+        val placeOrderUseCase =
+            PlaceOrderUseCase(cartRepository, orderRepository, userRepository, stockTakenMeanwhile)
         // Act
         val thrown = catchThrowable { placeOrderUseCase.unfold(orderPlacement) }
         // Assert

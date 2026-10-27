@@ -72,7 +72,8 @@ class PlaceOrderUseCase(
     private fun accountAllowsOrderingCondition() = PreCondition<OrderPlacement> { orderPlacement ->
         val definedUser = userRepository.findById(orderPlacement.customer.userId) as User.DefinedUser
         if (definedUser.status.refusesOrdering()) {
-            val message = ErrorMessage("The account ${definedUser.id.value} is ${definedUser.status}: it cannot order.")
+            val accountId = definedUser.id.value
+            val message = ErrorMessage("The account $accountId is ${definedUser.status}: it cannot order.")
             throw OrderRefusedException(definedUser.status, message)
         }
     }

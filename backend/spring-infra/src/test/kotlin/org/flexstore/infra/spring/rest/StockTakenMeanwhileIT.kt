@@ -91,15 +91,16 @@ class StockTakenMeanwhileIT {
         assertThat(stockOf(LAPTOP_ID)).isEqualTo(100)
     }
 
-    private fun stockOf(productId: String) =
-        jdbcTemplate.queryForObject("SELECT quantity FROM stock WHERE product_id = ?", Int::class.java, productId)
+    private fun stockOf(productId: String): Int? {
+        val stockQuery = "SELECT quantity FROM stock WHERE product_id = ?"
+        return jdbcTemplate.queryForObject(stockQuery, Int::class.java, productId)
+    }
 
     private fun addToCart(productId: String) {
         val item = """{"itemId": "", "productId": "$productId", "productName": "Product",
             "productDescription": "Description", "productCategory": "ELECTRONICS", "productPrice": 10,
             "productCurrency": "€", "productQuantity": 1}"""
-        mockMvc.perform(
-            post("/api/cart/save").with(asUser(CUSTOMER_ID)).contentType(MediaType.APPLICATION_JSON).content(item)
-        ).andExpect(status().isOk)
+        val cartSave = post("/api/cart/save").with(asUser(CUSTOMER_ID)).contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(cartSave.content(item)).andExpect(status().isOk)
     }
 }
