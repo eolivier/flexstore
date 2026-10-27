@@ -27,7 +27,7 @@ class CancelUnpaidOrderUseCase(
         }
         val returnStockStep = Step<UnpaidOrderCancellation> { cancellation ->
             order(cancellation).lines.asList().forEach { line ->
-                stockRepository.save(stockRepository.stockOf(line.productId).returned(line.quantity))
+                stockRepository.release(line.productId, line.quantity)
             }
         }
         return NominalScenario(listOf(stopPaymentStep, cancelStep, returnStockStep))
@@ -48,7 +48,8 @@ class CancelUnpaidOrderUseCase(
     private fun orderAwaitsPaymentCondition() = PreCondition<UnpaidOrderCancellation> { cancellation ->
         val order = order(cancellation)
         if (!order.isAwaitingPayment()) {
-            val message = ErrorMessage("Order ${order.number()} is ${order.status}: it does not await its payment.")
+            val orderNumber = order.number()
+            val message = ErrorMessage("Order $orderNumber is ${order.status}: it does not await its payment.")
             throw OrderNotAwaitingPaymentException(message)
         }
     }

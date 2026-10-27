@@ -20,11 +20,16 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/orders")
 class OrderController(private val orderUseCases: OrderUseCases) {
 
-    @Operation(summary = "Place an order from the cart of the signed-in customer, delivered and billed to the given addresses, then empty the cart")
+    @Operation(
+        summary = "Place an order from the cart of the signed-in customer, delivered and billed to the given " +
+            "addresses, and reserve its units until it is paid"
+    )
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    // The order is stored and the cart emptied together, or not at all
-    @Transactional
+    // The order is stored and its units reserved together, or not at all. The business exceptions (an order
+    // refused because another one took the units meanwhile) are checked exceptions: Spring would commit on them
+    // by default
+    @Transactional(rollbackFor = [Exception::class])
     fun placeOrder(@AuthenticationPrincipal jwt: Jwt, @RequestBody addresses: JsonOrderAddresses): JsonOrder {
         val checkout = Checkout(CartOwner.Customer(customer(jwt)), addresses.toOrderAddresses())
         val placedOrder = orderUseCases.placeOrder(checkout)

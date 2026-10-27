@@ -14,10 +14,8 @@ data class StockQuantity(val value: Int) {
 
     fun isEmpty() = value == 0
 
-    // The units left once the given quantity is taken: none rather than a negative number
-    fun minus(quantity: Quantity) = StockQuantity(maxOf(0, value - quantity.value))
-
-    fun plus(quantity: Quantity) = StockQuantity(value + quantity.value)
+    // The part of the quantity that the units cover: all of it, or the units left
+    fun availableOf(quantity: Quantity) = Quantity(minOf(value, quantity.value))
 
     companion object {
         fun none() = StockQuantity(0)
@@ -31,12 +29,9 @@ data class Stock(val productId: ProductId, val quantity: StockQuantity) {
 
     fun doesNotCover(quantity: Quantity) = !covers(quantity)
 
-    // A placed order reserves its units: they are taken out of the stock, which never goes below zero
-    // (an order paid after it was cancelled while another one took the last units)
-    fun withdrawn(quantity: Quantity) = copy(quantity = this.quantity.minus(quantity))
-
-    // An order cancelled gives its units back
-    fun returned(quantity: Quantity) = copy(quantity = this.quantity.plus(quantity))
+    // An order paid after it was cancelled takes back what is left of its units, as another order may have
+    // taken the last ones in the meantime
+    fun availableOf(quantity: Quantity) = this.quantity.availableOf(quantity)
 
     companion object {
         // A product whose stock was never given has none
@@ -53,6 +48,14 @@ data class Stocks(private val stocks: List<Stock>) {
 
     // Read-only view for the adapters (JSON)
     fun asList(): List<Stock> = stocks.toList()
+}
+
+// The units of a reservation are taken out of the stock only if they are all there, at the moment they are
+// taken: another order may have taken them since the stock was read
+enum class StockReservation {
+    RESERVED, NOT_COVERED;
+
+    fun isNotCovered() = this == NOT_COVERED
 }
 
 data class OutOfStockException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
