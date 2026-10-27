@@ -22,18 +22,18 @@ class StockTest : WithAssertions {
         assertThat(covers).isEqualTo(covered)
     }
 
-    @ParameterizedTest(name = "{0} units in stock, {1} paid: {2} left")
-    @CsvSource("5, 2, 3", "2, 2, 0", "1, 2, 0")
-    fun `a paid quantity should be taken out of the stock, which never goes below zero`(
+    @ParameterizedTest(name = "{0} units in stock, {1} paid: {2} available")
+    @CsvSource("5, 2, 2", "2, 2, 2", "1, 2, 1", "0, 2, 0")
+    fun `the available part of a quantity should be all of it, or the units left`(
         units: Int,
         paid: Int,
-        left: Int
+        available: Int
     ) {
         // Arrange
         val stock = Stock(deskLampId, StockQuantity(units))
         // Act
-        val withdrawnStock = stock.withdrawn(Quantity(paid))
+        val availableQuantity = stock.availableOf(Quantity(paid))
         // Assert
-        assertThat(withdrawnStock.quantity).isEqualTo(StockQuantity(left))
+        assertThat(availableQuantity).isEqualTo(Quantity(available))
     }
 }

@@ -27,7 +27,7 @@ class CancelUnpaidOrderUseCase(
         }
         val returnStockStep = Step<UnpaidOrderCancellation> { cancellation ->
             order(cancellation).lines.asList().forEach { line ->
-                stockRepository.save(stockRepository.stockOf(line.productId).returned(line.quantity))
+                stockRepository.release(line.productId, line.quantity)
             }
         }
         return NominalScenario(listOf(stopPaymentStep, cancelStep, returnStockStep))

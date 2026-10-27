@@ -134,4 +134,22 @@ class PlaceOrderUseCaseTest : WithAssertions {
         assertThat(thrown).isInstanceOf(OutOfStockException::class.java).hasMessageContaining("Desk lamp")
         assertThat(orderRepository.orderIsMissing(orderPlacement.orderId)).isTrue()
     }
+
+    @Test
+    fun `an order should be refused when another order took the units after the stock was checked`() {
+        // Arrange
+        cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
+        val stockTakenMeanwhile = StockTakenMeanwhile(stockRepository)
+        val placeOrderUseCase = PlaceOrderUseCase(cartRepository, orderRepository, userRepository, stockTakenMeanwhile)
+        // Act
+        val thrown = catchThrowable { placeOrderUseCase.unfold(orderPlacement) }
+        // Assert
+        assertThat(thrown).isInstanceOf(OutOfStockException::class.java).hasMessageContaining("Desk lamp")
+    }
+}
+
+// The stock covers the cart when it is checked, but another order takes the units before they are reserved
+private class StockTakenMeanwhile(stockRepository: StockRepository) : StockRepository by stockRepository {
+
+    override fun reserve(productId: ProductId, quantity: Quantity) = StockReservation.NOT_COVERED
 }

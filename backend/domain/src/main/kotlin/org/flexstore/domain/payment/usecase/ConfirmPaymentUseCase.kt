@@ -37,8 +37,10 @@ class ConfirmPaymentUseCase(
 
     override fun getPostConditions(): PostConditions<OrderId> = PostConditions(orderIsPaidCondition())
 
+    // What is left of the units: the order is paid anyway, and the stock never goes below zero
     private fun withdrawStockOf(order: Order) = order.lines.asList().forEach { line ->
-        stockRepository.save(stockRepository.stockOf(line.productId).withdrawn(line.quantity))
+        val availableQuantity = stockRepository.stockOf(line.productId).availableOf(line.quantity)
+        stockRepository.reserve(line.productId, availableQuantity)
     }
 
     private fun orderExistsCondition() = PreCondition<OrderId> { orderId ->

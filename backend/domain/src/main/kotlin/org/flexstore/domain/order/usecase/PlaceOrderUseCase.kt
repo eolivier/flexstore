@@ -40,11 +40,17 @@ class PlaceOrderUseCase(
             val order = Order.place(orderPlacement, cart)
             orderRepository.save(order)
         }
-        // The units of the order are reserved until it is paid, or cancelled for lack of payment
+        // The units of the order are reserved until it is paid, or cancelled for lack of payment. Another order
+        // may have taken them since the stock was checked: the order is then refused, and nothing is kept of it
         val reserveStockStep = Step<OrderPlacement> { orderPlacement ->
             val order = orderRepository.findById(orderPlacement.orderId)!!
-            order.lines.asList().forEach { line ->
-                stockRepository.save(stockRepository.stockOf(line.productId).withdrawn(line.quantity))
+            val reservations = order.lines.asList().associateWith { line ->
+                stockRepository.reserve(line.productId, line.quantity)
+            }
+            val refusedLines = reservations.filterValues { it.isNotCovered() }.keys
+            if (refusedLines.isNotEmpty()) {
+                val productNames = refusedLines.joinToString { it.productName.value }
+                throw OutOfStockException(ErrorMessage("Not enough units in stock for: $productNames."))
             }
         }
         return NominalScenario(listOf(keepAddressesStep, placeOrderStep, reserveStockStep))
