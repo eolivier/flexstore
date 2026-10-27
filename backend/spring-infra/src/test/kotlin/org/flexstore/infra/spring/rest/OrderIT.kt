@@ -12,8 +12,8 @@ import org.flexstore.infra.spring.security.asUser
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
@@ -32,13 +32,11 @@ import java.time.Instant
 private const val CUSTOMER_ID = "u-admin"
 private const val OTHER_CUSTOMER_ID = "it-order-customer"
 
+@ExtendWith(RefilledStocks::class)
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
 class OrderIT {
-
-    @Autowired
-    private lateinit var jdbcTemplate: JdbcTemplate
 
     @Autowired
     private lateinit var mockMvc: MockMvc
@@ -57,9 +55,6 @@ class OrderIT {
 
     @Autowired
     private lateinit var userRepository: JpaUserRepository
-
-    @BeforeEach
-    fun refillStocks() = jdbcTemplate.refillStocks()
 
     @BeforeEach
     fun createOtherCustomer() {
