@@ -47,6 +47,11 @@ management:
       probes:
         enabled: true
       show-details: when_authorized
+  health:
+    # The SMTP server does not decide whether the application is up: the host (Render) checks the health and would
+    # restart it. Without server the emails are written to the logs, and an email that fails does not stop an order
+    mail:
+      enabled: false
   metrics:
     export:
       prometheus:
