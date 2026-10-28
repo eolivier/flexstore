@@ -43,4 +43,9 @@ export const twoLinesOrder: JsonOrder = {
 export const twoLinesAdminOrder: JsonAdminOrder = {
   ...twoLinesOrder,
   customer: { firstName: 'John', lastName: 'Smith', email: 'john.smith@example.com' },
+  statusHistory: [
+    { status: 'AWAITING_PAYMENT', changedAt: '2026-10-24T10:00:00Z' },
+    { status: 'PAID', changedAt: '2026-10-24T10:03:00Z' },
+    { status: 'PROCESSING', changedAt: '2026-10-25T08:30:00Z' },
+  ],
 };

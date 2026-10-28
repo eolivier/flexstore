@@ -8,6 +8,7 @@ import org.flexstore.domain.user.model.*
 import org.ucop.domain.NominalException
 import org.flexstore.domain.sharedkernel.ErrorMessage
 import java.math.BigDecimal
+import java.time.Clock
 import java.time.Instant
 
 // Number of characters of the order id shown to the customer as the order number
@@ -20,8 +21,11 @@ private const val ORDER_NUMBER_LENGTH = 8
  * - a new order awaits its payment, which reserves its units; unpaid in time, it is cancelled
  * - it is always delivered to a delivery address and billed to a billing address (often the same),
  *   both addresses of the customer
+ * - it keeps the statuses it went through, with the moment it reached each one: its status is the last one
  */
-data class Order(val detail: OrderDetail, val status: OrderStatus) {
+data class Order(val detail: OrderDetail, val history: OrderStatusHistory) {
+
+    val status get() = history.currentStatus()
 
     val orderId get() = detail.placement.orderId
 
@@ -41,16 +45,19 @@ data class Order(val detail: OrderDetail, val status: OrderStatus) {
     fun belongsTo(customer: UserId.ValidUserId) = this.customer == customer
 
     // The order at the next status of its life cycle
-    fun advanced() = copy(status = status.next())
+    fun advancedAt(changedAt: StatusChangedAt) = movedTo(status.next(), changedAt)
 
     // Not paid in time: its units go back to the stock
-    fun cancelled() = copy(status = OrderStatus.CANCELLED)
+    fun cancelledAt(changedAt: StatusChangedAt) = movedTo(OrderStatus.CANCELLED, changedAt)
 
     // Paid, even after it was cancelled for lack of payment (the customer paid just before)
-    fun paid() = copy(status = OrderStatus.PAID)
+    fun paidAt(changedAt: StatusChangedAt) = movedTo(OrderStatus.PAID, changedAt)
 
     // Cancelled by the shop after its payment, which is given back to the customer
-    fun refunded() = copy(status = OrderStatus.REFUNDED)
+    fun refundedAt(changedAt: StatusChangedAt) = movedTo(OrderStatus.REFUNDED, changedAt)
+
+    private fun movedTo(status: OrderStatus, changedAt: StatusChangedAt) =
+        copy(history = history.with(OrderStatusChange(status, changedAt)))
 
     fun isRefunded() = status == OrderStatus.REFUNDED
 
@@ -74,7 +81,9 @@ data class Order(val detail: OrderDetail, val status: OrderStatus) {
             }
             val orderLines = OrderLines.from(cart)
             val orderDetail = OrderDetail(orderPlacement, orderLines)
-            return Order(orderDetail, OrderStatus.AWAITING_PAYMENT)
+            val placedAt = StatusChangedAt(orderPlacement.placedAt)
+            val placedStatus = OrderStatusChange(OrderStatus.AWAITING_PAYMENT, placedAt)
+            return Order(orderDetail, OrderStatusHistory(placedStatus))
         }
     }
 }
@@ -155,6 +164,33 @@ enum class OrderStatus {
         CANCELLED -> throw OrderStatusCannotAdvanceException(ErrorMessage("A cancelled order has no next status"))
         REFUNDED -> throw OrderStatusCannotAdvanceException(ErrorMessage("A refunded order has no next status"))
     }
+}
+
+// The moment an order reached a status
+data class StatusChangedAt(val value: Instant) {
+    companion object {
+        fun now(clock: Clock) = StatusChangedAt(Instant.now(clock))
+    }
+}
+
+// An order reached a status at a given moment
+data class OrderStatusChange(val status: OrderStatus, val changedAt: StatusChangedAt)
+
+// The statuses an order went through, oldest first; never empty: an order is placed awaiting its payment
+data class OrderStatusHistory(private val changes: List<OrderStatusChange>) {
+
+    init {
+        require(changes.isNotEmpty()) { "An order has at least the status it was placed with" }
+    }
+
+    constructor(vararg changes: OrderStatusChange) : this(changes.toList())
+
+    fun currentStatus() = changes.last().status
+
+    fun with(change: OrderStatusChange) = OrderStatusHistory(changes + change)
+
+    // Read-only view for the adapters (JSON, persistence)
+    fun asList(): List<OrderStatusChange> = changes.toList()
 }
 
 // An order to move to the next status of its life cycle, from the status it has when the administrator sees it

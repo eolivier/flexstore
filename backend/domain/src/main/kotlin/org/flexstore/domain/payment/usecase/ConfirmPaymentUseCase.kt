@@ -6,6 +6,7 @@ import org.flexstore.domain.payment.*
 import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.stock.StockRepository
 import org.ucop.domain.entity.*
+import java.time.Clock
 
 // The payment provider confirms the payment of an order: the order is paid (its units were reserved when it
 // was placed), and the cart of its customer emptied. An order cancelled while its customer was paying is paid
@@ -13,7 +14,8 @@ import org.ucop.domain.entity.*
 class ConfirmPaymentUseCase(
     private val orderRepository: OrderRepository,
     private val cartRepository: CartRepository,
-    private val stockRepository: StockRepository
+    private val stockRepository: StockRepository,
+    private val clock: Clock = Clock.systemUTC()
 ) : UseCase<OrderId> {
 
     override fun getPreConditions(): PreConditions<OrderId> =
@@ -26,7 +28,7 @@ class ConfirmPaymentUseCase(
         }
         val payStep = Step<OrderId> { orderId ->
             val order = orderRepository.findById(orderId)!!
-            orderRepository.save(order.paid())
+            orderRepository.save(order.paidAt(StatusChangedAt.now(clock)))
         }
         val emptyCartStep = Step<OrderId> { orderId ->
             val customer = CartOwner.Customer(orderRepository.findById(orderId)!!.customer)

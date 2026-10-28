@@ -24,7 +24,7 @@ class OrderStatusEmailContentTest : WithAssertions {
     private val shopUrl = ShopUrl("https://flexstore.example")
 
     private fun contentFor(status: OrderStatus): OrderStatusEmailContent {
-        val email = OrderStatusEmail(Email("jane@example.com"), janeDoe, placedOrder.copy(status = status))
+        val email = OrderStatusEmail(Email("jane@example.com"), janeDoe, placedOrder.withStatus(status))
         return OrderStatusEmailContent(email, shopUrl)
     }
 

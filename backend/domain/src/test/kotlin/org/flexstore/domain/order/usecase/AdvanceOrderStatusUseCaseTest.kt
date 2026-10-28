@@ -11,7 +11,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import java.math.BigDecimal
+import java.time.Clock
 import java.time.Instant
+import java.time.ZoneOffset
 
 class AdvanceOrderStatusUseCaseTest : WithAssertions {
 
@@ -20,16 +22,28 @@ class AdvanceOrderStatusUseCaseTest : WithAssertions {
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val orderId = OrderId("order-1")
     private val orderRepository = InMemoryOrderRepository()
-    private val useCase = AdvanceOrderStatusUseCase(orderRepository)
+    private val now = Instant.parse("2026-10-25T09:30:00Z")
+    private val useCase = AdvanceOrderStatusUseCase(orderRepository, Clock.fixed(now, ZoneOffset.UTC))
 
     private fun storeOrder(status: OrderStatus) {
         val orderStamp = OrderStamp(orderId, Instant.parse("2026-10-24T10:00:00Z"))
         val orderPlacement = OrderPlacement(orderStamp, Checkout(customer, homeOrderAddresses))
         val order = Order.place(orderPlacement, Cart(customer).add(deskLamp, Quantity(1)))
-        orderRepository.save(order.copy(status = status))
+        orderRepository.save(order.withStatus(status))
     }
 
     private fun storedStatus() = orderRepository.findById(orderId)?.status
+
+    @Test
+    fun `the order should keep the moment it reached its next status`() {
+        // Arrange
+        storeOrder(OrderStatus.PAID)
+        // Act
+        useCase.unfold(OrderStatusAdvance(orderId, OrderStatus.PAID))
+        // Assert
+        val lastChange = orderRepository.findById(orderId)!!.history.asList().last()
+        assertThat(lastChange).isEqualTo(OrderStatusChange(OrderStatus.PROCESSING, StatusChangedAt(now)))
+    }
 
     @ParameterizedTest(name = "an order {0} should become {1}")
     @CsvSource("PAID, PROCESSING", "PROCESSING, SHIPPED", "SHIPPED, DELIVERED")

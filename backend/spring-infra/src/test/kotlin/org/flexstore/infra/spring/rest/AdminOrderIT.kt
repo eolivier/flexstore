@@ -12,6 +12,7 @@ import org.flexstore.infra.spring.adapter.rest.json.JsonItem
 import org.assertj.core.api.Assertions.assertThat
 import org.flexstore.infra.spring.security.asAdmin
 import org.flexstore.infra.spring.security.asUser
+import org.hamcrest.Matchers.contains
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -112,6 +113,19 @@ class AdminOrderIT {
             .andExpect(jsonPath("$.customer.firstName").value("Jane"))
             .andExpect(jsonPath("$.customer.lastName").value("Doe"))
             .andExpect(jsonPath("$.customer.email").value(CUSTOMER_EMAIL))
+    }
+
+    @Test
+    fun `an administrator should read the statuses an order went through, oldest first`() {
+        // Arrange
+        val orderId = placeOrder()
+        advance(orderId, "PAID").andExpect(status().isOk)
+        // Act
+        val response = mockMvc.perform(get("/api/admin/orders/$orderId").with(asAdmin()))
+        // Assert
+        response.andExpect(status().isOk)
+            .andExpect(jsonPath("$.statusHistory[*].status").value(contains("AWAITING_PAYMENT", "PAID", "PROCESSING")))
+            .andExpect(jsonPath("$.statusHistory[2].changedAt").isNotEmpty)
     }
 
     @Test

@@ -31,7 +31,7 @@ class SendOrderStatusEmailUseCaseTest : WithAssertions {
         val orderStamp = OrderStamp(OrderId("order-1"), Instant.parse("2026-10-24T10:00:00Z"))
         val orderPlacement = OrderPlacement(orderStamp, Checkout(customer, homeOrderAddresses))
         val placedOrder = Order.place(orderPlacement, Cart(customer).add(deskLamp, Quantity(1)))
-        return placedOrder.copy(status = status)
+        return placedOrder.withStatus(status)
     }
 
     @ParameterizedTest(name = "an order {0} sends {1} email(s)")

@@ -1,6 +1,6 @@
 # Physical data model
 
-The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V26**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
+The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V27**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
 
 ![Physical data model](database.png)
 
@@ -54,7 +54,7 @@ erDiagram
     customer_order {
         id varchar(50) PK
         user_id varchar(50) FK
-        status varchar(20) "AWAITING_PAYMENT, PAID, PROCESSING, SHIPPED, DELIVERED, CANCELLED or REFUNDED"
+        status varchar(20) "last status: AWAITING_PAYMENT, PAID, PROCESSING, SHIPPED, DELIVERED, CANCELLED or REFUNDED"
         placed_at timestamptz
         delivery_address_id varchar(50) FK
         billing_address_id varchar(50) FK
@@ -99,6 +99,16 @@ erDiagram
         id varchar(50) PK
         payment_id varchar(50) FK,UK "at most one refund per payment"
         provider_reference varchar(255) UK "id of the Stripe refund"
+        created_at timestamp
+        updated_at timestamp
+    }
+
+    customer_order_status_change {
+        id varchar(50) PK
+        customer_order_id varchar(50) FK,UK "unique with position"
+        position int UK "0: placed, then each status reached"
+        status varchar(20) "the status reached"
+        changed_at timestamptz "when it was reached"
         created_at timestamp
         updated_at timestamp
     }
@@ -181,6 +191,7 @@ erDiagram
     customer_order }o--o| payment : "payment_id"
     payment_refund |o--|| payment : "payment_id (cascade)"
     customer_order ||--|{ customer_order_line : "customer_order_id (cascade)"
+    customer_order ||--|{ customer_order_status_change : "customer_order_id (cascade)"
     user |o--o| cart : "user_id (cascade)"
     cart ||--o{ cart_item : "cart_id (cascade)"
     cart_item }o--|| product : "product_id (cascade)"
