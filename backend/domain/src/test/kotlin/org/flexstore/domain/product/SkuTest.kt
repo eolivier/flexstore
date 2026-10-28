@@ -74,13 +74,13 @@ class SkuTest : WithAssertions {
         // Act
         val prefix = skuBasis.prefix()
         // Assert
-        assertThat(prefix).isEqualTo(SkuPrefix("CLO-T-SHIRT"))
+        assertThat(prefix).isEqualTo(SkuPrefix(HyphenatedWords("CLO-T-SHIRT")))
     }
 
     @Test
     fun `a numbered SKU should have its number on four digits`() {
         // Act
-        val sku = SkuPrefix("HOM-MUG").numbered(SkuNumber(12))
+        val sku = SkuPrefix(HyphenatedWords("HOM-MUG")).numbered(SkuNumber(12))
         // Assert
         assertThat(sku).isEqualTo(Sku("HOM-MUG-0012"))
     }

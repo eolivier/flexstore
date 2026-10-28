@@ -24,11 +24,11 @@ class WordsTest : WithAssertions {
     }
 
     @Test
-    fun `the words separated by hyphens should be the beginning of a SKU`() {
+    fun `the words should be written separated by hyphens`() {
         // Act
-        val prefix = Words(Word("CLO"), Word("ORGANIC")).hyphenated()
+        val hyphenatedWords = Words(Word("CLO"), Word("ORGANIC")).hyphenated()
         // Assert
-        assertThat(prefix).isEqualTo(SkuPrefix("CLO-ORGANIC"))
+        assertThat(hyphenatedWords).isEqualTo(HyphenatedWords("CLO-ORGANIC"))
     }
 
     @Test
