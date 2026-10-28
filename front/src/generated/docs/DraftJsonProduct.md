@@ -5,6 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**sku** | **string** | Stock Keeping Unit, unique in the catalog: upper-case letters and digits in groups separated by hyphens, 32 characters at most (TSHIRT-ORGANIC-M); the spaces around are dropped, the letters put in upper case | [default to undefined]
 **category** | **string** |  | [default to undefined]
 **price** | **number** |  | [default to undefined]
 **currency** | **string** |  | [default to undefined]
@@ -16,6 +17,7 @@ Name | Type | Description | Notes
 import { DraftJsonProduct } from './api';
 
 const instance: DraftJsonProduct = {
+    sku,
     category,
     price,
     currency,

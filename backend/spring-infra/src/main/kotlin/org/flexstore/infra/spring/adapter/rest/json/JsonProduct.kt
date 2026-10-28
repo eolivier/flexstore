@@ -8,6 +8,7 @@ import java.math.BigDecimal
 // (en) when the product is not translated into it
 data class JsonProduct @JsonCreator constructor(
     @JsonProperty("id") val id: String,
+    @JsonProperty("sku") val sku: String,
     @JsonProperty("name") val name: String,
     @JsonProperty("description") val description: String,
     @JsonProperty("category") val category: String,
@@ -18,6 +19,7 @@ data class JsonProduct @JsonCreator constructor(
 // A product as the administrator edits it: its translations in every language, the default one (en) included
 data class JsonAdminProduct @JsonCreator constructor(
     @JsonProperty("id") val id: String,
+    @JsonProperty("sku") val sku: String,
     @JsonProperty("category") val category: String,
     @JsonProperty("price") val price: BigDecimal,
     @JsonProperty("currency") val currency: String,
@@ -31,17 +33,21 @@ data class JsonProductTranslation @JsonCreator constructor(
     @JsonProperty("description") val description: String
 )
 
-// translations: the name and the description in each language of the product, the default one (en) required
+// sku: as typed, the spaces around dropped and the letters put in upper case. translations: the name and the
+// description in each language of the product, the default one (en) required
 data class DraftJsonProduct @JsonCreator constructor(
+    @JsonProperty("sku") val sku: String,
     @JsonProperty("category") val category: String,
     @JsonProperty("price") val price: BigDecimal,
     @JsonProperty("currency") val currency: String,
     @JsonProperty("translations") val translations: List<JsonProductTranslation>
 )
 
-// The fields an administrator edits; the id is given by the path. translations: every translation of the
+// The fields an administrator edits; the id is given by the path. sku: as typed, like a created product.
+// translations: every translation of the
 // product, the default one (en) required; a translation not given is removed
 data class EditedJsonProduct @JsonCreator constructor(
+    @JsonProperty("sku") val sku: String,
     @JsonProperty("category") val category: String,
     @JsonProperty("price") val price: BigDecimal,
     @JsonProperty("currency") val currency: String,

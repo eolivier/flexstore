@@ -30,6 +30,7 @@ const products = [
   {
     id: 'p-1',
     name: 'Organic T-shirt',
+    sku: 'CLO-1',
     description: 'Eco-friendly',
     category: 'CLOTHING',
     price: 25,
@@ -38,6 +39,7 @@ const products = [
   {
     id: 'p-2',
     name: 'Smartwatch',
+    sku: 'ACC-7',
     description: 'Activity tracking',
     category: 'ACCESSORIES',
     price: 99,

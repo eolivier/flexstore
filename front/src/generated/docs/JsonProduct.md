@@ -6,6 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **string** |  | [default to undefined]
+**sku** | **string** | Stock Keeping Unit, unique in the catalog | [default to undefined]
 **name** | **string** | In the language asked (Accept-Language), or in en when the product is not translated into it | [default to undefined]
 **description** | **string** | In the language asked (Accept-Language), or in en when the product is not translated into it | [default to undefined]
 **category** | **string** |  | [default to undefined]
@@ -19,6 +20,7 @@ import { JsonProduct } from './api';
 
 const instance: JsonProduct = {
     id,
+    sku,
     name,
     description,
     category,

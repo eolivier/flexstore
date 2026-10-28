@@ -7,7 +7,7 @@ All URIs are relative to *http://localhost:8080*
 |[**create**](#create) | **POST** /api/products | Create a product|
 |[**getProduct**](#getproduct) | **GET** /api/products/{id} | Retrieve a product by ID|
 |[**getProducts**](#getproducts) | **GET** /api/products/ | Retrieve all products|
-|[**updateProduct**](#updateproduct) | **PUT** /api/products/{id} | Edit a product (translations, category, price)|
+|[**updateProduct**](#updateproduct) | **PUT** /api/products/{id} | Edit a product (SKU, translations, category, price)|
 
 # **create**
 > JsonProduct create(draftJsonProduct)
@@ -217,9 +217,11 @@ const { status, data } = await apiInstance.updateProduct(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | The edited product |  -  |
+|**400** | Malformed SKU |  -  |
 |**401** | Not signed in |  -  |
 |**403** | Not an administrator |  -  |
 |**404** | Unknown product |  -  |
+|**409** | SKU used by another product |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

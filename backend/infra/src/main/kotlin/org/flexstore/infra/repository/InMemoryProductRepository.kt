@@ -13,7 +13,7 @@ class InMemoryProductRepository : ProductRepository {
         val productSaved = when(product) {
             is DraftProduct -> {
                 val productId = ProductId(Identity(currentId.getAndIncrement().toString()))
-                DefinedProduct(productId, product.translations, product.category, product.price)
+                DefinedProduct(productId, product.sku, product.translations, product.category, product.price)
             }
             is DefinedProduct -> product
         }
@@ -60,13 +60,19 @@ class InMemoryProductRepository : ProductRepository {
     override fun notExists(product: Product): Boolean = !exists(product)
 
     override fun productExists(productId: ProductId): Boolean = products.any { it.productId == productId }
+
+    override fun skuIsUsedByAnotherProduct(product: DefinedProduct): Boolean =
+        products.any { it.sku == product.sku && it.productId != product.productId }
 }
 
 private val currentId = AtomicInteger(1)
 
+// The SKU of the demo products, as given by the migration V25: the first letters of the category, then the id
+
 val clothes = listOf(
     DefinedProduct(
         productId = ProductId(Identity(currentId.getAndIncrement().toString())),
+        sku = Sku("CLO-1"),
         name = Name("Organic Cotton T-shirt"),
         description = Description("Comfortable and eco-friendly"),
         category = Category.CLOTHING,
@@ -74,6 +80,7 @@ val clothes = listOf(
     ),
     DefinedProduct(
         productId = ProductId(Identity(currentId.getAndIncrement().toString())),
+        sku = Sku("CLO-2"),
         name = Name("Waterproof Jacket"),
         description = Description("Resists rain and wind"),
         category = Category.CLOTHING,
@@ -81,6 +88,7 @@ val clothes = listOf(
     ),
     DefinedProduct(
         productId = ProductId(Identity(currentId.getAndIncrement().toString())),
+        sku = Sku("CLO-3"),
         name = Name("Slim Jeans"),
         description = Description("Modern fit, stretch"),
         category = Category.CLOTHING,
@@ -91,6 +99,7 @@ val clothes = listOf(
 val electronics = listOf(
     DefinedProduct(
         productId = ProductId(Identity(currentId.getAndIncrement().toString())),
+        sku = Sku("ELE-4"),
         name = Name("5G Smartphone"),
         description = Description("OLED display, 128 GB"),
         category = Category.ELECTRONICS,
@@ -98,6 +107,7 @@ val electronics = listOf(
     ),
     DefinedProduct(
         productId = ProductId(Identity(currentId.getAndIncrement().toString())),
+        sku = Sku("ELE-5"),
         name = Name("10\" Tablet"),
         description = Description("Ideal for multimedia"),
         category = Category.ELECTRONICS,
@@ -105,6 +115,7 @@ val electronics = listOf(
     ),
     DefinedProduct(
         productId = ProductId(Identity(currentId.getAndIncrement().toString())),
+        sku = Sku("ELE-6"),
         name = Name("Laptop"),
         description = Description("512 GB SSD, 16 GB RAM"),
         category = Category.ELECTRONICS,
@@ -115,6 +126,7 @@ val electronics = listOf(
 val accessories = listOf(
     DefinedProduct(
         productId = ProductId(Identity(currentId.getAndIncrement().toString())),
+        sku = Sku("ACC-7"),
         name = Name("Smartwatch"),
         description = Description("Activity tracking and notifications"),
         category = Category.ACCESSORIES,
@@ -122,6 +134,7 @@ val accessories = listOf(
     ),
     DefinedProduct(
         productId = ProductId(Identity(currentId.getAndIncrement().toString())),
+        sku = Sku("ACC-8"),
         name = Name("Bluetooth Headphones"),
         description = Description("High-quality sound, 20h battery life"),
         category = Category.ACCESSORIES,
@@ -129,6 +142,7 @@ val accessories = listOf(
     ),
     DefinedProduct(
         productId = ProductId(Identity(currentId.getAndIncrement().toString())),
+        sku = Sku("ACC-9"),
         name = Name("Urban Backpack"),
         description = Description("Laptop compartment, modern design"),
         category = Category.ACCESSORIES,

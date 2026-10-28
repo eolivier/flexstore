@@ -23,6 +23,7 @@ class UpdateProductUseCaseTest : WithAssertions {
 
         @JvmStatic
         fun editions() = listOf(
+            Arguments.of("SKU", tShirt.copy(sku = Sku("TSHIRT-ORGANIC-M"))),
             Arguments.of("name", tShirt.renamed(Name("Linen T-shirt"))),
             Arguments.of("description", tShirt.describedAs(Description("Light and breathable"))),
             Arguments.of("category", tShirt.copy(category = Category.SPORTS)),
@@ -75,6 +76,29 @@ class UpdateProductUseCaseTest : WithAssertions {
         // Assert
         val storedTShirt = productRepository.findById(tShirt.productId)!!
         assertThat(storedTShirt.translationIn(Language.FR)).isEqualTo(frenchTranslation)
+    }
+
+    @Test
+    fun `should not give a product the SKU of another product`() {
+        // Arrange
+        val jacketSku = clothes[1].sku
+        val tShirtWithJacketSku = tShirt.copy(sku = jacketSku)
+        // Act
+        val thrown = catchThrowable { useCase.unfold(UpdateProductRequest(tShirtWithJacketSku)) }
+        // Assert
+        assertThat(thrown).isInstanceOf(SkuAlreadyUsedException::class.java)
+        assertThat(productRepository.findById(tShirt.productId)?.sku).isEqualTo(tShirt.sku)
+    }
+
+    @Test
+    fun `should not give a product a malformed SKU`() {
+        // Arrange
+        val tShirtWithMalformedSku = tShirt.copy(sku = Sku("T SHIRT"))
+        // Act
+        val thrown = catchThrowable { useCase.unfold(UpdateProductRequest(tShirtWithMalformedSku)) }
+        // Assert
+        assertThat(thrown).isInstanceOf(InvalidSkuException::class.java)
+        assertThat(productRepository.findById(tShirt.productId)?.sku).isEqualTo(tShirt.sku)
     }
 
     @Test

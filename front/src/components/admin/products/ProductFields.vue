@@ -4,8 +4,12 @@
   import { categoryInfo, shopCategories } from '@/components/products/categories';
   import type { ProductTexts } from '@/models/product';
   import ProductTranslationFields from './ProductTranslationFields.vue';
+  import SkuField from './SkuField.vue';
 
-  // The fields of a product, shared by its creation and its edition
+  // The fields of a product, shared by its creation and its edition. skuAlreadyUsed: the API refused the SKU,
+  // given to another product
+  defineProps<{ skuAlreadyUsed: boolean }>();
+  const sku = defineModel<string>('sku', { required: true });
   const texts = defineModel<ProductTexts>('texts', { required: true });
   const category = defineModel<string>('category', { required: true });
   const price = defineModel<string | null>('price', { required: true });
@@ -27,6 +31,7 @@
 </script>
 
 <template>
+  <SkuField v-model="sku" :already-used="skuAlreadyUsed" />
   <ProductTranslationFields v-model="texts" />
   <v-row>
     <v-col cols="12" sm="7">

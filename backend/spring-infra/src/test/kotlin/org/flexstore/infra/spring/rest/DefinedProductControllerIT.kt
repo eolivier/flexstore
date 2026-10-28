@@ -17,6 +17,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.ResultActions
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
@@ -181,6 +182,64 @@ class DefinedProductControllerIT {
     }
 
     @Test
+    fun `the products of the catalog should have the SKU given by the migration`() {
+        // Act
+        val response = mockMvc.perform(get("/api/products/1"))
+        // Assert
+        response.andExpect(jsonPath("$.sku").value("CLO-1"))
+    }
+
+    @Test
+    fun `an administrator should create a product with its SKU, as typed in upper case`() {
+        // Arrange
+        val typedSku = " lamp-${System.nanoTime()} "
+        val draft = draftProduct("Reading lamp", typedSku, emptyList())
+        // Act
+        val response = postProduct(draft)
+        // Assert
+        val body = response.andExpect(status().isCreated).andReturn().response.contentAsString
+        val createdProduct = objectMapper.readTree(body)
+        createdProductIds.add(createdProduct["id"].asText())
+        assertThat(createdProduct["sku"].asText()).isEqualTo(typedSku.trim().uppercase())
+    }
+
+    @Test
+    fun `an administrator should change the SKU of a product`() {
+        // Arrange
+        val productId = createProduct("Reading lamp")
+        val newSku = freeSku()
+        // Act
+        val response = mockMvc.perform(
+            put("/api/products/$productId").with(asAdmin()).contentType(MediaType.APPLICATION_JSON)
+                .content(editedProduct("Bedside lamp", 42, newSku))
+        )
+        // Assert
+        response.andExpect(status().isOk)
+        mockMvc.perform(get("/api/admin/products/$productId").with(asAdmin()))
+            .andExpect(jsonPath("$.sku").value(newSku))
+    }
+
+    @Test
+    fun `should refuse a product with the SKU of another product`() {
+        // Arrange
+        val draft = draftProduct("Reading lamp", "CLO-1", emptyList())
+        // Act
+        val response = postProduct(draft)
+        // Assert
+        response.andExpect(status().isConflict)
+    }
+
+    @Test
+    fun `should refuse a product with a malformed SKU`() {
+        // Arrange
+        val draft = draftProduct("Reading lamp", "LAMP DESK", emptyList())
+        // Act
+        val response = postProduct(draft)
+        // Assert
+        response.andExpect(status().isBadRequest)
+    }
+
+    @Test
     fun `should return 404 when editing an unknown product`() {
         // Act
         val response = mockMvc.perform(
@@ -216,18 +275,30 @@ class DefinedProductControllerIT {
     private fun englishTranslation(name: String, description: String) =
         """{"language": "en", "name": "$name", "description": "$description"}"""
 
-    private fun editedProduct(name: String, price: Int, vararg otherTranslations: String): String {
-        val translations = (listOf(englishTranslation(name, "Soft light")) + otherTranslations).joinToString()
-        return """{"category": "BOOKS", "price": $price, "currency": "EUR", "translations": [$translations]}"""
+    // A SKU that no other product has
+    private fun freeSku() = "LAMP-${System.nanoTime()}"
+
+    private fun editedProduct(name: String, price: Int, sku: String = freeSku()): String {
+        val translations = englishTranslation(name, "Soft light")
+        return """{"sku": "$sku", "category": "BOOKS", "price": $price, "currency": "EUR",
+            "translations": [$translations]}"""
+    }
+
+    private fun draftProduct(name: String, sku: String, otherTranslations: List<String>): String {
+        val english = englishTranslation("$name ${System.nanoTime()}", "Warm light")
+        val translations = (listOf(english) + otherTranslations).joinToString()
+        return """{"sku": "$sku", "category": "HOME", "price": 30, "currency": "EUR",
+            "translations": [$translations]}"""
+    }
+
+    private fun postProduct(draft: String): ResultActions {
+        val creation = post("/api/products").with(asAdmin()).contentType(MediaType.APPLICATION_JSON).content(draft)
+        return mockMvc.perform(creation)
     }
 
     private fun createProduct(name: String, vararg otherTranslations: String): String {
-        val english = englishTranslation("$name ${System.nanoTime()}", "Warm light")
-        val translations = (listOf(english) + otherTranslations).joinToString()
-        val draft = """{"category": "HOME", "price": 30, "currency": "EUR", "translations": [$translations]}"""
-        val creation = post("/api/products").with(asAdmin()).contentType(MediaType.APPLICATION_JSON).content(draft)
-        val body = mockMvc.perform(creation)
-            .andExpect(status().isCreated).andReturn().response.contentAsString
+        val draft = draftProduct(name, freeSku(), otherTranslations.toList())
+        val body = postProduct(draft).andExpect(status().isCreated).andReturn().response.contentAsString
         return objectMapper.readTree(body)["id"].asText().also { createdProductIds.add(it) }
     }
 }

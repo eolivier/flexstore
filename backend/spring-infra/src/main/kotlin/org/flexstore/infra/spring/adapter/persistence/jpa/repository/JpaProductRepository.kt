@@ -17,6 +17,8 @@ import java.math.BigDecimal
 interface JpaProductRepository : JpaRepository<ProductEntity, String> {
     fun findAllByCategory(category: String, sort: Sort): List<ProductEntity>
 
+    fun existsBySkuAndIdNot(sku: String, id: String): Boolean
+
     // A product of this category and price, with this name and description in the default language
     @Query(
         """SELECT COUNT(p) > 0 FROM ProductEntity p JOIN p.translations t
@@ -80,8 +82,13 @@ class PostgresProductRepositoryAdapter(
     @Transactional(readOnly = true)
     override fun productExists(productId: ProductId): Boolean = jpaRepo.existsById(productId.id.value)
 
+    @Transactional(readOnly = true)
+    override fun skuIsUsedByAnotherProduct(product: DefinedProduct): Boolean =
+        jpaRepo.existsBySkuAndIdNot(product.sku.value, product.productId.id.value)
+
     private fun DraftProduct.toEntity(id: String) = ProductEntity(
         id = id,
+        sku = sku.value,
         category = category.name,
         price = price.amount.value,
         currency = price.currency.name,
@@ -90,6 +97,7 @@ class PostgresProductRepositoryAdapter(
 
     private fun DefinedProduct.toEntity() = ProductEntity(
         id = productId.id.value,
+        sku = sku.value,
         category = category.name,
         price = price.amount.value,
         currency = price.currency.name,
@@ -126,6 +134,7 @@ fun ProductEntity.toDomain(): DefinedProduct {
     val productTranslations = ProductTranslations(storedTranslations)
     return DefinedProduct(
         ProductId(Identity(id)),
+        Sku(sku),
         productTranslations,
         Category.valueOf(category),
         Price(Amount(price), Currency.valueOf(currency))
