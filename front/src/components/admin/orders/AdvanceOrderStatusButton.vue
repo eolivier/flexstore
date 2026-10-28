@@ -2,7 +2,7 @@
   import { computed } from 'vue';
   import { useI18n } from 'vue-i18n';
   import type { JsonOrder } from '@/generated';
-  import { isMovedByAnAdministrator, nextStatus } from '@/utils/order';
+  import { hasLeftItsLifeCycle, isMovedByAnAdministrator, nextStatus } from '@/utils/order';
 
   // Moves an order to the next status of its life cycle; the payment moves an order awaiting it,
   // and a delivered order has no next status
@@ -26,8 +26,8 @@
   >
     {{ t('adminOrders.advanceTo', { status: next }) }}
   </v-btn>
-  <span v-else-if="order.status === 'CANCELLED'" class="text-caption text-error">
-    {{ t('orders.status.CANCELLED') }}
+  <span v-else-if="hasLeftItsLifeCycle(order.status)" class="text-caption text-error">
+    {{ t(`orders.status.${order.status}`) }}
   </span>
   <span v-else-if="order.status === 'AWAITING_PAYMENT'" class="text-caption text-medium-emphasis">
     {{ t('adminOrders.awaitingPayment') }}

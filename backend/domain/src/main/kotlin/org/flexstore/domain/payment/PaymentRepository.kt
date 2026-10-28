@@ -17,4 +17,7 @@ interface PaymentRepository {
     // The payment of the order can no longer complete (e.g. the payment page closes); throws
     // PaymentAlreadyCompletedException when the customer has already paid
     fun stop(orderId: OrderId)
+
+    // Gives the payment of the paid order back to the customer, on the provider
+    fun refund(orderId: OrderId)
 }

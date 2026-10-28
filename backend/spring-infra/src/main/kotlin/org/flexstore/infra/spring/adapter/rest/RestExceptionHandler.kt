@@ -67,8 +67,10 @@ class RestExceptionHandler {
             is VerificationLinkExpiredException -> ResponseEntity
                 .status(410)
                 .body(mapOf("error" to (ex.message ?: "Expired verification link")))
-            // The order changed status in the meantime, or is already delivered: the front reloads the orders
-            is OrderStatusChangedException, is OrderStatusCannotAdvanceException -> ResponseEntity
+            // The order changed status in the meantime, or is already delivered, or is shipped (no refund): the
+            // front reloads the orders
+            is OrderStatusChangedException, is OrderStatusCannotAdvanceException,
+            is OrderNotRefundableException -> ResponseEntity
                 .status(409)
                 .body(mapOf("error" to (ex.message ?: "The status of the order cannot advance")))
             is InvalidSkuException -> ResponseEntity
@@ -101,6 +103,10 @@ class RestExceptionHandler {
             is ProductImageNotFoundException -> ResponseEntity
                 .status(404)
                 .body(mapOf("error" to (ex.message ?: "No image")))
+            // The payment provider refused the refund: the order stays as it is
+            is PaymentRefundRefusedException -> ResponseEntity
+                .status(502)
+                .body(mapOf("error" to (ex.message ?: "Refund refused by the payment provider")))
             is OrderAlreadyPaidException -> ResponseEntity
                 .status(409)
                 .body(mapOf("error" to (ex.message ?: "Order already paid")))

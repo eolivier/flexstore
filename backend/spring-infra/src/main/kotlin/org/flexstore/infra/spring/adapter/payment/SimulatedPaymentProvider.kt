@@ -24,4 +24,9 @@ class SimulatedPaymentProvider(private val shopUrl: ShopUrl) : PaymentProvider {
 
     // A simulated checkout is paid at once: there is no page left to close
     override fun stop(reference: String) {}
+
+    override fun refund(reference: String): String {
+        logger.info("Simulated refund of the payment {} (no Stripe key)", reference)
+        return "simulated-refund-${Identity.nextId().value}"
+    }
 }

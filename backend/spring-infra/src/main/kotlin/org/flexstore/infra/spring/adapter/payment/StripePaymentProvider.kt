@@ -3,12 +3,15 @@ package org.flexstore.infra.spring.adapter.payment
 import org.flexstore.domain.order.OrderPage
 import org.flexstore.domain.order.OrderConfirmationPage
 import org.flexstore.domain.sharedkernel.ShopUrl
+import com.stripe.exception.StripeException
 import com.stripe.model.Customer
+import com.stripe.model.Refund
 import com.stripe.model.checkout.Session
 import com.stripe.net.RequestOptions
 import com.stripe.param.CustomerCreateParams
 import com.stripe.param.CustomerListParams
 import com.stripe.param.CustomerUpdateParams
+import com.stripe.param.RefundCreateParams
 import com.stripe.param.checkout.SessionCreateParams
 import com.stripe.param.checkout.SessionExpireParams
 import com.stripe.param.checkout.SessionCreateParams.LineItem
@@ -52,6 +55,22 @@ class StripePaymentProvider(private val secretKey: String, private val shopUrl: 
             throw it
         }
     }
+
+    // The whole amount of the payment of the session is refunded; Stripe gives it back to the card of the
+    // customer
+    override fun refund(reference: String): String {
+        try {
+            val session = Session.retrieve(reference, requestOptions)
+            val paymentIntent = session.paymentIntent ?: throw refundRefused(reference, "it was not paid")
+            val params = RefundCreateParams.builder().setPaymentIntent(paymentIntent).build()
+            return Refund.create(params, requestOptions).id
+        } catch (exception: StripeException) {
+            throw refundRefused(reference, exception.message ?: "Stripe refused it")
+        }
+    }
+
+    private fun refundRefused(reference: String, reason: String) =
+        PaymentRefundRefusedException(ErrorMessage("The Stripe session $reference cannot be refunded: $reason."))
 
     private fun alreadyPaid(reference: String) =
         PaymentAlreadyCompletedException(ErrorMessage("The Stripe session $reference is already paid."))

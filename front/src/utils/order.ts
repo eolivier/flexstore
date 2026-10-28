@@ -43,9 +43,20 @@ export const orderStatusSteps: JsonOrder['status'][] = [
 
 export type OrderStepState = 'done' | 'current' | 'upcoming';
 
-// A delivered order has no next status, nor an order cancelled because it was not paid in time
+// An order cancelled because it was not paid in time, or cancelled and refunded by the shop, left its life
+// cycle: it has no step any more
+export function hasLeftItsLifeCycle(status: JsonOrder['status']): boolean {
+  return status === 'CANCELLED' || status === 'REFUNDED';
+}
+
+// A delivered order has no next status, nor an order that left its life cycle
 export function hasNextStatus(status: JsonOrder['status']): boolean {
-  return status !== 'DELIVERED' && status !== 'CANCELLED';
+  return status !== 'DELIVERED' && !hasLeftItsLifeCycle(status);
+}
+
+// Paid, and not shipped yet: an administrator may cancel it and refund it
+export function isRefundable(status: JsonOrder['status']): boolean {
+  return status === 'PAID' || status === 'PROCESSING';
 }
 
 // The payment moves an order awaiting it, the administrators move it along the next statuses

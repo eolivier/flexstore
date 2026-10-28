@@ -5,7 +5,9 @@ import org.flexstore.domain.order.usecase.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.infra.spring.adapter.rest.json.JsonAdminOrder
+import org.flexstore.infra.spring.adapter.rest.json.JsonOrderRefund
 import org.flexstore.infra.spring.adapter.rest.json.JsonOrderStatusAdvance
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 
 // The orders of all the customers, with the customer of each one, for the administrators (ADMIN role, see
@@ -34,5 +36,15 @@ class AdminOrderController(private val orderAdministrationService: OrderAdminist
         val orderStatusAdvance = statusAdvance.toOrderStatusAdvance(OrderId(orderId))
         val advancedOrder = orderAdministrationService.advance(orderStatusAdvance)
         return JsonAdminOrder(advancedOrder)
+    }
+
+    @Operation(summary = "Cancel a paid order before it is shipped: refund its payment, put its units back in stock")
+    @PostMapping("/{orderId}/refund")
+    // The refund, the status and the stock are stored together, or not at all (the business exceptions are
+    // checked exceptions, on which Spring would commit by default)
+    @Transactional(rollbackFor = [Exception::class])
+    fun refund(@PathVariable orderId: String, @RequestBody orderRefund: JsonOrderRefund): JsonAdminOrder {
+        val refundedOrder = orderAdministrationService.refund(orderRefund.toOrderRefund(OrderId(orderId)))
+        return JsonAdminOrder(refundedOrder)
     }
 }

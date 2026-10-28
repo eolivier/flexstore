@@ -14,6 +14,7 @@
     SHIPPED: 'mdi-truck-outline',
     DELIVERED: 'mdi-home-outline',
     CANCELLED: 'mdi-close-circle-outline',
+    REFUNDED: 'mdi-cash-refund',
   };
 </script>
 

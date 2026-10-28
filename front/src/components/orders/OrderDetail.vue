@@ -69,6 +69,9 @@
           {{ t('orders.orderAgain') }}
         </v-btn>
       </v-alert>
+      <v-alert v-else-if="order.status === 'REFUNDED'" type="info" variant="tonal" class="mb-6">
+        {{ t('orders.refundedText') }}
+      </v-alert>
       <OrderLinesTable :order="order" />
       <OrderAddressesCard :order="order" />
     </template>

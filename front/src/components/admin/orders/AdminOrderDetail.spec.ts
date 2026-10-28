@@ -76,6 +76,36 @@ describe('AdminOrderDetail.vue', () => {
     expect(wrapper.text()).toContain('Move to: Delivered');
   });
 
+  it('shows a refunded order as such, without its steps', async () => {
+    // Arrange
+    respondWith({ ...twoLinesAdminOrder, status: 'REFUNDED' });
+    // Act
+    const wrapper = await mountAdminOrderDetail();
+    // Assert
+    expect(wrapper.text()).toContain('This order was cancelled and refunded.');
+    expect(wrapper.text()).not.toContain('Cancel and refund');
+  });
+
+  it('says that the payment provider refused the refund', async () => {
+    // Arrange
+    mockFetch.mockImplementation((_url: string, init?: RequestInit) =>
+      Promise.resolve(
+        init?.method === 'POST'
+          ? { ok: false, status: 502 }
+          : { ok: true, status: 200, json: () => Promise.resolve(twoLinesAdminOrder) }
+      )
+    );
+    const wrapper = await mountAdminOrderDetail();
+    const refundButton = wrapper.findComponent({ name: 'RefundOrderButton' });
+    // Act
+    refundButton.vm.$emit('refund', twoLinesAdminOrder);
+    await flushPromises();
+    // Assert
+    const [url] = mockFetch.mock.calls.find(([, init]) => init?.method === 'POST')!;
+    expect(url).toMatch(new RegExp(`/api/admin/orders/${twoLinesAdminOrder.id}/refund$`));
+    expect(wrapper.text()).toContain('The payment provider refused the refund: the order is unchanged.');
+  });
+
   it('says that the order does not exist', async () => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: false, status: 404 });

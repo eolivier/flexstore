@@ -269,6 +269,12 @@ export default {
       unknownCustomer: 'Account no longer available',
       detail: 'Order details',
       cancelled: 'This order was cancelled: it was not paid in time.',
+      refund: 'Cancel and refund',
+      refundTitle: 'Refund this order?',
+      refundMessage:
+        'The customer gets back the amount paid, the items go back in stock, and the customer is told by email. This cannot be undone.',
+      refunded: 'This order was cancelled and refunded.',
+      refundRefused: 'The payment provider refused the refund: the order is unchanged.',
       search: 'Search by number, customer or recipient',
       noMatch: 'No order matches these filters.',
     },
@@ -301,6 +307,8 @@ export default {
       cancelledText:
         'This order was cancelled because it was not paid in time. Your cart still holds its items: you can order again.',
       orderAgain: 'Go to my cart',
+      refundedText:
+        'This order was cancelled by the shop and refunded: the amount paid goes back to your means of payment within a few days.',
       awaitingPaymentConfirmation: 'Your payment is being confirmed: this page updates as soon as it is.',
       status: {
         AWAITING_PAYMENT: 'Awaiting payment',
@@ -309,6 +317,7 @@ export default {
         SHIPPED: 'Shipped',
         DELIVERED: 'Delivered',
         CANCELLED: 'Cancelled',
+        REFUNDED: 'Refunded',
       },
     },
     loading: {
@@ -756,6 +765,12 @@ export default {
       unknownCustomer: 'Compte plus disponible',
       detail: 'Détail de la commande',
       cancelled: "Cette commande a été annulée : elle n'a pas été payée à temps.",
+      refund: 'Annuler et rembourser',
+      refundTitle: 'Rembourser cette commande ?',
+      refundMessage:
+        'Le client récupère le montant payé, les articles reviennent en stock et le client est prévenu par email. Cette action est définitive.',
+      refunded: 'Cette commande a été annulée et remboursée.',
+      refundRefused: "Le prestataire de paiement a refusé le remboursement : la commande n'a pas changé.",
       search: 'Rechercher par numéro, client ou destinataire',
       noMatch: 'Aucune commande ne correspond à ces filtres.',
     },
@@ -789,6 +804,8 @@ export default {
       cancelledText:
         "Cette commande a été annulée car elle n'a pas été payée à temps. Votre panier contient toujours ses articles : vous pouvez commander à nouveau.",
       orderAgain: 'Voir mon panier',
+      refundedText:
+        'Cette commande a été annulée par la boutique et remboursée : le montant payé revient sur votre moyen de paiement sous quelques jours.',
       awaitingPaymentConfirmation:
         "Votre paiement est en cours de confirmation : cette page se met à jour dès qu'il l'est.",
       status: {
@@ -798,6 +815,7 @@ export default {
         SHIPPED: 'Expédiée',
         DELIVERED: 'Livrée',
         CANCELLED: 'Annulée',
+        REFUNDED: 'Remboursée',
       },
     },
     loading: {

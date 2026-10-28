@@ -39,4 +39,22 @@ class InMemoryPaymentRepository(private val outcome: PaymentOutcome) : PaymentRe
     }
 
     fun isStopped(orderId: OrderId) = orderId in stoppedPayments
+
+    private val refundedPayments = mutableSetOf<OrderId>()
+
+    private val refusedRefunds = mutableSetOf<OrderId>()
+
+    // The provider will refuse to refund the payment of the order
+    fun refuseRefundOf(orderId: OrderId) {
+        refusedRefunds.add(orderId)
+    }
+
+    override fun refund(orderId: OrderId) {
+        if (orderId in refusedRefunds) {
+            throw PaymentRefundRefusedException(ErrorMessage("The payment of ${orderId.value} cannot be refunded."))
+        }
+        refundedPayments.add(orderId)
+    }
+
+    fun isRefunded(orderId: OrderId) = orderId in refundedPayments
 }

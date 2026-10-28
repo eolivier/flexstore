@@ -131,7 +131,8 @@ export const JsonAdminOrderStatusEnum = {
     Processing: 'PROCESSING',
     Shipped: 'SHIPPED',
     Delivered: 'DELIVERED',
-    Cancelled: 'CANCELLED'
+    Cancelled: 'CANCELLED',
+    Refunded: 'REFUNDED'
 } as const;
 
 export type JsonAdminOrderStatusEnum = typeof JsonAdminOrderStatusEnum[keyof typeof JsonAdminOrderStatusEnum];
@@ -241,7 +242,8 @@ export const JsonOrderStatusEnum = {
     Processing: 'PROCESSING',
     Shipped: 'SHIPPED',
     Delivered: 'DELIVERED',
-    Cancelled: 'CANCELLED'
+    Cancelled: 'CANCELLED',
+    Refunded: 'REFUNDED'
 } as const;
 
 export type JsonOrderStatusEnum = typeof JsonOrderStatusEnum[keyof typeof JsonOrderStatusEnum];
@@ -265,6 +267,12 @@ export interface JsonOrderLine {
     'quantity': number;
     'linePrice': number;
 }
+export interface JsonOrderRefund {
+    /**
+     * The status of the order as the administrator sees it (PAID or PROCESSING)
+     */
+    'currentStatus': string;
+}
 /**
  * The status of the order when the administrator asks to move it to the next one
  */
@@ -278,7 +286,8 @@ export const JsonOrderStatusAdvanceCurrentStatusEnum = {
     Processing: 'PROCESSING',
     Shipped: 'SHIPPED',
     Delivered: 'DELIVERED',
-    Cancelled: 'CANCELLED'
+    Cancelled: 'CANCELLED',
+    Refunded: 'REFUNDED'
 } as const;
 
 export type JsonOrderStatusAdvanceCurrentStatusEnum = typeof JsonOrderStatusAdvanceCurrentStatusEnum[keyof typeof JsonOrderStatusAdvanceCurrentStatusEnum];
@@ -1311,6 +1320,50 @@ export const AdministrationApiAxiosParamCreator = function (configuration?: Conf
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * The order must be PAID or PROCESSING, and still have the status given; it becomes REFUNDED and its customer is told by email.
+         * @summary Cancel a paid order before it is shipped, refund its payment and put its units back in stock (ADMIN role)
+         * @param {string} id 
+         * @param {JsonOrderRefund} jsonOrderRefund 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        refundOrder: async (id: string, jsonOrderRefund: JsonOrderRefund, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('refundOrder', 'id', id)
+            // verify required parameter 'jsonOrderRefund' is not null or undefined
+            assertParamExists('refundOrder', 'jsonOrderRefund', jsonOrderRefund)
+            const localVarPath = `/api/admin/orders/{id}/refund`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonOrderRefund, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -1386,6 +1439,20 @@ export const AdministrationApiFp = function(configuration?: Configuration) {
             const localVarOperationServerBasePath = operationServerMap['AdministrationApi.proposeSku']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
+        /**
+         * The order must be PAID or PROCESSING, and still have the status given; it becomes REFUNDED and its customer is told by email.
+         * @summary Cancel a paid order before it is shipped, refund its payment and put its units back in stock (ADMIN role)
+         * @param {string} id 
+         * @param {JsonOrderRefund} jsonOrderRefund 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async refundOrder(id: string, jsonOrderRefund: JsonOrderRefund, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonAdminOrder>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.refundOrder(id, jsonOrderRefund, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdministrationApi.refundOrder']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
     }
 };
 
@@ -1445,6 +1512,17 @@ export const AdministrationApiFactory = function (configuration?: Configuration,
          */
         proposeSku(category: string, name?: string, options?: RawAxiosRequestConfig): AxiosPromise<JsonSkuProposal> {
             return localVarFp.proposeSku(category, name, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * The order must be PAID or PROCESSING, and still have the status given; it becomes REFUNDED and its customer is told by email.
+         * @summary Cancel a paid order before it is shipped, refund its payment and put its units back in stock (ADMIN role)
+         * @param {string} id 
+         * @param {JsonOrderRefund} jsonOrderRefund 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        refundOrder(id: string, jsonOrderRefund: JsonOrderRefund, options?: RawAxiosRequestConfig): AxiosPromise<JsonAdminOrder> {
+            return localVarFp.refundOrder(id, jsonOrderRefund, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -1507,6 +1585,18 @@ export class AdministrationApi extends BaseAPI {
      */
     public proposeSku(category: string, name?: string, options?: RawAxiosRequestConfig) {
         return AdministrationApiFp(this.configuration).proposeSku(category, name, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * The order must be PAID or PROCESSING, and still have the status given; it becomes REFUNDED and its customer is told by email.
+     * @summary Cancel a paid order before it is shipped, refund its payment and put its units back in stock (ADMIN role)
+     * @param {string} id 
+     * @param {JsonOrderRefund} jsonOrderRefund 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public refundOrder(id: string, jsonOrderRefund: JsonOrderRefund, options?: RawAxiosRequestConfig) {
+        return AdministrationApiFp(this.configuration).refundOrder(id, jsonOrderRefund, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

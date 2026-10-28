@@ -35,8 +35,8 @@ class SendOrderStatusEmailUseCaseTest : WithAssertions {
     }
 
     @ParameterizedTest(name = "an order {0} sends {1} email(s)")
-    @CsvSource("PAID, 0", "PROCESSING, 0", "SHIPPED, 1", "DELIVERED, 1", "CANCELLED, 0")
-    fun `the customer should be told when their order is shipped, then delivered`(
+    @CsvSource("PAID, 0", "PROCESSING, 0", "SHIPPED, 1", "DELIVERED, 1", "CANCELLED, 0", "REFUNDED, 1")
+    fun `the customer should be told when their order is shipped, delivered or refunded`(
         status: OrderStatus,
         sentCount: Int
     ) {
