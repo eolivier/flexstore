@@ -5,19 +5,13 @@ import org.hibernate.annotations.Fetch
 import org.hibernate.annotations.FetchMode
 import java.math.BigDecimal
 
-// A product of the catalog: its name and its description are in the default language, its translations in the
-// other languages
+// A product of the catalog: its name and its description are in its translations, one per language, the default
+// one included
 @Entity
 @Table(name = "product")
 data class ProductEntity(
     @Id
     val id: String,
-
-    @Column(nullable = false)
-    val name: String,
-
-    @Column(nullable = false)
-    val description: String,
 
     @Column(nullable = false)
     val category: String,

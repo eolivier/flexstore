@@ -59,9 +59,6 @@ data class ProductTranslations(private val translations: List<ProductTranslation
     fun updatedWith(givenTranslations: ProductTranslations) =
         updatedWith(*givenTranslations.translations.toTypedArray())
 
-    // The translations in the other languages than the default one
-    fun otherThanDefault(): List<ProductTranslation> = translations.filterNot { it.isIn(Language.DEFAULT) }
-
     fun asList(): List<ProductTranslation> = translations.toList()
 
     companion object {

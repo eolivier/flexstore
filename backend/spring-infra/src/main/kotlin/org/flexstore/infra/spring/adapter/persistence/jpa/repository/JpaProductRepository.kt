@@ -8,6 +8,7 @@ import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
 import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
@@ -15,8 +16,20 @@ import java.math.BigDecimal
 @Repository
 interface JpaProductRepository : JpaRepository<ProductEntity, String> {
     fun findAllByCategory(category: String, sort: Sort): List<ProductEntity>
-    fun existsByNameAndDescriptionAndCategoryAndPriceAndCurrency(
-        name: String, description: String, category: String, price: BigDecimal, currency: String
+
+    // A product of this category and price, with this name and description in the default language
+    @Query(
+        """SELECT COUNT(p) > 0 FROM ProductEntity p JOIN p.translations t
+           WHERE t.language = :language AND t.name = :name AND t.description = :description
+           AND p.category = :category AND p.price = :price AND p.currency = :currency"""
+    )
+    fun existsWith(
+        language: String,
+        name: String,
+        description: String,
+        category: String,
+        price: BigDecimal,
+        currency: String
     ): Boolean
 }
 
@@ -51,7 +64,8 @@ class PostgresProductRepositoryAdapter(
     @Transactional(readOnly = true)
     override fun exists(product: Product): Boolean = when (product) {
         // Prices are compared by the database, whatever their scale (25 = 25.00)
-        is DraftProduct -> jpaRepo.existsByNameAndDescriptionAndCategoryAndPriceAndCurrency(
+        is DraftProduct -> jpaRepo.existsWith(
+            Language.DEFAULT.name.lowercase(),
             product.name.value,
             product.description.value,
             product.category.name,
@@ -68,18 +82,14 @@ class PostgresProductRepositoryAdapter(
 
     private fun DraftProduct.toEntity(id: String) = ProductEntity(
         id = id,
-        name = name.value,
-        description = description.value,
         category = category.name,
         price = price.amount.value,
         currency = price.currency.name,
-        translations = translations.otherThanDefault().map { it.toNewEntity() }
+        translations = translations.asList().map { it.toNewEntity() }
     )
 
     private fun DefinedProduct.toEntity() = ProductEntity(
         id = productId.id.value,
-        name = name.value,
-        description = description.value,
         category = category.name,
         price = price.amount.value,
         currency = price.currency.name,
@@ -91,15 +101,15 @@ class PostgresProductRepositoryAdapter(
     private fun translationEntities(product: DefinedProduct): List<ProductTranslationEntity> {
         val storedProduct = jpaRepo.findById(product.productId.id.value)
         val storedTranslations = storedProduct.map { it.translations }.orElse(emptyList())
-        return product.translations.otherThanDefault().map { translation ->
+        return product.translations.asList().map { translation ->
             val language = translation.language.name.lowercase()
             val stored = storedTranslations.firstOrNull { it.language == language }
-            if (stored != null) {
+            if (stored == null) {
+                translation.toNewEntity()
+            } else {
                 val name = translation.name.value
                 val entity = ProductTranslationEntity(stored.id, language, name, translation.description.value)
                 entity.also { it.createdAt = stored.createdAt }
-            } else {
-                translation.toNewEntity()
             }
         }
     }
@@ -110,13 +120,10 @@ class PostgresProductRepositoryAdapter(
     }
 }
 
-// The name and the description of the product are its translation in the default language. A row of
-// product_translation in the default language would repeat them: it is not read
 fun ProductEntity.toDomain(): DefinedProduct {
-    val defaultText = ProductText(Name(name), Description(description))
-    val defaultTranslation = ProductTranslation(Language.DEFAULT, defaultText)
-    val otherTranslations = translations.map { it.toDomain() }.filterNot { it.isIn(Language.DEFAULT) }
-    val productTranslations = ProductTranslations(listOf(defaultTranslation) + otherTranslations)
+    // In the default language first, so that a product reads its translations in the same order as it gave them
+    val storedTranslations = translations.map { it.toDomain() }.sortedByDescending { it.isIn(Language.DEFAULT) }
+    val productTranslations = ProductTranslations(storedTranslations)
     return DefinedProduct(
         ProductId(Identity(id)),
         productTranslations,

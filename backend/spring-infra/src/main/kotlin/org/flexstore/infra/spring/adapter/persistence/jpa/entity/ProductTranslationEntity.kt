@@ -2,7 +2,7 @@ package org.flexstore.infra.spring.adapter.persistence.jpa.entity
 
 import jakarta.persistence.*
 
-// The name and the description of a product in another language than the default one (en or fr)
+// The name and the description of a product in one language (en or fr)
 @Entity
 @Table(name = "product_translation")
 data class ProductTranslationEntity(

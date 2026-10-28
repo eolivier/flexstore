@@ -54,7 +54,10 @@ class ProductAndCartPersistenceIT {
     fun cleanUp() {
         cartItemRepository.deleteAll()
         cartRepository.deleteAll()
-        productRepository.deleteAll(productRepository.findAll().filter { it.name == TEST_PRODUCT_NAME })
+        val testProducts = productRepository.findAll().filter { product ->
+            product.translations.any { it.name == TEST_PRODUCT_NAME }
+        }
+        productRepository.deleteAll(testProducts)
     }
 
     @Test
