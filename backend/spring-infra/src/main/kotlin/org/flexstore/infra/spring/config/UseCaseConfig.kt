@@ -113,6 +113,10 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     }
 
     @Bean
+    open fun readAdministeredOrdersUseCase(orderRepository: OrderRepository, userRepository: UserRepository) =
+        ReadAdministeredOrdersUseCase(orderRepository, userRepository)
+
+    @Bean
     open fun advanceOrderStatusUseCase(orderRepository: OrderRepository): AdvanceOrderStatusUseCase {
         return AdvanceOrderStatusUseCase(orderRepository)
     }
