@@ -34,16 +34,25 @@ describe('getProduct', () => {
     // Arrange
     vi.mocked(productsApi.getProduct).mockResolvedValue({ data: jeans } as never);
     // Act
-    const product = await getProduct('3');
+    const product = await getProduct('3', 'en');
     // Assert
     expect(product).toEqual(jeans);
+  });
+
+  it('asks the product in the language given only', async () => {
+    // Arrange
+    vi.mocked(productsApi.getProduct).mockResolvedValue({ data: jeans } as never);
+    // Act
+    await getProduct('3', 'fr');
+    // Assert
+    expect(productsApi.getProduct).toHaveBeenCalledWith('3', 'fr');
   });
 
   it('returns null when the product does not exist', async () => {
     // Arrange
     vi.mocked(productsApi.getProduct).mockRejectedValue(httpError(404));
     // Act
-    const product = await getProduct('unknown');
+    const product = await getProduct('unknown', 'en');
     // Assert
     expect(product).toBeNull();
   });
@@ -52,7 +61,7 @@ describe('getProduct', () => {
     // Arrange
     vi.mocked(productsApi.getProduct).mockRejectedValue(httpError(500));
     // Act
-    const productLookup = getProduct('3');
+    const productLookup = getProduct('3', 'en');
     // Assert
     await expect(productLookup).rejects.toThrow();
   });

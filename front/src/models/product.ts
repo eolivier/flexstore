@@ -1,11 +1,8 @@
-// The name and the description of a product in one language (en, fr)
-export interface ProductTranslation {
-  language: string;
-  name: string;
-  description: string;
-}
+// The language of the catalog: the products are written in it, and shown in it when they are not translated
+// into the language of the customer
+export const DEFAULT_LANGUAGE = 'en';
 
-// name and description: in the default language; translations: in every language of the product
+// name and description: in the language asked to the API
 export interface Product {
   id?: string;
   name?: string;
@@ -13,11 +10,4 @@ export interface Product {
   category: string;
   price?: number;
   currency: string;
-  translations?: ProductTranslation[];
-}
-
-// What a product says of itself, in the language shown
-export interface ProductText {
-  name: string;
-  description: string;
 }

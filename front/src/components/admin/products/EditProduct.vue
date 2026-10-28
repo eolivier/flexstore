@@ -3,6 +3,7 @@
   import { onMounted, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useProductsStore } from '@/stores/products.store.ts';
+  import { DEFAULT_LANGUAGE } from '@/models/product';
   import { useStocksStore } from '@/stores/stocks.store';
   import ProductFields from './ProductFields.vue';
   import ProductImageField from './ProductImageField.vue';
@@ -29,7 +30,9 @@
   const saved = ref<boolean | null>(null);
 
   onMounted(async () => {
-    const [product] = await Promise.all([productsStore.fetchProduct(props.id), stocksStore.fetchStocks()]);
+    // The administrator edits the name and the description in the default language
+    const productInDefaultLanguage = productsStore.fetchProduct(props.id, DEFAULT_LANGUAGE);
+    const [product] = await Promise.all([productInDefaultLanguage, stocksStore.fetchStocks()]);
     editedProduct.value = product
       ? {
           name: product.name ?? '',

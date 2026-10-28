@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
 import { mount } from '@vue/test-utils';
 import { createMemoryHistory, createRouter } from 'vue-router';
@@ -25,25 +25,6 @@ function mountCard(stock: number | null) {
 describe('ProductCard.vue', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
-  });
-
-  afterEach(() => {
-    i18n.global.locale.value = 'en';
-  });
-
-  it('shows the name and the description in the language of the customer', () => {
-    // Arrange
-    const frenchLamp = { language: 'fr', name: 'Lampe de bureau', description: 'Lumière chaude' };
-    const translatedLamp = { ...lamp, translations: [frenchLamp] };
-    i18n.global.locale.value = 'fr';
-    // Act
-    const wrapper = mount(ProductCard, {
-      props: { product: translatedLamp, stock: 3 },
-      global: { plugins: [vuetify, i18n, router] },
-    });
-    // Assert
-    expect(wrapper.text()).toContain('Lampe de bureau');
-    expect(wrapper.text()).toContain('Lumière chaude');
   });
 
   it.each([

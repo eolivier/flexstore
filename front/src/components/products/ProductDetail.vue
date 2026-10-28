@@ -2,7 +2,6 @@
   import { computed, ref, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
   import type { Product } from '@/models/product';
-  import { productTextIn } from '@/utils/productText';
   import { getProduct } from '@/services/product.service';
   import { useProductsStore } from '@/stores/products.store';
   import { useCartStore } from '@/stores/cart.store';
@@ -37,7 +36,7 @@
     failed.value = false;
     quantity.value = 1;
     try {
-      product.value = await getProduct(props.id);
+      product.value = await getProduct(props.id, locale.value);
     } catch {
       product.value = null;
       failed.value = true;
@@ -46,8 +45,9 @@
     }
   }
 
-  // Reload when navigating from one product to another (e.g. a similar product)
-  watch(() => props.id, loadProduct, { immediate: true });
+  // Reload when navigating from one product to another (e.g. a similar product), or when the customer changes
+  // the language: the product is loaded in it only
+  watch([() => props.id, locale], loadProduct, { immediate: true });
 
   if (productsStore.products.length === 0) {
     productsStore.fetchProducts();
@@ -59,7 +59,6 @@
   );
   const stock = computed(() => (product.value ? stocksStore.quantityOf(product.value.id) : null));
   const price = computed(() => formatPrice(product.value?.price, product.value?.currency, locale.value));
-  const text = computed(() => (product.value ? productTextIn(product.value, locale.value) : null));
   const quantityInCart = computed(
     () => cartStore.cartItems?.items.find((item) => item.productId === product.value?.id)?.productQuantity ?? 0
   );
@@ -108,7 +107,7 @@
         :items="[
           { title: t('products.shop'), to: '/products/' },
           { title: t(category.label), to: categoryLink },
-          { title: text?.name ?? '', disabled: true },
+          { title: product.name ?? '', disabled: true },
         ]"
         class="px-0 pt-0 mb-4"
       >
@@ -134,12 +133,12 @@
           >
             {{ t(category.label) }}
           </router-link>
-          <h1 class="text-h4 font-weight-bold mb-3">{{ text?.name }}</h1>
+          <h1 class="text-h4 font-weight-bold mb-3">{{ product.name }}</h1>
           <div class="d-flex align-center flex-wrap ga-3 mb-5">
             <span class="text-h4 font-weight-bold text-primary">{{ price }}</span>
             <StockBadge v-if="stock !== null" :quantity="stock" />
           </div>
-          <p class="text-body-1 text-medium-emphasis mb-8">{{ text?.description }}</p>
+          <p class="text-body-1 text-medium-emphasis mb-8">{{ product.description }}</p>
 
           <div class="d-flex flex-wrap align-center ga-4 mb-3">
             <div>

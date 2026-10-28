@@ -8,9 +8,12 @@ import org.flexstore.infra.spring.security.asAdmin
 import org.flexstore.infra.spring.security.asUser
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
@@ -69,18 +72,37 @@ class DefinedProductControllerIT {
             .andExpect(jsonPath("$.name").isNotEmpty)
     }
 
+    @ParameterizedTest(name = "with Accept-Language \"{0}\", the jacket is called {1}")
+    @CsvSource(
+        "fr, Veste imperméable",
+        "'fr-FR,fr;q=0.9,en;q=0.8', Veste imperméable",
+        "'de-DE,fr;q=0.5', Veste imperméable",
+        "en, Waterproof Jacket",
+        "de, Waterproof Jacket",
+    )
+    fun `a product should be returned in the language of the customer`(acceptLanguage: String, name: String) {
+        // Act
+        val response = mockMvc.perform(get("/api/products/2").header(HttpHeaders.ACCEPT_LANGUAGE, acceptLanguage))
+        // Assert
+        response.andExpect(status().isOk).andExpect(jsonPath("$.name").value(name))
+    }
+
     @Test
-    fun `a product should be returned with its translations, the default one included`() {
+    fun `a product should be returned in the default language without Accept-Language`() {
         // Act
         val response = mockMvc.perform(get("/api/products/2"))
         // Assert
-        val english = "$.translations[?(@.language == 'en')]"
-        val french = "$.translations[?(@.language == 'fr')]"
-        response.andExpect(status().isOk)
-            .andExpect(jsonPath("$.name").value("Waterproof Jacket"))
-            .andExpect(jsonPath("$english.name").value("Waterproof Jacket"))
-            .andExpect(jsonPath("$french.name").value("Veste imperméable"))
-            .andExpect(jsonPath("$french.description").value("Résiste à la pluie et au vent"))
+        response.andExpect(jsonPath("$.name").value("Waterproof Jacket"))
+            .andExpect(jsonPath("$.translations").doesNotExist())
+    }
+
+    @Test
+    fun `the products should be returned in the language of the customer`() {
+        // Act
+        val response = mockMvc.perform(get("/api/products/").header(HttpHeaders.ACCEPT_LANGUAGE, "fr"))
+        // Assert
+        response.andExpect(jsonPath("$[?(@.id == '2')].name").value("Veste imperméable"))
+            .andExpect(jsonPath("$[?(@.id == '2')].description").value("Résiste à la pluie et au vent"))
     }
 
     @Test

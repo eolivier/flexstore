@@ -28,7 +28,6 @@ docs/JsonPasswordResetRequest.md
 docs/JsonPaymentSession.md
 docs/JsonPostalAddress.md
 docs/JsonProduct.md
-docs/JsonProductTranslation.md
 docs/JsonSaveItemResponse.md
 docs/JsonStock.md
 docs/JsonStockQuantity.md
