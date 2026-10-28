@@ -17,9 +17,15 @@ class CreateProductUseCaseTest : WithAssertions {
     private val useCase = CreateProductUseCase(productRepository)
     private val readProductUseCase = ReadProductUseCase(productRepository)
     private val updateProductUseCase = UpdateProductUseCase(productRepository)
+    private val listProductsUseCase = ListProductsUseCase(productRepository)
     private val proposeSkuUseCase = ProposeSkuUseCase(productRepository)
-    private val productUseCases =
-        ProductUseCases(useCase, readProductUseCase, updateProductUseCase, proposeSkuUseCase)
+    private val productUseCases = ProductUseCases(
+        useCase,
+        readProductUseCase,
+        listProductsUseCase,
+        updateProductUseCase,
+        proposeSkuUseCase
+    )
     private val lampPrice = Price(Amount(BigDecimal(35)), Currency.EUR)
     private val lampSku = Sku("LAMP-DESK")
     private val lamp = DraftProduct(lampSku, Name("Desk lamp"), Description("Warm light"), Category.HOME, lampPrice)

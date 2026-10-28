@@ -5,7 +5,7 @@ package org.flexstore.domain.settings
 class ShopSettingsAdministrationService(private val readShopSettingsUseCase: ReadShopSettingsUseCase,
                                  private val updateShopSettingsUseCase: UpdateShopSettingsUseCase) {
 
-    fun getSettings(): ShopSettings = readShopSettingsUseCase.getSettings()
+    fun getSettings(): ShopSettings = readShopSettingsUseCase.unfold(Unit)
 
     fun enableOrderConfirmationEmail() = update(getSettings().withOrderConfirmationEmailEnabled())
 
@@ -15,6 +15,6 @@ class ShopSettingsAdministrationService(private val readShopSettingsUseCase: Rea
 
     private fun update(settings: ShopSettings): ShopSettings {
         updateShopSettingsUseCase.unfold(settings)
-        return readShopSettingsUseCase.getSettings()
+        return readShopSettingsUseCase.unfold(Unit)
     }
 }

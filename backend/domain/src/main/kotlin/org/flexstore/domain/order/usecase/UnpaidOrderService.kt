@@ -9,16 +9,16 @@ import java.time.Clock
 // reserved units can be sold again. Called regularly by the infrastructure
 class UnpaidOrderService(
     private val readShopSettingsUseCase: ReadShopSettingsUseCase,
-    private val readOrdersUseCase: ReadOrdersUseCase,
+    private val listAllOrdersUseCase: ListAllOrdersUseCase,
     private val cancelUnpaidOrderUseCase: CancelUnpaidOrderUseCase,
     private val clock: Clock = Clock.systemUTC()
 ) {
 
     // The orders cancelled; an order whose payment has just completed is left as it is
     fun cancelLateOrders(): Orders {
-        val paymentDelay = readShopSettingsUseCase.getSettings().paymentDelay
+        val paymentDelay = readShopSettingsUseCase.unfold(Unit).paymentDelay
         val timeLimit = PaymentTimeLimit(paymentDelay, clock.instant())
-        val lateOrders = readOrdersUseCase.getAllOrders().latePaymentsAt(timeLimit).asList()
+        val lateOrders = listAllOrdersUseCase.unfold(Unit).latePaymentsAt(timeLimit).asList()
         val cancelledOrders = lateOrders.filter { order ->
             val cancellation = UnpaidOrderCancellation(order.orderId, timeLimit)
             runCatching { cancelUnpaidOrderUseCase.unfold(cancellation) }

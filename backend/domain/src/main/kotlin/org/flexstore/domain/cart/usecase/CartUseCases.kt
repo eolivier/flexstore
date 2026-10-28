@@ -12,7 +12,7 @@ class CartUseCases(private val addItemToCartUseCase: AddItemToCartUseCase,
 
     fun changeQuantity(request: ChangeCartItemQuantityRequest) = changeCartItemQuantityUseCase.unfold(request)
 
-    fun getCart(owner: CartOwner) = readCartUseCase.getCart(owner)
+    fun getCart(owner: CartOwner) = readCartUseCase.unfold(owner)
 
     fun mergeCarts(request: MergeCartsRequest) = mergeCartsUseCase.unfold(request)
 }

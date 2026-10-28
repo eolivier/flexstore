@@ -1,9 +1,15 @@
 package org.flexstore.domain.settings
 
-import org.ucop.domain.UseCaseLog
+import org.ucop.domain.entity.*
 
-class ReadShopSettingsUseCase(private val shopSettingsRepository: ShopSettingsRepository) {
+// The settings of the shop
+class ReadShopSettingsUseCase(
+    private val shopSettingsRepository: ShopSettingsRepository
+) : QueryUseCase<Unit, ShopSettings> {
 
-    fun getSettings(): ShopSettings =
-        UseCaseLog.execution("ReadShopSettingsUseCase.getSettings") { shopSettingsRepository.load() }
+    override fun getPreConditions(): PreConditions<Unit> = PreConditions.none()
+
+    override fun getNominalQuery() = NominalQuery<Unit, ShopSettings> { shopSettingsRepository.load() }
+
+    override fun getPostConditions(): PostConditions<ShopSettings> = PostConditions.none()
 }

@@ -8,7 +8,7 @@ class AddressBookService(
     private val readAccountUseCase: ReadAccountUseCase,
     private val addressUseCases: AddressUseCases
 ) {
-    fun getAddresses(userId: UserId): PostalAddresses = readAccountUseCase.getAccount(userId).postalAddresses
+    fun getAddresses(userId: UserId): PostalAddresses = readAccountUseCase.unfold(userId).postalAddresses
 
     fun change(addressChange: AddressChange): PostalAddresses {
         addressUseCases.changePostalAddressUseCase.unfold(addressChange)

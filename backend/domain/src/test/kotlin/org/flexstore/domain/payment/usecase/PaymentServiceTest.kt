@@ -30,7 +30,12 @@ class PaymentServiceTest : WithAssertions {
     private val cartRepository = InMemoryCartRepository()
     private val userRepository = InMemoryUserRepository().apply { save(definedUser) }
     private val emailRepository = InMemoryEmailRepository()
-    private val readOrdersUseCase = ReadOrdersUseCase(orderRepository)
+    private val orderQueryUseCases = OrderQueryUseCases(
+        ListCustomerOrdersUseCase(orderRepository),
+        ListAllOrdersUseCase(orderRepository),
+        ReadAnyOrderUseCase(orderRepository),
+        ReadCustomerOrderUseCase(orderRepository)
+    )
     private val shopSettingsRepository = InMemoryShopSettingsRepository()
     private val sendEmailUseCase =
         SendOrderConfirmationEmailUseCase(shopSettingsRepository, userRepository, emailRepository)
@@ -44,7 +49,7 @@ class PaymentServiceTest : WithAssertions {
             PlaceOrderUseCase(cartRepository, orderRepository, userRepository, stockRepository)
         val readShopSettingsUseCase = ReadShopSettingsUseCase(shopSettingsRepository)
         val orderUseCases =
-            OrderUseCases(placeOrderUseCase, readOrdersUseCase, sendEmailUseCase, readShopSettingsUseCase)
+            OrderUseCases(placeOrderUseCase, orderQueryUseCases, sendEmailUseCase, readShopSettingsUseCase)
         return PaymentService(paymentUseCases, orderUseCases)
     }
 

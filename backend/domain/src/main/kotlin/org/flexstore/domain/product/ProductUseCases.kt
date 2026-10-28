@@ -3,6 +3,7 @@ package org.flexstore.domain.product
 // The use cases of the products of the catalog
 class ProductUseCases(private val createProductUseCase: CreateProductUseCase,
                            private val readProductUseCase: ReadProductUseCase,
+                           private val listProductsUseCase: ListProductsUseCase,
                            private val updateProductUseCase: UpdateProductUseCase,
                            private val proposeSkuUseCase: ProposeSkuUseCase) {
 
@@ -11,17 +12,17 @@ class ProductUseCases(private val createProductUseCase: CreateProductUseCase,
     fun createProduct(draftProduct: DraftProduct): DefinedProduct {
         val productId = ProductId.nextId()
         createProductUseCase.unfold(CreateProductRequest(productId, draftProduct))
-        return readProductUseCase.getProduct(productId)
+        return readProductUseCase.unfold(productId)
     }
 
     fun updateProduct(product: DefinedProduct): DefinedProduct {
         updateProductUseCase.unfold(UpdateProductRequest(product))
-        return readProductUseCase.getProduct(product.productId)
+        return readProductUseCase.unfold(product.productId)
     }
 
-    fun getProducts() = readProductUseCase.getProducts()
+    fun getProducts() = listProductsUseCase.unfold(Unit)
 
-    fun getProduct(productId: ProductId) = readProductUseCase.getProduct(productId)
+    fun getProduct(productId: ProductId) = readProductUseCase.unfold(productId)
 
     fun proposeSkuFor(skuBasis: SkuBasis) = proposeSkuUseCase.unfold(skuBasis)
 }

@@ -10,7 +10,7 @@ import java.time.Instant
 // customer
 class OrderUseCases(
     private val placeOrderUseCase: PlaceOrderUseCase,
-    private val readOrdersUseCase: ReadOrdersUseCase,
+    private val orderQueryUseCases: OrderQueryUseCases,
     private val sendOrderConfirmationEmailUseCase: SendOrderConfirmationEmailUseCase,
     private val readShopSettingsUseCase: ReadShopSettingsUseCase
 ) {
@@ -21,18 +21,20 @@ class OrderUseCases(
         val orderStamp = OrderStamp(OrderId.nextId(), Instant.now())
         val orderPlacement = OrderPlacement(orderStamp, checkout)
         placeOrderUseCase.unfold(orderPlacement)
-        return readOrdersUseCase.getOrder(checkout.customer.userId, orderStamp.orderId)
+        val customerOrderLookup = CustomerOrderLookup(checkout.customer.userId, orderStamp.orderId)
+        return orderQueryUseCases.readCustomerOrderUseCase.unfold(customerOrderLookup)
     }
 
-    fun getOrders(customer: UserId.ValidUserId) = readOrdersUseCase.getOrders(customer)
+    fun getOrders(customer: UserId.ValidUserId) = orderQueryUseCases.listCustomerOrdersUseCase.unfold(customer)
 
-    fun getOrder(customer: UserId.ValidUserId, orderId: OrderId) = readOrdersUseCase.getOrder(customer, orderId)
+    fun getOrder(customer: UserId.ValidUserId, orderId: OrderId) =
+        orderQueryUseCases.readCustomerOrderUseCase.unfold(CustomerOrderLookup(customer, orderId))
 
     // Any order, whoever its customer (the payment provider confirms it)
-    fun getAnyOrder(orderId: OrderId) = readOrdersUseCase.getAnyOrder(orderId)
+    fun getAnyOrder(orderId: OrderId) = orderQueryUseCases.readAnyOrderUseCase.unfold(orderId)
 
     // The delay of the shop settings, which gives the payment deadline of an order
-    fun paymentDelay() = readShopSettingsUseCase.getSettings().paymentDelay
+    fun paymentDelay() = readShopSettingsUseCase.unfold(Unit).paymentDelay
 
     fun sendConfirmationOf(order: Order) = sendOrderConfirmationEmailUseCase.unfold(order)
 }

@@ -5,15 +5,16 @@ import org.flexstore.domain.stock.*
 
 // The use cases of the stocks: the stock of a product is read back once changed
 class StockUseCases(
+    private val listStocksUseCase: ListStocksUseCase,
     private val readStockUseCase: ReadStockUseCase,
     private val changeStockUseCase: ChangeStockUseCase
 ) {
-    fun getStocks() = readStockUseCase.getStocks()
+    fun getStocks() = listStocksUseCase.unfold(Unit)
 
-    fun getStock(productId: ProductId) = readStockUseCase.getStock(productId)
+    fun getStock(productId: ProductId) = readStockUseCase.unfold(productId)
 
     fun change(stock: Stock): Stock {
         changeStockUseCase.unfold(stock)
-        return readStockUseCase.getStock(stock.productId)
+        return readStockUseCase.unfold(stock.productId)
     }
 }

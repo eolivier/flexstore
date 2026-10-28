@@ -9,6 +9,8 @@ interface ProductImageRepository {
 
     fun find(productId: ProductId, format: ImageFormat): ProductImage?
 
+    fun imageIsMissing(productId: ProductId, format: ImageFormat) = find(productId, format) == null
+
     // The products that have an image
     fun productsWithImage(): List<ProductId>
 

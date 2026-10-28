@@ -44,6 +44,8 @@ data class Order(val detail: OrderDetail, val history: OrderStatusHistory) {
 
     fun belongsTo(customer: UserId.ValidUserId) = this.customer == customer
 
+    fun doesNotBelongTo(customer: UserId.ValidUserId) = !belongsTo(customer)
+
     // The order at the next status of its life cycle
     fun advancedAt(changedAt: StatusChangedAt) = movedTo(status.next(), changedAt)
 

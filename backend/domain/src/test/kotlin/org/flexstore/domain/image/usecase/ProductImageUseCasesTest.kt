@@ -32,7 +32,8 @@ class ProductImageUseCasesTest : WithAssertions {
     private fun productImageUseCases(imageResizerRepository: ImageResizerRepository) = ProductImageUseCases(
         AddProductImageUseCase(productImageRepository, productRepository, imageResizerRepository),
         RemoveProductImageUseCase(productImageRepository),
-        ReadProductImageUseCase(productImageRepository)
+        ReadProductImageUseCase(productImageRepository),
+        ListProductsWithImageUseCase(productImageRepository)
     )
 
     private val productImageUseCases = productImageUseCases(truncatingResizer)
