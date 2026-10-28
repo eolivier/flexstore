@@ -23,5 +23,5 @@ class ProductUseCases(private val createProductUseCase: CreateProductUseCase,
 
     fun getProduct(productId: ProductId) = readProductUseCase.getProduct(productId)
 
-    fun proposeSkuFor(skuBasis: SkuBasis) = proposeSkuUseCase.proposeFor(skuBasis)
+    fun proposeSkuFor(skuBasis: SkuBasis) = proposeSkuUseCase.unfold(skuBasis)
 }

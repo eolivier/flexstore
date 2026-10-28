@@ -72,5 +72,6 @@ enum class Category {
 data class ProductAlreadyExists(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class ProductCreationFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class InvalidSkuException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class SkuProposalFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class SkuAlreadyUsedException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class ProductNotFoundException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
