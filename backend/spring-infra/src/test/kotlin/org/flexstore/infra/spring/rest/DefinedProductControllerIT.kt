@@ -132,6 +132,33 @@ class DefinedProductControllerIT {
     }
 
     @Test
+    fun `an administrator should create a product with its French translation`() {
+        // Arrange
+        val frenchLamp = """{"language": "fr", "name": "Lampe de lecture", "description": "Lumière chaude"}"""
+        // Act
+        val productId = createProduct("Reading lamp", frenchLamp)
+        // Assert
+        mockMvc.perform(get("/api/products/$productId"))
+            .andExpect(jsonPath("$.translations[?(@.language == 'fr')].name").value("Lampe de lecture"))
+    }
+
+    @Test
+    fun `an administrator should remove a translation by not giving it`() {
+        // Arrange
+        val frenchLamp = """{"language": "fr", "name": "Lampe de lecture", "description": "Lumière chaude"}"""
+        val productId = createProduct("Reading lamp", frenchLamp)
+        // Act
+        val response = mockMvc.perform(
+            put("/api/products/$productId").with(asAdmin()).contentType(MediaType.APPLICATION_JSON)
+                .content(editedProduct("Bedside lamp", 42))
+        )
+        // Assert
+        response.andExpect(status().isOk)
+            .andExpect(jsonPath("$.translations.length()").value(1))
+            .andExpect(jsonPath("$.translations[0].language").value("en"))
+    }
+
+    @Test
     fun `should return 404 when editing an unknown product`() {
         // Act
         val response = mockMvc.perform(
@@ -157,18 +184,27 @@ class DefinedProductControllerIT {
     fun `should reject the anonymous edition of a product`() {
         // Act
         val response = mockMvc.perform(
-            put("/api/products/1").contentType(MediaType.APPLICATION_JSON).content(editedProduct("Bedside lamp", 42))
+            put("/api/products/1").contentType(MediaType.APPLICATION_JSON)
+                .content(editedProduct("Bedside lamp", 42))
         )
         // Assert
         response.andExpect(status().isUnauthorized)
     }
 
-    private fun editedProduct(name: String, price: Int) =
-        """{"name": "$name", "description": "Soft light", "category": "BOOKS", "price": $price, "currency": "EUR"}"""
+    private fun englishTranslation(name: String, description: String) =
+        """{"language": "en", "name": "$name", "description": "$description"}"""
 
-    private fun createProduct(name: String): String {
-        val draft = """{"name": "$name ${System.nanoTime()}", "description": "Warm light", "category": "HOME", "price": 30, "currency": "EUR"}"""
-        val body = mockMvc.perform(post("/api/products").with(asAdmin()).contentType(MediaType.APPLICATION_JSON).content(draft))
+    private fun editedProduct(name: String, price: Int, vararg otherTranslations: String): String {
+        val translations = (listOf(englishTranslation(name, "Soft light")) + otherTranslations).joinToString()
+        return """{"category": "BOOKS", "price": $price, "currency": "EUR", "translations": [$translations]}"""
+    }
+
+    private fun createProduct(name: String, vararg otherTranslations: String): String {
+        val english = englishTranslation("$name ${System.nanoTime()}", "Warm light")
+        val translations = (listOf(english) + otherTranslations).joinToString()
+        val draft = """{"category": "HOME", "price": 30, "currency": "EUR", "translations": [$translations]}"""
+        val creation = post("/api/products").with(asAdmin()).contentType(MediaType.APPLICATION_JSON).content(draft)
+        val body = mockMvc.perform(creation)
             .andExpect(status().isCreated).andReturn().response.contentAsString
         return objectMapper.readTree(body)["id"].asText().also { createdProductIds.add(it) }
     }

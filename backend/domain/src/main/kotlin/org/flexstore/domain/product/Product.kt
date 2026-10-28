@@ -5,10 +5,19 @@ import org.ucop.domain.NominalException
 import org.flexstore.domain.sharedkernel.ErrorMessage
 
 sealed interface Product
-data class DraftProduct(val name: Name,
-                        val description: Description,
+// A product given by an administrator, before it is added to the catalog
+data class DraftProduct(val translations: ProductTranslations,
                         val category: Category,
-                        val price: Price): Product
+                        val price: Price): Product {
+    // A product written in the default language only
+    constructor(name: Name, description: Description, category: Category, price: Price) :
+        this(ProductTranslations.inDefaultLanguage(ProductText(name, description)), category, price)
+
+    // The name and the description in the default language
+    val name: Name get() = translations.defaultTranslation().name
+    val description: Description get() = translations.defaultTranslation().description
+}
+
 // A product of the catalog, with its name and its description in each language it is translated into
 data class DefinedProduct(
     val productId: ProductId,
@@ -30,11 +39,6 @@ data class DefinedProduct(
     // Renamed or described again in the default language
     fun renamed(name: Name) = inDefaultLanguage(ProductText(name, description))
     fun describedAs(description: Description) = inDefaultLanguage(ProductText(name, description))
-
-    // The translations of the stored product that this one does not give are kept: the product is edited in
-    // the default language, without losing its other translations
-    fun keepingTranslationsOf(storedProduct: DefinedProduct) =
-        copy(translations = storedProduct.translations.updatedWith(translations))
 
     private fun inDefaultLanguage(text: ProductText) =
         copy(translations = translations.updatedWith(ProductTranslation(Language.DEFAULT, text)))

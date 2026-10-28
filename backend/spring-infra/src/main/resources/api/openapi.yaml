@@ -467,6 +467,27 @@ paths:
           description: Merged
         "401":
           description: Not signed in
+  /api/admin/products/{id}:
+    get:
+      tags:
+      - Administration
+      summary: Retrieve a product with its translations in every language, to edit it
+      operationId: getAdminProduct
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: The product with its translations
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonAdminProduct"
+        "404":
+          description: Product not found
   /api/products/:
     get:
       tags:
@@ -520,7 +541,7 @@ paths:
     put:
       tags:
       - Products
-      summary: Edit a product (name, description, category, price)
+      summary: Edit a product (translations, category, price)
       description: Reserved to an administrator
       operationId: updateProduct
       security:
@@ -1117,26 +1138,24 @@ components:
           description: User's password (plain text)
     DraftJsonProduct:
       type: object
+      required: [category, price, currency, translations]
       properties:
-        name:
-          type: string
-        description:
-          type: string
         category:
           type: string
         price:
           type: number
         currency:
           type: string
+        translations:
+          type: array
+          description: The name and the description in each language of the product, the default one (en) required
+          items:
+            $ref: "#/components/schemas/JsonProductTranslation"
     EditedJsonProduct:
       type: object
       description: The fields an administrator edits; the id is given by the path
-      required: [name, description, category, price, currency]
+      required: [category, price, currency, translations]
       properties:
-        name:
-          type: string
-        description:
-          type: string
         category:
           type: string
         price:
@@ -1144,6 +1163,11 @@ components:
         currency:
           type: string
           description: Currency code (EUR)
+        translations:
+          type: array
+          description: Every translation of the product, the default one (en) required; a translation not given is removed
+          items:
+            $ref: "#/components/schemas/JsonProductTranslation"
     JsonProduct:
       type: object
       required: [id, name, description, category, price, currency]
@@ -1161,6 +1185,35 @@ components:
         price:
           type: number
         currency:
+          type: string
+    JsonAdminProduct:
+      type: object
+      description: A product as the administrator edits it, with its translations in every language
+      required: [id, category, price, currency, translations]
+      properties:
+        id:
+          type: string
+        category:
+          type: string
+        price:
+          type: number
+        currency:
+          type: string
+        translations:
+          type: array
+          description: The name and the description in every language of the product, the default one (en) included
+          items:
+            $ref: "#/components/schemas/JsonProductTranslation"
+    JsonProductTranslation:
+      type: object
+      required: [language, name, description]
+      properties:
+        language:
+          type: string
+          description: en or fr
+        name:
+          type: string
+        description:
           type: string
     JsonItem:
       type: object
