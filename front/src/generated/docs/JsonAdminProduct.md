@@ -7,6 +7,7 @@ A product as the administrator edits it, with its translations in every language
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **string** |  | [default to undefined]
+**sku** | **string** | Stock Keeping Unit, unique in the catalog | [default to undefined]
 **category** | **string** |  | [default to undefined]
 **price** | **number** |  | [default to undefined]
 **currency** | **string** |  | [default to undefined]
@@ -19,6 +20,7 @@ import { JsonAdminProduct } from './api';
 
 const instance: JsonAdminProduct = {
     id,
+    sku,
     category,
     price,
     currency,

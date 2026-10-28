@@ -6,6 +6,7 @@ The fields an administrator edits; the id is given by the path
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**sku** | **string** | Stock Keeping Unit, unique in the catalog: upper-case letters and digits in groups separated by hyphens, 32 characters at most (TSHIRT-ORGANIC-M); the spaces around are dropped, the letters put in upper case | [default to undefined]
 **category** | **string** |  | [default to undefined]
 **price** | **number** |  | [default to undefined]
 **currency** | **string** | Currency code (EUR) | [default to undefined]
@@ -17,6 +18,7 @@ Name | Type | Description | Notes
 import { EditedJsonProduct } from './api';
 
 const instance: EditedJsonProduct = {
+    sku,
     category,
     price,
     currency,

@@ -71,6 +71,13 @@ class RestExceptionHandler {
             is OrderStatusChangedException, is OrderStatusCannotAdvanceException -> ResponseEntity
                 .status(409)
                 .body(mapOf("error" to (ex.message ?: "The status of the order cannot advance")))
+            is InvalidSkuException -> ResponseEntity
+                .status(400)
+                .body(mapOf("error" to (ex.message ?: "Invalid SKU")))
+            // The administrator chooses another SKU
+            is SkuAlreadyUsedException -> ResponseEntity
+                .status(409)
+                .body(mapOf("error" to (ex.message ?: "SKU already used")))
             is InvalidPaymentDelayException -> ResponseEntity
                 .status(400)
                 .body(mapOf("error" to (ex.message ?: "Invalid payment delay")))

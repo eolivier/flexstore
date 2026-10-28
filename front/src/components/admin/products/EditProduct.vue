@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import AdminBreadcrumbs from '@/components/admin/AdminBreadcrumbs.vue';
-  import { onMounted, ref } from 'vue';
+  import { onMounted, ref, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useProductsStore } from '@/stores/products.store.ts';
   import type { ProductTexts } from '@/models/product';
@@ -8,8 +8,10 @@
   import { useStocksStore } from '@/stores/stocks.store';
   import ProductFields from './ProductFields.vue';
   import ProductImageField from './ProductImageField.vue';
+  import { normalizedSku } from '@/utils/sku';
 
   interface EditedProduct {
+    sku: string;
     texts: ProductTexts;
     category: string;
     price: string | null;
@@ -28,6 +30,7 @@
   const saving = ref(false);
   // null before the first save
   const saved = ref<boolean | null>(null);
+  const skuAlreadyUsed = ref(false);
 
   onMounted(async () => {
     // The administrator edits the product in every language
@@ -35,6 +38,7 @@
     const [product] = await Promise.all([adminProduct, stocksStore.fetchStocks()]);
     editedProduct.value = product
       ? {
+          sku: product.sku,
           texts: textsOf(product.translations),
           category: product.category,
           price: String(product.price ?? ''),
@@ -48,17 +52,27 @@
   async function save() {
     if (!valid.value || !editedProduct.value || editedProduct.value.price === null) return;
     saving.value = true;
-    const { stock, texts, category, price } = editedProduct.value;
-    const productSaved = await productsStore.updateProduct(props.id, {
+    const { stock, sku, texts, category, price } = editedProduct.value;
+    const productSave = await productsStore.updateProduct(props.id, {
+      sku: normalizedSku(sku),
       category,
       price: parseFloat(price),
       currency: 'EUR',
       translations: translationsOf(texts),
     });
+    skuAlreadyUsed.value = productSave === 'skuAlreadyUsed';
+    const productSaved = productSave === 'saved';
     const stockSaved = productSaved && (await stocksStore.changeStock(props.id, parseInt(stock, 10)));
-    saved.value = stockSaved;
+    // A SKU already used is said by its field
+    saved.value = skuAlreadyUsed.value ? null : stockSaved;
     saving.value = false;
   }
+
+  // A SKU typed again may be free
+  watch(
+    () => editedProduct.value && editedProduct.value.sku,
+    () => (skuAlreadyUsed.value = false)
+  );
 </script>
 
 <template>
@@ -74,9 +88,11 @@
       <v-divider class="mb-4" />
       <v-form v-model="valid" @submit.prevent="save">
         <ProductFields
+          v-model:sku="editedProduct.sku"
           v-model:texts="editedProduct.texts"
           v-model:category="editedProduct.category"
           v-model:price="editedProduct.price"
+          :sku-already-used="skuAlreadyUsed"
         />
         <v-text-field
           v-model="editedProduct.stock"

@@ -15,12 +15,15 @@ class ProductMapper {
     fun toDomain(draftJsonProduct: DraftJsonProduct): DraftProduct {
         val price = Price(Amount(draftJsonProduct.price), Currency.valueOf(draftJsonProduct.currency))
         val translations = draftJsonProduct.translations.toDomain()
-        return DraftProduct(translations, Category.valueOf(draftJsonProduct.category), price)
+        val sku = Sku.from(draftJsonProduct.sku)
+        return DraftProduct(sku, translations, Category.valueOf(draftJsonProduct.category), price)
     }
     fun toDomain(productId: ProductId, editedJsonProduct: EditedJsonProduct): DefinedProduct {
         val price = Price(Amount(editedJsonProduct.price), Currency.valueOf(editedJsonProduct.currency))
         val translations = editedJsonProduct.translations.toDomain()
-        return DefinedProduct(productId, translations, Category.valueOf(editedJsonProduct.category), price)
+        val sku = Sku.from(editedJsonProduct.sku)
+        val category = Category.valueOf(editedJsonProduct.category)
+        return DefinedProduct(productId, sku, translations, category, price)
     }
     // In the default language: what the administrator created or edited
     fun toJson(product: Product): JsonProduct = listOf(product).toJsonProducts(Language.DEFAULT).single()
@@ -28,6 +31,7 @@ class ProductMapper {
     // Every translation of the product, which the administrator edits
     fun toAdminJson(product: DefinedProduct) = JsonAdminProduct(
         product.productId.id.value,
+        product.sku.value,
         product.category.name,
         product.price.amount.value,
         product.price.currency.symbol,
@@ -50,6 +54,7 @@ private fun DefinedProduct.toJson(language: Language): JsonProduct {
     val translation = translationIn(language)
     return JsonProduct(
         productId.id.value,
+        sku.value,
         translation.name.value,
         translation.description.value,
         category.name,

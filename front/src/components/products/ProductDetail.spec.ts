@@ -26,6 +26,7 @@ vi.mock('@/api', () => ({
 const product = (id: string, name: string) => ({
   id,
   name,
+  sku: `SKU-${id}`,
   description: name,
   category: 'CLOTHING',
   price: 25,

@@ -22,6 +22,7 @@ const router = createRouter({
 });
 const tShirt = {
   id: 'p-1',
+  sku: 'CLO-1',
   category: 'CLOTHING',
   price: 25,
   currency: '€',
@@ -30,6 +31,10 @@ const tShirt = {
     { language: 'fr', name: 'T-shirt bio', description: 'Écologique' },
   ],
 };
+
+// The name fields, one per language (the SKU is a text field too)
+const NAME_INPUTS = '.v-text-field:not(.sku) input[type="text"]';
+const SKU_INPUT = '.sku input';
 
 // The fields of the language shown: those of the other languages are hidden
 function shownFields(wrapper: VueWrapper, selector: string) {
@@ -69,14 +74,14 @@ describe('EditProduct.vue', () => {
     // Act
     await frenchChip.trigger('click');
     // Assert
-    const [shownName] = shownFields(wrapper, 'input[type="text"]');
+    const [shownName] = shownFields(wrapper, NAME_INPUTS);
     expect((shownName.element as HTMLInputElement).value).toBe('T-shirt bio');
   });
 
   it('removes a translation whose name and description are emptied', async () => {
     // Arrange
     const wrapper = await mountEditProduct();
-    const [, frenchName] = wrapper.findAll('input[type="text"]');
+    const [, frenchName] = wrapper.findAll(NAME_INPUTS);
     const [, frenchDescription] = wrapper.findAll('textarea:not(.v-textarea__sizer)');
     await frenchName.setValue('');
     await frenchDescription.setValue('');
@@ -94,7 +99,7 @@ describe('EditProduct.vue', () => {
     // Act
     const wrapper = await mountEditProduct();
     // Assert
-    expect((wrapper.find('input[type="text"]').element as HTMLInputElement).value).toBe('Organic T-shirt');
+    expect((wrapper.find(NAME_INPUTS).element as HTMLInputElement).value).toBe('Organic T-shirt');
     expect((wrapper.find('textarea').element as HTMLTextAreaElement).value).toBe('Eco-friendly');
     const [price, stock] = wrapper.findAll('input[type="number"]');
     expect((price.element as HTMLInputElement).value).toBe('25');
@@ -104,7 +109,7 @@ describe('EditProduct.vue', () => {
   it('saves the edited product', async () => {
     // Arrange
     const wrapper = await mountEditProduct();
-    await wrapper.find('input[type="text"]').setValue('Linen T-shirt');
+    await wrapper.find(NAME_INPUTS).setValue('Linen T-shirt');
     await wrapper.find('input[type="number"]').setValue('29.5');
     await flushPromises();
     // Act
@@ -114,6 +119,7 @@ describe('EditProduct.vue', () => {
     const [url] = mockFetch.mock.calls.find(([, init]) => init?.method === 'PUT')!;
     expect(url).toMatch(/\/api\/products\/p-1$/);
     expect(savedProduct()).toEqual({
+      sku: 'CLO-1',
       category: 'CLOTHING',
       price: 29.5,
       currency: 'EUR',
@@ -139,6 +145,43 @@ describe('EditProduct.vue', () => {
     await flushPromises();
     // Assert
     expect(wrapper.text()).toContain('The product could not be saved.');
+  });
+
+  it('shows the SKU of the product', async () => {
+    // Act
+    const wrapper = await mountEditProduct();
+    // Assert
+    expect((wrapper.find(SKU_INPUT).element as HTMLInputElement).value).toBe('CLO-1');
+  });
+
+  it('saves the SKU typed, trimmed and in upper case', async () => {
+    // Arrange
+    const wrapper = await mountEditProduct();
+    await wrapper.find(SKU_INPUT).setValue(' tshirt-organic-m ');
+    await flushPromises();
+    // Act
+    await wrapper.find('form').trigger('submit.prevent');
+    await flushPromises();
+    // Assert
+    expect(savedProduct().sku).toBe('TSHIRT-ORGANIC-M');
+  });
+
+  it('says that the SKU is used by another product', async () => {
+    // Arrange
+    mockFetch.mockImplementation((_url, init) =>
+      Promise.resolve(
+        init?.method === 'PUT'
+          ? { ok: false, status: 409, text: () => Promise.resolve('') }
+          : { ok: true, status: 200, json: () => Promise.resolve(tShirt) }
+      )
+    );
+    const wrapper = await mountEditProduct();
+    // Act
+    await wrapper.find('form').trigger('submit.prevent');
+    await flushPromises();
+    // Assert
+    expect(wrapper.find('.sku').text()).toContain('This SKU is already used by another product');
+    expect(wrapper.text()).not.toContain('The product could not be saved.');
   });
 
   it('reports a product that cannot be loaded', async () => {

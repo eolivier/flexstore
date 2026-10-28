@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 import i18n from '@/plugins/i18n';
-import type { AdminProduct, Product, ProductInput } from '@/models/product';
+import type { AdminProduct, Product, ProductInput, ProductSave } from '@/models/product';
 import { getAllProducts } from '@/services/product.service';
 import { useAuthStore } from './auth.store';
 
@@ -10,24 +10,8 @@ export const useProductsStore = defineStore('products', () => {
   const loading = ref(false);
   const error = ref<string | null>(null);
 
-  // Returns whether the product was created
-  async function addProduct(product: ProductInput): Promise<boolean> {
-    try {
-      const response = await useAuthStore().authFetch('/api/products', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(product),
-      });
-      if (!response.ok) {
-        console.error('Error when creating product', await response.text());
-        return false;
-      }
-      await fetchProducts();
-      return true;
-    } catch (error) {
-      console.error('Error when creating product', error);
-      return false;
-    }
+  async function addProduct(product: ProductInput): Promise<ProductSave> {
+    return saveProduct('/api/products', 'POST', product);
   }
 
   // The product with its translations in every language, which the administrator edits; null when it cannot
@@ -43,23 +27,28 @@ export const useProductsStore = defineStore('products', () => {
     }
   }
 
-  // Returns whether the product was edited
-  async function updateProduct(id: string, product: ProductInput): Promise<boolean> {
+  async function updateProduct(id: string, product: ProductInput): Promise<ProductSave> {
+    return saveProduct(`/api/products/${id}`, 'PUT', product);
+  }
+
+  // Creates (POST) or edits (PUT) the product; 409: another product has its SKU
+  async function saveProduct(url: string, method: string, product: ProductInput): Promise<ProductSave> {
     try {
-      const response = await useAuthStore().authFetch(`/api/products/${id}`, {
-        method: 'PUT',
+      const response = await useAuthStore().authFetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(product),
       });
+      if (response.status === 409) return 'skuAlreadyUsed';
       if (!response.ok) {
-        console.error('Error when editing product', await response.text());
-        return false;
+        console.error('Error when saving product', await response.text());
+        return 'failed';
       }
       await fetchProducts();
-      return true;
+      return 'saved';
     } catch (e) {
-      console.error('Error when editing product', e);
-      return false;
+      console.error('Error when saving product', e);
+      return 'failed';
     }
   }
 

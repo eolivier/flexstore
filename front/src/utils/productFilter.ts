@@ -2,8 +2,8 @@ import type { Product } from '@/models/product';
 import { matchesSearch } from './productSearch';
 import { stockStateOf, type StockState } from './stock';
 
-// What the administrator looks for: words in the name or the description (as in the search of the catalog), a
-// category, a state of the stock (null: any)
+// What the administrator looks for: words in the SKU, the name or the description, a category, a state of the
+// stock (null: any)
 export interface ProductFilter {
   text: string;
   category: string | null;

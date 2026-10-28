@@ -27,9 +27,11 @@ class EntityTimestampsIT {
     @Autowired
     private lateinit var jpaProductRepository: JpaProductRepository
 
-    private val lamp = DefinedProduct(
-        ProductId.nextId(), Name("Timestamped lamp"), Description("Warm light"), Category.HOME, Price(Amount(BigDecimal(30)), Currency.EUR)
-    )
+    private val lampPrice = Price(Amount(BigDecimal(30)), Currency.EUR)
+    private val lampText = ProductText(Name("Timestamped lamp"), Description("Warm light"))
+    private val lampTranslations = ProductTranslations.inDefaultLanguage(lampText)
+    private val lampSku = Sku("TIMESTAMPED-LAMP")
+    private val lamp = DefinedProduct(ProductId.nextId(), lampSku, lampTranslations, Category.HOME, lampPrice)
 
     @AfterEach
     fun deleteLamp() {

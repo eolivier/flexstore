@@ -24,6 +24,10 @@ import type { RequestArgs } from './base';
 import { BASE_PATH, COLLECTION_FORMATS, BaseAPI, RequiredError, operationServerMap } from './base';
 
 export interface DraftJsonProduct {
+    /**
+     * Stock Keeping Unit, unique in the catalog: upper-case letters and digits in groups separated by hyphens, 32 characters at most (TSHIRT-ORGANIC-M); the spaces around are dropped, the letters put in upper case
+     */
+    'sku': string;
     'category': string;
     'price': number;
     'currency': string;
@@ -36,6 +40,10 @@ export interface DraftJsonProduct {
  * The fields an administrator edits; the id is given by the path
  */
 export interface EditedJsonProduct {
+    /**
+     * Stock Keeping Unit, unique in the catalog: upper-case letters and digits in groups separated by hyphens, 32 characters at most (TSHIRT-ORGANIC-M); the spaces around are dropped, the letters put in upper case
+     */
+    'sku': string;
     'category': string;
     'price': number;
     /**
@@ -103,6 +111,10 @@ export type JsonAccountStatusStatusEnum = typeof JsonAccountStatusStatusEnum[key
  */
 export interface JsonAdminProduct {
     'id': string;
+    /**
+     * Stock Keeping Unit, unique in the catalog
+     */
+    'sku': string;
     'category': string;
     'price': number;
     'currency': string;
@@ -288,6 +300,10 @@ export type JsonPostalAddressRecipientTypeEnum = typeof JsonPostalAddressRecipie
 
 export interface JsonProduct {
     'id': string;
+    /**
+     * Stock Keeping Unit, unique in the catalog
+     */
+    'sku': string;
     /**
      * In the language asked (Accept-Language), or in en when the product is not translated into it
      */
@@ -2438,7 +2454,7 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
         },
         /**
          * Reserved to an administrator
-         * @summary Edit a product (translations, category, price)
+         * @summary Edit a product (SKU, translations, category, price)
          * @param {string} id 
          * @param {EditedJsonProduct} editedJsonProduct 
          * @param {*} [options] Override http request option.
@@ -2531,7 +2547,7 @@ export const ProductsApiFp = function(configuration?: Configuration) {
         },
         /**
          * Reserved to an administrator
-         * @summary Edit a product (translations, category, price)
+         * @summary Edit a product (SKU, translations, category, price)
          * @param {string} id 
          * @param {EditedJsonProduct} editedJsonProduct 
          * @param {*} [options] Override http request option.
@@ -2585,7 +2601,7 @@ export const ProductsApiFactory = function (configuration?: Configuration, baseP
         },
         /**
          * Reserved to an administrator
-         * @summary Edit a product (translations, category, price)
+         * @summary Edit a product (SKU, translations, category, price)
          * @param {string} id 
          * @param {EditedJsonProduct} editedJsonProduct 
          * @param {*} [options] Override http request option.
@@ -2637,7 +2653,7 @@ export class ProductsApi extends BaseAPI {
 
     /**
      * Reserved to an administrator
-     * @summary Edit a product (translations, category, price)
+     * @summary Edit a product (SKU, translations, category, price)
      * @param {string} id 
      * @param {EditedJsonProduct} editedJsonProduct 
      * @param {*} [options] Override http request option.

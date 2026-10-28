@@ -4,7 +4,12 @@ import org.flexstore.domain.sharedkernel.*
 import org.assertj.core.api.WithAssertions
 import org.flexstore.infra.repository.InMemoryProductRepository
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import java.math.BigDecimal
+
+// 33 characters, one more than a SKU may have
+private const val TOO_LONG_SKU = "A23456789-123456789-123456789-123"
 
 class CreateProductUseCaseTest : WithAssertions {
 
@@ -14,9 +19,11 @@ class CreateProductUseCaseTest : WithAssertions {
     private val updateProductUseCase = UpdateProductUseCase(productRepository)
     private val productUseCases = ProductUseCases(useCase, readProductUseCase, updateProductUseCase)
     private val lampPrice = Price(Amount(BigDecimal(35)), Currency.EUR)
-    private val lamp = DraftProduct(Name("Desk lamp"), Description("Warm light"), Category.HOME, lampPrice)
+    private val lampSku = Sku("LAMP-DESK")
+    private val lamp = DraftProduct(lampSku, Name("Desk lamp"), Description("Warm light"), Category.HOME, lampPrice)
     private val mugPrice = Price(Amount(BigDecimal(12)), Currency.EUR)
-    private val mug = DraftProduct(Name("Mug"), Description("Ceramic"), Category.HOME, mugPrice)
+    private val mugSku = Sku("MUG-CERAMIC")
+    private val mug = DraftProduct(mugSku, Name("Mug"), Description("Ceramic"), Category.HOME, mugPrice)
 
     @Test
     fun `should store the product with the given id`() {
@@ -40,6 +47,41 @@ class CreateProductUseCaseTest : WithAssertions {
         // Assert
         val storedLamp = productRepository.findById(productId)!!
         assertThat(storedLamp.translationIn(Language.FR)).isEqualTo(frenchTranslation)
+    }
+
+    @Test
+    fun `should store the product with its SKU`() {
+        // Arrange
+        val productId = ProductId.nextId()
+        // Act
+        useCase.unfold(CreateProductRequest(productId, lamp))
+        // Assert
+        assertThat(productRepository.findById(productId)?.sku).isEqualTo(lampSku)
+    }
+
+    @ParameterizedTest(name = "the SKU \"{0}\" is refused")
+    @ValueSource(strings = ["", "lamp", "LAMP DESK", "LAMP--DESK", "-LAMP", "LAMP-", "LAMPE-É", TOO_LONG_SKU])
+    fun `should not create a product with a malformed SKU`(malformedSku: String) {
+        // Arrange
+        val lampWithMalformedSku = lamp.copy(sku = Sku(malformedSku))
+        val productId = ProductId.nextId()
+        // Act
+        val thrown = catchThrowable { useCase.unfold(CreateProductRequest(productId, lampWithMalformedSku)) }
+        // Assert
+        assertThat(thrown).isInstanceOf(InvalidSkuException::class.java)
+        assertThat(productRepository.productIsMissing(productId)).isTrue()
+    }
+
+    @Test
+    fun `should not create a product with the SKU of another product`() {
+        // Arrange
+        val lampWithTShirtSku = lamp.copy(sku = Sku("CLO-1"))
+        val productId = ProductId.nextId()
+        // Act
+        val thrown = catchThrowable { useCase.unfold(CreateProductRequest(productId, lampWithTShirtSku)) }
+        // Assert
+        assertThat(thrown).isInstanceOf(SkuAlreadyUsedException::class.java)
+        assertThat(productRepository.productIsMissing(productId)).isTrue()
     }
 
     @Test

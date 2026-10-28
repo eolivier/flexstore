@@ -18,6 +18,7 @@ const httpError = (status: number) =>
 const jeans = {
   id: '3',
   name: 'Slim Jeans',
+  sku: 'CLO-3',
   description: 'Modern fit',
   category: 'CLOTHING',
   price: 49,

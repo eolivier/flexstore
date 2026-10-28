@@ -15,9 +15,9 @@ function containsEveryWord(text: string, search: string): boolean {
   return words.every((word) => normalizedText.includes(word));
 }
 
-// Every word searched is in the name or the description of the product
+// Every word searched is in the SKU, the name or the description of the product
 export function matchesSearch(product: Product, search: string): boolean {
-  return containsEveryWord(`${product.name ?? ''} ${product.description ?? ''}`, search);
+  return containsEveryWord(`${product.sku} ${product.name ?? ''} ${product.description ?? ''}`, search);
 }
 
 // The search of the catalog looks in what the customer reads: the name and the description of the product,

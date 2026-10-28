@@ -45,6 +45,14 @@ export default {
       saved: 'Saved.',
       loadError: 'The settings could not be loaded.',
     },
+    sku: {
+      label: 'SKU',
+      help: 'What is a SKU?',
+      tooltip:
+        'Stock Keeping Unit: your own reference for this product, unique in the catalog. It identifies the product in the stock and in the orders, whatever its name or its language. Upper-case letters and digits, in groups separated by hyphens, e.g. TSHIRT-ORGANIC-M.',
+      invalid: 'Upper-case letters and digits, in groups separated by hyphens ({max} characters at most)',
+      alreadyUsed: 'This SKU is already used by another product',
+    },
     createProduct: {
       title: 'Create a product',
       name: 'Product name',
@@ -513,6 +521,14 @@ export default {
       save: 'Enregistrer',
       saved: 'Enregistré.',
       loadError: "Les paramètres n'ont pas pu être chargés.",
+    },
+    sku: {
+      label: 'SKU (référence)',
+      help: "Qu'est-ce qu'un SKU ?",
+      tooltip:
+        'Stock Keeping Unit (unité de gestion de stock) : votre propre référence pour ce produit, unique dans le catalogue. Elle identifie le produit dans le stock et dans les commandes, quels que soient son nom et sa langue. Lettres majuscules et chiffres, en groupes séparés par des tirets, par exemple TSHIRT-BIO-M.',
+      invalid: 'Lettres majuscules et chiffres, en groupes séparés par des tirets ({max} caractères au plus)',
+      alreadyUsed: 'Ce SKU est déjà utilisé par un autre produit',
     },
     createProduct: {
       title: 'Créer un produit',

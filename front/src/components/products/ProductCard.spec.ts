@@ -12,6 +12,7 @@ const router = createRouter({
 const lamp = {
   id: 'p-1',
   name: 'Desk lamp',
+  sku: 'LAMP-DESK',
   description: 'Warm light',
   category: 'HOME',
   price: 35,

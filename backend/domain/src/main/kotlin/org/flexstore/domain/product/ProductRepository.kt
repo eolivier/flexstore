@@ -10,4 +10,6 @@ interface ProductRepository {
     fun notExists(product: Product): Boolean
     fun productExists(productId: ProductId): Boolean
     fun productIsMissing(productId: ProductId): Boolean = !productExists(productId)
+    // Another product of the catalog, with another id, has the SKU of this one
+    fun skuIsUsedByAnotherProduct(product: DefinedProduct): Boolean
 }

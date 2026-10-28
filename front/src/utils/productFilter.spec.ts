@@ -4,6 +4,7 @@ import { matchesFilter, noFilter } from './productFilter';
 const jacket = {
   id: 'p-2',
   name: 'Waterproof Jacket',
+  sku: 'CLO-2',
   description: 'Resists rain and wind',
   category: 'CLOTHING',
   price: 79,
