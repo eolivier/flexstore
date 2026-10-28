@@ -5,8 +5,8 @@ import org.hibernate.annotations.Fetch
 import org.hibernate.annotations.FetchMode
 import java.math.BigDecimal
 
-// A product of the catalog, with its SKU: its name and its description are in its translations, one per language, the default
-// one included
+// A product of the catalog, with its SKU: its name and its description are in its translations, one per
+// language, the default one included
 @Entity
 @Table(name = "product")
 data class ProductEntity(
