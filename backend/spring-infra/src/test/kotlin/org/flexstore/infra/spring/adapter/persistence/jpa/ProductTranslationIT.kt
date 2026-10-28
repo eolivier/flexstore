@@ -28,8 +28,8 @@ class ProductTranslationIT {
     private val englishTranslation = ProductTranslation(Language.EN, englishText)
     private val translations = ProductTranslations(englishTranslation, frenchTranslation)
     private val price = Price(Amount(BigDecimal(30)), Currency.EUR)
-    private val lampId = ProductId.nextId()
-    private val lamp = DefinedProduct(lampId, Sku.from(lampId.id.value), translations, Category.HOME, price)
+    private val lampSku = Sku("TRANSLATED-LAMP")
+    private val lamp = DefinedProduct(ProductId.nextId(), lampSku, translations, Category.HOME, price)
 
     // The Waterproof Jacket of the catalog
     private val jacketId = ProductId(Identity("2"))
