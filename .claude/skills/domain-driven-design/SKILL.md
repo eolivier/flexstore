@@ -1,6 +1,6 @@
 ---
 name: domain-driven-design
-description: Domain-Driven Design and hexagonal architecture principles to follow when writing or reviewing back-end code - where business rules live, what entities, value objects and aggregates may reference (value objects rather than primitive types), the role of use cases, domain services, repositories and adapters, groups of use cases named after their sub-domain (OrderUseCases, not a facade), every use case implementing the UseCase interface of ucop (or QueryUseCase when it answers). Use before creating or changing an entity, aggregate, value object, use case, domain service, port (repository interface) or infrastructure adapter, and when reviewing domain code.
+description: Domain-Driven Design and hexagonal architecture principles to follow when writing or reviewing back-end code - where business rules live, what entities, value objects and aggregates may reference (value objects rather than primitive types), the role of use cases, domain services, repositories and adapters, groups of use cases named after their sub-domain (OrderUseCases, not a facade), every use case implementing the UseCase interface of ucop (or QueryUseCase when it answers), methods of the domain model that expose neither a primitive type nor a raw collection. Use before creating or changing an entity, aggregate, value object, use case, domain service, port (repository interface) or infrastructure adapter, and when reviewing domain code.
 ---
 
 # Domain-Driven Design
@@ -388,3 +388,55 @@ Details:
 - The name still ends with `UseCase` and says the action (`ReadOrdersUseCase`, `ProposeSkuUseCase`); a use case with several questions (`getOrders`, `getOrder`) is split into one query use case per question, or given a request type that carries the question.
 - Existing use cases that are plain classes are pointed out in reviews and moved to `QueryUseCase` in a refactoring pull request of their own (see the `prompt-convention` skill).
 
+## 11. The methods of the domain model expose neither a primitive type nor a raw collection
+
+Every method of an entity, a value object or an aggregate, public or internal to the domain, takes and returns value objects and business collections: no primitive type (`Int`, `String`, `Long`, `BigDecimal`...) in its parameters nor in its return type, and no raw collection (`List`, `Set`, `Map`, `Sequence`).
+- A number, a count, a text that the method needs or gives is a value object named after what it is: `LetterCount`, `WordCount`, `SkuNumber`, `SkuPrefix`.
+- Several things of a kind are a business collection that wraps them (principle 1 of the `fluent-code-reading-semantic` skill): `Words` rather than `List<Word>`, `SkuProposals` rather than `Sequence<Sku>`. The wrapper keeps its collection private and offers the operations the domain needs (`firstOnes`, `shortenedTo`, `firstAccepted`).
+
+This extends section 8, which already covers the properties and the constructors, to every method.
+
+Avoid:
+
+```kotlin
+data class Words(private val words: List<String>) {
+    fun firstOnes(count: Int): List<String> = words.take(count)
+    fun asList(): List<String> = words
+}
+
+data class SkuPrefix(val value: String) {
+    fun numbered(number: Int) = Sku("$value-${number.toString().padStart(4, '0')}")
+}
+
+fun proposalsFor(skuBasis: SkuBasis): Sequence<Sku> = ...
+```
+
+Prefer:
+
+```kotlin
+data class Word(val value: String) {
+    fun shortenedTo(letterCount: LetterCount) = Word(value.take(letterCount.value))
+}
+
+data class Words(private val words: List<Word>) {
+    fun firstOnes(wordCount: WordCount) = Words(words.take(wordCount.value))
+    fun hyphenated() = SkuPrefix(words.joinToString("-") { it.value })
+}
+
+data class SkuPrefix(val value: String) {
+    fun numbered(skuNumber: SkuNumber) = Sku("$value-${skuNumber.value.toString().padStart(4, '0')}")
+}
+
+data class SkuProposals(private val prefix: SkuPrefix) {
+    fun firstAccepted(accepts: (Sku) -> Boolean): Sku = ...
+}
+```
+
+Why: the signature tells what each value is (a count of letters, the number of a SKU), so values of different meanings cannot be swapped; the rules on them have one home; and a business collection names what its elements form and offers only the operations that make sense, instead of every operation of a `List`.
+
+Details:
+- The primitive stays inside the value object of a single concept, as its `value` (section 8), and inside the body of the methods.
+- A method that answers a business question may return a `Boolean` (`isWellFormed()`, `skuIsFree(sku)`): the question is in its name.
+- A factory that converts what an adapter receives may take a primitive (`Sku.from(typedSku: String)`, `Words.of(text: String)`): it is the edge of the domain.
+- A read-only view of a collection (`asList()`) remains only for the adapters that must iterate to map to JSON or to the persistence model; the domain itself never calls it.
+- Existing methods that break this rule are pointed out in reviews and changed in a refactoring pull request of their own (see the `prompt-convention` skill).
