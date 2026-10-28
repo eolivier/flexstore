@@ -3,14 +3,14 @@
   import { onMounted, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useProductsStore } from '@/stores/products.store.ts';
-  import { DEFAULT_LANGUAGE } from '@/models/product';
+  import type { ProductTexts } from '@/models/product';
+  import { textsOf, translationsOf } from '@/utils/productTranslations';
   import { useStocksStore } from '@/stores/stocks.store';
   import ProductFields from './ProductFields.vue';
   import ProductImageField from './ProductImageField.vue';
 
   interface EditedProduct {
-    name: string;
-    description: string;
+    texts: ProductTexts;
     category: string;
     price: string | null;
     stock: string;
@@ -30,13 +30,12 @@
   const saved = ref<boolean | null>(null);
 
   onMounted(async () => {
-    // The administrator edits the name and the description in the default language
-    const productInDefaultLanguage = productsStore.fetchProduct(props.id, DEFAULT_LANGUAGE);
-    const [product] = await Promise.all([productInDefaultLanguage, stocksStore.fetchStocks()]);
+    // The administrator edits the product in every language
+    const adminProduct = productsStore.fetchAdminProduct(props.id);
+    const [product] = await Promise.all([adminProduct, stocksStore.fetchStocks()]);
     editedProduct.value = product
       ? {
-          name: product.name ?? '',
-          description: product.description,
+          texts: textsOf(product.translations),
           category: product.category,
           price: String(product.price ?? ''),
           stock: String(stocksStore.quantityOf(props.id) ?? 0),
@@ -49,11 +48,12 @@
   async function save() {
     if (!valid.value || !editedProduct.value || editedProduct.value.price === null) return;
     saving.value = true;
-    const { stock, ...product } = editedProduct.value;
+    const { stock, texts, category, price } = editedProduct.value;
     const productSaved = await productsStore.updateProduct(props.id, {
-      ...product,
-      price: parseFloat(editedProduct.value.price),
+      category,
+      price: parseFloat(price),
       currency: 'EUR',
+      translations: translationsOf(texts),
     });
     const stockSaved = productSaved && (await stocksStore.changeStock(props.id, parseInt(stock, 10)));
     saved.value = stockSaved;
@@ -74,8 +74,7 @@
       <v-divider class="mb-4" />
       <v-form v-model="valid" @submit.prevent="save">
         <ProductFields
-          v-model:name="editedProduct.name"
-          v-model:description="editedProduct.description"
+          v-model:texts="editedProduct.texts"
           v-model:category="editedProduct.category"
           v-model:price="editedProduct.price"
         />

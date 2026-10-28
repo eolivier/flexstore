@@ -1,10 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { flushPromises, mount } from '@vue/test-utils';
+import { flushPromises, mount, type VueWrapper } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { createMemoryHistory, createRouter } from 'vue-router';
 import EditProduct from './EditProduct.vue';
 import { vuetify, i18n } from '@/test/setup';
-import { getProduct } from '@/services/product.service';
 
 vi.mock('@/api', () => ({
   apiBaseUrl: 'https://api.example',
@@ -12,10 +11,7 @@ vi.mock('@/api', () => ({
   stocksApi: { getStocks: vi.fn(() => Promise.resolve({ data: [{ productId: 'p-1', quantity: 12 }] })) },
 }));
 
-vi.mock('@/services/product.service', () => ({
-  getProduct: vi.fn(),
-  getAllProducts: vi.fn(() => Promise.resolve([])),
-}));
+vi.mock('@/services/product.service', () => ({ getAllProducts: vi.fn(() => Promise.resolve([])) }));
 
 const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
@@ -26,12 +22,25 @@ const router = createRouter({
 });
 const tShirt = {
   id: 'p-1',
-  name: 'Organic T-shirt',
-  description: 'Eco-friendly',
   category: 'CLOTHING',
   price: 25,
   currency: '€',
+  translations: [
+    { language: 'en', name: 'Organic T-shirt', description: 'Eco-friendly' },
+    { language: 'fr', name: 'T-shirt bio', description: 'Écologique' },
+  ],
 };
+
+// The fields of the language shown: those of the other languages are hidden
+function shownFields(wrapper: VueWrapper, selector: string) {
+  return wrapper.findAll(selector).filter((field) => !field.element.closest('[style*="display: none"]'));
+}
+
+// The body of the product saved by the page
+function savedProduct() {
+  const [, init] = mockFetch.mock.calls.find(([, init]) => init?.method === 'PUT')!;
+  return JSON.parse(init.body);
+}
 
 async function mountEditProduct() {
   const wrapper = mount(EditProduct, { props: { id: 'p-1' }, global: { plugins: [vuetify, i18n, router] } });
@@ -42,16 +51,43 @@ async function mountEditProduct() {
 describe('EditProduct.vue', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
-    vi.mocked(getProduct).mockResolvedValue(tShirt);
     mockFetch.mockReset();
     mockFetch.mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve(tShirt) });
   });
 
-  it('loads the product in the default language, which the administrator edits', async () => {
+  it('loads the product with its translations in every language', async () => {
     // Act
     await mountEditProduct();
     // Assert
-    expect(getProduct).toHaveBeenCalledWith('p-1', 'en');
+    expect(mockFetch.mock.calls.some(([url]) => /\/api\/admin\/products\/p-1$/.test(url))).toBe(true);
+  });
+
+  it('shows the name and the description in the language of the chip chosen', async () => {
+    // Arrange
+    const wrapper = await mountEditProduct();
+    const frenchChip = wrapper.findAll('.v-chip').find((chip) => chip.text().startsWith('FR'))!;
+    // Act
+    await frenchChip.trigger('click');
+    // Assert
+    const [shownName] = shownFields(wrapper, 'input[type="text"]');
+    expect((shownName.element as HTMLInputElement).value).toBe('T-shirt bio');
+  });
+
+  it('removes a translation whose name and description are emptied', async () => {
+    // Arrange
+    const wrapper = await mountEditProduct();
+    const [, frenchName] = wrapper.findAll('input[type="text"]');
+    const [, frenchDescription] = wrapper.findAll('textarea:not(.v-textarea__sizer)');
+    await frenchName.setValue('');
+    await frenchDescription.setValue('');
+    await flushPromises();
+    // Act
+    await wrapper.find('form').trigger('submit.prevent');
+    await flushPromises();
+    // Assert
+    expect(savedProduct().translations).toEqual([
+      { language: 'en', name: 'Organic T-shirt', description: 'Eco-friendly' },
+    ]);
   });
 
   it('shows the current name, description and price of the product', async () => {
@@ -75,20 +111,28 @@ describe('EditProduct.vue', () => {
     await wrapper.find('form').trigger('submit.prevent');
     await flushPromises();
     // Assert
-    const [url, init] = mockFetch.mock.calls.find(([, init]) => init?.method === 'PUT')!;
+    const [url] = mockFetch.mock.calls.find(([, init]) => init?.method === 'PUT')!;
     expect(url).toMatch(/\/api\/products\/p-1$/);
-    expect(JSON.parse(init.body)).toEqual({
-      name: 'Linen T-shirt',
-      description: 'Eco-friendly',
+    expect(savedProduct()).toEqual({
       category: 'CLOTHING',
       price: 29.5,
       currency: 'EUR',
+      translations: [
+        { language: 'en', name: 'Linen T-shirt', description: 'Eco-friendly' },
+        { language: 'fr', name: 'T-shirt bio', description: 'Écologique' },
+      ],
     });
   });
 
   it('reports a product that could not be saved', async () => {
     // Arrange
-    mockFetch.mockResolvedValue({ ok: false, status: 404, text: () => Promise.resolve('') });
+    mockFetch.mockImplementation((_url, init) =>
+      Promise.resolve(
+        init?.method === 'PUT'
+          ? { ok: false, status: 404, text: () => Promise.resolve('') }
+          : { ok: true, status: 200, json: () => Promise.resolve(tShirt) }
+      )
+    );
     const wrapper = await mountEditProduct();
     // Act
     await wrapper.find('form').trigger('submit.prevent');
@@ -99,7 +143,7 @@ describe('EditProduct.vue', () => {
 
   it('reports a product that cannot be loaded', async () => {
     // Arrange
-    vi.mocked(getProduct).mockResolvedValue(null);
+    mockFetch.mockResolvedValue({ ok: false, status: 404, json: () => Promise.resolve({}) });
     // Act
     const wrapper = await mountEditProduct();
     // Assert

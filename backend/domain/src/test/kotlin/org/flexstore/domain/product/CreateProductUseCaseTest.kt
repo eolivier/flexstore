@@ -13,8 +13,10 @@ class CreateProductUseCaseTest : WithAssertions {
     private val readProductUseCase = ReadProductUseCase(productRepository)
     private val updateProductUseCase = UpdateProductUseCase(productRepository)
     private val productUseCases = ProductUseCases(useCase, readProductUseCase, updateProductUseCase)
-    private val lamp = DraftProduct(Name("Desk lamp"), Description("Warm light"), Category.HOME, Price(Amount(BigDecimal(35)), Currency.EUR))
-    private val mug = DraftProduct(Name("Mug"), Description("Ceramic"), Category.HOME, Price(Amount(BigDecimal(12)), Currency.EUR))
+    private val lampPrice = Price(Amount(BigDecimal(35)), Currency.EUR)
+    private val lamp = DraftProduct(Name("Desk lamp"), Description("Warm light"), Category.HOME, lampPrice)
+    private val mugPrice = Price(Amount(BigDecimal(12)), Currency.EUR)
+    private val mug = DraftProduct(Name("Mug"), Description("Ceramic"), Category.HOME, mugPrice)
 
     @Test
     fun `should store the product with the given id`() {
@@ -24,6 +26,20 @@ class CreateProductUseCaseTest : WithAssertions {
         useCase.unfold(CreateProductRequest(productId, lamp))
         // Assert
         assertThat(productRepository.findById(productId)?.name).isEqualTo(Name("Desk lamp"))
+    }
+
+    @Test
+    fun `should store the product with its translations`() {
+        // Arrange
+        val productId = ProductId.nextId()
+        val frenchText = ProductText(Name("Lampe de bureau"), Description("Lumière chaude"))
+        val frenchTranslation = ProductTranslation(Language.FR, frenchText)
+        val translatedLamp = lamp.copy(translations = lamp.translations.updatedWith(frenchTranslation))
+        // Act
+        useCase.unfold(CreateProductRequest(productId, translatedLamp))
+        // Assert
+        val storedLamp = productRepository.findById(productId)!!
+        assertThat(storedLamp.translationIn(Language.FR)).isEqualTo(frenchTranslation)
     }
 
     @Test

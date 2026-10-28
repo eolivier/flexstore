@@ -12,6 +12,7 @@ docs/EditedJsonProduct.md
 docs/JsonAccount.md
 docs/JsonAccountRegistration.md
 docs/JsonAccountStatus.md
+docs/JsonAdminProduct.md
 docs/JsonCartItem.md
 docs/JsonCartItems.md
 docs/JsonChangePasswordRequest.md
@@ -28,6 +29,7 @@ docs/JsonPasswordResetRequest.md
 docs/JsonPaymentSession.md
 docs/JsonPostalAddress.md
 docs/JsonProduct.md
+docs/JsonProductTranslation.md
 docs/JsonSaveItemResponse.md
 docs/JsonStock.md
 docs/JsonStockQuantity.md

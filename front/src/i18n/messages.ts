@@ -56,6 +56,7 @@ export default {
       success: 'The product {name} has been created.',
       error: 'The product could not be created.',
       mandatoryField: 'Mandatory field',
+      translation: 'Name and description in each language (English required)',
       invalidPrice: 'Enter a positive price',
     },
     about: {
@@ -524,6 +525,7 @@ export default {
       success: 'Le produit {name} a été créé.',
       error: "Le produit n'a pas pu être créé.",
       mandatoryField: 'Champ obligatoire',
+      translation: 'Nom et description dans chaque langue (anglais obligatoire)',
       invalidPrice: 'Saisissez un prix positif',
     },
     about: {

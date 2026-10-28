@@ -12,13 +12,8 @@ class InMemoryProductRepository : ProductRepository {
     override fun save(product: Product): Product {
         val productSaved = when(product) {
             is DraftProduct -> {
-                DefinedProduct(
-                    productId = ProductId(Identity(currentId.getAndIncrement().toString())),
-                    name = product.name,
-                    description = product.description,
-                    category = product.category,
-                    price = product.price,
-                )
+                val productId = ProductId(Identity(currentId.getAndIncrement().toString()))
+                DefinedProduct(productId, product.translations, product.category, product.price)
             }
             is DefinedProduct -> product
         }

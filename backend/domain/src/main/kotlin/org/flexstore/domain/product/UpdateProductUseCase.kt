@@ -3,7 +3,7 @@ package org.flexstore.domain.product
 import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.entity.*
 
-// An administrator edits a product of the catalog: name, description, category and price
+// An administrator edits a product of the catalog: its translations, its category and its price
 data class UpdateProductRequest(val product: DefinedProduct)
 
 class UpdateProductUseCase(private val productRepository: ProductRepository) : UseCase<UpdateProductRequest> {
@@ -11,13 +11,9 @@ class UpdateProductUseCase(private val productRepository: ProductRepository) : U
     override fun getPreConditions(): PreConditions<UpdateProductRequest> =
         PreConditions(productExistsCondition())
 
-    // The product is edited in the default language: its translations in the other languages are kept
+    // The administrator gives every translation of the product: a translation not given is removed
     override fun getNominalScenario(): NominalScenario<UpdateProductRequest> =
-        NominalScenario(Step { request ->
-            val storedProduct = productRepository.findById(request.product.productId)!!
-            val editedProduct = request.product.keepingTranslationsOf(storedProduct)
-            productRepository.save(editedProduct)
-        })
+        NominalScenario(Step { request -> productRepository.save(request.product) })
 
     override fun getPostConditions(): PostConditions<UpdateProductRequest> = PostConditions.none()
 

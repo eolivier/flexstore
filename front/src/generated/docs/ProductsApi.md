@@ -7,7 +7,7 @@ All URIs are relative to *http://localhost:8080*
 |[**create**](#create) | **POST** /api/products | Create a product|
 |[**getProduct**](#getproduct) | **GET** /api/products/{id} | Retrieve a product by ID|
 |[**getProducts**](#getproducts) | **GET** /api/products/ | Retrieve all products|
-|[**updateProduct**](#updateproduct) | **PUT** /api/products/{id} | Edit a product (name, description, category, price)|
+|[**updateProduct**](#updateproduct) | **PUT** /api/products/{id} | Edit a product (translations, category, price)|
 
 # **create**
 > JsonProduct create(draftJsonProduct)
