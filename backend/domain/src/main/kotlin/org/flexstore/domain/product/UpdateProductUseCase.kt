@@ -11,8 +11,13 @@ class UpdateProductUseCase(private val productRepository: ProductRepository) : U
     override fun getPreConditions(): PreConditions<UpdateProductRequest> =
         PreConditions(productExistsCondition())
 
+    // The product is edited in the default language: its translations in the other languages are kept
     override fun getNominalScenario(): NominalScenario<UpdateProductRequest> =
-        NominalScenario(Step { request -> productRepository.save(request.product) })
+        NominalScenario(Step { request ->
+            val storedProduct = productRepository.findById(request.product.productId)!!
+            val editedProduct = request.product.keepingTranslationsOf(storedProduct)
+            productRepository.save(editedProduct)
+        })
 
     override fun getPostConditions(): PostConditions<UpdateProductRequest> = PostConditions.none()
 

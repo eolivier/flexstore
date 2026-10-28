@@ -63,7 +63,7 @@ class EntityTimestampsIT {
         productRepository.save(lamp)
         val created = jpaProductRepository.findById(lamp.productId.id.value).orElseThrow()
         // Act
-        productRepository.save(lamp.copy(name = Name("Timestamped bedside lamp")))
+        productRepository.save(lamp.renamed(Name("Timestamped bedside lamp")))
         // Assert
         val updated = jpaProductRepository.findById(lamp.productId.id.value).orElseThrow()
         assertThat(updated.createdAt).isEqualTo(created.createdAt)
