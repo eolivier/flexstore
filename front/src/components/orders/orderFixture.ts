@@ -1,4 +1,4 @@
-import type { JsonOrder } from '@/generated';
+import type { JsonAdminOrder, JsonOrder } from '@/generated';
 
 // An order of two lines, used by the component tests
 export const twoLinesOrder: JsonOrder = {
@@ -37,4 +37,10 @@ export const twoLinesOrder: JsonOrder = {
     city: 'Paris',
     country: 'France',
   },
+};
+
+// The same order as the administrators see it, with the customer who placed it
+export const twoLinesAdminOrder: JsonAdminOrder = {
+  ...twoLinesOrder,
+  customer: { firstName: 'John', lastName: 'Smith', email: 'john.smith@example.com' },
 };

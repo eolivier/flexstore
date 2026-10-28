@@ -1,14 +1,18 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { JsonOrder } from '@/generated';
+import type { JsonAdminOrder, JsonOrder } from '@/generated';
 import { useAuthStore } from '@/stores/auth.store';
 
 // statusChanged: the order changed status in the meantime (another administrator), the orders are reloaded
 export type StatusAdvance = 'advanced' | 'statusChanged' | 'error';
 
-// The orders of all the customers, for the administrators
+// An order read by an administrator: found with its customer, unknown, or not readable
+export type AdminOrderLookup =
+  { status: 'found'; order: JsonAdminOrder } | { status: 'notFound' } | { status: 'error' };
+
+// The orders of all the customers, with the customer of each one, for the administrators
 export const useAdminOrdersStore = defineStore('adminOrders', () => {
-  const orders = ref<JsonOrder[]>([]);
+  const orders = ref<JsonAdminOrder[]>([]);
   const loading = ref(false);
   const loadError = ref(false);
   const authStore = useAuthStore();
@@ -25,7 +29,15 @@ export const useAdminOrdersStore = defineStore('adminOrders', () => {
     loading.value = false;
   }
 
-  // Moves the order to the next status of its life cycle, from the status shown to the administrator
+  async function fetchOrder(id: string): Promise<AdminOrderLookup> {
+    const response = await authStore.authFetch(`/api/admin/orders/${encodeURIComponent(id)}`).catch(() => null);
+    if (response?.status === 404) return { status: 'notFound' };
+    if (!response?.ok) return { status: 'error' };
+    return { status: 'found', order: await response.json() };
+  }
+
+  // Moves the order to the next status of its life cycle, from the status shown to the administrator; the order
+  // at its next status replaces it in the list
   async function advanceStatus(order: JsonOrder): Promise<StatusAdvance> {
     const response = await authStore
       .authFetch(`/api/admin/orders/${encodeURIComponent(order.id)}/status/advance`, {
@@ -39,10 +51,10 @@ export const useAdminOrdersStore = defineStore('adminOrders', () => {
       return 'statusChanged';
     }
     if (!response?.ok) return 'error';
-    const advancedOrder: JsonOrder = await response.json();
+    const advancedOrder: JsonAdminOrder = await response.json();
     orders.value = orders.value.map((stored) => (stored.id === advancedOrder.id ? advancedOrder : stored));
     return 'advanced';
   }
 
-  return { orders, loading, loadError, fetchAllOrders, advanceStatus };
+  return { orders, loading, loadError, fetchAllOrders, fetchOrder, advanceStatus };
 });

@@ -12,6 +12,7 @@ docs/EditedJsonProduct.md
 docs/JsonAccount.md
 docs/JsonAccountRegistration.md
 docs/JsonAccountStatus.md
+docs/JsonAdminOrder.md
 docs/JsonAdminProduct.md
 docs/JsonCartItem.md
 docs/JsonCartItems.md
@@ -23,6 +24,7 @@ docs/JsonLoginRequest.md
 docs/JsonLoginResponse.md
 docs/JsonOrder.md
 docs/JsonOrderAddresses.md
+docs/JsonOrderCustomer.md
 docs/JsonOrderLine.md
 docs/JsonOrderStatusAdvance.md
 docs/JsonPasswordResetRequest.md
