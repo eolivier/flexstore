@@ -19,6 +19,8 @@ interface JpaProductRepository : JpaRepository<ProductEntity, String> {
 
     fun existsBySkuAndIdNot(sku: String, id: String): Boolean
 
+    fun existsBySku(sku: String): Boolean
+
     // A product of this category and price, with this name and description in the default language
     @Query(
         """SELECT COUNT(p) > 0 FROM ProductEntity p JOIN p.translations t
@@ -85,6 +87,9 @@ class PostgresProductRepositoryAdapter(
     @Transactional(readOnly = true)
     override fun skuIsUsedByAnotherProduct(product: DefinedProduct): Boolean =
         jpaRepo.existsBySkuAndIdNot(product.sku.value, product.productId.id.value)
+
+    @Transactional(readOnly = true)
+    override fun skuIsFree(sku: Sku): Boolean = !jpaRepo.existsBySku(sku.value)
 
     private fun DraftProduct.toEntity(id: String) = ProductEntity(
         id = id,

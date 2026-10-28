@@ -123,3 +123,22 @@ class EmptyUseCase<T> : UseCase<T> {
     override fun getAlternativeScenarii(): Map<KClass<out NominalException>, AlternativeScenario<T>> = emptyMap()
 
 }
+
+// The nominal scenario of a query: it answers the request, without changing anything
+data class NominalQuery<T, R>(val answer: (T) -> R)
+
+// A use case that answers a question (a read, a proposal) instead of changing the state: its preconditions are
+// checked on the request, its nominal query gives the answer, and its postconditions are checked on the answer
+interface QueryUseCase<T, R> {
+
+    fun getPreConditions(): PreConditions<T>
+    fun getNominalQuery(): NominalQuery<T, R>
+    fun getPostConditions(): PostConditions<R>
+
+    fun unfold(t: T): R = UseCaseLog.execution(this::class.simpleName ?: "QueryUseCase") {
+        getPreConditions().validate(t)
+        val answer = getNominalQuery().answer(t)
+        getPostConditions().validate(answer)
+        answer
+    }
+}

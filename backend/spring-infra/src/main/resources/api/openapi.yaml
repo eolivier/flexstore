@@ -467,6 +467,37 @@ paths:
           description: Merged
         "401":
           description: Not signed in
+  /api/admin/products/sku-proposal:
+    get:
+      tags:
+      - Administration
+      summary: Propose a SKU free in the catalog, from the category and the name of a product (ADMIN role)
+      description: "The first three letters of the category, the first two words of the name (eight characters at
+        most each, without accents), then the first number from 0001 that no product has: CLO-ORGANIC-COTTON-0001"
+      operationId: proposeSku
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: category
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: name
+        in: query
+        required: false
+        description: The name of the product in the default language (en), maybe not entered yet
+        schema:
+          type: string
+      responses:
+        "200":
+          description: The SKU proposed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonSkuProposal"
+        "403":
+          description: The signed-in user is not an administrator
   /api/admin/products/{id}:
     get:
       tags:
@@ -1224,6 +1255,12 @@ components:
           description: The name and the description in every language of the product, the default one (en) included
           items:
             $ref: "#/components/schemas/JsonProductTranslation"
+    JsonSkuProposal:
+      type: object
+      required: [sku]
+      properties:
+        sku:
+          type: string
     JsonProductTranslation:
       type: object
       required: [language, name, description]
