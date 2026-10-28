@@ -23,8 +23,8 @@ class UpdateProductUseCaseTest : WithAssertions {
 
         @JvmStatic
         fun editions() = listOf(
-            Arguments.of("name", tShirt.copy(name = Name("Linen T-shirt"))),
-            Arguments.of("description", tShirt.copy(description = Description("Light and breathable"))),
+            Arguments.of("name", tShirt.renamed(Name("Linen T-shirt"))),
+            Arguments.of("description", tShirt.describedAs(Description("Light and breathable"))),
             Arguments.of("category", tShirt.copy(category = Category.SPORTS)),
             Arguments.of("price", tShirt.copy(price = Price(Amount(BigDecimal(29)), Currency.EUR))),
         )
@@ -44,9 +44,25 @@ class UpdateProductUseCaseTest : WithAssertions {
         // Arrange
         val catalogIds = productRepository.findAll().map { (it as DefinedProduct).productId }
         // Act
-        useCase.unfold(UpdateProductRequest(tShirt.copy(name = Name("Linen T-shirt"))))
+        useCase.unfold(UpdateProductRequest(tShirt.renamed(Name("Linen T-shirt"))))
         // Assert
         assertThat(productRepository.findAll().map { (it as DefinedProduct).productId }).isEqualTo(catalogIds)
+    }
+
+    @Test
+    fun `editing a product in the default language should keep its other translations`() {
+        // Arrange
+        val frenchText = ProductText(Name("T-shirt en coton bio"), Description("Confortable et écologique"))
+        val frenchTranslation = ProductTranslation(Language.FR, frenchText)
+        val translations = ProductTranslations(tShirt.translationIn(Language.EN), frenchTranslation)
+        val translatedTShirt = tShirt.copy(translations = translations)
+        productRepository.save(translatedTShirt)
+        // Act
+        useCase.unfold(UpdateProductRequest(tShirt.renamed(Name("Linen T-shirt"))))
+        // Assert
+        val storedProduct = productRepository.findById(tShirt.productId)!!
+        assertThat(storedProduct.name).isEqualTo(Name("Linen T-shirt"))
+        assertThat(storedProduct.translationIn(Language.FR)).isEqualTo(frenchTranslation)
     }
 
     @Test
@@ -63,7 +79,7 @@ class UpdateProductUseCaseTest : WithAssertions {
     @Test
     fun `the product use cases should return the edited product`() {
         // Arrange
-        val editedProduct = tShirt.copy(name = Name("Linen T-shirt"))
+        val editedProduct = tShirt.renamed(Name("Linen T-shirt"))
         // Act
         val returnedProduct = productUseCases.updateProduct(editedProduct)
         // Assert

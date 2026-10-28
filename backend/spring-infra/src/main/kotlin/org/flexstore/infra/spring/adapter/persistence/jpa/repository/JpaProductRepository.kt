@@ -1,6 +1,7 @@
 package org.flexstore.infra.spring.adapter.persistence.jpa.repository
 
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.ProductEntity
+import org.flexstore.infra.spring.adapter.persistence.jpa.entity.ProductTranslationEntity
 import org.flexstore.infra.spring.adapter.persistence.jpa.toDomain
 import org.flexstore.infra.spring.adapter.persistence.jpa.toEntity
 import org.flexstore.domain.product.*
@@ -80,14 +81,40 @@ class PostgresProductRepositoryAdapter(
         description = description.value,
         category = category.name,
         price = price.amount.value,
-        currency = price.currency.name
+        currency = price.currency.name,
+        translations = translationEntities(this)
+    )
+
+    // The stored row of a language keeps its id and its creation date, so that a product is translated at most
+    // once per language; the other languages get new rows
+    private fun translationEntities(product: DefinedProduct): List<ProductTranslationEntity> {
+        val storedProduct = jpaRepo.findById(product.productId.id.value)
+        val storedTranslations = storedProduct.map { it.translations }.orElse(emptyList())
+        return product.translations.otherThanDefault().map { translation ->
+            val language = translation.language.name.lowercase()
+            val stored = storedTranslations.firstOrNull { it.language == language }
+            val id = stored?.id ?: Identity.nextId().value
+            val name = translation.name.value
+            val entity = ProductTranslationEntity(id, language, name, translation.description.value)
+            entity.also { if (stored != null) it.createdAt = stored.createdAt }
+        }
+    }
+}
+
+// The name and the description of the product are its translation in the default language. A row of
+// product_translation in the default language would repeat them: it is not read
+fun ProductEntity.toDomain(): DefinedProduct {
+    val defaultText = ProductText(Name(name), Description(description))
+    val defaultTranslation = ProductTranslation(Language.DEFAULT, defaultText)
+    val otherTranslations = translations.map { it.toDomain() }.filterNot { it.isIn(Language.DEFAULT) }
+    val productTranslations = ProductTranslations(listOf(defaultTranslation) + otherTranslations)
+    return DefinedProduct(
+        ProductId(Identity(id)),
+        productTranslations,
+        Category.valueOf(category),
+        Price(Amount(price), Currency.valueOf(currency))
     )
 }
 
-fun ProductEntity.toDomain() = DefinedProduct(
-    productId = ProductId(Identity(id)),
-    name = Name(name),
-    description = Description(description),
-    category = Category.valueOf(category),
-    price = Price(Amount(price), Currency.valueOf(currency))
-)
+private fun ProductTranslationEntity.toDomain() =
+    ProductTranslation(Language.valueOf(language.uppercase()), ProductText(Name(name), Description(description)))
