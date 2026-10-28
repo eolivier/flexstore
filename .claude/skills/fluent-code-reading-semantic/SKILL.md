@@ -1,6 +1,6 @@
 ---
 name: fluent-code-reading-semantic
-description: Principles that make code read like the business language - wrapping collections in their own class, naming boolean methods affirmatively, naming a condition with a method (a deadline that is reached rather than a comparison of dates), naming variables after their type, intermediate variables, strong types rather than nullable ones, no nullable type marker (`?`) in declarations, one or two arguments per method, lines of 113 characters at most, singular or plural names, no repeated names, no null arguments, beans declared step by step (repository, use case, service). Use before writing, changing or reviewing domain or application code (entities, value objects, aggregates, use cases), in any language.
+description: Principles that make code read like the business language - wrapping collections in their own class, naming boolean methods affirmatively, no negated condition before an else (swap the branches), naming a condition with a method (a deadline that is reached rather than a comparison of dates), naming variables after their type, intermediate variables, strong types rather than nullable ones, no nullable type marker (`?`) in declarations, one or two arguments per method, lines of 113 characters at most, singular or plural names, no repeated names, no null arguments, beans declared step by step (repository, use case, service). Use before writing, changing or reviewing domain or application code (entities, value objects, aggregates, use cases), in any language.
 ---
 
 # Fluent code reading semantic
@@ -532,4 +532,43 @@ Details:
 - A value that is not known yet (loading, a form not filled in) is a state with its own name (`OrderLookup`: `found`, `notFound`, `error`), not a `null`.
 - The marker stays only where a framework imposes it (a nullable JPA column, an optional JSON field, a generated API client, `lateinit` not being possible): convert it at the boundary, in the adapter, and keep it out of the domain.
 - Existing code with markers is pointed out in reviews and fixed when that code is changed anyway; a broad removal is a refactoring PR of its own.
+
+## 17. No negated condition before an `else`: swap the branches
+
+When an `if` has an `else`, its condition is not negated: write the affirmative condition and swap the two branches. `if (!condition) A else B` becomes `if (condition) B else A`. The same goes for `!=`, `not`, `isNot...` and the ternary operator.
+
+Avoid:
+
+```kotlin
+if (!order.isAwaitingPayment()) {
+    throw OrderNotAwaitingPaymentException(message)
+} else {
+    paymentRepository.start(order)
+}
+
+val label = if (product.name != null) product.name else defaultName
+```
+```ts
+const color = !isHalfEntered(texts, language) ? undefined : 'error';
+```
+
+Prefer:
+
+```kotlin
+if (order.isAwaitingPayment()) {
+    paymentRepository.start(order)
+} else {
+    throw OrderNotAwaitingPaymentException(message)
+}
+```
+```ts
+const color = isHalfEntered(texts, language) ? 'error' : undefined;
+```
+
+Why: with an `else`, both cases are handled anyway, so the negation only adds a step to read; the reader takes the `else` as "when the condition is false", and a negated condition makes that a double negation ("when it is not not awaiting payment").
+
+Details:
+- An `if` without `else` keeps its condition as the rule reads, written affirmatively when a method exists for it (principle 2): `if (order.isNotAwaitingPayment()) throw ...`, a guard clause that returns early.
+- When the condition combines several parts (`!a && !b`), name it with an affirmative method or variable (principle 3) rather than swapping branches around a negated expression.
+- An `else if` chain is ordered by the business cases, each one affirmative.
 
