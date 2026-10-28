@@ -17,15 +17,17 @@ export function placedOn(order: JsonOrder, locale: string): string {
   });
 }
 
-// The day and the time the order must be paid by, while it awaits its payment (null otherwise)
-export function paymentDeadline(order: JsonOrder, locale: string): string | null {
+// The time left to pay the order, "mm:ss" (or "h:mm:ss" from one hour), at the given moment; null when the order
+// has no payment deadline, or once it is reached
+export function timeLeftToPay(order: JsonOrder, now: Date): string | null {
   if (!order.paymentDeadline) return null;
-  return new Date(order.paymentDeadline).toLocaleString(locale, {
-    day: 'numeric',
-    month: 'long',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  const secondsLeft = Math.ceil((new Date(order.paymentDeadline).getTime() - now.getTime()) / 1000);
+  if (secondsLeft <= 0) return null;
+  const hours = Math.floor(secondsLeft / 3600);
+  const minutes = Math.floor((secondsLeft % 3600) / 60);
+  const seconds = secondsLeft % 60;
+  const minutesAndSeconds = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  return hours > 0 ? `${hours}:${minutesAndSeconds}` : minutesAndSeconds;
 }
 
 // full: every step with its label (order detail);

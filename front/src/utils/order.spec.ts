@@ -6,7 +6,7 @@ import {
   orderItemsCount,
   orderNumber,
   orderStepState,
-  paymentDeadline,
+  timeLeftToPay,
   placedOn,
 } from './order';
 import { twoLinesOrder } from '@/components/orders/orderFixture';
@@ -45,9 +45,12 @@ describe('order utils', () => {
   });
 
   it.each([
-    { locale: 'fr', expected: '24 octobre à 10:10' },
-    { locale: 'en', expected: 'October 24 at 10:10 AM' },
-  ])('the payment deadline in $locale is "$expected"', ({ locale, expected }) => {
+    { now: '2026-10-24T10:00:00Z', expected: '10:00' },
+    { now: '2026-10-24T10:09:58.500Z', expected: '00:02' },
+    { now: '2026-10-24T08:09:30Z', expected: '2:00:30' },
+    { now: '2026-10-24T10:10:00Z', expected: null },
+    { now: '2026-10-24T10:11:00Z', expected: null },
+  ])('at $now, the time left to pay is $expected', ({ now, expected }) => {
     // Arrange
     const awaitingOrder: JsonOrder = {
       ...order,
@@ -55,16 +58,16 @@ describe('order utils', () => {
       paymentDeadline: '2026-10-24T10:10:00Z',
     };
     // Act
-    const deadline = paymentDeadline(awaitingOrder, locale);
+    const timeLeft = timeLeftToPay(awaitingOrder, new Date(now));
     // Assert
-    expect(deadline).toBe(expected);
+    expect(timeLeft).toBe(expected);
   });
 
-  it('an order without payment deadline has none to show', () => {
+  it('an order without payment deadline has no time left to show', () => {
     // Act
-    const deadline = paymentDeadline(order, 'fr');
+    const timeLeft = timeLeftToPay(order, new Date('2026-10-24T10:00:00Z'));
     // Assert
-    expect(deadline).toBeNull();
+    expect(timeLeft).toBeNull();
   });
 
   it.each([
