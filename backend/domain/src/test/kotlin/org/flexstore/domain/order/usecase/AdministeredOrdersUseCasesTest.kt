@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.time.Instant
 
-class ReadAdministeredOrdersUseCaseTest : WithAssertions {
+class AdministeredOrdersUseCasesTest : WithAssertions {
 
     private val lampPrice = Price(Amount(BigDecimal(35)), Currency.EUR)
     private val deskLamp = DefinedProduct(ProductId(Identity("desk-lamp")), Name("Desk lamp"), lampPrice)
@@ -24,7 +24,8 @@ class ReadAdministeredOrdersUseCaseTest : WithAssertions {
     private val placedAt = Instant.parse("2026-10-24T10:00:00Z")
     private val orderRepository = InMemoryOrderRepository()
     private val userRepository = InMemoryUserRepository().apply { save(jane) }
-    private val useCase = ReadAdministeredOrdersUseCase(orderRepository, userRepository)
+    private val listUseCase = ListAdministeredOrdersUseCase(orderRepository, userRepository)
+    private val readUseCase = ReadAdministeredOrderUseCase(orderRepository, userRepository)
 
     private fun placeOrder(orderId: OrderId, customer: CartOwner.Customer, placedAt: Instant): Order {
         val orderStamp = OrderStamp(orderId, placedAt)
@@ -38,7 +39,7 @@ class ReadAdministeredOrdersUseCaseTest : WithAssertions {
         // Arrange
         val order = placeOrder(OrderId("order-1"), customer, placedAt)
         // Act
-        val administeredOrder = useCase.getOrder(OrderId("order-1"))
+        val administeredOrder = readUseCase.unfold(OrderId("order-1"))
         // Assert
         val janeAsCustomer = OrderCustomer(janeDoe, Email("jane@example.com"))
         assertThat(administeredOrder).isEqualTo(AdministeredOrder(order, janeAsCustomer))
@@ -50,7 +51,7 @@ class ReadAdministeredOrdersUseCaseTest : WithAssertions {
         val older = placeOrder(OrderId("older"), customer, placedAt)
         val newer = placeOrder(OrderId("newer"), formerCustomer, placedAt.plusSeconds(60))
         // Act
-        val administeredOrders = useCase.getAllOrders()
+        val administeredOrders = listUseCase.unfold(Unit)
         // Assert
         val janeAsCustomer = OrderCustomer(janeDoe, Email("jane@example.com"))
         assertThat(administeredOrders.asList()).containsExactly(
@@ -64,7 +65,7 @@ class ReadAdministeredOrdersUseCaseTest : WithAssertions {
         // Arrange
         placeOrder(OrderId("order-1"), formerCustomer, placedAt)
         // Act
-        val administeredOrder = useCase.getOrder(OrderId("order-1"))
+        val administeredOrder = readUseCase.unfold(OrderId("order-1"))
         // Assert
         assertThat(administeredOrder.customer).isEqualTo(OrderCustomer.unknown())
     }
@@ -72,7 +73,7 @@ class ReadAdministeredOrdersUseCaseTest : WithAssertions {
     @Test
     fun `should report an unknown order`() {
         // Act
-        val thrown = catchThrowable { useCase.getOrder(OrderId("unknown")) }
+        val thrown = catchThrowable { readUseCase.unfold(OrderId("unknown")) }
         // Assert
         assertThat(thrown).isInstanceOf(OrderNotFoundException::class.java)
     }
