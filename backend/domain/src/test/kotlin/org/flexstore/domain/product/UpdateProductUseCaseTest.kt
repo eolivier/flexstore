@@ -16,7 +16,9 @@ class UpdateProductUseCaseTest : WithAssertions {
     private val useCase = UpdateProductUseCase(productRepository)
     private val readProductUseCase = ReadProductUseCase(productRepository)
     private val createProductUseCase = CreateProductUseCase(productRepository)
-    private val productUseCases = ProductUseCases(createProductUseCase, readProductUseCase, useCase)
+    private val proposeSkuUseCase = ProposeSkuUseCase(productRepository)
+    private val productUseCases =
+        ProductUseCases(createProductUseCase, readProductUseCase, useCase, proposeSkuUseCase)
 
     companion object {
         private val tShirt = clothes.first()
