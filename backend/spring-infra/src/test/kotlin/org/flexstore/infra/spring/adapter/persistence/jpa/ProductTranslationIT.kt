@@ -3,6 +3,7 @@ package org.flexstore.infra.spring.adapter.persistence.jpa
 import org.assertj.core.api.Assertions.assertThat
 import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
+import org.flexstore.infra.spring.adapter.persistence.jpa.entity.ProductTranslationEntity
 import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaProductRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -37,8 +38,10 @@ class ProductTranslationIT {
         jpaProductRepository.deleteById(lamp.productId.id.value)
     }
 
-    private fun storedFrenchRow() =
-        jpaProductRepository.findById(lamp.productId.id.value).orElseThrow().translations.single()
+    private fun storedFrenchRow(): ProductTranslationEntity {
+        val storedLamp = jpaProductRepository.findById(lamp.productId.id.value).orElseThrow()
+        return storedLamp.translations.single { it.language == "fr" }
+    }
 
     @Test
     fun `a product of the catalog should be read with its French translation`() {
