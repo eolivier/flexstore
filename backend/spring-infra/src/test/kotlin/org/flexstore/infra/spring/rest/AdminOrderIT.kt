@@ -6,7 +6,10 @@ import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaCartRepo
 import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaOrderRepository
 import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaUserRepository
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.UserEntity
+import org.flexstore.infra.spring.adapter.email.RecordingEmailConfig
+import org.flexstore.infra.spring.adapter.email.RecordingEmailSender
 import org.flexstore.infra.spring.adapter.rest.json.JsonItem
+import org.assertj.core.api.Assertions.assertThat
 import org.flexstore.infra.spring.security.asAdmin
 import org.flexstore.infra.spring.security.asUser
 import org.junit.jupiter.api.AfterEach
@@ -18,6 +21,7 @@ import org.junit.jupiter.params.provider.CsvSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
@@ -31,6 +35,7 @@ private const val CUSTOMER_ID = "it-admin-order-customer"
 private const val CUSTOMER_EMAIL = "it-admin-order-customer@example.com"
 
 @ExtendWith(RefilledStocks::class)
+@Import(RecordingEmailConfig::class)
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -54,9 +59,13 @@ class AdminOrderIT {
     @Autowired
     private lateinit var userRepository: JpaUserRepository
 
+    @Autowired
+    private lateinit var emailSender: RecordingEmailSender
+
     @BeforeEach
     fun createCustomer() {
         cleanUp()
+        emailSender.clear()
         userRepository.save(UserEntity(CUSTOMER_ID, "Jane", "Doe", CUSTOMER_EMAIL, "not-used"))
     }
 
@@ -135,6 +144,20 @@ class AdminOrderIT {
         // Assert
         response.andExpect(status().isOk).andExpect(jsonPath("$.status").value(expectedStatus))
             .andExpect(jsonPath("$.customer.email").value(CUSTOMER_EMAIL))
+    }
+
+    @Test
+    fun `the customer should be told by email when their order is shipped, then delivered`() {
+        // Arrange
+        val orderId = placeOrder()
+        listOf("PAID", "PROCESSING").forEach { advance(orderId, it).andExpect(status().isOk) }
+        // Act
+        val response = advance(orderId, "SHIPPED")
+        // Assert
+        response.andExpect(status().isOk)
+        val statusEmails = emailSender.sentOrderStatusEmails()
+        assertThat(statusEmails.map { it.order.status.name }).containsExactly("SHIPPED", "DELIVERED")
+        assertThat(statusEmails.map { it.recipient.value }).containsOnly(CUSTOMER_EMAIL)
     }
 
     @Test

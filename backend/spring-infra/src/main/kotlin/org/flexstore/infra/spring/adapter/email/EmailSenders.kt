@@ -10,6 +10,7 @@ import org.springframework.mail.javamail.JavaMailSender
 // How the emails leave the shop: with an SMTP server, or written to the logs (see EmailConfig)
 interface EmailSender {
     fun send(email: OrderConfirmationEmail)
+    fun send(email: OrderStatusEmail)
     fun send(link: EmailVerificationLink)
     fun send(email: PasswordResetEmail)
 }
@@ -33,6 +34,15 @@ class SmtpEmailSender(
         runCatching { mailSender.send(message(email.recipient, content)) }
             .onSuccess { logger.info("Order confirmation email of order {} sent to {}", orderNumber, email.recipient.value) }
             .onFailure { logger.error("Order confirmation email of order $orderNumber to ${email.recipient.value} not sent", it) }
+    }
+
+    override fun send(email: OrderStatusEmail) {
+        val content = OrderStatusEmailContent(email, shopUrl)
+        val orderNumber = email.order.number()
+        val recipient = email.recipient.value
+        runCatching { mailSender.send(message(email.recipient, content)) }
+            .onSuccess { logger.info("Status email of order {} sent to {}", orderNumber, recipient) }
+            .onFailure { logger.error("Status email of order $orderNumber to $recipient not sent", it) }
     }
 
     override fun send(link: EmailVerificationLink) {
@@ -65,6 +75,10 @@ class LoggingEmailSender(private val shopUrl: ShopUrl) : EmailSender {
     override fun send(email: OrderConfirmationEmail) {
         val content = OrderConfirmationEmailContent(email, shopUrl)
         log(email.recipient, content)
+    }
+
+    override fun send(email: OrderStatusEmail) {
+        log(email.recipient, OrderStatusEmailContent(email, shopUrl))
     }
 
     override fun send(link: EmailVerificationLink) {

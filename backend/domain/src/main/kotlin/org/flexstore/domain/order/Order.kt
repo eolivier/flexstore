@@ -132,6 +132,9 @@ enum class OrderStatus {
 
     fun isNotMovedByAnAdministrator() = !isMovedByAnAdministrator()
 
+    // The customer is told by email when their order is shipped, then delivered
+    fun isAnnouncedToTheCustomer() = this == SHIPPED || this == DELIVERED
+
     fun next(): OrderStatus = when (this) {
         AWAITING_PAYMENT -> PAID
         PAID -> PROCESSING
