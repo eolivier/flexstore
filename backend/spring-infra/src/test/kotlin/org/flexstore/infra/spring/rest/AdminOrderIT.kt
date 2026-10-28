@@ -28,6 +28,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.math.BigDecimal
 
 private const val CUSTOMER_ID = "it-admin-order-customer"
+private const val CUSTOMER_EMAIL = "it-admin-order-customer@example.com"
 
 @ExtendWith(RefilledStocks::class)
 @ActiveProfiles("test")
@@ -56,7 +57,7 @@ class AdminOrderIT {
     @BeforeEach
     fun createCustomer() {
         cleanUp()
-        userRepository.save(UserEntity(CUSTOMER_ID, "Jane", "Doe", "it-admin-order-customer@example.com", "not-used"))
+        userRepository.save(UserEntity(CUSTOMER_ID, "Jane", "Doe", CUSTOMER_EMAIL, "not-used"))
     }
 
     @AfterEach
@@ -86,6 +87,40 @@ class AdminOrderIT {
         // Assert
         response.andExpect(status().isOk)
             .andExpect(jsonPath("$[?(@.id == '$orderId')].status").value("PAID"))
+            .andExpect(jsonPath("$[?(@.id == '$orderId')].customer.email").value(CUSTOMER_EMAIL))
+    }
+
+    @Test
+    fun `an administrator should read an order with its customer`() {
+        // Arrange
+        val orderId = placeOrder()
+        // Act
+        val response = mockMvc.perform(get("/api/admin/orders/$orderId").with(asAdmin()))
+        // Assert
+        response.andExpect(status().isOk)
+            .andExpect(jsonPath("$.id").value(orderId))
+            .andExpect(jsonPath("$.lines.length()").value(1))
+            .andExpect(jsonPath("$.customer.firstName").value("Jane"))
+            .andExpect(jsonPath("$.customer.lastName").value("Doe"))
+            .andExpect(jsonPath("$.customer.email").value(CUSTOMER_EMAIL))
+    }
+
+    @Test
+    fun `only an administrator should read the order of another customer`() {
+        // Arrange
+        val orderId = placeOrder()
+        // Act
+        val response = mockMvc.perform(get("/api/admin/orders/$orderId").with(asUser(CUSTOMER_ID)))
+        // Assert
+        response.andExpect(status().isForbidden)
+    }
+
+    @Test
+    fun `reading an unknown order should answer 404`() {
+        // Act
+        val response = mockMvc.perform(get("/api/admin/orders/unknown-order").with(asAdmin()))
+        // Assert
+        response.andExpect(status().isNotFound)
     }
 
     @ParameterizedTest(name = "advancing {0} times should make the order {1}")
@@ -99,6 +134,7 @@ class AdminOrderIT {
         val response = advance(orderId, statuses.last())
         // Assert
         response.andExpect(status().isOk).andExpect(jsonPath("$.status").value(expectedStatus))
+            .andExpect(jsonPath("$.customer.email").value(CUSTOMER_EMAIL))
     }
 
     @Test

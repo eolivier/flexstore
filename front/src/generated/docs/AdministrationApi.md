@@ -6,11 +6,12 @@ All URIs are relative to *http://localhost:8080*
 |------------- | ------------- | -------------|
 |[**advanceOrderStatus**](#advanceorderstatus) | **POST** /api/admin/orders/{id}/status/advance | Move an order to the next status of its life cycle, PROCESSING then SHIPPED then DELIVERED (ADMIN role)|
 |[**getAdminProduct**](#getadminproduct) | **GET** /api/admin/products/{id} | Retrieve a product with its translations in every language, to edit it|
-|[**getAllOrders**](#getallorders) | **GET** /api/admin/orders | Retrieve the orders of all the customers, newest first (ADMIN role)|
+|[**getAllOrders**](#getallorders) | **GET** /api/admin/orders | Retrieve the orders of all the customers, newest first, with their customer (ADMIN role)|
+|[**getAnyOrder**](#getanyorder) | **GET** /api/admin/orders/{id} | Retrieve any order, with its customer (ADMIN role)|
 |[**proposeSku**](#proposesku) | **GET** /api/admin/products/sku-proposal | Propose a SKU free in the catalog, from the category and the name of a product (ADMIN role)|
 
 # **advanceOrderStatus**
-> JsonOrder advanceOrderStatus(jsonOrderStatusAdvance)
+> JsonAdminOrder advanceOrderStatus(jsonOrderStatusAdvance)
 
 
 ### Example
@@ -44,7 +45,7 @@ const { status, data } = await apiInstance.advanceOrderStatus(
 
 ### Return type
 
-**JsonOrder**
+**JsonAdminOrder**
 
 ### Authorization
 
@@ -118,7 +119,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getAllOrders**
-> Array<JsonOrder> getAllOrders()
+> Array<JsonAdminOrder> getAllOrders()
 
 
 ### Example
@@ -141,7 +142,7 @@ This endpoint does not have any parameters.
 
 ### Return type
 
-**Array<JsonOrder>**
+**Array<JsonAdminOrder>**
 
 ### Authorization
 
@@ -158,6 +159,58 @@ This endpoint does not have any parameters.
 |-------------|-------------|------------------|
 |**200** | The orders of all the customers |  -  |
 |**403** | The signed-in user is not an administrator |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getAnyOrder**
+> JsonAdminOrder getAnyOrder()
+
+
+### Example
+
+```typescript
+import {
+    AdministrationApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdministrationApi(configuration);
+
+let id: string; // (default to undefined)
+
+const { status, data } = await apiInstance.getAnyOrder(
+    id
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **id** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**JsonAdminOrder**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The order and its customer |  -  |
+|**403** | The signed-in user is not an administrator |  -  |
+|**404** | No order with this id |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

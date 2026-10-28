@@ -107,6 +107,36 @@ export const JsonAccountStatusStatusEnum = {
 export type JsonAccountStatusStatusEnum = typeof JsonAccountStatusStatusEnum[keyof typeof JsonAccountStatusStatusEnum];
 
 /**
+ * An order as the administrators see it, with the customer who placed it
+ */
+export interface JsonAdminOrder {
+    'id': string;
+    'placedAt': string;
+    'status': JsonAdminOrderStatusEnum;
+    'lines': Array<JsonOrderLine>;
+    'totalPrice': number;
+    'currency': string;
+    'deliveryAddress': JsonPostalAddress;
+    'billingAddress': JsonPostalAddress;
+    /**
+     * When the order must be paid by, or it is cancelled. Only for the customer, while the order awaits its payment
+     */
+    'paymentDeadline'?: string | null;
+    'customer': JsonOrderCustomer;
+}
+
+export const JsonAdminOrderStatusEnum = {
+    AwaitingPayment: 'AWAITING_PAYMENT',
+    Paid: 'PAID',
+    Processing: 'PROCESSING',
+    Shipped: 'SHIPPED',
+    Delivered: 'DELIVERED',
+    Cancelled: 'CANCELLED'
+} as const;
+
+export type JsonAdminOrderStatusEnum = typeof JsonAdminOrderStatusEnum[keyof typeof JsonAdminOrderStatusEnum];
+
+/**
  * A product as the administrator edits it, with its translations in every language
  */
 export interface JsonAdminProduct {
@@ -219,6 +249,14 @@ export type JsonOrderStatusEnum = typeof JsonOrderStatusEnum[keyof typeof JsonOr
 export interface JsonOrderAddresses {
     'deliveryAddress': JsonPostalAddress;
     'billingAddress'?: JsonPostalAddress;
+}
+/**
+ * The customer who placed an order; empty fields when their account cannot be read any more
+ */
+export interface JsonOrderCustomer {
+    'firstName': string;
+    'lastName': string;
+    'email': string;
 }
 export interface JsonOrderLine {
     'productId': string;
@@ -1157,12 +1195,50 @@ export const AdministrationApiAxiosParamCreator = function (configuration?: Conf
         },
         /**
          * 
-         * @summary Retrieve the orders of all the customers, newest first (ADMIN role)
+         * @summary Retrieve the orders of all the customers, newest first, with their customer (ADMIN role)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         getAllOrders: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/admin/orders`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Retrieve any order, with its customer (ADMIN role)
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAnyOrder: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('getAnyOrder', 'id', id)
+            const localVarPath = `/api/admin/orders/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -1252,7 +1328,7 @@ export const AdministrationApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async advanceOrderStatus(id: string, jsonOrderStatusAdvance: JsonOrderStatusAdvance, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonOrder>> {
+        async advanceOrderStatus(id: string, jsonOrderStatusAdvance: JsonOrderStatusAdvance, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonAdminOrder>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.advanceOrderStatus(id, jsonOrderStatusAdvance, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdministrationApi.advanceOrderStatus']?.[localVarOperationServerIndex]?.url;
@@ -1273,14 +1349,27 @@ export const AdministrationApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary Retrieve the orders of all the customers, newest first (ADMIN role)
+         * @summary Retrieve the orders of all the customers, newest first, with their customer (ADMIN role)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getAllOrders(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<JsonOrder>>> {
+        async getAllOrders(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<JsonAdminOrder>>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getAllOrders(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdministrationApi.getAllOrders']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Retrieve any order, with its customer (ADMIN role)
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getAnyOrder(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonAdminOrder>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getAnyOrder(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdministrationApi.getAnyOrder']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -1314,7 +1403,7 @@ export const AdministrationApiFactory = function (configuration?: Configuration,
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        advanceOrderStatus(id: string, jsonOrderStatusAdvance: JsonOrderStatusAdvance, options?: RawAxiosRequestConfig): AxiosPromise<JsonOrder> {
+        advanceOrderStatus(id: string, jsonOrderStatusAdvance: JsonOrderStatusAdvance, options?: RawAxiosRequestConfig): AxiosPromise<JsonAdminOrder> {
             return localVarFp.advanceOrderStatus(id, jsonOrderStatusAdvance, options).then((request) => request(axios, basePath));
         },
         /**
@@ -1329,12 +1418,22 @@ export const AdministrationApiFactory = function (configuration?: Configuration,
         },
         /**
          * 
-         * @summary Retrieve the orders of all the customers, newest first (ADMIN role)
+         * @summary Retrieve the orders of all the customers, newest first, with their customer (ADMIN role)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getAllOrders(options?: RawAxiosRequestConfig): AxiosPromise<Array<JsonOrder>> {
+        getAllOrders(options?: RawAxiosRequestConfig): AxiosPromise<Array<JsonAdminOrder>> {
             return localVarFp.getAllOrders(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Retrieve any order, with its customer (ADMIN role)
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAnyOrder(id: string, options?: RawAxiosRequestConfig): AxiosPromise<JsonAdminOrder> {
+            return localVarFp.getAnyOrder(id, options).then((request) => request(axios, basePath));
         },
         /**
          * The first three letters of the category, the first two words of the name (eight characters at most each, without accents), then the first number from 0001 that no product has: CLO-ORGANIC-COTTON-0001
@@ -1379,12 +1478,23 @@ export class AdministrationApi extends BaseAPI {
 
     /**
      * 
-     * @summary Retrieve the orders of all the customers, newest first (ADMIN role)
+     * @summary Retrieve the orders of all the customers, newest first, with their customer (ADMIN role)
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     public getAllOrders(options?: RawAxiosRequestConfig) {
         return AdministrationApiFp(this.configuration).getAllOrders(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Retrieve any order, with its customer (ADMIN role)
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getAnyOrder(id: string, options?: RawAxiosRequestConfig) {
+        return AdministrationApiFp(this.configuration).getAnyOrder(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

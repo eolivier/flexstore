@@ -265,6 +265,10 @@ export default {
       awaitingPayment: 'Awaiting payment',
       statusChanged: 'The status of this order changed in the meantime: the orders were reloaded.',
       error: 'The status of the order could not be changed.',
+      customer: 'Customer',
+      unknownCustomer: 'Account no longer available',
+      detail: 'Order details',
+      cancelled: 'This order was cancelled: it was not paid in time.',
     },
     orders: {
       title: 'Orders',
@@ -746,6 +750,10 @@ export default {
       awaitingPayment: 'En attente de paiement',
       statusChanged: "L'état de cette commande a changé entre-temps : les commandes ont été rechargées.",
       error: "L'état de la commande n'a pas pu être changé.",
+      customer: 'Client',
+      unknownCustomer: 'Compte plus disponible',
+      detail: 'Détail de la commande',
+      cancelled: "Cette commande a été annulée : elle n'a pas été payée à temps.",
     },
     orders: {
       title: 'Commandes',

@@ -3,7 +3,7 @@ import { flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { createMemoryHistory, createRouter } from 'vue-router';
 import AdminOrders from './AdminOrders.vue';
-import { twoLinesOrder } from '@/components/orders/orderFixture';
+import { twoLinesAdminOrder as twoLinesOrder } from '@/components/orders/orderFixture';
 import { vuetify, i18n } from '@/test/setup';
 
 const mockFetch = vi.fn();
@@ -45,6 +45,28 @@ describe('AdminOrders.vue', () => {
     expect(wrapper.text()).toContain('2 orders');
     expect(wrapper.text()).toContain('Jane Doe');
     expect(wrapper.text()).toContain('Processing');
+  });
+
+  it('shows the customer of each order, and links its number to its detail', async () => {
+    // Arrange
+    respondWith([twoLinesOrder]);
+    // Act
+    const wrapper = await mountAdminOrders();
+    // Assert
+    expect(wrapper.text()).toContain('John Smith');
+    expect(wrapper.text()).toContain('john.smith@example.com');
+    const numberLink = wrapper.findAll('a').find((link) => link.text() === '46555C9F')!;
+    expect(numberLink.attributes('href')).toBe(`/admin/orders/${twoLinesOrder.id}`);
+  });
+
+  it('shows a customer whose account cannot be read any more', async () => {
+    // Arrange
+    const formerCustomer = { firstName: '', lastName: '', email: '' };
+    respondWith([{ ...twoLinesOrder, customer: formerCustomer }]);
+    // Act
+    const wrapper = await mountAdminOrders();
+    // Assert
+    expect(wrapper.text()).toContain('Account no longer available');
   });
 
   it.each([

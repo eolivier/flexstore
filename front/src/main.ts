@@ -23,6 +23,7 @@ import CreateProduct from './components/admin/products/CreateProduct.vue';
 import AdminProducts from './components/admin/products/AdminProducts.vue';
 import EditProduct from './components/admin/products/EditProduct.vue';
 import AdminOrders from './components/admin/orders/AdminOrders.vue';
+import AdminOrderDetail from './components/admin/orders/AdminOrderDetail.vue';
 import AddressBook from './components/account/addresses/AddressBook.vue';
 import ShopSettings from './components/admin/settings/ShopSettings.vue';
 import Login from './components/Login.vue';
@@ -80,6 +81,12 @@ const routes = [
   {
     path: '/admin/orders',
     component: AdminOrders,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/admin/orders/:id',
+    component: AdminOrderDetail,
+    props: true,
     meta: { requiresAuth: true, requiresAdmin: true },
   },
   {

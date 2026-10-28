@@ -930,7 +930,7 @@ paths:
     get:
       tags:
       - Administration
-      summary: Retrieve the orders of all the customers, newest first (ADMIN role)
+      summary: Retrieve the orders of all the customers, newest first, with their customer (ADMIN role)
       operationId: getAllOrders
       security:
       - bearerAuth: []
@@ -942,9 +942,34 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/JsonOrder"
+                  $ref: "#/components/schemas/JsonAdminOrder"
         "403":
           description: The signed-in user is not an administrator
+  /api/admin/orders/{id}:
+    get:
+      tags:
+      - Administration
+      summary: Retrieve any order, with its customer (ADMIN role)
+      operationId: getAnyOrder
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: The order and its customer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonAdminOrder"
+        "403":
+          description: The signed-in user is not an administrator
+        "404":
+          description: No order with this id
   /api/admin/orders/{id}/status/advance:
     post:
       tags:
@@ -971,7 +996,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JsonOrder"
+                $ref: "#/components/schemas/JsonAdminOrder"
         "403":
           description: The signed-in user is not an administrator
         "404":
@@ -1314,6 +1339,26 @@ components:
           format: int32
         itemPrice:
           type: number
+    JsonAdminOrder:
+      description: An order as the administrators see it, with the customer who placed it
+      allOf:
+      - $ref: "#/components/schemas/JsonOrder"
+      - type: object
+        required: [customer]
+        properties:
+          customer:
+            $ref: "#/components/schemas/JsonOrderCustomer"
+    JsonOrderCustomer:
+      type: object
+      description: The customer who placed an order; empty fields when their account cannot be read any more
+      required: [firstName, lastName, email]
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
     JsonOrder:
       type: object
       required: [id, placedAt, status, lines, totalPrice, currency, deliveryAddress, billingAddress]

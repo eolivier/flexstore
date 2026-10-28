@@ -7,9 +7,10 @@ export interface AdminBreadcrumb {
 const home = { label: 'nav.admin', to: '/admin' };
 const users = { label: 'nav.users', to: '/admin/users' };
 const products = { label: 'nav.products', to: '/admin/products' };
+const orders = { label: 'nav.adminOrders', to: '/admin/orders' };
 
-// The trail from the home of the administration to the page; the sub-pages of the users and the products go
-// through their list
+// The trail from the home of the administration to the page; the sub-pages of the users, the products and the
+// orders go through their list
 const trails: { pattern: RegExp; parents: AdminBreadcrumb[]; label: string }[] = [
   { pattern: /^\/admin\/users\/[^/]+\/edit$/, parents: [home, users], label: 'editUser.title' },
   { pattern: /^\/admin\/create-user$/, parents: [home, users], label: 'nav.createUser' },
@@ -17,6 +18,7 @@ const trails: { pattern: RegExp; parents: AdminBreadcrumb[]; label: string }[] =
   { pattern: /^\/admin\/products\/[^/]+\/edit$/, parents: [home, products], label: 'editProduct.title' },
   { pattern: /^\/admin\/create-product$/, parents: [home, products], label: 'nav.createProduct' },
   { pattern: /^\/admin\/products$/, parents: [home], label: 'nav.products' },
+  { pattern: /^\/admin\/orders\/[^/]+$/, parents: [home, orders], label: 'adminOrders.detail' },
   { pattern: /^\/admin\/orders$/, parents: [home], label: 'nav.adminOrders' },
   { pattern: /^\/admin\/settings$/, parents: [home], label: 'nav.settings' },
   { pattern: /^\/admin$/, parents: [], label: 'nav.admin' },
