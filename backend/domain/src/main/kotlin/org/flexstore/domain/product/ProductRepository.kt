@@ -14,4 +14,5 @@ interface ProductRepository {
     fun skuIsUsedByAnotherProduct(product: DefinedProduct): Boolean
     // No product of the catalog has this SKU
     fun skuIsFree(sku: Sku): Boolean
+    fun skuIsNotFree(sku: Sku): Boolean = !skuIsFree(sku)
 }

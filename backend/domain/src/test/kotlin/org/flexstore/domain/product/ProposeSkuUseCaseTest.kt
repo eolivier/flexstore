@@ -18,7 +18,7 @@ class ProposeSkuUseCaseTest : WithAssertions {
         val firstMug = DefinedProduct(ProductId(Identity("mug-1")), Name("Mug"), price)
         productRepository.save(firstMug.copy(sku = Sku("HOM-MUG-0001")))
         // Act
-        val sku = useCase.unfold(SkuBasis(Category.HOME, "Mug"))
+        val sku = useCase.unfold(SkuBasis(Category.HOME, Words.of("Mug")))
         // Assert
         assertThat(sku).isEqualTo(Sku("HOM-MUG-0002"))
     }
