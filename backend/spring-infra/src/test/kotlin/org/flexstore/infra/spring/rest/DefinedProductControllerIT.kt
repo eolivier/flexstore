@@ -138,8 +138,29 @@ class DefinedProductControllerIT {
         // Act
         val productId = createProduct("Reading lamp", frenchLamp)
         // Assert
-        mockMvc.perform(get("/api/products/$productId"))
+        mockMvc.perform(get("/api/products/$productId").header(HttpHeaders.ACCEPT_LANGUAGE, "fr"))
+            .andExpect(jsonPath("$.name").value("Lampe de lecture"))
+    }
+
+    @Test
+    fun `an administrator should read a product with its translations in every language`() {
+        // Arrange
+        val frenchLamp = """{"language": "fr", "name": "Lampe de lecture", "description": "Lumière chaude"}"""
+        val productId = createProduct("Reading lamp", frenchLamp)
+        // Act
+        val response = mockMvc.perform(get("/api/admin/products/$productId").with(asAdmin()))
+        // Assert
+        response.andExpect(status().isOk)
+            .andExpect(jsonPath("$.translations[?(@.language == 'en')].description").value("Warm light"))
             .andExpect(jsonPath("$.translations[?(@.language == 'fr')].name").value("Lampe de lecture"))
+    }
+
+    @Test
+    fun `a customer should not read the translations of a product as an administrator`() {
+        // Act
+        val response = mockMvc.perform(get("/api/admin/products/2").with(asUser("a-customer")))
+        // Assert
+        response.andExpect(status().isForbidden)
     }
 
     @Test
@@ -154,6 +175,7 @@ class DefinedProductControllerIT {
         )
         // Assert
         response.andExpect(status().isOk)
+        mockMvc.perform(get("/api/admin/products/$productId").with(asAdmin()))
             .andExpect(jsonPath("$.translations.length()").value(1))
             .andExpect(jsonPath("$.translations[0].language").value("en"))
     }
