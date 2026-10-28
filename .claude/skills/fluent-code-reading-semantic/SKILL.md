@@ -1,6 +1,6 @@
 ---
 name: fluent-code-reading-semantic
-description: Principles that make code read like the business language - wrapping collections in their own class, naming boolean methods affirmatively, naming a condition with a method (a deadline that is reached rather than a comparison of dates), naming variables after their type, intermediate variables, strong types rather than nullable ones, one or two arguments per method, lines of 113 characters at most, singular or plural names, no repeated names, no null arguments, beans declared step by step (repository, use case, service). Use before writing, changing or reviewing domain or application code (entities, value objects, aggregates, use cases), in any language.
+description: Principles that make code read like the business language - wrapping collections in their own class, naming boolean methods affirmatively, naming a condition with a method (a deadline that is reached rather than a comparison of dates), naming variables after their type, intermediate variables, strong types rather than nullable ones, no nullable type marker (`?`) in declarations, one or two arguments per method, lines of 113 characters at most, singular or plural names, no repeated names, no null arguments, beans declared step by step (repository, use case, service). Use before writing, changing or reviewing domain or application code (entities, value objects, aggregates, use cases), in any language.
 ---
 
 # Fluent code reading semantic
@@ -477,3 +477,59 @@ Why: the configuration reads as the architecture (each layer depends only on the
 Details:
 - When the configuration class grows too big, split it by layer: `RepositoryConfig` (the repositories that are not already components), `UseCaseConfig` (the use cases), `ServiceConfig` (the domain services and facades).
 - A group of use cases passed together (`PaymentUseCases`) is a bean too, built from the use case beans.
+
+## 16. No nullable type marker `?` in a declaration
+
+Do not write the nullable type marker `?` after a type: not in a property, a parameter, a return type, a local variable nor a type argument (`Product?`, `String?`, `List<Order?>`). The same goes in TypeScript for the optional marker (`name?: string`) and for `| null` / `| undefined` in a type. Principle 9 says which types to choose; this one says where to look: every `?` of a declaration is a place where the absence is not named.
+
+Avoid:
+
+```kotlin
+interface ProductRepository {
+    fun findById(productId: ProductId): DefinedProduct?
+}
+
+val product = productRepository.findById(productId)!!
+val name = product?.name ?: Name("Unknown")
+```
+```ts
+export interface Product {
+  id?: string;
+  name?: string;
+}
+```
+
+Prefer:
+
+```kotlin
+interface ProductRepository {
+    fun productExists(productId: ProductId): Boolean
+    // Only called once the product is known to exist
+    fun get(productId: ProductId): DefinedProduct
+}
+
+// Or, when the caller must handle both cases, a result that names them
+sealed interface ProductLookup {
+    data class Found(val product: DefinedProduct) : ProductLookup
+    data object Missing : ProductLookup
+}
+```
+```ts
+// A product read from the API always has its id and its name; the form of a new product is another type
+export interface Product {
+  id: string;
+  name: string;
+}
+export interface DraftProduct {
+  name: string;
+}
+```
+
+Why: the marker spreads to the callers as `?.`, `?:`, `!!` and `if (x != null)`, and each one decides again what the absence means, or hides it with `!!`; without the marker, the signature says the value is there, and the case where it is missing is a name the reader can follow.
+
+Details:
+- `!!` (and `as` to a non-null type, or `!` in TypeScript) is the sign of a marker that should not be there: remove the marker rather than forcing it at each call.
+- A value that is not known yet (loading, a form not filled in) is a state with its own name (`OrderLookup`: `found`, `notFound`, `error`), not a `null`.
+- The marker stays only where a framework imposes it (a nullable JPA column, an optional JSON field, a generated API client, `lateinit` not being possible): convert it at the boundary, in the adapter, and keep it out of the domain.
+- Existing code with markers is pointed out in reviews and fixed when that code is changed anyway; a broad removal is a refactoring PR of its own.
+
