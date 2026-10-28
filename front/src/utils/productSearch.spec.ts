@@ -53,4 +53,3 @@ describe('catalog search', () => {
     expect(matched).toBe(matches);
   });
 });
-
