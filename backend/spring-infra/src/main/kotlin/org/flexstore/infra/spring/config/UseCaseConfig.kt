@@ -175,8 +175,12 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     @Bean
     open fun productUseCases(createProductUseCase: CreateProductUseCase,
                              readProductUseCase: ReadProductUseCase,
-                             updateProductUseCase: UpdateProductUseCase) =
-        ProductUseCases(createProductUseCase, readProductUseCase, updateProductUseCase)
+                             updateProductUseCase: UpdateProductUseCase,
+                             proposeSkuUseCase: ProposeSkuUseCase) =
+        ProductUseCases(createProductUseCase, readProductUseCase, updateProductUseCase, proposeSkuUseCase)
+
+    @Bean
+    open fun proposeSkuUseCase(productRepository: ProductRepository) = ProposeSkuUseCase(productRepository)
 
     @Bean
     open fun cartUseCases(addItemToCartUseCase: AddItemToCartUseCase,

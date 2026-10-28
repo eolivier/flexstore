@@ -331,6 +331,9 @@ export interface JsonSaveItemResponse {
      */
     'cartId'?: string | null;
 }
+export interface JsonSkuProposal {
+    'sku': string;
+}
 export interface JsonStock {
     'productId': string;
     /**
@@ -1186,6 +1189,52 @@ export const AdministrationApiAxiosParamCreator = function (configuration?: Conf
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * The first three letters of the category, the first two words of the name (eight characters at most each, without accents), then the first number from 0001 that no product has: CLO-ORGANIC-COTTON-0001
+         * @summary Propose a SKU free in the catalog, from the category and the name of a product (ADMIN role)
+         * @param {string} category 
+         * @param {string} [name] The name of the product in the default language (en), maybe not entered yet
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        proposeSku: async (category: string, name?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'category' is not null or undefined
+            assertParamExists('proposeSku', 'category', category)
+            const localVarPath = `/api/admin/products/sku-proposal`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (category !== undefined) {
+                localVarQueryParameter['category'] = category;
+            }
+
+            if (name !== undefined) {
+                localVarQueryParameter['name'] = name;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -1234,6 +1283,20 @@ export const AdministrationApiFp = function(configuration?: Configuration) {
             const localVarOperationServerBasePath = operationServerMap['AdministrationApi.getAllOrders']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
+        /**
+         * The first three letters of the category, the first two words of the name (eight characters at most each, without accents), then the first number from 0001 that no product has: CLO-ORGANIC-COTTON-0001
+         * @summary Propose a SKU free in the catalog, from the category and the name of a product (ADMIN role)
+         * @param {string} category 
+         * @param {string} [name] The name of the product in the default language (en), maybe not entered yet
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async proposeSku(category: string, name?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonSkuProposal>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.proposeSku(category, name, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdministrationApi.proposeSku']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
     }
 };
 
@@ -1273,6 +1336,17 @@ export const AdministrationApiFactory = function (configuration?: Configuration,
         getAllOrders(options?: RawAxiosRequestConfig): AxiosPromise<Array<JsonOrder>> {
             return localVarFp.getAllOrders(options).then((request) => request(axios, basePath));
         },
+        /**
+         * The first three letters of the category, the first two words of the name (eight characters at most each, without accents), then the first number from 0001 that no product has: CLO-ORGANIC-COTTON-0001
+         * @summary Propose a SKU free in the catalog, from the category and the name of a product (ADMIN role)
+         * @param {string} category 
+         * @param {string} [name] The name of the product in the default language (en), maybe not entered yet
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        proposeSku(category: string, name?: string, options?: RawAxiosRequestConfig): AxiosPromise<JsonSkuProposal> {
+            return localVarFp.proposeSku(category, name, options).then((request) => request(axios, basePath));
+        },
     };
 };
 
@@ -1311,6 +1385,18 @@ export class AdministrationApi extends BaseAPI {
      */
     public getAllOrders(options?: RawAxiosRequestConfig) {
         return AdministrationApiFp(this.configuration).getAllOrders(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * The first three letters of the category, the first two words of the name (eight characters at most each, without accents), then the first number from 0001 that no product has: CLO-ORGANIC-COTTON-0001
+     * @summary Propose a SKU free in the catalog, from the category and the name of a product (ADMIN role)
+     * @param {string} category 
+     * @param {string} [name] The name of the product in the default language (en), maybe not entered yet
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public proposeSku(category: string, name?: string, options?: RawAxiosRequestConfig) {
+        return AdministrationApiFp(this.configuration).proposeSku(category, name, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

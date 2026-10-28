@@ -53,3 +53,6 @@ data class EditedJsonProduct @JsonCreator constructor(
     @JsonProperty("currency") val currency: String,
     @JsonProperty("translations") val translations: List<JsonProductTranslation>
 )
+
+// A SKU proposed to an administrator, free in the catalog when it is proposed
+data class JsonSkuProposal @JsonCreator constructor(@JsonProperty("sku") val sku: String)
