@@ -1,6 +1,6 @@
 ---
 name: domain-driven-design
-description: Domain-Driven Design and hexagonal architecture principles to follow when writing or reviewing back-end code - where business rules live, what entities, value objects and aggregates may reference (value objects rather than primitive types), the role of use cases, domain services, repositories and adapters, groups of use cases named after their sub-domain (OrderUseCases, not a facade). Use before creating or changing an entity, aggregate, value object, use case, domain service, port (repository interface) or infrastructure adapter, and when reviewing domain code.
+description: Domain-Driven Design and hexagonal architecture principles to follow when writing or reviewing back-end code - where business rules live, what entities, value objects and aggregates may reference (value objects rather than primitive types), the role of use cases, domain services, repositories and adapters, groups of use cases named after their sub-domain (OrderUseCases, not a facade), every use case implementing the UseCase interface of ucop (or QueryUseCase when it answers). Use before creating or changing an entity, aggregate, value object, use case, domain service, port (repository interface) or infrastructure adapter, and when reviewing domain code.
 ---
 
 # Domain-Driven Design
@@ -345,3 +345,46 @@ Details:
 - The name is the one of the sub-domain (the package of principle 4): `OrderUseCases`, `CartUseCases`, `ProductUseCases`, `PaymentUseCases`, `AddressUseCases`.
 - A domain service that receives such a group keeps the `Service` suffix (principle 7): `PaymentService(paymentUseCases, ...)`.
 - A group used only to pass use cases together to a service (a holder without behaviour) follows the same rule.
+
+## 10. A use case implements the `UseCase` interface, or `QueryUseCase` when it answers
+
+Every use case implements an interface of ucop (`org.ucop.domain.entity`), which gives it the same shape: preconditions, then a nominal scenario, then postconditions, run by `unfold`.
+- **`UseCase<T>`** for a use case that changes the state (place an order, refund it, update a product): `unfold(t)` returns nothing; the caller reads the result back with a query (see section 3).
+- **`QueryUseCase<T, R>`** for a use case that answers without changing anything (read, search, propose): its preconditions are checked on the request, its `NominalQuery` gives the answer, its postconditions are checked on the answer, and `unfold(t)` returns it.
+
+The only exception is a class that aggregates several use cases: a group of use cases (`OrderUseCases`, section 9) or a domain service (section 7). It calls the `unfold` of the use cases it holds, and implements neither interface.
+
+Avoid:
+
+```kotlin
+// A plain class: no preconditions, no postconditions, its rule is hidden in a method
+class ProposeSkuUseCase(private val productRepository: ProductRepository) {
+    fun proposeFor(skuBasis: SkuBasis): Sku =
+        Sku.proposalsFor(skuBasis).first { sku -> productRepository.skuIsFree(sku) }
+}
+```
+
+Prefer:
+
+```kotlin
+class ProposeSkuUseCase(private val productRepository: ProductRepository) : QueryUseCase<SkuBasis, Sku> {
+
+    override fun getPreConditions(): PreConditions<SkuBasis> = PreConditions.none()
+
+    override fun getNominalQuery() = NominalQuery<SkuBasis, Sku> { skuBasis ->
+        Sku.proposalsFor(skuBasis).first { sku -> productRepository.skuIsFree(sku) }
+    }
+
+    // The answer is checked after: a SKU free in the catalog
+    override fun getPostConditions(): PostConditions<Sku> = PostConditions(proposalIsFreeCondition())
+}
+
+// caller (the group of use cases): proposeSkuUseCase.unfold(skuBasis)
+```
+
+Why: every business action, read or write, reads the same way: what must hold before, what it does, what must hold after. The checks are written and logged once by ucop rather than left to each class, and a reader finds the rules of a use case in the same place every time.
+
+Details:
+- The name still ends with `UseCase` and says the action (`ReadOrdersUseCase`, `ProposeSkuUseCase`); a use case with several questions (`getOrders`, `getOrder`) is split into one query use case per question, or given a request type that carries the question.
+- Existing use cases that are plain classes are pointed out in reviews and moved to `QueryUseCase` in a refactoring pull request of their own (see the `prompt-convention` skill).
+
