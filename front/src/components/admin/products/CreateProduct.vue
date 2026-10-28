@@ -1,12 +1,15 @@
 <script setup lang="ts">
   import AdminBreadcrumbs from '@/components/admin/AdminBreadcrumbs.vue';
-  import { nextTick, ref } from 'vue';
+  import { nextTick, ref, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useProductsStore } from '@/stores/products.store.ts';
   import ProductFields from './ProductFields.vue';
   import { DEFAULT_LANGUAGE } from '@/models/product';
   import { emptyTexts, translationsOf } from '@/utils/productTranslations';
+  import { normalizedSku } from '@/utils/sku';
 
+  const sku = ref('');
+  const skuAlreadyUsed = ref(false);
   const texts = ref(emptyTexts());
   const category = ref('CLOTHING');
   const price = ref<string | null>(null);
@@ -22,13 +25,17 @@
     if (!valid.value || price.value === null) return;
     saving.value = true;
     const createdName = texts.value[DEFAULT_LANGUAGE].name;
-    const created = await productsStore.addProduct({
+    const productSave = await productsStore.addProduct({
+      sku: normalizedSku(sku.value),
       category: category.value,
       price: parseFloat(price.value),
       currency: 'EUR',
       translations: translationsOf(texts.value),
     });
     saving.value = false;
+    skuAlreadyUsed.value = productSave === 'skuAlreadyUsed';
+    if (skuAlreadyUsed.value) return;
+    const created = productSave === 'saved';
     feedback.value = {
       show: true,
       success: created,
@@ -37,7 +44,11 @@
     if (created) resetForm();
   };
 
+  // A SKU typed again may be free
+  watch(sku, () => (skuAlreadyUsed.value = false));
+
   const resetForm = () => {
+    sku.value = '';
     texts.value = emptyTexts();
     price.value = null;
     valid.value = false;
@@ -52,9 +63,11 @@
     <v-card class="pa-6">
       <v-form ref="formRef" v-model="valid" @submit.prevent="submitForm">
         <ProductFields
+          v-model:sku="sku"
           v-model:texts="texts"
           v-model:category="category"
           v-model:price="price"
+          :sku-already-used="skuAlreadyUsed"
         />
         <div class="d-flex ga-3 mt-2">
           <v-btn to="/admin/products" variant="outlined" color="primary" size="large" class="flex-grow-1">{{

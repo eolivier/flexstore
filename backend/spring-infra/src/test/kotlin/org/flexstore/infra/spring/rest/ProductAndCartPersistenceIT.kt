@@ -152,7 +152,8 @@ class ProductAndCartPersistenceIT {
     }
 
     private fun draftProduct(price: String) =
-        """{"category": "HOME", "price": $price, "currency": "EUR", "translations": [
+        """{"sku": "PERSISTENCE-IT", "category": "HOME", "price": $price, "currency": "EUR",
+        "translations": [
         {"language": "en", "name": "$TEST_PRODUCT_NAME", "description": "Stored in PostgreSQL"}]}"""
 
     private fun createProduct(draft: String) =

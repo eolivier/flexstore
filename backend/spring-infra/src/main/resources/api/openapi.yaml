@@ -541,7 +541,7 @@ paths:
     put:
       tags:
       - Products
-      summary: Edit a product (translations, category, price)
+      summary: Edit a product (SKU, translations, category, price)
       description: Reserved to an administrator
       operationId: updateProduct
       security:
@@ -565,12 +565,16 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/JsonProduct"
+        "400":
+          description: Malformed SKU
         "401":
           description: Not signed in
         "403":
           description: Not an administrator
         "404":
           description: Unknown product
+        "409":
+          description: SKU used by another product
   /api/cart/cart-items:
     get:
       tags:
@@ -1163,8 +1167,13 @@ components:
           description: User's password (plain text)
     DraftJsonProduct:
       type: object
-      required: [category, price, currency, translations]
+      required: [sku, category, price, currency, translations]
       properties:
+        sku:
+          type: string
+          description: "Stock Keeping Unit, unique in the catalog: upper-case letters and digits in groups separated
+            by hyphens, 32 characters at most (TSHIRT-ORGANIC-M); the spaces around are dropped, the letters put in
+            upper case"
         category:
           type: string
         price:
@@ -1179,8 +1188,13 @@ components:
     EditedJsonProduct:
       type: object
       description: The fields an administrator edits; the id is given by the path
-      required: [category, price, currency, translations]
+      required: [sku, category, price, currency, translations]
       properties:
+        sku:
+          type: string
+          description: "Stock Keeping Unit, unique in the catalog: upper-case letters and digits in groups separated
+            by hyphens, 32 characters at most (TSHIRT-ORGANIC-M); the spaces around are dropped, the letters put in
+            upper case"
         category:
           type: string
         price:
@@ -1195,10 +1209,13 @@ components:
             $ref: "#/components/schemas/JsonProductTranslation"
     JsonProduct:
       type: object
-      required: [id, name, description, category, price, currency]
+      required: [id, sku, name, description, category, price, currency]
       properties:
         id:
           type: string
+        sku:
+          type: string
+          description: Stock Keeping Unit, unique in the catalog
         name:
           type: string
           description: In the language asked (Accept-Language), or in en when the product is not translated into it
@@ -1214,10 +1231,13 @@ components:
     JsonAdminProduct:
       type: object
       description: A product as the administrator edits it, with its translations in every language
-      required: [id, category, price, currency, translations]
+      required: [id, sku, category, price, currency, translations]
       properties:
         id:
           type: string
+        sku:
+          type: string
+          description: Stock Keeping Unit, unique in the catalog
         category:
           type: string
         price:

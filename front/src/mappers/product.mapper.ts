@@ -5,6 +5,7 @@ import type { Product } from '@/models/product';
 export function fromApi(jsonProduct: JsonProduct): Product {
   return {
     id: jsonProduct.id,
+    sku: jsonProduct.sku,
     name: jsonProduct.name,
     description: jsonProduct.description ?? '',
     category: jsonProduct.category ?? '',

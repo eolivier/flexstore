@@ -5,6 +5,7 @@ import { matchesCatalogSearch, matchesSearch } from './productSearch';
 const jacket = {
   id: 'p-1',
   name: 'Waterproof Jacket',
+  sku: 'CLO-2',
   description: 'Légère et imperméable',
   category: 'CLOTHING',
   price: 89,
@@ -18,6 +19,7 @@ describe('productSearch', () => {
     { search: 'WATERPROOF', matches: true },
     { search: 'legere', matches: true },
     { search: 'jacket impermeable', matches: true },
+    { search: 'clo-2', matches: true },
     { search: 'jacket blue', matches: false },
     { search: 'shoes', matches: false },
   ])('the search "$search" matches the jacket: $matches', ({ search, matches }) => {

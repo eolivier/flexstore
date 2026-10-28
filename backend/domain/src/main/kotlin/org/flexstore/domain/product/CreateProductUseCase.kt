@@ -7,14 +7,19 @@ import kotlin.reflect.KClass
 
 // The id of the new product is chosen by the caller, which can then read the created product
 data class CreateProductRequest(val productId: ProductId, val draftProduct: DraftProduct) {
-    fun definedProduct() =
-        DefinedProduct(productId, draftProduct.translations, draftProduct.category, draftProduct.price)
+    fun definedProduct() = DefinedProduct(
+        productId,
+        draftProduct.sku,
+        draftProduct.translations,
+        draftProduct.category,
+        draftProduct.price
+    )
 }
 
 class CreateProductUseCase(private val productRepository: ProductRepository) : UseCase<CreateProductRequest> {
 
     override fun getPreConditions(): PreConditions<CreateProductRequest> =
-        PreConditions(productDoesNotExistCondition())
+        PreConditions(productDoesNotExistCondition(), skuIsWellFormedCondition(), skuIsFreeCondition())
 
     override fun getNominalScenario(): NominalScenario<CreateProductRequest> {
         val createProductStep = Step<CreateProductRequest> { request ->
@@ -29,6 +34,14 @@ class CreateProductUseCase(private val productRepository: ProductRepository) : U
     override fun getAlternativeScenarii():
         Map<KClass<out NominalException>, AlternativeScenario<CreateProductRequest>> {
         return emptyMap()
+    }
+
+    private fun skuIsWellFormedCondition() = PreCondition<CreateProductRequest> { request ->
+        throwIfMalformed(request.draftProduct.sku)
+    }
+
+    private fun skuIsFreeCondition() = PreCondition<CreateProductRequest> { request ->
+        throwIfUsedByAnotherProduct(request.definedProduct(), productRepository)
     }
 
     private fun productDoesNotExistCondition() = PreCondition<CreateProductRequest> { request ->

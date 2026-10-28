@@ -75,6 +75,7 @@
       <template #item.name="{ item }">
         <div class="py-2">
           <div class="font-weight-medium">{{ item.name }}</div>
+          <div class="text-caption text-medium-emphasis">{{ t('sku.label') }} {{ item.sku }}</div>
           <div class="text-caption text-medium-emphasis">{{ item.description }}</div>
         </div>
       </template>
