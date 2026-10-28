@@ -27,7 +27,7 @@ class AdminProductController(private val productUseCases: ProductUseCases, priva
         @RequestParam category: String,
         @RequestParam(defaultValue = "") name: String
     ): JsonSkuProposal {
-        val skuBasis = SkuBasis(Category.valueOf(category), name)
+        val skuBasis = SkuBasis(Category.valueOf(category), Words.of(name))
         return JsonSkuProposal(productUseCases.proposeSkuFor(skuBasis).value)
     }
 }

@@ -38,26 +38,31 @@ class SkuTest : WithAssertions {
         name: String,
         proposedSku: String
     ) {
+        // Arrange
+        val skuBasis = SkuBasis(category, Words.of(name))
         // Act
-        val firstProposal = Sku.proposalsFor(SkuBasis(category, name)).first()
+        val firstProposal = skuBasis.proposals().firstAccepted { true }
         // Assert
         assertThat(firstProposal).isEqualTo(Sku(proposedSku))
     }
 
     @Test
     fun `the SKUs proposed should follow each other by their number`() {
+        // Arrange
+        val usedSkus = listOf(Sku("HOM-MUG-0001"), Sku("HOM-MUG-0002"))
+        val skuBasis = SkuBasis(Category.HOME, Words.of("Mug"))
         // Act
-        val proposals = Sku.proposalsFor(SkuBasis(Category.HOME, "Mug")).take(3).toList()
+        val firstFreeProposal = skuBasis.proposals().firstAccepted { sku -> sku !in usedSkus }
         // Assert
-        assertThat(proposals).containsExactly(Sku("HOM-MUG-0001"), Sku("HOM-MUG-0002"), Sku("HOM-MUG-0003"))
+        assertThat(firstFreeProposal).isEqualTo(Sku("HOM-MUG-0003"))
     }
 
     @Test
     fun `the SKUs proposed should be well formed`() {
         // Arrange
-        val skuBasis = SkuBasis(Category.ACCESSORIES, "Sac à dos urbain — édition 2026!")
+        val skuBasis = SkuBasis(Category.ACCESSORIES, Words.of("Sac à dos urbain — édition 2026!"))
         // Act
-        val firstProposal = Sku.proposalsFor(skuBasis).first()
+        val firstProposal = skuBasis.proposals().firstAccepted { true }
         // Assert
         assertThat(firstProposal.isWellFormed()).isTrue()
     }
@@ -65,7 +70,7 @@ class SkuTest : WithAssertions {
     @Test
     fun `the prefix of the SKUs proposed should be made of the category and the first words of the name`() {
         // Arrange
-        val skuBasis = SkuBasis(Category.CLOTHING, "T-shirt en coton bio")
+        val skuBasis = SkuBasis(Category.CLOTHING, Words.of("T-shirt en coton bio"))
         // Act
         val prefix = skuBasis.prefix()
         // Assert
@@ -75,7 +80,7 @@ class SkuTest : WithAssertions {
     @Test
     fun `a numbered SKU should have its number on four digits`() {
         // Act
-        val sku = SkuPrefix("HOM-MUG").numbered(12)
+        val sku = SkuPrefix("HOM-MUG").numbered(SkuNumber(12))
         // Assert
         assertThat(sku).isEqualTo(Sku("HOM-MUG-0012"))
     }
