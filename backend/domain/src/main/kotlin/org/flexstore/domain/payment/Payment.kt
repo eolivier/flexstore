@@ -24,5 +24,9 @@ data class OrderAlreadyPaidException(override val errorMessage: ErrorMessage) : 
 // The customer paid, but the payment provider has not confirmed it yet
 data class PaymentAlreadyCompletedException(override val errorMessage: ErrorMessage) :
     NominalException(errorMessage)
+// The payment provider refused to give the payment back (the payment is not refundable, the provider is not
+// reachable...)
+data class PaymentRefundRefusedException(override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
 data class PaymentNotStartedException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class PaymentConfirmationFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

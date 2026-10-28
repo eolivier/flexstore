@@ -29,12 +29,20 @@ class OrderStatusEmailContentTest : WithAssertions {
     }
 
     @ParameterizedTest(name = "an order {0} is announced as \"{1}\"")
-    @CsvSource("SHIPPED, a été expédiée", "DELIVERED, a été livrée")
+    @CsvSource("SHIPPED, a été expédiée", "DELIVERED, a été livrée", "REFUNDED, a été annulée et remboursée")
     fun `the subject should give the number of the order and its news`(status: OrderStatus, news: String) {
         // Act
         val content = contentFor(status)
         // Assert
         assertThat(content.subject.value).isEqualTo("Flexstore - Votre commande 46555C9F $news")
+    }
+
+    @Test
+    fun `the email of a refunded order should say that the payment is given back`() {
+        // Act
+        val content = contentFor(OrderStatus.REFUNDED)
+        // Assert
+        assertThat(content.body.value).contains("Le montant payé vous est remboursé")
     }
 
     @Test

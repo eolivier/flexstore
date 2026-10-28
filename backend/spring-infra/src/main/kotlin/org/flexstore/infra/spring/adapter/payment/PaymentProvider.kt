@@ -15,4 +15,8 @@ interface PaymentProvider {
     // The checkout with this reference can no longer be paid; throws PaymentAlreadyCompletedException when it
     // was paid
     fun stop(reference: String)
+
+    // Gives the payment of the checkout with this reference back to the customer; returns the reference of the
+    // refund. Throws PaymentRefundRefusedException when the provider refuses it
+    fun refund(reference: String): String
 }

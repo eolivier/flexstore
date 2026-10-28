@@ -6,6 +6,9 @@ import { useAuthStore } from '@/stores/auth.store';
 // statusChanged: the order changed status in the meantime (another administrator), the orders are reloaded
 export type StatusAdvance = 'advanced' | 'statusChanged' | 'error';
 
+// refundRefused: the payment provider refused the refund, the order is unchanged
+export type OrderRefundOutcome = 'refunded' | 'statusChanged' | 'refundRefused' | 'error';
+
 // An order read by an administrator: found with its customer, unknown, or not readable
 export type AdminOrderLookup =
   { status: 'found'; order: JsonAdminOrder } | { status: 'notFound' } | { status: 'error' };
@@ -56,5 +59,20 @@ export const useAdminOrdersStore = defineStore('adminOrders', () => {
     return 'advanced';
   }
 
-  return { orders, loading, loadError, fetchAllOrders, fetchOrder, advanceStatus };
+  // Cancels and refunds the order, from the status shown to the administrator
+  async function refundOrder(order: JsonOrder): Promise<OrderRefundOutcome> {
+    const response = await authStore
+      .authFetch(`/api/admin/orders/${encodeURIComponent(order.id)}/refund`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentStatus: order.status }),
+      })
+      .catch(() => null);
+    if (response?.status === 409) return 'statusChanged';
+    if (response?.status === 502) return 'refundRefused';
+    if (!response?.ok) return 'error';
+    return 'refunded';
+  }
+
+  return { orders, loading, loadError, fetchAllOrders, fetchOrder, advanceStatus, refundOrder };
 });

@@ -2,7 +2,7 @@
   import { computed } from 'vue';
   import { useI18n } from 'vue-i18n';
   import type { JsonOrder } from '@/generated';
-  import { orderStatusSteps, orderStepState, type OrderStepsLayout } from '@/utils/order';
+  import { hasLeftItsLifeCycle, orderStatusSteps, orderStepState, type OrderStepsLayout } from '@/utils/order';
   import OrderStatusStep from './OrderStatusStep.vue';
 
   const props = withDefaults(defineProps<{ status: JsonOrder['status']; layout?: OrderStepsLayout }>(), {
@@ -11,21 +11,26 @@
 
   const { t } = useI18n();
 
+  const leftStatusIcons: Partial<Record<JsonOrder['status'], string>> = {
+    CANCELLED: 'mdi-close-circle-outline',
+    REFUNDED: 'mdi-cash-refund',
+  };
+
   const steps = computed(() =>
     orderStatusSteps.map((step) => ({ step, state: orderStepState(step, props.status) }))
   );
 </script>
 
 <template>
-  <!-- A cancelled order left its life cycle: no steps, only its status -->
+  <!-- A cancelled or refunded order left its life cycle: no steps, only its status -->
   <v-chip
-    v-if="status === 'CANCELLED'"
+    v-if="hasLeftItsLifeCycle(status)"
     color="error"
     variant="tonal"
-    prepend-icon="mdi-close-circle-outline"
+    :prepend-icon="leftStatusIcons[status]"
     :size="layout === 'compact' ? 'small' : 'default'"
   >
-    {{ t('orders.status.CANCELLED') }}
+    {{ t(`orders.status.${status}`) }}
   </v-chip>
   <nav v-else :aria-label="t('orders.progress')">
     <ol :class="['steps', `steps--${layout}`, 'd-flex', 'align-center']">

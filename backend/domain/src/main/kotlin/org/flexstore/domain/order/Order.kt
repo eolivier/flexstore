@@ -49,6 +49,11 @@ data class Order(val detail: OrderDetail, val status: OrderStatus) {
     // Paid, even after it was cancelled for lack of payment (the customer paid just before)
     fun paid() = copy(status = OrderStatus.PAID)
 
+    // Cancelled by the shop after its payment, which is given back to the customer
+    fun refunded() = copy(status = OrderStatus.REFUNDED)
+
+    fun isRefunded() = status == OrderStatus.REFUNDED
+
     fun isAwaitingPayment() = status == OrderStatus.AWAITING_PAYMENT
 
     fun isCancelled() = status == OrderStatus.CANCELLED
@@ -118,11 +123,12 @@ data class OrderId(val value: String) {
 
 // The life cycle of an order: awaiting its payment, paid, being processed, then shipped, then delivered (the
 // last status). The payment moves it from AWAITING_PAYMENT to PAID, the administrators along the next statuses.
-// An order not paid in time is CANCELLED, which has no next status
+// An order not paid in time is CANCELLED; a paid order cancelled by an administrator before it is shipped is
+// REFUNDED. Neither has a next status
 enum class OrderStatus {
-    AWAITING_PAYMENT, PAID, PROCESSING, SHIPPED, DELIVERED, CANCELLED;
+    AWAITING_PAYMENT, PAID, PROCESSING, SHIPPED, DELIVERED, CANCELLED, REFUNDED;
 
-    fun hasNext() = this != DELIVERED && this != CANCELLED
+    fun hasNext() = this != DELIVERED && this != CANCELLED && this != REFUNDED
 
     fun isPaid() = this in listOf(PAID, PROCESSING, SHIPPED, DELIVERED)
 
@@ -132,8 +138,13 @@ enum class OrderStatus {
 
     fun isNotMovedByAnAdministrator() = !isMovedByAnAdministrator()
 
-    // The customer is told by email when their order is shipped, then delivered
-    fun isAnnouncedToTheCustomer() = this == SHIPPED || this == DELIVERED
+    // The customer is told by email when their order is shipped, then delivered, or refunded
+    fun isAnnouncedToTheCustomer() = this == SHIPPED || this == DELIVERED || this == REFUNDED
+
+    // Paid, and not shipped yet: an administrator may cancel it and refund it
+    fun isRefundable() = this == PAID || this == PROCESSING
+
+    fun isNotRefundable() = !isRefundable()
 
     fun next(): OrderStatus = when (this) {
         AWAITING_PAYMENT -> PAID
@@ -142,11 +153,15 @@ enum class OrderStatus {
         SHIPPED -> DELIVERED
         DELIVERED -> throw OrderStatusCannotAdvanceException(ErrorMessage("A delivered order has no next status"))
         CANCELLED -> throw OrderStatusCannotAdvanceException(ErrorMessage("A cancelled order has no next status"))
+        REFUNDED -> throw OrderStatusCannotAdvanceException(ErrorMessage("A refunded order has no next status"))
     }
 }
 
 // An order to move to the next status of its life cycle, from the status it has when the administrator sees it
 data class OrderStatusAdvance(val orderId: OrderId, val currentStatus: OrderStatus)
+
+// An order that an administrator cancels and refunds, from the status it has when the administrator sees it
+data class OrderRefund(val orderId: OrderId, val currentStatus: OrderStatus)
 
 // A product as ordered: its id and its name when the order was placed
 data class OrderedProduct(val productId: ProductId, val productName: Name)
@@ -238,5 +253,7 @@ data class OrderStatusCannotAdvanceException(override val errorMessage: ErrorMes
     NominalException(errorMessage)
 data class OrderStatusChangedException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class OrderStatusAdvanceFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class OrderNotRefundableException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class OrderRefundFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class OrderNotFoundException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class OrderPlacementFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

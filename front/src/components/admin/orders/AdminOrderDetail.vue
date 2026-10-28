@@ -10,6 +10,7 @@
   import OrderAddressesCard from '@/components/orders/OrderAddressesCard.vue';
   import AdminOrderCustomerCard from './AdminOrderCustomerCard.vue';
   import AdvanceOrderStatusButton from './AdvanceOrderStatusButton.vue';
+  import RefundOrderButton from './RefundOrderButton.vue';
 
   // An order of any customer, with the customer who placed it: the administrator moves it to its next status
   const props = defineProps<{ id: string }>();
@@ -20,6 +21,7 @@
   const orderLookup = ref<AdminOrderLookup | null>(null);
   const order = computed(() => (orderLookup.value?.status === 'found' ? orderLookup.value.order : null));
   const advancing = ref(false);
+  const refunding = ref(false);
   const feedback = ref<string | null>(null);
 
   async function load() {
@@ -33,6 +35,15 @@
     if (statusAdvance !== 'advanced') feedback.value = t(`adminOrders.${statusAdvance}`);
     await load();
     advancing.value = false;
+  }
+
+  async function refund(shownOrder: JsonOrder) {
+    refunding.value = true;
+    feedback.value = null;
+    const refundOutcome = await adminOrdersStore.refundOrder(shownOrder);
+    if (refundOutcome !== 'refunded') feedback.value = t(`adminOrders.${refundOutcome}`);
+    await load();
+    refunding.value = false;
   }
 
   onMounted(load);
@@ -59,13 +70,21 @@
           </p>
         </div>
         <v-spacer />
-        <AdvanceOrderStatusButton :order="order" :advancing="advancing" @advance="advance" />
+        <div class="d-flex flex-wrap ga-2">
+          <RefundOrderButton :order="order" :refunding="refunding" @refund="refund" />
+          <AdvanceOrderStatusButton :order="order" :advancing="advancing" @advance="advance" />
+        </div>
       </div>
       <v-alert v-if="feedback" type="warning" variant="tonal" class="mb-4">{{ feedback }}</v-alert>
-      <v-card v-if="order.status !== 'CANCELLED'" class="pa-5 mb-6">
+      <v-alert v-if="order.status === 'CANCELLED'" type="warning" variant="tonal" class="mb-6">
+        {{ t('adminOrders.cancelled') }}
+      </v-alert>
+      <v-alert v-else-if="order.status === 'REFUNDED'" type="info" variant="tonal" class="mb-6">
+        {{ t('adminOrders.refunded') }}
+      </v-alert>
+      <v-card v-else class="pa-5 mb-6">
         <OrderStatusSteps :status="order.status" />
       </v-card>
-      <v-alert v-else type="warning" variant="tonal" class="mb-6">{{ t('adminOrders.cancelled') }}</v-alert>
       <AdminOrderCustomerCard :customer="order.customer" />
       <OrderLinesTable :order="order" />
       <OrderAddressesCard :order="order" />

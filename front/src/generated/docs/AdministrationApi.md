@@ -9,6 +9,7 @@ All URIs are relative to *http://localhost:8080*
 |[**getAllOrders**](#getallorders) | **GET** /api/admin/orders | Retrieve the orders of all the customers, newest first, with their customer (ADMIN role)|
 |[**getAnyOrder**](#getanyorder) | **GET** /api/admin/orders/{id} | Retrieve any order, with its customer (ADMIN role)|
 |[**proposeSku**](#proposesku) | **GET** /api/admin/products/sku-proposal | Propose a SKU free in the catalog, from the category and the name of a product (ADMIN role)|
+|[**refundOrder**](#refundorder) | **POST** /api/admin/orders/{id}/refund | Cancel a paid order before it is shipped, refund its payment and put its units back in stock (ADMIN role)|
 
 # **advanceOrderStatus**
 > JsonAdminOrder advanceOrderStatus(jsonOrderStatusAdvance)
@@ -266,6 +267,65 @@ const { status, data } = await apiInstance.proposeSku(
 |-------------|-------------|------------------|
 |**200** | The SKU proposed |  -  |
 |**403** | The signed-in user is not an administrator |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **refundOrder**
+> JsonAdminOrder refundOrder(jsonOrderRefund)
+
+The order must be PAID or PROCESSING, and still have the status given; it becomes REFUNDED and its customer is told by email.
+
+### Example
+
+```typescript
+import {
+    AdministrationApi,
+    Configuration,
+    JsonOrderRefund
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdministrationApi(configuration);
+
+let id: string; // (default to undefined)
+let jsonOrderRefund: JsonOrderRefund; //
+
+const { status, data } = await apiInstance.refundOrder(
+    id,
+    jsonOrderRefund
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **jsonOrderRefund** | **JsonOrderRefund**|  | |
+| **id** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**JsonAdminOrder**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The order, refunded |  -  |
+|**403** | The signed-in user is not an administrator |  -  |
+|**404** | No order with this id |  -  |
+|**409** | The order no longer has the given status, or it cannot be refunded (not paid, or shipped) |  -  |
+|**502** | The payment provider refused the refund; the order is unchanged |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

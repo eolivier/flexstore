@@ -161,6 +161,43 @@ class AdminOrderIT {
     }
 
     @Test
+    fun `an administrator should cancel and refund a paid order, its units back in stock`() {
+        // Arrange
+        val orderId = placeOrder()
+        val stockAfterOrder = laptopStock()
+        // Act
+        val response = refund(orderId, "PAID")
+        // Assert
+        response.andExpect(status().isOk).andExpect(jsonPath("$.status").value("REFUNDED"))
+        assertThat(laptopStock()).isEqualTo(stockAfterOrder + 1)
+        assertThat(emailSender.sentOrderStatusEmails().map { it.order.status.name }).containsExactly("REFUNDED")
+    }
+
+    @Test
+    fun `a shipped order should not be refunded`() {
+        // Arrange
+        val orderId = placeOrder()
+        listOf("PAID", "PROCESSING").forEach { advance(orderId, it).andExpect(status().isOk) }
+        // Act
+        val response = refund(orderId, "SHIPPED")
+        // Assert
+        response.andExpect(status().isConflict)
+    }
+
+    @Test
+    fun `only an administrator should refund an order`() {
+        // Arrange
+        val orderId = placeOrder()
+        // Act
+        val response = mockMvc.perform(
+            post("/api/admin/orders/$orderId/refund").with(asUser(CUSTOMER_ID))
+                .contentType(MediaType.APPLICATION_JSON).content("""{"currentStatus": "PAID"}""")
+        )
+        // Assert
+        response.andExpect(status().isForbidden)
+    }
+
+    @Test
     fun `an order whose status changed in the meantime should not move`() {
         // Arrange
         val orderId = placeOrder()
@@ -198,6 +235,17 @@ class AdminOrderIT {
         val response = advance("unknown-order", "PROCESSING")
         // Assert
         response.andExpect(status().isNotFound)
+    }
+
+    private fun refund(orderId: String, currentStatus: String) = mockMvc.perform(
+        post("/api/admin/orders/$orderId/refund").with(asAdmin())
+            .contentType(MediaType.APPLICATION_JSON).content("""{"currentStatus": "$currentStatus"}""")
+    )
+
+    // The units of the laptop (product 6) in stock
+    private fun laptopStock(): Int {
+        val body = mockMvc.perform(get("/api/stocks/6")).andReturn().response.contentAsString
+        return objectMapper.readTree(body)["quantity"].asInt()
     }
 
     private fun advance(orderId: String, currentStatus: String) = mockMvc.perform(

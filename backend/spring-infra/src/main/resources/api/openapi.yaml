@@ -970,6 +970,43 @@ paths:
           description: The signed-in user is not an administrator
         "404":
           description: No order with this id
+  /api/admin/orders/{id}/refund:
+    post:
+      tags:
+      - Administration
+      summary: Cancel a paid order before it is shipped, refund its payment and put its units back in stock (ADMIN role)
+      description: "The order must be PAID or PROCESSING, and still have the status given; it becomes REFUNDED and its
+        customer is told by email."
+      operationId: refundOrder
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonOrderRefund"
+      responses:
+        "200":
+          description: The order, refunded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonAdminOrder"
+        "403":
+          description: The signed-in user is not an administrator
+        "404":
+          description: No order with this id
+        "409":
+          description: The order no longer has the given status, or it cannot be refunded (not paid, or shipped)
+        "502":
+          description: The payment provider refused the refund; the order is unchanged
   /api/admin/orders/{id}/status/advance:
     post:
       tags:
@@ -1339,6 +1376,13 @@ components:
           format: int32
         itemPrice:
           type: number
+    JsonOrderRefund:
+      type: object
+      required: [currentStatus]
+      properties:
+        currentStatus:
+          type: string
+          description: The status of the order as the administrator sees it (PAID or PROCESSING)
     JsonAdminOrder:
       description: An order as the administrators see it, with the customer who placed it
       allOf:
@@ -1370,7 +1414,7 @@ components:
           format: date-time
         status:
           type: string
-          enum: [AWAITING_PAYMENT, PAID, PROCESSING, SHIPPED, DELIVERED, CANCELLED]
+          enum: [AWAITING_PAYMENT, PAID, PROCESSING, SHIPPED, DELIVERED, CANCELLED, REFUNDED]
         lines:
           type: array
           items:
@@ -1422,7 +1466,7 @@ components:
       properties:
         currentStatus:
           type: string
-          enum: [AWAITING_PAYMENT, PAID, PROCESSING, SHIPPED, DELIVERED, CANCELLED]
+          enum: [AWAITING_PAYMENT, PAID, PROCESSING, SHIPPED, DELIVERED, CANCELLED, REFUNDED]
     JsonOrderAddresses:
       type: object
       required: [deliveryAddress]

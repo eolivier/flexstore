@@ -34,11 +34,13 @@ open class ServiceConfig {
     open fun orderAdministrationService(listAdministeredOrdersUseCase: ListAdministeredOrdersUseCase,
                                         readAdministeredOrderUseCase: ReadAdministeredOrderUseCase,
                                         advanceOrderStatusUseCase: AdvanceOrderStatusUseCase,
+                                        refundOrderUseCase: RefundOrderUseCase,
                                         sendOrderStatusEmailUseCase: SendOrderStatusEmailUseCase) =
         OrderAdministrationService(
             listAdministeredOrdersUseCase,
             readAdministeredOrderUseCase,
             advanceOrderStatusUseCase,
+            refundOrderUseCase,
             sendOrderStatusEmailUseCase
         )
 
