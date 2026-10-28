@@ -10,11 +10,13 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.infra.spring.adapter.mapping.ProductMapper
+import org.flexstore.infra.spring.adapter.mapping.languageAcceptedIn
 import org.flexstore.infra.spring.adapter.mapping.toJsonProducts
 import org.flexstore.infra.spring.adapter.rest.json.DraftJsonProduct
 import org.flexstore.infra.spring.adapter.rest.json.EditedJsonProduct
 import org.flexstore.infra.spring.adapter.rest.json.JsonProduct
 import org.flexstore.infra.spring.metrics.ProductMetrics
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
@@ -70,9 +72,11 @@ class ProductController(private val productUseCases: ProductUseCases,
         percentiles = [0.5, 0.95, 0.99]
     )
     @GetMapping("/")
-    fun getProducts(): List<JsonProduct> {
+    fun getProducts(
+        @RequestHeader(HttpHeaders.ACCEPT_LANGUAGE, defaultValue = "en") acceptLanguage: String
+    ): List<JsonProduct> {
         val start = System.nanoTime()
-        val jsonProducts = productUseCases.getProducts().toJsonProducts()
+        val jsonProducts = productUseCases.getProducts().toJsonProducts(languageAcceptedIn(acceptLanguage))
         // --- Observability metrics ---
         val businessDuration = System.nanoTime() - start
         productMetrics.recordList(businessDuration)
@@ -93,6 +97,11 @@ class ProductController(private val productUseCases: ProductUseCases,
         ]
     )
     @GetMapping("/{id}")
-    fun getProduct(@PathVariable id: String): JsonProduct =
-        mapper.toJson(productUseCases.getProduct(ProductId(Identity(id))))
+    fun getProduct(
+        @PathVariable id: String,
+        @RequestHeader(HttpHeaders.ACCEPT_LANGUAGE, defaultValue = "en") acceptLanguage: String
+    ): JsonProduct {
+        val product = productUseCases.getProduct(ProductId(Identity(id)))
+        return listOf(product).toJsonProducts(languageAcceptedIn(acceptLanguage)).single()
+    }
 }

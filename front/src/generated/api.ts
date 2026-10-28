@@ -272,28 +272,16 @@ export type JsonPostalAddressRecipientTypeEnum = typeof JsonPostalAddressRecipie
 export interface JsonProduct {
     'id': string;
     /**
-     * The name in the default language (en)
+     * In the language asked (Accept-Language), or in en when the product is not translated into it
      */
     'name': string;
     /**
-     * The description in the default language (en)
+     * In the language asked (Accept-Language), or in en when the product is not translated into it
      */
     'description': string;
     'category': string;
     'price': number;
     'currency': string;
-    /**
-     * The name and the description in every language of the product, the default one included
-     */
-    'translations': Array<JsonProductTranslation>;
-}
-export interface JsonProductTranslation {
-    /**
-     * en or fr
-     */
-    'language': string;
-    'name': string;
-    'description': string;
 }
 export interface JsonSaveItemResponse {
     'status'?: string;
@@ -2287,10 +2275,11 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
          * 
          * @summary Retrieve a product by ID
          * @param {string} id 
+         * @param {string} [acceptLanguage] The language of the customer (en, fr); the products not translated into it are in en
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getProduct: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getProduct: async (id: string, acceptLanguage?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('getProduct', 'id', id)
             const localVarPath = `/api/products/{id}`
@@ -2308,6 +2297,9 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
 
 
     
+            if (acceptLanguage != null) {
+                localVarHeaderParameter['Accept-Language'] = String(acceptLanguage);
+            }
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -2320,10 +2312,11 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * Returns the full list of available products
          * @summary Retrieve all products
+         * @param {string} [acceptLanguage] The language of the customer (en, fr); the products not translated into it are in en
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getProducts: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getProducts: async (acceptLanguage?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/products/`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -2338,6 +2331,9 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
 
 
     
+            if (acceptLanguage != null) {
+                localVarHeaderParameter['Accept-Language'] = String(acceptLanguage);
+            }
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -2417,11 +2413,12 @@ export const ProductsApiFp = function(configuration?: Configuration) {
          * 
          * @summary Retrieve a product by ID
          * @param {string} id 
+         * @param {string} [acceptLanguage] The language of the customer (en, fr); the products not translated into it are in en
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getProduct(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonProduct>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getProduct(id, options);
+        async getProduct(id: string, acceptLanguage?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonProduct>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getProduct(id, acceptLanguage, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProductsApi.getProduct']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -2429,11 +2426,12 @@ export const ProductsApiFp = function(configuration?: Configuration) {
         /**
          * Returns the full list of available products
          * @summary Retrieve all products
+         * @param {string} [acceptLanguage] The language of the customer (en, fr); the products not translated into it are in en
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getProducts(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<JsonProduct>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getProducts(options);
+        async getProducts(acceptLanguage?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<JsonProduct>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getProducts(acceptLanguage, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProductsApi.getProducts']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -2475,20 +2473,22 @@ export const ProductsApiFactory = function (configuration?: Configuration, baseP
          * 
          * @summary Retrieve a product by ID
          * @param {string} id 
+         * @param {string} [acceptLanguage] The language of the customer (en, fr); the products not translated into it are in en
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getProduct(id: string, options?: RawAxiosRequestConfig): AxiosPromise<JsonProduct> {
-            return localVarFp.getProduct(id, options).then((request) => request(axios, basePath));
+        getProduct(id: string, acceptLanguage?: string, options?: RawAxiosRequestConfig): AxiosPromise<JsonProduct> {
+            return localVarFp.getProduct(id, acceptLanguage, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns the full list of available products
          * @summary Retrieve all products
+         * @param {string} [acceptLanguage] The language of the customer (en, fr); the products not translated into it are in en
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getProducts(options?: RawAxiosRequestConfig): AxiosPromise<Array<JsonProduct>> {
-            return localVarFp.getProducts(options).then((request) => request(axios, basePath));
+        getProducts(acceptLanguage?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<JsonProduct>> {
+            return localVarFp.getProducts(acceptLanguage, options).then((request) => request(axios, basePath));
         },
         /**
          * Reserved to an administrator
@@ -2523,21 +2523,23 @@ export class ProductsApi extends BaseAPI {
      * 
      * @summary Retrieve a product by ID
      * @param {string} id 
+     * @param {string} [acceptLanguage] The language of the customer (en, fr); the products not translated into it are in en
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public getProduct(id: string, options?: RawAxiosRequestConfig) {
-        return ProductsApiFp(this.configuration).getProduct(id, options).then((request) => request(this.axios, this.basePath));
+    public getProduct(id: string, acceptLanguage?: string, options?: RawAxiosRequestConfig) {
+        return ProductsApiFp(this.configuration).getProduct(id, acceptLanguage, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Returns the full list of available products
      * @summary Retrieve all products
+     * @param {string} [acceptLanguage] The language of the customer (en, fr); the products not translated into it are in en
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public getProducts(options?: RawAxiosRequestConfig) {
-        return ProductsApiFp(this.configuration).getProducts(options).then((request) => request(this.axios, this.basePath));
+    public getProducts(acceptLanguage?: string, options?: RawAxiosRequestConfig) {
+        return ProductsApiFp(this.configuration).getProducts(acceptLanguage, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

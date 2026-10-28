@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
+import i18n from '@/plugins/i18n';
 import type { Product } from '@/models/product';
 import { getAllProducts, getProduct } from '@/services/product.service';
 import { useAuthStore } from './auth.store';
@@ -30,9 +31,9 @@ export const useProductsStore = defineStore('products', () => {
   }
 
   // Returns null when the product cannot be read
-  async function fetchProduct(id: string): Promise<Product | null> {
+  async function fetchProduct(id: string, language: string): Promise<Product | null> {
     try {
-      return await getProduct(id);
+      return await getProduct(id, language);
     } catch (e) {
       console.error('Error when reading product', e);
       return null;
@@ -63,13 +64,21 @@ export const useProductsStore = defineStore('products', () => {
     loading.value = true;
     error.value = null;
     try {
-      products.value = await getAllProducts();
+      products.value = await getAllProducts(i18n.global.locale.value);
     } catch (e) {
       error.value = e instanceof Error ? e.message : 'Unknown error while loading products';
     } finally {
       loading.value = false;
     }
   }
+
+  // The products are loaded in the language of the customer only: they are loaded again when it changes
+  watch(
+    () => i18n.global.locale.value,
+    () => {
+      if (products.value.length > 0) fetchProducts();
+    }
+  );
 
   return { products, loading, error, fetchProducts, fetchProduct, addProduct, updateProduct };
 });

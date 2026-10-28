@@ -47,6 +47,13 @@ describe('EditProduct.vue', () => {
     mockFetch.mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve(tShirt) });
   });
 
+  it('loads the product in the default language, which the administrator edits', async () => {
+    // Act
+    await mountEditProduct();
+    // Assert
+    expect(getProduct).toHaveBeenCalledWith('p-1', 'en');
+  });
+
   it('shows the current name, description and price of the product', async () => {
     // Act
     const wrapper = await mountEditProduct();

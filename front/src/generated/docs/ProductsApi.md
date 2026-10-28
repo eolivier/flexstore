@@ -76,9 +76,11 @@ const configuration = new Configuration();
 const apiInstance = new ProductsApi(configuration);
 
 let id: string; // (default to undefined)
+let acceptLanguage: string; //The language of the customer (en, fr); the products not translated into it are in en (optional) (default to undefined)
 
 const { status, data } = await apiInstance.getProduct(
-    id
+    id,
+    acceptLanguage
 );
 ```
 
@@ -87,6 +89,7 @@ const { status, data } = await apiInstance.getProduct(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **id** | [**string**] |  | defaults to undefined|
+| **acceptLanguage** | [**string**] | The language of the customer (en, fr); the products not translated into it are in en | (optional) defaults to undefined|
 
 
 ### Return type
@@ -127,11 +130,18 @@ import {
 const configuration = new Configuration();
 const apiInstance = new ProductsApi(configuration);
 
-const { status, data } = await apiInstance.getProducts();
+let acceptLanguage: string; //The language of the customer (en, fr); the products not translated into it are in en (optional) (default to undefined)
+
+const { status, data } = await apiInstance.getProducts(
+    acceptLanguage
+);
 ```
 
 ### Parameters
-This endpoint does not have any parameters.
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **acceptLanguage** | [**string**] | The language of the customer (en, fr); the products not translated into it are in en | (optional) defaults to undefined|
 
 
 ### Return type

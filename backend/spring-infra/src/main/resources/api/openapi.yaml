@@ -474,6 +474,13 @@ paths:
       summary: Retrieve all products
       description: Returns the full list of available products
       operationId: getProducts
+      parameters:
+      - name: Accept-Language
+        in: header
+        required: false
+        description: The language of the customer (en, fr); the products not translated into it are in en
+        schema:
+          type: string
       responses:
         "200":
           description: Successfully retrieved the list of products
@@ -493,6 +500,12 @@ paths:
       - name: id
         in: path
         required: true
+        schema:
+          type: string
+      - name: Accept-Language
+        in: header
+        required: false
+        description: The language of the customer (en, fr); the products not translated into it are in en
         schema:
           type: string
       responses:
@@ -1133,37 +1146,21 @@ components:
           description: Currency code (EUR)
     JsonProduct:
       type: object
-      required: [id, name, description, category, price, currency, translations]
+      required: [id, name, description, category, price, currency]
       properties:
         id:
           type: string
         name:
           type: string
-          description: The name in the default language (en)
+          description: In the language asked (Accept-Language), or in en when the product is not translated into it
         description:
           type: string
-          description: The description in the default language (en)
+          description: In the language asked (Accept-Language), or in en when the product is not translated into it
         category:
           type: string
         price:
           type: number
         currency:
-          type: string
-        translations:
-          type: array
-          description: The name and the description in every language of the product, the default one included
-          items:
-            $ref: "#/components/schemas/JsonProductTranslation"
-    JsonProductTranslation:
-      type: object
-      required: [language, name, description]
-      properties:
-        language:
-          type: string
-          description: en or fr
-        name:
-          type: string
-        description:
           type: string
     JsonItem:
       type: object
