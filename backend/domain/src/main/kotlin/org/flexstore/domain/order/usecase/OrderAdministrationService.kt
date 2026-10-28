@@ -6,17 +6,18 @@ import org.flexstore.domain.order.*
 // move them along their life cycle. An order moved to its next status is read back, then its customer is told
 // when it is shipped or delivered, all through the use cases
 class OrderAdministrationService(
-    private val readAdministeredOrdersUseCase: ReadAdministeredOrdersUseCase,
+    private val listAdministeredOrdersUseCase: ListAdministeredOrdersUseCase,
+    private val readAdministeredOrderUseCase: ReadAdministeredOrderUseCase,
     private val advanceOrderStatusUseCase: AdvanceOrderStatusUseCase,
     private val sendOrderStatusEmailUseCase: SendOrderStatusEmailUseCase
 ) {
-    fun getAllOrders(): AdministeredOrders = readAdministeredOrdersUseCase.getAllOrders()
+    fun getAllOrders(): AdministeredOrders = listAdministeredOrdersUseCase.unfold(Unit)
 
-    fun getOrder(orderId: OrderId): AdministeredOrder = readAdministeredOrdersUseCase.getOrder(orderId)
+    fun getOrder(orderId: OrderId): AdministeredOrder = readAdministeredOrderUseCase.unfold(orderId)
 
     fun advance(orderStatusAdvance: OrderStatusAdvance): AdministeredOrder {
         advanceOrderStatusUseCase.unfold(orderStatusAdvance)
-        val advancedOrder = readAdministeredOrdersUseCase.getOrder(orderStatusAdvance.orderId)
+        val advancedOrder = readAdministeredOrderUseCase.unfold(orderStatusAdvance.orderId)
         sendOrderStatusEmailUseCase.unfold(advancedOrder.order)
         return advancedOrder
     }

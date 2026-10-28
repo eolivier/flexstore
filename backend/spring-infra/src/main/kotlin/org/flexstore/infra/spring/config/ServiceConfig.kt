@@ -31,14 +31,16 @@ open class ServiceConfig {
     }
 
     @Bean
-    open fun orderAdministrationService(readAdministeredOrdersUseCase: ReadAdministeredOrdersUseCase,
+    open fun orderAdministrationService(listAdministeredOrdersUseCase: ListAdministeredOrdersUseCase,
+                                        readAdministeredOrderUseCase: ReadAdministeredOrderUseCase,
                                         advanceOrderStatusUseCase: AdvanceOrderStatusUseCase,
-                                        sendOrderStatusEmailUseCase: SendOrderStatusEmailUseCase):
-        OrderAdministrationService {
-        return OrderAdministrationService(
-            readAdministeredOrdersUseCase, advanceOrderStatusUseCase, sendOrderStatusEmailUseCase
+                                        sendOrderStatusEmailUseCase: SendOrderStatusEmailUseCase) =
+        OrderAdministrationService(
+            listAdministeredOrdersUseCase,
+            readAdministeredOrderUseCase,
+            advanceOrderStatusUseCase,
+            sendOrderStatusEmailUseCase
         )
-    }
 
     @Bean
     open fun customerRegistrationService(registerCustomerUseCase: RegisterCustomerUseCase,
