@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 import i18n from '@/plugins/i18n';
-import type { Product } from '@/models/product';
-import { getAllProducts, getProduct } from '@/services/product.service';
+import type { AdminProduct, Product, ProductInput } from '@/models/product';
+import { getAllProducts } from '@/services/product.service';
 import { useAuthStore } from './auth.store';
 
 export const useProductsStore = defineStore('products', () => {
@@ -11,7 +11,7 @@ export const useProductsStore = defineStore('products', () => {
   const error = ref<string | null>(null);
 
   // Returns whether the product was created
-  async function addProduct(product: Product): Promise<boolean> {
+  async function addProduct(product: ProductInput): Promise<boolean> {
     try {
       const response = await useAuthStore().authFetch('/api/products', {
         method: 'POST',
@@ -30,10 +30,13 @@ export const useProductsStore = defineStore('products', () => {
     }
   }
 
-  // Returns null when the product cannot be read
-  async function fetchProduct(id: string, language: string): Promise<Product | null> {
+  // The product with its translations in every language, which the administrator edits; null when it cannot
+  // be read
+  async function fetchAdminProduct(id: string): Promise<AdminProduct | null> {
     try {
-      return await getProduct(id, language);
+      const response = await useAuthStore().authFetch(`/api/admin/products/${encodeURIComponent(id)}`);
+      if (!response.ok) return null;
+      return await response.json();
     } catch (e) {
       console.error('Error when reading product', e);
       return null;
@@ -41,7 +44,7 @@ export const useProductsStore = defineStore('products', () => {
   }
 
   // Returns whether the product was edited
-  async function updateProduct(id: string, product: Product): Promise<boolean> {
+  async function updateProduct(id: string, product: ProductInput): Promise<boolean> {
     try {
       const response = await useAuthStore().authFetch(`/api/products/${id}`, {
         method: 'PUT',
@@ -80,5 +83,5 @@ export const useProductsStore = defineStore('products', () => {
     }
   );
 
-  return { products, loading, error, fetchProducts, fetchProduct, addProduct, updateProduct };
+  return { products, loading, error, fetchProducts, fetchAdminProduct, addProduct, updateProduct };
 });

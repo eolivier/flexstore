@@ -24,24 +24,28 @@ import type { RequestArgs } from './base';
 import { BASE_PATH, COLLECTION_FORMATS, BaseAPI, RequiredError, operationServerMap } from './base';
 
 export interface DraftJsonProduct {
-    'name'?: string;
-    'description'?: string;
-    'category'?: string;
-    'price'?: number;
-    'currency'?: string;
+    'category': string;
+    'price': number;
+    'currency': string;
+    /**
+     * The name and the description in each language of the product, the default one (en) required
+     */
+    'translations': Array<JsonProductTranslation>;
 }
 /**
  * The fields an administrator edits; the id is given by the path
  */
 export interface EditedJsonProduct {
-    'name': string;
-    'description': string;
     'category': string;
     'price': number;
     /**
      * Currency code (EUR)
      */
     'currency': string;
+    /**
+     * Every translation of the product, the default one (en) required; a translation not given is removed
+     */
+    'translations': Array<JsonProductTranslation>;
 }
 export interface JsonAccount {
     'id': string;
@@ -94,6 +98,19 @@ export const JsonAccountStatusStatusEnum = {
 
 export type JsonAccountStatusStatusEnum = typeof JsonAccountStatusStatusEnum[keyof typeof JsonAccountStatusStatusEnum];
 
+/**
+ * A product as the administrator edits it, with its translations in every language
+ */
+export interface JsonAdminProduct {
+    'id': string;
+    'category': string;
+    'price': number;
+    'currency': string;
+    /**
+     * The name and the description in every language of the product, the default one (en) included
+     */
+    'translations': Array<JsonProductTranslation>;
+}
 export interface JsonCartItem {
     'itemId'?: string;
     'productId'?: string;
@@ -282,6 +299,14 @@ export interface JsonProduct {
     'category': string;
     'price': number;
     'currency': string;
+}
+export interface JsonProductTranslation {
+    /**
+     * en or fr
+     */
+    'language': string;
+    'name': string;
+    'description': string;
 }
 export interface JsonSaveItemResponse {
     'status'?: string;
@@ -1079,6 +1104,40 @@ export const AdministrationApiAxiosParamCreator = function (configuration?: Conf
         },
         /**
          * 
+         * @summary Retrieve a product with its translations in every language, to edit it
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAdminProduct: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('getAdminProduct', 'id', id)
+            const localVarPath = `/api/admin/products/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Retrieve the orders of all the customers, newest first (ADMIN role)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1136,6 +1195,19 @@ export const AdministrationApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Retrieve a product with its translations in every language, to edit it
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getAdminProduct(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonAdminProduct>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getAdminProduct(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdministrationApi.getAdminProduct']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Retrieve the orders of all the customers, newest first (ADMIN role)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1168,6 +1240,16 @@ export const AdministrationApiFactory = function (configuration?: Configuration,
         },
         /**
          * 
+         * @summary Retrieve a product with its translations in every language, to edit it
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAdminProduct(id: string, options?: RawAxiosRequestConfig): AxiosPromise<JsonAdminProduct> {
+            return localVarFp.getAdminProduct(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Retrieve the orders of all the customers, newest first (ADMIN role)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1192,6 +1274,17 @@ export class AdministrationApi extends BaseAPI {
      */
     public advanceOrderStatus(id: string, jsonOrderStatusAdvance: JsonOrderStatusAdvance, options?: RawAxiosRequestConfig) {
         return AdministrationApiFp(this.configuration).advanceOrderStatus(id, jsonOrderStatusAdvance, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Retrieve a product with its translations in every language, to edit it
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getAdminProduct(id: string, options?: RawAxiosRequestConfig) {
+        return AdministrationApiFp(this.configuration).getAdminProduct(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -2345,7 +2438,7 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
         },
         /**
          * Reserved to an administrator
-         * @summary Edit a product (name, description, category, price)
+         * @summary Edit a product (translations, category, price)
          * @param {string} id 
          * @param {EditedJsonProduct} editedJsonProduct 
          * @param {*} [options] Override http request option.
@@ -2438,7 +2531,7 @@ export const ProductsApiFp = function(configuration?: Configuration) {
         },
         /**
          * Reserved to an administrator
-         * @summary Edit a product (name, description, category, price)
+         * @summary Edit a product (translations, category, price)
          * @param {string} id 
          * @param {EditedJsonProduct} editedJsonProduct 
          * @param {*} [options] Override http request option.
@@ -2492,7 +2585,7 @@ export const ProductsApiFactory = function (configuration?: Configuration, baseP
         },
         /**
          * Reserved to an administrator
-         * @summary Edit a product (name, description, category, price)
+         * @summary Edit a product (translations, category, price)
          * @param {string} id 
          * @param {EditedJsonProduct} editedJsonProduct 
          * @param {*} [options] Override http request option.
@@ -2544,7 +2637,7 @@ export class ProductsApi extends BaseAPI {
 
     /**
      * Reserved to an administrator
-     * @summary Edit a product (name, description, category, price)
+     * @summary Edit a product (translations, category, price)
      * @param {string} id 
      * @param {EditedJsonProduct} editedJsonProduct 
      * @param {*} [options] Override http request option.

@@ -6,11 +6,10 @@ The fields an administrator edits; the id is given by the path
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**name** | **string** |  | [default to undefined]
-**description** | **string** |  | [default to undefined]
 **category** | **string** |  | [default to undefined]
 **price** | **number** |  | [default to undefined]
 **currency** | **string** | Currency code (EUR) | [default to undefined]
+**translations** | [**Array&lt;JsonProductTranslation&gt;**](JsonProductTranslation.md) | Every translation of the product, the default one (en) required; a translation not given is removed | [default to undefined]
 
 ## Example
 
@@ -18,11 +17,10 @@ Name | Type | Description | Notes
 import { EditedJsonProduct } from './api';
 
 const instance: EditedJsonProduct = {
-    name,
-    description,
     category,
     price,
     currency,
+    translations,
 };
 ```
 

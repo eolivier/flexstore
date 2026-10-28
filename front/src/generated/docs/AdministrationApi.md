@@ -5,6 +5,7 @@ All URIs are relative to *http://localhost:8080*
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
 |[**advanceOrderStatus**](#advanceorderstatus) | **POST** /api/admin/orders/{id}/status/advance | Move an order to the next status of its life cycle, PROCESSING then SHIPPED then DELIVERED (ADMIN role)|
+|[**getAdminProduct**](#getadminproduct) | **GET** /api/admin/products/{id} | Retrieve a product with its translations in every language, to edit it|
 |[**getAllOrders**](#getallorders) | **GET** /api/admin/orders | Retrieve the orders of all the customers, newest first (ADMIN role)|
 
 # **advanceOrderStatus**
@@ -61,6 +62,57 @@ const { status, data } = await apiInstance.advanceOrderStatus(
 |**403** | The signed-in user is not an administrator |  -  |
 |**404** | No order with this id |  -  |
 |**409** | The order no longer has the given status, or it is delivered (no next status) |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getAdminProduct**
+> JsonAdminProduct getAdminProduct()
+
+
+### Example
+
+```typescript
+import {
+    AdministrationApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdministrationApi(configuration);
+
+let id: string; // (default to undefined)
+
+const { status, data } = await apiInstance.getAdminProduct(
+    id
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **id** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**JsonAdminProduct**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The product with its translations |  -  |
+|**404** | Product not found |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
