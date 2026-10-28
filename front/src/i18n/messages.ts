@@ -267,6 +267,8 @@ export default {
       unknownCustomer: 'Account no longer available',
       detail: 'Order details',
       cancelled: 'This order was cancelled: it was not paid in time.',
+      search: 'Search by number, customer or recipient',
+      noMatch: 'No order matches these filters.',
     },
     orders: {
       title: 'Orders',
@@ -750,6 +752,8 @@ export default {
       unknownCustomer: 'Compte plus disponible',
       detail: 'Détail de la commande',
       cancelled: "Cette commande a été annulée : elle n'a pas été payée à temps.",
+      search: 'Rechercher par numéro, client ou destinataire',
+      noMatch: 'Aucune commande ne correspond à ces filtres.',
     },
     orders: {
       title: 'Commandes',
