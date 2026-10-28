@@ -5,11 +5,10 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**name** | **string** |  | [optional] [default to undefined]
-**description** | **string** |  | [optional] [default to undefined]
-**category** | **string** |  | [optional] [default to undefined]
-**price** | **number** |  | [optional] [default to undefined]
-**currency** | **string** |  | [optional] [default to undefined]
+**category** | **string** |  | [default to undefined]
+**price** | **number** |  | [default to undefined]
+**currency** | **string** |  | [default to undefined]
+**translations** | [**Array&lt;JsonProductTranslation&gt;**](JsonProductTranslation.md) | The name and the description in each language of the product, the default one (en) required | [default to undefined]
 
 ## Example
 
@@ -17,11 +16,10 @@ Name | Type | Description | Notes
 import { DraftJsonProduct } from './api';
 
 const instance: DraftJsonProduct = {
-    name,
-    description,
     category,
     price,
     currency,
+    translations,
 };
 ```
 

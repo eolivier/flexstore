@@ -7,13 +7,8 @@ import kotlin.reflect.KClass
 
 // The id of the new product is chosen by the caller, which can then read the created product
 data class CreateProductRequest(val productId: ProductId, val draftProduct: DraftProduct) {
-    fun definedProduct() = DefinedProduct(
-        productId = productId,
-        name = draftProduct.name,
-        description = draftProduct.description,
-        category = draftProduct.category,
-        price = draftProduct.price
-    )
+    fun definedProduct() =
+        DefinedProduct(productId, draftProduct.translations, draftProduct.category, draftProduct.price)
 }
 
 class CreateProductUseCase(private val productRepository: ProductRepository) : UseCase<CreateProductRequest> {

@@ -72,7 +72,8 @@ class PostgresProductRepositoryAdapter(
         description = description.value,
         category = category.name,
         price = price.amount.value,
-        currency = price.currency.name
+        currency = price.currency.name,
+        translations = translations.otherThanDefault().map { it.toNewEntity() }
     )
 
     private fun DefinedProduct.toEntity() = ProductEntity(
@@ -93,11 +94,19 @@ class PostgresProductRepositoryAdapter(
         return product.translations.otherThanDefault().map { translation ->
             val language = translation.language.name.lowercase()
             val stored = storedTranslations.firstOrNull { it.language == language }
-            val id = stored?.id ?: Identity.nextId().value
-            val name = translation.name.value
-            val entity = ProductTranslationEntity(id, language, name, translation.description.value)
-            entity.also { if (stored != null) it.createdAt = stored.createdAt }
+            if (stored != null) {
+                val name = translation.name.value
+                val entity = ProductTranslationEntity(stored.id, language, name, translation.description.value)
+                entity.also { it.createdAt = stored.createdAt }
+            } else {
+                translation.toNewEntity()
+            }
         }
+    }
+
+    private fun ProductTranslation.toNewEntity(): ProductTranslationEntity {
+        val id = Identity.nextId().value
+        return ProductTranslationEntity(id, language.name.lowercase(), name.value, description.value)
     }
 }
 

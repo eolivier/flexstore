@@ -149,8 +149,8 @@ class ProductAndCartPersistenceIT {
     }
 
     private fun draftProduct(price: String) =
-        """{"name": "$TEST_PRODUCT_NAME", "description": "Stored in PostgreSQL",
-        "category": "HOME", "price": $price, "currency": "EUR"}"""
+        """{"category": "HOME", "price": $price, "currency": "EUR", "translations": [
+        {"language": "en", "name": "$TEST_PRODUCT_NAME", "description": "Stored in PostgreSQL"}]}"""
 
     private fun createProduct(draft: String) =
         mockMvc.perform(post("/api/products").with(asAdmin()).contentType(MediaType.APPLICATION_JSON).content(draft))

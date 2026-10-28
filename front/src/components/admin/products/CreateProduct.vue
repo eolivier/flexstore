@@ -4,9 +4,10 @@
   import { useI18n } from 'vue-i18n';
   import { useProductsStore } from '@/stores/products.store.ts';
   import ProductFields from './ProductFields.vue';
+  import { DEFAULT_LANGUAGE } from '@/models/product';
+  import { emptyTexts, translationsOf } from '@/utils/productTranslations';
 
-  const name = ref('');
-  const description = ref('');
+  const texts = ref(emptyTexts());
   const category = ref('CLOTHING');
   const price = ref<string | null>(null);
   const valid = ref(false);
@@ -20,13 +21,12 @@
   const submitForm = async () => {
     if (!valid.value || price.value === null) return;
     saving.value = true;
-    const createdName = name.value;
+    const createdName = texts.value[DEFAULT_LANGUAGE].name;
     const created = await productsStore.addProduct({
-      name: name.value,
-      description: description.value,
       category: category.value,
       price: parseFloat(price.value),
       currency: 'EUR',
+      translations: translationsOf(texts.value),
     });
     saving.value = false;
     feedback.value = {
@@ -38,8 +38,7 @@
   };
 
   const resetForm = () => {
-    name.value = '';
-    description.value = '';
+    texts.value = emptyTexts();
     price.value = null;
     valid.value = false;
     nextTick(() => formRef.value?.resetValidation());
@@ -53,8 +52,7 @@
     <v-card class="pa-6">
       <v-form ref="formRef" v-model="valid" @submit.prevent="submitForm">
         <ProductFields
-          v-model:name="name"
-          v-model:description="description"
+          v-model:texts="texts"
           v-model:category="category"
           v-model:price="price"
         />

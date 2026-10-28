@@ -40,7 +40,7 @@ class ProductController(private val productUseCases: ProductUseCases,
         return toJson
     }
 
-    @Operation(summary = "Edit a product (name, description, category, price)")
+    @Operation(summary = "Edit a product (translations, category, price)")
     @ApiResponse(responseCode = "200", description = "The edited product",
         content = [Content(schema = Schema(implementation = JsonProduct::class))]
     )
