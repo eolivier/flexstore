@@ -5,12 +5,13 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **string** |  | [optional] [default to undefined]
-**name** | **string** |  | [optional] [default to undefined]
-**description** | **string** |  | [optional] [default to undefined]
-**category** | **string** |  | [optional] [default to undefined]
-**price** | **number** |  | [optional] [default to undefined]
-**currency** | **string** |  | [optional] [default to undefined]
+**id** | **string** |  | [default to undefined]
+**name** | **string** | The name in the default language (en) | [default to undefined]
+**description** | **string** | The description in the default language (en) | [default to undefined]
+**category** | **string** |  | [default to undefined]
+**price** | **number** |  | [default to undefined]
+**currency** | **string** |  | [default to undefined]
+**translations** | [**Array&lt;JsonProductTranslation&gt;**](JsonProductTranslation.md) | The name and the description in every language of the product, the default one included | [default to undefined]
 
 ## Example
 
@@ -24,6 +25,7 @@ const instance: JsonProduct = {
     category,
     price,
     currency,
+    translations,
 };
 ```
 

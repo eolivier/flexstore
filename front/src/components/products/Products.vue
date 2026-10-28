@@ -11,10 +11,11 @@
   import { categoryInfo, isKnownCategory } from './categories';
   import { shopLinks } from '@/components/menu/navigation';
   import { matchesCatalogSearch, type CatalogSearch } from '@/utils/productSearch';
+  import { productTextIn } from '@/utils/productText';
 
   const props = defineProps<{ category?: string }>();
 
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const route = useRoute();
   const router = useRouter();
 
@@ -26,7 +27,11 @@
     return isKnownCategory(category) ? t(categoryInfo(category).label) : '';
   }
 
-  const catalogSearch = computed<CatalogSearch>(() => ({ text: search.value, categoryName }));
+  const catalogSearch = computed<CatalogSearch>(() => ({
+    text: search.value,
+    language: locale.value,
+    categoryName,
+  }));
 
   function clearSearch() {
     router.replace({ query: { ...route.query, q: undefined } });
@@ -54,7 +59,8 @@
     return filtered.sort((a, b) => {
       if (sort.value === 'priceAsc') return (a.price ?? 0) - (b.price ?? 0);
       if (sort.value === 'priceDesc') return (b.price ?? 0) - (a.price ?? 0);
-      return (a.name ?? '').localeCompare(b.name ?? '');
+      // By the name shown, in the language of the customer
+      return productTextIn(a, locale.value).name.localeCompare(productTextIn(b, locale.value).name);
     });
   });
 

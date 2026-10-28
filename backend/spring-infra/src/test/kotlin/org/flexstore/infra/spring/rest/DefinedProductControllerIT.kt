@@ -70,6 +70,20 @@ class DefinedProductControllerIT {
     }
 
     @Test
+    fun `a product should be returned with its translations, the default one included`() {
+        // Act
+        val response = mockMvc.perform(get("/api/products/2"))
+        // Assert
+        val english = "$.translations[?(@.language == 'en')]"
+        val french = "$.translations[?(@.language == 'fr')]"
+        response.andExpect(status().isOk)
+            .andExpect(jsonPath("$.name").value("Waterproof Jacket"))
+            .andExpect(jsonPath("$english.name").value("Waterproof Jacket"))
+            .andExpect(jsonPath("$french.name").value("Veste imperméable"))
+            .andExpect(jsonPath("$french.description").value("Résiste à la pluie et au vent"))
+    }
+
+    @Test
     fun `should return 404 for an unknown product`() {
         // Act
         val response = mockMvc.perform(get("/api/products/unknown"))

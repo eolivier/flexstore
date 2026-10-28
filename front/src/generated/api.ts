@@ -270,12 +270,30 @@ export const JsonPostalAddressRecipientTypeEnum = {
 export type JsonPostalAddressRecipientTypeEnum = typeof JsonPostalAddressRecipientTypeEnum[keyof typeof JsonPostalAddressRecipientTypeEnum];
 
 export interface JsonProduct {
-    'id'?: string;
-    'name'?: string;
-    'description'?: string;
-    'category'?: string;
-    'price'?: number;
-    'currency'?: string;
+    'id': string;
+    /**
+     * The name in the default language (en)
+     */
+    'name': string;
+    /**
+     * The description in the default language (en)
+     */
+    'description': string;
+    'category': string;
+    'price': number;
+    'currency': string;
+    /**
+     * The name and the description in every language of the product, the default one included
+     */
+    'translations': Array<JsonProductTranslation>;
+}
+export interface JsonProductTranslation {
+    /**
+     * en or fr
+     */
+    'language': string;
+    'name': string;
+    'description': string;
 }
 export interface JsonSaveItemResponse {
     'status'?: string;
