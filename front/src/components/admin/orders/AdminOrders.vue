@@ -8,6 +8,8 @@
   import { recipientName } from '@/utils/address';
   import { formatPrice } from '@/utils/price';
   import AdvanceOrderStatusButton from './AdvanceOrderStatusButton.vue';
+  import AdminOrderFilters from './AdminOrderFilters.vue';
+  import { matchesOrderFilter, noOrderFilter, type AdminOrderFilter } from '@/utils/adminOrderFilter';
 
   // The orders of all the customers: the administrator moves each one to its next status
   const adminOrdersStore = useAdminOrdersStore();
@@ -15,6 +17,10 @@
 
   const advancingOrderId = ref<string | null>(null);
   const feedback = ref<string | null>(null);
+  const filter = ref<AdminOrderFilter>({ ...noOrderFilter });
+  const filteredOrders = computed(() =>
+    adminOrdersStore.orders.filter((order) => matchesOrderFilter(order, filter.value))
+  );
 
   onMounted(() => {
     adminOrdersStore.fetchAllOrders();
@@ -48,8 +54,10 @@
     <AdminBreadcrumbs />
     <h1 class="text-h4 font-weight-bold">{{ t('adminOrders.title') }}</h1>
     <p class="text-body-2 text-medium-emphasis mt-1 mb-6">
-      {{ t('adminOrders.count', adminOrdersStore.orders.length) }}
+      {{ t('adminOrders.count', filteredOrders.length) }}
     </p>
+
+    <AdminOrderFilters v-model="filter" />
 
     <v-alert v-if="adminOrdersStore.loadError" type="error" variant="tonal" class="mb-4">
       {{ t('adminOrders.loadError') }}
@@ -58,10 +66,11 @@
 
     <v-data-table
       :headers="headers"
-      :items="adminOrdersStore.orders"
+      :items="filteredOrders"
       :loading="adminOrdersStore.loading"
       :loading-text="t('adminOrders.loading')"
       item-value="id"
+      :no-data-text="t('adminOrders.noMatch')"
     >
       <template #item.number="{ item }">
         <router-link :to="`/admin/orders/${item.id}`" class="font-weight-medium">

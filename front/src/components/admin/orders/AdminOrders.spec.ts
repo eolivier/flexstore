@@ -69,6 +69,31 @@ describe('AdminOrders.vue', () => {
     expect(wrapper.text()).toContain('Account no longer available');
   });
 
+  it('shows only the orders that match the search', async () => {
+    // Arrange
+    const otherCustomer = { firstName: 'Ana', lastName: 'Martin', email: 'ana.martin@example.com' };
+    respondWith([twoLinesOrder, { ...deliveredOrder, customer: otherCustomer }]);
+    const wrapper = await mountAdminOrders();
+    // Act
+    await wrapper.find('input[type="text"]').setValue('martin');
+    await flushPromises();
+    // Assert
+    expect(wrapper.text()).toContain('1 order');
+    expect(wrapper.text()).toContain('Ana Martin');
+    expect(wrapper.text()).not.toContain('John Smith');
+  });
+
+  it('says that no order matches the filters', async () => {
+    // Arrange
+    respondWith([twoLinesOrder]);
+    const wrapper = await mountAdminOrders();
+    // Act
+    await wrapper.find('input[type="text"]').setValue('nobody');
+    await flushPromises();
+    // Assert
+    expect(wrapper.text()).toContain('No order matches these filters.');
+  });
+
   it.each([
     { order: twoLinesOrder, expected: 'Move to: Shipped' },
     { order: deliveredOrder, expected: 'Last status' },

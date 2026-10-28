@@ -6,7 +6,10 @@ describe('productTranslations', () => {
     // Act
     const texts = textsOf([{ language: 'en', name: 'Lamp', description: 'Warm light' }]);
     // Assert
-    expect(texts).toEqual({ en: { name: 'Lamp', description: 'Warm light' }, fr: { name: '', description: '' } });
+    expect(texts).toEqual({
+      en: { name: 'Lamp', description: 'Warm light' },
+      fr: { name: '', description: '' },
+    });
   });
 
   it.each([
