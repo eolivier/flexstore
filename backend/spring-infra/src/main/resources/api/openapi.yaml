@@ -1133,18 +1133,37 @@ components:
           description: Currency code (EUR)
     JsonProduct:
       type: object
+      required: [id, name, description, category, price, currency, translations]
       properties:
         id:
           type: string
         name:
           type: string
+          description: The name in the default language (en)
         description:
           type: string
+          description: The description in the default language (en)
         category:
           type: string
         price:
           type: number
         currency:
+          type: string
+        translations:
+          type: array
+          description: The name and the description in every language of the product, the default one included
+          items:
+            $ref: "#/components/schemas/JsonProductTranslation"
+    JsonProductTranslation:
+      type: object
+      required: [language, name, description]
+      properties:
+        language:
+          type: string
+          description: en or fr
+        name:
+          type: string
+        description:
           type: string
     JsonItem:
       type: object

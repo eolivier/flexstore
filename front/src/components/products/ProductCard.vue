@@ -4,6 +4,7 @@
   import type { Product } from '@/models/product';
   import { categoryInfo } from './categories';
   import { formatPrice } from '@/utils/price';
+  import { productTextIn } from '@/utils/productText';
   import StockBadge from './StockBadge.vue';
   import ProductVisual from './ProductVisual.vue';
 
@@ -16,6 +17,7 @@
   const category = computed(() => categoryInfo(props.product.category));
   const price = computed(() => formatPrice(props.product.price, props.product.currency, locale.value));
   const detailLink = computed(() => `/products/${props.product.id}`);
+  const text = computed(() => productTextIn(props.product, locale.value));
 </script>
 
 <template>
@@ -24,7 +26,7 @@
       :to="detailLink"
       class="product-visual d-flex align-center justify-center"
       :style="{ background: category.tint }"
-      :aria-label="product.name"
+      :aria-label="text.name"
     >
       <ProductVisual :product-id="product.id" :category="product.category" format="small" :icon-size="64" />
     </router-link>
@@ -32,9 +34,9 @@
     <v-card-text class="d-flex flex-column flex-grow-1 pa-5">
       <div class="text-caption text-secondary font-weight-bold text-uppercase mb-1">{{ t(category.label) }}</div>
       <h3 class="text-subtitle-1 font-weight-bold mb-1">
-        <router-link :to="detailLink" class="product-link">{{ product.name }}</router-link>
+        <router-link :to="detailLink" class="product-link">{{ text.name }}</router-link>
       </h3>
-      <p class="product-description text-body-2 text-medium-emphasis mb-4">{{ product.description }}</p>
+      <p class="product-description text-body-2 text-medium-emphasis mb-4">{{ text.description }}</p>
 
       <div class="mt-auto">
         <div class="d-flex align-center justify-space-between flex-wrap ga-2 mb-3">

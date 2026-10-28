@@ -5,6 +5,7 @@ import org.flexstore.domain.sharedkernel.*
 import org.flexstore.infra.spring.adapter.rest.json.DraftJsonProduct
 import org.flexstore.infra.spring.adapter.rest.json.EditedJsonProduct
 import org.flexstore.infra.spring.adapter.rest.json.JsonProduct
+import org.flexstore.infra.spring.adapter.rest.json.JsonProductTranslation
 import org.springframework.stereotype.Component
 
 @Component
@@ -28,14 +29,7 @@ class ProductMapper {
     }
     fun toJson(product: Product): JsonProduct {
         return when(product) {
-            is DefinedProduct -> JsonProduct(
-                product.productId.id.value,
-                product.name.value,
-                product.description.value,
-                product.category.name,
-                product.price.amount.value,
-                product.price.currency.symbol
-            )
+            is DefinedProduct -> product.toJson()
             else -> throw IllegalArgumentException("Unknown product type: ${product::class.java}")
         }
     }
@@ -44,15 +38,21 @@ class ProductMapper {
 fun <E> List<E>.toJsonProducts(): List<JsonProduct> {
     return this.map {
         when (it) {
-            is DefinedProduct -> JsonProduct(
-                it.productId.id.value,
-                it.name.value,
-                it.description.value,
-                it.category.name,
-                it.price.amount.value,
-                it.price.currency.symbol
-            )
+            is DefinedProduct -> it.toJson()
             else -> throw IllegalArgumentException("Unknown product type: ${it!!::class.java}")
         }
     }
 }
+
+private fun DefinedProduct.toJson() = JsonProduct(
+    productId.id.value,
+    name.value,
+    description.value,
+    category.name,
+    price.amount.value,
+    price.currency.symbol,
+    translations.asList().map { it.toJson() }
+)
+
+private fun ProductTranslation.toJson() =
+    JsonProductTranslation(language.name.lowercase(), name.value, description.value)
