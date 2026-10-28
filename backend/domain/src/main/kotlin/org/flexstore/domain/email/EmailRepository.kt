@@ -6,6 +6,7 @@ import org.flexstore.domain.user.model.UserId
 // of the email addresses, whose links are sent by email
 interface EmailRepository {
     fun send(email: OrderConfirmationEmail)
+    fun send(email: OrderStatusEmail)
     fun send(link: EmailVerificationLink)
     fun send(email: PasswordResetEmail)
 

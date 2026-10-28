@@ -19,6 +19,8 @@ class EmailRepositoryAdapter(
 
     override fun send(email: OrderConfirmationEmail) = emailSender.send(email)
 
+    override fun send(email: OrderStatusEmail) = emailSender.send(email)
+
     override fun send(link: EmailVerificationLink) = emailSender.send(link)
 
     override fun send(email: PasswordResetEmail) = emailSender.send(email)

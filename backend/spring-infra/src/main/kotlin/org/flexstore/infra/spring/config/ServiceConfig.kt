@@ -33,11 +33,13 @@ open class ServiceConfig {
     @Bean
     open fun orderAdministrationService(listAdministeredOrdersUseCase: ListAdministeredOrdersUseCase,
                                         readAdministeredOrderUseCase: ReadAdministeredOrderUseCase,
-                                        advanceOrderStatusUseCase: AdvanceOrderStatusUseCase) =
+                                        advanceOrderStatusUseCase: AdvanceOrderStatusUseCase,
+                                        sendOrderStatusEmailUseCase: SendOrderStatusEmailUseCase) =
         OrderAdministrationService(
             listAdministeredOrdersUseCase,
             readAdministeredOrderUseCase,
-            advanceOrderStatusUseCase
+            advanceOrderStatusUseCase,
+            sendOrderStatusEmailUseCase
         )
 
     @Bean

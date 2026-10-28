@@ -113,6 +113,10 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     }
 
     @Bean
+    open fun sendOrderStatusEmailUseCase(userRepository: UserRepository, emailRepository: EmailRepository) =
+        SendOrderStatusEmailUseCase(userRepository, emailRepository)
+
+    @Bean
     open fun listAdministeredOrdersUseCase(orderRepository: OrderRepository, userRepository: UserRepository) =
         ListAdministeredOrdersUseCase(orderRepository, userRepository)
 
