@@ -1,6 +1,6 @@
 ---
 name: prompt-convention
-description: How to turn the user's requests into pull requests - one focused PR per request, never mixing features, refactorings and skill updates. Use whenever a request leads to code or skill changes, before creating a branch, committing or opening a PR, and when a new request arrives while another one is in progress.
+description: How to turn the user's requests into pull requests - one focused PR per request, never mixing features, refactorings and skill updates; up to 10 PRs carried in a row, without waiting for their review. Use whenever a request leads to code or skill changes, before creating a branch, committing or opening a PR, and when a new request arrives while another one is in progress.
 ---
 
 # Prompt conventions
@@ -39,3 +39,20 @@ How to apply:
 - then run the integration tests (`./gradlew integrationTest`) and the manual checks;
 - if they reveal a problem, fix it and push to the same PR, then update its description (test plan, and what changed when it matters for the review);
 - once everything is green, tick the integration tests in the test plan.
+
+## 4. Up to 10 pull requests in a row, reviewed later
+
+The user may give several requests at once (features, refactorings), then come back later to review and merge the pull requests. Carry each request to its own open pull request, one after the other, without waiting for the review or the merge of the previous ones: **up to 10 open pull requests** at the same time.
+
+Why: the user gives the instructions in one go and validates the pull requests when they come back, instead of waiting at each step.
+
+How to apply:
+- **One pull request per feature or refactoring**, each different from the others, each on its own branch started from `main` and targeting `main` (sections 1 and 2). A request too large for one pull request is split into steps, each its own pull request, and counted as such.
+- **At most 10 open pull requests** waiting for the review. Past that, stop and tell the user which ones wait for a merge before going on with the next requests.
+- **Do not stop to ask between two pull requests**: a choice with a sensible default is made, and written in the description of the pull request under a **"Choices to validate"** heading, so the user can change it in the review. Only a request that cannot be done without the user's answer is left aside, with the question, and the other requests go on.
+- **Keep the pull requests independent**: avoid changing the same files in two pull requests when possible. When one really needs another, merge its branch into the dependent one, keep `main` as the base and say in the description which pull request to merge first.
+- **Migrations**: each pull request takes the next version number free among `main` and the other open pull requests (V25, V26...); if another one is merged first with the same number, renumber the migration and update the physical data model.
+- **Switch branches cleanly**: commit the work of a branch before leaving it, never carry uncommitted changes from one pull request to another (a git worktree per branch is an option).
+- **Each pull request is finished on its own**: unit tests green and pushed, then integration tests and manual checks ticked in its test plan (section 3), before moving to the next one.
+- **Report at the end**: one line per pull request, with its link, its kind (feature, refactoring, skill update), the order of merge when it matters, and the choices to validate.
+- After each merge, section 2 applies to every open pull request: merge `main` into it, adapt it and run the tests again.
