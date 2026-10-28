@@ -220,6 +220,27 @@ class DefinedProductControllerIT {
     }
 
     @Test
+    fun `an administrator should be proposed a SKU from the category and the name`() {
+        // Act
+        val response = mockMvc.perform(
+            get("/api/admin/products/sku-proposal").with(asAdmin())
+                .param("category", "CLOTHING").param("name", "Organic Cotton T-shirt")
+        )
+        // Assert
+        response.andExpect(status().isOk).andExpect(jsonPath("$.sku").value("CLO-ORGANIC-COTTON-0001"))
+    }
+
+    @Test
+    fun `a customer should not be proposed a SKU`() {
+        // Act
+        val response = mockMvc.perform(
+            get("/api/admin/products/sku-proposal").with(asUser("a-customer")).param("category", "CLOTHING")
+        )
+        // Assert
+        response.andExpect(status().isForbidden)
+    }
+
+    @Test
     fun `should refuse a product with the SKU of another product`() {
         // Arrange
         val draft = draftProduct("Reading lamp", "CLO-1", emptyList())

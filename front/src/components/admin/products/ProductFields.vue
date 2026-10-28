@@ -2,7 +2,7 @@
   import { computed } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { categoryInfo, shopCategories } from '@/components/products/categories';
-  import type { ProductTexts } from '@/models/product';
+  import { DEFAULT_LANGUAGE, type ProductTexts } from '@/models/product';
   import ProductTranslationFields from './ProductTranslationFields.vue';
   import SkuField from './SkuField.vue';
 
@@ -31,7 +31,12 @@
 </script>
 
 <template>
-  <SkuField v-model="sku" :already-used="skuAlreadyUsed" />
+  <SkuField
+    v-model="sku"
+    :already-used="skuAlreadyUsed"
+    :category="category"
+    :name="texts[DEFAULT_LANGUAGE].name"
+  />
   <ProductTranslationFields v-model="texts" />
   <v-row>
     <v-col cols="12" sm="7">

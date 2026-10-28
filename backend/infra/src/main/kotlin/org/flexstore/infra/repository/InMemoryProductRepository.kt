@@ -63,6 +63,8 @@ class InMemoryProductRepository : ProductRepository {
 
     override fun skuIsUsedByAnotherProduct(product: DefinedProduct): Boolean =
         products.any { it.sku == product.sku && it.productId != product.productId }
+
+    override fun skuIsFree(sku: Sku): Boolean = products.none { it.sku == sku }
 }
 
 private val currentId = AtomicInteger(1)

@@ -64,24 +64,6 @@ data class ProductId(val id: Identity) {
     }
 }
 
-// Stock Keeping Unit: the reference the shop gives to a product to identify it in its stock and its orders,
-// unique in the catalog (TSHIRT-ORGANIC-M). Upper-case letters and digits, in groups separated by single hyphens
-data class Sku(val value: String) {
-
-    fun isWellFormed() = value.length <= MAX_LENGTH && WELL_FORMED.matches(value)
-
-    fun isMalformed() = !isWellFormed()
-
-    companion object {
-        const val MAX_LENGTH = 32
-
-        private val WELL_FORMED = Regex("[A-Z0-9]+(-[A-Z0-9]+)*")
-
-        // As typed by an administrator: the spaces around are dropped, the letters put in upper case
-        fun from(typedSku: String) = Sku(typedSku.trim().uppercase())
-    }
-}
-
 enum class Category {
     ELECTRONICS, BOOKS, CLOTHING, HOME, BEAUTY, TOYS, SPORTS,
     AUTOMOTIVE, GROCERY, HEALTH, ACCESSORIES, NOT_DEFINED
@@ -90,5 +72,6 @@ enum class Category {
 data class ProductAlreadyExists(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class ProductCreationFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class InvalidSkuException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class SkuProposalFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class SkuAlreadyUsedException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class ProductNotFoundException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

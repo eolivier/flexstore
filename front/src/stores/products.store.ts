@@ -10,6 +10,18 @@ export const useProductsStore = defineStore('products', () => {
   const loading = ref(false);
   const error = ref<string | null>(null);
 
+  // A SKU free in the catalog, proposed from the category and the name of the product; null when it cannot be
+  // proposed
+  async function proposeSku(category: string, name: string): Promise<string | null> {
+    const query = new URLSearchParams({ category, name });
+    const response = await useAuthStore()
+      .authFetch(`/api/admin/products/sku-proposal?${query}`)
+      .catch(() => null);
+    if (!response?.ok) return null;
+    const proposal: { sku: string } = await response.json();
+    return proposal.sku;
+  }
+
   async function addProduct(product: ProductInput): Promise<ProductSave> {
     return saveProduct('/api/products', 'POST', product);
   }
@@ -72,5 +84,14 @@ export const useProductsStore = defineStore('products', () => {
     }
   );
 
-  return { products, loading, error, fetchProducts, fetchAdminProduct, addProduct, updateProduct };
+  return {
+    products,
+    loading,
+    error,
+    fetchProducts,
+    fetchAdminProduct,
+    proposeSku,
+    addProduct,
+    updateProduct,
+  };
 });
