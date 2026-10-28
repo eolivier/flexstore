@@ -23,7 +23,7 @@ class ProposeSkuUseCase(private val productRepository: ProductRepository) : Quer
     }
 
     private fun proposalIsFreeCondition() = PostCondition<Sku> { proposedSku ->
-        if (!productRepository.skuIsFree(proposedSku)) {
+        if (productRepository.skuIsNotFree(proposedSku)) {
             throw SkuProposalFailed(ErrorMessage("The SKU proposed, ${proposedSku.value}, is already used."))
         }
     }

@@ -61,4 +61,22 @@ class SkuTest : WithAssertions {
         // Assert
         assertThat(firstProposal.isWellFormed()).isTrue()
     }
+
+    @Test
+    fun `the prefix of the SKUs proposed should be made of the category and the first words of the name`() {
+        // Arrange
+        val skuBasis = SkuBasis(Category.CLOTHING, "T-shirt en coton bio")
+        // Act
+        val prefix = skuBasis.prefix()
+        // Assert
+        assertThat(prefix).isEqualTo(SkuPrefix("CLO-T-SHIRT"))
+    }
+
+    @Test
+    fun `a numbered SKU should have its number on four digits`() {
+        // Act
+        val sku = SkuPrefix("HOM-MUG").numbered(12)
+        // Assert
+        assertThat(sku).isEqualTo(Sku("HOM-MUG-0012"))
+    }
 }
