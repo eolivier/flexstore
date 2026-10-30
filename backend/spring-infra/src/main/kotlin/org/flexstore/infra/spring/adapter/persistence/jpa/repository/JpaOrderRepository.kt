@@ -3,6 +3,7 @@ package org.flexstore.infra.spring.adapter.persistence.jpa.repository
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.AddressEntity
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.OrderEntity
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.OrderLineEntity
+import org.flexstore.infra.spring.adapter.persistence.jpa.entity.OrderStatusChangeEntity
 import org.flexstore.infra.spring.adapter.persistence.jpa.toDomain
 import org.flexstore.infra.spring.adapter.persistence.jpa.toEntity
 import org.flexstore.domain.cart.*
@@ -26,7 +27,8 @@ class PostgresOrderRepositoryAdapter(
     private val jpaUserRepository: JpaUserRepository
 ) : OrderRepository {
 
-    // An order is placed once, then only its status changes: the stored rows of its lines are kept
+    // An order is placed once, then only its status changes: the stored rows of its lines are kept, and the
+    // statuses it reaches are added to its stored history
     override fun save(order: Order): Order {
         val storedOrder = jpaRepo.findById(order.orderId.value).orElse(null)
         val orderEntity = storedOrder?.withStatusOf(order) ?: order.toEntity()
@@ -35,7 +37,11 @@ class PostgresOrderRepositoryAdapter(
 
     private fun OrderEntity.withStatusOf(order: Order): OrderEntity {
         val storedCreatedAt = createdAt
-        return copy(status = order.status.name).also { it.createdAt = storedCreatedAt }
+        val storedCount = statusChanges.size
+        val newChanges = order.history.asList().drop(storedCount)
+        val newChangeEntities = newChanges.mapIndexed { index, change -> change.toEntity(storedCount + index) }
+        val orderEntity = copy(status = order.status.name, statusChanges = statusChanges + newChangeEntities)
+        return orderEntity.also { it.createdAt = storedCreatedAt }
     }
 
     @Transactional(readOnly = true)
@@ -62,6 +68,7 @@ class PostgresOrderRepositoryAdapter(
             placedAt = placedAt,
             deliveryAddress = addressesOfTheCustomer.rowOf(addresses.delivery),
             billingAddress = addressesOfTheCustomer.rowOf(addresses.billing),
+            statusChanges = history.asList().mapIndexed { position, change -> change.toEntity(position) },
             lines = lines.asList().mapIndexed { position, line ->
                 OrderLineEntity(
                     id = Identity.nextId().value,
@@ -86,8 +93,15 @@ class PostgresOrderRepositoryAdapter(
         val checkout = Checkout(CartOwner.Customer(UserId.ValidUserId(userId)), orderAddresses)
         val orderLines = OrderLines(lines.map { it.toDomain() })
         val orderDetail = OrderDetail(OrderPlacement(orderStamp, checkout), orderLines)
-        return Order(orderDetail, OrderStatus.valueOf(status))
+        val history = OrderStatusHistory(statusChanges.map { it.toDomain() })
+        return Order(orderDetail, history)
     }
+
+    private fun OrderStatusChange.toEntity(position: Int) =
+        OrderStatusChangeEntity(Identity.nextId().value, position, status.name, changedAt.value)
+
+    private fun OrderStatusChangeEntity.toDomain() =
+        OrderStatusChange(OrderStatus.valueOf(status), StatusChangedAt(changedAt))
 
     private fun OrderLineEntity.toDomain(): OrderLine {
         val orderedProduct = OrderedProduct(ProductId(Identity(productId)), Name(productName))

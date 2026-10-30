@@ -1388,10 +1388,25 @@ components:
       allOf:
       - $ref: "#/components/schemas/JsonOrder"
       - type: object
-        required: [customer]
+        required: [customer, statusHistory]
         properties:
           customer:
             $ref: "#/components/schemas/JsonOrderCustomer"
+          statusHistory:
+            type: array
+            description: The statuses the order went through, oldest first (the first one, when it was placed)
+            items:
+              $ref: "#/components/schemas/JsonOrderStatusChange"
+    JsonOrderStatusChange:
+      type: object
+      required: [status, changedAt]
+      properties:
+        status:
+          type: string
+          enum: [AWAITING_PAYMENT, PAID, PROCESSING, SHIPPED, DELIVERED, CANCELLED, REFUNDED]
+        changedAt:
+          type: string
+          format: date-time
     JsonOrderCustomer:
       type: object
       description: The customer who placed an order; empty fields when their account cannot be read any more

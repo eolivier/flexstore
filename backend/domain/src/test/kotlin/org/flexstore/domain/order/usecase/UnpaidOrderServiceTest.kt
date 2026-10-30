@@ -98,7 +98,7 @@ class UnpaidOrderServiceTest : WithAssertions {
     fun `a paid order should never be cancelled`() {
         // Arrange
         placeOrder()
-        orderRepository.save(orderRepository.findById(orderId)!!.paid())
+        orderRepository.save(orderRepository.findById(orderId)!!.withStatus(OrderStatus.PAID))
         // Act
         serviceAt(placedAt.plusSeconds(3600)).cancelLateOrders()
         // Assert

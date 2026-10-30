@@ -16,6 +16,7 @@ Name | Type | Description | Notes
 **billingAddress** | [**JsonPostalAddress**](JsonPostalAddress.md) |  | [default to undefined]
 **paymentDeadline** | **string** | When the order must be paid by, or it is cancelled. Only for the customer, while the order awaits its payment | [optional] [default to undefined]
 **customer** | [**JsonOrderCustomer**](JsonOrderCustomer.md) |  | [default to undefined]
+**statusHistory** | [**Array&lt;JsonOrderStatusChange&gt;**](JsonOrderStatusChange.md) | The statuses the order went through, oldest first (the first one, when it was placed) | [default to undefined]
 
 ## Example
 
@@ -33,6 +34,7 @@ const instance: JsonAdminOrder = {
     billingAddress,
     paymentDeadline,
     customer,
+    statusHistory,
 };
 ```
 

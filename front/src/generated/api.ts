@@ -123,6 +123,10 @@ export interface JsonAdminOrder {
      */
     'paymentDeadline'?: string | null;
     'customer': JsonOrderCustomer;
+    /**
+     * The statuses the order went through, oldest first (the first one, when it was placed)
+     */
+    'statusHistory': Array<JsonOrderStatusChange>;
 }
 
 export const JsonAdminOrderStatusEnum = {
@@ -291,6 +295,23 @@ export const JsonOrderStatusAdvanceCurrentStatusEnum = {
 } as const;
 
 export type JsonOrderStatusAdvanceCurrentStatusEnum = typeof JsonOrderStatusAdvanceCurrentStatusEnum[keyof typeof JsonOrderStatusAdvanceCurrentStatusEnum];
+
+export interface JsonOrderStatusChange {
+    'status': JsonOrderStatusChangeStatusEnum;
+    'changedAt': string;
+}
+
+export const JsonOrderStatusChangeStatusEnum = {
+    AwaitingPayment: 'AWAITING_PAYMENT',
+    Paid: 'PAID',
+    Processing: 'PROCESSING',
+    Shipped: 'SHIPPED',
+    Delivered: 'DELIVERED',
+    Cancelled: 'CANCELLED',
+    Refunded: 'REFUNDED'
+} as const;
+
+export type JsonOrderStatusChangeStatusEnum = typeof JsonOrderStatusChangeStatusEnum[keyof typeof JsonOrderStatusChangeStatusEnum];
 
 export interface JsonPasswordResetRequest {
     /**

@@ -23,7 +23,8 @@ class CancelUnpaidOrderUseCase(
             paymentRepository.stop(cancellation.orderId)
         }
         val cancelStep = Step<UnpaidOrderCancellation> { cancellation ->
-            orderRepository.save(order(cancellation).cancelled())
+            val cancelledAt = StatusChangedAt(cancellation.timeLimit.checkedAt)
+            orderRepository.save(order(cancellation).cancelledAt(cancelledAt))
         }
         val returnStockStep = Step<UnpaidOrderCancellation> { cancellation ->
             order(cancellation).lines.asList().forEach { line ->

@@ -1,6 +1,8 @@
 package org.flexstore.infra.spring.adapter.persistence.jpa.entity
 
 import jakarta.persistence.*
+import org.hibernate.annotations.Fetch
+import org.hibernate.annotations.FetchMode
 import java.time.Instant
 
 @Entity
@@ -34,5 +36,12 @@ data class OrderEntity(
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "customer_order_id", nullable = false)
     @OrderBy("position")
-    val lines: List<OrderLineEntity> = emptyList()
+    val lines: List<OrderLineEntity> = emptyList(),
+
+    // The statuses of the orders read are loaded in a single query
+    @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
+    @JoinColumn(name = "customer_order_id", nullable = false)
+    @OrderBy("position")
+    @Fetch(FetchMode.SUBSELECT)
+    val statusChanges: List<OrderStatusChangeEntity> = emptyList()
 ) : TimestampedEntity()

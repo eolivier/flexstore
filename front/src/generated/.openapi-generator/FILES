@@ -28,6 +28,7 @@ docs/JsonOrderCustomer.md
 docs/JsonOrderLine.md
 docs/JsonOrderRefund.md
 docs/JsonOrderStatusAdvance.md
+docs/JsonOrderStatusChange.md
 docs/JsonPasswordResetRequest.md
 docs/JsonPaymentSession.md
 docs/JsonPostalAddress.md

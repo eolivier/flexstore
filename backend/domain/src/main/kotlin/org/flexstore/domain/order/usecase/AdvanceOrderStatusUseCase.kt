@@ -3,12 +3,17 @@ package org.flexstore.domain.order.usecase
 import org.flexstore.domain.order.*
 import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.entity.*
+import java.time.Clock
 
 // An administrator moves an order to the next status of its life cycle: paid -> processing -> shipped ->
 // delivered (the payment moves an order awaiting it).
 // The initial status is checked before: the order still has the status the administrator saw,
 // and it has a next one. The final status is checked after: the order has the next status of the initial one
-class AdvanceOrderStatusUseCase(private val orderRepository: OrderRepository) : UseCase<OrderStatusAdvance> {
+// The moment of the change is read on the clock
+class AdvanceOrderStatusUseCase(
+    private val orderRepository: OrderRepository,
+    private val clock: Clock = Clock.systemUTC()
+) : UseCase<OrderStatusAdvance> {
 
     override fun getPreConditions(): PreConditions<OrderStatusAdvance> =
         PreConditions(orderExistsCondition(), initialStatusIsCurrentCondition(), initialStatusHasNextCondition())
@@ -16,7 +21,7 @@ class AdvanceOrderStatusUseCase(private val orderRepository: OrderRepository) : 
     override fun getNominalScenario(): NominalScenario<OrderStatusAdvance> {
         val advanceStep = Step<OrderStatusAdvance> { orderStatusAdvance ->
             val order = orderRepository.findById(orderStatusAdvance.orderId)!!
-            orderRepository.save(order.advanced())
+            orderRepository.save(order.advancedAt(StatusChangedAt.now(clock)))
         }
         return NominalScenario(listOf(advanceStep))
     }

@@ -111,7 +111,7 @@ class PaymentServiceTest : WithAssertions {
     fun `an order cancelled while its customer was paying should be paid, and take its units out again`() {
         // Arrange
         placeOrder()
-        orderRepository.save(orderRepository.findById(orderId)!!.cancelled())
+        orderRepository.save(orderRepository.findById(orderId)!!.withStatus(OrderStatus.CANCELLED))
         // Act
         paidLater.confirm(orderId)
         // Assert

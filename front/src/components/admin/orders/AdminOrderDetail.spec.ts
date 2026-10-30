@@ -60,6 +60,19 @@ describe('AdminOrderDetail.vue', () => {
     expect(wrapper.text()).toContain('12 rue des Lilas');
   });
 
+  it('shows the statuses the order went through, with their date', async () => {
+    // Arrange
+    respondWith(twoLinesAdminOrder);
+    // Act
+    const wrapper = await mountAdminOrderDetail();
+    // Assert
+    const historyItems = wrapper.findAll('.v-timeline-item').map((item) => item.text());
+    expect(historyItems).toHaveLength(3);
+    expect(historyItems[0]).toContain('Awaiting payment');
+    expect(historyItems[0]).toContain('October 24, 2026');
+    expect(historyItems[2]).toContain('Processing');
+  });
+
   it('moves the order to its next status', async () => {
     // Arrange
     const shippedOrder = { ...twoLinesAdminOrder, status: 'SHIPPED' };

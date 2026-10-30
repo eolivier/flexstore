@@ -9,6 +9,7 @@
   import OrderLinesTable from '@/components/orders/OrderLinesTable.vue';
   import OrderAddressesCard from '@/components/orders/OrderAddressesCard.vue';
   import AdminOrderCustomerCard from './AdminOrderCustomerCard.vue';
+  import AdminOrderStatusHistory from './AdminOrderStatusHistory.vue';
   import AdvanceOrderStatusButton from './AdvanceOrderStatusButton.vue';
   import RefundOrderButton from './RefundOrderButton.vue';
 
@@ -86,6 +87,7 @@
         <OrderStatusSteps :status="order.status" />
       </v-card>
       <AdminOrderCustomerCard :customer="order.customer" />
+      <AdminOrderStatusHistory :status-history="order.statusHistory" />
       <OrderLinesTable :order="order" />
       <OrderAddressesCard :order="order" />
     </template>

@@ -33,7 +33,7 @@ class RefundOrderUseCaseTest : WithAssertions {
         val cart = Cart(customer).add(deskLamp, Quantity(2))
         val orderStamp = OrderStamp(orderId, Instant.now())
         val orderPlacement = OrderPlacement(orderStamp, Checkout(customer, homeOrderAddresses))
-        orderRepository.save(Order.place(orderPlacement, cart).copy(status = status))
+        orderRepository.save(Order.place(orderPlacement, cart).withStatus(status))
     }
 
     private fun storedStatus() = orderRepository.findById(orderId)?.status
