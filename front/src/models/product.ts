@@ -42,3 +42,7 @@ export type ProductTexts = Record<string, { name: string; description: string }>
 // How the creation or the edition of a product ended: saved, refused because another product has its SKU, or
 // failed
 export type ProductSave = 'saved' | 'skuAlreadyUsed' | 'failed';
+
+// How the creation of a product ended: created with its id, or not created
+export type ProductCreation =
+  { outcome: 'saved'; productId: string } | { outcome: 'skuAlreadyUsed' } | { outcome: 'failed' };
