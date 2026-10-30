@@ -12,7 +12,8 @@ class OrderUseCases(
     private val placeOrderUseCase: PlaceOrderUseCase,
     private val orderQueryUseCases: OrderQueryUseCases,
     private val sendOrderConfirmationEmailUseCase: SendOrderConfirmationEmailUseCase,
-    private val readShopSettingsUseCase: ReadShopSettingsUseCase
+    private val readShopSettingsUseCase: ReadShopSettingsUseCase,
+    private val proposeShippingOptionsUseCase: ProposeShippingOptionsUseCase
 ) {
 
     // The use cases are shared by all the requests: the placed order is read back with its id.
@@ -35,6 +36,9 @@ class OrderUseCases(
 
     // The delay of the shop settings, which gives the payment deadline of an order
     fun paymentDelay() = readShopSettingsUseCase.unfold(Unit).paymentDelay
+
+    // The shipping methods the customer chooses from, at their cost for their cart
+    fun shippingOptionsFor(customer: CartOwner.Customer) = proposeShippingOptionsUseCase.unfold(customer)
 
     fun sendConfirmationOf(order: Order) = sendOrderConfirmationEmailUseCase.unfold(order)
 }

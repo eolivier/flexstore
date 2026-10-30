@@ -11,6 +11,8 @@ import org.flexstore.infra.spring.adapter.rest.json.JsonItem
 import org.flexstore.infra.spring.security.asUser
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -97,8 +99,44 @@ class OrderIT {
             .andExpect(jsonPath("$.lines[0].productName").value("Laptop"))
             .andExpect(jsonPath("$.lines[0].quantity").value(2))
             .andExpect(jsonPath("$.lines[0].linePrice").value(1598))
+            .andExpect(jsonPath("$.itemsPrice").value(1637))
+            .andExpect(jsonPath("$.shippingMethod").value("STANDARD"))
+            .andExpect(jsonPath("$.shippingCost").value(0))
             .andExpect(jsonPath("$.totalPrice").value(1637))
             .andExpect(jsonPath("$.currency").value("€"))
+    }
+
+    @ParameterizedTest(name = "{0} shipping of a T-shirt of 25 € costs {1} €")
+    @CsvSource("STANDARD, 4.9, 29.9", "EXPRESS, 9.9, 34.9")
+    fun `an order below the threshold of free shipping should pay its shipping`(
+        shippingMethod: String,
+        shippingCost: Double,
+        totalPrice: Double
+    ) {
+        // Arrange
+        addToCart(CUSTOMER_ID, productId = "1", quantity = 1)
+        // Act
+        val response = mockMvc.perform(
+            post("/api/orders").withHomeAddressesShipped(shippingMethod).with(asUser(CUSTOMER_ID))
+        )
+        // Assert
+        response.andExpect(status().isCreated)
+            .andExpect(jsonPath("$.shippingMethod").value(shippingMethod))
+            .andExpect(jsonPath("$.shippingCost").value(shippingCost))
+            .andExpect(jsonPath("$.totalPrice").value(totalPrice))
+    }
+
+    @Test
+    fun `the customer should see the cost of each shipping method for their cart`() {
+        // Arrange
+        addToCart(CUSTOMER_ID, productId = "1", quantity = 1)
+        // Act
+        val response = mockMvc.perform(get("/api/orders/shipping-options").with(asUser(CUSTOMER_ID)))
+        // Assert
+        response.andExpect(status().isOk)
+            .andExpect(jsonPath("$.options[?(@.method == 'STANDARD')].cost").value(4.9))
+            .andExpect(jsonPath("$.options[?(@.method == 'EXPRESS')].cost").value(9.9))
+            .andExpect(jsonPath("$.freeShippingThreshold").value(50))
     }
 
     @Test

@@ -4,8 +4,14 @@
   import { useCartStore } from '@/stores/cart.store';
   import { formatPrice } from '@/utils/price';
 
-  // The summary of the cart and the button that places the order; error: why the last attempt failed
-  defineProps<{ placing: boolean; disabled: boolean; error: string | null }>();
+  // The summary of the cart, with the shipping chosen (null while it is not known), and the button that places
+  // the order; error: why the last attempt failed
+  const props = defineProps<{
+    shippingCost: number | null;
+    placing: boolean;
+    disabled: boolean;
+    error: string | null;
+  }>();
   const emit = defineEmits<{ place: [] }>();
 
   const { t, locale } = useI18n();
@@ -14,15 +20,31 @@
   const itemsCount = computed(() =>
     (cartStore.cartItems?.items ?? []).reduce((count, item) => count + item.productQuantity, 0)
   );
+  const currency = computed(() => cartStore.cartItems?.itemsCurrency);
+  const itemsPrice = computed(() => cartStore.cartItems?.totalItemsPrice ?? 0);
+  const shipping = computed(() => {
+    if (props.shippingCost === null) return '';
+    if (props.shippingCost === 0) return t('checkout.shipping.free');
+    return formatPrice(props.shippingCost, currency.value, locale.value);
+  });
   const total = computed(() =>
-    formatPrice(cartStore.cartItems?.totalItemsPrice, cartStore.cartItems?.itemsCurrency, locale.value)
+    formatPrice(itemsPrice.value + (props.shippingCost ?? 0), currency.value, locale.value)
   );
 </script>
 
 <template>
   <v-card class="summary pa-6">
     <h2 class="text-h6 font-weight-bold mb-4">{{ t('cart.summary') }}</h2>
-    <div class="text-body-2 text-medium-emphasis mb-2">{{ t('cart.itemsCount', itemsCount) }}</div>
+    <div class="d-flex text-body-2 mb-2">
+      <span class="text-medium-emphasis">{{ t('cart.itemsCount', itemsCount) }}</span>
+      <v-spacer />
+      <span>{{ formatPrice(itemsPrice, currency, locale) }}</span>
+    </div>
+    <div v-if="shipping" class="d-flex text-body-2 mb-2">
+      <span class="text-medium-emphasis">{{ t('checkout.shipping.title') }}</span>
+      <v-spacer />
+      <span>{{ shipping }}</span>
+    </div>
     <v-divider class="my-4" />
     <div class="d-flex align-center mb-6">
       <span class="text-subtitle-1 font-weight-bold">{{ t('cart.total') }}</span>

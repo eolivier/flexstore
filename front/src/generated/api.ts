@@ -114,6 +114,18 @@ export interface JsonAdminOrder {
     'placedAt': string;
     'status': JsonAdminOrderStatusEnum;
     'lines': Array<JsonOrderLine>;
+    /**
+     * The price of the lines, without the shipping
+     */
+    'itemsPrice': number;
+    'shippingMethod': JsonAdminOrderShippingMethodEnum;
+    /**
+     * 0 when the shipping is free
+     */
+    'shippingCost': number;
+    /**
+     * The price of the lines plus the shipping
+     */
     'totalPrice': number;
     'currency': string;
     'deliveryAddress': JsonPostalAddress;
@@ -140,6 +152,12 @@ export const JsonAdminOrderStatusEnum = {
 } as const;
 
 export type JsonAdminOrderStatusEnum = typeof JsonAdminOrderStatusEnum[keyof typeof JsonAdminOrderStatusEnum];
+export const JsonAdminOrderShippingMethodEnum = {
+    Standard: 'STANDARD',
+    Express: 'EXPRESS'
+} as const;
+
+export type JsonAdminOrderShippingMethodEnum = typeof JsonAdminOrderShippingMethodEnum[keyof typeof JsonAdminOrderShippingMethodEnum];
 
 /**
  * A product as the administrator edits it, with its translations in every language
@@ -230,6 +248,18 @@ export interface JsonOrder {
     'placedAt': string;
     'status': JsonOrderStatusEnum;
     'lines': Array<JsonOrderLine>;
+    /**
+     * The price of the lines, without the shipping
+     */
+    'itemsPrice': number;
+    'shippingMethod': JsonOrderShippingMethodEnum;
+    /**
+     * 0 when the shipping is free
+     */
+    'shippingCost': number;
+    /**
+     * The price of the lines plus the shipping
+     */
     'totalPrice': number;
     'currency': string;
     'deliveryAddress': JsonPostalAddress;
@@ -251,11 +281,29 @@ export const JsonOrderStatusEnum = {
 } as const;
 
 export type JsonOrderStatusEnum = typeof JsonOrderStatusEnum[keyof typeof JsonOrderStatusEnum];
+export const JsonOrderShippingMethodEnum = {
+    Standard: 'STANDARD',
+    Express: 'EXPRESS'
+} as const;
+
+export type JsonOrderShippingMethodEnum = typeof JsonOrderShippingMethodEnum[keyof typeof JsonOrderShippingMethodEnum];
 
 export interface JsonOrderAddresses {
     'deliveryAddress': JsonPostalAddress;
     'billingAddress'?: JsonPostalAddress;
+    /**
+     * STANDARD when not given
+     */
+    'shippingMethod'?: JsonOrderAddressesShippingMethodEnum;
 }
+
+export const JsonOrderAddressesShippingMethodEnum = {
+    Standard: 'STANDARD',
+    Express: 'EXPRESS'
+} as const;
+
+export type JsonOrderAddressesShippingMethodEnum = typeof JsonOrderAddressesShippingMethodEnum[keyof typeof JsonOrderAddressesShippingMethodEnum];
+
 /**
  * The customer who placed an order; empty fields when their account cannot be read any more
  */
@@ -398,6 +446,29 @@ export interface JsonSaveItemResponse {
      * Id of the visitor cart, to send in X-Cart-Id; null for a signed-in customer
      */
     'cartId'?: string | null;
+}
+export interface JsonShippingOption {
+    'method': JsonShippingOptionMethodEnum;
+    /**
+     * For the items of the cart; 0 when free
+     */
+    'cost': number;
+}
+
+export const JsonShippingOptionMethodEnum = {
+    Standard: 'STANDARD',
+    Express: 'EXPRESS'
+} as const;
+
+export type JsonShippingOptionMethodEnum = typeof JsonShippingOptionMethodEnum[keyof typeof JsonShippingOptionMethodEnum];
+
+export interface JsonShippingOptions {
+    'options': Array<JsonShippingOption>;
+    /**
+     * The price of the items from which the standard shipping is free (0 - always free)
+     */
+    'freeShippingThreshold': number;
+    'currency': string;
 }
 export interface JsonSkuProposal {
     'sku': string;
@@ -1959,6 +2030,40 @@ export const OrdersApiAxiosParamCreator = function (configuration?: Configuratio
             };
         },
         /**
+         * 
+         * @summary Retrieve the shipping methods, with their cost for the cart of the signed-in customer
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getShippingOptions: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/orders/shipping-options`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * The order is delivered and billed to the given addresses (the delivery address when no billing address is given), which become addresses of the customer when they are new. The cart is kept until the order is paid (POST /api/orders/{id}/payment) 
          * @summary Place an order from the cart of the signed-in customer; it awaits its payment
          * @param {JsonOrderAddresses} jsonOrderAddresses 
@@ -2033,6 +2138,18 @@ export const OrdersApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * 
+         * @summary Retrieve the shipping methods, with their cost for the cart of the signed-in customer
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getShippingOptions(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonShippingOptions>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getShippingOptions(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['OrdersApi.getShippingOptions']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * The order is delivered and billed to the given addresses (the delivery address when no billing address is given), which become addresses of the customer when they are new. The cart is kept until the order is paid (POST /api/orders/{id}/payment) 
          * @summary Place an order from the cart of the signed-in customer; it awaits its payment
          * @param {JsonOrderAddresses} jsonOrderAddresses 
@@ -2074,6 +2191,15 @@ export const OrdersApiFactory = function (configuration?: Configuration, basePat
             return localVarFp.getOrders(options).then((request) => request(axios, basePath));
         },
         /**
+         * 
+         * @summary Retrieve the shipping methods, with their cost for the cart of the signed-in customer
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getShippingOptions(options?: RawAxiosRequestConfig): AxiosPromise<JsonShippingOptions> {
+            return localVarFp.getShippingOptions(options).then((request) => request(axios, basePath));
+        },
+        /**
          * The order is delivered and billed to the given addresses (the delivery address when no billing address is given), which become addresses of the customer when they are new. The cart is kept until the order is paid (POST /api/orders/{id}/payment) 
          * @summary Place an order from the cart of the signed-in customer; it awaits its payment
          * @param {JsonOrderAddresses} jsonOrderAddresses 
@@ -2109,6 +2235,16 @@ export class OrdersApi extends BaseAPI {
      */
     public getOrders(options?: RawAxiosRequestConfig) {
         return OrdersApiFp(this.configuration).getOrders(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Retrieve the shipping methods, with their cost for the cart of the signed-in customer
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getShippingOptions(options?: RawAxiosRequestConfig) {
+        return OrdersApiFp(this.configuration).getShippingOptions(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

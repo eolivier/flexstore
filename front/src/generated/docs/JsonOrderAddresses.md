@@ -7,6 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **deliveryAddress** | [**JsonPostalAddress**](JsonPostalAddress.md) |  | [default to undefined]
 **billingAddress** | [**JsonPostalAddress**](JsonPostalAddress.md) |  | [optional] [default to undefined]
+**shippingMethod** | **string** | STANDARD when not given | [optional] [default to undefined]
 
 ## Example
 
@@ -16,6 +17,7 @@ import { JsonOrderAddresses } from './api';
 const instance: JsonOrderAddresses = {
     deliveryAddress,
     billingAddress,
+    shippingMethod,
 };
 ```
 

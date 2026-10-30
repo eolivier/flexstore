@@ -80,6 +80,9 @@ class RestExceptionHandler {
             is SkuAlreadyUsedException -> ResponseEntity
                 .status(409)
                 .body(mapOf("error" to (ex.message ?: "SKU already used")))
+            is InvalidFreeShippingThresholdException -> ResponseEntity
+                .status(400)
+                .body(mapOf("error" to (ex.message ?: "Invalid threshold of free shipping")))
             is InvalidPaymentDelayException -> ResponseEntity
                 .status(400)
                 .body(mapOf("error" to (ex.message ?: "Invalid payment delay")))

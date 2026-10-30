@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { JsonOrder, JsonOrderAddresses, JsonPaymentSession } from '@/generated';
+import type { JsonOrder, JsonOrderAddresses, JsonPaymentSession, JsonShippingOptions } from '@/generated';
 import { useAuthStore } from '@/stores/auth.store';
 import { useCartStore } from '@/stores/cart.store';
 
@@ -74,6 +74,13 @@ export const useOrdersStore = defineStore('orders', () => {
     }
   }
 
+  // The shipping methods, with their cost for the cart of the customer; null when they cannot be read
+  async function fetchShippingOptions(): Promise<JsonShippingOptions | null> {
+    const response = await authStore.authFetch('/api/orders/shipping-options').catch(() => null);
+    if (!response?.ok) return null;
+    return response.json();
+  }
+
   // Starts the payment of an order: the customer then opens its checkout page
   async function startPayment(orderId: string): Promise<PaymentStart> {
     try {
@@ -96,5 +103,14 @@ export const useOrdersStore = defineStore('orders', () => {
     await cartStore.fetchCartItems();
   }
 
-  return { orders, loadError, fetchOrders, fetchOrder, placeOrder, startPayment, refreshCart };
+  return {
+    orders,
+    loadError,
+    fetchOrders,
+    fetchOrder,
+    fetchShippingOptions,
+    placeOrder,
+    startPayment,
+    refreshCart,
+  };
 });

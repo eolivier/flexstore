@@ -13,6 +13,9 @@ class ShopSettingsAdministrationService(private val readShopSettingsUseCase: Rea
 
     fun changePaymentDelay(paymentDelay: PaymentDelay) = update(getSettings().withPaymentDelay(paymentDelay))
 
+    fun changeFreeShippingThreshold(freeShippingThreshold: FreeShippingThreshold) =
+        update(getSettings().withFreeShippingThreshold(freeShippingThreshold))
+
     private fun update(settings: ShopSettings): ShopSettings {
         updateShopSettingsUseCase.unfold(settings)
         return readShopSettingsUseCase.unfold(Unit)

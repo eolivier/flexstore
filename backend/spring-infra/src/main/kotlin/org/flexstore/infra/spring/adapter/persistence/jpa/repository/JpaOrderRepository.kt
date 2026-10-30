@@ -66,6 +66,8 @@ class PostgresOrderRepositoryAdapter(
             userId = customer.value,
             status = status.name,
             placedAt = placedAt,
+            shippingMethod = shipping.method.name,
+            shippingCost = shipping.cost.amount.value,
             deliveryAddress = addressesOfTheCustomer.rowOf(addresses.delivery),
             billingAddress = addressesOfTheCustomer.rowOf(addresses.billing),
             statusChanges = history.asList().mapIndexed { position, change -> change.toEntity(position) },
@@ -90,9 +92,13 @@ class PostgresOrderRepositoryAdapter(
     private fun OrderEntity.toDomain(): Order {
         val orderStamp = OrderStamp(OrderId(id), placedAt)
         val orderAddresses = OrderAddresses(deliveryAddress.toDomain(), billingAddress.toDomain())
-        val checkout = Checkout(CartOwner.Customer(UserId.ValidUserId(userId)), orderAddresses)
+        val shippingMethod = ShippingMethod.valueOf(this.shippingMethod)
+        val delivery = OrderDelivery(orderAddresses, shippingMethod)
+        val checkout = Checkout(CartOwner.Customer(UserId.ValidUserId(userId)), delivery)
         val orderLines = OrderLines(lines.map { it.toDomain() })
-        val orderDetail = OrderDetail(OrderPlacement(orderStamp, checkout), orderLines)
+        val currency = orderLines.totalPrice().currency
+        val orderShipping = OrderShipping(shippingMethod, Price(Amount(shippingCost), currency))
+        val orderDetail = OrderDetail(OrderPlacement(orderStamp, checkout), OrderBill(orderLines, orderShipping))
         val history = OrderStatusHistory(statusChanges.map { it.toDomain() })
         return Order(orderDetail, history)
     }

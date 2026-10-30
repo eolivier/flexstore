@@ -15,6 +15,9 @@ export const twoLinesOrder: JsonOrder = {
       linePrice: 59,
     },
   ],
+  itemsPrice: 857,
+  shippingMethod: 'STANDARD',
+  shippingCost: 0,
   totalPrice: 857,
   currency: '€',
   deliveryAddress: {

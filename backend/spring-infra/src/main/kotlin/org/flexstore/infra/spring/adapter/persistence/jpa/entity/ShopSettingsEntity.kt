@@ -1,6 +1,7 @@
 package org.flexstore.infra.spring.adapter.persistence.jpa.entity
 
 import jakarta.persistence.*
+import java.math.BigDecimal
 
 const val SHOP_SETTINGS_ID = 1
 
@@ -14,5 +15,9 @@ data class ShopSettingsEntity(
     val orderConfirmationEmail: String,
 
     @Column(name = "payment_delay_minutes", nullable = false)
-    val paymentDelayMinutes: Int
+    val paymentDelayMinutes: Int,
+
+    // In euros
+    @Column(name = "free_shipping_threshold", nullable = false)
+    val freeShippingThreshold: BigDecimal
 ) : TimestampedEntity()

@@ -9,7 +9,10 @@ Name | Type | Description | Notes
 **placedAt** | **string** |  | [default to undefined]
 **status** | **string** |  | [default to undefined]
 **lines** | [**Array&lt;JsonOrderLine&gt;**](JsonOrderLine.md) |  | [default to undefined]
-**totalPrice** | **number** |  | [default to undefined]
+**itemsPrice** | **number** | The price of the lines, without the shipping | [default to undefined]
+**shippingMethod** | **string** |  | [default to undefined]
+**shippingCost** | **number** | 0 when the shipping is free | [default to undefined]
+**totalPrice** | **number** | The price of the lines plus the shipping | [default to undefined]
 **currency** | **string** |  | [default to undefined]
 **deliveryAddress** | [**JsonPostalAddress**](JsonPostalAddress.md) |  | [default to undefined]
 **billingAddress** | [**JsonPostalAddress**](JsonPostalAddress.md) |  | [default to undefined]
@@ -25,6 +28,9 @@ const instance: JsonOrder = {
     placedAt,
     status,
     lines,
+    itemsPrice,
+    shippingMethod,
+    shippingCost,
     totalPrice,
     currency,
     deliveryAddress,

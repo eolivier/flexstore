@@ -26,6 +26,7 @@ class OrderConfirmationEmailContent(email: OrderConfirmationEmail, shopUrl: Shop
         order.lines.asList().forEach { line ->
             appendLine("- ${line.quantity.value} × ${line.productName.value} : ${line.linePrice().formattedIn(FRENCH)}")
         }
+        appendLine("- ${order.shipping.method.label().value} : ${shippingCostOf(order)}")
         appendLine()
         appendLine("Total : ${order.totalPrice().formattedIn(FRENCH)}")
         appendLine()
@@ -33,4 +34,10 @@ class OrderConfirmationEmailContent(email: OrderConfirmationEmail, shopUrl: Shop
         appendLine()
         append("L'équipe Flexstore")
     })
+}
+
+// A free shipping is said so
+private fun shippingCostOf(order: Order): String {
+    val cost = order.shipping.cost
+    return if (cost.amount.value.signum() == 0) "offerte" else cost.formattedIn(FRENCH)
 }

@@ -7,6 +7,11 @@ import java.util.Locale
 data class Price(val amount: Amount, val currency: Currency) {
     fun multiply(quantity: Quantity) = Price(amount.multiply(quantity), currency)
 
+    // The sum of two prices in the same currency
+    operator fun plus(other: Price) = Price(Amount(amount.value.add(other.amount.value)), currency)
+
+    fun isAtLeast(other: Price) = amount.value >= other.amount.value
+
     // The price as the customer reads it in the given language, with 2 decimals (e.g. 1 598,00 € in French)
     fun formattedIn(locale: Locale): String {
         val format = NumberFormat.getNumberInstance(locale).apply {

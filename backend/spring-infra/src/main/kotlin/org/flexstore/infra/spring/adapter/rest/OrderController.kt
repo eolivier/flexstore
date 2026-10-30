@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.infra.spring.adapter.rest.json.JsonOrder
 import org.flexstore.infra.spring.adapter.rest.json.JsonOrderAddresses
+import org.flexstore.infra.spring.adapter.rest.json.JsonShippingOptions
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
@@ -31,9 +32,16 @@ class OrderController(private val orderUseCases: OrderUseCases) {
     // by default
     @Transactional(rollbackFor = [Exception::class])
     fun placeOrder(@AuthenticationPrincipal jwt: Jwt, @RequestBody addresses: JsonOrderAddresses): JsonOrder {
-        val checkout = Checkout(CartOwner.Customer(customer(jwt)), addresses.toOrderAddresses())
+        val checkout = Checkout(CartOwner.Customer(customer(jwt)), addresses.toOrderDelivery())
         val placedOrder = orderUseCases.placeOrder(checkout)
         return JsonOrder(placedOrder, orderUseCases.paymentDelay())
+    }
+
+    @Operation(summary = "Retrieve the shipping methods, with their cost for the cart of the signed-in customer")
+    @GetMapping("/shipping-options")
+    fun getShippingOptions(@AuthenticationPrincipal jwt: Jwt): JsonShippingOptions {
+        val shippingOptions = orderUseCases.shippingOptionsFor(CartOwner.Customer(customer(jwt)))
+        return JsonShippingOptions(shippingOptions)
     }
 
     @Operation(summary = "Retrieve the orders of the signed-in customer, newest first")

@@ -3,6 +3,7 @@ package org.flexstore.infra.spring.adapter.rest
 import org.flexstore.domain.settings.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.flexstore.infra.spring.adapter.rest.json.JsonFreeShippingThreshold
 import org.flexstore.infra.spring.adapter.rest.json.JsonPaymentDelay
 import org.flexstore.infra.spring.adapter.rest.json.JsonShopSettings
 import org.springframework.web.bind.annotation.*
@@ -31,4 +32,12 @@ class ShopSettingsController(private val shopSettingsAdministrationService: Shop
     @PutMapping("/payment-delay")
     fun changePaymentDelay(@RequestBody paymentDelay: JsonPaymentDelay) =
         JsonShopSettings(shopSettingsAdministrationService.changePaymentDelay(paymentDelay.toPaymentDelay()))
+
+    @Operation(summary = "Change the price of the items from which the standard shipping is free (0: always free)")
+    @PutMapping("/free-shipping-threshold")
+    fun changeFreeShippingThreshold(@RequestBody threshold: JsonFreeShippingThreshold): JsonShopSettings {
+        val administration = shopSettingsAdministrationService
+        val changedSettings = administration.changeFreeShippingThreshold(threshold.toFreeShippingThreshold())
+        return JsonShopSettings(changedSettings)
+    }
 }
