@@ -18,10 +18,10 @@ class CustomerRegistrationService(
     fun register(registration: CustomerRegistration): Account {
         registerCustomerUseCase.unfold(registration)
         sendVerificationEmail(registration.userId)
-        return readAccountUseCase.getAccount(registration.userId)
+        return readAccountUseCase.unfold(registration.userId)
     }
 
-    fun getAccount(userId: UserId): Account = readAccountUseCase.getAccount(userId)
+    fun getAccount(userId: UserId): Account = readAccountUseCase.unfold(userId)
 
     // A new link, when the previous one has expired or was lost
     fun sendVerificationEmail(userId: UserId) =

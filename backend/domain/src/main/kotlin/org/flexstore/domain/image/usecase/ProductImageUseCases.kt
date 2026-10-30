@@ -7,13 +7,15 @@ import org.flexstore.domain.product.ProductId
 class ProductImageUseCases(
     private val addProductImageUseCase: AddProductImageUseCase,
     private val removeProductImageUseCase: RemoveProductImageUseCase,
-    private val readProductImageUseCase: ReadProductImageUseCase
+    private val readProductImageUseCase: ReadProductImageUseCase,
+    private val listProductsWithImageUseCase: ListProductsWithImageUseCase
 ) {
     fun add(uploadedImage: UploadedImage) = addProductImageUseCase.unfold(uploadedImage)
 
     fun remove(productId: ProductId) = removeProductImageUseCase.unfold(productId)
 
-    fun getImage(productId: ProductId, format: ImageFormat) = readProductImageUseCase.getImage(productId, format)
+    fun getImage(productId: ProductId, format: ImageFormat) =
+        readProductImageUseCase.unfold(ProductImageLookup(productId, format))
 
-    fun getProductsWithImage() = readProductImageUseCase.getProductsWithImage()
+    fun getProductsWithImage() = listProductsWithImageUseCase.unfold(Unit)
 }

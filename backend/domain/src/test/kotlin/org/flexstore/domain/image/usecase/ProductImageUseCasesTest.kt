@@ -32,7 +32,8 @@ class ProductImageUseCasesTest : WithAssertions {
     private fun productImageUseCases(imageResizerRepository: ImageResizerRepository) = ProductImageUseCases(
         AddProductImageUseCase(productImageRepository, productRepository, imageResizerRepository),
         RemoveProductImageUseCase(productImageRepository),
-        ReadProductImageUseCase(productImageRepository)
+        ReadProductImageUseCase(productImageRepository),
+        ListProductsWithImageUseCase(productImageRepository)
     )
 
     private val productImageUseCases = productImageUseCases(truncatingResizer)
@@ -51,7 +52,7 @@ class ProductImageUseCasesTest : WithAssertions {
         val small = productImageUseCases.getImage(deskLamp.productId, ImageFormat.SMALL)
         assertThat(large.content.size()).isEqualTo(ImageFormat.LARGE.maxBytes)
         assertThat(small.content.size()).isEqualTo(ImageFormat.SMALL.maxBytes)
-        assertThat(productImageUseCases.getProductsWithImage()).containsExactly(deskLamp.productId)
+        assertThat(productImageUseCases.getProductsWithImage()).isEqualTo(ProductIds(deskLamp.productId))
     }
 
     @Test
@@ -93,6 +94,6 @@ class ProductImageUseCasesTest : WithAssertions {
         // Assert
         val thrown = catchThrowable { productImageUseCases.getImage(deskLamp.productId, ImageFormat.SMALL) }
         assertThat(thrown).isInstanceOf(ProductImageNotFoundException::class.java)
-        assertThat(productImageUseCases.getProductsWithImage()).isEmpty()
+        assertThat(productImageUseCases.getProductsWithImage()).isEqualTo(ProductIds())
     }
 }

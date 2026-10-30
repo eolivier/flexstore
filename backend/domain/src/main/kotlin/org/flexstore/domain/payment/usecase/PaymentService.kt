@@ -13,7 +13,7 @@ class PaymentService(
 ) {
     fun pay(orderPayment: OrderPayment): PaymentSession {
         paymentUseCases.startPaymentUseCase.unfold(orderPayment)
-        val paymentSession = paymentUseCases.readPaymentUseCase.getSession(orderPayment.orderId)
+        val paymentSession = paymentUseCases.readPaymentUseCase.unfold(orderPayment.orderId)
         if (paymentSession.isPaid()) confirm(orderPayment.orderId)
         return paymentSession
     }

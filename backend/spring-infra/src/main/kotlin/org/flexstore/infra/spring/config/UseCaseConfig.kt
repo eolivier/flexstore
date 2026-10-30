@@ -40,6 +40,9 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     }
 
     @Bean
+    open fun listProductsUseCase(productRepository: ProductRepository) = ListProductsUseCase(productRepository)
+
+    @Bean
     open fun addItemToCartUseCase(cartRepository: CartRepository,
                                   productRepository: ProductRepository): AddItemToCartUseCase {
         return AddItemToCartUseCase(cartRepository, productRepository)
@@ -108,9 +111,30 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     }
 
     @Bean
-    open fun readOrdersUseCase(orderRepository: OrderRepository): ReadOrdersUseCase {
-        return ReadOrdersUseCase(orderRepository)
-    }
+    open fun listCustomerOrdersUseCase(orderRepository: OrderRepository) =
+        ListCustomerOrdersUseCase(orderRepository)
+
+    @Bean
+    open fun listAllOrdersUseCase(orderRepository: OrderRepository) = ListAllOrdersUseCase(orderRepository)
+
+    @Bean
+    open fun readAnyOrderUseCase(orderRepository: OrderRepository) = ReadAnyOrderUseCase(orderRepository)
+
+    @Bean
+    open fun readCustomerOrderUseCase(orderRepository: OrderRepository) =
+        ReadCustomerOrderUseCase(orderRepository)
+
+    @Bean
+    open fun orderQueryUseCases(listCustomerOrdersUseCase: ListCustomerOrdersUseCase,
+                                listAllOrdersUseCase: ListAllOrdersUseCase,
+                                readAnyOrderUseCase: ReadAnyOrderUseCase,
+                                readCustomerOrderUseCase: ReadCustomerOrderUseCase) =
+        OrderQueryUseCases(
+            listCustomerOrdersUseCase,
+            listAllOrdersUseCase,
+            readAnyOrderUseCase,
+            readCustomerOrderUseCase
+        )
 
     @Bean
     open fun refundOrderUseCase(
@@ -194,9 +218,16 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     @Bean
     open fun productUseCases(createProductUseCase: CreateProductUseCase,
                              readProductUseCase: ReadProductUseCase,
+                             listProductsUseCase: ListProductsUseCase,
                              updateProductUseCase: UpdateProductUseCase,
                              proposeSkuUseCase: ProposeSkuUseCase) =
-        ProductUseCases(createProductUseCase, readProductUseCase, updateProductUseCase, proposeSkuUseCase)
+        ProductUseCases(
+            createProductUseCase,
+            readProductUseCase,
+            listProductsUseCase,
+            updateProductUseCase,
+            proposeSkuUseCase
+        )
 
     @Bean
     open fun proposeSkuUseCase(productRepository: ProductRepository) = ProposeSkuUseCase(productRepository)
@@ -210,12 +241,12 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
 
     @Bean
     open fun orderUseCases(placeOrderUseCase: PlaceOrderUseCase,
-                           readOrdersUseCase: ReadOrdersUseCase,
+                           orderQueryUseCases: OrderQueryUseCases,
                            sendOrderConfirmationEmailUseCase: SendOrderConfirmationEmailUseCase,
                            readShopSettingsUseCase: ReadShopSettingsUseCase) =
         OrderUseCases(
             placeOrderUseCase,
-            readOrdersUseCase,
+            orderQueryUseCases,
             sendOrderConfirmationEmailUseCase,
             readShopSettingsUseCase
         )
@@ -224,12 +255,17 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     open fun readStockUseCase(stockRepository: StockRepository) = ReadStockUseCase(stockRepository)
 
     @Bean
+    open fun listStocksUseCase(stockRepository: StockRepository) = ListStocksUseCase(stockRepository)
+
+    @Bean
     open fun changeStockUseCase(stockRepository: StockRepository, productRepository: ProductRepository) =
         ChangeStockUseCase(stockRepository, productRepository)
 
     @Bean
-    open fun stockUseCases(readStockUseCase: ReadStockUseCase, changeStockUseCase: ChangeStockUseCase) =
-        StockUseCases(readStockUseCase, changeStockUseCase)
+    open fun stockUseCases(listStocksUseCase: ListStocksUseCase,
+                           readStockUseCase: ReadStockUseCase,
+                           changeStockUseCase: ChangeStockUseCase) =
+        StockUseCases(listStocksUseCase, readStockUseCase, changeStockUseCase)
 
     @Bean
     open fun addProductImageUseCase(productImageRepository: ProductImageRepository,
@@ -246,8 +282,18 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         ReadProductImageUseCase(productImageRepository)
 
     @Bean
+    open fun listProductsWithImageUseCase(productImageRepository: ProductImageRepository) =
+        ListProductsWithImageUseCase(productImageRepository)
+
+    @Bean
     open fun productImageUseCases(addProductImageUseCase: AddProductImageUseCase,
                                   removeProductImageUseCase: RemoveProductImageUseCase,
-                                  readProductImageUseCase: ReadProductImageUseCase) =
-        ProductImageUseCases(addProductImageUseCase, removeProductImageUseCase, readProductImageUseCase)
+                                  readProductImageUseCase: ReadProductImageUseCase,
+                                  listProductsWithImageUseCase: ListProductsWithImageUseCase) =
+        ProductImageUseCases(
+            addProductImageUseCase,
+            removeProductImageUseCase,
+            readProductImageUseCase,
+            listProductsWithImageUseCase
+        )
 }

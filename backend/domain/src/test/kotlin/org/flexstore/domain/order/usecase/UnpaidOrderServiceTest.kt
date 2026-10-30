@@ -36,7 +36,7 @@ class UnpaidOrderServiceTest : WithAssertions {
 
     private fun serviceAt(instant: Instant) = UnpaidOrderService(
         ReadShopSettingsUseCase(shopSettingsRepository),
-        ReadOrdersUseCase(orderRepository),
+        ListAllOrdersUseCase(orderRepository),
         cancelUnpaidOrderUseCase,
         Clock.fixed(instant, ZoneOffset.UTC)
     )

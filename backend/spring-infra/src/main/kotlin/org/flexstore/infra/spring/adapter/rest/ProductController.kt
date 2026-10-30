@@ -76,7 +76,8 @@ class ProductController(private val productUseCases: ProductUseCases,
         @RequestHeader(HttpHeaders.ACCEPT_LANGUAGE, defaultValue = "en") acceptLanguage: String
     ): List<JsonProduct> {
         val start = System.nanoTime()
-        val jsonProducts = productUseCases.getProducts().toJsonProducts(languageAcceptedIn(acceptLanguage))
+        val products = productUseCases.getProducts()
+        val jsonProducts = products.asList().toJsonProducts(languageAcceptedIn(acceptLanguage))
         // --- Observability metrics ---
         val businessDuration = System.nanoTime() - start
         productMetrics.recordList(businessDuration)

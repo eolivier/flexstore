@@ -22,7 +22,10 @@ class ProductImageController(private val productImageUseCases: ProductImageUseCa
 
     @Operation(summary = "Retrieve the ids of the products that have an image")
     @GetMapping("/api/product-images")
-    fun getProductsWithImage(): List<String> = productImageUseCases.getProductsWithImage().map { it.id.value }
+    fun getProductsWithImage(): List<String> {
+        val productIds = productImageUseCases.getProductsWithImage()
+        return productIds.asList().map { it.id.value }
+    }
 
     // The browser keeps the image and asks again with its ETag: an image that did not change is not sent again
     @Operation(summary = "Retrieve the image of a product, in the small (cards, cart) or large (page) format")

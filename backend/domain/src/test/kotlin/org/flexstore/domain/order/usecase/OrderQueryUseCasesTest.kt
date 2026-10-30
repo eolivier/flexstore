@@ -11,14 +11,17 @@ import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.time.Instant
 
-class ReadOrdersUseCaseTest : WithAssertions {
+class OrderQueryUseCasesTest : WithAssertions {
 
     private val deskLamp = DefinedProduct(ProductId(Identity("desk-lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR))
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val otherCustomer = CartOwner.Customer(UserId.ValidUserId("user-2"))
     private val placedAt = Instant.parse("2026-10-24T10:00:00Z")
     private val orderRepository = InMemoryOrderRepository()
-    private val useCase = ReadOrdersUseCase(orderRepository)
+    private val listCustomerOrdersUseCase = ListCustomerOrdersUseCase(orderRepository)
+    private val readCustomerOrderUseCase = ReadCustomerOrderUseCase(orderRepository)
+    private val readAnyOrderUseCase = ReadAnyOrderUseCase(orderRepository)
+    private val listAllOrdersUseCase = ListAllOrdersUseCase(orderRepository)
 
     private fun placeOrder(orderId: OrderId, customer: CartOwner.Customer, placedAt: Instant): Order {
         val orderStamp = OrderStamp(orderId, placedAt)
@@ -36,7 +39,7 @@ class ReadOrdersUseCaseTest : WithAssertions {
         val newer = placeOrder(OrderId("newer"), customer, placedAt.plusSeconds(60))
         placeOrder(OrderId("other"), otherCustomer, placedAt)
         // Act
-        val orders = useCase.getOrders(customer.userId)
+        val orders = listCustomerOrdersUseCase.unfold(customer.userId)
         // Assert
         assertThat(orders.asList()).containsExactly(newer, older)
     }
@@ -46,7 +49,7 @@ class ReadOrdersUseCaseTest : WithAssertions {
         // Arrange
         val order = placeOrder(OrderId("order-1"), customer, placedAt)
         // Act
-        val readOrder = useCase.getOrder(customer.userId, OrderId("order-1"))
+        val readOrder = readCustomerOrderUseCase.unfold(CustomerOrderLookup(customer.userId, OrderId("order-1")))
         // Assert
         assertThat(readOrder).isEqualTo(order)
     }
@@ -56,8 +59,37 @@ class ReadOrdersUseCaseTest : WithAssertions {
         // Arrange
         placeOrder(OrderId("other"), otherCustomer, placedAt)
         // Act
-        val thrown = catchThrowable { useCase.getOrder(customer.userId, OrderId("other")) }
+        val thrown = catchThrowable { readCustomerOrderUseCase.unfold(CustomerOrderLookup(customer.userId, OrderId("other"))) }
         // Assert
         assertThat(thrown).isInstanceOf(OrderNotFoundException::class.java)
+    }
+
+    @Test
+    fun `an unknown order should not be found`() {
+        // Act
+        val thrown = catchThrowable { readCustomerOrderUseCase.unfold(CustomerOrderLookup(customer.userId, OrderId("unknown"))) }
+        // Assert
+        assertThat(thrown).isInstanceOf(OrderNotFoundException::class.java)
+    }
+
+    @Test
+    fun `any order should be read, whoever its customer`() {
+        // Arrange
+        val order = placeOrder(OrderId("other"), otherCustomer, placedAt)
+        // Act
+        val readOrder = readAnyOrderUseCase.unfold(OrderId("other"))
+        // Assert
+        assertThat(readOrder).isEqualTo(order)
+    }
+
+    @Test
+    fun `the orders of all the customers should be listed, newest first`() {
+        // Arrange
+        val older = placeOrder(OrderId("older"), customer, placedAt)
+        val newer = placeOrder(OrderId("newer"), otherCustomer, placedAt.plusSeconds(60))
+        // Act
+        val orders = listAllOrdersUseCase.unfold(Unit)
+        // Assert
+        assertThat(orders.asList()).containsExactly(newer, older)
     }
 }

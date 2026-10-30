@@ -16,7 +16,8 @@ class StockUseCasesTest : WithAssertions {
     private val productRepository = InMemoryProductRepository().apply { save(deskLamp) }
     private val stockRepository = InMemoryStockRepository()
     private val changeStockUseCase = ChangeStockUseCase(stockRepository, productRepository)
-    private val stockUseCases = StockUseCases(ReadStockUseCase(stockRepository), changeStockUseCase)
+    private val stockUseCases =
+        StockUseCases(ListStocksUseCase(stockRepository), ReadStockUseCase(stockRepository), changeStockUseCase)
 
     @Test
     fun `a product whose stock was never given should have none`() {

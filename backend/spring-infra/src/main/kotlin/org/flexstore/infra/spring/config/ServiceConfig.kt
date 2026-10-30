@@ -61,9 +61,9 @@ open class ServiceConfig {
 
     @Bean
     open fun unpaidOrderService(readShopSettingsUseCase: ReadShopSettingsUseCase,
-                                readOrdersUseCase: ReadOrdersUseCase,
+                                listAllOrdersUseCase: ListAllOrdersUseCase,
                                 cancelUnpaidOrderUseCase: CancelUnpaidOrderUseCase) =
-        UnpaidOrderService(readShopSettingsUseCase, readOrdersUseCase, cancelUnpaidOrderUseCase)
+        UnpaidOrderService(readShopSettingsUseCase, listAllOrdersUseCase, cancelUnpaidOrderUseCase)
 
     @Bean
     open fun addressBookService(readAccountUseCase: ReadAccountUseCase, addressUseCases: AddressUseCases) =
