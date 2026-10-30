@@ -19,7 +19,10 @@ import org.springframework.web.bind.annotation.*
 @Tag(name = "Orders")
 @RestController
 @RequestMapping("/api/orders")
-class OrderController(private val orderUseCases: OrderUseCases) {
+class OrderController(
+    private val orderUseCases: OrderUseCases,
+    private val orderCheckoutService: OrderCheckoutService
+) {
 
     @Operation(
         summary = "Place an order from the cart of the signed-in customer, delivered and billed to the given " +
@@ -33,7 +36,7 @@ class OrderController(private val orderUseCases: OrderUseCases) {
     @Transactional(rollbackFor = [Exception::class])
     fun placeOrder(@AuthenticationPrincipal jwt: Jwt, @RequestBody addresses: JsonOrderAddresses): JsonOrder {
         val checkout = Checkout(CartOwner.Customer(customer(jwt)), addresses.toOrderDelivery())
-        val placedOrder = orderUseCases.placeOrder(checkout)
+        val placedOrder = orderCheckoutService.placeOrder(checkout)
         return JsonOrder(placedOrder, orderUseCases.paymentDelay())
     }
 

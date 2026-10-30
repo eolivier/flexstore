@@ -45,14 +45,9 @@ class PaymentServiceTest : WithAssertions {
         val confirmPaymentUseCase = ConfirmPaymentUseCase(orderRepository, cartRepository, stockRepository)
         val readPaymentUseCase = ReadPaymentUseCase(paymentRepository)
         val paymentUseCases = PaymentUseCases(startPaymentUseCase, confirmPaymentUseCase, readPaymentUseCase)
-        val placeOrderUseCase =
-            PlaceOrderUseCase(
-                cartRepository, orderRepository, userRepository, stockRepository, shopSettingsRepository
-            )
         val readShopSettingsUseCase = ReadShopSettingsUseCase(shopSettingsRepository)
         val orderUseCases =
             OrderUseCases(
-                placeOrderUseCase,
                 orderQueryUseCases,
                 sendEmailUseCase,
                 readShopSettingsUseCase,

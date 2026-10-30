@@ -103,15 +103,28 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     }
 
     @Bean
-    open fun placeOrderUseCase(cartRepository: CartRepository,
-                               orderRepository: OrderRepository,
-                               userRepository: UserRepository,
-                               stockRepository: StockRepository,
-                               shopSettingsRepository: ShopSettingsRepository): PlaceOrderUseCase {
-        return PlaceOrderUseCase(
-            cartRepository, orderRepository, userRepository, stockRepository, shopSettingsRepository
-        )
-    }
+    open fun keepOrderAddressesUseCase(userRepository: UserRepository) =
+        KeepOrderAddressesUseCase(userRepository)
+
+    @Bean
+    open fun placeOrderUseCase(orderRepository: OrderRepository, stockRepository: StockRepository) =
+        PlaceOrderUseCase(orderRepository, stockRepository)
+
+    @Bean
+    open fun reserveOrderStockUseCase(orderRepository: OrderRepository, stockRepository: StockRepository) =
+        ReserveOrderStockUseCase(orderRepository, stockRepository)
+
+    @Bean
+    open fun orderPlacementUseCases(keepOrderAddressesUseCase: KeepOrderAddressesUseCase,
+                                    placeOrderUseCase: PlaceOrderUseCase,
+                                    reserveOrderStockUseCase: ReserveOrderStockUseCase) =
+        OrderPlacementUseCases(keepOrderAddressesUseCase, placeOrderUseCase, reserveOrderStockUseCase)
+
+    @Bean
+    open fun checkoutQueryUseCases(readCartUseCase: ReadCartUseCase,
+                                   readShopSettingsUseCase: ReadShopSettingsUseCase,
+                                   readCustomerOrderUseCase: ReadCustomerOrderUseCase) =
+        CheckoutQueryUseCases(readCartUseCase, readShopSettingsUseCase, readCustomerOrderUseCase)
 
     @Bean
     open fun listCustomerOrdersUseCase(orderRepository: OrderRepository) =
@@ -243,13 +256,11 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         CartUseCases(addItemToCartUseCase, changeCartItemQuantityUseCase, readCartUseCase, mergeCartsUseCase)
 
     @Bean
-    open fun orderUseCases(placeOrderUseCase: PlaceOrderUseCase,
-                           orderQueryUseCases: OrderQueryUseCases,
+    open fun orderUseCases(orderQueryUseCases: OrderQueryUseCases,
                            sendOrderConfirmationEmailUseCase: SendOrderConfirmationEmailUseCase,
                            readShopSettingsUseCase: ReadShopSettingsUseCase,
                            proposeShippingOptionsUseCase: ProposeShippingOptionsUseCase) =
         OrderUseCases(
-            placeOrderUseCase,
             orderQueryUseCases,
             sendOrderConfirmationEmailUseCase,
             readShopSettingsUseCase,
