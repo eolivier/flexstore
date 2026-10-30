@@ -626,6 +626,23 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/JsonCartItems"
+  /api/orders/shipping-options:
+    get:
+      tags:
+      - Orders
+      summary: Retrieve the shipping methods, with their cost for the cart of the signed-in customer
+      operationId: getShippingOptions
+      security:
+      - bearerAuth: []
+      responses:
+        "200":
+          description: The shipping methods and their cost
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonShippingOptions"
+        "401":
+          description: Not signed in
   /api/orders:
     post:
       tags:
@@ -1420,7 +1437,8 @@ components:
           type: string
     JsonOrder:
       type: object
-      required: [id, placedAt, status, lines, totalPrice, currency, deliveryAddress, billingAddress]
+      required: [id, placedAt, status, lines, itemsPrice, shippingMethod, shippingCost, totalPrice, currency,
+        deliveryAddress, billingAddress]
       properties:
         id:
           type: string
@@ -1434,8 +1452,18 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/JsonOrderLine"
+        itemsPrice:
+          type: number
+          description: The price of the lines, without the shipping
+        shippingMethod:
+          type: string
+          enum: [STANDARD, EXPRESS]
+        shippingCost:
+          type: number
+          description: 0 when the shipping is free
         totalPrice:
           type: number
+          description: The price of the lines plus the shipping
         currency:
           type: string
         deliveryAddress:
@@ -1490,6 +1518,33 @@ components:
           $ref: "#/components/schemas/JsonPostalAddress"
         billingAddress:
           $ref: "#/components/schemas/JsonPostalAddress"
+        shippingMethod:
+          type: string
+          enum: [STANDARD, EXPRESS]
+          description: STANDARD when not given
+    JsonShippingOptions:
+      type: object
+      required: [options, freeShippingThreshold, currency]
+      properties:
+        options:
+          type: array
+          items:
+            $ref: "#/components/schemas/JsonShippingOption"
+        freeShippingThreshold:
+          type: number
+          description: The price of the items from which the standard shipping is free (0 - always free)
+        currency:
+          type: string
+    JsonShippingOption:
+      type: object
+      required: [method, cost]
+      properties:
+        method:
+          type: string
+          enum: [STANDARD, EXPRESS]
+        cost:
+          type: number
+          description: For the items of the cart; 0 when free
     JsonAccount:
       type: object
       required: [id, firstName, lastName, email, role, status, postalAddresses]

@@ -40,6 +40,20 @@
       </tbody>
     </v-table>
     <v-divider />
+    <div class="d-flex text-body-2 px-5 pt-4">
+      <span class="text-medium-emphasis">{{ t('orders.itemsPrice') }}</span>
+      <v-spacer />
+      <span>{{ formatPrice(order.itemsPrice, order.currency, locale) }}</span>
+    </div>
+    <div class="d-flex text-body-2 px-5 pt-2">
+      <span class="text-medium-emphasis">{{ t(`checkout.shipping.methods.${order.shippingMethod}`) }}</span>
+      <v-spacer />
+      <span>{{
+        order.shippingCost === 0
+          ? t('checkout.shipping.free')
+          : formatPrice(order.shippingCost, order.currency, locale)
+      }}</span>
+    </div>
     <div class="d-flex align-center pa-5">
       <span class="text-subtitle-1 font-weight-bold">{{ t('orders.total') }}</span>
       <v-spacer />

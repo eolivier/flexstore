@@ -78,6 +78,29 @@ class ShopSettingsIT {
         response.andExpect(status().isBadRequest)
     }
 
+    @Test
+    fun `an admin should change the price of the items from which the standard shipping is free`() {
+        // Act
+        val response = changeFreeShippingThreshold("30")
+        // Assert
+        response.andExpect(status().isOk).andExpect(jsonPath("$.freeShippingThreshold").value(30))
+        mockMvc.perform(get("/api/admin/settings").with(asAdmin()))
+            .andExpect(jsonPath("$.freeShippingThreshold").value(30))
+    }
+
+    @Test
+    fun `a negative threshold of free shipping should be refused`() {
+        // Act
+        val response = changeFreeShippingThreshold("-1")
+        // Assert
+        response.andExpect(status().isBadRequest)
+    }
+
+    private fun changeFreeShippingThreshold(amount: String) = mockMvc.perform(
+        put("/api/admin/settings/free-shipping-threshold").with(asAdmin()).contentType(MediaType.APPLICATION_JSON)
+            .content("""{"amount": $amount}""")
+    )
+
     private fun changePaymentDelay(minutes: Int) = mockMvc.perform(
         put("/api/admin/settings/payment-delay").with(asAdmin()).contentType(MediaType.APPLICATION_JSON)
             .content("""{"minutes": $minutes}""")

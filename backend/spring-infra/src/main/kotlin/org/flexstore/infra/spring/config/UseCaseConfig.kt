@@ -106,8 +106,11 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     open fun placeOrderUseCase(cartRepository: CartRepository,
                                orderRepository: OrderRepository,
                                userRepository: UserRepository,
-                               stockRepository: StockRepository): PlaceOrderUseCase {
-        return PlaceOrderUseCase(cartRepository, orderRepository, userRepository, stockRepository)
+                               stockRepository: StockRepository,
+                               shopSettingsRepository: ShopSettingsRepository): PlaceOrderUseCase {
+        return PlaceOrderUseCase(
+            cartRepository, orderRepository, userRepository, stockRepository, shopSettingsRepository
+        )
     }
 
     @Bean
@@ -243,13 +246,21 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     open fun orderUseCases(placeOrderUseCase: PlaceOrderUseCase,
                            orderQueryUseCases: OrderQueryUseCases,
                            sendOrderConfirmationEmailUseCase: SendOrderConfirmationEmailUseCase,
-                           readShopSettingsUseCase: ReadShopSettingsUseCase) =
+                           readShopSettingsUseCase: ReadShopSettingsUseCase,
+                           proposeShippingOptionsUseCase: ProposeShippingOptionsUseCase) =
         OrderUseCases(
             placeOrderUseCase,
             orderQueryUseCases,
             sendOrderConfirmationEmailUseCase,
-            readShopSettingsUseCase
+            readShopSettingsUseCase,
+            proposeShippingOptionsUseCase
         )
+
+    @Bean
+    open fun proposeShippingOptionsUseCase(
+        cartRepository: CartRepository,
+        shopSettingsRepository: ShopSettingsRepository
+    ) = ProposeShippingOptionsUseCase(cartRepository, shopSettingsRepository)
 
     @Bean
     open fun readStockUseCase(stockRepository: StockRepository) = ReadStockUseCase(stockRepository)

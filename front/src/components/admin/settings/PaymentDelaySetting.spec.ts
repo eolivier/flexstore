@@ -9,7 +9,11 @@ const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
 function mountSetting() {
-  useSettingsStore().settings = { orderConfirmationEmail: 'ENABLED', paymentDelayMinutes: 10 };
+  useSettingsStore().settings = {
+    orderConfirmationEmail: 'ENABLED',
+    paymentDelayMinutes: 10,
+    freeShippingThreshold: 50,
+  };
   return mount(PaymentDelaySetting, { global: { plugins: [vuetify, i18n] } });
 }
 

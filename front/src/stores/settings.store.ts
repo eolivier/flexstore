@@ -6,6 +6,8 @@ export interface ShopSettings {
   orderConfirmationEmail: 'ENABLED' | 'DISABLED';
   // The time a customer has to pay an order once placed; unpaid, it is cancelled
   paymentDelayMinutes: number;
+  // The price of the items, in euros, from which the standard shipping is free (0: always free)
+  freeShippingThreshold: number;
 }
 
 // From 1 minute to 1 day
@@ -55,6 +57,20 @@ export const useSettingsStore = defineStore('settings', () => {
     return true;
   }
 
+  // Returns whether the change was saved
+  async function changeFreeShippingThreshold(amount: number): Promise<boolean> {
+    const response = await authStore
+      .authFetch('/api/admin/settings/free-shipping-threshold', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount }),
+      })
+      .catch(() => null);
+    if (!response?.ok) return false;
+    settings.value = await response.json();
+    return true;
+  }
+
   return {
     settings,
     loadError,
@@ -62,5 +78,6 @@ export const useSettingsStore = defineStore('settings', () => {
     enableOrderConfirmationEmail,
     disableOrderConfirmationEmail,
     changePaymentDelay,
+    changeFreeShippingThreshold,
   };
 });

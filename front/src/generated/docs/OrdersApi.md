@@ -6,6 +6,7 @@ All URIs are relative to *http://localhost:8080*
 |------------- | ------------- | -------------|
 |[**getOrder**](#getorder) | **GET** /api/orders/{id} | Retrieve an order of the signed-in customer|
 |[**getOrders**](#getorders) | **GET** /api/orders | Retrieve the orders of the signed-in customer, newest first|
+|[**getShippingOptions**](#getshippingoptions) | **GET** /api/orders/shipping-options | Retrieve the shipping methods, with their cost for the cart of the signed-in customer|
 |[**placeOrder**](#placeorder) | **POST** /api/orders | Place an order from the cart of the signed-in customer; it awaits its payment|
 
 # **getOrder**
@@ -99,6 +100,50 @@ This endpoint does not have any parameters.
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | The orders |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getShippingOptions**
+> JsonShippingOptions getShippingOptions()
+
+
+### Example
+
+```typescript
+import {
+    OrdersApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new OrdersApi(configuration);
+
+const { status, data } = await apiInstance.getShippingOptions();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**JsonShippingOptions**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The shipping methods and their cost |  -  |
+|**401** | Not signed in |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

@@ -16,6 +16,13 @@ const val HOME_ADDRESSES = """{"deliveryAddress": {"recipientType": "PRIVATE_IND
 fun MockHttpServletRequestBuilder.withHomeAddresses(): MockHttpServletRequestBuilder =
     contentType(MediaType.APPLICATION_JSON).content(HOME_ADDRESSES)
 
+// The addresses of the tests, and the shipping method (STANDARD or EXPRESS)
+fun MockHttpServletRequestBuilder.withHomeAddressesShipped(shippingMethod: String):
+    MockHttpServletRequestBuilder {
+    val addressesAndShipping = HOME_ADDRESSES.removeSuffix("}") + """, "shippingMethod": "$shippingMethod"}"""
+    return contentType(MediaType.APPLICATION_JSON).content(addressesAndShipping)
+}
+
 // Without a Stripe key, the tests pay with the simulated payment provider: the order is paid at once
 fun MockMvc.pay(orderId: String, customerId: String): ResultActions =
     perform(post("/api/orders/$orderId/payment").with(asUser(customerId)))

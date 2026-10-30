@@ -2,6 +2,7 @@ package org.flexstore.domain.order
 
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.product.*
+import org.flexstore.domain.settings.FreeShippingThreshold
 import org.flexstore.domain.settings.PaymentDelay
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.*
@@ -35,9 +36,14 @@ data class Order(val detail: OrderDetail, val history: OrderStatusHistory) {
 
     val addresses get() = detail.placement.addresses
 
-    val lines get() = detail.lines
+    val lines get() = detail.bill.lines
 
-    fun totalPrice() = lines.totalPrice()
+    val shipping get() = detail.bill.shipping
+
+    // The price of the items, without the shipping
+    fun itemsPrice() = detail.bill.itemsPrice()
+
+    fun totalPrice() = detail.bill.totalPrice()
 
     // The number shown to the customer: the beginning of the order id
     fun number() = orderId.value.take(ORDER_NUMBER_LENGTH).uppercase()
@@ -73,7 +79,12 @@ data class Order(val detail: OrderDetail, val history: OrderStatusHistory) {
     fun paymentDeadline(paymentDelay: PaymentDelay) = PaymentDeadline(placedAt + paymentDelay.asDuration())
 
     companion object {
-        fun place(orderPlacement: OrderPlacement, cart: Cart): Order {
+        // An order of a shop whose settings are the default ones
+        fun place(orderPlacement: OrderPlacement, cart: Cart) =
+            place(orderPlacement, OrderContent(cart, FreeShippingThreshold.byDefault()))
+
+        fun place(orderPlacement: OrderPlacement, orderContent: OrderContent): Order {
+            val cart = orderContent.cart
             if (cart.isEmpty()) {
                 throw EmptyCartException(ErrorMessage("An order cannot be placed from an empty cart."))
             }
@@ -82,7 +93,11 @@ data class Order(val detail: OrderDetail, val history: OrderStatusHistory) {
                 throw IncompleteOrderAddressException(message)
             }
             val orderLines = OrderLines.from(cart)
-            val orderDetail = OrderDetail(orderPlacement, orderLines)
+            val shippingMethod = orderPlacement.checkout.delivery.method
+            val freeShippingThreshold = orderContent.freeShippingThreshold
+            val shippingCost = shippingMethod.costFor(orderLines.totalPrice(), freeShippingThreshold)
+            val orderBill = OrderBill(orderLines, OrderShipping(shippingMethod, shippingCost))
+            val orderDetail = OrderDetail(orderPlacement, orderBill)
             val placedAt = StatusChangedAt(orderPlacement.placedAt)
             val placedStatus = OrderStatusChange(OrderStatus.AWAITING_PAYMENT, placedAt)
             return Order(orderDetail, OrderStatusHistory(placedStatus))
@@ -90,9 +105,9 @@ data class Order(val detail: OrderDetail, val history: OrderStatusHistory) {
     }
 }
 
-// What was ordered, fixed once the order is placed: how it was placed and its lines (the status changes
-// afterwards)
-data class OrderDetail(val placement: OrderPlacement, val lines: OrderLines)
+// What was ordered, fixed once the order is placed: how it was placed, and what it costs (its lines and its
+// shipping); the status changes afterwards
+data class OrderDetail(val placement: OrderPlacement, val bill: OrderBill)
 
 // An order to place: its stamp (id and date) and its checkout (customer and addresses)
 data class OrderPlacement(val stamp: OrderStamp, val checkout: Checkout) {
@@ -109,8 +124,16 @@ data class OrderPlacement(val stamp: OrderStamp, val checkout: Checkout) {
 // The id of a new order (chosen by the caller, which can then read the order) and the date it is placed
 data class OrderStamp(val orderId: OrderId, val placedAt: Instant)
 
-// What the customer chooses when checking out: who orders, where the order is delivered and billed
-data class Checkout(val customer: CartOwner.Customer, val addresses: OrderAddresses)
+// What the customer chooses when checking out: who orders, where the order is delivered and billed, and how it
+// is shipped
+data class Checkout(val customer: CartOwner.Customer, val delivery: OrderDelivery) {
+
+    // Shipped the standard way
+    constructor(customer: CartOwner.Customer, addresses: OrderAddresses) :
+        this(customer, OrderDelivery(addresses, ShippingMethod.STANDARD))
+
+    val addresses get() = delivery.addresses
+}
 
 // Where the order is delivered and to which address it is billed (often the same)
 data class OrderAddresses(val delivery: PostalAddress, val billing: PostalAddress) {

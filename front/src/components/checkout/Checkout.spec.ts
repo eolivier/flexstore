@@ -48,6 +48,15 @@ const cart = {
 
 const checkoutUrl = 'https://checkout.stripe.com/c/pay/cs_1';
 
+const shippingOptions = {
+  options: [
+    { method: 'STANDARD', cost: 4.9 },
+    { method: 'EXPRESS', cost: 9.9 },
+  ],
+  freeShippingThreshold: 50,
+  currency: '€',
+};
+
 // Answers the account (with the given addresses), the cart, the order and its payment
 function respondWith(postalAddresses: object[], orderStatus = 201) {
   mockFetch.mockImplementation((url: string, init?: RequestInit) => {
@@ -55,9 +64,11 @@ function respondWith(postalAddresses: object[], orderStatus = 201) {
       ? { id: 'u-1', firstName: 'Jane', lastName: 'Doe', postalAddresses }
       : url.endsWith('/api/cart/cart-items')
         ? cart
-        : url.endsWith('/payment')
-          ? { checkoutUrl, outcome: 'PENDING' }
-          : { id: 'order-1' };
+        : url.endsWith('/api/orders/shipping-options')
+          ? shippingOptions
+          : url.endsWith('/payment')
+            ? { checkoutUrl, outcome: 'PENDING' }
+            : { id: 'order-1' };
     const status = init?.method === 'POST' ? orderStatus : 200;
     return Promise.resolve({ ok: status < 300, status, json: () => Promise.resolve(body) });
   });
@@ -115,7 +126,38 @@ describe('Checkout.vue', () => {
     // Assert
     expect(sentAddresses()).toEqual({
       deliveryAddress: { ...home, companyName: '', vatNumber: '' },
+      shippingMethod: 'STANDARD',
     });
+  });
+
+  it('ships the order the way the customer chooses', async () => {
+    // Arrange
+    respondWith([home]);
+    const { wrapper } = await mountCheckout();
+    const express = wrapper
+      .findAll('input[type="radio"]')
+      .find((radio) => (radio.element as HTMLInputElement).value === 'EXPRESS')!;
+    await express.setValue(true);
+    await flushPromises();
+    // Act
+    await placeOrder(wrapper);
+    // Assert
+    expect(sentAddresses().shippingMethod).toBe('EXPRESS');
+  });
+
+  it('adds the cost of the shipping chosen to the total', async () => {
+    // Arrange
+    respondWith([home]);
+    const { wrapper } = await mountCheckout();
+    const express = wrapper
+      .findAll('input[type="radio"]')
+      .find((radio) => (radio.element as HTMLInputElement).value === 'EXPRESS')!;
+    // Act
+    await express.setValue(true);
+    await flushPromises();
+    // Assert
+    expect(wrapper.text()).toContain('Standard shipping is free from 50.00 € of items.');
+    expect(wrapper.text()).toContain('79.90 €');
   });
 
   it('bills the order to another address of the customer', async () => {
@@ -134,6 +176,7 @@ describe('Checkout.vue', () => {
     expect(sentAddresses()).toEqual({
       deliveryAddress: { ...home, companyName: '', vatNumber: '' },
       billingAddress,
+      shippingMethod: 'STANDARD',
     });
   });
 

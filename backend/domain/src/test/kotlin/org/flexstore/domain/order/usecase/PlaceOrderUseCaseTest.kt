@@ -4,6 +4,7 @@ import org.flexstore.infra.repository.InMemoryStockRepository
 import org.flexstore.domain.stock.*
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.order.*
+import org.flexstore.domain.settings.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.*
@@ -13,6 +14,7 @@ import org.flexstore.infra.repository.InMemoryOrderRepository
 import org.flexstore.infra.repository.InMemoryUserRepository
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
+import org.flexstore.infra.repository.InMemoryShopSettingsRepository
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.time.Instant
@@ -30,7 +32,10 @@ class PlaceOrderUseCaseTest : WithAssertions {
     private val userRepository = InMemoryUserRepository().apply { save(definedUser) }
     private val deskLampStock = Stock(deskLamp.productId, StockQuantity(10))
     private val stockRepository = InMemoryStockRepository().apply { save(deskLampStock) }
-    private val useCase = PlaceOrderUseCase(cartRepository, orderRepository, userRepository, stockRepository)
+    private val shopSettingsRepository = InMemoryShopSettingsRepository()
+    private val useCase = PlaceOrderUseCase(
+        cartRepository, orderRepository, userRepository, stockRepository, shopSettingsRepository
+    )
     private val placedAt = Instant.parse("2026-10-24T10:00:00Z")
     private val orderStamp = OrderStamp(OrderId("order-1"), placedAt)
     private val orderPlacement = OrderPlacement(orderStamp, Checkout(customer, homeOrderAddresses))
@@ -47,6 +52,34 @@ class PlaceOrderUseCaseTest : WithAssertions {
         // Assert
         val order = orderRepository.findById(OrderId("order-1"))
         assertThat(order?.lines?.asList()).containsExactly(OrderLine.of(deskLamp, Quantity(2)))
+    }
+
+    @Test
+    fun `the order should be shipped as chosen, at the cost of its method`() {
+        // Arrange
+        cartRepository.save(Cart(customer).add(deskLamp, Quantity(1)))
+        val expressDelivery = OrderDelivery(homeOrderAddresses, ShippingMethod.EXPRESS)
+        val expressPlacement = OrderPlacement(orderStamp, Checkout(customer, expressDelivery))
+        // Act
+        useCase.unfold(expressPlacement)
+        // Assert
+        val order = orderRepository.findById(OrderId("order-1"))!!
+        val expressCost = Price(Amount(BigDecimal("9.90")), Currency.EUR)
+        assertThat(order.shipping).isEqualTo(OrderShipping(ShippingMethod.EXPRESS, expressCost))
+        assertThat(order.totalPrice()).isEqualTo(Price(Amount(BigDecimal("44.90")), Currency.EUR))
+    }
+
+    @Test
+    fun `the standard shipping should be free from the threshold of the shop settings`() {
+        // Arrange
+        val threshold = FreeShippingThreshold(Price(Amount(BigDecimal(30)), Currency.EUR))
+        shopSettingsRepository.save(ShopSettings.byDefault().withFreeShippingThreshold(threshold))
+        cartRepository.save(Cart(customer).add(deskLamp, Quantity(1)))
+        // Act
+        useCase.unfold(orderPlacement)
+        // Assert
+        val order = orderRepository.findById(OrderId("order-1"))!!
+        assertThat(order.shipping.cost).isEqualTo(Price(Amount(BigDecimal.ZERO), Currency.EUR))
     }
 
     @Test
@@ -150,7 +183,9 @@ class PlaceOrderUseCaseTest : WithAssertions {
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
         val stockTakenMeanwhile = StockTakenMeanwhile(stockRepository)
         val placeOrderUseCase =
-            PlaceOrderUseCase(cartRepository, orderRepository, userRepository, stockTakenMeanwhile)
+            PlaceOrderUseCase(
+                cartRepository, orderRepository, userRepository, stockTakenMeanwhile, shopSettingsRepository
+            )
         // Act
         val thrown = catchThrowable { placeOrderUseCase.unfold(orderPlacement) }
         // Assert

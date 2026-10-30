@@ -5,6 +5,7 @@
   import { useSettingsStore } from '@/stores/settings.store';
   import OrderConfirmationEmailSetting from './OrderConfirmationEmailSetting.vue';
   import PaymentDelaySetting from './PaymentDelaySetting.vue';
+  import FreeShippingThresholdSetting from './FreeShippingThresholdSetting.vue';
 
   const { t } = useI18n();
   const settingsStore = useSettingsStore();
@@ -28,6 +29,8 @@
       <OrderConfirmationEmailSetting />
       <v-divider class="my-6" />
       <PaymentDelaySetting />
+      <v-divider class="my-6" />
+      <FreeShippingThresholdSetting />
     </v-card>
   </v-container>
 </template>

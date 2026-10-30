@@ -6,13 +6,15 @@ import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.stock.*
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
+import org.flexstore.domain.settings.ShopSettingsRepository
 import org.ucop.domain.entity.*
 
 class PlaceOrderUseCase(
     private val cartRepository: CartRepository,
     private val orderRepository: OrderRepository,
     private val userRepository: UserRepository,
-    private val stockRepository: StockRepository
+    private val stockRepository: StockRepository,
+    private val shopSettingsRepository: ShopSettingsRepository
 ) : UseCase<OrderPlacement> {
 
     override fun getPreConditions(): PreConditions<OrderPlacement> =
@@ -37,7 +39,8 @@ class PlaceOrderUseCase(
         }
         val placeOrderStep = Step<OrderPlacement> { orderPlacement ->
             val cart = cartRepository.load(orderPlacement.customer)
-            val order = Order.place(orderPlacement, cart)
+            val freeShippingThreshold = shopSettingsRepository.load().freeShippingThreshold
+            val order = Order.place(orderPlacement, OrderContent(cart, freeShippingThreshold))
             orderRepository.save(order)
         }
         // The units of the order are reserved until it is paid, or cancelled for lack of payment. Another order

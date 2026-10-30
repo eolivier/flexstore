@@ -1,6 +1,6 @@
 # Physical data model
 
-The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V27**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
+The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V28**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
 
 ![Physical data model](database.png)
 
@@ -56,6 +56,8 @@ erDiagram
         user_id varchar(50) FK
         status varchar(20) "last status: AWAITING_PAYMENT, PAID, PROCESSING, SHIPPED, DELIVERED, CANCELLED or REFUNDED"
         placed_at timestamptz
+        shipping_method varchar(20) "STANDARD or EXPRESS"
+        shipping_cost numeric "0 or more, 0 when free"
         delivery_address_id varchar(50) FK
         billing_address_id varchar(50) FK
         payment_id varchar(50) FK "nullable: last payment started"
@@ -177,6 +179,7 @@ erDiagram
         id int PK "a single row (id = 1)"
         order_confirmation_email varchar(10) "ENABLED or DISABLED"
         payment_delay_minutes int "1 to 1440: time to pay an order"
+        free_shipping_threshold numeric "standard shipping free from this price of the items (0 or more)"
         created_at timestamp
         updated_at timestamp
     }

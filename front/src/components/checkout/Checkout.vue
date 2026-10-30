@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { onMounted, ref } from 'vue';
+  import { computed, onMounted, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useRouter } from 'vue-router';
   import { useAccountStore } from '@/stores/account.store';
@@ -9,6 +9,8 @@
   import { openExternalPage } from '@/utils/navigation';
   import AddressChoice from './AddressChoice.vue';
   import CheckoutSummary from './CheckoutSummary.vue';
+  import ShippingMethodChoice from './ShippingMethodChoice.vue';
+  import type { JsonOrderAddressesShippingMethodEnum, JsonShippingOptions } from '@/generated';
 
   const { t } = useI18n();
   const router = useRouter();
@@ -33,10 +35,14 @@
   const billedToDelivery = ref(true);
   const valid = ref<boolean | null>(null);
   const placing = ref(false);
+  // null while the shipping options are loaded, or when they cannot be
+  const shippingOptions = ref<JsonShippingOptions | null>(null);
+  const shippingMethod = ref<JsonOrderAddressesShippingMethodEnum>('STANDARD');
   const error = ref<string | null>(null);
 
   onMounted(async () => {
     cartStore.fetchCartItems();
+    ordersStore.fetchShippingOptions().then((options) => (shippingOptions.value = options));
     const account = await accountStore.fetchAccount();
     customer.value = {
       ...customer.value,
@@ -59,12 +65,18 @@
     return address.recipientType === 'LEGAL_ENTITY' ? { ...address, firstName: '', lastName: '' } : address;
   }
 
+  // The cost of the shipping chosen; null until the options are loaded
+  const shippingCost = computed(
+    () => shippingOptions.value?.options.find((option) => option.method === shippingMethod.value)?.cost ?? null
+  );
+
   async function placeOrder() {
     placing.value = true;
     error.value = null;
     const placement = await ordersStore.placeOrder({
       deliveryAddress: delivery.value,
       billingAddress: billedToDelivery.value ? undefined : billingRecipientOnly(billing.value),
+      shippingMethod: shippingMethod.value,
     });
     if (placement.status !== 'placed') {
       placing.value = false;
@@ -109,11 +121,18 @@
               :customer="customer"
               purpose="billing"
             />
+            <v-divider class="my-4" />
+            <ShippingMethodChoice
+              v-if="shippingOptions"
+              v-model="shippingMethod"
+              :shipping-options="shippingOptions"
+            />
           </v-form>
         </v-card>
       </v-col>
       <v-col cols="12" md="4">
         <CheckoutSummary
+          :shipping-cost="shippingCost"
           :placing="placing"
           :disabled="savedAddresses === null || valid === false"
           :error="error"

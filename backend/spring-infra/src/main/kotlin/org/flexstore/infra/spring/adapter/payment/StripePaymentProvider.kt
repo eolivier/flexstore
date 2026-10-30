@@ -16,7 +16,9 @@ import com.stripe.param.checkout.SessionCreateParams
 import com.stripe.param.checkout.SessionExpireParams
 import com.stripe.param.checkout.SessionCreateParams.LineItem
 import com.stripe.param.checkout.SessionCreateParams.LineItem.PriceData
+import org.flexstore.domain.order.Order
 import org.flexstore.domain.order.OrderLine
+import org.flexstore.domain.sharedkernel.Price
 import org.flexstore.domain.payment.*
 import org.flexstore.domain.sharedkernel.ErrorMessage
 import java.math.BigDecimal
@@ -38,7 +40,7 @@ class StripePaymentProvider(private val secretKey: String, private val shopUrl: 
             .setCustomer(stripeCustomerOf(paymentRequest.payer).id)
             .setSuccessUrl(confirmationPage.url)
             .setCancelUrl(orderPage.url)
-            .addAllLineItem(order.lines.asList().map { it.toLineItem() })
+            .addAllLineItem(lineItemsOf(order))
             .build()
         val session = Session.create(params, requestOptions)
         return ProviderCheckout(session.id, CheckoutPage(session.url), PaymentOutcome.PENDING)
@@ -93,14 +95,25 @@ class StripePaymentProvider(private val secretKey: String, private val shopUrl: 
         return existingCustomer.update(updateParams, requestOptions)
     }
 
-    private fun OrderLine.toLineItem(): LineItem {
-        val productData = PriceData.ProductData.builder().setName(productName.value).build()
+    // The lines of the order, then its shipping when it is not free
+    private fun lineItemsOf(order: Order): List<LineItem> {
+        val productLines = order.lines.asList().map { it.toLineItem() }
+        val shippingCost = order.shipping.cost
+        if (shippingCost.amount.value.signum() == 0) return productLines
+        val shippingLabel = order.shipping.method.label()
+        return productLines + lineItemOf(shippingLabel.value, shippingCost, 1L)
+    }
+
+    private fun OrderLine.toLineItem() = lineItemOf(productName.value, unitPrice, quantity.value.toLong())
+
+    private fun lineItemOf(name: String, unitPrice: Price, quantity: Long): LineItem {
+        val productData = PriceData.ProductData.builder().setName(name).build()
         val unitAmountInCents = unitPrice.amount.value.multiply(BigDecimal(100)).longValueExact()
         val priceData = PriceData.builder()
             .setCurrency(unitPrice.currency.name.lowercase())
             .setUnitAmount(unitAmountInCents)
             .setProductData(productData)
             .build()
-        return LineItem.builder().setQuantity(quantity.value.toLong()).setPriceData(priceData).build()
+        return LineItem.builder().setQuantity(quantity).setPriceData(priceData).build()
     }
 }

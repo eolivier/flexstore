@@ -3,6 +3,7 @@ package org.flexstore.infra.spring.adapter.persistence.jpa.entity
 import jakarta.persistence.*
 import org.hibernate.annotations.Fetch
 import org.hibernate.annotations.FetchMode
+import java.math.BigDecimal
 import java.time.Instant
 
 @Entity
@@ -19,6 +20,13 @@ data class OrderEntity(
 
     @Column(name = "placed_at", nullable = false, updatable = false)
     val placedAt: Instant,
+
+    // STANDARD or EXPRESS, and its cost in the currency of the lines
+    @Column(name = "shipping_method", nullable = false, updatable = false)
+    val shippingMethod: String,
+
+    @Column(name = "shipping_cost", nullable = false, updatable = false)
+    val shippingCost: BigDecimal,
 
     // Addresses of the customer (rows of the address table, owned by UserEntity)
     @ManyToOne(fetch = FetchType.EAGER, optional = false)

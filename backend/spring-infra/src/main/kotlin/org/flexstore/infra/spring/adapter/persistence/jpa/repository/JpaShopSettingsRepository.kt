@@ -4,6 +4,7 @@ import org.flexstore.infra.spring.adapter.persistence.jpa.entity.SHOP_SETTINGS_I
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.ShopSettingsEntity
 import org.flexstore.infra.spring.adapter.persistence.jpa.toDomain
 import org.flexstore.domain.settings.*
+import org.flexstore.domain.sharedkernel.*
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
@@ -23,11 +24,15 @@ class PostgresShopSettingsRepositoryAdapter(private val jpaRepo: JpaShopSettings
     override fun save(settings: ShopSettings): ShopSettings {
         val settingsEntity = ShopSettingsEntity(
             orderConfirmationEmail = settings.orderConfirmationEmail.name,
-            paymentDelayMinutes = settings.paymentDelay.minutes
+            paymentDelayMinutes = settings.paymentDelay.minutes,
+            freeShippingThreshold = settings.freeShippingThreshold.price.amount.value
         )
         return jpaRepo.save(settingsEntity).toDomain()
     }
 
-    private fun ShopSettingsEntity.toDomain() =
-        ShopSettings(Activation.valueOf(orderConfirmationEmail), PaymentDelay(paymentDelayMinutes))
+    private fun ShopSettingsEntity.toDomain(): ShopSettings {
+        val threshold = FreeShippingThreshold(Price(Amount(freeShippingThreshold), Currency.EUR))
+        val orderRules = OrderRules(PaymentDelay(paymentDelayMinutes), threshold)
+        return ShopSettings(Activation.valueOf(orderConfirmationEmail), orderRules)
+    }
 }
