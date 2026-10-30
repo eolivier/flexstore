@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 import i18n from '@/plugins/i18n';
-import type { AdminProduct, Product, ProductInput, ProductSave } from '@/models/product';
+import type { AdminProduct, Product, ProductCreation, ProductInput, ProductSave } from '@/models/product';
 import { getAllProducts } from '@/services/product.service';
 import { useAuthStore } from './auth.store';
 
@@ -22,7 +22,8 @@ export const useProductsStore = defineStore('products', () => {
     return proposal.sku;
   }
 
-  async function addProduct(product: ProductInput): Promise<ProductSave> {
+  // The created product keeps the id given by the API: its image and its stock are given with it
+  async function addProduct(product: ProductInput): Promise<ProductCreation> {
     return saveProduct('/api/products', 'POST', product);
   }
 
@@ -40,27 +41,29 @@ export const useProductsStore = defineStore('products', () => {
   }
 
   async function updateProduct(id: string, product: ProductInput): Promise<ProductSave> {
-    return saveProduct(`/api/products/${id}`, 'PUT', product);
+    const productSaving = await saveProduct(`/api/products/${id}`, 'PUT', product);
+    return productSaving.outcome;
   }
 
   // Creates (POST) or edits (PUT) the product; 409: another product has its SKU
-  async function saveProduct(url: string, method: string, product: ProductInput): Promise<ProductSave> {
+  async function saveProduct(url: string, method: string, product: ProductInput): Promise<ProductCreation> {
     try {
       const response = await useAuthStore().authFetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(product),
       });
-      if (response.status === 409) return 'skuAlreadyUsed';
+      if (response.status === 409) return { outcome: 'skuAlreadyUsed' };
       if (!response.ok) {
         console.error('Error when saving product', await response.text());
-        return 'failed';
+        return { outcome: 'failed' };
       }
+      const savedProduct: Product = await response.json();
       await fetchProducts();
-      return 'saved';
+      return { outcome: 'saved', productId: savedProduct.id ?? '' };
     } catch (e) {
       console.error('Error when saving product', e);
-      return 'failed';
+      return { outcome: 'failed' };
     }
   }
 

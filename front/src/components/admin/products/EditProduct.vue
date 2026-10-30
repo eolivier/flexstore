@@ -8,6 +8,7 @@
   import { useStocksStore } from '@/stores/stocks.store';
   import ProductFields from './ProductFields.vue';
   import ProductImageField from './ProductImageField.vue';
+  import StockField from './StockField.vue';
   import { normalizedSku } from '@/utils/sku';
 
   interface EditedProduct {
@@ -46,8 +47,6 @@
         }
       : false;
   });
-
-  const stockRule = (v: string) => /^\d+$/.test(v) || t('stock.invalid');
 
   async function save() {
     if (!valid.value || !editedProduct.value || editedProduct.value.price === null) return;
@@ -94,15 +93,7 @@
           v-model:price="editedProduct.price"
           :sku-already-used="skuAlreadyUsed"
         />
-        <v-text-field
-          v-model="editedProduct.stock"
-          :label="t('stock.units')"
-          type="number"
-          min="0"
-          :rules="[stockRule]"
-          prepend-inner-icon="mdi-package-variant"
-          class="mt-2"
-        />
+        <StockField v-model="editedProduct.stock" />
         <v-alert v-if="saved === false" type="error" variant="tonal" density="compact" class="my-4">{{
           t('editProduct.error')
         }}</v-alert>
