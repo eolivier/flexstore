@@ -6,11 +6,12 @@ import org.flexstore.domain.email.*
 import org.flexstore.domain.user.usecase.*
 import org.flexstore.infra.repository.InMemoryEmailRepository
 import org.flexstore.infra.repository.InMemoryUserRepository
+import org.flexstore.domain.sharedkernel.InstantProvider
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.time.Clock
 import java.time.Duration
 import java.time.Instant
-import java.time.ZoneOffset
 
 class CustomerRegistrationServiceTest : WithAssertions {
 
@@ -22,9 +23,19 @@ class CustomerRegistrationServiceTest : WithAssertions {
         RegisterCustomerUseCase(userRepository),
         SendVerificationEmailUseCase(userRepository, emailRepository, VerificationPage("https://shop.example/verify-email")),
         verifyEmailUseCase,
-        ReadAccountUseCase(userRepository),
-        Clock.fixed(now, ZoneOffset.UTC)
+        ReadAccountUseCase(userRepository)
     )
+
+    // The links are sent and opened at a known moment
+    @BeforeEach
+    fun fixTheMoment() {
+        InstantProvider.fixAt(now)
+    }
+
+    @AfterEach
+    fun resetTheMoment() {
+        InstantProvider.reset()
+    }
     private val jane = RegisterCustomerUseCaseTest.jane
 
     private fun stored() = userRepository.findById(jane.userId) as User.DefinedUser
