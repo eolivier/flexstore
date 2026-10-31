@@ -68,4 +68,11 @@ describe('adminBreadcrumbs', () => {
     // Assert
     expect(breadcrumbs).toEqual([]);
   });
+
+  it('the sales go back to the home of the administration', () => {
+    // Act
+    const breadcrumbs = adminBreadcrumbsOf('/admin/sales');
+    // Assert
+    expect(breadcrumbs).toEqual([{ label: 'nav.admin', to: '/admin' }, { label: 'nav.salesDashboard' }]);
+  });
 });

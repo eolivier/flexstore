@@ -18,6 +18,7 @@ export function accountLinksOf(signedIn: boolean) {
 }
 
 export const adminLinks = [
+  { to: '/admin/sales', icon: 'mdi-chart-line', label: 'nav.salesDashboard' },
   { to: '/admin/users', icon: 'mdi-account-multiple-outline', label: 'nav.users' },
   { to: '/admin/create-user', icon: 'mdi-account-plus-outline', label: 'nav.createUser' },
   { to: '/admin/products', icon: 'mdi-package-variant-closed', label: 'nav.products' },

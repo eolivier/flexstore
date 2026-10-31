@@ -8,6 +8,7 @@ import org.flexstore.domain.payment.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.image.*
 import org.flexstore.domain.review.*
+import org.flexstore.domain.sales.*
 import org.flexstore.domain.seller.*
 import org.flexstore.domain.settings.*
 import org.flexstore.domain.stock.*
@@ -139,6 +140,9 @@ class RestExceptionHandler {
             is ReviewAlreadyWrittenException -> ResponseEntity
                 .status(409)
                 .body(mapOf("error" to (ex.message ?: "Product already reviewed")))
+            is InvalidSalesPeriodException -> ResponseEntity
+                .status(400)
+                .body(mapOf("error" to (ex.message ?: "Invalid period of sales")))
             is InvoiceNotFoundException -> ResponseEntity
                 .status(404)
                 .body(mapOf("error" to (ex.message ?: "No invoice")))

@@ -226,6 +226,15 @@ export const JsonAdminProductVatRateEnum = {
 
 export type JsonAdminProductVatRateEnum = typeof JsonAdminProductVatRateEnum[keyof typeof JsonAdminProductVatRateEnum];
 
+export interface JsonBestSeller {
+    'productId': string;
+    /**
+     * The name of the product when it was ordered
+     */
+    'productName': string;
+    'unitsSold': number;
+    'revenue': number;
+}
 export interface JsonCartItem {
     'itemId'?: string;
     'productId'?: string;
@@ -258,6 +267,11 @@ export interface JsonChosenPassword {
      * The new password, 8 characters at least
      */
     'password': string;
+}
+export interface JsonDailySales {
+    'day': string;
+    'orderCount': number;
+    'revenue': number;
 }
 export interface JsonDiscountCode {
     'code': string;
@@ -569,6 +583,24 @@ export interface JsonReview {
     'rating': number;
     'comment': string;
     'reviewedAt': string;
+}
+export interface JsonSalesDashboard {
+    'firstDay': string;
+    'lastDay': string;
+    'currency': string;
+    /**
+     * What the paid orders of the period cost their customers (VAT and shipping included)
+     */
+    'revenue': number;
+    'orderCount': number;
+    /**
+     * Every day of the period, oldest first, with 0 for a day without order
+     */
+    'days': Array<JsonDailySales>;
+    /**
+     * The 5 products with the most units sold
+     */
+    'bestSellers': Array<JsonBestSeller>;
 }
 export interface JsonSaveItemResponse {
     'status'?: string;
@@ -1625,6 +1657,45 @@ export const AdministrationApiAxiosParamCreator = function (configuration?: Conf
         },
         /**
          * 
+         * @summary Retrieve the revenue, the orders per day and the best sellers of the last 7, 30 or 90 days (ADMIN role)
+         * @param {number} [days] The number of days, the day of the request included (7, 30 or 90)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getSalesDashboard: async (days?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/sales-dashboard`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (days !== undefined) {
+                localVarQueryParameter['days'] = days;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Retrieve the seller written on the next invoices (ADMIN role)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1888,6 +1959,19 @@ export const AdministrationApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Retrieve the revenue, the orders per day and the best sellers of the last 7, 30 or 90 days (ADMIN role)
+         * @param {number} [days] The number of days, the day of the request included (7, 30 or 90)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getSalesDashboard(days?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonSalesDashboard>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getSalesDashboard(days, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdministrationApi.getSalesDashboard']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Retrieve the seller written on the next invoices (ADMIN role)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -2019,6 +2103,16 @@ export const AdministrationApiFactory = function (configuration?: Configuration,
         },
         /**
          * 
+         * @summary Retrieve the revenue, the orders per day and the best sellers of the last 7, 30 or 90 days (ADMIN role)
+         * @param {number} [days] The number of days, the day of the request included (7, 30 or 90)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getSalesDashboard(days?: number, options?: RawAxiosRequestConfig): AxiosPromise<JsonSalesDashboard> {
+            return localVarFp.getSalesDashboard(days, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Retrieve the seller written on the next invoices (ADMIN role)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -2139,6 +2233,17 @@ export class AdministrationApi extends BaseAPI {
      */
     public getDiscountCodes(options?: RawAxiosRequestConfig) {
         return AdministrationApiFp(this.configuration).getDiscountCodes(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Retrieve the revenue, the orders per day and the best sellers of the last 7, 30 or 90 days (ADMIN role)
+     * @param {number} [days] The number of days, the day of the request included (7, 30 or 90)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getSalesDashboard(days?: number, options?: RawAxiosRequestConfig) {
+        return AdministrationApiFp(this.configuration).getSalesDashboard(days, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

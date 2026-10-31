@@ -287,6 +287,20 @@ data class OrderLines(private val lines: List<OrderLine>) {
 
     fun includes(productId: ProductId) = lines.any { line -> line.productId == productId }
 
+    // The products sold the most, by units: the first ones, then by revenue
+    fun bestSellers(limit: BestSellerCount): BestSellers {
+        val sales = lines.groupBy { line -> line.productId }.map { (_, productLines) ->
+            val units = productLines.sumOf { line -> line.quantity.value }
+            val revenue = OrderLines(productLines).totalPrice()
+            BestSeller(productLines.last().let { line -> OrderedProduct(line.productId, line.productName) },
+                Quantity(units), revenue)
+        }
+        val ranked = sales.sortedWith(
+            compareByDescending<BestSeller> { it.unitsSold.value }.thenByDescending { it.revenue.amount.value }
+        )
+        return BestSellers(ranked.take(limit.value))
+    }
+
     // Read-only view for the adapters (JSON, persistence)
     fun asList(): List<OrderLine> = lines.toList()
 
@@ -306,10 +320,49 @@ data class Orders(private val orders: List<Order>) {
     // One of the orders is paid and has a line of the product: the customer bought it
     fun hasPaidFor(productId: ProductId) = orders.any { order -> order.isPaid() && order.includes(productId) }
 
+    // The orders that were paid, and not cancelled or refunded since: the sales of the shop
+    fun paid() = Orders(orders.filter { order -> order.isPaid() })
+
+    fun placedDuring(interval: OrderInterval) =
+        Orders(orders.filter { order -> interval.contains(order.placedAt) })
+
+    fun count() = OrderCount(orders.size)
+
+    // What the orders cost their customers: the items, minus the discounts, plus the shipping
+    fun revenue(): Price {
+        val currency = orders.firstOrNull()?.totalPrice()?.currency ?: Currency.EUR
+        val total = orders.fold(BigDecimal.ZERO) { sum, order -> sum.add(order.totalPrice().amount.value) }
+        return Price(Amount(total), currency)
+    }
+
+    // The lines of all the orders
+    fun lines() = OrderLines(orders.flatMap { order -> order.lines.asList() })
+
     // The orders still awaiting their payment once the time limit is exceeded
     fun latePaymentsAt(timeLimit: PaymentTimeLimit) = Orders(orders.filter { timeLimit.isExceededFor(it) })
 
     fun asList(): List<Order> = orders.toList()
+}
+
+data class OrderCount(val value: Int) {
+    fun isZero() = value == 0
+}
+
+// From a moment included to another excluded
+data class OrderInterval(val start: Instant, val end: Instant) {
+    fun contains(instant: Instant) = instant >= start && instant < end
+}
+
+data class BestSellerCount(val value: Int)
+
+// A product sold: the units of it sold, and what they brought
+data class BestSeller(val product: OrderedProduct, val unitsSold: Quantity, val revenue: Price)
+
+// The products sold the most, the best first
+data class BestSellers(private val bestSellers: List<BestSeller>) {
+
+    // Read-only view for the adapters (JSON)
+    fun asList(): List<BestSeller> = bestSellers.toList()
 }
 
 // The time a customer has to pay, checked at a given moment

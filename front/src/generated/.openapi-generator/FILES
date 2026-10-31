@@ -15,10 +15,12 @@ docs/JsonAccountRegistration.md
 docs/JsonAccountStatus.md
 docs/JsonAdminOrder.md
 docs/JsonAdminProduct.md
+docs/JsonBestSeller.md
 docs/JsonCartItem.md
 docs/JsonCartItems.md
 docs/JsonChangePasswordRequest.md
 docs/JsonChosenPassword.md
+docs/JsonDailySales.md
 docs/JsonDiscountCode.md
 docs/JsonDiscountPreview.md
 docs/JsonEmailVerification.md
@@ -41,6 +43,7 @@ docs/JsonProduct.md
 docs/JsonProductTranslation.md
 docs/JsonRatingSummary.md
 docs/JsonReview.md
+docs/JsonSalesDashboard.md
 docs/JsonSaveItemResponse.md
 docs/JsonSeller.md
 docs/JsonShippingOption.md
