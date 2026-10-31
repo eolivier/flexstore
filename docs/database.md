@@ -1,6 +1,6 @@
 # Physical data model
 
-The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V29**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
+The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V30**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
 
 ![Physical data model](database.png)
 
@@ -58,6 +58,8 @@ erDiagram
         placed_at timestamptz
         shipping_method varchar(20) "STANDARD or EXPRESS"
         shipping_cost numeric "0 or more, 0 when free"
+        discount_code varchar(30) "copy of the code used, no foreign key; nullable: no discount"
+        discount_amount numeric "taken off the items, 0 without code"
         delivery_address_id varchar(50) FK
         billing_address_id varchar(50) FK
         payment_id varchar(50) FK "nullable: last payment started"
@@ -120,6 +122,18 @@ erDiagram
         number varchar(20) UK "year then rank in the year, without gaps: 2026-000042"
         customer_order_id varchar(50) FK,UK "one invoice per paid order"
         issued_at timestamptz "when the order was paid"
+        created_at timestamp
+        updated_at timestamp
+    }
+
+    discount_code {
+        id varchar(50) PK
+        code varchar(30) UK "upper-case letters and digits"
+        reduction_type varchar(10) "PERCENTAGE or AMOUNT"
+        reduction_value numeric "1 to 100 (percent), or euros; more than 0"
+        expires_at timestamptz
+        usage_limit int "1 or more"
+        times_used int "0 to usage_limit"
         created_at timestamp
         updated_at timestamp
     }

@@ -6,6 +6,7 @@ import org.flexstore.domain.cart.*
 import org.flexstore.domain.cart.usecase.*
 import org.flexstore.domain.email.*
 import org.flexstore.domain.invoice.usecase.*
+import org.flexstore.domain.discount.usecase.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.order.usecase.*
 import org.flexstore.domain.product.*
@@ -40,8 +41,9 @@ open class ServiceConfig {
 
     @Bean
     open fun orderCheckoutService(orderPlacementUseCases: OrderPlacementUseCases,
-                                  checkoutQueryUseCases: CheckoutQueryUseCases) =
-        OrderCheckoutService(orderPlacementUseCases, checkoutQueryUseCases)
+                                  checkoutQueryUseCases: CheckoutQueryUseCases,
+                                  checkoutDiscountUseCases: CheckoutDiscountUseCases) =
+        OrderCheckoutService(orderPlacementUseCases, checkoutQueryUseCases, checkoutDiscountUseCases)
 
     @Bean
     open fun orderAdministrationService(listAdministeredOrdersUseCase: ListAdministeredOrdersUseCase,

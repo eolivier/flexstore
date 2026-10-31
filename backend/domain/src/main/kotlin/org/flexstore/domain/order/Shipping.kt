@@ -1,6 +1,7 @@
 package org.flexstore.domain.order
 
 import org.flexstore.domain.cart.Cart
+import org.flexstore.domain.discount.*
 import org.flexstore.domain.settings.FreeShippingThreshold
 import org.flexstore.domain.sharedkernel.*
 import java.math.BigDecimal
@@ -31,16 +32,52 @@ data class OrderDelivery(val addresses: OrderAddresses, val method: ShippingMeth
 // How the order is shipped, and what it costs, fixed when the order is placed
 data class OrderShipping(val method: ShippingMethod, val cost: Price)
 
-// What the customer pays for an order: its lines, then its shipping
-data class OrderBill(val lines: OrderLines, val shipping: OrderShipping) {
+// What changes the price of the items of an order: its shipping, and its discount
+data class OrderAdjustments(val shipping: OrderShipping, val discount: OrderDiscount) {
+
+    // Without discount
+    constructor(shipping: OrderShipping) : this(shipping, NoOrderDiscount)
+}
+
+// What the customer pays for an order: its lines, less its discount, then its shipping
+data class OrderBill(val lines: OrderLines, val adjustments: OrderAdjustments) {
+
+    val shipping get() = adjustments.shipping
+
+    val discount get() = adjustments.discount
 
     fun itemsPrice() = lines.totalPrice()
 
-    fun totalPrice() = itemsPrice() + shipping.cost
+    fun discountAmount() = discount.amountIn(itemsPrice().currency)
+
+    fun totalPrice() = itemsPrice() - discountAmount() + shipping.cost
 }
 
-// What an order is placed from: the cart of the customer, and the threshold of free shipping of the shop
-data class OrderContent(val cart: Cart, val freeShippingThreshold: FreeShippingThreshold)
+// The terms of the shop for an order: the threshold of free shipping, and the discount code chosen
+data class OrderTerms(val freeShippingThreshold: FreeShippingThreshold, val discountChoice: DiscountChoice) {
+
+    // Without discount code
+    constructor(freeShippingThreshold: FreeShippingThreshold) : this(freeShippingThreshold, WithoutDiscountCode)
+}
+
+// What an order is placed from: the cart of the customer, and the terms of the shop
+data class OrderContent(val cart: Cart, val terms: OrderTerms) {
+
+    // Without discount code
+    constructor(cart: Cart, freeShippingThreshold: FreeShippingThreshold) :
+        this(cart, OrderTerms(freeShippingThreshold))
+
+    val freeShippingThreshold get() = terms.freeShippingThreshold
+
+    // The discount of the items: what the code chosen takes off their price
+    fun discountOn(itemsPrice: Price): OrderDiscount = when (val discountChoice = terms.discountChoice) {
+        WithoutDiscountCode -> NoOrderDiscount
+        is WithDiscountCode -> {
+            val discountCode = discountChoice.discountCode
+            AppliedOrderDiscount(discountCode.code, discountCode.reduction.amountOff(itemsPrice))
+        }
+    }
+}
 
 // What a shipping method costs for the items of a cart
 data class ShippingOption(val method: ShippingMethod, val cost: Price)

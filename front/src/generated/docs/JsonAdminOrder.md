@@ -13,7 +13,9 @@ Name | Type | Description | Notes
 **itemsPrice** | **number** | The price of the lines, without the shipping | [default to undefined]
 **shippingMethod** | **string** |  | [default to undefined]
 **shippingCost** | **number** | 0 when the shipping is free | [default to undefined]
-**totalPrice** | **number** | The price of the lines plus the shipping | [default to undefined]
+**discountCode** | **string** | The discount code used, if any | [optional] [default to undefined]
+**discountAmount** | **number** | What the discount code took off the items (0 without code) | [default to undefined]
+**totalPrice** | **number** | The price of the lines, less the discount, plus the shipping | [default to undefined]
 **currency** | **string** |  | [default to undefined]
 **deliveryAddress** | [**JsonPostalAddress**](JsonPostalAddress.md) |  | [default to undefined]
 **billingAddress** | [**JsonPostalAddress**](JsonPostalAddress.md) |  | [default to undefined]
@@ -34,6 +36,8 @@ const instance: JsonAdminOrder = {
     itemsPrice,
     shippingMethod,
     shippingCost,
+    discountCode,
+    discountAmount,
     totalPrice,
     currency,
     deliveryAddress,

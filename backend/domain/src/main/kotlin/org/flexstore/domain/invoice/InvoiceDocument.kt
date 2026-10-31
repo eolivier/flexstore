@@ -87,14 +87,21 @@ data class InvoiceDocument(val invoice: Invoice, val sale: InvoicedSale) {
 
     fun tableHeader() = InvoiceRow("Désignation", "Quantité", "Prix unitaire TTC", "Total TTC")
 
-    // The lines of the order, then its shipping
+    // The lines of the order, its discount, then its shipping
     fun tableRows(): InvoiceRows {
         val productRows = order.lines.asList().map { line ->
             InvoiceRow(line.productName.value, "${line.quantity.value}", priceOf(line.unitPrice), priceOf(line.linePrice()))
         }
         val shippingCost = priceOf(order.shipping.cost)
         val shippingRow = InvoiceRow(order.shipping.method.label().value, "1", shippingCost, shippingCost)
-        return InvoiceRows(productRows + shippingRow)
+        return InvoiceRows(productRows + discountRows() + shippingRow)
+    }
+
+    // The discount of the order, taken off its items, if any
+    private fun discountRows(): List<InvoiceRow> {
+        val discount = order.discount as? AppliedOrderDiscount ?: return emptyList()
+        val amountOff = "-${priceOf(discount.amount)}"
+        return listOf(InvoiceRow(discount.label().value, "1", amountOff, amountOff))
     }
 
     fun totals() = InvoiceRows(

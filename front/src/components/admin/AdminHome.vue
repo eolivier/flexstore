@@ -11,6 +11,7 @@
     '/admin/products': 'admin.productsText',
     '/admin/create-product': 'admin.createProductText',
     '/admin/orders': 'admin.ordersText',
+    '/admin/discount-codes': 'admin.discountCodesText',
     '/admin/settings': 'admin.settingsText',
   };
 </script>

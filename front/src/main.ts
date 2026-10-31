@@ -26,6 +26,7 @@ import AdminOrders from './components/admin/orders/AdminOrders.vue';
 import AdminOrderDetail from './components/admin/orders/AdminOrderDetail.vue';
 import AddressBook from './components/account/addresses/AddressBook.vue';
 import ShopSettings from './components/admin/settings/ShopSettings.vue';
+import AdminDiscountCodes from './components/admin/discounts/AdminDiscountCodes.vue';
 import Login from './components/Login.vue';
 import SignUp from './components/account/SignUp.vue';
 import VerifyEmail from './components/account/VerifyEmail.vue';
@@ -98,6 +99,11 @@ const routes = [
   {
     path: '/admin/create-product',
     component: CreateProduct,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/admin/discount-codes',
+    component: AdminDiscountCodes,
     meta: { requiresAuth: true, requiresAdmin: true },
   },
   {

@@ -2,7 +2,9 @@ package org.flexstore.domain.invoice
 
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.cart.*
+import org.flexstore.domain.discount.*
 import org.flexstore.domain.order.*
+import org.flexstore.domain.settings.FreeShippingThreshold
 import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.*
@@ -59,6 +61,25 @@ class InvoiceDocumentTest : WithAssertions {
                 InvoiceRow("Livraison express", "1", "9,90 €", "9,90 €")
             )
         )
+    }
+
+    @Test
+    fun `the discount of the order should be taken off the items on the invoice`() {
+        // Arrange
+        val validity = DiscountValidity(ExpiryDate(placedAt.plusSeconds(3600)), UsageLimit(5))
+        val fiveEurosOff = DiscountCode(PromoCode("FIVE"), DiscountOffer(AmountOff(Price(Amount(BigDecimal(5)), Currency.EUR)), validity))
+        val delivery = OrderDelivery(homeOrderAddresses, ShippingMethod.EXPRESS)
+        val orderStamp = OrderStamp(OrderId("46555c9f-4e92"), placedAt)
+        val orderPlacement = OrderPlacement(orderStamp, Checkout(customer, delivery))
+        val terms = OrderTerms(FreeShippingThreshold.byDefault(), WithDiscountCode(fiveEurosOff))
+        val cart = Cart(customer).add(deskLamp, Quantity(1))
+        val order = Order.place(orderPlacement, OrderContent(cart, terms))
+        val invoicedSale = InvoicedSale(AdministeredOrder(order, janeDoe), testSeller)
+        // Act
+        val invoiceDocument = InvoiceDocument(invoice, invoicedSale)
+        // Assert
+        assertThat(invoiceDocument.tableRows().asList()).contains(InvoiceRow("Remise FIVE", "1", "-5,00 €", "-5,00 €"))
+        assertThat(invoiceDocument.totals().asList().last()).isEqualTo(InvoiceRow("Total TTC", "39,90 €"))
     }
 
     @Test

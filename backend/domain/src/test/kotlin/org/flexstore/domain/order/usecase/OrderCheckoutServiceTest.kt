@@ -4,6 +4,8 @@ import org.flexstore.infra.repository.InMemoryStockRepository
 import org.flexstore.domain.stock.*
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.cart.usecase.ReadCartUseCase
+import org.flexstore.domain.discount.*
+import org.flexstore.domain.discount.usecase.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.settings.*
 import org.flexstore.domain.product.*
@@ -11,6 +13,7 @@ import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.*
 import org.assertj.core.api.WithAssertions
 import org.flexstore.infra.repository.InMemoryCartRepository
+import org.flexstore.infra.repository.InMemoryDiscountCodeRepository
 import org.flexstore.infra.repository.InMemoryOrderRepository
 import org.flexstore.infra.repository.InMemoryUserRepository
 import org.junit.jupiter.params.ParameterizedTest
@@ -37,6 +40,13 @@ class OrderCheckoutServiceTest : WithAssertions {
     private val stockRepository = InMemoryStockRepository().apply { save(deskLampStock) }
     private val shopSettingsRepository = InMemoryShopSettingsRepository()
     private val placedAt = Instant.parse("2026-10-24T10:00:00Z")
+    private val discountCodeRepository = InMemoryDiscountCodeRepository()
+    private val tenPercentOff = PercentageOff(Percentage(BigDecimal(10)))
+
+    private fun giveDiscountCode(code: String, expiresAt: Instant, usageLimit: Int) {
+        val validity = DiscountValidity(ExpiryDate(expiresAt), UsageLimit(usageLimit))
+        discountCodeRepository.save(DiscountCode(PromoCode(code), DiscountOffer(tenPercentOff, validity)))
+    }
     private val checkout = Checkout(customer, homeOrderAddresses)
     private val service = checkoutServiceWith(stockRepository)
 
@@ -51,7 +61,11 @@ class OrderCheckoutServiceTest : WithAssertions {
             ReadShopSettingsUseCase(shopSettingsRepository),
             ReadCustomerOrderUseCase(orderRepository)
         )
-        return OrderCheckoutService(orderPlacementUseCases, checkoutQueryUseCases)
+        val checkoutDiscountUseCases = CheckoutDiscountUseCases(
+            ReadUsableDiscountCodeUseCase(discountCodeRepository),
+            UseDiscountCodeUseCase(discountCodeRepository)
+        )
+        return OrderCheckoutService(orderPlacementUseCases, checkoutQueryUseCases, checkoutDiscountUseCases)
     }
 
     private fun storedOrders() = orderRepository.findAll().asList()
@@ -105,6 +119,66 @@ class OrderCheckoutServiceTest : WithAssertions {
         val order = service.placeOrder(checkout)
         // Assert
         assertThat(order.shipping.cost).isEqualTo(Price(Amount(BigDecimal.ZERO), Currency.EUR))
+    }
+
+    @Test
+    fun `a discount code should take its reduction off the items, and count one more use`() {
+        // Arrange
+        cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
+        giveDiscountCode("WELCOME10", placedAt.plusSeconds(3600), usageLimit = 5)
+        // Act
+        val order = service.placeOrder(checkout, DiscountCodeEntered(PromoCode("WELCOME10")))
+        // Assert
+        val sevenEuros = Price(Amount(BigDecimal("7.00")), Currency.EUR)
+        assertThat(order.discount).isEqualTo(AppliedOrderDiscount(PromoCode("WELCOME10"), sevenEuros))
+        assertThat(order.totalPrice()).isEqualTo(Price(Amount(BigDecimal("63.00")), Currency.EUR))
+        assertThat(discountCodeRepository.findBy(PromoCode("WELCOME10"))!!.uses).isEqualTo(UseCount(1))
+    }
+
+    @Test
+    fun `an expired discount code should be refused, and no order placed`() {
+        // Arrange
+        cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
+        giveDiscountCode("SUMMER", placedAt, usageLimit = 5)
+        // Act
+        val thrown = catchThrowable { service.placeOrder(checkout, DiscountCodeEntered(PromoCode("SUMMER"))) }
+        // Assert
+        assertThat(thrown).isInstanceOf(DiscountCodeExpiredException::class.java)
+        assertThat(storedOrders()).isEmpty()
+    }
+
+    @Test
+    fun `a discount code used by as many orders as allowed should be refused`() {
+        // Arrange
+        cartRepository.save(Cart(customer).add(deskLamp, Quantity(1)))
+        giveDiscountCode("ONCE", placedAt.plusSeconds(3600), usageLimit = 1)
+        service.placeOrder(checkout, DiscountCodeEntered(PromoCode("ONCE")))
+        // Act
+        val thrown = catchThrowable { service.placeOrder(checkout, DiscountCodeEntered(PromoCode("ONCE"))) }
+        // Assert
+        assertThat(thrown).isInstanceOf(DiscountCodeUsedUpException::class.java)
+    }
+
+    @Test
+    fun `an unknown discount code should be refused`() {
+        // Arrange
+        cartRepository.save(Cart(customer).add(deskLamp, Quantity(1)))
+        // Act
+        val thrown = catchThrowable { service.placeOrder(checkout, DiscountCodeEntered(PromoCode("NOPE"))) }
+        // Assert
+        assertThat(thrown).isInstanceOf(DiscountCodeNotFoundException::class.java)
+    }
+
+    @Test
+    fun `the customer should see what a discount code takes off their cart before ordering`() {
+        // Arrange
+        cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
+        giveDiscountCode("WELCOME10", placedAt.plusSeconds(3600), usageLimit = 5)
+        // Act
+        val discountPreview = service.previewDiscount(customer, PromoCode("WELCOME10"))
+        // Assert
+        val sevenEuros = Price(Amount(BigDecimal("7.00")), Currency.EUR)
+        assertThat(discountPreview).isEqualTo(DiscountPreview(PromoCode("WELCOME10"), sevenEuros))
     }
 
     @Test

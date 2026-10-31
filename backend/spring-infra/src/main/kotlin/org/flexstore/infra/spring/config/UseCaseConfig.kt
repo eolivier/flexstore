@@ -7,6 +7,8 @@ import org.flexstore.domain.cart.usecase.*
 import org.flexstore.domain.email.*
 import org.flexstore.domain.invoice.*
 import org.flexstore.domain.invoice.usecase.*
+import org.flexstore.domain.discount.*
+import org.flexstore.domain.discount.usecase.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.order.usecase.*
 import org.flexstore.domain.product.*
@@ -339,4 +341,35 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
                              readSellerUseCase: ReadSellerUseCase,
                              renderInvoiceUseCase: RenderInvoiceUseCase) =
         InvoiceUseCases(readInvoiceUseCase, readSellerUseCase, renderInvoiceUseCase)
+
+    @Bean
+    open fun createDiscountCodeUseCase(discountCodeRepository: DiscountCodeRepository) =
+        CreateDiscountCodeUseCase(discountCodeRepository)
+
+    @Bean
+    open fun listDiscountCodesUseCase(discountCodeRepository: DiscountCodeRepository) =
+        ListDiscountCodesUseCase(discountCodeRepository)
+
+    @Bean
+    open fun deleteDiscountCodeUseCase(discountCodeRepository: DiscountCodeRepository) =
+        DeleteDiscountCodeUseCase(discountCodeRepository)
+
+    @Bean
+    open fun readUsableDiscountCodeUseCase(discountCodeRepository: DiscountCodeRepository) =
+        ReadUsableDiscountCodeUseCase(discountCodeRepository)
+
+    @Bean
+    open fun useDiscountCodeUseCase(discountCodeRepository: DiscountCodeRepository) =
+        UseDiscountCodeUseCase(discountCodeRepository)
+
+    @Bean
+    open fun discountCodeUseCases(createDiscountCodeUseCase: CreateDiscountCodeUseCase,
+                                  listDiscountCodesUseCase: ListDiscountCodesUseCase,
+                                  deleteDiscountCodeUseCase: DeleteDiscountCodeUseCase) =
+        DiscountCodeUseCases(createDiscountCodeUseCase, listDiscountCodesUseCase, deleteDiscountCodeUseCase)
+
+    @Bean
+    open fun checkoutDiscountUseCases(readUsableDiscountCodeUseCase: ReadUsableDiscountCodeUseCase,
+                                      useDiscountCodeUseCase: UseDiscountCodeUseCase) =
+        CheckoutDiscountUseCases(readUsableDiscountCodeUseCase, useDiscountCodeUseCase)
 }

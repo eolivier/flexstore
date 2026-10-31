@@ -8,6 +8,8 @@
   // the order; error: why the last attempt failed
   const props = defineProps<{
     shippingCost: number | null;
+    // What the discount code applied takes off the items (0 without code)
+    discountAmount: number;
     placing: boolean;
     disabled: boolean;
     error: string | null;
@@ -28,7 +30,11 @@
     return formatPrice(props.shippingCost, currency.value, locale.value);
   });
   const total = computed(() =>
-    formatPrice(itemsPrice.value + (props.shippingCost ?? 0), currency.value, locale.value)
+    formatPrice(
+      itemsPrice.value - props.discountAmount + (props.shippingCost ?? 0),
+      currency.value,
+      locale.value
+    )
   );
 </script>
 
@@ -39,6 +45,11 @@
       <span class="text-medium-emphasis">{{ t('cart.itemsCount', itemsCount) }}</span>
       <v-spacer />
       <span>{{ formatPrice(itemsPrice, currency, locale) }}</span>
+    </div>
+    <div v-if="discountAmount > 0" class="d-flex text-body-2 mb-2">
+      <span class="text-medium-emphasis">{{ t('checkout.discount.title') }}</span>
+      <v-spacer />
+      <span class="text-success">−{{ formatPrice(discountAmount, currency, locale) }}</span>
     </div>
     <div v-if="shipping" class="d-flex text-body-2 mb-2">
       <span class="text-medium-emphasis">{{ t('checkout.shipping.title') }}</span>

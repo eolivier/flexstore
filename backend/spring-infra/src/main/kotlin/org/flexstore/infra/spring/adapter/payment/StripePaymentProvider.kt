@@ -4,10 +4,12 @@ import org.flexstore.domain.order.OrderPage
 import org.flexstore.domain.order.OrderConfirmationPage
 import org.flexstore.domain.sharedkernel.ShopUrl
 import com.stripe.exception.StripeException
+import com.stripe.model.Coupon
 import com.stripe.model.Customer
 import com.stripe.model.Refund
 import com.stripe.model.checkout.Session
 import com.stripe.net.RequestOptions
+import com.stripe.param.CouponCreateParams
 import com.stripe.param.CustomerCreateParams
 import com.stripe.param.CustomerListParams
 import com.stripe.param.CustomerUpdateParams
@@ -16,6 +18,7 @@ import com.stripe.param.checkout.SessionCreateParams
 import com.stripe.param.checkout.SessionExpireParams
 import com.stripe.param.checkout.SessionCreateParams.LineItem
 import com.stripe.param.checkout.SessionCreateParams.LineItem.PriceData
+import org.flexstore.domain.order.AppliedOrderDiscount
 import org.flexstore.domain.order.Order
 import org.flexstore.domain.order.OrderLine
 import org.flexstore.domain.sharedkernel.Price
@@ -41,6 +44,7 @@ class StripePaymentProvider(private val secretKey: String, private val shopUrl: 
             .setSuccessUrl(confirmationPage.url)
             .setCancelUrl(orderPage.url)
             .addAllLineItem(lineItemsOf(order))
+            .apply { discountOf(order)?.let { addDiscount(it) } }
             .build()
         val session = Session.create(params, requestOptions)
         return ProviderCheckout(session.id, CheckoutPage(session.url), PaymentOutcome.PENDING)
@@ -93,6 +97,20 @@ class StripePaymentProvider(private val secretKey: String, private val shopUrl: 
         // An empty name removes the name of a previous payment
         val updateParams = CustomerUpdateParams.builder().setName(cardholderName).build()
         return existingCustomer.update(updateParams, requestOptions)
+    }
+
+    // The discount of the order, as a Stripe coupon of its amount, used once; none without discount
+    private fun discountOf(order: Order): SessionCreateParams.Discount? {
+        val discount = order.discount as? AppliedOrderDiscount ?: return null
+        val amountOffInCents = discount.amount.amount.value.multiply(BigDecimal(100)).longValueExact()
+        val couponParams = CouponCreateParams.builder()
+            .setAmountOff(amountOffInCents)
+            .setCurrency(discount.amount.currency.name.lowercase())
+            .setDuration(CouponCreateParams.Duration.ONCE)
+            .setName(discount.label().value)
+            .build()
+        val coupon = Coupon.create(couponParams, requestOptions)
+        return SessionCreateParams.Discount.builder().setCoupon(coupon.id).build()
     }
 
     // The lines of the order, then its shipping when it is not free

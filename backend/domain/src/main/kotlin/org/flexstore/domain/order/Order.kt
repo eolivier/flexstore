@@ -40,6 +40,10 @@ data class Order(val detail: OrderDetail, val history: OrderStatusHistory) {
 
     val shipping get() = detail.bill.shipping
 
+    val discount get() = detail.bill.discount
+
+    fun discountAmount() = detail.bill.discountAmount()
+
     // The price of the items, without the shipping
     fun itemsPrice() = detail.bill.itemsPrice()
 
@@ -98,7 +102,9 @@ data class Order(val detail: OrderDetail, val history: OrderStatusHistory) {
             val shippingMethod = orderPlacement.checkout.delivery.method
             val freeShippingThreshold = orderContent.freeShippingThreshold
             val shippingCost = shippingMethod.costFor(orderLines.totalPrice(), freeShippingThreshold)
-            val orderBill = OrderBill(orderLines, OrderShipping(shippingMethod, shippingCost))
+            val orderDiscount = orderContent.discountOn(orderLines.totalPrice())
+            val orderAdjustments = OrderAdjustments(OrderShipping(shippingMethod, shippingCost), orderDiscount)
+            val orderBill = OrderBill(orderLines, orderAdjustments)
             val orderDetail = OrderDetail(orderPlacement, orderBill)
             val placedAt = StatusChangedAt(orderPlacement.placedAt)
             val placedStatus = OrderStatusChange(OrderStatus.AWAITING_PAYMENT, placedAt)

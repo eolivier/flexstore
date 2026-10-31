@@ -19,10 +19,13 @@ docs/JsonCartItem.md
 docs/JsonCartItems.md
 docs/JsonChangePasswordRequest.md
 docs/JsonChosenPassword.md
+docs/JsonDiscountCode.md
+docs/JsonDiscountPreview.md
 docs/JsonEmailVerification.md
 docs/JsonItem.md
 docs/JsonLoginRequest.md
 docs/JsonLoginResponse.md
+docs/JsonNewDiscountCode.md
 docs/JsonOrder.md
 docs/JsonOrderAddresses.md
 docs/JsonOrderCustomer.md

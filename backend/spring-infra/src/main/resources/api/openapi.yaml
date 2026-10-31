@@ -678,6 +678,91 @@ paths:
           description: Not an administrator
         "404":
           description: No such order, or the order is not paid (no invoice)
+  /api/orders/discount-preview:
+    get:
+      tags:
+      - Orders
+      summary: Retrieve what a discount code takes off the cart of the signed-in customer
+      operationId: previewDiscount
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: code
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: The amount the code takes off the items of the cart
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonDiscountPreview"
+        "404":
+          description: Unknown discount code
+        "410":
+          description: The discount code has expired, or is used up
+  /api/admin/discount-codes:
+    get:
+      tags:
+      - Administration
+      summary: Retrieve the discount codes, newest first (ADMIN role)
+      operationId: getDiscountCodes
+      security:
+      - bearerAuth: []
+      responses:
+        "200":
+          description: The discount codes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/JsonDiscountCode"
+    post:
+      tags:
+      - Administration
+      summary: Give a discount code (ADMIN role)
+      operationId: createDiscountCode
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonNewDiscountCode"
+      responses:
+        "201":
+          description: The discount code given
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonDiscountCode"
+        "400":
+          description: Invalid code, reduction or usage limit
+        "409":
+          description: The code is already given
+  /api/admin/discount-codes/{code}:
+    delete:
+      tags:
+      - Administration
+      summary: Delete a discount code; the orders that used it keep their discount (ADMIN role)
+      operationId: deleteDiscountCode
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Unknown discount code
   /api/orders/shipping-options:
     get:
       tags:
@@ -1489,8 +1574,8 @@ components:
           type: string
     JsonOrder:
       type: object
-      required: [id, placedAt, status, lines, itemsPrice, shippingMethod, shippingCost, totalPrice, currency,
-        deliveryAddress, billingAddress]
+      required: [id, placedAt, status, lines, itemsPrice, shippingMethod, shippingCost, discountAmount, totalPrice,
+        currency, deliveryAddress, billingAddress]
       properties:
         id:
           type: string
@@ -1513,9 +1598,16 @@ components:
         shippingCost:
           type: number
           description: 0 when the shipping is free
+        discountCode:
+          type: string
+          nullable: true
+          description: The discount code used, if any
+        discountAmount:
+          type: number
+          description: What the discount code took off the items (0 without code)
         totalPrice:
           type: number
-          description: The price of the lines plus the shipping
+          description: The price of the lines, less the discount, plus the shipping
         currency:
           type: string
         deliveryAddress:
@@ -1574,6 +1666,56 @@ components:
           type: string
           enum: [STANDARD, EXPRESS]
           description: STANDARD when not given
+        discountCode:
+          type: string
+          description: The discount code entered, if any (404 when unknown, 410 when expired or used up)
+    JsonDiscountPreview:
+      type: object
+      required: [code, amountOff, currency]
+      properties:
+        code:
+          type: string
+        amountOff:
+          type: number
+        currency:
+          type: string
+    JsonDiscountCode:
+      type: object
+      required: [code, reductionType, reductionValue, expiresAt, usageLimit, timesUsed]
+      properties:
+        code:
+          type: string
+        reductionType:
+          type: string
+          enum: [PERCENTAGE, AMOUNT]
+        reductionValue:
+          type: number
+          description: A percentage from 1 to 100, or an amount in euros
+        expiresAt:
+          type: string
+          format: date-time
+        usageLimit:
+          type: integer
+        timesUsed:
+          type: integer
+    JsonNewDiscountCode:
+      type: object
+      required: [code, reductionType, reductionValue, expiresAt, usageLimit]
+      properties:
+        code:
+          type: string
+          description: Upper-case letters and digits, 3 to 30 (put in upper case)
+        reductionType:
+          type: string
+          enum: [PERCENTAGE, AMOUNT]
+        reductionValue:
+          type: number
+        expiresAt:
+          type: string
+          format: date-time
+        usageLimit:
+          type: integer
+          description: 1 or more
     JsonShippingOptions:
       type: object
       required: [options, freeShippingThreshold, currency]
