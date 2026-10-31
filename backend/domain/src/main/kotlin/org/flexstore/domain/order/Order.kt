@@ -9,7 +9,6 @@ import org.flexstore.domain.user.model.*
 import org.ucop.domain.NominalException
 import org.flexstore.domain.sharedkernel.ErrorMessage
 import java.math.BigDecimal
-import java.time.Clock
 import java.time.Instant
 
 // Number of characters of the order id shown to the customer as the order number
@@ -202,7 +201,7 @@ enum class OrderStatus {
 // The moment an order reached a status
 data class StatusChangedAt(val value: Instant) {
     companion object {
-        fun now(clock: Clock) = StatusChangedAt(Instant.now(clock))
+        fun now() = StatusChangedAt(InstantProvider.now())
     }
 }
 

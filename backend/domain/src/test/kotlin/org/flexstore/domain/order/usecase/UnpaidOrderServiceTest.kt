@@ -10,11 +10,10 @@ import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.stock.*
 import org.flexstore.domain.user.model.UserId
 import org.flexstore.infra.repository.*
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
-import java.time.Clock
 import java.time.Instant
-import java.time.ZoneOffset
 
 class UnpaidOrderServiceTest : WithAssertions {
 
@@ -34,12 +33,22 @@ class UnpaidOrderServiceTest : WithAssertions {
     private val cancelUnpaidOrderUseCase =
         CancelUnpaidOrderUseCase(orderRepository, stockRepository, paymentRepository)
 
-    private fun serviceAt(instant: Instant) = UnpaidOrderService(
+    private val service = UnpaidOrderService(
         ReadShopSettingsUseCase(shopSettingsRepository),
         ListAllOrdersUseCase(orderRepository),
-        cancelUnpaidOrderUseCase,
-        Clock.fixed(instant, ZoneOffset.UTC)
+        cancelUnpaidOrderUseCase
     )
+
+    // The late orders are looked for at the given moment
+    private fun cancelLateOrdersAt(instant: Instant): Orders {
+        InstantProvider.fixAt(instant)
+        return service.cancelLateOrders()
+    }
+
+    @AfterEach
+    fun resetTheMoment() {
+        InstantProvider.reset()
+    }
 
     private fun placeOrder() {
         val cart = Cart(customer).add(deskLamp, Quantity(2))
@@ -55,7 +64,7 @@ class UnpaidOrderServiceTest : WithAssertions {
         // Arrange
         placeOrder()
         // Act
-        serviceAt(placedAt.plusSeconds(10 * 60)).cancelLateOrders()
+        cancelLateOrdersAt(placedAt.plusSeconds(10 * 60))
         // Assert
         assertThat(storedStatus()).isEqualTo(OrderStatus.CANCELLED)
         assertThat(paymentRepository.isStopped(orderId)).isTrue()
@@ -66,7 +75,7 @@ class UnpaidOrderServiceTest : WithAssertions {
         // Arrange
         placeOrder()
         // Act
-        serviceAt(placedAt.plusSeconds(10 * 60)).cancelLateOrders()
+        cancelLateOrdersAt(placedAt.plusSeconds(10 * 60))
         // Assert
         assertThat(stockRepository.stockOf(deskLamp.productId).quantity).isEqualTo(StockQuantity(10))
     }
@@ -76,7 +85,7 @@ class UnpaidOrderServiceTest : WithAssertions {
         // Arrange
         placeOrder()
         // Act
-        serviceAt(placedAt.plusSeconds(10 * 60 - 1)).cancelLateOrders()
+        cancelLateOrdersAt(placedAt.plusSeconds(10 * 60 - 1))
         // Assert
         assertThat(storedStatus()).isEqualTo(OrderStatus.AWAITING_PAYMENT)
     }
@@ -87,7 +96,7 @@ class UnpaidOrderServiceTest : WithAssertions {
         placeOrder()
         paymentRepository.completePaymentOf(orderId)
         // Act
-        val cancelledOrders = serviceAt(placedAt.plusSeconds(10 * 60)).cancelLateOrders()
+        val cancelledOrders = cancelLateOrdersAt(placedAt.plusSeconds(10 * 60))
         // Assert
         assertThat(cancelledOrders.asList()).isEmpty()
         assertThat(storedStatus()).isEqualTo(OrderStatus.AWAITING_PAYMENT)
@@ -100,7 +109,7 @@ class UnpaidOrderServiceTest : WithAssertions {
         placeOrder()
         orderRepository.save(orderRepository.findById(orderId)!!.withStatus(OrderStatus.PAID))
         // Act
-        serviceAt(placedAt.plusSeconds(3600)).cancelLateOrders()
+        cancelLateOrdersAt(placedAt.plusSeconds(3600))
         // Assert
         assertThat(storedStatus()).isEqualTo(OrderStatus.PAID)
     }

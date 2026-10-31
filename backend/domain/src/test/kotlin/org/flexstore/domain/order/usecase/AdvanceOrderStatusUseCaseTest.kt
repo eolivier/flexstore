@@ -7,13 +7,13 @@ import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.infra.repository.InMemoryOrderRepository
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import java.math.BigDecimal
-import java.time.Clock
 import java.time.Instant
-import java.time.ZoneOffset
 
 class AdvanceOrderStatusUseCaseTest : WithAssertions {
 
@@ -23,7 +23,18 @@ class AdvanceOrderStatusUseCaseTest : WithAssertions {
     private val orderId = OrderId("order-1")
     private val orderRepository = InMemoryOrderRepository()
     private val now = Instant.parse("2026-10-25T09:30:00Z")
-    private val useCase = AdvanceOrderStatusUseCase(orderRepository, Clock.fixed(now, ZoneOffset.UTC))
+    private val useCase = AdvanceOrderStatusUseCase(orderRepository)
+
+    // The status changes at a known moment
+    @BeforeEach
+    fun fixTheMoment() {
+        InstantProvider.fixAt(now)
+    }
+
+    @AfterEach
+    fun resetTheMoment() {
+        InstantProvider.reset()
+    }
 
     private fun storeOrder(status: OrderStatus) {
         val orderStamp = OrderStamp(orderId, Instant.parse("2026-10-24T10:00:00Z"))

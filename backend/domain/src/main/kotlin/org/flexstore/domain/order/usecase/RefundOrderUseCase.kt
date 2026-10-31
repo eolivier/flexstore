@@ -5,7 +5,6 @@ import org.flexstore.domain.payment.PaymentRepository
 import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.stock.StockRepository
 import org.ucop.domain.entity.*
-import java.time.Clock
 
 // An administrator cancels a paid order before it is shipped: its payment is given back to the customer, and its
 // units go back to the stock.
@@ -14,8 +13,7 @@ import java.time.Clock
 class RefundOrderUseCase(
     private val orderRepository: OrderRepository,
     private val stockRepository: StockRepository,
-    private val paymentRepository: PaymentRepository,
-    private val clock: Clock = Clock.systemUTC()
+    private val paymentRepository: PaymentRepository
 ) : UseCase<OrderRefund> {
 
     override fun getPreConditions(): PreConditions<OrderRefund> =
@@ -27,7 +25,7 @@ class RefundOrderUseCase(
             paymentRepository.refund(orderRefund.orderId)
         }
         val refundOrderStep = Step<OrderRefund> { orderRefund ->
-            orderRepository.save(order(orderRefund).refundedAt(StatusChangedAt.now(clock)))
+            orderRepository.save(order(orderRefund).refundedAt(StatusChangedAt.now()))
         }
         val returnStockStep = Step<OrderRefund> { orderRefund ->
             order(orderRefund).lines.asList().forEach { line ->
