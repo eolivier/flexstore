@@ -155,11 +155,14 @@ class RestExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException::class)
     fun handleUnreadableBody(ex: HttpMessageNotReadableException): ResponseEntity<Map<String, String>> {
         val mappingException = ex.cause as? JsonMappingException
-        val path = mappingException?.path.orEmpty()
-        val field = path.joinToString(".") { reference -> reference.fieldName ?: "${reference.index}" }
+        val references = mappingException?.path.orEmpty()
+        val path = references.map { reference -> reference.fieldName ?: "${reference.index}" }
+        // A field missing reaches the Kotlin constructor as null, which names it: the path stops at its object
+        val causeMessage = ex.mostSpecificCause.message.orEmpty()
+        val missingParameter = MISSING_PARAMETER.find(causeMessage)?.groupValues?.get(1)
+        val field = (path + listOfNotNull(missingParameter)).joinToString(".")
         val error = if (field.isEmpty()) "The request is malformed." else "The field $field is missing or malformed."
-        val cause = ex.mostSpecificCause.message?.lineSequence()?.first()
-        logger.warn("Unreadable request body: {} ({})", error, cause)
+        logger.warn("Unreadable request body: {} ({})", error, causeMessage.lineSequence().first())
         return ResponseEntity.status(400).body(mapOf("error" to error, "reason" to MALFORMED_REQUEST))
     }
 
@@ -172,3 +175,6 @@ class RestExceptionHandler {
 // The reasons of a 400, for the front to tell them apart: a request the domain refuses, or one it never reads
 private const val INCOMPLETE_ADDRESS = "INCOMPLETE_ADDRESS"
 private const val MALFORMED_REQUEST = "MALFORMED_REQUEST"
+
+// The message of Kotlin when a non-null parameter receives null: "..., parameter street"
+private val MISSING_PARAMETER = Regex("Parameter specified as non-null is null: .*, parameter (\\w+)$")
