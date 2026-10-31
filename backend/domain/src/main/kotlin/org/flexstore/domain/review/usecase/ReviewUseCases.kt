@@ -8,7 +8,8 @@ class ReviewUseCases(
     private val addReviewUseCase: AddReviewUseCase,
     private val listProductReviewsUseCase: ListProductReviewsUseCase,
     private val listRatingSummariesUseCase: ListRatingSummariesUseCase,
-    private val deleteReviewUseCase: DeleteReviewUseCase
+    private val deleteReviewUseCase: DeleteReviewUseCase,
+    private val readReviewEligibilityUseCase: ReadReviewEligibilityUseCase
 ) {
     fun add(submission: ReviewSubmission) = addReviewUseCase.unfold(submission)
 
@@ -17,4 +18,6 @@ class ReviewUseCases(
     fun getSummaries() = listRatingSummariesUseCase.unfold(Unit)
 
     fun delete(reviewId: ReviewId) = deleteReviewUseCase.unfold(reviewId)
+
+    fun eligibilityOf(question: ReviewEligibilityQuestion) = readReviewEligibilityUseCase.unfold(question)
 }

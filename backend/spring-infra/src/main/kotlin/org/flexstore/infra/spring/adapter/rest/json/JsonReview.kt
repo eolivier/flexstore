@@ -43,3 +43,6 @@ data class JsonRatingSummary(
         summary.productId.id.value, summary.average.value, summary.reviewCount.value
     )
 }
+
+// Whether the signed-in customer may review a product: CAN_REVIEW, NOT_BOUGHT or ALREADY_REVIEWED
+data class JsonReviewEligibility(@JsonProperty("eligibility") val eligibility: String)

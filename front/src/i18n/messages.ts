@@ -189,6 +189,7 @@ export default {
       deleteTitle: 'Delete the review of {name}?',
       deleteMessage: 'The rating of the product will no longer count it. The customer may review the product again.',
       deletionFailed: 'The review could not be deleted.',
+      onlyBuyers: 'Once you have bought this product, you can review it here.',
       errors: {
         invalid: 'Give a rating from 1 to 5 and a comment of 1000 characters at most.',
         notBought: 'Only a customer who bought and paid for this product can review it.',
@@ -833,6 +834,7 @@ export default {
       deleteTitle: "Supprimer l'avis de {name} ?",
       deleteMessage: 'La note du produit ne le comptera plus. Le client pourra de nouveau donner son avis.',
       deletionFailed: "L'avis n'a pas pu être supprimé.",
+      onlyBuyers: 'Une fois ce produit acheté, vous pourrez donner votre avis ici.',
       errors: {
         invalid: 'Donnez une note de 1 à 5 et un commentaire de 1000 caractères au plus.',
         notBought: 'Seul un client ayant acheté et payé ce produit peut donner son avis.',

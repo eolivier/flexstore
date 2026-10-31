@@ -411,12 +411,18 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     open fun deleteReviewUseCase(reviewRepository: ReviewRepository) = DeleteReviewUseCase(reviewRepository)
 
     @Bean
+    open fun readReviewEligibilityUseCase(reviewRepository: ReviewRepository, orderRepository: OrderRepository) =
+        ReadReviewEligibilityUseCase(reviewRepository, orderRepository)
+
+    @Bean
     open fun reviewUseCases(addReviewUseCase: AddReviewUseCase,
                             listProductReviewsUseCase: ListProductReviewsUseCase,
                             listRatingSummariesUseCase: ListRatingSummariesUseCase,
-                            deleteReviewUseCase: DeleteReviewUseCase) =
+                            deleteReviewUseCase: DeleteReviewUseCase,
+                            readReviewEligibilityUseCase: ReadReviewEligibilityUseCase) =
         ReviewUseCases(
-            addReviewUseCase, listProductReviewsUseCase, listRatingSummariesUseCase, deleteReviewUseCase
+            addReviewUseCase, listProductReviewsUseCase, listRatingSummariesUseCase, deleteReviewUseCase,
+            readReviewEligibilityUseCase
         )
 
     @Bean
