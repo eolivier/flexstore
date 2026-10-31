@@ -1,6 +1,6 @@
-package org.flexstore.domain.invoice.usecase
+package org.flexstore.domain.seller.usecase
 
-import org.flexstore.domain.invoice.*
+import org.flexstore.domain.seller.*
 import org.ucop.domain.entity.*
 
 // The current seller: the one the next invoices will be issued with

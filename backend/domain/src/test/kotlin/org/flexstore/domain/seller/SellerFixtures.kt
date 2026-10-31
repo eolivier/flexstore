@@ -1,4 +1,4 @@
-package org.flexstore.domain.invoice
+package org.flexstore.domain.seller
 
 import org.flexstore.domain.sharedkernel.Identity
 

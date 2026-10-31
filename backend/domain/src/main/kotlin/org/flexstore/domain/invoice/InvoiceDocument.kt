@@ -1,6 +1,7 @@
 package org.flexstore.domain.invoice
 
 import org.flexstore.domain.order.*
+import org.flexstore.domain.seller.*
 import org.flexstore.domain.sharedkernel.Price
 import org.flexstore.domain.user.model.*
 import java.time.ZoneId

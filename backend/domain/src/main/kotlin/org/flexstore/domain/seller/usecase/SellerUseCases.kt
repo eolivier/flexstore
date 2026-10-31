@@ -1,6 +1,6 @@
-package org.flexstore.domain.invoice.usecase
+package org.flexstore.domain.seller.usecase
 
-import org.flexstore.domain.invoice.*
+import org.flexstore.domain.seller.*
 
 // The use cases of the seller edited by the administrators: the current one is read, and replaced by a new
 // version (read back once saved). The invoices already issued keep their own version

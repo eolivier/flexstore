@@ -2,6 +2,7 @@ package org.flexstore.infra.repository
 
 import org.flexstore.domain.invoice.*
 import org.flexstore.domain.order.OrderId
+import org.flexstore.domain.seller.*
 import java.time.ZoneId
 
 // The invoices in memory, numbered from 1 in the order they are issued: for the tests

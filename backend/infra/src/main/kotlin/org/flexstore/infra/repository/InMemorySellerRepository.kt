@@ -1,6 +1,6 @@
 package org.flexstore.infra.repository
 
-import org.flexstore.domain.invoice.*
+import org.flexstore.domain.seller.*
 
 // The versions of the seller in memory, from a first one: for the tests
 class InMemorySellerRepository(firstSeller: Seller) : SellerRepository {
