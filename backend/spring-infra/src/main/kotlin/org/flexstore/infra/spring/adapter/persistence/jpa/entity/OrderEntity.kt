@@ -28,6 +28,13 @@ data class OrderEntity(
     @Column(name = "shipping_cost", nullable = false, updatable = false)
     val shippingCost: BigDecimal,
 
+    // A copy of the discount code entered and of the amount it took off; no code (null): no discount, 0
+    @Column(name = "discount_code", updatable = false)
+    val discountCode: String?,
+
+    @Column(name = "discount_amount", nullable = false, updatable = false)
+    val discountAmount: BigDecimal,
+
     // Addresses of the customer (rows of the address table, owned by UserEntity)
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "delivery_address_id", nullable = false)

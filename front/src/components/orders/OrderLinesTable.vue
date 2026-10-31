@@ -45,6 +45,11 @@
       <v-spacer />
       <span>{{ formatPrice(order.itemsPrice, order.currency, locale) }}</span>
     </div>
+    <div v-if="order.discountCode" class="d-flex text-body-2 px-5 pt-2">
+      <span class="text-medium-emphasis">{{ t('orders.discount', { code: order.discountCode }) }}</span>
+      <v-spacer />
+      <span class="text-success">−{{ formatPrice(order.discountAmount, order.currency, locale) }}</span>
+    </div>
     <div class="d-flex text-body-2 px-5 pt-2">
       <span class="text-medium-emphasis">{{ t(`checkout.shipping.methods.${order.shippingMethod}`) }}</span>
       <v-spacer />

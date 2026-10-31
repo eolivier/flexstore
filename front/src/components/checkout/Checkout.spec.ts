@@ -64,11 +64,13 @@ function respondWith(postalAddresses: object[], orderStatus = 201) {
       ? { id: 'u-1', firstName: 'Jane', lastName: 'Doe', postalAddresses }
       : url.endsWith('/api/cart/cart-items')
         ? cart
-        : url.endsWith('/api/orders/shipping-options')
-          ? shippingOptions
-          : url.endsWith('/payment')
-            ? { checkoutUrl, outcome: 'PENDING' }
-            : { id: 'order-1' };
+        : url.includes('/api/orders/discount-preview')
+          ? { code: 'WELCOME10', amountOff: 7, currency: '€' }
+          : url.endsWith('/api/orders/shipping-options')
+            ? shippingOptions
+            : url.endsWith('/payment')
+              ? { checkoutUrl, outcome: 'PENDING' }
+              : { id: 'order-1' };
     const status = init?.method === 'POST' ? orderStatus : 200;
     return Promise.resolve({ ok: status < 300, status, json: () => Promise.resolve(body) });
   });
@@ -143,6 +145,23 @@ describe('Checkout.vue', () => {
     await placeOrder(wrapper);
     // Assert
     expect(sentAddresses().shippingMethod).toBe('EXPRESS');
+  });
+
+  it('orders with the discount code applied, taken off the total', async () => {
+    // Arrange
+    respondWith([home]);
+    const { wrapper } = await mountCheckout();
+    await wrapper.find('.code input').setValue('welcome10');
+    await wrapper
+      .findAll('button')
+      .find((button) => button.text() === 'Apply')!
+      .trigger('click');
+    await flushPromises();
+    // Act
+    await placeOrder(wrapper);
+    // Assert
+    expect(wrapper.text()).toContain('WELCOME10');
+    expect(sentAddresses().discountCode).toBe('WELCOME10');
   });
 
   it('adds the cost of the shipping chosen to the total', async () => {

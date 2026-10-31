@@ -1,6 +1,12 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { JsonOrder, JsonOrderAddresses, JsonPaymentSession, JsonShippingOptions } from '@/generated';
+import type {
+  JsonDiscountPreview,
+  JsonOrder,
+  JsonOrderAddresses,
+  JsonPaymentSession,
+  JsonShippingOptions,
+} from '@/generated';
 import { useAuthStore } from '@/stores/auth.store';
 import { useCartStore } from '@/stores/cart.store';
 
@@ -15,6 +21,14 @@ export type OrderPlacement =
   | { status: 'refused' }
   | { status: 'incompleteAddress' }
   | { status: 'outOfStock' }
+  | { status: 'discountCodeRefused' }
+  | { status: 'error' };
+
+// What a discount code entered takes off the cart: applied, unknown, or no longer usable (expired, used up)
+export type DiscountCheck =
+  | { status: 'applied'; preview: JsonDiscountPreview }
+  | { status: 'unknown' }
+  | { status: 'unusable' }
   | { status: 'error' };
 
 // The orders of the signed-in customer
@@ -64,6 +78,8 @@ export const useOrdersStore = defineStore('orders', () => {
       if (response.status === 400) return { status: 'incompleteAddress' };
       if (response.status === 403) return { status: 'refused' };
       if (response.status === 409) return { status: 'outOfStock' };
+      // The discount code is unknown, or no longer usable since it was applied
+      if (response.status === 404 || response.status === 410) return { status: 'discountCodeRefused' };
       if (response.status === 422) return { status: 'emptyCart' };
       if (!response.ok) return { status: 'error' };
       const order: JsonOrder = await response.json();
@@ -79,6 +95,15 @@ export const useOrdersStore = defineStore('orders', () => {
     const response = await authStore.authFetch('/api/orders/shipping-options').catch(() => null);
     if (!response?.ok) return null;
     return response.json();
+  }
+
+  async function checkDiscountCode(code: string): Promise<DiscountCheck> {
+    const query = new URLSearchParams({ code });
+    const response = await authStore.authFetch(`/api/orders/discount-preview?${query}`).catch(() => null);
+    if (response?.status === 404) return { status: 'unknown' };
+    if (response?.status === 410) return { status: 'unusable' };
+    if (!response?.ok) return { status: 'error' };
+    return { status: 'applied', preview: await response.json() };
   }
 
   // Starts the payment of an order: the customer then opens its checkout page
@@ -109,6 +134,7 @@ export const useOrdersStore = defineStore('orders', () => {
     fetchOrders,
     fetchOrder,
     fetchShippingOptions,
+    checkDiscountCode,
     placeOrder,
     startPayment,
     refreshCart,

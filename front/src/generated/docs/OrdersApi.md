@@ -8,6 +8,7 @@ All URIs are relative to *http://localhost:8080*
 |[**getOrders**](#getorders) | **GET** /api/orders | Retrieve the orders of the signed-in customer, newest first|
 |[**getShippingOptions**](#getshippingoptions) | **GET** /api/orders/shipping-options | Retrieve the shipping methods, with their cost for the cart of the signed-in customer|
 |[**placeOrder**](#placeorder) | **POST** /api/orders | Place an order from the cart of the signed-in customer; it awaits its payment|
+|[**previewDiscount**](#previewdiscount) | **GET** /api/orders/discount-preview | Retrieve what a discount code takes off the cart of the signed-in customer|
 
 # **getOrder**
 > JsonOrder getOrder()
@@ -201,6 +202,58 @@ const { status, data } = await apiInstance.placeOrder(
 |**409** | Not enough units in stock for a product of the cart |  -  |
 |**403** | The account is SUSPENDED, LOCKED or DISABLED: { error, status } |  -  |
 |**422** | The cart is empty |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **previewDiscount**
+> JsonDiscountPreview previewDiscount()
+
+
+### Example
+
+```typescript
+import {
+    OrdersApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new OrdersApi(configuration);
+
+let code: string; // (default to undefined)
+
+const { status, data } = await apiInstance.previewDiscount(
+    code
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **code** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**JsonDiscountPreview**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The amount the code takes off the items of the cart |  -  |
+|**404** | Unknown discount code |  -  |
+|**410** | The discount code has expired, or is used up |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

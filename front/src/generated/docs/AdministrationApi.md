@@ -5,9 +5,12 @@ All URIs are relative to *http://localhost:8080*
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
 |[**advanceOrderStatus**](#advanceorderstatus) | **POST** /api/admin/orders/{id}/status/advance | Move an order to the next status of its life cycle, PROCESSING then SHIPPED then DELIVERED (ADMIN role)|
+|[**createDiscountCode**](#creatediscountcode) | **POST** /api/admin/discount-codes | Give a discount code (ADMIN role)|
+|[**deleteDiscountCode**](#deletediscountcode) | **DELETE** /api/admin/discount-codes/{code} | Delete a discount code; the orders that used it keep their discount (ADMIN role)|
 |[**getAdminProduct**](#getadminproduct) | **GET** /api/admin/products/{id} | Retrieve a product with its translations in every language, to edit it|
 |[**getAllOrders**](#getallorders) | **GET** /api/admin/orders | Retrieve the orders of all the customers, newest first, with their customer (ADMIN role)|
 |[**getAnyOrder**](#getanyorder) | **GET** /api/admin/orders/{id} | Retrieve any order, with its customer (ADMIN role)|
+|[**getDiscountCodes**](#getdiscountcodes) | **GET** /api/admin/discount-codes | Retrieve the discount codes, newest first (ADMIN role)|
 |[**proposeSku**](#proposesku) | **GET** /api/admin/products/sku-proposal | Propose a SKU free in the catalog, from the category and the name of a product (ADMIN role)|
 |[**refundOrder**](#refundorder) | **POST** /api/admin/orders/{id}/refund | Cancel a paid order before it is shipped, refund its payment and put its units back in stock (ADMIN role)|
 
@@ -65,6 +68,110 @@ const { status, data } = await apiInstance.advanceOrderStatus(
 |**403** | The signed-in user is not an administrator |  -  |
 |**404** | No order with this id |  -  |
 |**409** | The order no longer has the given status, or it is delivered (no next status) |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **createDiscountCode**
+> JsonDiscountCode createDiscountCode(jsonNewDiscountCode)
+
+
+### Example
+
+```typescript
+import {
+    AdministrationApi,
+    Configuration,
+    JsonNewDiscountCode
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdministrationApi(configuration);
+
+let jsonNewDiscountCode: JsonNewDiscountCode; //
+
+const { status, data } = await apiInstance.createDiscountCode(
+    jsonNewDiscountCode
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **jsonNewDiscountCode** | **JsonNewDiscountCode**|  | |
+
+
+### Return type
+
+**JsonDiscountCode**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**201** | The discount code given |  -  |
+|**400** | Invalid code, reduction or usage limit |  -  |
+|**409** | The code is already given |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **deleteDiscountCode**
+> deleteDiscountCode()
+
+
+### Example
+
+```typescript
+import {
+    AdministrationApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdministrationApi(configuration);
+
+let code: string; // (default to undefined)
+
+const { status, data } = await apiInstance.deleteDiscountCode(
+    code
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **code** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: Not defined
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**204** | Deleted |  -  |
+|**404** | Unknown discount code |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -212,6 +319,49 @@ const { status, data } = await apiInstance.getAnyOrder(
 |**200** | The order and its customer |  -  |
 |**403** | The signed-in user is not an administrator |  -  |
 |**404** | No order with this id |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getDiscountCodes**
+> Array<JsonDiscountCode> getDiscountCodes()
+
+
+### Example
+
+```typescript
+import {
+    AdministrationApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdministrationApi(configuration);
+
+const { status, data } = await apiInstance.getDiscountCodes();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**Array<JsonDiscountCode>**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The discount codes |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

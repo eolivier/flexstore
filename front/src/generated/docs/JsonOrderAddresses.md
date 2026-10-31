@@ -8,6 +8,7 @@ Name | Type | Description | Notes
 **deliveryAddress** | [**JsonPostalAddress**](JsonPostalAddress.md) |  | [default to undefined]
 **billingAddress** | [**JsonPostalAddress**](JsonPostalAddress.md) |  | [optional] [default to undefined]
 **shippingMethod** | **string** | STANDARD when not given | [optional] [default to undefined]
+**discountCode** | **string** | The discount code entered, if any (404 when unknown, 410 when expired or used up) | [optional] [default to undefined]
 
 ## Example
 
@@ -18,6 +19,7 @@ const instance: JsonOrderAddresses = {
     deliveryAddress,
     billingAddress,
     shippingMethod,
+    discountCode,
 };
 ```
 

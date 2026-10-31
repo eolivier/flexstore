@@ -7,6 +7,7 @@ import org.flexstore.infra.spring.adapter.persistence.jpa.entity.OrderStatusChan
 import org.flexstore.infra.spring.adapter.persistence.jpa.toDomain
 import org.flexstore.infra.spring.adapter.persistence.jpa.toEntity
 import org.flexstore.domain.cart.*
+import org.flexstore.domain.discount.PromoCode
 import org.flexstore.domain.order.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
@@ -68,6 +69,8 @@ class PostgresOrderRepositoryAdapter(
             placedAt = placedAt,
             shippingMethod = shipping.method.name,
             shippingCost = shipping.cost.amount.value,
+            discountCode = (discount as? AppliedOrderDiscount)?.code?.value,
+            discountAmount = discountAmount().amount.value,
             deliveryAddress = addressesOfTheCustomer.rowOf(addresses.delivery),
             billingAddress = addressesOfTheCustomer.rowOf(addresses.billing),
             statusChanges = history.asList().mapIndexed { position, change -> change.toEntity(position) },
@@ -98,7 +101,11 @@ class PostgresOrderRepositoryAdapter(
         val orderLines = OrderLines(lines.map { it.toDomain() })
         val currency = orderLines.totalPrice().currency
         val orderShipping = OrderShipping(shippingMethod, Price(Amount(shippingCost), currency))
-        val orderDetail = OrderDetail(OrderPlacement(orderStamp, checkout), OrderBill(orderLines, orderShipping))
+        val orderDiscount = discountCode
+            ?.let { code -> AppliedOrderDiscount(PromoCode(code), Price(Amount(discountAmount), currency)) }
+            ?: NoOrderDiscount
+        val orderBill = OrderBill(orderLines, OrderAdjustments(orderShipping, orderDiscount))
+        val orderDetail = OrderDetail(OrderPlacement(orderStamp, checkout), orderBill)
         val history = OrderStatusHistory(statusChanges.map { it.toDomain() })
         return Order(orderDetail, history)
     }

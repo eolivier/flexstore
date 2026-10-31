@@ -10,7 +10,12 @@
   import AddressChoice from './AddressChoice.vue';
   import CheckoutSummary from './CheckoutSummary.vue';
   import ShippingMethodChoice from './ShippingMethodChoice.vue';
-  import type { JsonOrderAddressesShippingMethodEnum, JsonShippingOptions } from '@/generated';
+  import DiscountCodeField from './DiscountCodeField.vue';
+  import type {
+    JsonDiscountPreview,
+    JsonOrderAddressesShippingMethodEnum,
+    JsonShippingOptions,
+  } from '@/generated';
 
   const { t } = useI18n();
   const router = useRouter();
@@ -38,6 +43,7 @@
   // null while the shipping options are loaded, or when they cannot be
   const shippingOptions = ref<JsonShippingOptions | null>(null);
   const shippingMethod = ref<JsonOrderAddressesShippingMethodEnum>('STANDARD');
+  const appliedDiscount = ref<JsonDiscountPreview | null>(null);
   const error = ref<string | null>(null);
 
   onMounted(async () => {
@@ -77,6 +83,7 @@
       deliveryAddress: delivery.value,
       billingAddress: billedToDelivery.value ? undefined : billingRecipientOnly(billing.value),
       shippingMethod: shippingMethod.value,
+      discountCode: appliedDiscount.value?.code,
     });
     if (placement.status !== 'placed') {
       placing.value = false;
@@ -127,12 +134,15 @@
               v-model="shippingMethod"
               :shipping-options="shippingOptions"
             />
+            <v-divider class="my-4" />
+            <DiscountCodeField v-model="appliedDiscount" />
           </v-form>
         </v-card>
       </v-col>
       <v-col cols="12" md="4">
         <CheckoutSummary
           :shipping-cost="shippingCost"
+          :discount-amount="appliedDiscount?.amountOff ?? 0"
           :placing="placing"
           :disabled="savedAddresses === null || valid === false"
           :error="error"

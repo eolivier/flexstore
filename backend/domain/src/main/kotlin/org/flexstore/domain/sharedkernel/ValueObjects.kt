@@ -10,6 +10,11 @@ data class Price(val amount: Amount, val currency: Currency) {
     // The sum of two prices in the same currency
     operator fun plus(other: Price) = Price(Amount(amount.value.add(other.amount.value)), currency)
 
+    // The difference of two prices in the same currency
+    operator fun minus(other: Price) = Price(Amount(amount.value.subtract(other.amount.value)), currency)
+
+    fun isFree() = amount.value.signum() == 0
+
     fun isAtLeast(other: Price) = amount.value >= other.amount.value
 
     // The price as the customer reads it in the given language, with 2 decimals (e.g. 1 598,00 € in French)

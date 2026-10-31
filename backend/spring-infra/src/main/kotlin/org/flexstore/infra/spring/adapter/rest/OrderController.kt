@@ -7,6 +7,8 @@ import org.flexstore.domain.user.model.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.infra.spring.adapter.rest.json.JsonOrder
+import org.flexstore.domain.discount.PromoCode
+import org.flexstore.infra.spring.adapter.rest.json.JsonDiscountPreview
 import org.flexstore.infra.spring.adapter.rest.json.JsonOrderAddresses
 import org.flexstore.infra.spring.adapter.rest.json.JsonShippingOptions
 import org.springframework.http.HttpStatus
@@ -36,7 +38,7 @@ class OrderController(
     @Transactional(rollbackFor = [Exception::class])
     fun placeOrder(@AuthenticationPrincipal jwt: Jwt, @RequestBody addresses: JsonOrderAddresses): JsonOrder {
         val checkout = Checkout(CartOwner.Customer(customer(jwt)), addresses.toOrderDelivery())
-        val placedOrder = orderCheckoutService.placeOrder(checkout)
+        val placedOrder = orderCheckoutService.placeOrder(checkout, addresses.toEnteredDiscountCode())
         return JsonOrder(placedOrder, orderUseCases.paymentDelay())
     }
 
@@ -45,6 +47,14 @@ class OrderController(
     fun getShippingOptions(@AuthenticationPrincipal jwt: Jwt): JsonShippingOptions {
         val shippingOptions = orderUseCases.shippingOptionsFor(CartOwner.Customer(customer(jwt)))
         return JsonShippingOptions(shippingOptions)
+    }
+
+    @Operation(summary = "Retrieve what a discount code takes off the cart of the signed-in customer")
+    @GetMapping("/discount-preview")
+    fun previewDiscount(@AuthenticationPrincipal jwt: Jwt, @RequestParam code: String): JsonDiscountPreview {
+        val customer = CartOwner.Customer(customer(jwt))
+        val discountPreview = orderCheckoutService.previewDiscount(customer, PromoCode.from(code))
+        return JsonDiscountPreview(discountPreview)
     }
 
     @Operation(summary = "Retrieve the orders of the signed-in customer, newest first")

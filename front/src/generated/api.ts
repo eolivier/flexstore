@@ -124,7 +124,15 @@ export interface JsonAdminOrder {
      */
     'shippingCost': number;
     /**
-     * The price of the lines plus the shipping
+     * The discount code used, if any
+     */
+    'discountCode'?: string | null;
+    /**
+     * What the discount code took off the items (0 without code)
+     */
+    'discountAmount': number;
+    /**
+     * The price of the lines, less the discount, plus the shipping
      */
     'totalPrice': number;
     'currency': string;
@@ -209,6 +217,30 @@ export interface JsonChosenPassword {
      */
     'password': string;
 }
+export interface JsonDiscountCode {
+    'code': string;
+    'reductionType': JsonDiscountCodeReductionTypeEnum;
+    /**
+     * A percentage from 1 to 100, or an amount in euros
+     */
+    'reductionValue': number;
+    'expiresAt': string;
+    'usageLimit': number;
+    'timesUsed': number;
+}
+
+export const JsonDiscountCodeReductionTypeEnum = {
+    Percentage: 'PERCENTAGE',
+    Amount: 'AMOUNT'
+} as const;
+
+export type JsonDiscountCodeReductionTypeEnum = typeof JsonDiscountCodeReductionTypeEnum[keyof typeof JsonDiscountCodeReductionTypeEnum];
+
+export interface JsonDiscountPreview {
+    'code': string;
+    'amountOff': number;
+    'currency': string;
+}
 export interface JsonEmailVerification {
     /**
      * The token of the link (query parameter token of the verification page)
@@ -243,6 +275,27 @@ export interface JsonLoginResponse {
     'expiresAt': string;
     'user': JsonUser;
 }
+export interface JsonNewDiscountCode {
+    /**
+     * Upper-case letters and digits, 3 to 30 (put in upper case)
+     */
+    'code': string;
+    'reductionType': JsonNewDiscountCodeReductionTypeEnum;
+    'reductionValue': number;
+    'expiresAt': string;
+    /**
+     * 1 or more
+     */
+    'usageLimit': number;
+}
+
+export const JsonNewDiscountCodeReductionTypeEnum = {
+    Percentage: 'PERCENTAGE',
+    Amount: 'AMOUNT'
+} as const;
+
+export type JsonNewDiscountCodeReductionTypeEnum = typeof JsonNewDiscountCodeReductionTypeEnum[keyof typeof JsonNewDiscountCodeReductionTypeEnum];
+
 export interface JsonOrder {
     'id': string;
     'placedAt': string;
@@ -258,7 +311,15 @@ export interface JsonOrder {
      */
     'shippingCost': number;
     /**
-     * The price of the lines plus the shipping
+     * The discount code used, if any
+     */
+    'discountCode'?: string | null;
+    /**
+     * What the discount code took off the items (0 without code)
+     */
+    'discountAmount': number;
+    /**
+     * The price of the lines, less the discount, plus the shipping
      */
     'totalPrice': number;
     'currency': string;
@@ -295,6 +356,10 @@ export interface JsonOrderAddresses {
      * STANDARD when not given
      */
     'shippingMethod'?: JsonOrderAddressesShippingMethodEnum;
+    /**
+     * The discount code entered, if any (404 when unknown, 410 when expired or used up)
+     */
+    'discountCode'?: string;
 }
 
 export const JsonOrderAddressesShippingMethodEnum = {
@@ -1262,6 +1327,84 @@ export const AdministrationApiAxiosParamCreator = function (configuration?: Conf
         },
         /**
          * 
+         * @summary Give a discount code (ADMIN role)
+         * @param {JsonNewDiscountCode} jsonNewDiscountCode 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createDiscountCode: async (jsonNewDiscountCode: JsonNewDiscountCode, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'jsonNewDiscountCode' is not null or undefined
+            assertParamExists('createDiscountCode', 'jsonNewDiscountCode', jsonNewDiscountCode)
+            const localVarPath = `/api/admin/discount-codes`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonNewDiscountCode, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Delete a discount code; the orders that used it keep their discount (ADMIN role)
+         * @param {string} code 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteDiscountCode: async (code: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'code' is not null or undefined
+            assertParamExists('deleteDiscountCode', 'code', code)
+            const localVarPath = `/api/admin/discount-codes/{code}`
+                .replace(`{${"code"}}`, encodeURIComponent(String(code)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Retrieve a product with its translations in every language, to edit it
          * @param {string} id 
          * @param {*} [options] Override http request option.
@@ -1340,6 +1483,40 @@ export const AdministrationApiAxiosParamCreator = function (configuration?: Conf
             assertParamExists('getAnyOrder', 'id', id)
             const localVarPath = `/api/admin/orders/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Retrieve the discount codes, newest first (ADMIN role)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getDiscountCodes: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/discount-codes`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -1481,6 +1658,32 @@ export const AdministrationApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Give a discount code (ADMIN role)
+         * @param {JsonNewDiscountCode} jsonNewDiscountCode 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async createDiscountCode(jsonNewDiscountCode: JsonNewDiscountCode, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonDiscountCode>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createDiscountCode(jsonNewDiscountCode, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdministrationApi.createDiscountCode']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Delete a discount code; the orders that used it keep their discount (ADMIN role)
+         * @param {string} code 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async deleteDiscountCode(code: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteDiscountCode(code, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdministrationApi.deleteDiscountCode']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Retrieve a product with its translations in every language, to edit it
          * @param {string} id 
          * @param {*} [options] Override http request option.
@@ -1515,6 +1718,18 @@ export const AdministrationApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getAnyOrder(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdministrationApi.getAnyOrder']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Retrieve the discount codes, newest first (ADMIN role)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getDiscountCodes(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<JsonDiscountCode>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getDiscountCodes(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdministrationApi.getDiscountCodes']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -1567,6 +1782,26 @@ export const AdministrationApiFactory = function (configuration?: Configuration,
         },
         /**
          * 
+         * @summary Give a discount code (ADMIN role)
+         * @param {JsonNewDiscountCode} jsonNewDiscountCode 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createDiscountCode(jsonNewDiscountCode: JsonNewDiscountCode, options?: RawAxiosRequestConfig): AxiosPromise<JsonDiscountCode> {
+            return localVarFp.createDiscountCode(jsonNewDiscountCode, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Delete a discount code; the orders that used it keep their discount (ADMIN role)
+         * @param {string} code 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteDiscountCode(code: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.deleteDiscountCode(code, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Retrieve a product with its translations in every language, to edit it
          * @param {string} id 
          * @param {*} [options] Override http request option.
@@ -1593,6 +1828,15 @@ export const AdministrationApiFactory = function (configuration?: Configuration,
          */
         getAnyOrder(id: string, options?: RawAxiosRequestConfig): AxiosPromise<JsonAdminOrder> {
             return localVarFp.getAnyOrder(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Retrieve the discount codes, newest first (ADMIN role)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getDiscountCodes(options?: RawAxiosRequestConfig): AxiosPromise<Array<JsonDiscountCode>> {
+            return localVarFp.getDiscountCodes(options).then((request) => request(axios, basePath));
         },
         /**
          * The first three letters of the category, the first two words of the name (eight characters at most each, without accents), then the first number from 0001 that no product has: CLO-ORGANIC-COTTON-0001
@@ -1637,6 +1881,28 @@ export class AdministrationApi extends BaseAPI {
 
     /**
      * 
+     * @summary Give a discount code (ADMIN role)
+     * @param {JsonNewDiscountCode} jsonNewDiscountCode 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public createDiscountCode(jsonNewDiscountCode: JsonNewDiscountCode, options?: RawAxiosRequestConfig) {
+        return AdministrationApiFp(this.configuration).createDiscountCode(jsonNewDiscountCode, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Delete a discount code; the orders that used it keep their discount (ADMIN role)
+     * @param {string} code 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public deleteDiscountCode(code: string, options?: RawAxiosRequestConfig) {
+        return AdministrationApiFp(this.configuration).deleteDiscountCode(code, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Retrieve a product with its translations in every language, to edit it
      * @param {string} id 
      * @param {*} [options] Override http request option.
@@ -1665,6 +1931,16 @@ export class AdministrationApi extends BaseAPI {
      */
     public getAnyOrder(id: string, options?: RawAxiosRequestConfig) {
         return AdministrationApiFp(this.configuration).getAnyOrder(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Retrieve the discount codes, newest first (ADMIN role)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getDiscountCodes(options?: RawAxiosRequestConfig) {
+        return AdministrationApiFp(this.configuration).getDiscountCodes(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -2280,6 +2556,47 @@ export const OrdersApiAxiosParamCreator = function (configuration?: Configuratio
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * 
+         * @summary Retrieve what a discount code takes off the cart of the signed-in customer
+         * @param {string} code 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        previewDiscount: async (code: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'code' is not null or undefined
+            assertParamExists('previewDiscount', 'code', code)
+            const localVarPath = `/api/orders/discount-preview`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (code !== undefined) {
+                localVarQueryParameter['code'] = code;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -2339,6 +2656,19 @@ export const OrdersApiFp = function(configuration?: Configuration) {
             const localVarOperationServerBasePath = operationServerMap['OrdersApi.placeOrder']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
+        /**
+         * 
+         * @summary Retrieve what a discount code takes off the cart of the signed-in customer
+         * @param {string} code 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async previewDiscount(code: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonDiscountPreview>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.previewDiscount(code, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['OrdersApi.previewDiscount']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
     }
 };
 
@@ -2385,6 +2715,16 @@ export const OrdersApiFactory = function (configuration?: Configuration, basePat
          */
         placeOrder(jsonOrderAddresses: JsonOrderAddresses, options?: RawAxiosRequestConfig): AxiosPromise<JsonOrder> {
             return localVarFp.placeOrder(jsonOrderAddresses, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Retrieve what a discount code takes off the cart of the signed-in customer
+         * @param {string} code 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        previewDiscount(code: string, options?: RawAxiosRequestConfig): AxiosPromise<JsonDiscountPreview> {
+            return localVarFp.previewDiscount(code, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -2433,6 +2773,17 @@ export class OrdersApi extends BaseAPI {
      */
     public placeOrder(jsonOrderAddresses: JsonOrderAddresses, options?: RawAxiosRequestConfig) {
         return OrdersApiFp(this.configuration).placeOrder(jsonOrderAddresses, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Retrieve what a discount code takes off the cart of the signed-in customer
+     * @param {string} code 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public previewDiscount(code: string, options?: RawAxiosRequestConfig) {
+        return OrdersApiFp(this.configuration).previewDiscount(code, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.adapter.rest
 
+import org.flexstore.domain.discount.*
 import org.flexstore.domain.email.*
 import org.flexstore.domain.invoice.*
 import org.flexstore.domain.order.*
@@ -104,6 +105,19 @@ class RestExceptionHandler {
             is UnreadableImageException -> ResponseEntity
                 .status(415)
                 .body(mapOf("error" to (ex.message ?: "Unreadable image")))
+            is InvalidDiscountCodeException -> ResponseEntity
+                .status(400)
+                .body(mapOf("error" to (ex.message ?: "Invalid discount code")))
+            is DiscountCodeAlreadyExistsException -> ResponseEntity
+                .status(409)
+                .body(mapOf("error" to (ex.message ?: "Discount code already given")))
+            is DiscountCodeNotFoundException -> ResponseEntity
+                .status(404)
+                .body(mapOf("error" to (ex.message ?: "Unknown discount code")))
+            // The code existed, but can no longer be used: expired, or used by as many orders as allowed
+            is DiscountCodeExpiredException, is DiscountCodeUsedUpException -> ResponseEntity
+                .status(410)
+                .body(mapOf("error" to (ex.message ?: "Discount code no longer usable")))
             is InvoiceNotFoundException -> ResponseEntity
                 .status(404)
                 .body(mapOf("error" to (ex.message ?: "No invoice")))
