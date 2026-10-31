@@ -4,27 +4,15 @@ import org.flexstore.domain.cart.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.settings.ReadShopSettingsUseCase
 import org.flexstore.domain.user.model.*
-import java.time.Instant
 
-// The use cases of the orders: placing an order, reading it (with the delay to pay it), confirming it to its
-// customer
+// The use cases of the orders: reading them (with the delay to pay them), the shipping options, confirming an
+// order to its customer. Placing an order is the OrderCheckoutService
 class OrderUseCases(
-    private val placeOrderUseCase: PlaceOrderUseCase,
     private val orderQueryUseCases: OrderQueryUseCases,
     private val sendOrderConfirmationEmailUseCase: SendOrderConfirmationEmailUseCase,
     private val readShopSettingsUseCase: ReadShopSettingsUseCase,
     private val proposeShippingOptionsUseCase: ProposeShippingOptionsUseCase
 ) {
-
-    // The use cases are shared by all the requests: the placed order is read back with its id.
-    // It awaits its payment, which confirms it to the customer by email (see PaymentService)
-    fun placeOrder(checkout: Checkout): Order {
-        val orderStamp = OrderStamp(OrderId.nextId(), Instant.now())
-        val orderPlacement = OrderPlacement(orderStamp, checkout)
-        placeOrderUseCase.unfold(orderPlacement)
-        val customerOrderLookup = CustomerOrderLookup(checkout.customer.userId, orderStamp.orderId)
-        return orderQueryUseCases.readCustomerOrderUseCase.unfold(customerOrderLookup)
-    }
 
     fun getOrders(customer: UserId.ValidUserId) = orderQueryUseCases.listCustomerOrdersUseCase.unfold(customer)
 

@@ -31,6 +31,11 @@ open class ServiceConfig {
     }
 
     @Bean
+    open fun orderCheckoutService(orderPlacementUseCases: OrderPlacementUseCases,
+                                  checkoutQueryUseCases: CheckoutQueryUseCases) =
+        OrderCheckoutService(orderPlacementUseCases, checkoutQueryUseCases)
+
+    @Bean
     open fun orderAdministrationService(listAdministeredOrdersUseCase: ListAdministeredOrdersUseCase,
                                         readAdministeredOrderUseCase: ReadAdministeredOrderUseCase,
                                         advanceOrderStatusUseCase: AdvanceOrderStatusUseCase,

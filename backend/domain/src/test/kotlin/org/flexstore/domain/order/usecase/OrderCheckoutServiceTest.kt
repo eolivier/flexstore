@@ -3,6 +3,7 @@ package org.flexstore.domain.order.usecase
 import org.flexstore.infra.repository.InMemoryStockRepository
 import org.flexstore.domain.stock.*
 import org.flexstore.domain.cart.*
+import org.flexstore.domain.cart.usecase.ReadCartUseCase
 import org.flexstore.domain.order.*
 import org.flexstore.domain.settings.*
 import org.flexstore.domain.product.*
@@ -15,11 +16,13 @@ import org.flexstore.infra.repository.InMemoryUserRepository
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.flexstore.infra.repository.InMemoryShopSettingsRepository
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.time.Instant
 
-class PlaceOrderUseCaseTest : WithAssertions {
+class OrderCheckoutServiceTest : WithAssertions {
 
     private val deskLampPrice = Price(Amount(BigDecimal(35)), Currency.EUR)
     private val deskLamp = DefinedProduct(ProductId(Identity("desk-lamp")), Name("Desk lamp"), deskLampPrice)
@@ -33,12 +36,36 @@ class PlaceOrderUseCaseTest : WithAssertions {
     private val deskLampStock = Stock(deskLamp.productId, StockQuantity(10))
     private val stockRepository = InMemoryStockRepository().apply { save(deskLampStock) }
     private val shopSettingsRepository = InMemoryShopSettingsRepository()
-    private val useCase = PlaceOrderUseCase(
-        cartRepository, orderRepository, userRepository, stockRepository, shopSettingsRepository
-    )
     private val placedAt = Instant.parse("2026-10-24T10:00:00Z")
-    private val orderStamp = OrderStamp(OrderId("order-1"), placedAt)
-    private val orderPlacement = OrderPlacement(orderStamp, Checkout(customer, homeOrderAddresses))
+    private val checkout = Checkout(customer, homeOrderAddresses)
+    private val service = checkoutServiceWith(stockRepository)
+
+    private fun checkoutServiceWith(stockRepository: StockRepository): OrderCheckoutService {
+        val orderPlacementUseCases = OrderPlacementUseCases(
+            KeepOrderAddressesUseCase(userRepository),
+            PlaceOrderUseCase(orderRepository, stockRepository),
+            ReserveOrderStockUseCase(orderRepository, stockRepository)
+        )
+        val checkoutQueryUseCases = CheckoutQueryUseCases(
+            ReadCartUseCase(cartRepository),
+            ReadShopSettingsUseCase(shopSettingsRepository),
+            ReadCustomerOrderUseCase(orderRepository)
+        )
+        return OrderCheckoutService(orderPlacementUseCases, checkoutQueryUseCases)
+    }
+
+    private fun storedOrders() = orderRepository.findAll().asList()
+
+    // The orders are placed at a known moment
+    @BeforeEach
+    fun fixTheMoment() {
+        InstantProvider.fixAt(placedAt)
+    }
+
+    @AfterEach
+    fun resetTheMoment() {
+        InstantProvider.reset()
+    }
 
     private fun postalAddressesOfTheDefinedUser() =
         (userRepository.findById(customer.userId) as User.DefinedUser).postalAddresses.asList()
@@ -48,10 +75,11 @@ class PlaceOrderUseCaseTest : WithAssertions {
         // Arrange
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
         // Act
-        useCase.unfold(orderPlacement)
+        val order = service.placeOrder(checkout)
         // Assert
-        val order = orderRepository.findById(OrderId("order-1"))
-        assertThat(order?.lines?.asList()).containsExactly(OrderLine.of(deskLamp, Quantity(2)))
+        assertThat(storedOrders()).containsExactly(order)
+        assertThat(order.lines.asList()).containsExactly(OrderLine.of(deskLamp, Quantity(2)))
+        assertThat(order.placedAt).isEqualTo(placedAt)
     }
 
     @Test
@@ -59,11 +87,9 @@ class PlaceOrderUseCaseTest : WithAssertions {
         // Arrange
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(1)))
         val expressDelivery = OrderDelivery(homeOrderAddresses, ShippingMethod.EXPRESS)
-        val expressPlacement = OrderPlacement(orderStamp, Checkout(customer, expressDelivery))
         // Act
-        useCase.unfold(expressPlacement)
+        val order = service.placeOrder(Checkout(customer, expressDelivery))
         // Assert
-        val order = orderRepository.findById(OrderId("order-1"))!!
         val expressCost = Price(Amount(BigDecimal("9.90")), Currency.EUR)
         assertThat(order.shipping).isEqualTo(OrderShipping(ShippingMethod.EXPRESS, expressCost))
         assertThat(order.totalPrice()).isEqualTo(Price(Amount(BigDecimal("44.90")), Currency.EUR))
@@ -76,9 +102,8 @@ class PlaceOrderUseCaseTest : WithAssertions {
         shopSettingsRepository.save(ShopSettings.byDefault().withFreeShippingThreshold(threshold))
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(1)))
         // Act
-        useCase.unfold(orderPlacement)
+        val order = service.placeOrder(checkout)
         // Assert
-        val order = orderRepository.findById(OrderId("order-1"))!!
         assertThat(order.shipping.cost).isEqualTo(Price(Amount(BigDecimal.ZERO), Currency.EUR))
     }
 
@@ -87,7 +112,7 @@ class PlaceOrderUseCaseTest : WithAssertions {
         // Arrange
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
         // Act
-        useCase.unfold(orderPlacement)
+        service.placeOrder(checkout)
         // Assert
         assertThat(stockRepository.stockOf(deskLamp.productId).quantity).isEqualTo(StockQuantity(8))
     }
@@ -97,7 +122,7 @@ class PlaceOrderUseCaseTest : WithAssertions {
         // Arrange
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
         // Act
-        useCase.unfold(orderPlacement)
+        service.placeOrder(checkout)
         // Assert
         assertThat(cartRepository.load(customer).hasItems()).isTrue()
     }
@@ -105,10 +130,10 @@ class PlaceOrderUseCaseTest : WithAssertions {
     @Test
     fun `should not place an order from an empty cart`() {
         // Act
-        val thrown = catchThrowable { useCase.unfold(orderPlacement) }
+        val thrown = catchThrowable { service.placeOrder(checkout) }
         // Assert
         assertThat(thrown).isInstanceOf(EmptyCartException::class.java)
-        assertThat(orderRepository.findById(OrderId("order-1"))).isNull()
+        assertThat(storedOrders()).isEmpty()
     }
 
     @Test
@@ -117,9 +142,8 @@ class PlaceOrderUseCaseTest : WithAssertions {
         val unknownCustomer = CartOwner.Customer(UserId.ValidUserId("unknown-customer"))
         cartRepository.save(Cart(unknownCustomer).add(deskLamp, Quantity(2)))
         val unknownCustomerCheckout = Checkout(unknownCustomer, homeOrderAddresses)
-        val unknownCustomerOrderPlacement = OrderPlacement(orderStamp, unknownCustomerCheckout)
         // Act
-        val thrown = catchThrowable { useCase.unfold(unknownCustomerOrderPlacement) }
+        val thrown = catchThrowable { service.placeOrder(unknownCustomerCheckout) }
         // Assert
         assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
     }
@@ -129,9 +153,8 @@ class PlaceOrderUseCaseTest : WithAssertions {
         // Arrange
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
         val billedToTheOffice = Checkout(customer, OrderAddresses(homeAddress, officeAddress))
-        val orderPlacementBilledToTheOffice = orderPlacement.copy(checkout = billedToTheOffice)
         // Act
-        useCase.unfold(orderPlacementBilledToTheOffice)
+        service.placeOrder(billedToTheOffice)
         // Assert
         assertThat(postalAddressesOfTheDefinedUser()).containsExactly(homeAddress, officeAddress)
     }
@@ -142,7 +165,7 @@ class PlaceOrderUseCaseTest : WithAssertions {
         userRepository.save(definedUser.copy(postalAddresses = PostalAddresses(homeAddress)))
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
         // Act
-        useCase.unfold(orderPlacement)
+        service.placeOrder(checkout)
         // Assert
         assertThat(postalAddressesOfTheDefinedUser()).containsExactly(homeAddress)
     }
@@ -160,9 +183,9 @@ class PlaceOrderUseCaseTest : WithAssertions {
         userRepository.save(definedUser.copy(status = status))
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
         // Act
-        val thrown = catchThrowable { useCase.unfold(orderPlacement) }
+        val thrown = catchThrowable { service.placeOrder(checkout) }
         // Assert
-        assertThat(orderRepository.orderIsMissing(orderPlacement.orderId)).isEqualTo(!placed)
+        assertThat(storedOrders().isEmpty()).isEqualTo(!placed)
         if (!placed) assertThat(thrown).isInstanceOf(OrderRefusedException::class.java)
     }
 
@@ -171,23 +194,19 @@ class PlaceOrderUseCaseTest : WithAssertions {
         // Arrange
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(11)))
         // Act
-        val thrown = catchThrowable { useCase.unfold(orderPlacement) }
+        val thrown = catchThrowable { service.placeOrder(checkout) }
         // Assert
         assertThat(thrown).isInstanceOf(OutOfStockException::class.java).hasMessageContaining("Desk lamp")
-        assertThat(orderRepository.orderIsMissing(orderPlacement.orderId)).isTrue()
+        assertThat(storedOrders()).isEmpty()
     }
 
     @Test
     fun `an order should be refused when another order took the units after the stock was checked`() {
         // Arrange
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
-        val stockTakenMeanwhile = StockTakenMeanwhile(stockRepository)
-        val placeOrderUseCase =
-            PlaceOrderUseCase(
-                cartRepository, orderRepository, userRepository, stockTakenMeanwhile, shopSettingsRepository
-            )
+        val serviceWithStockTakenMeanwhile = checkoutServiceWith(StockTakenMeanwhile(stockRepository))
         // Act
-        val thrown = catchThrowable { placeOrderUseCase.unfold(orderPlacement) }
+        val thrown = catchThrowable { serviceWithStockTakenMeanwhile.placeOrder(checkout) }
         // Assert
         assertThat(thrown).isInstanceOf(OutOfStockException::class.java).hasMessageContaining("Desk lamp")
     }
