@@ -20,6 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
@@ -44,6 +45,9 @@ class AdminOrderIT {
 
     @Autowired
     private lateinit var mockMvc: MockMvc
+
+    @Autowired
+    private lateinit var jdbcTemplate: JdbcTemplate
 
     @Autowired
     private lateinit var objectMapper: ObjectMapper
@@ -72,7 +76,7 @@ class AdminOrderIT {
 
     @AfterEach
     fun cleanUp() {
-        orderRepository.deleteAll(orderRepository.findAllByUserId(CUSTOMER_ID))
+        jdbcTemplate.deleteOrdersOf(CUSTOMER_ID)
         cartRepository.findByUserId(CUSTOMER_ID)?.let { cart ->
             cartItemRepository.deleteAll(cartItemRepository.findAll().filter { it.cartId == cart.id })
             cartRepository.delete(cart)

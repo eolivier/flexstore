@@ -1,6 +1,6 @@
 # Physical data model
 
-The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V28**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
+The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V29**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
 
 ![Physical data model](database.png)
 
@@ -115,6 +115,23 @@ erDiagram
         updated_at timestamp
     }
 
+    invoice {
+        id varchar(50) PK
+        number varchar(20) UK "year then rank in the year, without gaps: 2026-000042"
+        customer_order_id varchar(50) FK,UK "one invoice per paid order"
+        issued_at timestamptz "when the order was paid"
+        created_at timestamp
+        updated_at timestamp
+    }
+
+    invoice_counter {
+        id varchar(50) PK
+        year int UK "year of issue"
+        last_rank int "last rank given in the year, incremented with each invoice"
+        created_at timestamp
+        updated_at timestamp
+    }
+
     customer_order_line {
         id varchar(50) PK
         customer_order_id varchar(50) FK,UK "unique with position"
@@ -194,6 +211,7 @@ erDiagram
     customer_order }o--o| payment : "payment_id"
     payment_refund |o--|| payment : "payment_id (cascade)"
     customer_order ||--|{ customer_order_line : "customer_order_id (cascade)"
+    invoice |o--|| customer_order : "customer_order_id"
     customer_order ||--|{ customer_order_status_change : "customer_order_id (cascade)"
     user |o--o| cart : "user_id (cascade)"
     cart ||--o{ cart_item : "cart_id (cascade)"

@@ -56,6 +56,11 @@ export function hasNextStatus(status: JsonOrder['status']): boolean {
   return status !== 'DELIVERED' && !hasLeftItsLifeCycle(status);
 }
 
+// A paid order has its invoice, kept when it is refunded afterwards
+export function isInvoiced(status: JsonOrder['status']): boolean {
+  return ['PAID', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'REFUNDED'].includes(status);
+}
+
 // Paid, and not shipped yet: an administrator may cancel it and refund it
 export function isRefundable(status: JsonOrder['status']): boolean {
   return status === 'PAID' || status === 'PROCESSING';

@@ -1,6 +1,7 @@
 package org.flexstore.infra.spring.adapter.rest
 
 import org.flexstore.domain.email.*
+import org.flexstore.domain.invoice.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.payment.*
 import org.flexstore.domain.product.*
@@ -103,6 +104,9 @@ class RestExceptionHandler {
             is UnreadableImageException -> ResponseEntity
                 .status(415)
                 .body(mapOf("error" to (ex.message ?: "Unreadable image")))
+            is InvoiceNotFoundException -> ResponseEntity
+                .status(404)
+                .body(mapOf("error" to (ex.message ?: "No invoice")))
             is ProductImageNotFoundException -> ResponseEntity
                 .status(404)
                 .body(mapOf("error" to (ex.message ?: "No image")))

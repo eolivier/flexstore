@@ -13,6 +13,9 @@ dependencies {
 
     // Reading of the WebP images given by the administrators (ImageIO reads JPEG and PNG on its own)
     implementation("com.twelvemonkeys.imageio:imageio-webp:3.12.0")
+
+    // The invoices, written as PDF documents
+    implementation("com.github.librepdf:openpdf:1.3.30")
     
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")

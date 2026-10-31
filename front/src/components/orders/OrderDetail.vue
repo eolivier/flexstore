@@ -2,11 +2,12 @@
   import { computed, onMounted, ref, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useOrdersStore, type OrderLookup } from '@/stores/orders.store';
-  import { orderItemsCount, orderNumber, placedOn } from '@/utils/order';
+  import { isInvoiced, orderItemsCount, orderNumber, placedOn } from '@/utils/order';
   import OrderStatusSteps from './OrderStatusSteps.vue';
   import OrderLinesTable from './OrderLinesTable.vue';
   import OrderAddressesCard from './OrderAddressesCard.vue';
   import PayOrderButton from './PayOrderButton.vue';
+  import InvoiceDownloadButton from './InvoiceDownloadButton.vue';
   import PaymentCountdown from './PaymentCountdown.vue';
 
   const props = defineProps<{ id: string }>();
@@ -49,13 +50,23 @@
       <v-card class="pa-5 mb-6">
         <OrderStatusSteps :status="order.status" />
       </v-card>
-      <h1 class="text-h4 font-weight-bold">
-        {{ t('orders.number', { number: orderNumber(order) }) }}
-      </h1>
-      <p class="text-body-2 text-medium-emphasis mt-1 mb-6">
-        {{ t('orders.placedOn', { date: placedOn(order, locale) }) }} ·
-        {{ t('orders.itemsCount', orderItemsCount(order)) }}
-      </p>
+      <div class="d-flex flex-wrap align-end ga-4 mb-6">
+        <div>
+          <h1 class="text-h4 font-weight-bold">
+            {{ t('orders.number', { number: orderNumber(order) }) }}
+          </h1>
+          <p class="text-body-2 text-medium-emphasis mt-1">
+            {{ t('orders.placedOn', { date: placedOn(order, locale) }) }} ·
+            {{ t('orders.itemsCount', orderItemsCount(order)) }}
+          </p>
+        </div>
+        <v-spacer />
+        <InvoiceDownloadButton
+          v-if="isInvoiced(order.status)"
+          :order="order"
+          :invoice-path="`/api/orders/${encodeURIComponent(order.id)}/invoice`"
+        />
+      </div>
       <v-card v-if="order.status === 'AWAITING_PAYMENT'" class="pa-5 mb-6">
         <PaymentCountdown v-if="order.paymentDeadline" :order="order" @expired="load" />
         <p v-else class="text-body-2 text-medium-emphasis mb-3">{{ t('orders.awaitingPaymentText') }}</p>

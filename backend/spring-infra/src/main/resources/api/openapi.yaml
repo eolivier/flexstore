@@ -626,6 +626,58 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/JsonCartItems"
+  /api/orders/{id}/invoice:
+    get:
+      tags:
+      - Invoices
+      summary: Download the invoice of a paid order of the signed-in customer (PDF)
+      operationId: getInvoice
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: The invoice, saved as facture-<number of the order>.pdf
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        "401":
+          description: Not signed in
+        "404":
+          description: No such order of the customer, or the order is not paid (no invoice)
+  /api/admin/orders/{id}/invoice:
+    get:
+      tags:
+      - Invoices
+      summary: Download the invoice of any paid order (PDF, ADMIN role)
+      operationId: getAnyInvoice
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: The invoice
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        "403":
+          description: Not an administrator
+        "404":
+          description: No such order, or the order is not paid (no invoice)
   /api/orders/shipping-options:
     get:
       tags:

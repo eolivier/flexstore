@@ -25,6 +25,12 @@ spring:
 flexstore:
   mail:
     from: ${FLEXSTORE_MAIL_FROM:Flexstore <no-reply@flexstore.com>}
+  # The shop that sells, as written on its invoices
+  seller:
+    name: ${FLEXSTORE_SELLER_NAME:Flexstore SAS}
+    address: ${FLEXSTORE_SELLER_ADDRESS:1 rue de la Démo, 75001 Paris, France}
+    siret: ${FLEXSTORE_SELLER_SIRET:123 456 789 00012}
+    vat-number: ${FLEXSTORE_SELLER_VAT_NUMBER:FR12345678901}
   # Address of the shop, for the links of the emails and the return from the payment
   front-url: ${FLEXSTORE_FRONT_URL:http://localhost:5173}
   payment:

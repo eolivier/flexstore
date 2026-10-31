@@ -5,6 +5,8 @@ import org.flexstore.domain.payment.usecase.*
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.cart.usecase.*
 import org.flexstore.domain.email.*
+import org.flexstore.domain.invoice.*
+import org.flexstore.domain.invoice.usecase.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.order.usecase.*
 import org.flexstore.domain.product.*
@@ -318,4 +320,23 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
             readProductImageUseCase,
             listProductsWithImageUseCase
         )
+
+    @Bean
+    open fun issueInvoiceUseCase(orderRepository: OrderRepository, invoiceRepository: InvoiceRepository) =
+        IssueInvoiceUseCase(orderRepository, invoiceRepository)
+
+    @Bean
+    open fun readInvoiceUseCase(invoiceRepository: InvoiceRepository) = ReadInvoiceUseCase(invoiceRepository)
+
+    @Bean
+    open fun readSellerUseCase(sellerRepository: SellerRepository) = ReadSellerUseCase(sellerRepository)
+
+    @Bean
+    open fun renderInvoiceUseCase(invoiceRenderer: InvoiceRenderer) = RenderInvoiceUseCase(invoiceRenderer)
+
+    @Bean
+    open fun invoiceUseCases(readInvoiceUseCase: ReadInvoiceUseCase,
+                             readSellerUseCase: ReadSellerUseCase,
+                             renderInvoiceUseCase: RenderInvoiceUseCase) =
+        InvoiceUseCases(readInvoiceUseCase, readSellerUseCase, renderInvoiceUseCase)
 }
