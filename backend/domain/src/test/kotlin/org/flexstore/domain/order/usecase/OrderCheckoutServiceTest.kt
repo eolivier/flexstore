@@ -16,11 +16,11 @@ import org.flexstore.infra.repository.InMemoryUserRepository
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.flexstore.infra.repository.InMemoryShopSettingsRepository
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
-import java.time.Clock
 import java.time.Instant
-import java.time.ZoneOffset
 
 class OrderCheckoutServiceTest : WithAssertions {
 
@@ -51,11 +51,21 @@ class OrderCheckoutServiceTest : WithAssertions {
             ReadShopSettingsUseCase(shopSettingsRepository),
             ReadCustomerOrderUseCase(orderRepository)
         )
-        val clock = Clock.fixed(placedAt, ZoneOffset.UTC)
-        return OrderCheckoutService(orderPlacementUseCases, checkoutQueryUseCases, clock)
+        return OrderCheckoutService(orderPlacementUseCases, checkoutQueryUseCases)
     }
 
     private fun storedOrders() = orderRepository.findAll().asList()
+
+    // The orders are placed at a known moment
+    @BeforeEach
+    fun fixTheMoment() {
+        InstantProvider.fixAt(placedAt)
+    }
+
+    @AfterEach
+    fun resetTheMoment() {
+        InstantProvider.reset()
+    }
 
     private fun postalAddressesOfTheDefinedUser() =
         (userRepository.findById(customer.userId) as User.DefinedUser).postalAddresses.asList()

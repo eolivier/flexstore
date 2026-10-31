@@ -3,8 +3,7 @@ package org.flexstore.domain.order.usecase
 import org.flexstore.domain.cart.usecase.ReadCartUseCase
 import org.flexstore.domain.order.*
 import org.flexstore.domain.settings.ReadShopSettingsUseCase
-import java.time.Clock
-import java.time.Instant
+import org.flexstore.domain.sharedkernel.InstantProvider
 
 // The use cases that place an order, in the order of the checkout
 data class OrderPlacementUseCases(
@@ -26,11 +25,10 @@ data class CheckoutQueryUseCases(
 // order (the steps run in one transaction)
 class OrderCheckoutService(
     private val orderPlacementUseCases: OrderPlacementUseCases,
-    private val checkoutQueryUseCases: CheckoutQueryUseCases,
-    private val clock: Clock = Clock.systemUTC()
+    private val checkoutQueryUseCases: CheckoutQueryUseCases
 ) {
     fun placeOrder(checkout: Checkout): Order {
-        val orderStamp = OrderStamp(OrderId.nextId(), Instant.now(clock))
+        val orderStamp = OrderStamp(OrderId.nextId(), InstantProvider.now())
         val orderPlacement = OrderPlacement(orderStamp, checkout)
         orderPlacementUseCases.keepOrderAddressesUseCase.unfold(orderPlacement)
         val orderToPlace = OrderToPlace(orderPlacement, contentOf(checkout))
