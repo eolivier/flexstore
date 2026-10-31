@@ -11,8 +11,10 @@ All URIs are relative to *http://localhost:8080*
 |[**getAllOrders**](#getallorders) | **GET** /api/admin/orders | Retrieve the orders of all the customers, newest first, with their customer (ADMIN role)|
 |[**getAnyOrder**](#getanyorder) | **GET** /api/admin/orders/{id} | Retrieve any order, with its customer (ADMIN role)|
 |[**getDiscountCodes**](#getdiscountcodes) | **GET** /api/admin/discount-codes | Retrieve the discount codes, newest first (ADMIN role)|
+|[**getSeller**](#getseller) | **GET** /api/admin/seller | Retrieve the seller written on the next invoices (ADMIN role)|
 |[**proposeSku**](#proposesku) | **GET** /api/admin/products/sku-proposal | Propose a SKU free in the catalog, from the category and the name of a product (ADMIN role)|
 |[**refundOrder**](#refundorder) | **POST** /api/admin/orders/{id}/refund | Cancel a paid order before it is shipped, refund its payment and put its units back in stock (ADMIN role)|
+|[**updateSeller**](#updateseller) | **PUT** /api/admin/seller | Change the seller written on the next invoices; the invoices issued keep theirs (ADMIN role)|
 
 # **advanceOrderStatus**
 > JsonAdminOrder advanceOrderStatus(jsonOrderStatusAdvance)
@@ -365,6 +367,50 @@ This endpoint does not have any parameters.
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **getSeller**
+> JsonSeller getSeller()
+
+
+### Example
+
+```typescript
+import {
+    AdministrationApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdministrationApi(configuration);
+
+const { status, data } = await apiInstance.getSeller();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**JsonSeller**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The current seller |  -  |
+|**403** | Not an administrator |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **proposeSku**
 > JsonSkuProposal proposeSku()
 
@@ -476,6 +522,59 @@ const { status, data } = await apiInstance.refundOrder(
 |**404** | No order with this id |  -  |
 |**409** | The order no longer has the given status, or it cannot be refunded (not paid, or shipped) |  -  |
 |**502** | The payment provider refused the refund; the order is unchanged |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **updateSeller**
+> JsonSeller updateSeller(jsonSeller)
+
+
+### Example
+
+```typescript
+import {
+    AdministrationApi,
+    Configuration,
+    JsonSeller
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdministrationApi(configuration);
+
+let jsonSeller: JsonSeller; //
+
+const { status, data } = await apiInstance.updateSeller(
+    jsonSeller
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **jsonSeller** | **JsonSeller**|  | |
+
+
+### Return type
+
+**JsonSeller**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The seller, now current |  -  |
+|**400** | A name or an address missing, a SIRET or a VAT number malformed |  -  |
+|**403** | Not an administrator |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

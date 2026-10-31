@@ -3,7 +3,7 @@
   import { onMounted, ref, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useProductsStore } from '@/stores/products.store.ts';
-  import type { ProductTexts } from '@/models/product';
+  import type { ProductTexts, VatRate } from '@/models/product';
   import { textsOf, translationsOf } from '@/utils/productTranslations';
   import { useStocksStore } from '@/stores/stocks.store';
   import ProductFields from './ProductFields.vue';
@@ -16,6 +16,7 @@
     texts: ProductTexts;
     category: string;
     price: string | null;
+    vatRate: VatRate;
     stock: string;
   }
 
@@ -43,6 +44,7 @@
           texts: textsOf(product.translations),
           category: product.category,
           price: String(product.price ?? ''),
+          vatRate: product.vatRate ?? 'STANDARD',
           stock: String(stocksStore.quantityOf(props.id) ?? 0),
         }
       : false;
@@ -51,13 +53,14 @@
   async function save() {
     if (!valid.value || !editedProduct.value || editedProduct.value.price === null) return;
     saving.value = true;
-    const { stock, sku, texts, category, price } = editedProduct.value;
+    const { stock, sku, texts, category, price, vatRate } = editedProduct.value;
     const productSave = await productsStore.updateProduct(props.id, {
       sku: normalizedSku(sku),
       category,
       price: parseFloat(price),
       currency: 'EUR',
       translations: translationsOf(texts),
+      vatRate,
     });
     skuAlreadyUsed.value = productSave === 'skuAlreadyUsed';
     const productSaved = productSave === 'saved';
@@ -91,6 +94,7 @@
           v-model:texts="editedProduct.texts"
           v-model:category="editedProduct.category"
           v-model:price="editedProduct.price"
+          v-model:vat-rate="editedProduct.vatRate"
           :sku-already-used="skuAlreadyUsed"
         />
         <StockField v-model="editedProduct.stock" />

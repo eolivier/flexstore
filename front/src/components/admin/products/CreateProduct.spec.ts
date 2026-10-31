@@ -82,6 +82,21 @@ describe('CreateProduct.vue', () => {
     expect(document.body.textContent).toContain('The product Desk lamp has been created.');
   });
 
+  it('creates the product at the standard rate of VAT, unless another one is chosen', async () => {
+    // Arrange
+    respond();
+    const wrapper = mount(CreateProduct, { global: { plugins: [vuetify, i18n, router] } });
+    await fillProduct(wrapper);
+    // Act
+    await wrapper.find('form').trigger('submit.prevent');
+    await flushPromises();
+    // Assert
+    const [, productInit] = mockFetch.mock.calls.find(
+      ([url, init]) => url.endsWith('/api/products') && init?.method === 'POST'
+    )!;
+    expect(JSON.parse(productInit.body).vatRate).toBe('STANDARD');
+  });
+
   it('says that the product is created, but that its image could not be saved', async () => {
     // Arrange
     respond(false);

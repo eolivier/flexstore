@@ -24,6 +24,10 @@ data class OrderLineEntity(
     @Column(nullable = false)
     val currency: String,
 
+    // The rate of the product when the order was placed
+    @Column(name = "vat_rate", nullable = false)
+    val vatRate: String,
+
     @Column(nullable = false)
     val quantity: Int
 ) : TimestampedEntity()

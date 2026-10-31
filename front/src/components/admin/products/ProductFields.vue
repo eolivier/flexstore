@@ -2,9 +2,10 @@
   import { computed } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { categoryInfo, shopCategories } from '@/components/products/categories';
-  import { DEFAULT_LANGUAGE, type ProductTexts } from '@/models/product';
+  import { DEFAULT_LANGUAGE, type ProductTexts, type VatRate } from '@/models/product';
   import ProductTranslationFields from './ProductTranslationFields.vue';
   import SkuField from './SkuField.vue';
+  import VatRateField from './VatRateField.vue';
 
   // The fields of a product, shared by its creation and its edition. skuAlreadyUsed: the API refused the SKU,
   // given to another product
@@ -13,6 +14,7 @@
   const texts = defineModel<ProductTexts>('texts', { required: true });
   const category = defineModel<string>('category', { required: true });
   const price = defineModel<string | null>('price', { required: true });
+  const vatRate = defineModel<VatRate>('vatRate', { required: true });
 
   const { t } = useI18n();
 
@@ -54,4 +56,5 @@
       />
     </v-col>
   </v-row>
+  <VatRateField v-model="vatRate" class="mb-4" />
 </template>

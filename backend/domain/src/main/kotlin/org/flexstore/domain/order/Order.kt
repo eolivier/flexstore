@@ -234,8 +234,16 @@ data class OrderRefund(val orderId: OrderId, val currentStatus: OrderStatus)
 // A product as ordered: its id and its name when the order was placed
 data class OrderedProduct(val productId: ProductId, val productName: Name)
 
-// A product as ordered, with its unit price when the order was placed
-data class PricedProduct(val product: OrderedProduct, val unitPrice: Price)
+// A product as ordered, with its unit price and its rate of VAT when the order was placed
+data class PricedProduct(val product: OrderedProduct, val pricing: ProductPricing) {
+
+    // At the standard rate of VAT
+    constructor(product: OrderedProduct, unitPrice: Price) : this(product, ProductPricing(unitPrice))
+
+    val unitPrice get() = pricing.price
+
+    val vatRate get() = pricing.vatRate
+}
 
 // A line of an order: a product, at its price when the order was placed, and its quantity
 data class OrderLine(val product: PricedProduct, val quantity: Quantity) {
@@ -246,13 +254,15 @@ data class OrderLine(val product: PricedProduct, val quantity: Quantity) {
 
     val unitPrice get() = product.unitPrice
 
+    val vatRate get() = product.vatRate
+
     fun linePrice() = unitPrice.multiply(quantity)
 
     companion object {
-        // The line of a product of the catalog, with its name and its price at this time
+        // The line of a product of the catalog, with its name, its price and its rate of VAT at this time
         fun of(definedProduct: DefinedProduct, quantity: Quantity): OrderLine {
             val orderedProduct = OrderedProduct(definedProduct.productId, definedProduct.name)
-            return OrderLine(PricedProduct(orderedProduct, definedProduct.price), quantity)
+            return OrderLine(PricedProduct(orderedProduct, definedProduct.pricing), quantity)
         }
     }
 }
@@ -266,6 +276,11 @@ data class OrderLines(private val lines: List<OrderLine>) {
         val total = lines.fold(BigDecimal.ZERO) { sum, line -> sum.add(line.linePrice().amount.value) }
         return Price(Amount(total), currency)
     }
+
+    // The lines of the products sold at the given rate of VAT
+    fun soldAt(vatRate: VatRate) = OrderLines(lines.filter { line -> line.vatRate == vatRate })
+
+    fun isEmpty() = lines.isEmpty()
 
     // Read-only view for the adapters (JSON, persistence)
     fun asList(): List<OrderLine> = lines.toList()

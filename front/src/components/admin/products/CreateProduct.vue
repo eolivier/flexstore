@@ -6,7 +6,7 @@
   import NewProductImageField from './NewProductImageField.vue';
   import StockField from './StockField.vue';
   import ProductCreationSnackbar, { type ProductCreationFeedback } from './ProductCreationSnackbar.vue';
-  import { DEFAULT_LANGUAGE } from '@/models/product';
+  import { DEFAULT_LANGUAGE, type VatRate } from '@/models/product';
   import { useProductCreation } from '@/composables/useProductCreation';
   import { emptyTexts, translationsOf } from '@/utils/productTranslations';
   import { normalizedSku } from '@/utils/sku';
@@ -16,6 +16,8 @@
   const texts = ref(emptyTexts());
   const category = ref('CLOTHING');
   const price = ref<string | null>(null);
+  // Most products are sold at the standard rate
+  const vatRate = ref<VatRate>('STANDARD');
   const image = ref<File | null>(null);
   const stock = ref('0');
   const valid = ref(false);
@@ -36,6 +38,7 @@
       price: parseFloat(price.value),
       currency: 'EUR',
       translations: translationsOf(texts.value),
+      vatRate: vatRate.value,
     };
     const creation = await createProduct(product, image.value, parseInt(stock.value, 10));
     saving.value = false;
@@ -59,6 +62,7 @@
     sku.value = '';
     texts.value = emptyTexts();
     price.value = null;
+    vatRate.value = 'STANDARD';
     image.value = null;
     stock.value = '0';
     valid.value = false;
@@ -79,6 +83,7 @@
           v-model:texts="texts"
           v-model:category="category"
           v-model:price="price"
+          v-model:vat-rate="vatRate"
           :sku-already-used="skuAlreadyUsed"
         />
         <StockField v-model="stock" />

@@ -16,7 +16,7 @@ class VatBreakdownTest : WithAssertions {
         vat: BigDecimal
     ) {
         // Arrange
-        val vatBreakdown = VatBreakdown(Price(Amount(withVat), Currency.EUR), VatRate.standard())
+        val vatBreakdown = VatBreakdown(Price(Amount(withVat), Currency.EUR), VatRate.STANDARD)
         // Act
         val priceExcludingVat = vatBreakdown.priceExcludingVat()
         // Assert

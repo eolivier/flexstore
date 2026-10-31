@@ -1,6 +1,6 @@
 # Physical data model
 
-The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V31**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
+The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V32**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
 
 ![Physical data model](database.png)
 
@@ -166,6 +166,7 @@ erDiagram
         product_name text "copy at the time of the order"
         unit_price numeric "copy at the time of the order"
         currency varchar(3)
+        vat_rate varchar(20) "copy at the time of the order"
         quantity int "greater than 0"
         created_at timestamp
         updated_at timestamp
@@ -214,6 +215,7 @@ erDiagram
         category varchar(30) "CLOTHING, ELECTRONICS or ACCESSORIES"
         price numeric
         currency varchar(3)
+        vat_rate varchar(20) "STANDARD, INTERMEDIATE, REDUCED or SUPER_REDUCED: 20, 10, 5.5 or 2.1 %"
         created_at timestamp
         updated_at timestamp
     }

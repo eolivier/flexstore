@@ -97,4 +97,31 @@ class InvoiceDocumentTest : WithAssertions {
             )
         )
     }
+
+    @Test
+    fun `the totals should give the VAT of each rate, from the highest`() {
+        // Arrange
+        val bookPricing = ProductPricing(Price(Amount(BigDecimal(20)), Currency.EUR), VatRate.REDUCED)
+        val bookText = ProductText(Name("Cook book"), Description("Recipes"))
+        val translations = ProductTranslations.inDefaultLanguage(bookText)
+        val bookId = ProductId(Identity("cook-book"))
+        val cookBook = DefinedProduct(bookId, Sku.from("BOOK"), translations, Category.BOOKS, bookPricing)
+        val delivery = OrderDelivery(homeOrderAddresses, ShippingMethod.EXPRESS)
+        val orderStamp = OrderStamp(OrderId("46555c9f-4e92"), placedAt)
+        val orderPlacement = OrderPlacement(orderStamp, Checkout(customer, delivery))
+        val cart = Cart(customer).add(deskLamp, Quantity(1)).add(cookBook, Quantity(1))
+        val order = Order.place(orderPlacement, cart)
+        val invoicedSale = InvoicedSale(AdministeredOrder(order, janeDoe), testSeller)
+        // Act
+        val invoiceDocument = InvoiceDocument(invoice, invoicedSale)
+        // Assert
+        assertThat(invoiceDocument.totals()).isEqualTo(
+            InvoiceRows(
+                InvoiceRow("Total HT", "56,79 €"),
+                InvoiceRow("TVA 20 %", "6,88 €"),
+                InvoiceRow("TVA 5,5 %", "1,23 €"),
+                InvoiceRow("Total TTC", "64,90 €")
+            )
+        )
+    }
 }

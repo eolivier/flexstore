@@ -14,17 +14,23 @@ import java.util.Locale
 class ProductMapper {
     fun toDomain(draftJsonProduct: DraftJsonProduct): DraftProduct {
         val price = Price(Amount(draftJsonProduct.price), Currency.valueOf(draftJsonProduct.currency))
+        val pricing = ProductPricing(price, vatRateOf(draftJsonProduct.vatRate))
         val translations = draftJsonProduct.translations.toDomain()
         val sku = Sku.from(draftJsonProduct.sku)
-        return DraftProduct(sku, translations, Category.valueOf(draftJsonProduct.category), price)
+        return DraftProduct(sku, translations, Category.valueOf(draftJsonProduct.category), pricing)
     }
     fun toDomain(productId: ProductId, editedJsonProduct: EditedJsonProduct): DefinedProduct {
         val price = Price(Amount(editedJsonProduct.price), Currency.valueOf(editedJsonProduct.currency))
+        val pricing = ProductPricing(price, vatRateOf(editedJsonProduct.vatRate))
         val translations = editedJsonProduct.translations.toDomain()
         val sku = Sku.from(editedJsonProduct.sku)
         val category = Category.valueOf(editedJsonProduct.category)
-        return DefinedProduct(productId, sku, translations, category, price)
+        return DefinedProduct(productId, sku, translations, category, pricing)
     }
+
+    // The standard rate when the client does not give one
+    private fun vatRateOf(vatRate: String?) = vatRate?.let { VatRate.valueOf(it) } ?: VatRate.STANDARD
+
     // In the default language: what the administrator created or edited
     fun toJson(product: Product): JsonProduct = listOf(product).toJsonProducts(Language.DEFAULT).single()
 
@@ -35,7 +41,8 @@ class ProductMapper {
         product.category.name,
         product.price.amount.value,
         product.price.currency.symbol,
-        product.translations.asList().map { it.toJson() }
+        product.translations.asList().map { it.toJson() },
+        product.vatRate.name
     )
 }
 
