@@ -5,6 +5,7 @@ import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.order.usecase.*
+import org.flexstore.domain.invoice.usecase.IssueInvoiceUseCase
 import org.flexstore.domain.payment.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.settings.ReadShopSettingsUseCase
@@ -37,6 +38,7 @@ class PaymentServiceTest : WithAssertions {
         ReadCustomerOrderUseCase(orderRepository)
     )
     private val shopSettingsRepository = InMemoryShopSettingsRepository()
+    private val invoiceRepository = InMemoryInvoiceRepository()
     private val sendEmailUseCase =
         SendOrderConfirmationEmailUseCase(shopSettingsRepository, userRepository, emailRepository)
 
@@ -53,7 +55,8 @@ class PaymentServiceTest : WithAssertions {
                 readShopSettingsUseCase,
                 ProposeShippingOptionsUseCase(cartRepository, shopSettingsRepository)
             )
-        return PaymentService(paymentUseCases, orderUseCases)
+        val issueInvoiceUseCase = IssueInvoiceUseCase(orderRepository, invoiceRepository)
+        return PaymentService(paymentUseCases, orderUseCases, issueInvoiceUseCase)
     }
 
     private val paidAtOnce = paymentServiceWith(InMemoryPaymentRepository(PaymentOutcome.PAID))
@@ -103,6 +106,17 @@ class PaymentServiceTest : WithAssertions {
         assertThat(storedStatus()).isEqualTo(OrderStatus.PAID)
         assertThat(cartRepository.load(customer).isEmpty()).isTrue()
         assertThat(emailRepository.sentEmails()).hasSize(1)
+    }
+
+    @Test
+    fun `a confirmed payment should invoice the order`() {
+        // Arrange
+        placeOrder()
+        paidLater.pay(OrderPayment(customer, orderId))
+        // Act
+        paidLater.confirm(orderId)
+        // Assert
+        assertThat(invoiceRepository.invoiceExistsFor(orderId)).isTrue()
     }
 
     @Test

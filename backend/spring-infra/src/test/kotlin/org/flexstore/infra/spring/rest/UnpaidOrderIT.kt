@@ -66,7 +66,7 @@ class UnpaidOrderIT {
 
     @AfterEach
     fun cleanUp() {
-        orderRepository.deleteAll(orderRepository.findAllByUserId(CUSTOMER_ID))
+        jdbcTemplate.deleteOrdersOf(CUSTOMER_ID)
         cartRepository.findByUserId(CUSTOMER_ID)?.let { cart ->
             cartItemRepository.deleteAll(cartItemRepository.findAll().filter { it.cartId == cart.id })
             cartRepository.delete(cart)

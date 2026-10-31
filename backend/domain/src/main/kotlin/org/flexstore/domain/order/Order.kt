@@ -75,6 +75,8 @@ data class Order(val detail: OrderDetail, val history: OrderStatusHistory) {
 
     fun isPaid() = status.isPaid()
 
+    fun isNotPaid() = !isPaid()
+
     // The moment the order must be paid by, or it is cancelled
     fun paymentDeadline(paymentDelay: PaymentDelay) = PaymentDeadline(placedAt + paymentDelay.asDuration())
 

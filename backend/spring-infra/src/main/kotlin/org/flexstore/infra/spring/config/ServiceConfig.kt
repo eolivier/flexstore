@@ -5,6 +5,7 @@ import org.flexstore.domain.payment.usecase.*
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.cart.usecase.*
 import org.flexstore.domain.email.*
+import org.flexstore.domain.invoice.usecase.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.order.usecase.*
 import org.flexstore.domain.product.*
@@ -20,8 +21,15 @@ import org.springframework.context.annotation.Configuration
 open class ServiceConfig {
 
     @Bean
-    open fun paymentService(paymentUseCases: PaymentUseCases, orderUseCases: OrderUseCases) =
-        PaymentService(paymentUseCases, orderUseCases)
+    open fun paymentService(paymentUseCases: PaymentUseCases,
+                            orderUseCases: OrderUseCases,
+                            issueInvoiceUseCase: IssueInvoiceUseCase) =
+        PaymentService(paymentUseCases, orderUseCases, issueInvoiceUseCase)
+
+    @Bean
+    open fun invoiceService(invoiceUseCases: InvoiceUseCases,
+                            readAdministeredOrderUseCase: ReadAdministeredOrderUseCase) =
+        InvoiceService(invoiceUseCases, readAdministeredOrderUseCase)
 
     @Bean
     open fun shopSettingsAdministrationService(readShopSettingsUseCase: ReadShopSettingsUseCase,

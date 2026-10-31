@@ -4,7 +4,7 @@
   import { useI18n } from 'vue-i18n';
   import type { JsonOrder } from '@/generated';
   import { useAdminOrdersStore, type AdminOrderLookup } from '@/stores/adminOrders.store';
-  import { orderItemsCount, orderNumber, placedOn } from '@/utils/order';
+  import { isInvoiced, orderItemsCount, orderNumber, placedOn } from '@/utils/order';
   import OrderStatusSteps from '@/components/orders/OrderStatusSteps.vue';
   import OrderLinesTable from '@/components/orders/OrderLinesTable.vue';
   import OrderAddressesCard from '@/components/orders/OrderAddressesCard.vue';
@@ -12,6 +12,7 @@
   import AdminOrderStatusHistory from './AdminOrderStatusHistory.vue';
   import AdvanceOrderStatusButton from './AdvanceOrderStatusButton.vue';
   import RefundOrderButton from './RefundOrderButton.vue';
+  import InvoiceDownloadButton from '@/components/orders/InvoiceDownloadButton.vue';
 
   // An order of any customer, with the customer who placed it: the administrator moves it to its next status
   const props = defineProps<{ id: string }>();
@@ -71,7 +72,12 @@
           </p>
         </div>
         <v-spacer />
-        <div class="d-flex flex-wrap ga-2">
+        <div class="d-flex flex-wrap align-start ga-2">
+          <InvoiceDownloadButton
+            v-if="isInvoiced(order.status)"
+            :order="order"
+            :invoice-path="`/api/admin/orders/${encodeURIComponent(order.id)}/invoice`"
+          />
           <RefundOrderButton :order="order" :refunding="refunding" @refund="refund" />
           <AdvanceOrderStatusButton :order="order" :advancing="advancing" @advance="advance" />
         </div>

@@ -2,14 +2,18 @@ package org.flexstore.domain.payment.usecase
 
 import org.flexstore.domain.order.*
 import org.flexstore.domain.order.usecase.*
+import org.flexstore.domain.invoice.InvoiceDate
+import org.flexstore.domain.invoice.InvoiceIssue
+import org.flexstore.domain.invoice.usecase.IssueInvoiceUseCase
 import org.flexstore.domain.payment.*
 
 // Domain service: a customer pays an order on the payment provider, which confirms the payment (at once, or
-// later through its notification). Once paid, the order is confirmed to the customer by email.
+// later through its notification). Once paid, the order is invoiced, then confirmed to the customer by email.
 // All through the use cases
 class PaymentService(
     private val paymentUseCases: PaymentUseCases,
-    private val orderUseCases: OrderUseCases
+    private val orderUseCases: OrderUseCases,
+    private val issueInvoiceUseCase: IssueInvoiceUseCase
 ) {
     fun pay(orderPayment: OrderPayment): PaymentSession {
         paymentUseCases.startPaymentUseCase.unfold(orderPayment)
@@ -23,6 +27,7 @@ class PaymentService(
         val order = orderUseCases.getAnyOrder(orderId)
         if (order.isPaid()) return
         paymentUseCases.confirmPaymentUseCase.unfold(orderId)
+        issueInvoiceUseCase.unfold(InvoiceIssue(orderId, InvoiceDate.now()))
         val paidOrder = orderUseCases.getAnyOrder(orderId)
         orderUseCases.sendConfirmationOf(paidOrder)
     }
