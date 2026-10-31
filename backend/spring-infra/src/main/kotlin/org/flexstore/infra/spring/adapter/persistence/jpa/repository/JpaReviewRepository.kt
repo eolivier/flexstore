@@ -13,14 +13,15 @@ import org.springframework.transaction.annotation.Transactional
 interface JpaProductReviewRepository : JpaRepository<ProductReviewEntity, String> {
     fun findByProductId(productId: String): List<ProductReviewEntity>
 
-    fun existsByUserIdAndProductId(userId: String, productId: String): Boolean
+    fun existsByUser_IdAndProductId(userId: String, productId: String): Boolean
 }
 
 // The reviews, kept in PostgreSQL; the reviewer is named from the account of the customer when it is read
 @Repository
 @Transactional
 class PostgresReviewRepositoryAdapter(
-    private val jpaRepo: JpaProductReviewRepository
+    private val jpaRepo: JpaProductReviewRepository,
+    private val userRepo: JpaUserRepository
 ) : ReviewRepository {
 
     override fun save(review: Review) {
@@ -39,15 +40,17 @@ class PostgresReviewRepositoryAdapter(
 
     @Transactional(readOnly = true)
     override fun hasReviewed(customer: UserId.ValidUserId, productId: ProductId) =
-        jpaRepo.existsByUserIdAndProductId(customer.value, productId.id.value)
+        jpaRepo.existsByUser_IdAndProductId(customer.value, productId.id.value)
 
+    // The reviewer is the row of the customer, so that the review read back in the same request is named
     private fun Review.toEntity() = ProductReviewEntity(
-        reviewId.value, productId.id.value, reviewer.userId.value, rating.value, comment.value, reviewedAt.value
+        reviewId.value, productId.id.value, userRepo.getReferenceById(reviewer.userId.value), rating.value,
+        comment.value, reviewedAt.value
     )
 
     private fun ProductReviewEntity.toDomain(): Review {
-        val fullName = user?.let { FullName(FirstName(it.firstName), LastName(it.lastName)) } ?: FullName.none()
-        val reviewer = Reviewer(UserId.ValidUserId(userId), ReviewerName.of(fullName))
+        val fullName = FullName(FirstName(user.firstName), LastName(user.lastName))
+        val reviewer = Reviewer(UserId.ValidUserId(user.id), ReviewerName.of(fullName))
         val subject = ReviewSubject(ProductId(Identity(productId)), reviewer)
         return Review(
             ReviewStamp(ReviewId(id), ReviewedAt(reviewedAt)), subject,
