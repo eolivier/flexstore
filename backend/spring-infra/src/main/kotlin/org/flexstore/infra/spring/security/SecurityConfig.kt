@@ -60,6 +60,7 @@ open class SecurityConfig(@Value("\${flexstore.security.jwt-secret:}") private v
                     .requestMatchers("/error", "/actuator/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/stocks/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/product-ratings").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/product-images").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/cart/merge").authenticated()
                     .requestMatchers("/api/cart/**").permitAll()

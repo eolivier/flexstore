@@ -15,6 +15,8 @@ import org.flexstore.domain.product.*
 import org.flexstore.domain.settings.*
 import org.flexstore.domain.image.*
 import org.flexstore.domain.image.usecase.*
+import org.flexstore.domain.review.*
+import org.flexstore.domain.review.usecase.*
 import org.flexstore.domain.seller.*
 import org.flexstore.domain.seller.usecase.*
 import org.flexstore.domain.stock.*
@@ -388,4 +390,25 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     open fun checkoutDiscountUseCases(readUsableDiscountCodeUseCase: ReadUsableDiscountCodeUseCase,
                                       useDiscountCodeUseCase: UseDiscountCodeUseCase) =
         CheckoutDiscountUseCases(readUsableDiscountCodeUseCase, useDiscountCodeUseCase)
+
+    @Bean
+    open fun addReviewUseCase(reviewRepository: ReviewRepository,
+                              orderRepository: OrderRepository,
+                              productRepository: ProductRepository,
+                              userRepository: UserRepository) =
+        AddReviewUseCase(reviewRepository, orderRepository, productRepository, userRepository)
+
+    @Bean
+    open fun listProductReviewsUseCase(reviewRepository: ReviewRepository) =
+        ListProductReviewsUseCase(reviewRepository)
+
+    @Bean
+    open fun listRatingSummariesUseCase(reviewRepository: ReviewRepository) =
+        ListRatingSummariesUseCase(reviewRepository)
+
+    @Bean
+    open fun reviewUseCases(addReviewUseCase: AddReviewUseCase,
+                            listProductReviewsUseCase: ListProductReviewsUseCase,
+                            listRatingSummariesUseCase: ListRatingSummariesUseCase) =
+        ReviewUseCases(addReviewUseCase, listProductReviewsUseCase, listRatingSummariesUseCase)
 }

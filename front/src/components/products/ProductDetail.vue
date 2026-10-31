@@ -15,6 +15,9 @@
   import StockBadge from './StockBadge.vue';
   import ProductVisual from './ProductVisual.vue';
   import { useProductImagesStore } from '@/stores/productImages.store';
+  import { useReviewsStore } from '@/stores/reviews.store';
+  import ProductRating from '@/components/reviews/ProductRating.vue';
+  import ProductReviews from '@/components/reviews/ProductReviews.vue';
 
   const props = defineProps<{ id: string }>();
 
@@ -22,6 +25,7 @@
   const productsStore = useProductsStore();
   const cartStore = useCartStore();
   const stocksStore = useStocksStore();
+  const reviewsStore = useReviewsStore();
   stocksStore.fetchStocks();
   useProductImagesStore().fetchProductsWithImage();
   const { addingProductId, feedback, addToCart } = useAddToCart();
@@ -57,6 +61,7 @@
   const categoryLink = computed(
     () => shopCategories.find((c) => c.code === product.value?.category)?.to ?? '/products/'
   );
+  const rating = computed(() => reviewsStore.ratingOf(product.value?.id));
   const stock = computed(() => (product.value ? stocksStore.quantityOf(product.value.id) : null));
   const price = computed(() => formatPrice(product.value?.price, product.value?.currency, locale.value));
   const quantityInCart = computed(
@@ -134,6 +139,7 @@
             {{ t(category.label) }}
           </router-link>
           <h1 class="text-h4 font-weight-bold mb-3">{{ product.name }}</h1>
+          <ProductRating v-if="rating" :rating="rating" class="mb-3" />
           <div class="d-flex align-center flex-wrap ga-3 mb-5">
             <span class="text-h4 font-weight-bold text-primary">{{ price }}</span>
             <StockBadge v-if="stock !== null" :quantity="stock" />
@@ -184,6 +190,8 @@
         </v-col>
       </v-row>
 
+      <ProductReviews v-if="product.id" :product-id="product.id" />
+
       <section v-if="similarProducts.length">
         <h2 class="text-h5 font-weight-bold mb-6">{{ t('products.similar') }}</h2>
         <v-row>
@@ -191,6 +199,7 @@
             <ProductCard
               :product="similar"
               :stock="stocksStore.quantityOf(similar.id)"
+              :rating="reviewsStore.ratingOf(similar.id)"
               :adding="addingProductId === similar.id"
               @add="addToCart"
             />

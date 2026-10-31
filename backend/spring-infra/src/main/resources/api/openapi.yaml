@@ -542,6 +542,76 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/JsonProduct"
+  /api/products/{id}/reviews:
+    get:
+      tags:
+      - Reviews
+      summary: Retrieve the reviews of a product, newest first
+      operationId: getReviews
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: The reviews of the product
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/JsonReview"
+    post:
+      tags:
+      - Reviews
+      summary: Review a product bought by the signed-in customer, once per product
+      operationId: addReview
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonNewReview"
+      responses:
+        "201":
+          description: The review written
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonReview"
+        "400":
+          description: Invalid rating or comment
+        "403":
+          description: The customer did not buy (and pay for) the product
+        "404":
+          description: Product not found
+        "409":
+          description: The customer already reviewed the product
+  /api/product-ratings:
+    get:
+      tags:
+      - Reviews
+      summary: Retrieve what the customers think of each product that has reviews
+      operationId: getRatings
+      responses:
+        "200":
+          description: The average rating and the number of reviews of each reviewed product
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/JsonRatingSummary"
   /api/products/{id}:
     get:
       tags:
@@ -1753,6 +1823,48 @@ components:
           type: number
         currency:
           type: string
+    JsonReview:
+      type: object
+      required: [id, productId, reviewerName, rating, comment, reviewedAt]
+      properties:
+        id:
+          type: string
+        productId:
+          type: string
+        reviewerName:
+          type: string
+          description: The first name and the initial of the last name of the customer (Marie D.)
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+        reviewedAt:
+          type: string
+          format: date-time
+    JsonNewReview:
+      type: object
+      required: [rating, comment]
+      properties:
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+          maxLength: 1000
+    JsonRatingSummary:
+      type: object
+      required: [productId, average, reviewCount]
+      properties:
+        productId:
+          type: string
+        average:
+          type: number
+          description: The average of the ratings, from 1 to 5, with one decimal
+        reviewCount:
+          type: integer
     JsonDiscountCode:
       type: object
       required: [code, reductionType, reductionValue, expiresAt, usageLimit, timesUsed]

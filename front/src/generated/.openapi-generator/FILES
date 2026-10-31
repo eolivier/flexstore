@@ -26,6 +26,7 @@ docs/JsonItem.md
 docs/JsonLoginRequest.md
 docs/JsonLoginResponse.md
 docs/JsonNewDiscountCode.md
+docs/JsonNewReview.md
 docs/JsonOrder.md
 docs/JsonOrderAddresses.md
 docs/JsonOrderCustomer.md
@@ -38,6 +39,8 @@ docs/JsonPaymentSession.md
 docs/JsonPostalAddress.md
 docs/JsonProduct.md
 docs/JsonProductTranslation.md
+docs/JsonRatingSummary.md
+docs/JsonReview.md
 docs/JsonSaveItemResponse.md
 docs/JsonSeller.md
 docs/JsonShippingOption.md
@@ -52,6 +55,7 @@ docs/OrdersApi.md
 docs/PaymentsApi.md
 docs/ProductImagesApi.md
 docs/ProductsApi.md
+docs/ReviewsApi.md
 docs/StocksApi.md
 docs/UsersApi.md
 git_push.sh

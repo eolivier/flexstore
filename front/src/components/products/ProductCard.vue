@@ -6,9 +6,17 @@
   import { formatPrice } from '@/utils/price';
   import StockBadge from './StockBadge.vue';
   import ProductVisual from './ProductVisual.vue';
+  import ProductRating from '@/components/reviews/ProductRating.vue';
+  import type { Rating } from '@/stores/reviews.store';
 
   // stock: the units of the product, null while unknown
-  const props = defineProps<{ product: Product; stock?: number | null; adding?: boolean }>();
+  // rating: what the customers think of the product, null when nobody reviewed it
+  const props = defineProps<{
+    product: Product;
+    stock?: number | null;
+    adding?: boolean;
+    rating?: Rating | null;
+  }>();
   defineEmits<{ (e: 'add', product: Product): void }>();
 
   const { t, locale } = useI18n();
@@ -34,6 +42,7 @@
       <h3 class="text-subtitle-1 font-weight-bold mb-1">
         <router-link :to="detailLink" class="product-link">{{ product.name }}</router-link>
       </h3>
+      <ProductRating v-if="rating" :rating="rating" class="mb-1" />
       <p class="product-description text-body-2 text-medium-emphasis mb-4">{{ product.description }}</p>
 
       <div class="mt-auto">
