@@ -13,8 +13,10 @@ data class ProductReviewEntity(
     @Column(name = "product_id", nullable = false, updatable = false)
     val productId: String,
 
-    @Column(name = "user_id", nullable = false, updatable = false)
-    val userId: String,
+    // The reviewer: their name is read with the review
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "user_id", nullable = false, updatable = false)
+    val user: UserEntity,
 
     @Column(nullable = false)
     val rating: Int,
@@ -23,10 +25,5 @@ data class ProductReviewEntity(
     val comment: String,
 
     @Column(name = "reviewed_at", nullable = false, updatable = false)
-    val reviewedAt: Instant,
-
-    // The reviewer, read to name the review; the column is written through userId
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", insertable = false, updatable = false)
-    val user: UserEntity? = null
+    val reviewedAt: Instant
 ) : TimestampedEntity()
