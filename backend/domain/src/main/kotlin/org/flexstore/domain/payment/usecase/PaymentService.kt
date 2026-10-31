@@ -6,7 +6,6 @@ import org.flexstore.domain.invoice.InvoiceDate
 import org.flexstore.domain.invoice.InvoiceIssue
 import org.flexstore.domain.invoice.usecase.IssueInvoiceUseCase
 import org.flexstore.domain.payment.*
-import java.time.Clock
 
 // Domain service: a customer pays an order on the payment provider, which confirms the payment (at once, or
 // later through its notification). Once paid, the order is invoiced, then confirmed to the customer by email.
@@ -14,8 +13,7 @@ import java.time.Clock
 class PaymentService(
     private val paymentUseCases: PaymentUseCases,
     private val orderUseCases: OrderUseCases,
-    private val issueInvoiceUseCase: IssueInvoiceUseCase,
-    private val clock: Clock = Clock.systemUTC()
+    private val issueInvoiceUseCase: IssueInvoiceUseCase
 ) {
     fun pay(orderPayment: OrderPayment): PaymentSession {
         paymentUseCases.startPaymentUseCase.unfold(orderPayment)
@@ -29,7 +27,7 @@ class PaymentService(
         val order = orderUseCases.getAnyOrder(orderId)
         if (order.isPaid()) return
         paymentUseCases.confirmPaymentUseCase.unfold(orderId)
-        issueInvoiceUseCase.unfold(InvoiceIssue(orderId, InvoiceDate.now(clock)))
+        issueInvoiceUseCase.unfold(InvoiceIssue(orderId, InvoiceDate.now()))
         val paidOrder = orderUseCases.getAnyOrder(orderId)
         orderUseCases.sendConfirmationOf(paidOrder)
     }

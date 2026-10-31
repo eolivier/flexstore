@@ -3,7 +3,7 @@ package org.flexstore.domain.invoice
 import org.flexstore.domain.order.OrderId
 import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.NominalException
-import java.time.Clock
+import org.flexstore.domain.sharedkernel.InstantProvider
 import java.time.Instant
 
 // The number of an invoice, in a sequence without gaps: the year of issue, then its rank (2026-000042)
@@ -12,7 +12,7 @@ data class InvoiceNumber(val value: String)
 // The moment an invoice is issued: when the payment of its order is confirmed
 data class InvoiceDate(val value: Instant) {
     companion object {
-        fun now(clock: Clock) = InvoiceDate(Instant.now(clock))
+        fun now() = InvoiceDate(InstantProvider.now())
     }
 }
 
