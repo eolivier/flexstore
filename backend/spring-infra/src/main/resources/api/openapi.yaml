@@ -814,6 +814,31 @@ paths:
           description: Unknown discount code
         "410":
           description: The discount code has expired, or is used up
+  /api/admin/sales-dashboard:
+    get:
+      tags:
+      - Administration
+      summary: Retrieve the revenue, the orders per day and the best sellers of the last 7, 30 or 90 days (ADMIN role)
+      operationId: getSalesDashboard
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: days
+        in: query
+        required: false
+        description: The number of days, the day of the request included (7, 30 or 90)
+        schema:
+          type: integer
+          default: 30
+      responses:
+        "200":
+          description: The sales of the period; only the paid orders count (not the cancelled nor the refunded ones)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonSalesDashboard"
+        "400":
+          description: A number of days other than 7, 30 or 90
   /api/admin/discount-codes:
     get:
       tags:
@@ -1865,6 +1890,57 @@ components:
           description: The average of the ratings, from 1 to 5, with one decimal
         reviewCount:
           type: integer
+    JsonSalesDashboard:
+      type: object
+      required: [firstDay, lastDay, currency, revenue, orderCount, days, bestSellers]
+      properties:
+        firstDay:
+          type: string
+          format: date
+        lastDay:
+          type: string
+          format: date
+        currency:
+          type: string
+        revenue:
+          type: number
+          description: What the paid orders of the period cost their customers (VAT and shipping included)
+        orderCount:
+          type: integer
+        days:
+          type: array
+          description: Every day of the period, oldest first, with 0 for a day without order
+          items:
+            $ref: "#/components/schemas/JsonDailySales"
+        bestSellers:
+          type: array
+          description: The 5 products with the most units sold
+          items:
+            $ref: "#/components/schemas/JsonBestSeller"
+    JsonDailySales:
+      type: object
+      required: [day, orderCount, revenue]
+      properties:
+        day:
+          type: string
+          format: date
+        orderCount:
+          type: integer
+        revenue:
+          type: number
+    JsonBestSeller:
+      type: object
+      required: [productId, productName, unitsSold, revenue]
+      properties:
+        productId:
+          type: string
+        productName:
+          type: string
+          description: The name of the product when it was ordered
+        unitsSold:
+          type: integer
+        revenue:
+          type: number
     JsonDiscountCode:
       type: object
       required: [code, reductionType, reductionValue, expiresAt, usageLimit, timesUsed]

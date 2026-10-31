@@ -11,6 +11,7 @@ All URIs are relative to *http://localhost:8080*
 |[**getAllOrders**](#getallorders) | **GET** /api/admin/orders | Retrieve the orders of all the customers, newest first, with their customer (ADMIN role)|
 |[**getAnyOrder**](#getanyorder) | **GET** /api/admin/orders/{id} | Retrieve any order, with its customer (ADMIN role)|
 |[**getDiscountCodes**](#getdiscountcodes) | **GET** /api/admin/discount-codes | Retrieve the discount codes, newest first (ADMIN role)|
+|[**getSalesDashboard**](#getsalesdashboard) | **GET** /api/admin/sales-dashboard | Retrieve the revenue, the orders per day and the best sellers of the last 7, 30 or 90 days (ADMIN role)|
 |[**getSeller**](#getseller) | **GET** /api/admin/seller | Retrieve the seller written on the next invoices (ADMIN role)|
 |[**proposeSku**](#proposesku) | **GET** /api/admin/products/sku-proposal | Propose a SKU free in the catalog, from the category and the name of a product (ADMIN role)|
 |[**refundOrder**](#refundorder) | **POST** /api/admin/orders/{id}/refund | Cancel a paid order before it is shipped, refund its payment and put its units back in stock (ADMIN role)|
@@ -364,6 +365,57 @@ This endpoint does not have any parameters.
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | The discount codes |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getSalesDashboard**
+> JsonSalesDashboard getSalesDashboard()
+
+
+### Example
+
+```typescript
+import {
+    AdministrationApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdministrationApi(configuration);
+
+let days: number; //The number of days, the day of the request included (7, 30 or 90) (optional) (default to 30)
+
+const { status, data } = await apiInstance.getSalesDashboard(
+    days
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **days** | [**number**] | The number of days, the day of the request included (7, 30 or 90) | (optional) defaults to 30|
+
+
+### Return type
+
+**JsonSalesDashboard**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The sales of the period; only the paid orders count (not the cancelled nor the refunded ones) |  -  |
+|**400** | A number of days other than 7, 30 or 90 |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

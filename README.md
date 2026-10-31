@@ -40,6 +40,7 @@ This repo is meant to be a learning vehicle and a ready-to-fork base for real pr
 - Verify the email with the link received by email (valid for 1 hour): the account becomes `ACTIVE`; a new link can be asked for from the profile
 - Sign in, profile, change password
 - My addresses: see, edit and remove the postal addresses of the account; the orders keep the address they were sent to
+- Sales dashboard (`ADMIN` role): revenue, number of orders and average basket, orders per day (bars) and the 5 best sellers, over the last 7, 30 or 90 days; only the paid orders count (not the awaiting, cancelled or refunded ones), on the day they were placed in Paris time
 - Administration (`ADMIN` role): users (list with their role, create with a role, edit first name/last name/email/role, change the status of the account (active, suspended, locked, disabled), delete), products (list, create, edit name/description/category/price), orders (list the orders of all the customers, move each one to its next status: paid, processing, shipped, delivered; the payment moves an order awaiting it), settings (order confirmation email on/off)
 
 ---

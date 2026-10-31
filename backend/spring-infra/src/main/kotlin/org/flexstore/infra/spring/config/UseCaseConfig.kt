@@ -17,6 +17,7 @@ import org.flexstore.domain.image.*
 import org.flexstore.domain.image.usecase.*
 import org.flexstore.domain.review.*
 import org.flexstore.domain.review.usecase.*
+import org.flexstore.domain.sales.usecase.*
 import org.flexstore.domain.seller.*
 import org.flexstore.domain.seller.usecase.*
 import org.flexstore.domain.stock.*
@@ -411,4 +412,8 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
                             listProductReviewsUseCase: ListProductReviewsUseCase,
                             listRatingSummariesUseCase: ListRatingSummariesUseCase) =
         ReviewUseCases(addReviewUseCase, listProductReviewsUseCase, listRatingSummariesUseCase)
+
+    @Bean
+    open fun readSalesDashboardUseCase(orderRepository: OrderRepository) =
+        ReadSalesDashboardUseCase(orderRepository)
 }

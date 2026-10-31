@@ -6,6 +6,7 @@
   const { t } = useI18n();
 
   const descriptions: Record<string, string> = {
+    '/admin/sales': 'admin.salesText',
     '/admin/users': 'admin.usersText',
     '/admin/create-user': 'admin.createUserText',
     '/admin/products': 'admin.productsText',
