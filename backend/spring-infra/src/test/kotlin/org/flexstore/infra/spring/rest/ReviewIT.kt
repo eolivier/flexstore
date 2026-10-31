@@ -144,7 +144,7 @@ class ReviewIT {
         val placed = mockMvc.perform(post("/api/orders").with(asUser(CUSTOMER_ID)).withHomeAddresses())
             .andExpect(status().isCreated).andReturn()
         val orderId = objectMapper.readTree(placed.response.contentAsString).get("id").asText()
-        mockMvc.pay(orderId, CUSTOMER_ID).andExpect(status().isOk)
+        mockMvc.pay(orderId, CUSTOMER_ID).andExpect(status().isCreated)
     }
 
     private fun review(rating: Int, comment: String) = mockMvc.perform(
