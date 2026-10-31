@@ -272,7 +272,22 @@ class OrderIT {
         // Act
         val response = mockMvc.perform(post("/api/orders").with(asUser(CUSTOMER_ID)).contentType(MediaType.APPLICATION_JSON).content(addresses))
         // Assert
+        response.andExpect(status().isBadRequest).andExpect(jsonPath("$.reason").value("INCOMPLETE_ADDRESS"))
+    }
+
+    @Test
+    fun `an order whose address misses a field should be refused, naming that field`() {
+        // Arrange
+        addToCart(CUSTOMER_ID, productId = "6", quantity = 1)
+        val addresses = """{"deliveryAddress": {"recipientType": "PRIVATE_INDIVIDUAL",
+            "firstName": "Jane", "lastName": "Doe", "postalCode": "75011", "city": "Paris", "country": "France"}}"""
+        val request = post("/api/orders").with(asUser(CUSTOMER_ID)).contentType(MediaType.APPLICATION_JSON)
+        // Act
+        val response = mockMvc.perform(request.content(addresses))
+        // Assert
         response.andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.reason").value("MALFORMED_REQUEST"))
+            .andExpect(jsonPath("$.error").value("The field deliveryAddress.street is missing or malformed."))
     }
 
     @Test

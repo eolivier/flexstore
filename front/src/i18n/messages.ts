@@ -283,6 +283,7 @@ export default {
         emptyCart: 'Your cart is empty.',
         refused: 'Your account does not allow ordering (suspended, locked or disabled). Contact the shop.',
         incompleteAddress: 'Complete the delivery address and the billing address.',
+        invalidRequest: 'The shop refused the order: {reason}',
         outOfStock: 'A product of your cart no longer has enough units in stock: change its quantity.',
         discountCodeRefused: 'Your discount code can no longer be used: remove it to order.',
         error: 'The order could not be placed. Please try again.',
@@ -864,6 +865,7 @@ export default {
         refused:
           'Votre compte ne permet pas de commander (suspendu, verrouillé ou désactivé). Contactez la boutique.',
         incompleteAddress: "Complétez l'adresse de livraison et l'adresse de facturation.",
+        invalidRequest: 'La boutique a refusé la commande : {reason}',
         outOfStock: "Un produit de votre panier n'a plus assez d'unités en stock : modifiez sa quantité.",
         discountCodeRefused: "Votre code promo n'est plus utilisable : retirez-le pour commander.",
         error: "La commande n'a pas pu être passée. Veuillez réessayer.",

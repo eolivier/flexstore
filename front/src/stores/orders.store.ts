@@ -20,6 +20,8 @@ export type OrderPlacement =
   | { status: 'emptyCart' }
   | { status: 'refused' }
   | { status: 'incompleteAddress' }
+  // Refused for another reason, told by the shop (a field missing or malformed)
+  | { status: 'invalidRequest'; reason: string }
   | { status: 'outOfStock' }
   | { status: 'discountCodeRefused' }
   | { status: 'error' };
@@ -66,6 +68,12 @@ export const useOrdersStore = defineStore('orders', () => {
     }
   }
 
+  // A 400 tells an incomplete address only when the shop says so: any other reason is shown as it is given
+  function refusalOf(refusal: { reason?: string; error?: string }): OrderPlacement {
+    if (refusal.reason === 'INCOMPLETE_ADDRESS') return { status: 'incompleteAddress' };
+    return { status: 'invalidRequest', reason: refusal.error ?? '' };
+  }
+
   // Places an order from the cart of the customer: it awaits its payment, the cart is emptied once it is paid
   // Without billing address, the order is billed to the delivery address
   async function placeOrder(addresses: JsonOrderAddresses): Promise<OrderPlacement> {
@@ -75,7 +83,7 @@ export const useOrdersStore = defineStore('orders', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(addresses),
       });
-      if (response.status === 400) return { status: 'incompleteAddress' };
+      if (response.status === 400) return refusalOf((await response.json().catch(() => null)) ?? {});
       if (response.status === 403) return { status: 'refused' };
       if (response.status === 409) return { status: 'outOfStock' };
       // The discount code is unknown, or no longer usable since it was applied

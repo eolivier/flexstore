@@ -57,8 +57,8 @@ const shippingOptions = {
   currency: '€',
 };
 
-// Answers the account (with the given addresses), the cart, the order and its payment
-function respondWith(postalAddresses: object[], orderStatus = 201) {
+// Answers the account (with the given addresses), the cart, the order (or its refusal) and its payment
+function respondWith(postalAddresses: object[], orderStatus = 201, refusal: object = {}) {
   mockFetch.mockImplementation((url: string, init?: RequestInit) => {
     const body = url.endsWith('/api/accounts/me')
       ? { id: 'u-1', firstName: 'Jane', lastName: 'Doe', postalAddresses }
@@ -70,7 +70,9 @@ function respondWith(postalAddresses: object[], orderStatus = 201) {
             ? shippingOptions
             : url.endsWith('/payment')
               ? { checkoutUrl, outcome: 'PENDING' }
-              : { id: 'order-1' };
+              : orderStatus >= 300
+                ? refusal
+                : { id: 'order-1' };
     const status = init?.method === 'POST' ? orderStatus : 200;
     return Promise.resolve({ ok: status < 300, status, json: () => Promise.resolve(body) });
   });
@@ -287,6 +289,17 @@ describe('Checkout.vue', () => {
     // Assert
     expect(router.currentRoute.value.path).toBe('/checkout');
     expect(openExternalPage).not.toHaveBeenCalled();
+  });
+
+  it('tells the reason the shop gives when it refuses the order', async () => {
+    // Arrange
+    const reason = 'The field deliveryAddress.street is missing or malformed.';
+    respondWith([home], 400, { error: reason, reason: 'MALFORMED_REQUEST' });
+    const { wrapper } = await mountCheckout();
+    // Act
+    await placeOrder(wrapper);
+    // Assert
+    expect(wrapper.text()).toContain(`The shop refused the order: ${reason}`);
   });
 
   it('tells a refused customer why the order was not placed', async () => {

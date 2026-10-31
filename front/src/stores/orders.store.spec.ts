@@ -134,7 +134,6 @@ describe('orders.store', () => {
   it.each([
     { status: 422, expected: 'emptyCart' },
     { status: 403, expected: 'refused' },
-    { status: 400, expected: 'incompleteAddress' },
     { status: 409, expected: 'outOfStock' },
     { status: 500, expected: 'error' },
   ])('an order answered $status is $expected', async ({ status, expected }) => {
@@ -146,6 +145,36 @@ describe('orders.store', () => {
     const placement = await store.placeOrder(homeAddresses);
     // Assert
     expect(placement).toEqual({ status: expected });
+  });
+
+  it('an order refused for its address is incomplete', async () => {
+    // Arrange
+    await signIn();
+    const refusal = { error: 'An order needs a complete address.', reason: 'INCOMPLETE_ADDRESS' };
+    respondWith({ 'POST /api/orders': { status: 400, body: refusal } });
+    const store = useOrdersStore();
+    // Act
+    const placement = await store.placeOrder(homeAddresses);
+    // Assert
+    expect(placement).toEqual({ status: 'incompleteAddress' });
+  });
+
+  it('an order refused for another reason tells that reason', async () => {
+    // Arrange
+    await signIn();
+    const refusal = {
+      error: 'The field deliveryAddress.street is missing or malformed.',
+      reason: 'MALFORMED_REQUEST',
+    };
+    respondWith({ 'POST /api/orders': { status: 400, body: refusal } });
+    const store = useOrdersStore();
+    // Act
+    const placement = await store.placeOrder(homeAddresses);
+    // Assert
+    expect(placement).toEqual({
+      status: 'invalidRequest',
+      reason: 'The field deliveryAddress.street is missing or malformed.',
+    });
   });
 
   it('should report a loading error', async () => {

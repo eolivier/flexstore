@@ -12,7 +12,10 @@ import org.flexstore.domain.settings.*
 import org.flexstore.domain.stock.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.usecase.*
+import com.fasterxml.jackson.databind.JsonMappingException
+import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.multipart.MaxUploadSizeExceededException
@@ -20,6 +23,8 @@ import org.ucop.domain.NominalException
 
 @RestControllerAdvice
 class RestExceptionHandler {
+
+    private val logger = LoggerFactory.getLogger(RestExceptionHandler::class.java)
 
     @ExceptionHandler(NominalException::class)
     fun handleNominalException(ex: NominalException): ResponseEntity<Map<String, String>> {
@@ -43,10 +48,11 @@ class RestExceptionHandler {
             is UserCreationForbiddenException, is UserUpdateForbiddenException -> ResponseEntity
                 .status(403)
                 .body(mapOf("error" to (ex.message ?: "Forbidden")))
-            // Not 422, which tells the front that the cart is empty
+            // Not 422, which tells the front that the cart is empty. The reason tells this 400 from a malformed
+            // request
             is IncompleteOrderAddressException -> ResponseEntity
                 .status(400)
-                .body(mapOf("error" to (ex.message ?: "Incomplete address")))
+                .body(mapOf("error" to (ex.message ?: "Incomplete address"), "reason" to INCOMPLETE_ADDRESS))
             is InvalidCurrentPasswordException -> ResponseEntity
                 .status(400)
                 .body(mapOf("error" to (ex.message ?: "Wrong current password")))
@@ -144,8 +150,25 @@ class RestExceptionHandler {
         }
     }
 
+    // A body that cannot be read (a field missing, or of the wrong type), refused before reaching the domain:
+    // the field is named in the answer, and logged so that the cause of the refusal can be found
+    @ExceptionHandler(HttpMessageNotReadableException::class)
+    fun handleUnreadableBody(ex: HttpMessageNotReadableException): ResponseEntity<Map<String, String>> {
+        val mappingException = ex.cause as? JsonMappingException
+        val path = mappingException?.path.orEmpty()
+        val field = path.joinToString(".") { reference -> reference.fieldName ?: "${reference.index}" }
+        val error = if (field.isEmpty()) "The request is malformed." else "The field $field is missing or malformed."
+        val cause = ex.mostSpecificCause.message?.lineSequence()?.first()
+        logger.warn("Unreadable request body: {} ({})", error, cause)
+        return ResponseEntity.status(400).body(mapOf("error" to error, "reason" to MALFORMED_REQUEST))
+    }
+
     // An uploaded file larger than spring.servlet.multipart.max-file-size, refused before reaching the domain
     @ExceptionHandler(MaxUploadSizeExceededException::class)
     fun handleTooLargeUpload(ex: MaxUploadSizeExceededException): ResponseEntity<Map<String, String>> =
         ResponseEntity.status(413).body(mapOf("error" to "An image is 2 MB at most."))
 }
+
+// The reasons of a 400, for the front to tell them apart: a request the domain refuses, or one it never reads
+private const val INCOMPLETE_ADDRESS = "INCOMPLETE_ADDRESS"
+private const val MALFORMED_REQUEST = "MALFORMED_REQUEST"
