@@ -1,6 +1,6 @@
 ---
 name: domain-driven-design
-description: Domain-Driven Design and hexagonal architecture principles to follow when writing or reviewing back-end code - where business rules live, what entities, value objects and aggregates may reference (value objects rather than primitive types), the role of use cases, domain services, repositories and adapters, groups of use cases named after their sub-domain (OrderUseCases, not a facade), every use case implementing the UseCase interface of ucop (or QueryUseCase when it answers), methods of the domain model that expose neither a primitive type nor a raw collection. Use before creating or changing an entity, aggregate, value object, use case, domain service, port (repository interface) or infrastructure adapter, and when reviewing domain code.
+description: Domain-Driven Design and hexagonal architecture principles to follow when writing or reviewing back-end code - where business rules live, what entities, value objects and aggregates may reference (value objects rather than primitive types), the role of use cases, domain services, repositories and adapters, groups of use cases named after their sub-domain (OrderUseCases, not a facade), every use case implementing the UseCase interface of ucop (or QueryUseCase when it answers), methods of the domain model that expose neither a primitive type nor a raw collection, the current moment read from InstantProvider (never a clock member). Use before creating or changing an entity, aggregate, value object, use case, domain service, port (repository interface) or infrastructure adapter, and when reviewing domain code.
 ---
 
 # Domain-Driven Design
@@ -440,3 +440,56 @@ Details:
 - A factory that converts what an adapter receives may take a primitive (`Sku.from(typedSku: String)`, `Words.of(text: String)`): it is the edge of the domain.
 - A read-only view of a collection (`asList()`) remains only for the adapters that must iterate to map to JSON or to the persistence model; the domain itself never calls it.
 - Existing methods that break this rule are pointed out in reviews and changed in a refactoring pull request of their own (see the `prompt-convention` skill).
+
+## 12. The current moment comes from `InstantProvider`, never from a clock member
+
+The domain reads the current moment from **`InstantProvider.now()`**, the object of the shared kernel (`org.flexstore.domain.sharedkernel`). A use case, a domain service or a factory never holds a `Clock` as a member or a constructor parameter, and never calls `Instant.now()` or `Clock.systemUTC()` itself.
+
+Avoid:
+
+```kotlin
+class PasswordResetService(
+    private val requestPasswordResetUseCase: RequestPasswordResetUseCase,
+    private val clock: Clock = Clock.systemUTC()
+) {
+    fun requestReset(email: Email) =
+        requestPasswordResetUseCase.unfold(PasswordResetRequest(email, clock.instant()))
+}
+
+// test
+val service = PasswordResetService(requestPasswordResetUseCase, Clock.fixed(now, ZoneOffset.UTC))
+```
+
+Prefer:
+
+```kotlin
+class PasswordResetService(private val requestPasswordResetUseCase: RequestPasswordResetUseCase) {
+    fun requestReset(email: Email) =
+        requestPasswordResetUseCase.unfold(PasswordResetRequest(email, InstantProvider.now()))
+}
+
+// A moment of the business gets its factory, read from InstantProvider
+data class StatusChangedAt(val value: Instant) {
+    companion object {
+        fun now() = StatusChangedAt(InstantProvider.now())
+    }
+}
+
+// test: the moment is fixed for the test, then reset
+@BeforeEach
+fun fixTheMoment() {
+    InstantProvider.fixAt(now)
+}
+
+@AfterEach
+fun resetTheMoment() {
+    InstantProvider.reset()
+}
+```
+
+Why: the current moment is a concern of the whole domain, not a dependency of each class. A clock member adds a technical parameter to every constructor that needs the time, and a default value (`Clock.systemUTC()`) that the Spring configuration and the tests must remember to override. With a single provider, the time is read the same way everywhere, and a test fixes it in one place.
+
+Details:
+- The moment that enters a use case is read once, by the use case or the domain service that starts the journey, and passed in its request (`PasswordResetRequest(email, InstantProvider.now())`), so that every rule of the call uses the same moment.
+- A test that depends on the moment fixes it with `InstantProvider.fixAt(...)` and resets it in an `@AfterEach`, so that the next tests read the time of the system again.
+- The infrastructure is not concerned: an adapter that needs the time for a technical reason (the expiry of a session token) may read it itself.
