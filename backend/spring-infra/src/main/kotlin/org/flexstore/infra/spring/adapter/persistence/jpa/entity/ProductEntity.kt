@@ -25,6 +25,10 @@ data class ProductEntity(
     @Column(nullable = false)
     val currency: String,
 
+    // STANDARD, INTERMEDIATE, REDUCED or SUPER_REDUCED
+    @Column(name = "vat_rate", nullable = false)
+    val vatRate: String,
+
     // The translations of all the products read are loaded in a single query
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id", nullable = false)

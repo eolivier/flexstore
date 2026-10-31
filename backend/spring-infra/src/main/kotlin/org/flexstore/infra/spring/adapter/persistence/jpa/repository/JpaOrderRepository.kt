@@ -82,6 +82,7 @@ class PostgresOrderRepositoryAdapter(
                     productName = line.productName.value,
                     unitPrice = line.unitPrice.amount.value,
                     currency = line.unitPrice.currency.name,
+                    vatRate = line.vatRate.name,
                     quantity = line.quantity.value
                 )
             }
@@ -119,6 +120,7 @@ class PostgresOrderRepositoryAdapter(
     private fun OrderLineEntity.toDomain(): OrderLine {
         val orderedProduct = OrderedProduct(ProductId(Identity(productId)), Name(productName))
         val unitPrice = Price(Amount(unitPrice), Currency.valueOf(currency))
-        return OrderLine(PricedProduct(orderedProduct, unitPrice), Quantity(quantity))
+        val pricing = ProductPricing(unitPrice, VatRate.valueOf(vatRate))
+        return OrderLine(PricedProduct(orderedProduct, pricing), Quantity(quantity))
     }
 }

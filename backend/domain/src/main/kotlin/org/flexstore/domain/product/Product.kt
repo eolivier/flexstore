@@ -9,15 +9,27 @@ private val NO_DESCRIPTION = Description("No description")
 private fun inDefaultLanguageOnly(name: Name, description: Description) =
     ProductTranslations.inDefaultLanguage(ProductText(name, description))
 
+// The price of a product, VAT included, and the rate of VAT it includes
+data class ProductPricing(val price: Price, val vatRate: VatRate) {
+    // At the standard rate, the one of most products
+    constructor(price: Price) : this(price, VatRate.STANDARD)
+}
+
 sealed interface Product
 // A product given by an administrator, before it is added to the catalog
 data class DraftProduct(val sku: Sku,
                         val translations: ProductTranslations,
                         val category: Category,
-                        val price: Price): Product {
+                        val pricing: ProductPricing): Product {
+    // A product at the standard rate of VAT
+    constructor(sku: Sku, translations: ProductTranslations, category: Category, price: Price) :
+        this(sku, translations, category, ProductPricing(price))
+
     // A product written in the default language only
     constructor(sku: Sku, name: Name, description: Description, category: Category, price: Price) :
         this(sku, inDefaultLanguageOnly(name, description), category, price)
+
+    val price: Price get() = pricing.price
 
     // The name and the description in the default language
     val name: Name get() = translations.defaultTranslation().name
@@ -30,7 +42,16 @@ data class DefinedProduct(
     val sku: Sku,
     val translations: ProductTranslations,
     val category: Category,
-    val price: Price): Product {
+    val pricing: ProductPricing): Product {
+    // A product at the standard rate of VAT
+    constructor(
+        productId: ProductId,
+        sku: Sku,
+        translations: ProductTranslations,
+        category: Category,
+        price: Price
+    ) : this(productId, sku, translations, category, ProductPricing(price))
+
     // A product written in the default language only
     constructor(
         productId: ProductId,
@@ -44,6 +65,10 @@ data class DefinedProduct(
     // A product given with its id only: its SKU is its id
     constructor(productId: ProductId, name: Name, price: Price) :
         this(productId, Sku.from(productId.id.value), name, NO_DESCRIPTION, Category.NOT_DEFINED, price)
+
+    val price: Price get() = pricing.price
+
+    val vatRate: VatRate get() = pricing.vatRate
 
     // The name and the description in the default language
     val name: Name get() = translations.defaultTranslation().name

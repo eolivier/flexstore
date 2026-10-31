@@ -35,7 +35,7 @@ class UpdateProductUseCaseTest : WithAssertions {
             Arguments.of("name", tShirt.renamed(Name("Linen T-shirt"))),
             Arguments.of("description", tShirt.describedAs(Description("Light and breathable"))),
             Arguments.of("category", tShirt.copy(category = Category.SPORTS)),
-            Arguments.of("price", tShirt.copy(price = Price(Amount(BigDecimal(29)), Currency.EUR))),
+            Arguments.of("price", tShirt.copy(pricing = ProductPricing(Price(Amount(BigDecimal(29)), Currency.EUR)))),
         )
     }
 

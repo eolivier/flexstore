@@ -1469,6 +1469,10 @@ components:
           description: The name and the description in each language of the product, the default one (en) required
           items:
             $ref: "#/components/schemas/JsonProductTranslation"
+        vatRate:
+          type: string
+          enum: [STANDARD, INTERMEDIATE, REDUCED, SUPER_REDUCED]
+          description: "The rate of VAT included in the price: 20, 10, 5.5 or 2.1 %. STANDARD when not given"
     EditedJsonProduct:
       type: object
       description: The fields an administrator edits; the id is given by the path
@@ -1491,6 +1495,10 @@ components:
           description: Every translation of the product, the default one (en) required; a translation not given is removed
           items:
             $ref: "#/components/schemas/JsonProductTranslation"
+        vatRate:
+          type: string
+          enum: [STANDARD, INTERMEDIATE, REDUCED, SUPER_REDUCED]
+          description: "The rate of VAT included in the price: 20, 10, 5.5 or 2.1 %. STANDARD when not given"
     JsonProduct:
       type: object
       required: [id, sku, name, description, category, price, currency]
@@ -1515,7 +1523,7 @@ components:
     JsonAdminProduct:
       type: object
       description: A product as the administrator edits it, with its translations in every language
-      required: [id, sku, category, price, currency, translations]
+      required: [id, sku, category, price, currency, translations, vatRate]
       properties:
         id:
           type: string
@@ -1533,6 +1541,10 @@ components:
           description: The name and the description in every language of the product, the default one (en) included
           items:
             $ref: "#/components/schemas/JsonProductTranslation"
+        vatRate:
+          type: string
+          enum: [STANDARD, INTERMEDIATE, REDUCED, SUPER_REDUCED]
+          description: "The rate of VAT included in the price: 20, 10, 5.5 or 2.1 %"
     JsonSkuProposal:
       type: object
       required: [sku]

@@ -3,6 +3,7 @@ package org.flexstore.domain.invoice
 import org.flexstore.domain.order.*
 import org.flexstore.domain.seller.*
 import org.flexstore.domain.sharedkernel.Price
+import org.flexstore.domain.sharedkernel.VatRate
 import org.flexstore.domain.user.model.*
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -53,7 +54,7 @@ data class InvoiceDocument(val invoice: Invoice, val sale: InvoicedSale) {
 
     private val order get() = sale.order
 
-    private val vatBreakdown get() = VatBreakdown(order.totalPrice(), VatRate.standard())
+    private val vatBreakdowns get() = VatBreakdowns.of(order)
 
     fun title() = InvoiceText("Facture n° ${invoice.number.value}")
 
@@ -105,11 +106,15 @@ data class InvoiceDocument(val invoice: Invoice, val sale: InvoicedSale) {
         return listOf(InvoiceRow(discount.label().value, "1", amountOff, amountOff))
     }
 
-    fun totals() = InvoiceRows(
-        InvoiceRow("Total HT", priceOf(vatBreakdown.priceExcludingVat())),
-        InvoiceRow("TVA ${vatBreakdown.rate.percent.toPlainString()} %", priceOf(vatBreakdown.vat())),
-        InvoiceRow("Total TTC", priceOf(order.totalPrice()))
-    )
+    // The total without VAT, the VAT of each rate, then the total with VAT
+    fun totals(): InvoiceRows {
+        val totalExcludingVat = InvoiceRow("Total HT", priceOf(vatBreakdowns.priceExcludingVat()))
+        val vatRows = vatBreakdowns.asList().map { breakdown ->
+            InvoiceRow("TVA ${percentOf(breakdown.rate)} %", priceOf(breakdown.vat()))
+        }
+        val totalIncludingVat = InvoiceRow("Total TTC", priceOf(order.totalPrice()))
+        return InvoiceRows(listOf(totalExcludingVat) + vatRows + totalIncludingVat)
+    }
 
     fun footer() = InvoiceLines(
         "Facture acquittée : la commande a été payée en ligne.",
@@ -117,6 +122,12 @@ data class InvoiceDocument(val invoice: Invoice, val sale: InvoicedSale) {
     )
 
     private fun priceOf(price: Price) = price.formattedIn(FRENCH)
+
+    // In French, with a decimal comma: 5,5
+    private fun percentOf(vatRate: VatRate): String {
+        val percent = vatRate.percent.stripTrailingZeros().toPlainString()
+        return percent.replace('.', ',')
+    }
 
     private fun linesOf(address: PostalAddress): List<String> {
         val location = address.location

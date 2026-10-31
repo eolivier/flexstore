@@ -97,6 +97,7 @@ class PostgresProductRepositoryAdapter(
         category = category.name,
         price = price.amount.value,
         currency = price.currency.name,
+        vatRate = pricing.vatRate.name,
         translations = translations.asList().map { it.toNewEntity() }
     )
 
@@ -106,6 +107,7 @@ class PostgresProductRepositoryAdapter(
         category = category.name,
         price = price.amount.value,
         currency = price.currency.name,
+        vatRate = vatRate.name,
         translations = translationEntities(this)
     )
 
@@ -137,13 +139,9 @@ fun ProductEntity.toDomain(): DefinedProduct {
     // In the default language first, so that a product reads its translations in the same order as it gave them
     val storedTranslations = translations.map { it.toDomain() }.sortedByDescending { it.isIn(Language.DEFAULT) }
     val productTranslations = ProductTranslations(storedTranslations)
-    return DefinedProduct(
-        ProductId(Identity(id)),
-        Sku(sku),
-        productTranslations,
-        Category.valueOf(category),
-        Price(Amount(price), Currency.valueOf(currency))
-    )
+    val pricing = ProductPricing(Price(Amount(price), Currency.valueOf(currency)), VatRate.valueOf(vatRate))
+    val productId = ProductId(Identity(id))
+    return DefinedProduct(productId, Sku(sku), productTranslations, Category.valueOf(category), pricing)
 }
 
 private fun ProductTranslationEntity.toDomain() =

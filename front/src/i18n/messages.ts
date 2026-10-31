@@ -444,6 +444,20 @@ export default {
       loadError: 'The seller could not be loaded.',
       issuedInvoicesNote: 'The invoices already issued keep the seller they were issued with.',
     },
+    vatRate: {
+      title: 'VAT rate',
+      hint: 'The rate of VAT included in the price, written on the invoices',
+      STANDARD: { label: '20 % (standard)', examples: 'Most goods and services' },
+      INTERMEDIATE: {
+        label: '10 % (intermediate)',
+        examples: 'Restaurants, passenger transport, renovation works',
+      },
+      REDUCED: { label: '5.5 % (reduced)', examples: 'Food, books, energy' },
+      SUPER_REDUCED: {
+        label: '2.1 % (super-reduced)',
+        examples: 'Medicines refunded by the social security, the press',
+      },
+    },
     nav: {
       home: 'Home',
       shop: 'Shop',
@@ -1026,6 +1040,20 @@ export default {
       saveError: 'Le vendeur n’a pas pu être enregistré.',
       loadError: 'Le vendeur n’a pas pu être chargé.',
       issuedInvoicesNote: 'Les factures déjà émises gardent le vendeur avec lequel elles ont été émises.',
+    },
+    vatRate: {
+      title: 'Taux de TVA',
+      hint: 'Le taux de TVA compris dans le prix, inscrit sur les factures',
+      STANDARD: { label: '20 % (normal)', examples: 'La plupart des biens et services' },
+      INTERMEDIATE: {
+        label: '10 % (intermédiaire)',
+        examples: 'Restauration, transport de voyageurs, travaux de rénovation',
+      },
+      REDUCED: { label: '5,5 % (réduit)', examples: 'Alimentation, livres, énergie' },
+      SUPER_REDUCED: {
+        label: '2,1 % (particulier)',
+        examples: 'Médicaments remboursés par la sécurité sociale, presse',
+      },
     },
     nav: {
       home: 'Accueil',

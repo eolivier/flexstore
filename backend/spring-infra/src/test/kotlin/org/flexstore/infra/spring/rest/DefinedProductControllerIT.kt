@@ -220,6 +220,32 @@ class DefinedProductControllerIT {
     }
 
     @Test
+    fun `a product created without rate of VAT should be at the standard rate`() {
+        // Arrange
+        val productId = createProduct("Desk lamp")
+        // Act
+        val response = mockMvc.perform(get("/api/admin/products/$productId").with(asAdmin()))
+        // Assert
+        response.andExpect(jsonPath("$.vatRate").value("STANDARD"))
+    }
+
+    @Test
+    fun `an administrator should change the rate of VAT of a product`() {
+        // Arrange
+        val productId = createProduct("Cook book")
+        val translations = englishTranslation("Cook book", "Recipes")
+        val bookAtReducedRate = """{"sku": "${freeSku()}", "category": "BOOKS", "price": 20, "currency": "EUR",
+            "translations": [$translations], "vatRate": "REDUCED"}"""
+        val edition = put("/api/products/$productId").with(asAdmin()).contentType(MediaType.APPLICATION_JSON)
+        // Act
+        val response = mockMvc.perform(edition.content(bookAtReducedRate))
+        // Assert
+        response.andExpect(status().isOk)
+        mockMvc.perform(get("/api/admin/products/$productId").with(asAdmin()))
+            .andExpect(jsonPath("$.vatRate").value("REDUCED"))
+    }
+
+    @Test
     fun `an administrator should be proposed a SKU from the category and the name`() {
         // Act
         val response = mockMvc.perform(

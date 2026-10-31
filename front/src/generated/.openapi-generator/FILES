@@ -39,6 +39,7 @@ docs/JsonPostalAddress.md
 docs/JsonProduct.md
 docs/JsonProductTranslation.md
 docs/JsonSaveItemResponse.md
+docs/JsonSeller.md
 docs/JsonShippingOption.md
 docs/JsonShippingOptions.md
 docs/JsonSkuProposal.md

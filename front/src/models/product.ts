@@ -23,7 +23,12 @@ export interface ProductTranslation {
   description: string;
 }
 
-// A product as the administrator edits it: its translations in every language, the default one included
+// The rates of VAT in France, from the standard one (20 %) to the super-reduced one (2.1 %)
+export const VAT_RATES = ['STANDARD', 'INTERMEDIATE', 'REDUCED', 'SUPER_REDUCED'] as const;
+export type VatRate = (typeof VAT_RATES)[number];
+
+// A product as the administrator edits it: its translations in every language, the default one included.
+// vatRate: the rate of VAT its price includes
 export interface AdminProduct {
   id: string;
   sku: string;
@@ -31,6 +36,7 @@ export interface AdminProduct {
   price: number;
   currency: string;
   translations: ProductTranslation[];
+  vatRate: VatRate;
 }
 
 // A product as the administrator gives it, to create or edit it

@@ -12,7 +12,7 @@ data class CreateProductRequest(val productId: ProductId, val draftProduct: Draf
         draftProduct.sku,
         draftProduct.translations,
         draftProduct.category,
-        draftProduct.price
+        draftProduct.pricing
     )
 }
 

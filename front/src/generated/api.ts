@@ -35,7 +35,21 @@ export interface DraftJsonProduct {
      * The name and the description in each language of the product, the default one (en) required
      */
     'translations': Array<JsonProductTranslation>;
+    /**
+     * The rate of VAT included in the price: 20, 10, 5.5 or 2.1 %. STANDARD when not given
+     */
+    'vatRate'?: DraftJsonProductVatRateEnum;
 }
+
+export const DraftJsonProductVatRateEnum = {
+    Standard: 'STANDARD',
+    Intermediate: 'INTERMEDIATE',
+    Reduced: 'REDUCED',
+    SuperReduced: 'SUPER_REDUCED'
+} as const;
+
+export type DraftJsonProductVatRateEnum = typeof DraftJsonProductVatRateEnum[keyof typeof DraftJsonProductVatRateEnum];
+
 /**
  * The fields an administrator edits; the id is given by the path
  */
@@ -54,7 +68,21 @@ export interface EditedJsonProduct {
      * Every translation of the product, the default one (en) required; a translation not given is removed
      */
     'translations': Array<JsonProductTranslation>;
+    /**
+     * The rate of VAT included in the price: 20, 10, 5.5 or 2.1 %. STANDARD when not given
+     */
+    'vatRate'?: EditedJsonProductVatRateEnum;
 }
+
+export const EditedJsonProductVatRateEnum = {
+    Standard: 'STANDARD',
+    Intermediate: 'INTERMEDIATE',
+    Reduced: 'REDUCED',
+    SuperReduced: 'SUPER_REDUCED'
+} as const;
+
+export type EditedJsonProductVatRateEnum = typeof EditedJsonProductVatRateEnum[keyof typeof EditedJsonProductVatRateEnum];
+
 export interface JsonAccount {
     'id': string;
     'firstName': string;
@@ -183,7 +211,21 @@ export interface JsonAdminProduct {
      * The name and the description in every language of the product, the default one (en) included
      */
     'translations': Array<JsonProductTranslation>;
+    /**
+     * The rate of VAT included in the price: 20, 10, 5.5 or 2.1 %
+     */
+    'vatRate': JsonAdminProductVatRateEnum;
 }
+
+export const JsonAdminProductVatRateEnum = {
+    Standard: 'STANDARD',
+    Intermediate: 'INTERMEDIATE',
+    Reduced: 'REDUCED',
+    SuperReduced: 'SUPER_REDUCED'
+} as const;
+
+export type JsonAdminProductVatRateEnum = typeof JsonAdminProductVatRateEnum[keyof typeof JsonAdminProductVatRateEnum];
+
 export interface JsonCartItem {
     'itemId'?: string;
     'productId'?: string;
@@ -511,6 +553,21 @@ export interface JsonSaveItemResponse {
      * Id of the visitor cart, to send in X-Cart-Id; null for a signed-in customer
      */
     'cartId'?: string | null;
+}
+export interface JsonSeller {
+    'name': string;
+    /**
+     * On one line
+     */
+    'address': string;
+    /**
+     * 14 digits, spaces allowed
+     */
+    'siret': string;
+    /**
+     * Intra-community VAT number, the country then 2 to 13 digits or letters
+     */
+    'vatNumber': string;
 }
 export interface JsonShippingOption {
     'method': JsonShippingOptionMethodEnum;
@@ -1544,6 +1601,40 @@ export const AdministrationApiAxiosParamCreator = function (configuration?: Conf
             };
         },
         /**
+         * 
+         * @summary Retrieve the seller written on the next invoices (ADMIN role)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getSeller: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/seller`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * The first three letters of the category, the first two words of the name (eight characters at most each, without accents), then the first number from 0001 that no product has: CLO-ORGANIC-COTTON-0001
          * @summary Propose a SKU free in the catalog, from the category and the name of a product (ADMIN role)
          * @param {string} category 
@@ -1627,6 +1718,46 @@ export const AdministrationApiAxiosParamCreator = function (configuration?: Conf
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(jsonOrderRefund, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Change the seller written on the next invoices; the invoices issued keep theirs (ADMIN role)
+         * @param {JsonSeller} jsonSeller 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateSeller: async (jsonSeller: JsonSeller, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'jsonSeller' is not null or undefined
+            assertParamExists('updateSeller', 'jsonSeller', jsonSeller)
+            const localVarPath = `/api/admin/seller`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonSeller, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -1733,6 +1864,18 @@ export const AdministrationApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * 
+         * @summary Retrieve the seller written on the next invoices (ADMIN role)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getSeller(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonSeller>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getSeller(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdministrationApi.getSeller']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * The first three letters of the category, the first two words of the name (eight characters at most each, without accents), then the first number from 0001 that no product has: CLO-ORGANIC-COTTON-0001
          * @summary Propose a SKU free in the catalog, from the category and the name of a product (ADMIN role)
          * @param {string} category 
@@ -1758,6 +1901,19 @@ export const AdministrationApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.refundOrder(id, jsonOrderRefund, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdministrationApi.refundOrder']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Change the seller written on the next invoices; the invoices issued keep theirs (ADMIN role)
+         * @param {JsonSeller} jsonSeller 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async updateSeller(jsonSeller: JsonSeller, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonSeller>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateSeller(jsonSeller, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdministrationApi.updateSeller']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -1839,6 +1995,15 @@ export const AdministrationApiFactory = function (configuration?: Configuration,
             return localVarFp.getDiscountCodes(options).then((request) => request(axios, basePath));
         },
         /**
+         * 
+         * @summary Retrieve the seller written on the next invoices (ADMIN role)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getSeller(options?: RawAxiosRequestConfig): AxiosPromise<JsonSeller> {
+            return localVarFp.getSeller(options).then((request) => request(axios, basePath));
+        },
+        /**
          * The first three letters of the category, the first two words of the name (eight characters at most each, without accents), then the first number from 0001 that no product has: CLO-ORGANIC-COTTON-0001
          * @summary Propose a SKU free in the catalog, from the category and the name of a product (ADMIN role)
          * @param {string} category 
@@ -1859,6 +2024,16 @@ export const AdministrationApiFactory = function (configuration?: Configuration,
          */
         refundOrder(id: string, jsonOrderRefund: JsonOrderRefund, options?: RawAxiosRequestConfig): AxiosPromise<JsonAdminOrder> {
             return localVarFp.refundOrder(id, jsonOrderRefund, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Change the seller written on the next invoices; the invoices issued keep theirs (ADMIN role)
+         * @param {JsonSeller} jsonSeller 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateSeller(jsonSeller: JsonSeller, options?: RawAxiosRequestConfig): AxiosPromise<JsonSeller> {
+            return localVarFp.updateSeller(jsonSeller, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -1944,6 +2119,16 @@ export class AdministrationApi extends BaseAPI {
     }
 
     /**
+     * 
+     * @summary Retrieve the seller written on the next invoices (ADMIN role)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getSeller(options?: RawAxiosRequestConfig) {
+        return AdministrationApiFp(this.configuration).getSeller(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * The first three letters of the category, the first two words of the name (eight characters at most each, without accents), then the first number from 0001 that no product has: CLO-ORGANIC-COTTON-0001
      * @summary Propose a SKU free in the catalog, from the category and the name of a product (ADMIN role)
      * @param {string} category 
@@ -1965,6 +2150,17 @@ export class AdministrationApi extends BaseAPI {
      */
     public refundOrder(id: string, jsonOrderRefund: JsonOrderRefund, options?: RawAxiosRequestConfig) {
         return AdministrationApiFp(this.configuration).refundOrder(id, jsonOrderRefund, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Change the seller written on the next invoices; the invoices issued keep theirs (ADMIN role)
+     * @param {JsonSeller} jsonSeller 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public updateSeller(jsonSeller: JsonSeller, options?: RawAxiosRequestConfig) {
+        return AdministrationApiFp(this.configuration).updateSeller(jsonSeller, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

@@ -45,7 +45,7 @@ class CartTest : WithAssertions {
     fun `adding a product should keep the given catalog product`() {
         // Arrange
         val cart = Cart(customer, item1)
-        val catalogProduct = product1.copy(price = Price(Amount(BigDecimal(12)), Currency.EUR))
+        val catalogProduct = product1.copy(pricing = ProductPricing(Price(Amount(BigDecimal(12)), Currency.EUR)))
         // Act
         val updatedCart = cart.add(catalogProduct, Quantity(2))
         // Assert

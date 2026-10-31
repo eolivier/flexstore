@@ -30,6 +30,7 @@ const tShirt = {
     { language: 'en', name: 'Organic T-shirt', description: 'Eco-friendly' },
     { language: 'fr', name: 'T-shirt bio', description: 'Écologique' },
   ],
+  vatRate: 'REDUCED',
 };
 
 // The name fields, one per language (the SKU is a text field too)
@@ -127,6 +128,7 @@ describe('EditProduct.vue', () => {
         { language: 'en', name: 'Linen T-shirt', description: 'Eco-friendly' },
         { language: 'fr', name: 'T-shirt bio', description: 'Écologique' },
       ],
+      vatRate: 'REDUCED',
     });
   });
 
