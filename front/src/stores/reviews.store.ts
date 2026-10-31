@@ -58,5 +58,16 @@ export const useReviewsStore = defineStore('reviews', () => {
     return 'added';
   }
 
-  return { ratings, reviews, fetchRatings, ratingOf, fetchReviews, addReview };
+  // For the administrators; returns whether the review was deleted. The ratings are read again
+  async function deleteReview(reviewId: string): Promise<boolean> {
+    const response = await authStore
+      .authFetch(`/api/admin/reviews/${encodeURIComponent(reviewId)}`, { method: 'DELETE' })
+      .catch(() => null);
+    if (!response?.ok) return false;
+    reviews.value = reviews.value.filter((review) => review.id !== reviewId);
+    await fetchRatings();
+    return true;
+  }
+
+  return { ratings, reviews, fetchRatings, ratingOf, fetchReviews, addReview, deleteReview };
 });

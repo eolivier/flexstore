@@ -28,6 +28,10 @@ class PostgresReviewRepositoryAdapter(
         jpaRepo.save(review.toEntity())
     }
 
+    override fun delete(reviewId: ReviewId) {
+        jpaRepo.deleteById(reviewId.value)
+    }
+
     @Transactional(readOnly = true)
     override fun findAllAbout(productId: ProductId) =
         Reviews(jpaRepo.findByProductId(productId.id.value).map { it.toDomain() }).newestFirst()

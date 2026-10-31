@@ -56,4 +56,31 @@ describe('reviews.store', () => {
     // Assert
     expect(outcome).toBe(expected);
   });
+
+  it('deletes a review for an administrator, and reads the ratings again', async () => {
+    // Arrange
+    getReviews.mockResolvedValue({ data: [{ id: 'r-1' }, { id: 'r-2' }] });
+    mockFetch.mockResolvedValue({ ok: true, status: 204 });
+    const store = useReviewsStore();
+    await store.fetchReviews('p-1');
+    // Act
+    const deleted = await store.deleteReview('r-1');
+    // Assert
+    expect(deleted).toBe(true);
+    expect(store.reviews.map((review) => review.id)).toEqual(['r-2']);
+    expect(getRatings).toHaveBeenCalled();
+  });
+
+  it('keeps the review that could not be deleted', async () => {
+    // Arrange
+    getReviews.mockResolvedValue({ data: [{ id: 'r-1' }] });
+    mockFetch.mockResolvedValue({ ok: false, status: 403 });
+    const store = useReviewsStore();
+    await store.fetchReviews('p-1');
+    // Act
+    const deleted = await store.deleteReview('r-1');
+    // Assert
+    expect(deleted).toBe(false);
+    expect(store.reviews).toHaveLength(1);
+  });
 });

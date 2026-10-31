@@ -13,6 +13,10 @@ class InMemoryReviewRepository : ReviewRepository {
         reviews.add(review)
     }
 
+    override fun delete(reviewId: ReviewId) {
+        reviews.removeIf { it.reviewId == reviewId }
+    }
+
     override fun findAllAbout(productId: ProductId) = Reviews(reviews.filter { it.isAbout(productId) })
 
     override fun findAll() = Reviews(reviews.toList())

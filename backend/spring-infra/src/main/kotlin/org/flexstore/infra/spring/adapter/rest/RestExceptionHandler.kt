@@ -137,6 +137,9 @@ class RestExceptionHandler {
             is ReviewNotAllowedException -> ResponseEntity
                 .status(403)
                 .body(mapOf("error" to (ex.message ?: "Review not allowed")))
+            is ReviewNotFoundException -> ResponseEntity
+                .status(404)
+                .body(mapOf("error" to (ex.message ?: "Unknown review")))
             is ReviewAlreadyWrittenException -> ResponseEntity
                 .status(409)
                 .body(mapOf("error" to (ex.message ?: "Product already reviewed")))
