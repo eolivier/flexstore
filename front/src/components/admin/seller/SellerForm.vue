@@ -32,24 +32,27 @@
 
 <template>
   <v-form v-model="valid" @submit.prevent="save">
-    <v-text-field v-model="editedSeller.name" :label="t('seller.name')" :rules="[rules.required]" />
+    <v-text-field v-model="editedSeller.name" :label="t('seller.name')" :rules="[rules.required]" class="mb-2" />
     <v-text-field
       v-model="editedSeller.address"
       :label="t('seller.address')"
       :hint="t('seller.addressHint')"
       :rules="[rules.required]"
+      class="mb-2"
     />
     <v-text-field
       v-model="editedSeller.siret"
       :label="t('seller.siret')"
       :hint="t('seller.siretHint')"
       :rules="[rules.siret]"
+      class="mb-2"
     />
     <v-text-field
       v-model="editedSeller.vatNumber"
       :label="t('seller.vatNumber')"
       :hint="t('seller.vatNumberHint')"
       :rules="[rules.vatNumber]"
+      class="mb-2"
     />
     <div class="d-flex align-center ga-4 mt-2">
       <v-btn type="submit" color="secondary" :loading="saving" :disabled="valid === false">{{
