@@ -44,6 +44,7 @@
   const shippingOptions = ref<JsonShippingOptions | null>(null);
   const shippingMethod = ref<JsonOrderAddressesShippingMethodEnum>('STANDARD');
   const appliedDiscount = ref<JsonDiscountPreview | null>(null);
+  // Why the last attempt to order failed, as told to the customer
   const error = ref<string | null>(null);
 
   onMounted(async () => {
@@ -87,7 +88,8 @@
     });
     if (placement.status !== 'placed') {
       placing.value = false;
-      error.value = placement.status;
+      const reason = placement.status === 'invalidRequest' ? placement.reason : '';
+      error.value = t(`checkout.errors.${placement.status}`, { reason });
       return;
     }
     // The order is placed: the customer pays it on the checkout page, or later from the page of the order

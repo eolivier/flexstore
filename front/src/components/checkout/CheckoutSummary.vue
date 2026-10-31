@@ -5,7 +5,7 @@
   import { formatPrice } from '@/utils/price';
 
   // The summary of the cart, with the shipping chosen (null while it is not known), and the button that places
-  // the order; error: why the last attempt failed
+  // the order; error: why the last attempt failed, as told to the customer
   const props = defineProps<{
     shippingCost: number | null;
     // What the discount code applied takes off the items (0 without code)
@@ -62,9 +62,7 @@
       <v-spacer />
       <span class="text-h5 font-weight-bold">{{ total }}</span>
     </div>
-    <v-alert v-if="error" type="error" variant="tonal" density="compact" class="mb-4">{{
-      t(`checkout.errors.${error}`)
-    }}</v-alert>
+    <v-alert v-if="error" type="error" variant="tonal" density="compact" class="mb-4">{{ error }}</v-alert>
     <v-btn
       color="secondary"
       size="large"
