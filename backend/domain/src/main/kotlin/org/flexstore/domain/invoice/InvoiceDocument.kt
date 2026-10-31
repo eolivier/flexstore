@@ -62,7 +62,7 @@ data class InvoiceDocument(val invoice: Invoice, val sale: InvoicedSale) {
     )
 
     fun seller(): InvoiceLines {
-        val (contact, identifiers) = sale.seller
+        val (contact, identifiers) = sale.seller.details
         return InvoiceLines(
             contact.name.value,
             contact.address.value,

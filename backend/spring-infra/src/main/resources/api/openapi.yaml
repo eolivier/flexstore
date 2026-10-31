@@ -678,6 +678,47 @@ paths:
           description: Not an administrator
         "404":
           description: No such order, or the order is not paid (no invoice)
+  /api/admin/seller:
+    get:
+      tags:
+      - Administration
+      summary: Retrieve the seller written on the next invoices (ADMIN role)
+      operationId: getSeller
+      security:
+      - bearerAuth: []
+      responses:
+        "200":
+          description: The current seller
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonSeller"
+        "403":
+          description: Not an administrator
+    put:
+      tags:
+      - Administration
+      summary: Change the seller written on the next invoices; the invoices issued keep theirs (ADMIN role)
+      operationId: updateSeller
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonSeller"
+      responses:
+        "200":
+          description: The seller, now current
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonSeller"
+        "400":
+          description: A name or an address missing, a SIRET or a VAT number malformed
+        "403":
+          description: Not an administrator
   /api/orders/discount-preview:
     get:
       tags:
@@ -1209,6 +1250,27 @@ components:
       scheme: bearer
       bearerFormat: JWT
   schemas:
+    JsonSeller:
+      type: object
+      required:
+        - name
+        - address
+        - siret
+        - vatNumber
+      properties:
+        name:
+          type: string
+        address:
+          type: string
+          description: On one line
+        siret:
+          type: string
+          description: 14 digits, spaces allowed
+          example: 123 456 789 00012
+        vatNumber:
+          type: string
+          description: Intra-community VAT number, the country then 2 to 13 digits or letters
+          example: FR12345678901
     JsonUser:
       type: object
       properties:

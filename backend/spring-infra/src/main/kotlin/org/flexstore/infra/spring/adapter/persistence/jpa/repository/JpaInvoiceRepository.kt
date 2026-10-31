@@ -32,7 +32,7 @@ interface JpaInvoiceRepository : JpaRepository<InvoiceEntity, String> {
 @Transactional
 class PostgresInvoiceRepositoryAdapter(private val jpaRepo: JpaInvoiceRepository) : InvoiceRepository {
 
-    override fun issue(invoiceIssue: InvoiceIssue): Invoice {
+    override fun issue(invoiceIssue: InvoiceIssue, sellerId: SellerId): Invoice {
         val year = invoiceIssue.issuedAt.value.atZone(ZoneId.of("Europe/Paris")).year
         val rank = jpaRepo.nextRank(Identity.nextId().value, year)
         val number = "$year-${rank.toString().padStart(RANK_DIGITS, '0')}"
@@ -40,7 +40,8 @@ class PostgresInvoiceRepositoryAdapter(private val jpaRepo: JpaInvoiceRepository
             Identity.nextId().value,
             number,
             invoiceIssue.orderId.value,
-            invoiceIssue.issuedAt.value
+            invoiceIssue.issuedAt.value,
+            sellerId.value.value
         )
         return jpaRepo.save(invoiceEntity).toDomain()
     }
@@ -48,8 +49,10 @@ class PostgresInvoiceRepositoryAdapter(private val jpaRepo: JpaInvoiceRepository
     @Transactional(readOnly = true)
     override fun findBy(orderId: OrderId): Invoice? = jpaRepo.findByCustomerOrderId(orderId.value)?.toDomain()
 
-    private fun InvoiceEntity.toDomain() =
-        Invoice(InvoiceNumber(number), OrderId(customerOrderId), InvoiceDate(issuedAt))
+    private fun InvoiceEntity.toDomain(): Invoice {
+        val invoiceIssue = InvoiceIssue(OrderId(customerOrderId), InvoiceDate(issuedAt))
+        return Invoice(InvoiceNumber(number), invoiceIssue, SellerId(Identity(sellerId)))
+    }
 }
 
 private const val RANK_DIGITS = 6

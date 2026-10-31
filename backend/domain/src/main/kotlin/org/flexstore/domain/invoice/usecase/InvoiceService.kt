@@ -14,8 +14,8 @@ data class InvoiceUseCases(
 )
 
 // Domain service: the invoice of a paid order is downloaded by its customer, or by an administrator. The
-// order is read with its customer, then its invoice and the seller; the document is rendered, all through the
-// use cases
+// order is read with its customer, then its invoice and the seller it was issued with; the document is
+// rendered, all through the use cases
 class InvoiceService(
     private val invoiceUseCases: InvoiceUseCases,
     private val readAdministeredOrderUseCase: ReadAdministeredOrderUseCase
@@ -33,7 +33,7 @@ class InvoiceService(
 
     private fun invoiceOf(administeredOrder: AdministeredOrder): InvoicePdf {
         val invoice = invoiceUseCases.readInvoiceUseCase.unfold(administeredOrder.order.orderId)
-        val seller = invoiceUseCases.readSellerUseCase.unfold(Unit)
+        val seller = invoiceUseCases.readSellerUseCase.unfold(invoice.sellerId)
         val invoiceDocument = InvoiceDocument(invoice, InvoicedSale(administeredOrder, seller))
         return invoiceUseCases.renderInvoiceUseCase.unfold(invoiceDocument)
     }

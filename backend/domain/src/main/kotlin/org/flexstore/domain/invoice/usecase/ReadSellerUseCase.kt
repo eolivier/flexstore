@@ -1,14 +1,22 @@
 package org.flexstore.domain.invoice.usecase
 
 import org.flexstore.domain.invoice.*
+import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.entity.*
 
-// The shop that sells, as written on its invoices
-class ReadSellerUseCase(private val sellerRepository: SellerRepository) : QueryUseCase<Unit, Seller> {
+// A version of the seller, as written on the invoices issued with it
+class ReadSellerUseCase(private val sellerRepository: SellerRepository) : QueryUseCase<SellerId, Seller> {
 
-    override fun getPreConditions(): PreConditions<Unit> = PreConditions.none()
+    override fun getPreConditions(): PreConditions<SellerId> = PreConditions(sellerExistsCondition())
 
-    override fun getNominalQuery() = NominalQuery<Unit, Seller> { sellerRepository.load() }
+    override fun getNominalQuery() =
+        NominalQuery<SellerId, Seller> { sellerId -> sellerRepository.findBy(sellerId)!! }
 
     override fun getPostConditions(): PostConditions<Seller> = PostConditions.none()
+
+    private fun sellerExistsCondition() = PreCondition<SellerId> { sellerId ->
+        if (sellerRepository.sellerIsMissing(sellerId)) {
+            throw SellerNotFoundException(ErrorMessage("Seller ${sellerId.value.value} not found."))
+        }
+    }
 }

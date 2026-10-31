@@ -26,6 +26,7 @@ import AdminOrders from './components/admin/orders/AdminOrders.vue';
 import AdminOrderDetail from './components/admin/orders/AdminOrderDetail.vue';
 import AddressBook from './components/account/addresses/AddressBook.vue';
 import ShopSettings from './components/admin/settings/ShopSettings.vue';
+import SellerSettings from './components/admin/seller/SellerSettings.vue';
 import AdminDiscountCodes from './components/admin/discounts/AdminDiscountCodes.vue';
 import Login from './components/Login.vue';
 import SignUp from './components/account/SignUp.vue';
@@ -104,6 +105,11 @@ const routes = [
   {
     path: '/admin/discount-codes',
     component: AdminDiscountCodes,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/admin/seller',
+    component: SellerSettings,
     meta: { requiresAuth: true, requiresAdmin: true },
   },
   {

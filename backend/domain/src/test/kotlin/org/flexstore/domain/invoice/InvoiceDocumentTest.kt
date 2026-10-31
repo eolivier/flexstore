@@ -19,7 +19,8 @@ class InvoiceDocumentTest : WithAssertions {
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val placedAt = Instant.parse("2026-10-24T10:00:00Z")
     private val janeDoe = OrderCustomer(FullName(FirstName("Jane"), LastName("Doe")), Email("jane@example.com"))
-    private val invoice = Invoice(InvoiceNumber("2026-000042"), OrderId("46555c9f-4e92"), InvoiceDate(placedAt))
+    private val invoiceIssue = InvoiceIssue(OrderId("46555c9f-4e92"), InvoiceDate(placedAt))
+    private val invoice = Invoice(InvoiceNumber("2026-000042"), invoiceIssue, testSeller.id)
 
     private fun documentOf(shippingMethod: ShippingMethod): InvoiceDocument {
         val delivery = OrderDelivery(homeOrderAddresses, shippingMethod)

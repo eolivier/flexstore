@@ -5,17 +5,22 @@ import org.flexstore.domain.order.*
 import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.entity.*
 
-// A paid order is invoiced once, with the next number of the sequence of the invoices
+// A paid order is invoiced once, with the next number of the sequence of the invoices, sold by the current
+// seller
 class IssueInvoiceUseCase(
     private val orderRepository: OrderRepository,
-    private val invoiceRepository: InvoiceRepository
+    private val invoiceRepository: InvoiceRepository,
+    private val sellerRepository: SellerRepository
 ) : UseCase<InvoiceIssue> {
 
     override fun getPreConditions(): PreConditions<InvoiceIssue> =
         PreConditions(orderIsPaidCondition(), invoiceIsNotIssuedCondition())
 
     override fun getNominalScenario(): NominalScenario<InvoiceIssue> =
-        NominalScenario(Step { invoiceIssue -> invoiceRepository.issue(invoiceIssue) })
+        NominalScenario(Step { invoiceIssue ->
+            val currentSeller = sellerRepository.current()
+            invoiceRepository.issue(invoiceIssue, currentSeller.id)
+        })
 
     override fun getPostConditions(): PostConditions<InvoiceIssue> = PostConditions(invoiceIsIssuedCondition())
 
