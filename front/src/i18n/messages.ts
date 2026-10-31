@@ -185,6 +185,7 @@ export default {
       publish: 'Publish my review',
       thanks: 'Thank you, your review is published.',
       signIn: 'Sign in to review a product you bought.',
+      onlyBuyers: 'Once you have bought this product, you can review it here.',
       errors: {
         invalid: 'Give a rating from 1 to 5 and a comment of 1000 characters at most.',
         notBought: 'Only a customer who bought and paid for this product can review it.',
@@ -814,6 +815,7 @@ export default {
       publish: 'Publier mon avis',
       thanks: 'Merci, votre avis est publié.',
       signIn: 'Connectez-vous pour donner votre avis sur un produit acheté.',
+      onlyBuyers: 'Une fois ce produit acheté, vous pourrez donner votre avis ici.',
       errors: {
         invalid: 'Donnez une note de 1 à 5 et un commentaire de 1000 caractères au plus.',
         notBought: 'Seul un client ayant acheté et payé ce produit peut donner son avis.',

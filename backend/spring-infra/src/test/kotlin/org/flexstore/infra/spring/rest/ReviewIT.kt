@@ -135,6 +135,33 @@ class ReviewIT {
         response.andExpect(status().isUnauthorized)
     }
 
+    @Test
+    fun `a customer should know whether they may review a product`() {
+        // Arrange
+        val beforeBuying = eligibility()
+        buyAndPayProduct()
+        val afterBuying = eligibility()
+        review(5, "Sturdy").andExpect(status().isCreated)
+        // Act
+        val afterReviewing = eligibility()
+        // Assert
+        beforeBuying.andExpect(jsonPath("$.eligibility").value("NOT_BOUGHT"))
+        afterBuying.andExpect(jsonPath("$.eligibility").value("CAN_REVIEW"))
+        afterReviewing.andExpect(jsonPath("$.eligibility").value("ALREADY_REVIEWED"))
+    }
+
+    @Test
+    fun `a visitor should not ask whether they may review a product`() {
+        // Act
+        val response = mockMvc.perform(get("/api/products/$PRODUCT_ID/review-eligibility"))
+        // Assert
+        response.andExpect(status().isUnauthorized)
+    }
+
+    private fun eligibility() =
+        mockMvc.perform(get("/api/products/$PRODUCT_ID/review-eligibility").with(asUser(CUSTOMER_ID)))
+            .andExpect(status().isOk)
+
     private fun buyAndPayProduct() {
         val item = JsonItem("", PRODUCT_ID, "Product", "Description", "CLOTHING", BigDecimal.TEN, "€", 1)
         mockMvc.perform(

@@ -40,6 +40,16 @@ class ReviewController(private val reviewUseCases: ReviewUseCases) {
         return JsonReview(reviewUseCases.getAbout(productId).of(stamp.reviewId))
     }
 
+    @Operation(summary = "Tell whether the signed-in customer may review a product: bought, not reviewed yet")
+    @GetMapping("/products/{id}/review-eligibility")
+    fun getReviewEligibility(
+        @AuthenticationPrincipal jwt: Jwt,
+        @PathVariable id: String
+    ): JsonReviewEligibility {
+        val question = ReviewEligibilityQuestion(UserId.ValidUserId(jwt.subject), productId(id))
+        return JsonReviewEligibility(reviewUseCases.eligibilityOf(question).name)
+    }
+
     @Operation(summary = "Retrieve what the customers think of each product that has reviews")
     @GetMapping("/product-ratings")
     fun getRatings(): List<JsonRatingSummary> =

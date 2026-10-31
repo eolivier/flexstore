@@ -58,6 +58,8 @@ open class SecurityConfig(@Value("\${flexstore.security.jwt-secret:}") private v
             .authorizeHttpRequests {
                 it
                     .requestMatchers("/error", "/actuator/**").permitAll()
+                    // Whether the signed-in customer may review a product, before the public reading
+                    .requestMatchers(HttpMethod.GET, "/api/products/{id}/review-eligibility").authenticated()
                     .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/stocks/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/product-ratings").permitAll()
