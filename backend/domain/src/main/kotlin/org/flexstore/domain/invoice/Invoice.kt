@@ -16,11 +16,16 @@ data class InvoiceDate(val value: Instant) {
     }
 }
 
-// The invoice of a paid order, numbered when it is issued
-data class Invoice(val number: InvoiceNumber, val orderId: OrderId, val issuedAt: InvoiceDate)
-
 // An invoice to issue for a paid order, at a given moment
 data class InvoiceIssue(val orderId: OrderId, val issuedAt: InvoiceDate)
+
+// The invoice of a paid order, numbered when it is issued, with the version of the seller current at that time
+data class Invoice(val number: InvoiceNumber, val issue: InvoiceIssue, val sellerId: SellerId) {
+
+    val orderId get() = issue.orderId
+
+    val issuedAt get() = issue.issuedAt
+}
 
 // The invoice as a PDF document, to download
 data class InvoicePdf(val content: ByteArray) {

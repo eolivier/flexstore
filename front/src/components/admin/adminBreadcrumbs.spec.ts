@@ -16,6 +16,13 @@ describe('adminBreadcrumbs', () => {
     expect(breadcrumbs).toEqual([{ label: 'nav.admin', to: '/admin' }, { label: 'nav.adminOrders' }]);
   });
 
+  it('the seller goes back to the home of the administration', () => {
+    // Act
+    const breadcrumbs = adminBreadcrumbsOf('/admin/seller');
+    // Assert
+    expect(breadcrumbs).toEqual([{ label: 'nav.admin', to: '/admin' }, { label: 'nav.seller' }]);
+  });
+
   it('the detail of an order goes through the list of the orders', () => {
     // Act
     const breadcrumbs = adminBreadcrumbsOf('/admin/orders/46555c9f');

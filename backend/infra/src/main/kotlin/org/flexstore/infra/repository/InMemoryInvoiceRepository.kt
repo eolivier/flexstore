@@ -9,10 +9,10 @@ class InMemoryInvoiceRepository : InvoiceRepository {
 
     private val invoices = mutableListOf<Invoice>()
 
-    override fun issue(invoiceIssue: InvoiceIssue): Invoice {
+    override fun issue(invoiceIssue: InvoiceIssue, sellerId: SellerId): Invoice {
         val year = invoiceIssue.issuedAt.value.atZone(ZoneId.of("Europe/Paris")).year
         val number = InvoiceNumber("$year-${(invoices.size + 1).toString().padStart(6, '0')}")
-        val invoice = Invoice(number, invoiceIssue.orderId, invoiceIssue.issuedAt)
+        val invoice = Invoice(number, invoiceIssue, sellerId)
         invoices.add(invoice)
         return invoice
     }

@@ -85,6 +85,9 @@ class RestExceptionHandler {
             is InvalidFreeShippingThresholdException -> ResponseEntity
                 .status(400)
                 .body(mapOf("error" to (ex.message ?: "Invalid threshold of free shipping")))
+            is InvalidSellerException -> ResponseEntity
+                .status(400)
+                .body(mapOf("error" to (ex.message ?: "Invalid seller")))
             is InvalidPaymentDelayException -> ResponseEntity
                 .status(400)
                 .body(mapOf("error" to (ex.message ?: "Invalid payment delay")))

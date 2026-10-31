@@ -15,10 +15,10 @@ import java.time.Instant
 
 class OpenPdfInvoiceRendererTest {
 
-    private val seller = Seller(
-        SellerContact(SellerName("Flexstore SAS"), SellerAddress("1 rue de la Démo, 75001 Paris, France")),
-        SellerIdentifiers(Siret("123 456 789 00012"), SellerVatNumber("FR12345678901"))
-    )
+    private val sellerContact =
+        SellerContact(SellerName("Flexstore SAS"), SellerAddress("1 rue de la Démo, 75001 Paris, France"))
+    private val sellerIdentifiers = SellerIdentifiers(Siret("123 456 789 00012"), SellerVatNumber("FR12345678901"))
+    private val seller = Seller(SellerId(Identity("seller-1")), SellerDetails(sellerContact, sellerIdentifiers))
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val placedAt = Instant.parse("2026-10-24T10:00:00Z")
 
@@ -31,7 +31,8 @@ class OpenPdfInvoiceRendererTest {
         val delivery = OrderDelivery(OrderAddresses.sameFor(home), ShippingMethod.EXPRESS)
         val placement = OrderPlacement(OrderStamp(OrderId("46555c9f-4e92"), placedAt), Checkout(customer, delivery))
         val order = Order.place(placement, Cart(customer).add(lamp, Quantity(1)))
-        val invoice = Invoice(InvoiceNumber("2026-000042"), order.orderId, InvoiceDate(placedAt))
+        val invoiceIssue = InvoiceIssue(order.orderId, InvoiceDate(placedAt))
+        val invoice = Invoice(InvoiceNumber("2026-000042"), invoiceIssue, seller.id)
         val orderCustomer = OrderCustomer(FullName(FirstName("Jane"), LastName("Doe")), Email("jane@example.com"))
         return InvoiceDocument(invoice, InvoicedSale(AdministeredOrder(order, orderCustomer), seller))
     }

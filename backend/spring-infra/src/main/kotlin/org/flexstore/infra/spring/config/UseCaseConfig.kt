@@ -324,14 +324,28 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         )
 
     @Bean
-    open fun issueInvoiceUseCase(orderRepository: OrderRepository, invoiceRepository: InvoiceRepository) =
-        IssueInvoiceUseCase(orderRepository, invoiceRepository)
+    open fun issueInvoiceUseCase(orderRepository: OrderRepository,
+                                 invoiceRepository: InvoiceRepository,
+                                 sellerRepository: SellerRepository) =
+        IssueInvoiceUseCase(orderRepository, invoiceRepository, sellerRepository)
 
     @Bean
     open fun readInvoiceUseCase(invoiceRepository: InvoiceRepository) = ReadInvoiceUseCase(invoiceRepository)
 
     @Bean
     open fun readSellerUseCase(sellerRepository: SellerRepository) = ReadSellerUseCase(sellerRepository)
+
+    @Bean
+    open fun readCurrentSellerUseCase(sellerRepository: SellerRepository) =
+        ReadCurrentSellerUseCase(sellerRepository)
+
+    @Bean
+    open fun updateSellerUseCase(sellerRepository: SellerRepository) = UpdateSellerUseCase(sellerRepository)
+
+    @Bean
+    open fun sellerUseCases(readCurrentSellerUseCase: ReadCurrentSellerUseCase,
+                            updateSellerUseCase: UpdateSellerUseCase) =
+        SellerUseCases(readCurrentSellerUseCase, updateSellerUseCase)
 
     @Bean
     open fun renderInvoiceUseCase(invoiceRenderer: InvoiceRenderer) = RenderInvoiceUseCase(invoiceRenderer)

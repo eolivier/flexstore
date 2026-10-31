@@ -7,8 +7,7 @@ import org.flexstore.domain.order.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.UserId
-import org.flexstore.infra.repository.InMemoryInvoiceRepository
-import org.flexstore.infra.repository.InMemoryOrderRepository
+import org.flexstore.infra.repository.*
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.time.Instant
@@ -21,7 +20,8 @@ class IssueInvoiceUseCaseTest : WithAssertions {
     private val issuedAt = InvoiceDate(Instant.parse("2026-10-24T10:05:00Z"))
     private val orderRepository = InMemoryOrderRepository()
     private val invoiceRepository = InMemoryInvoiceRepository()
-    private val useCase = IssueInvoiceUseCase(orderRepository, invoiceRepository)
+    private val sellerRepository = InMemorySellerRepository(testSeller)
+    private val useCase = IssueInvoiceUseCase(orderRepository, invoiceRepository, sellerRepository)
 
     private fun storeOrder(orderId: OrderId, status: OrderStatus) {
         val checkout = Checkout(customer, homeOrderAddresses)
@@ -40,7 +40,20 @@ class IssueInvoiceUseCaseTest : WithAssertions {
         useCase.unfold(InvoiceIssue(OrderId("order-2"), issuedAt))
         // Assert
         val invoice = invoiceRepository.findBy(OrderId("order-2"))
-        assertThat(invoice).isEqualTo(Invoice(InvoiceNumber("2026-000002"), OrderId("order-2"), issuedAt))
+        val invoiceIssue = InvoiceIssue(OrderId("order-2"), issuedAt)
+        assertThat(invoice).isEqualTo(Invoice(InvoiceNumber("2026-000002"), invoiceIssue, testSeller.id))
+    }
+
+    @Test
+    fun `an order should be invoiced with the current seller`() {
+        // Arrange
+        storeOrder(OrderId("order-1"), OrderStatus.PAID)
+        val currentSeller = Seller(SellerId.nextId(), testSellerDetails)
+        sellerRepository.save(currentSeller)
+        // Act
+        useCase.unfold(InvoiceIssue(OrderId("order-1"), issuedAt))
+        // Assert
+        assertThat(invoiceRepository.findBy(OrderId("order-1"))?.sellerId).isEqualTo(currentSeller.id)
     }
 
     @Test

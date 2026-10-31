@@ -8,7 +8,6 @@ import org.flexstore.domain.order.usecase.ReadAdministeredOrderUseCase
 import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.*
-import org.flexstore.infra.invoice.ConfiguredSellerRepository
 import org.flexstore.infra.repository.*
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
@@ -27,15 +26,18 @@ class InvoiceServiceTest : WithAssertions {
     private val orderRepository = InMemoryOrderRepository()
     private val invoiceRepository = InMemoryInvoiceRepository()
     private val userRepository = InMemoryUserRepository().apply { save(jane) }
-    // Renders the title of the invoice only: enough to know which invoice was rendered
+    private val sellerRepository = InMemorySellerRepository(testSeller)
+    // Renders the title of the invoice and the name of its seller: enough to know what was rendered
     private val titleRenderer = object : InvoiceRenderer {
-        override fun render(invoiceDocument: InvoiceDocument) =
-            InvoicePdf(invoiceDocument.title().value.toByteArray())
+        override fun render(invoiceDocument: InvoiceDocument): InvoicePdf {
+            val sellerName = invoiceDocument.seller().asList().first().value
+            return InvoicePdf("${invoiceDocument.title().value} - $sellerName".toByteArray())
+        }
     }
     private val service = InvoiceService(
         InvoiceUseCases(
             ReadInvoiceUseCase(invoiceRepository),
-            ReadSellerUseCase(ConfiguredSellerRepository(testSeller)),
+            ReadSellerUseCase(sellerRepository),
             RenderInvoiceUseCase(titleRenderer)
         ),
         ReadAdministeredOrderUseCase(orderRepository, userRepository)
@@ -46,7 +48,7 @@ class InvoiceServiceTest : WithAssertions {
         val orderPlacement = OrderPlacement(OrderStamp(orderId, placedAt), checkout)
         val order = Order.place(orderPlacement, Cart(customer).add(deskLamp, Quantity(1)))
         orderRepository.save(order.withStatus(OrderStatus.PAID))
-        if (invoiced) invoiceRepository.issue(InvoiceIssue(orderId, InvoiceDate(placedAt)))
+        if (invoiced) invoiceRepository.issue(InvoiceIssue(orderId, InvoiceDate(placedAt)), testSeller.id)
     }
 
     @Test
@@ -56,7 +58,21 @@ class InvoiceServiceTest : WithAssertions {
         // Act
         val invoicePdf = service.customerInvoice(janeId, orderId)
         // Assert
-        assertThat(String(invoicePdf.content)).isEqualTo("Facture n° 2026-000001")
+        assertThat(String(invoicePdf.content)).isEqualTo("Facture n° 2026-000001 - Flexstore SAS")
+    }
+
+    @Test
+    fun `an invoice should keep the seller it was issued with, once the seller is edited`() {
+        // Arrange
+        storePaidOrder()
+        val renamedContact = testSellerDetails.contact.copy(name = SellerName("Flexstore Group"))
+        val renamedDetails = SellerDetails(renamedContact, testSellerDetails.identifiers)
+        val renamedSeller = Seller(SellerId.nextId(), renamedDetails)
+        sellerRepository.save(renamedSeller)
+        // Act
+        val invoicePdf = service.anyInvoice(orderId)
+        // Assert
+        assertThat(String(invoicePdf.content)).isEqualTo("Facture n° 2026-000001 - Flexstore SAS")
     }
 
     @Test

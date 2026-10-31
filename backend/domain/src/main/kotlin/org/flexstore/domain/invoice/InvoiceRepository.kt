@@ -5,8 +5,8 @@ import org.flexstore.domain.order.OrderId
 // The invoices issued, numbered in a sequence without gaps
 interface InvoiceRepository {
 
-    // Issues the invoice of the order, with the next number of the sequence
-    fun issue(invoiceIssue: InvoiceIssue): Invoice
+    // Issues the invoice of the order, with the next number of the sequence, sold by the given seller
+    fun issue(invoiceIssue: InvoiceIssue, sellerId: SellerId): Invoice
 
     fun findBy(orderId: OrderId): Invoice?
 
@@ -20,7 +20,15 @@ interface InvoiceRenderer {
     fun render(invoiceDocument: InvoiceDocument): InvoicePdf
 }
 
-// The shop that sells, as written on its invoices (given by the configuration)
+// The shop that sells, as written on its invoices: its versions are kept, the last one saved is the current one
 interface SellerRepository {
-    fun load(): Seller
+
+    fun current(): Seller
+
+    fun findBy(sellerId: SellerId): Seller?
+
+    // Adds a version of the seller, which becomes the current one
+    fun save(seller: Seller)
+
+    fun sellerIsMissing(sellerId: SellerId) = findBy(sellerId) == null
 }

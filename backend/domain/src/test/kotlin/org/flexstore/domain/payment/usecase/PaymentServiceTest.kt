@@ -5,6 +5,7 @@ import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.order.usecase.*
+import org.flexstore.domain.invoice.testSeller
 import org.flexstore.domain.invoice.usecase.IssueInvoiceUseCase
 import org.flexstore.domain.payment.*
 import org.flexstore.domain.product.*
@@ -55,7 +56,8 @@ class PaymentServiceTest : WithAssertions {
                 readShopSettingsUseCase,
                 ProposeShippingOptionsUseCase(cartRepository, shopSettingsRepository)
             )
-        val issueInvoiceUseCase = IssueInvoiceUseCase(orderRepository, invoiceRepository)
+        val sellerRepository = InMemorySellerRepository(testSeller)
+        val issueInvoiceUseCase = IssueInvoiceUseCase(orderRepository, invoiceRepository, sellerRepository)
         return PaymentService(paymentUseCases, orderUseCases, issueInvoiceUseCase)
     }
 
