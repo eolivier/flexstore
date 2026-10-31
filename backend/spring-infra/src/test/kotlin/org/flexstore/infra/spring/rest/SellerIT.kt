@@ -1,7 +1,7 @@
 package org.flexstore.infra.spring.rest
 
+import org.flexstore.domain.seller.*
 import org.assertj.core.api.Assertions.assertThat
-import org.flexstore.domain.invoice.*
 import org.flexstore.infra.spring.security.asAdmin
 import org.flexstore.infra.spring.security.asUser
 import org.junit.jupiter.api.AfterEach

@@ -1,8 +1,8 @@
 package org.flexstore.infra.spring.adapter.rest
 
+import org.flexstore.domain.seller.usecase.SellerUseCases
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.flexstore.domain.invoice.usecase.SellerUseCases
 import org.flexstore.infra.spring.adapter.rest.json.JsonSeller
 import org.springframework.web.bind.annotation.*
 

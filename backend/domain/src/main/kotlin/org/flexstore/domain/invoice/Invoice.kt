@@ -1,6 +1,7 @@
 package org.flexstore.domain.invoice
 
 import org.flexstore.domain.order.OrderId
+import org.flexstore.domain.seller.*
 import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.NominalException
 import org.flexstore.domain.sharedkernel.InstantProvider

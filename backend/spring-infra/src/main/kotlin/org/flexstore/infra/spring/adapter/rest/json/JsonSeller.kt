@@ -1,8 +1,8 @@
 package org.flexstore.infra.spring.adapter.rest.json
 
+import org.flexstore.domain.seller.*
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import org.flexstore.domain.invoice.*
 
 // The seller written on the invoices: address on one line, SIRET of 14 digits (spaces allowed), intra-community
 // VAT number (FR then 2 to 13 digits or letters)

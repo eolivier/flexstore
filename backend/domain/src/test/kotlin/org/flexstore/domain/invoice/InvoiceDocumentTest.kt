@@ -6,6 +6,7 @@ import org.flexstore.domain.discount.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.settings.FreeShippingThreshold
 import org.flexstore.domain.product.*
+import org.flexstore.domain.seller.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.*
 import org.junit.jupiter.api.Test

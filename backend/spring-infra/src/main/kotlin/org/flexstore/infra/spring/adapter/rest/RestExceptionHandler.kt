@@ -7,6 +7,7 @@ import org.flexstore.domain.order.*
 import org.flexstore.domain.payment.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.image.*
+import org.flexstore.domain.seller.*
 import org.flexstore.domain.settings.*
 import org.flexstore.domain.stock.*
 import org.flexstore.domain.user.model.*

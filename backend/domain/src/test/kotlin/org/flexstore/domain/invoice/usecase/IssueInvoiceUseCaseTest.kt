@@ -5,6 +5,7 @@ import org.flexstore.domain.cart.*
 import org.flexstore.domain.invoice.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.product.*
+import org.flexstore.domain.seller.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.UserId
 import org.flexstore.infra.repository.*

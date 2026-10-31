@@ -1,7 +1,7 @@
-package org.flexstore.domain.invoice.usecase
+package org.flexstore.domain.seller.usecase
 
+import org.flexstore.domain.seller.*
 import org.assertj.core.api.WithAssertions
-import org.flexstore.domain.invoice.*
 import org.flexstore.infra.repository.InMemorySellerRepository
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
