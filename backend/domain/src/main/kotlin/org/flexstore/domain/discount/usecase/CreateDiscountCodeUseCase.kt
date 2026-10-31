@@ -23,8 +23,8 @@ class CreateDiscountCodeUseCase(
         val validity = discountCode.offer.validity
         val reason = when {
             discountCode.code.isMalformed() -> "its code is upper-case letters and digits, 3 to 30"
-            !discountCode.reduction.isValid() -> "its reduction is more than 0 (a percentage up to 100)"
-            !validity.usageLimit.isValid() -> "it may be used by 1 order at least"
+            discountCode.reduction.isInvalid() -> "its reduction is more than 0 (a percentage up to 100)"
+            validity.usageLimit.isInvalid() -> "it may be used by 1 order at least"
             else -> null
         }
         if (reason != null) {

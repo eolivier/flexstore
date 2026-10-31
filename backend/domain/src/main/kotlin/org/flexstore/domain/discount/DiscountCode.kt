@@ -23,13 +23,13 @@ data class PromoCode(val value: String) {
 
 // A percentage, from more than 0 to 100
 data class Percentage(val value: BigDecimal) {
-    fun isValid() = value.signum() > 0 && value <= BigDecimal(100)
+    fun isInvalid() = value.signum() <= 0 || value > BigDecimal(100)
 }
 
 // What a discount code takes off the price of the items of an order, never more than that price
 sealed interface Reduction {
     fun amountOff(itemsPrice: Price): Price
-    fun isValid(): Boolean
+    fun isInvalid(): Boolean
 }
 
 // A percentage of the price of the items, rounded to the cent
@@ -41,7 +41,7 @@ data class PercentageOff(val percentage: Percentage) : Reduction {
         return Price(Amount(amount), itemsPrice.currency)
     }
 
-    override fun isValid() = percentage.isValid()
+    override fun isInvalid() = percentage.isInvalid()
 }
 
 // A fixed amount, up to the price of the items
@@ -49,7 +49,7 @@ data class AmountOff(val amount: Price) : Reduction {
 
     override fun amountOff(itemsPrice: Price): Price = if (itemsPrice.isAtLeast(amount)) amount else itemsPrice
 
-    override fun isValid() = amount.amount.value.signum() > 0
+    override fun isInvalid() = amount.amount.value.signum() <= 0
 }
 
 // The moment a discount code stops being usable
@@ -59,7 +59,7 @@ data class ExpiryDate(val value: Instant) {
 
 // How many orders may use a discount code, at least 1
 data class UsageLimit(val value: Int) {
-    fun isValid() = value >= 1
+    fun isInvalid() = value < 1
 }
 
 // How many orders used a discount code
