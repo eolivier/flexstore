@@ -338,6 +338,10 @@ export const JsonNewDiscountCodeReductionTypeEnum = {
 
 export type JsonNewDiscountCodeReductionTypeEnum = typeof JsonNewDiscountCodeReductionTypeEnum[keyof typeof JsonNewDiscountCodeReductionTypeEnum];
 
+export interface JsonNewReview {
+    'rating': number;
+    'comment': string;
+}
 export interface JsonOrder {
     'id': string;
     'placedAt': string;
@@ -546,6 +550,25 @@ export interface JsonProductTranslation {
     'language': string;
     'name': string;
     'description': string;
+}
+export interface JsonRatingSummary {
+    'productId': string;
+    /**
+     * The average of the ratings, from 1 to 5, with one decimal
+     */
+    'average': number;
+    'reviewCount': number;
+}
+export interface JsonReview {
+    'id': string;
+    'productId': string;
+    /**
+     * The first name and the initial of the last name of the customer (Marie D.)
+     */
+    'reviewerName': string;
+    'rating': number;
+    'comment': string;
+    'reviewedAt': string;
 }
 export interface JsonSaveItemResponse {
     'status'?: string;
@@ -3828,6 +3851,249 @@ export class ProductsApi extends BaseAPI {
      */
     public updateProduct(id: string, editedJsonProduct: EditedJsonProduct, options?: RawAxiosRequestConfig) {
         return ProductsApiFp(this.configuration).updateProduct(id, editedJsonProduct, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * ReviewsApi - axios parameter creator
+ */
+export const ReviewsApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Review a product bought by the signed-in customer, once per product
+         * @param {string} id 
+         * @param {JsonNewReview} jsonNewReview 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        addReview: async (id: string, jsonNewReview: JsonNewReview, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('addReview', 'id', id)
+            // verify required parameter 'jsonNewReview' is not null or undefined
+            assertParamExists('addReview', 'jsonNewReview', jsonNewReview)
+            const localVarPath = `/api/products/{id}/reviews`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonNewReview, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Retrieve what the customers think of each product that has reviews
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getRatings: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/product-ratings`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Retrieve the reviews of a product, newest first
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getReviews: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('getReviews', 'id', id)
+            const localVarPath = `/api/products/{id}/reviews`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * ReviewsApi - functional programming interface
+ */
+export const ReviewsApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ReviewsApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Review a product bought by the signed-in customer, once per product
+         * @param {string} id 
+         * @param {JsonNewReview} jsonNewReview 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async addReview(id: string, jsonNewReview: JsonNewReview, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonReview>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.addReview(id, jsonNewReview, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReviewsApi.addReview']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Retrieve what the customers think of each product that has reviews
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getRatings(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<JsonRatingSummary>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getRatings(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReviewsApi.getRatings']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Retrieve the reviews of a product, newest first
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getReviews(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<JsonReview>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getReviews(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReviewsApi.getReviews']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * ReviewsApi - factory interface
+ */
+export const ReviewsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ReviewsApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Review a product bought by the signed-in customer, once per product
+         * @param {string} id 
+         * @param {JsonNewReview} jsonNewReview 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        addReview(id: string, jsonNewReview: JsonNewReview, options?: RawAxiosRequestConfig): AxiosPromise<JsonReview> {
+            return localVarFp.addReview(id, jsonNewReview, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Retrieve what the customers think of each product that has reviews
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getRatings(options?: RawAxiosRequestConfig): AxiosPromise<Array<JsonRatingSummary>> {
+            return localVarFp.getRatings(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Retrieve the reviews of a product, newest first
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getReviews(id: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<JsonReview>> {
+            return localVarFp.getReviews(id, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * ReviewsApi - object-oriented interface
+ */
+export class ReviewsApi extends BaseAPI {
+    /**
+     * 
+     * @summary Review a product bought by the signed-in customer, once per product
+     * @param {string} id 
+     * @param {JsonNewReview} jsonNewReview 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public addReview(id: string, jsonNewReview: JsonNewReview, options?: RawAxiosRequestConfig) {
+        return ReviewsApiFp(this.configuration).addReview(id, jsonNewReview, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Retrieve what the customers think of each product that has reviews
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getRatings(options?: RawAxiosRequestConfig) {
+        return ReviewsApiFp(this.configuration).getRatings(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Retrieve the reviews of a product, newest first
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getReviews(id: string, options?: RawAxiosRequestConfig) {
+        return ReviewsApiFp(this.configuration).getReviews(id, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

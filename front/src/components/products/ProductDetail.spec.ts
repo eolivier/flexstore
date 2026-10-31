@@ -9,6 +9,23 @@ import { getAllProducts, getProduct } from '@/services/product.service';
 vi.mock('@/services/product.service', () => ({ getAllProducts: vi.fn(), getProduct: vi.fn() }));
 vi.mock('@/api', () => ({
   apiBaseUrl: 'https://api.example',
+  reviewsApi: {
+    getRatings: vi.fn(() => Promise.resolve({ data: [{ productId: 'jeans', average: 4.5, reviewCount: 2 }] })),
+    getReviews: vi.fn(() =>
+      Promise.resolve({
+        data: [
+          {
+            id: 'r-1',
+            productId: 'jeans',
+            reviewerName: 'Marie D.',
+            rating: 5,
+            comment: 'Sturdy',
+            reviewedAt: '2026-10-31T10:00:00Z',
+          },
+        ],
+      })
+    ),
+  },
   productImagesApi: { getProductsWithImage: vi.fn(() => Promise.resolve({ data: [] })) },
   stocksApi: {
     getStocks: vi.fn(() =>
@@ -75,5 +92,13 @@ describe('ProductDetail.vue', () => {
     const wrapper = await mountProductDetail();
     // Assert
     expect(wrapper.text()).toContain('Only 3 left in stock');
+  });
+
+  it('shows the reviews of the product and the rating of the products of the same category', async () => {
+    // Act
+    const wrapper = await mountProductDetail();
+    // Assert
+    expect(wrapper.text()).toContain('Marie D.');
+    expect(wrapper.text()).toContain('4.5 (2 reviews)');
   });
 });

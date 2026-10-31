@@ -7,6 +7,7 @@ import org.flexstore.domain.order.*
 import org.flexstore.domain.payment.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.image.*
+import org.flexstore.domain.review.*
 import org.flexstore.domain.seller.*
 import org.flexstore.domain.settings.*
 import org.flexstore.domain.stock.*
@@ -128,6 +129,16 @@ class RestExceptionHandler {
             is DiscountCodeExpiredException, is DiscountCodeUsedUpException -> ResponseEntity
                 .status(410)
                 .body(mapOf("error" to (ex.message ?: "Discount code no longer usable")))
+            is InvalidReviewException -> ResponseEntity
+                .status(400)
+                .body(mapOf("error" to (ex.message ?: "Invalid review")))
+            // Only a customer who bought the product can review it
+            is ReviewNotAllowedException -> ResponseEntity
+                .status(403)
+                .body(mapOf("error" to (ex.message ?: "Review not allowed")))
+            is ReviewAlreadyWrittenException -> ResponseEntity
+                .status(409)
+                .body(mapOf("error" to (ex.message ?: "Product already reviewed")))
             is InvoiceNotFoundException -> ResponseEntity
                 .status(404)
                 .body(mapOf("error" to (ex.message ?: "No invoice")))

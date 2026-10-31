@@ -6,6 +6,7 @@
   import { useRoute, useRouter } from 'vue-router';
   import { useProductsStore } from '@/stores/products.store.ts';
   import ProductCard from './ProductCard.vue';
+  import { useReviewsStore } from '@/stores/reviews.store';
   import CartSnackbar from '@/components/cart/CartSnackbar.vue';
   import { useAddToCart } from '@/composables/useAddToCart';
   import { categoryInfo, isKnownCategory } from './categories';
@@ -34,6 +35,7 @@
 
   const productsStore = useProductsStore();
   const stocksStore = useStocksStore();
+  const reviewsStore = useReviewsStore();
   const { addingProductId, feedback, addToCart } = useAddToCart();
 
   const title = computed(() => t(props.category ? categoryInfo(props.category).label : 'nav.allProducts'));
@@ -61,6 +63,7 @@
   onMounted(() => {
     productsStore.fetchProducts();
     stocksStore.fetchStocks();
+    reviewsStore.fetchRatings();
     useProductImagesStore().fetchProductsWithImage();
   });
 </script>
@@ -127,6 +130,7 @@
         <ProductCard
           :product="product"
           :stock="stocksStore.quantityOf(product.id)"
+          :rating="reviewsStore.ratingOf(product.id)"
           :adding="addingProductId === product.id"
           @add="addToCart"
         />

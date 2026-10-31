@@ -1,6 +1,6 @@
 # Physical data model
 
-The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V32**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
+The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V33**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
 
 ![Physical data model](database.png)
 
@@ -220,6 +220,17 @@ erDiagram
         updated_at timestamp
     }
 
+    product_review {
+        id varchar(50) PK
+        product_id varchar(50) FK,UK "unique with user_id: one review per customer and product"
+        user_id varchar(50) FK,UK
+        rating int "1 to 5"
+        comment varchar(1000)
+        reviewed_at timestamptz
+        created_at timestamp
+        updated_at timestamp
+    }
+
     shop_settings {
         id int PK "a single row (id = 1)"
         order_confirmation_email varchar(10) "ENABLED or DISABLED"
@@ -248,6 +259,8 @@ erDiagram
     stock }o--|| product : "product_id (cascade)"
     product_image }o--|| product : "product_id (cascade)"
     product_translation }o--|| product : "product_id (cascade)"
+    product_review }o--|| product : "product_id (cascade)"
+    product_review }o--|| user : "user_id (cascade)"
 ```
 
 ## Notes

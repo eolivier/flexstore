@@ -80,6 +80,9 @@ data class Order(val detail: OrderDetail, val history: OrderStatusHistory) {
 
     fun isNotPaid() = !isPaid()
 
+    // The order has a line of the product
+    fun includes(productId: ProductId) = lines.includes(productId)
+
     // The moment the order must be paid by, or it is cancelled
     fun paymentDeadline(paymentDelay: PaymentDelay) = PaymentDeadline(placedAt + paymentDelay.asDuration())
 
@@ -282,6 +285,8 @@ data class OrderLines(private val lines: List<OrderLine>) {
 
     fun isEmpty() = lines.isEmpty()
 
+    fun includes(productId: ProductId) = lines.any { line -> line.productId == productId }
+
     // Read-only view for the adapters (JSON, persistence)
     fun asList(): List<OrderLine> = lines.toList()
 
@@ -297,6 +302,9 @@ data class Orders(private val orders: List<Order>) {
     constructor(vararg orders: Order) : this(orders.toList())
 
     fun newestFirst() = Orders(orders.sortedByDescending { it.placedAt })
+
+    // One of the orders is paid and has a line of the product: the customer bought it
+    fun hasPaidFor(productId: ProductId) = orders.any { order -> order.isPaid() && order.includes(productId) }
 
     // The orders still awaiting their payment once the time limit is exceeded
     fun latePaymentsAt(timeLimit: PaymentTimeLimit) = Orders(orders.filter { timeLimit.isExceededFor(it) })
