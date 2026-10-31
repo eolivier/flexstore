@@ -7,11 +7,14 @@ import org.flexstore.domain.review.*
 class ReviewUseCases(
     private val addReviewUseCase: AddReviewUseCase,
     private val listProductReviewsUseCase: ListProductReviewsUseCase,
-    private val listRatingSummariesUseCase: ListRatingSummariesUseCase
+    private val listRatingSummariesUseCase: ListRatingSummariesUseCase,
+    private val readReviewEligibilityUseCase: ReadReviewEligibilityUseCase
 ) {
     fun add(submission: ReviewSubmission) = addReviewUseCase.unfold(submission)
 
     fun getAbout(productId: ProductId) = listProductReviewsUseCase.unfold(productId)
 
     fun getSummaries() = listRatingSummariesUseCase.unfold(Unit)
+
+    fun eligibilityOf(question: ReviewEligibilityQuestion) = readReviewEligibilityUseCase.unfold(question)
 }

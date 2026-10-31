@@ -7,7 +7,8 @@
   import ReviewForm from './ReviewForm.vue';
   import ReviewList from './ReviewList.vue';
 
-  // The section of the reviews of a product: its rating, the reviews, and the form of a signed-in customer
+  // The section of the reviews of a product: its rating, the reviews, and the form, offered to the signed-in
+  // customers who bought the product and did not review it yet
   const props = defineProps<{ productId: string }>();
 
   const { t } = useI18n();
@@ -18,7 +19,9 @@
 
   const rating = computed(() => reviewsStore.ratingOf(props.productId));
   const signedIn = computed(() => authStore.isAuthenticated);
-  const reviewed = computed(() => outcome.value === 'added' || outcome.value === 'alreadyReviewed');
+  const canReview = computed(
+    () => reviewsStore.eligibility === 'CAN_REVIEW' && outcome.value !== 'alreadyReviewed'
+  );
 
   watch(
     () => props.productId,
@@ -26,6 +29,16 @@
       outcome.value = null;
       reviewsStore.fetchReviews(productId);
       reviewsStore.fetchRatings();
+    },
+    { immediate: true }
+  );
+
+  // Asked again when the customer signs in or out on the page
+  watch(
+    [() => props.productId, signedIn],
+    ([productId, isSignedIn]) => {
+      if (isSignedIn) reviewsStore.fetchEligibility(productId);
+      else reviewsStore.eligibility = null;
     },
     { immediate: true }
   );
@@ -46,7 +59,21 @@
     <v-alert v-if="outcome === 'added'" type="success" variant="tonal" density="compact">{{
       t('reviews.thanks')
     }}</v-alert>
-    <ReviewForm v-else-if="signedIn && !reviewed" :submitting="submitting" :outcome="outcome" @submit="submit" />
+    <ReviewForm v-else-if="signedIn && canReview" :submitting="submitting" :outcome="outcome" @submit="submit" />
+    <p
+      v-else-if="signedIn && reviewsStore.eligibility === 'NOT_BOUGHT'"
+      class="text-body-2 text-medium-emphasis"
+      data-test="not-bought"
+    >
+      {{ t('reviews.onlyBuyers') }}
+    </p>
+    <p
+      v-else-if="signedIn && (reviewsStore.eligibility === 'ALREADY_REVIEWED' || outcome === 'alreadyReviewed')"
+      class="text-body-2 text-medium-emphasis"
+      data-test="already-reviewed"
+    >
+      {{ t('reviews.errors.alreadyReviewed') }}
+    </p>
     <p v-else-if="!signedIn" class="text-body-2 text-medium-emphasis">
       <router-link :to="{ path: '/login', query: { redirect: `/products/${productId}` } }" class="text-secondary">{{ t('reviews.signIn') }}</router-link>
     </p>

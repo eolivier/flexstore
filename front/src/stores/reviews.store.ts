@@ -1,8 +1,11 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { JsonRatingSummary, JsonReview } from '@/generated';
+import type { JsonRatingSummary, JsonReview, JsonReviewEligibility } from '@/generated';
 import { reviewsApi } from '@/api';
 import { useAuthStore } from './auth.store';
+
+// Whether the signed-in customer may review the product being read
+export type ReviewEligibility = JsonReviewEligibility['eligibility'];
 
 // How the sending of a review ended: notBought (403), alreadyReviewed (409), invalid (400)
 export type ReviewOutcome = 'added' | 'notBought' | 'alreadyReviewed' | 'invalid' | 'error';
@@ -22,6 +25,8 @@ const OUTCOME_OF_STATUS: Record<number, ReviewOutcome> = {
 export const useReviewsStore = defineStore('reviews', () => {
   const ratings = ref<Record<string, Rating>>({});
   const reviews = ref<JsonReview[]>([]);
+  // null while unknown (a visitor, or not loaded): no form is offered
+  const eligibility = ref<ReviewEligibility | null>(null);
   const authStore = useAuthStore();
 
   async function fetchRatings() {
@@ -43,6 +48,17 @@ export const useReviewsStore = defineStore('reviews', () => {
     reviews.value = response ? response.data : [];
   }
 
+  // For a signed-in customer: whether they may review the product
+  async function fetchEligibility(productId: string) {
+    eligibility.value = null;
+    const response = await authStore
+      .authFetch(`/api/products/${encodeURIComponent(productId)}/review-eligibility`)
+      .catch(() => null);
+    if (!response?.ok) return;
+    const jsonEligibility: JsonReviewEligibility = await response.json();
+    eligibility.value = jsonEligibility.eligibility;
+  }
+
   // For a signed-in customer who bought the product; the reviews and the ratings are read again once added
   async function addReview(productId: string, rating: number, comment: string): Promise<ReviewOutcome> {
     const response = await authStore
@@ -54,9 +70,10 @@ export const useReviewsStore = defineStore('reviews', () => {
       .catch(() => null);
     if (!response) return 'error';
     if (!response.ok) return OUTCOME_OF_STATUS[response.status] ?? 'error';
+    eligibility.value = 'ALREADY_REVIEWED';
     await Promise.all([fetchReviews(productId), fetchRatings()]);
     return 'added';
   }
 
-  return { ratings, reviews, fetchRatings, ratingOf, fetchReviews, addReview };
+  return { ratings, reviews, eligibility, fetchRatings, ratingOf, fetchReviews, fetchEligibility, addReview };
 });

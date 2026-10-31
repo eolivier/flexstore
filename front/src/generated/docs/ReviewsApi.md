@@ -6,6 +6,7 @@ All URIs are relative to *http://localhost:8080*
 |------------- | ------------- | -------------|
 |[**addReview**](#addreview) | **POST** /api/products/{id}/reviews | Review a product bought by the signed-in customer, once per product|
 |[**getRatings**](#getratings) | **GET** /api/product-ratings | Retrieve what the customers think of each product that has reviews|
+|[**getReviewEligibility**](#getrevieweligibility) | **GET** /api/products/{id}/review-eligibility | Tell whether the signed-in customer may review a product (bought and paid for, not reviewed yet)|
 |[**getReviews**](#getreviews) | **GET** /api/products/{id}/reviews | Retrieve the reviews of a product, newest first|
 
 # **addReview**
@@ -106,6 +107,57 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | The average rating and the number of reviews of each reviewed product |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getReviewEligibility**
+> JsonReviewEligibility getReviewEligibility()
+
+
+### Example
+
+```typescript
+import {
+    ReviewsApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ReviewsApi(configuration);
+
+let id: string; // (default to undefined)
+
+const { status, data } = await apiInstance.getReviewEligibility(
+    id
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **id** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**JsonReviewEligibility**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Whether the customer may review the product |  -  |
+|**401** | Not signed in |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

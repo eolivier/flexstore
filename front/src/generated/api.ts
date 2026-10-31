@@ -584,6 +584,18 @@ export interface JsonReview {
     'comment': string;
     'reviewedAt': string;
 }
+export interface JsonReviewEligibility {
+    'eligibility': JsonReviewEligibilityEligibilityEnum;
+}
+
+export const JsonReviewEligibilityEligibilityEnum = {
+    CanReview: 'CAN_REVIEW',
+    NotBought: 'NOT_BOUGHT',
+    AlreadyReviewed: 'ALREADY_REVIEWED'
+} as const;
+
+export type JsonReviewEligibilityEligibilityEnum = typeof JsonReviewEligibilityEligibilityEnum[keyof typeof JsonReviewEligibilityEligibilityEnum];
+
 export interface JsonSalesDashboard {
     'firstDay': string;
     'lastDay': string;
@@ -4042,6 +4054,44 @@ export const ReviewsApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary Tell whether the signed-in customer may review a product (bought and paid for, not reviewed yet)
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getReviewEligibility: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('getReviewEligibility', 'id', id)
+            const localVarPath = `/api/products/{id}/review-eligibility`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Retrieve the reviews of a product, newest first
          * @param {string} id 
          * @param {*} [options] Override http request option.
@@ -4111,6 +4161,19 @@ export const ReviewsApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Tell whether the signed-in customer may review a product (bought and paid for, not reviewed yet)
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getReviewEligibility(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonReviewEligibility>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getReviewEligibility(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ReviewsApi.getReviewEligibility']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Retrieve the reviews of a product, newest first
          * @param {string} id 
          * @param {*} [options] Override http request option.
@@ -4153,6 +4216,16 @@ export const ReviewsApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary Tell whether the signed-in customer may review a product (bought and paid for, not reviewed yet)
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getReviewEligibility(id: string, options?: RawAxiosRequestConfig): AxiosPromise<JsonReviewEligibility> {
+            return localVarFp.getReviewEligibility(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Retrieve the reviews of a product, newest first
          * @param {string} id 
          * @param {*} [options] Override http request option.
@@ -4188,6 +4261,17 @@ export class ReviewsApi extends BaseAPI {
      */
     public getRatings(options?: RawAxiosRequestConfig) {
         return ReviewsApiFp(this.configuration).getRatings(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Tell whether the signed-in customer may review a product (bought and paid for, not reviewed yet)
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getReviewEligibility(id: string, options?: RawAxiosRequestConfig) {
+        return ReviewsApiFp(this.configuration).getReviewEligibility(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

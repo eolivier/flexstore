@@ -597,6 +597,29 @@ paths:
           description: Product not found
         "409":
           description: The customer already reviewed the product
+  /api/products/{id}/review-eligibility:
+    get:
+      tags:
+      - Reviews
+      summary: Tell whether the signed-in customer may review a product (bought and paid for, not reviewed yet)
+      operationId: getReviewEligibility
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Whether the customer may review the product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonReviewEligibility"
+        "401":
+          description: Not signed in
   /api/product-ratings:
     get:
       tags:
@@ -1879,6 +1902,13 @@ components:
         comment:
           type: string
           maxLength: 1000
+    JsonReviewEligibility:
+      type: object
+      required: [eligibility]
+      properties:
+        eligibility:
+          type: string
+          enum: [CAN_REVIEW, NOT_BOUGHT, ALREADY_REVIEWED]
     JsonRatingSummary:
       type: object
       required: [productId, average, reviewCount]

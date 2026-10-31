@@ -56,4 +56,37 @@ describe('reviews.store', () => {
     // Assert
     expect(outcome).toBe(expected);
   });
+
+  it.each(['CAN_REVIEW', 'NOT_BOUGHT', 'ALREADY_REVIEWED'])(
+    'knows whether the customer may review the product: %s',
+    async (eligibility) => {
+      // Arrange
+      mockFetch.mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve({ eligibility }) });
+      const store = useReviewsStore();
+      // Act
+      await store.fetchEligibility('p-1');
+      // Assert
+      expect(store.eligibility).toBe(eligibility);
+    }
+  );
+
+  it('offers no form when the eligibility could not be read', async () => {
+    // Arrange
+    mockFetch.mockResolvedValue({ ok: false, status: 401 });
+    const store = useReviewsStore();
+    // Act
+    await store.fetchEligibility('p-1');
+    // Assert
+    expect(store.eligibility).toBeNull();
+  });
+
+  it('knows the product reviewed once the review is added', async () => {
+    // Arrange
+    mockFetch.mockResolvedValue({ ok: true, status: 201 });
+    const store = useReviewsStore();
+    // Act
+    await store.addReview('p-1', 5, 'Sturdy');
+    // Assert
+    expect(store.eligibility).toBe('ALREADY_REVIEWED');
+  });
 });
