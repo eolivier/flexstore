@@ -36,7 +36,7 @@ This repo is meant to be a learning vehicle and a ready-to-fork base for real pr
 - Order detail: date, status, lines (product, unit price, quantity, total) and order total; shown right after the order is placed
 
 **Account and administration** (sign-in required)
-- Create an account (first name, last name, email, password, phone number, postal address): the account waits for the verification of the email (`PENDING_VERIFICATION`), the customer is signed in at once and can order
+- Create an account (first name, last name, email, password, phone number, postal address; a customer who buys for their company ticks *I am a company* and gives its name, its SIREN and, optionally, its intra-community VAT number, which must match the SIREN for a French company: the address is then sent to the company, for their attention, and the invoices carry its name and VAT number): the account waits for the verification of the email (`PENDING_VERIFICATION`), the customer is signed in at once and can order
 - Verify the email with the link received by email (valid for 1 hour): the account becomes `ACTIVE`; a new link can be asked for from the profile
 - Sign in, profile, change password
 - My addresses: see, edit and remove the postal addresses of the account; the orders keep the address they were sent to

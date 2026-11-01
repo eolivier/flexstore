@@ -20,6 +20,7 @@ docs/JsonCartItem.md
 docs/JsonCartItems.md
 docs/JsonChangePasswordRequest.md
 docs/JsonChosenPassword.md
+docs/JsonCustomerCompany.md
 docs/JsonDailySales.md
 docs/JsonDiscountCode.md
 docs/JsonDiscountPreview.md

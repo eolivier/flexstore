@@ -24,10 +24,12 @@ async function mountSignUp(redirect?: string) {
   return { wrapper, router };
 }
 
-// Fills in the form: the text fields in their order on the screen,
+// Fills in the form: the text fields in their order on the screen (the fields of the company left out),
 // then the email, the password and the phone number
 async function fillAndSubmit(wrapper: Awaited<ReturnType<typeof mountSignUp>>['wrapper']) {
-  const [firstName, lastName, street, complement, postalCode, city] = wrapper.findAll('input[type="text"]');
+  const companyFields = '[data-test="company-name"], [data-test="siren"], [data-test="vat-number"]';
+  const textFields = wrapper.findAll('input[type="text"]').filter((input) => !input.element.closest(companyFields));
+  const [firstName, lastName, street, complement, postalCode, city] = textFields;
   await firstName.setValue('Jane');
   await lastName.setValue('Doe');
   await wrapper.find('input[type="email"]').setValue('jane@example.com');
@@ -110,6 +112,43 @@ describe('SignUp.vue', () => {
     await fillAndSubmit(wrapper);
     // Assert
     expect(wrapper.text()).toContain('An account already exists with this email.');
+  });
+
+  it('shows the fields of the company once the customer says they are a company', async () => {
+    // Arrange
+    const { wrapper } = await mountSignUp();
+    const fieldsBefore = wrapper.find('[data-test="siren"]').exists();
+    // Act
+    await wrapper.get('[data-test="is-company"] input').setValue(true);
+    // Assert
+    expect(fieldsBefore).toBe(false);
+    expect(wrapper.find('[data-test="siren"]').exists()).toBe(true);
+  });
+
+  it('sends the company, its address sent to it for the attention of the customer', async () => {
+    // Arrange
+    const { wrapper } = await mountSignUp();
+    await wrapper.get('[data-test="is-company"] input').setValue(true);
+    await wrapper.get('[data-test="company-name"] input').setValue('Acme');
+    await wrapper.get('[data-test="siren"] input').setValue('123 456 789');
+    await wrapper.get('[data-test="vat-number"] input').setValue('fr32 123456789');
+    // Act
+    await fillAndSubmit(wrapper);
+    // Assert
+    const registration = sentRegistration();
+    expect(registration.company).toEqual({ companyName: 'Acme', siren: '123456789', vatNumber: 'FR32123456789' });
+    expect(registration.postalAddress.recipientType).toBe('LEGAL_ENTITY');
+    expect(registration.postalAddress.companyName).toBe('Acme');
+  });
+
+  it('reports a company refused', async () => {
+    // Arrange
+    mockFetch.mockResolvedValue({ ok: false, status: 400 });
+    const { wrapper } = await mountSignUp();
+    // Act
+    await fillAndSubmit(wrapper);
+    // Assert
+    expect(wrapper.text()).toContain('The company was refused: check its SIREN and its VAT number.');
   });
 
   it('links to the login, keeping where to go back', async () => {

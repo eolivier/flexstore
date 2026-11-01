@@ -13,7 +13,9 @@ data class JsonAccountRegistration @JsonCreator constructor(
     @JsonProperty("email") val email: String,
     @JsonProperty("password") val password: String,
     @JsonProperty("phoneNumber") val phoneNumber: String,
-    @JsonProperty("postalAddress") val postalAddress: JsonPostalAddress
+    @JsonProperty("postalAddress") val postalAddress: JsonPostalAddress,
+    // Given by a customer who buys for their company; none for a customer who buys for themselves
+    @JsonProperty("company") val company: JsonCustomerCompany? = null
 ) {
     fun toRegistration(userId: UserId) = CustomerRegistration(
         userId = userId,
@@ -21,8 +23,33 @@ data class JsonAccountRegistration @JsonCreator constructor(
         email = Email(email.trim()),
         password = PlainPassword(password),
         phoneNumber = PhoneNumber(phoneNumber.trim()),
-        postalAddress = postalAddress.toPostalAddress()
+        postalAddress = postalAddress.toPostalAddress(),
+        customerType = company?.toCustomerType() ?: CustomerType.Individual
     )
+}
+
+// The company a customer buys for: its name, its SIREN (9 digits) and its intra-community VAT number (optional)
+data class JsonCustomerCompany @JsonCreator constructor(
+    @JsonProperty("companyName") val companyName: String,
+    @JsonProperty("siren") val siren: String,
+    @JsonProperty("vatNumber") val vatNumber: String? = null
+) {
+    fun toCustomerType(): CustomerType {
+        val company = Company(CompanyName(companyName.trim()), VatNumber.from(vatNumber.orEmpty()))
+        return CustomerType.Business(CustomerCompany(company, Siren.from(siren)))
+    }
+
+    companion object {
+        // The company of a customer who buys for it, none for the others
+        fun of(customerType: CustomerType): JsonCustomerCompany? = when (customerType) {
+            is CustomerType.Business -> JsonCustomerCompany(
+                customerType.company.name.value,
+                customerType.company.siren.value,
+                customerType.company.vatNumber.value.ifEmpty { null }
+            )
+            CustomerType.Individual -> null
+        }
+    }
 }
 
 // A postal address: its recipient and where it is (the complement is optional).

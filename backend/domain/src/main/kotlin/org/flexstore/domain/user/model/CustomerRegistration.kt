@@ -10,9 +10,21 @@ data class CustomerRegistration(
     val email: Email,
     val password: PlainPassword,
     val phoneNumber: PhoneNumber,
-    val postalAddress: PostalAddress
+    val postalAddress: PostalAddress,
+    val customerType: CustomerType
 ) {
-    // A registered customer is a simple user whose email is not verified yet
+    // A customer who buys for themselves
+    constructor(
+        userId: UserId,
+        fullName: FullName,
+        email: Email,
+        password: PlainPassword,
+        phoneNumber: PhoneNumber,
+        postalAddress: PostalAddress
+    ) : this(userId, fullName, email, password, phoneNumber, postalAddress, CustomerType.Individual)
+
+    // A registered customer is a simple user whose email is not verified yet. The address they give is sent to
+    // them, or to their company for their attention
     fun customer() = User.DefinedUser(
         id = userId,
         fullName = fullName,
@@ -21,8 +33,11 @@ data class CustomerRegistration(
         role = Role.USER,
         status = AccountStatus.PENDING_VERIFICATION,
         phoneNumber = phoneNumber,
-        postalAddresses = PostalAddresses(postalAddress)
+        postalAddresses = PostalAddresses(firstAddress()),
+        customerType = customerType
     )
+
+    private fun firstAddress() = PostalAddress(customerType.recipientFor(fullName), postalAddress.location)
 
     fun isComplete() =
         fullName.isComplete() && email.value.isNotBlank() && phoneNumber.isGiven() && postalAddress.isComplete()

@@ -24,9 +24,23 @@ data class CompanyName(val value: String) {
 data class VatNumber(val value: String) {
     fun isGiven() = value.isNotBlank()
 
+    fun isNotGiven() = !isGiven()
+
+    // The intra-community form: its country (FR), then 2 to 13 digits or letters
+    fun isWellFormed() = INTRA_COMMUNITY_VAT_NUMBER.matches(value)
+
+    // A French number is FR, a key of 2 characters, then the SIREN of the company
+    fun agreesWith(siren: Siren) = !value.startsWith(FRANCE) || value.endsWith(siren.value)
+
     companion object {
+        private const val FRANCE = "FR"
+        private val INTRA_COMMUNITY_VAT_NUMBER = Regex("[A-Z]{2}[0-9A-Z]{2,13}")
+
         // A company that does not give its VAT number
         fun none() = VatNumber("")
+
+        // As typed: the spaces are dropped, the letters put in upper case
+        fun from(typedVatNumber: String) = VatNumber(typedVatNumber.replace(" ", "").uppercase())
     }
 }
 

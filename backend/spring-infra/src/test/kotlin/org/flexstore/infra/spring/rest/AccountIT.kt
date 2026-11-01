@@ -207,6 +207,47 @@ class AccountIT {
             .andExpect(jsonPath("\$.password").doesNotExist())
     }
 
+    @Test
+    fun `a customer who buys for their company should find it in their account`() {
+        // Arrange
+        register(companyRegistration(siren = "123 456 789", vatNumber = "fr 32 123456789")).andExpect(status().isCreated)
+        val customerId = userRepository.findByEmail(CUSTOMER_EMAIL)!!.id
+        // Act
+        val response = mockMvc.perform(get("/api/accounts/me").with(asUser(customerId)))
+        // Assert
+        response.andExpect(status().isOk)
+            .andExpect(jsonPath("\$.company.companyName").value("Acme"))
+            .andExpect(jsonPath("\$.company.siren").value("123456789"))
+            .andExpect(jsonPath("\$.company.vatNumber").value("FR32123456789"))
+            .andExpect(jsonPath("\$.postalAddresses[0].recipientType").value("LEGAL_ENTITY"))
+            .andExpect(jsonPath("\$.postalAddresses[0].companyName").value("Acme"))
+            .andExpect(jsonPath("\$.postalAddresses[0].lastName").value("Doe"))
+    }
+
+    @Test
+    fun `a customer who buys for themselves should have no company`() {
+        // Arrange
+        register(registration()).andExpect(status().isCreated)
+        val customerId = userRepository.findByEmail(CUSTOMER_EMAIL)!!.id
+        // Act
+        val response = mockMvc.perform(get("/api/accounts/me").with(asUser(customerId)))
+        // Assert
+        response.andExpect(jsonPath("\$.company").doesNotExist())
+    }
+
+    @ParameterizedTest(name = "SIREN {0} and VAT number {1} are refused")
+    @CsvSource("12345678, ''", "123456789, FR32987654321")
+    fun `an invalid company should be refused`(siren: String, vatNumber: String) {
+        // Act
+        val response = register(companyRegistration(siren = siren, vatNumber = vatNumber))
+        // Assert
+        response.andExpect(status().isBadRequest).andExpect(jsonPath("\$.reason").value("INVALID_COMPANY"))
+        assertThat(userRepository.findByEmail(CUSTOMER_EMAIL)).isNull()
+    }
+
+    private fun companyRegistration(siren: String, vatNumber: String) = registration().trimEnd().removeSuffix("}") +
+        """, "company": {"companyName": "Acme", "siren": "$siren", "vatNumber": "$vatNumber"}}"""
+
     private fun lastToken() = emailSender.sentVerificationLinks().last().token.value
 
     private fun verify(token: String) = mockMvc.perform(

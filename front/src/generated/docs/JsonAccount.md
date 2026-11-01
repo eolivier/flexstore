@@ -13,6 +13,7 @@ Name | Type | Description | Notes
 **status** | **string** |  | [default to undefined]
 **phoneNumber** | **string** |  | [optional] [default to undefined]
 **postalAddresses** | [**Array&lt;JsonPostalAddress&gt;**](JsonPostalAddress.md) |  | [default to undefined]
+**company** | [**JsonCustomerCompany**](JsonCustomerCompany.md) |  | [optional] [default to undefined]
 
 ## Example
 
@@ -28,6 +29,7 @@ const instance: JsonAccount = {
     status,
     phoneNumber,
     postalAddresses,
+    company,
 };
 ```
 

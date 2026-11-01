@@ -27,8 +27,8 @@ class UpdateUserUseCase(private val userRepository: UserRepository) : UseCase<Up
 
     override fun getPostConditions(): PostConditions<UpdateUserRequest> = PostConditions.none()
 
-    // An edit changes neither the password (the stored hashed one is kept) nor the status and the contact
-    // details given by the customer
+    // An edit changes neither the password (the stored hashed one is kept) nor the status, the contact details
+    // and the company given by the customer
     private fun withStoredAccount(user: User): User {
         if (user !is User.DefinedUser) {
             return user
@@ -38,7 +38,8 @@ class UpdateUserUseCase(private val userRepository: UserRepository) : UseCase<Up
                 password = existingUser.password,
                 status = existingUser.status,
                 phoneNumber = existingUser.phoneNumber,
-                postalAddresses = existingUser.postalAddresses
+                postalAddresses = existingUser.postalAddresses,
+                customerType = existingUser.customerType
             )
             else -> user
         }

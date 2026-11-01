@@ -5,8 +5,8 @@ import type { AccountRegistration } from '@/models/account';
 import { useLoadingStore } from '@/stores/loading.store';
 
 export type PasswordChange = 'changed' | 'wrongPassword' | 'error';
-// signedIn: the account is created and the customer is signed in
-export type Registration = 'signedIn' | 'emailUsed' | 'error';
+// signedIn: the account is created and the customer is signed in; invalidCompany: the company was refused (400)
+export type Registration = 'signedIn' | 'emailUsed' | 'invalidCompany' | 'error';
 
 interface LoginResponse {
   token: string;
@@ -99,6 +99,7 @@ export const useAuthStore = defineStore('auth', () => {
         })
       );
       if (response.status === 409) return 'emailUsed';
+      if (response.status === 400) return 'invalidCompany';
       if (!response.ok) return 'error';
       return (await login(registration.email, registration.password)) ? 'signedIn' : 'error';
     } catch (error) {
