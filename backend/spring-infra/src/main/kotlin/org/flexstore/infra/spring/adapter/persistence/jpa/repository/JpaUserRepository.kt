@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.adapter.persistence.jpa.repository
 
+import org.flexstore.infra.spring.adapter.persistence.jpa.entity.CustomerCompanyEntity
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.UserAddressEntity
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.UserEntity
 import org.flexstore.infra.spring.adapter.persistence.jpa.toDomain
@@ -57,7 +58,8 @@ class PostgresUserRepositoryAdapter(
                     role = user.role.name,
                     status = user.status.name,
                     phoneNumber = user.phoneNumber?.value,
-                    addresses = addressEntities(user)
+                    addresses = addressEntities(user),
+                    companies = companyEntities(user)
                 )
                 val saved = jpaRepo.save(entity)
                 savedUser = saved.toDomain()
@@ -93,6 +95,21 @@ class PostgresUserRepositoryAdapter(
                 UserAddressEntity(Identity.nextId().value, addressEntity, position)
             }
         }
+    }
+
+    // The stored row of the company is kept when the company did not change (same id, same creation date)
+    private fun companyEntities(user: User.DefinedUser): List<CustomerCompanyEntity> {
+        val customerType = user.customerType as? CustomerType.Business ?: return emptyList()
+        val company = customerType.company
+        val stored = jpaRepo.findById(user.id.value).map { it.companies.firstOrNull() }.orElse(null)
+        val entity = CustomerCompanyEntity(
+            id = stored?.id ?: Identity.nextId().value,
+            companyName = company.name.value,
+            siren = company.siren.value,
+            vatNumber = company.vatNumber.value.ifEmpty { null }
+        )
+        stored?.let { entity.createdAt = it.createdAt }
+        return listOf(entity)
     }
 
     override fun findById(id: UserId): User =
@@ -136,6 +153,12 @@ class PostgresUserRepositoryAdapter(
         role = Role.valueOf(this.role),
         status = AccountStatus.valueOf(this.status),
         phoneNumber = phoneNumber?.let { PhoneNumber(it) },
-        postalAddresses = PostalAddresses(addresses.map { it.address.toDomain() })
+        postalAddresses = PostalAddresses(addresses.map { it.address.toDomain() }),
+        customerType = companies.firstOrNull()?.toDomain() ?: CustomerType.Individual
     )
+
+    private fun CustomerCompanyEntity.toDomain(): CustomerType {
+        val company = Company(CompanyName(companyName), VatNumber(vatNumber.orEmpty()))
+        return CustomerType.Business(CustomerCompany(company, Siren(siren)))
+    }
 }

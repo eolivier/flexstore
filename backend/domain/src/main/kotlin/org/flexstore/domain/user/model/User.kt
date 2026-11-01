@@ -18,7 +18,9 @@ sealed class User(open val id: UserId) {
         val status: AccountStatus = AccountStatus.ACTIVE,
         // Given by a customer who creates their own account
         val phoneNumber: PhoneNumber? = null,
-        val postalAddresses: PostalAddresses = PostalAddresses.none()
+        val postalAddresses: PostalAddresses = PostalAddresses.none(),
+        // Given by a customer who creates their own account for their company
+        val customerType: CustomerType = CustomerType.Individual
     ) : User(id) {
         override fun user(userId: UserId) = copy(id = userId)
 
@@ -28,7 +30,7 @@ sealed class User(open val id: UserId) {
 
         fun withPostalAddresses(postalAddresses: PostalAddresses) = copy(postalAddresses = postalAddresses)
 
-        fun account() = Account(id, fullName, email, role, status, phoneNumber, postalAddresses)
+        fun account() = Account(id, fullName, email, role, status, phoneNumber, postalAddresses, customerType)
 
         fun isAdministrator() = role == Role.ADMIN
 

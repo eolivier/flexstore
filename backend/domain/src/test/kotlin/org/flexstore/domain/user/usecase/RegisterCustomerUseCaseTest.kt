@@ -41,6 +41,9 @@ class RegisterCustomerUseCaseTest : WithAssertions {
             address
         )
 
+        private val acme = Company(CompanyName("Acme"), VatNumber("FR32123456789"))
+        val acmeBuyer = CustomerType.Business(CustomerCompany(acme, Siren("123456789")))
+
         @JvmStatic
         fun incompleteRegistrations() = listOf(
             Arguments.of("first name", jane.copy(fullName = FullName(FirstName(" "), LastName("Doe")))),
@@ -121,5 +124,33 @@ class RegisterCustomerUseCaseTest : WithAssertions {
         val thrown = catchThrowable { useCase.unfold(jane.copy(userId = UserId.ValidUserId("jane-2"))) }
         // Assert
         assertThat(thrown).isInstanceOf(UserAlreadyExists::class.java)
+    }
+
+    @Test
+    fun `a customer who creates an account for their company should keep the company`() {
+        // Act
+        useCase.unfold(jane.copy(customerType = acmeBuyer))
+        // Assert
+        assertThat(stored().customerType).isEqualTo(acmeBuyer)
+    }
+
+    @Test
+    fun `the address of a company should be sent to the company, for the attention of the customer`() {
+        // Act
+        useCase.unfold(jane.copy(customerType = acmeBuyer))
+        // Assert
+        val recipient = stored().postalAddresses.asList().single().recipient
+        assertThat(recipient).isEqualTo(LegalEntity(acme, janeDoe))
+    }
+
+    @Test
+    fun `an invalid company should be refused`() {
+        // Arrange
+        val noSiren = CustomerType.Business(CustomerCompany(acme, Siren("")))
+        // Act
+        val thrown = catchThrowable { useCase.unfold(jane.copy(customerType = noSiren)) }
+        // Assert
+        assertThat(thrown).isInstanceOf(InvalidCompanyException::class.java)
+        assertThat(userRepository.exists(jane.userId)).isFalse()
     }
 }

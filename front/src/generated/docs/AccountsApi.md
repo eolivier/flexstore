@@ -206,6 +206,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**201** | Account created |  -  |
+|**400** | Invalid company (reason INVALID_COMPANY): no name, a SIREN other than 9 digits, or a VAT number malformed or that does not agree with the SIREN |  -  |
 |**409** | The email is already used |  -  |
 |**422** | A required field is missing or the password has fewer than 8 characters |  -  |
 

@@ -11,6 +11,7 @@ Name | Type | Description | Notes
 **password** | **string** | At least 8 characters (will be hashed by the server) | [default to undefined]
 **phoneNumber** | **string** |  | [default to undefined]
 **postalAddress** | [**JsonPostalAddress**](JsonPostalAddress.md) |  | [default to undefined]
+**company** | [**JsonCustomerCompany**](JsonCustomerCompany.md) |  | [optional] [default to undefined]
 
 ## Example
 
@@ -24,6 +25,7 @@ const instance: JsonAccountRegistration = {
     password,
     phoneNumber,
     postalAddress,
+    company,
 };
 ```
 

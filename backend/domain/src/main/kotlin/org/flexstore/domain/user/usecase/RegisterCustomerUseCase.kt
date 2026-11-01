@@ -10,6 +10,7 @@ class RegisterCustomerUseCase(private val userRepository: UserRepository) : UseC
 
     override fun getPreConditions(): PreConditions<CustomerRegistration> = PreConditions(
         registrationIsCompleteCondition(),
+        companyIsValidCondition(),
         passwordIsLongEnoughCondition(),
         emailIsNotUsedCondition()
     )
@@ -25,6 +26,17 @@ class RegisterCustomerUseCase(private val userRepository: UserRepository) : UseC
         if (registration.isIncomplete()) {
             throw IncompleteRegistrationException(
                 ErrorMessage("First name, last name, email, phone number and postal address are required.")
+            )
+        }
+    }
+
+    private fun companyIsValidCondition() = PreCondition<CustomerRegistration> { registration ->
+        if (registration.customerType.isInvalid()) {
+            throw InvalidCompanyException(
+                ErrorMessage(
+                    "A company has a name, a SIREN of 9 digits and maybe an intra-community VAT number " +
+                        "(FR, a key, then the SIREN for a French company)."
+                )
             )
         }
     }

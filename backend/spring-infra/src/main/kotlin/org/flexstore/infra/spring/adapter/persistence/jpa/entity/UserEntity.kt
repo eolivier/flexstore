@@ -33,5 +33,10 @@ data class UserEntity(
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     @OrderBy("position")
-    val addresses: List<UserAddressEntity> = emptyList()
+    val addresses: List<UserAddressEntity> = emptyList(),
+
+    // The company of a customer who buys for it: none, or a single one (unique user_id)
+    @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", nullable = false)
+    val companies: List<CustomerCompanyEntity> = emptyList()
 ) : TimestampedEntity()

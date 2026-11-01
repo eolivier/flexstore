@@ -92,6 +92,7 @@ export interface JsonAccount {
     'status': JsonAccountStatusEnum;
     'phoneNumber'?: string | null;
     'postalAddresses': Array<JsonPostalAddress>;
+    'company'?: JsonCustomerCompany;
 }
 
 export const JsonAccountRoleEnum = {
@@ -120,6 +121,7 @@ export interface JsonAccountRegistration {
     'password': string;
     'phoneNumber': string;
     'postalAddress': JsonPostalAddress;
+    'company'?: JsonCustomerCompany;
 }
 export interface JsonAccountStatus {
     'status': JsonAccountStatusStatusEnum;
@@ -267,6 +269,20 @@ export interface JsonChosenPassword {
      * The new password, 8 characters at least
      */
     'password': string;
+}
+/**
+ * The company a customer buys for (none for a customer who buys for themselves); the address given at the creation of the account is sent to it, for the attention of the customer
+ */
+export interface JsonCustomerCompany {
+    'companyName': string;
+    /**
+     * 9 digits (spaces dropped)
+     */
+    'siren': string;
+    /**
+     * Optional intra-community VAT number (spaces dropped, upper case); a French one is FR, a key of 2 characters, then the SIREN
+     */
+    'vatNumber'?: string;
 }
 export interface JsonDailySales {
     'day': string;

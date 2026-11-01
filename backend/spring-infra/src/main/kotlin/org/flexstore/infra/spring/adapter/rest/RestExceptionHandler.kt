@@ -58,6 +58,10 @@ class RestExceptionHandler {
             is InvalidCurrentPasswordException -> ResponseEntity
                 .status(400)
                 .body(mapOf("error" to (ex.message ?: "Wrong current password")))
+            // The reason tells this 400 from a malformed request and from an incomplete address
+            is InvalidCompanyException -> ResponseEntity
+                .status(400)
+                .body(mapOf("error" to (ex.message ?: "Invalid company"), "reason" to INVALID_COMPANY))
             is IncompleteAddressException -> ResponseEntity
                 .status(400)
                 .body(mapOf("error" to (ex.message ?: "Incomplete address")))
@@ -190,6 +194,7 @@ class RestExceptionHandler {
 // The reasons of a 400, for the front to tell them apart: a request the domain refuses, or one it never reads
 private const val INCOMPLETE_ADDRESS = "INCOMPLETE_ADDRESS"
 private const val MALFORMED_REQUEST = "MALFORMED_REQUEST"
+private const val INVALID_COMPANY = "INVALID_COMPANY"
 
 // The message of Kotlin when a non-null parameter receives null: "..., parameter street"
 private val MISSING_PARAMETER = Regex("Parameter specified as non-null is null: .*, parameter (\\w+)$")

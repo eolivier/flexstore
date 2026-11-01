@@ -8,5 +8,6 @@ data class Account(
     val role: Role,
     val status: AccountStatus,
     val phoneNumber: PhoneNumber?,
-    val postalAddresses: PostalAddresses
+    val postalAddresses: PostalAddresses,
+    val customerType: CustomerType
 )

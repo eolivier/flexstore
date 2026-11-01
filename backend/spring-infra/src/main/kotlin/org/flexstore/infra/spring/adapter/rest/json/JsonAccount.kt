@@ -12,7 +12,9 @@ data class JsonAccount(
     @JsonProperty("role") val role: String,
     @JsonProperty("status") val status: String,
     @JsonProperty("phoneNumber") val phoneNumber: String?,
-    @JsonProperty("postalAddresses") val postalAddresses: List<JsonPostalAddress>
+    @JsonProperty("postalAddresses") val postalAddresses: List<JsonPostalAddress>,
+    // The company of a customer who buys for it, none for the others
+    @JsonProperty("company") val company: JsonCustomerCompany?
 ) {
     constructor(account: Account) : this(
         account.id.value,
@@ -22,6 +24,7 @@ data class JsonAccount(
         account.role.name,
         account.status.name,
         account.phoneNumber?.value,
-        account.postalAddresses.asList().map { JsonPostalAddress.of(it) }
+        account.postalAddresses.asList().map { JsonPostalAddress.of(it) },
+        JsonCustomerCompany.of(account.customerType)
     )
 }
