@@ -839,6 +839,25 @@ paths:
                 $ref: "#/components/schemas/JsonSalesDashboard"
         "400":
           description: A number of days other than 7, 30 or 90
+  /api/admin/reviews/{id}:
+    delete:
+      tags:
+      - Administration
+      summary: Delete a review; the rating of its product no longer counts it (ADMIN role)
+      operationId: deleteReview
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: The review is deleted
+        "404":
+          description: Unknown review
   /api/admin/discount-codes:
     get:
       tags:

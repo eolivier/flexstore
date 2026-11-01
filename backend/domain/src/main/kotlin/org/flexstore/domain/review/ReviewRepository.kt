@@ -14,7 +14,11 @@ interface ReviewRepository {
 
     fun findAll(): Reviews
 
+    fun delete(reviewId: ReviewId)
+
     fun reviewExists(reviewId: ReviewId): Boolean
+
+    fun reviewIsMissing(reviewId: ReviewId) = !reviewExists(reviewId)
 
     // The customer already gave their opinion on the product
     fun hasReviewed(customer: UserId.ValidUserId, productId: ProductId): Boolean

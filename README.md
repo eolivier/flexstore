@@ -24,7 +24,7 @@ This repo is meant to be a learning vehicle and a ready-to-fork base for real pr
 - Home page: categories, a selection of products, the shop values and commitments
 - Catalog: product cards, category filter (clothing, electronics, accessories), sort by name or price
 - Product detail: description, quantity, add to cart, products of the same category
-- Reviews and ratings: a signed-in customer who bought and paid for a product rates it from 1 to 5 stars and comments it, once per product; the reviews (named by the first name and the initial of the last name) and the average rating are shown on the product page, the average rating on the catalog cards
+- Reviews and ratings: a signed-in customer who bought and paid for a product rates it from 1 to 5 stars and comments it, once per product; the reviews (named by the first name and the initial of the last name) and the average rating are shown on the product page, the average rating on the catalog cards; an administrator deletes a review from the product page, which the rating no longer counts and which the customer may write again
 - Cart: quantity per line, remove, total, item count badge in the header; one cart per visitor and per customer, merged at sign-in
 
 **Orders** (sign-in required)

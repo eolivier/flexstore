@@ -128,3 +128,4 @@ data class ReviewAlreadyWrittenException(override val errorMessage: ErrorMessage
     NominalException(errorMessage)
 data class ReviewNotFoundException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class ReviewAdditionFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class ReviewDeletionFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

@@ -6,6 +6,7 @@ import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaCartItem
 import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaCartRepository
 import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaUserRepository
 import org.flexstore.infra.spring.adapter.rest.json.JsonItem
+import org.flexstore.infra.spring.security.asAdmin
 import org.flexstore.infra.spring.security.asUser
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -18,6 +19,8 @@ import org.springframework.http.MediaType
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.ResultActions
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
@@ -133,6 +136,43 @@ class ReviewIT {
         )
         // Assert
         response.andExpect(status().isUnauthorized)
+    }
+
+    @Test
+    fun `an administrator should delete a review`() {
+        // Arrange
+        buyAndPayProduct()
+        val reviewId = reviewIdOf(review(1, "Spam"))
+        // Act
+        val response = mockMvc.perform(delete("/api/admin/reviews/$reviewId").with(asAdmin()))
+        // Assert
+        response.andExpect(status().isNoContent)
+        mockMvc.perform(get("/api/products/$PRODUCT_ID/reviews"))
+            .andExpect(jsonPath("$[?(@.id == '$reviewId')]").isEmpty)
+    }
+
+    @Test
+    fun `a customer should not delete a review`() {
+        // Arrange
+        buyAndPayProduct()
+        val reviewId = reviewIdOf(review(5, "Sturdy"))
+        // Act
+        val response = mockMvc.perform(delete("/api/admin/reviews/$reviewId").with(asUser(CUSTOMER_ID)))
+        // Assert
+        response.andExpect(status().isForbidden)
+    }
+
+    @Test
+    fun `an unknown review should not be deleted`() {
+        // Act
+        val response = mockMvc.perform(delete("/api/admin/reviews/unknown-review").with(asAdmin()))
+        // Assert
+        response.andExpect(status().isNotFound)
+    }
+
+    private fun reviewIdOf(response: ResultActions): String {
+        val created = response.andExpect(status().isCreated).andReturn()
+        return objectMapper.readTree(created.response.contentAsString).get("id").asText()
     }
 
     private fun buyAndPayProduct() {

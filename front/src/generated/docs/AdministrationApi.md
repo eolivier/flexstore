@@ -7,6 +7,7 @@ All URIs are relative to *http://localhost:8080*
 |[**advanceOrderStatus**](#advanceorderstatus) | **POST** /api/admin/orders/{id}/status/advance | Move an order to the next status of its life cycle, PROCESSING then SHIPPED then DELIVERED (ADMIN role)|
 |[**createDiscountCode**](#creatediscountcode) | **POST** /api/admin/discount-codes | Give a discount code (ADMIN role)|
 |[**deleteDiscountCode**](#deletediscountcode) | **DELETE** /api/admin/discount-codes/{code} | Delete a discount code; the orders that used it keep their discount (ADMIN role)|
+|[**deleteReview**](#deletereview) | **DELETE** /api/admin/reviews/{id} | Delete a review; the rating of its product no longer counts it (ADMIN role)|
 |[**getAdminProduct**](#getadminproduct) | **GET** /api/admin/products/{id} | Retrieve a product with its translations in every language, to edit it|
 |[**getAllOrders**](#getallorders) | **GET** /api/admin/orders | Retrieve the orders of all the customers, newest first, with their customer (ADMIN role)|
 |[**getAnyOrder**](#getanyorder) | **GET** /api/admin/orders/{id} | Retrieve any order, with its customer (ADMIN role)|
@@ -175,6 +176,57 @@ void (empty response body)
 |-------------|-------------|------------------|
 |**204** | Deleted |  -  |
 |**404** | Unknown discount code |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **deleteReview**
+> deleteReview()
+
+
+### Example
+
+```typescript
+import {
+    AdministrationApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdministrationApi(configuration);
+
+let id: string; // (default to undefined)
+
+const { status, data } = await apiInstance.deleteReview(
+    id
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **id** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: Not defined
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**204** | The review is deleted |  -  |
+|**404** | Unknown review |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

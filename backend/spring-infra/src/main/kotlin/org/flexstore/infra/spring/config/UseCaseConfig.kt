@@ -408,10 +408,16 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         ListRatingSummariesUseCase(reviewRepository)
 
     @Bean
+    open fun deleteReviewUseCase(reviewRepository: ReviewRepository) = DeleteReviewUseCase(reviewRepository)
+
+    @Bean
     open fun reviewUseCases(addReviewUseCase: AddReviewUseCase,
                             listProductReviewsUseCase: ListProductReviewsUseCase,
-                            listRatingSummariesUseCase: ListRatingSummariesUseCase) =
-        ReviewUseCases(addReviewUseCase, listProductReviewsUseCase, listRatingSummariesUseCase)
+                            listRatingSummariesUseCase: ListRatingSummariesUseCase,
+                            deleteReviewUseCase: DeleteReviewUseCase) =
+        ReviewUseCases(
+            addReviewUseCase, listProductReviewsUseCase, listRatingSummariesUseCase, deleteReviewUseCase
+        )
 
     @Bean
     open fun readSalesDashboardUseCase(orderRepository: OrderRepository) =
