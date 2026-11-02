@@ -19,7 +19,7 @@ class SellerController(private val sellerUseCases: SellerUseCases) {
     @Operation(summary = "Change the seller written on the next invoices; the invoices issued keep theirs")
     @PutMapping
     fun updateSeller(@RequestBody seller: JsonSeller): JsonSeller {
-        val updatedSeller = sellerUseCases.update(seller.toSellerDetails())
+        val updatedSeller = sellerUseCases.update(seller.toSellerDetail())
         return JsonSeller(updatedSeller)
     }
 }

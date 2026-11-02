@@ -64,12 +64,12 @@ data class InvoiceDocument(val invoice: Invoice, val sale: InvoicedSale) {
     )
 
     fun seller(): InvoiceLines {
-        val (contact, identifiers) = sale.seller.details
+        val (contact, identifier) = sale.seller.detail
         return InvoiceLines(
             contact.name.value,
             contact.address.value,
-            "SIRET : ${identifiers.siret.value}",
-            "TVA intracommunautaire : ${identifiers.vatNumber.value}"
+            "SIRET : ${identifier.siret.value}",
+            "TVA intracommunautaire : ${identifier.vatNumber.value}"
         )
     }
 

@@ -28,21 +28,21 @@ class PostgresSellerRepositoryAdapter(private val jpaRepo: JpaSellerRepository) 
 
     override fun save(seller: Seller) {
         val nextVersion = jpaRepo.findFirstByOrderByVersionDesc().version + 1
-        val (contact, identifiers) = seller.details
+        val (contact, identifier) = seller.detail
         val sellerEntity = SellerEntity(
             seller.id.value.value,
             nextVersion,
             contact.name.value,
             contact.address.value,
-            identifiers.siret.value,
-            identifiers.vatNumber.value
+            identifier.siret.value,
+            identifier.vatNumber.value
         )
         jpaRepo.save(sellerEntity)
     }
 
     private fun SellerEntity.toDomain(): Seller {
         val contact = SellerContact(SellerName(name), SellerAddress(address))
-        val identifiers = SellerIdentifiers(Siret(siret), SellerVatNumber(vatNumber))
-        return Seller(SellerId(Identity(id)), SellerDetails(contact, identifiers))
+        val identifier = SellerIdentifier(Siret(siret), SellerVatNumber(vatNumber))
+        return Seller(SellerId(Identity(id)), SellerDetail(contact, identifier))
     }
 }

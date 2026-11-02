@@ -13,15 +13,15 @@ data class JsonSeller @JsonCreator constructor(
     @JsonProperty("vatNumber") val vatNumber: String
 ) {
     constructor(seller: Seller) : this(
-        seller.details.contact.name.value,
-        seller.details.contact.address.value,
-        seller.details.identifiers.siret.value,
-        seller.details.identifiers.vatNumber.value
+        seller.detail.contact.name.value,
+        seller.detail.contact.address.value,
+        seller.detail.identifier.siret.value,
+        seller.detail.identifier.vatNumber.value
     )
 
-    fun toSellerDetails(): SellerDetails {
+    fun toSellerDetail(): SellerDetail {
         val contact = SellerContact(SellerName(name.trim()), SellerAddress(address.trim()))
-        val identifiers = SellerIdentifiers(Siret(siret.trim()), SellerVatNumber(vatNumber.trim()))
-        return SellerDetails(contact, identifiers)
+        val identifier = SellerIdentifier(Siret(siret.trim()), SellerVatNumber(vatNumber.trim()))
+        return SellerDetail(contact, identifier)
     }
 }
