@@ -2,6 +2,7 @@ package org.flexstore.domain.seller
 
 import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.sharedkernel.Identity
+import org.flexstore.domain.user.model.UserId
 import org.ucop.domain.NominalException
 
 // One version of the seller: each edit gives a new one, so that an invoice keeps the seller of its issue
@@ -125,6 +126,14 @@ data class SellerDetail(
 // The shop that sells, as written on its invoices, in one of its versions
 data class Seller(val id: SellerId, val detail: SellerDetail)
 
+// An administrator who gives a new version of the seller
+data class SellerUpdate(val editor: UserId, val seller: Seller)
+
+// An administrator who reads the current seller
+data class SellerReading(val reader: UserId)
+
+data class SellerAdministrationForbiddenException(override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
 data class InvalidSellerException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class SellerUpdateFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class SellerNotFoundException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

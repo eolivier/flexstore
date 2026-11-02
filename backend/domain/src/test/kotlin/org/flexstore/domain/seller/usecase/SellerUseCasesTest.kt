@@ -1,6 +1,7 @@
 package org.flexstore.domain.seller.usecase
 
 import org.flexstore.domain.seller.*
+import org.flexstore.domain.user.*
 import org.assertj.core.api.WithAssertions
 import org.flexstore.infra.repository.InMemorySellerRepository
 import org.junit.jupiter.params.ParameterizedTest
@@ -11,15 +12,18 @@ import org.junit.jupiter.api.Test
 class SellerUseCasesTest : WithAssertions {
 
     private val sellerRepository = InMemorySellerRepository(testSeller)
-    private val readCurrentSellerUseCase = ReadCurrentSellerUseCase(sellerRepository)
-    private val sellerUseCases = SellerUseCases(readCurrentSellerUseCase, UpdateSellerUseCase(sellerRepository))
+    private val userRepository = usersOfTheAdministration()
+    private val readCurrentSellerUseCase = ReadCurrentSellerUseCase(sellerRepository, userRepository)
+    private val updateSellerUseCase = UpdateSellerUseCase(sellerRepository, userRepository)
+    private val sellerUseCases = SellerUseCases(readCurrentSellerUseCase, updateSellerUseCase)
+    private val administrator = testAdministrator.id
     private val contact = testSellerDetail.contact
     private val identifier = testSellerDetail.identifier
 
     @Test
     fun `an administrator should read the current seller`() {
         // Act
-        val currentSeller = sellerUseCases.currentSeller()
+        val currentSeller = sellerUseCases.currentSeller(administrator)
         // Assert
         assertThat(currentSeller).isEqualTo(testSeller)
     }
@@ -30,7 +34,7 @@ class SellerUseCasesTest : WithAssertions {
         val renamedContact = SellerContact(SellerName("Flexstore Group"), contact.address)
         val sellerDetail = testSellerDetail.copy(contact = renamedContact)
         // Act
-        val updatedSeller = sellerUseCases.update(sellerDetail)
+        val updatedSeller = sellerUseCases.update(administrator, sellerDetail)
         // Assert
         assertThat(updatedSeller.detail).isEqualTo(sellerDetail)
         assertThat(updatedSeller.id).isNotEqualTo(testSeller.id)
@@ -43,7 +47,7 @@ class SellerUseCasesTest : WithAssertions {
         // Arrange
         val sellerDetail = testSellerDetail.copy(contact = SellerContact(SellerName(name), contact.address))
         // Act
-        val thrown = catchThrowable { sellerUseCases.update(sellerDetail) }
+        val thrown = catchThrowable { sellerUseCases.update(administrator, sellerDetail) }
         // Assert
         assertThat(thrown).isInstanceOf(InvalidSellerException::class.java)
         assertThat(sellerRepository.current()).isEqualTo(testSeller)
@@ -54,7 +58,7 @@ class SellerUseCasesTest : WithAssertions {
         // Arrange
         val sellerDetail = testSellerDetail.copy(contact = SellerContact(contact.name, SellerAddress(" ")))
         // Act
-        val thrown = catchThrowable { sellerUseCases.update(sellerDetail) }
+        val thrown = catchThrowable { sellerUseCases.update(administrator, sellerDetail) }
         // Assert
         assertThat(thrown).isInstanceOf(InvalidSellerException::class.java)
     }
@@ -66,7 +70,7 @@ class SellerUseCasesTest : WithAssertions {
         val sellerIdentifier = SellerIdentifier(Siret(siret), identifier.vatNumber)
         val sellerDetail = testSellerDetail.copy(identifier = sellerIdentifier)
         // Act
-        val updatedSeller = sellerUseCases.update(sellerDetail)
+        val updatedSeller = sellerUseCases.update(administrator, sellerDetail)
         // Assert
         assertThat(updatedSeller.detail.identifier.siret).isEqualTo(Siret(siret))
     }
@@ -78,7 +82,7 @@ class SellerUseCasesTest : WithAssertions {
         val sellerIdentifier = SellerIdentifier(Siret(siret), identifier.vatNumber)
         val sellerDetail = testSellerDetail.copy(identifier = sellerIdentifier)
         // Act
-        val thrown = catchThrowable { sellerUseCases.update(sellerDetail) }
+        val thrown = catchThrowable { sellerUseCases.update(administrator, sellerDetail) }
         // Assert
         assertThat(thrown).isInstanceOf(InvalidSellerException::class.java)
     }
@@ -90,7 +94,7 @@ class SellerUseCasesTest : WithAssertions {
         val sellerIdentifier = SellerIdentifier(identifier.siret, SellerVatNumber(vatNumber))
         val sellerDetail = testSellerDetail.copy(identifier = sellerIdentifier)
         // Act
-        val updatedSeller = sellerUseCases.update(sellerDetail)
+        val updatedSeller = sellerUseCases.update(administrator, sellerDetail)
         // Assert
         assertThat(updatedSeller.detail.identifier.vatNumber).isEqualTo(SellerVatNumber(vatNumber))
     }
@@ -102,7 +106,7 @@ class SellerUseCasesTest : WithAssertions {
         val sellerIdentifier = SellerIdentifier(identifier.siret, SellerVatNumber(vatNumber))
         val sellerDetail = testSellerDetail.copy(identifier = sellerIdentifier)
         // Act
-        val thrown = catchThrowable { sellerUseCases.update(sellerDetail) }
+        val thrown = catchThrowable { sellerUseCases.update(administrator, sellerDetail) }
         // Assert
         assertThat(thrown).isInstanceOf(InvalidSellerException::class.java)
     }
@@ -121,8 +125,9 @@ class SellerUseCasesTest : WithAssertions {
     ) {
         // Arrange
         val sellerReach = SellerReach(SellerPhone(phone), SellerEmail(email), SellerWebsite(website))
+        val sellerDetail = testSellerDetail.copy(reach = sellerReach)
         // Act
-        val thrown = catchThrowable { sellerUseCases.update(testSellerDetail.copy(reach = sellerReach)) }
+        val thrown = catchThrowable { sellerUseCases.update(administrator, sellerDetail) }
         // Assert
         assertThat(thrown).isInstanceOf(InvalidSellerException::class.java)
     }
@@ -133,7 +138,7 @@ class SellerUseCasesTest : WithAssertions {
         // Arrange
         val sellerReach = SellerReach(SellerPhone(phone), SellerEmail("contact@flexstore.fr"), SellerWebsite(website))
         // Act
-        val updatedSeller = sellerUseCases.update(testSellerDetail.copy(reach = sellerReach))
+        val updatedSeller = sellerUseCases.update(administrator, testSellerDetail.copy(reach = sellerReach))
         // Assert
         assertThat(updatedSeller.detail.reach).isEqualTo(sellerReach)
     }
@@ -149,9 +154,34 @@ class SellerUseCasesTest : WithAssertions {
             SellerIncorporation(sellerLegalForm, ShareCapital(shareCapital), RegistryCity(registryCity))
         // Act
         val thrown = catchThrowable {
-            sellerUseCases.update(testSellerDetail.copy(incorporation = sellerIncorporation))
+            sellerUseCases.update(administrator, testSellerDetail.copy(incorporation = sellerIncorporation))
         }
         // Assert
         assertThat(thrown).isInstanceOf(InvalidSellerException::class.java)
+    }
+
+    @Test
+    fun `a customer should not change the seller`() {
+        // Act
+        val thrown = catchThrowable { sellerUseCases.update(testCustomer.id, testSellerDetail) }
+        // Assert
+        assertThat(thrown).isInstanceOf(SellerAdministrationForbiddenException::class.java)
+        assertThat(sellerRepository.current()).isEqualTo(testSeller)
+    }
+
+    @Test
+    fun `a customer should not read the seller`() {
+        // Act
+        val thrown = catchThrowable { sellerUseCases.currentSeller(testCustomer.id) }
+        // Assert
+        assertThat(thrown).isInstanceOf(SellerAdministrationForbiddenException::class.java)
+    }
+
+    @Test
+    fun `an unknown user should not change the seller`() {
+        // Act
+        val thrown = catchThrowable { sellerUseCases.update(unknownUser, testSellerDetail) }
+        // Assert
+        assertThat(thrown).isInstanceOf(SellerAdministrationForbiddenException::class.java)
     }
 }

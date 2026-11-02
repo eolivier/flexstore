@@ -5,6 +5,7 @@ import org.ucop.domain.NominalException
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.Instant
+import org.flexstore.domain.user.model.UserId
 
 // The code a customer enters to get a discount (BIENVENUE10): upper-case letters and digits, 3 to 30
 data class PromoCode(val value: String) {
@@ -98,6 +99,17 @@ data class DiscountCode(val code: PromoCode, val offer: DiscountOffer, val uses:
 // A discount code looked for at a given moment, to apply it to an order
 data class DiscountCodeLookup(val code: PromoCode, val at: Instant)
 
+// An administrator who gives a new discount code
+data class DiscountCodeCreation(val creator: UserId, val discountCode: DiscountCode)
+
+// An administrator who deletes a discount code
+data class DiscountCodeDeletion(val editor: UserId, val code: PromoCode)
+
+// An administrator who reads the discount codes
+data class DiscountCodesReading(val reader: UserId)
+
+data class DiscountCodeAdministrationForbiddenException(override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
 data class InvalidDiscountCodeException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class DiscountCodeAlreadyExistsException(override val errorMessage: ErrorMessage) :
     NominalException(errorMessage)

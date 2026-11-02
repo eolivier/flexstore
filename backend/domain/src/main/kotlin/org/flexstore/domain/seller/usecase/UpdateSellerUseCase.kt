@@ -2,54 +2,68 @@ package org.flexstore.domain.seller.usecase
 
 import org.flexstore.domain.seller.*
 import org.flexstore.domain.sharedkernel.ErrorMessage
+import org.flexstore.domain.user.UserRepository
 import org.ucop.domain.entity.*
 
 // An administrator gives a new version of the seller written on the invoices: its name and address are given,
 // its SIRET and VAT number are well formed, and so are its phone number, its email and its website; its legal
 // form, its share capital and the city of its register are given. It becomes the current one
-class UpdateSellerUseCase(private val sellerRepository: SellerRepository) : UseCase<Seller> {
+class UpdateSellerUseCase(
+    private val sellerRepository: SellerRepository,
+    private val userRepository: UserRepository
+) : UseCase<SellerUpdate> {
 
-    override fun getPreConditions(): PreConditions<Seller> =
+    override fun getPreConditions(): PreConditions<SellerUpdate> =
         PreConditions(
+            editorIsAdministratorCondition(),
             contactIsCompleteCondition(),
             identifiersAreValidCondition(),
             reachIsValidCondition(),
             incorporationIsValidCondition()
         )
 
-    override fun getNominalScenario(): NominalScenario<Seller> =
-        NominalScenario(Step { seller -> sellerRepository.save(seller) })
+    override fun getNominalScenario(): NominalScenario<SellerUpdate> =
+        NominalScenario(Step { update -> sellerRepository.save(update.seller) })
 
-    override fun getPostConditions(): PostConditions<Seller> = PostConditions(sellerIsSavedCondition())
+    override fun getPostConditions(): PostConditions<SellerUpdate> = PostConditions(sellerIsSavedCondition())
 
-    private fun contactIsCompleteCondition() = PreCondition<Seller> { seller ->
+    // The editor must be an existing user with the ADMIN role (read from the users, not from the request)
+    private fun editorIsAdministratorCondition() = PreCondition<SellerUpdate> { update ->
+        if (userRepository.isNotAdministrator(update.editor)) {
+            throw SellerAdministrationForbiddenException(
+                ErrorMessage("Only an administrator can change the seller written on the invoices.")
+            )
+        }
+    }
+
+    private fun contactIsCompleteCondition() = PreCondition<SellerUpdate> { (_, seller) ->
         if (seller.detail.contact.isIncomplete()) {
             throw InvalidSellerException(ErrorMessage("The seller needs a name and an address."))
         }
     }
 
-    private fun identifiersAreValidCondition() = PreCondition<Seller> { seller ->
+    private fun identifiersAreValidCondition() = PreCondition<SellerUpdate> { (_, seller) ->
         if (seller.detail.identifier.isInvalid()) {
             val rule = "a SIRET of 14 digits, a VAT number of its country (FR) then 2 to 13 digits or letters"
             throw InvalidSellerException(ErrorMessage("The seller needs $rule."))
         }
     }
 
-    private fun reachIsValidCondition() = PreCondition<Seller> { seller ->
+    private fun reachIsValidCondition() = PreCondition<SellerUpdate> { (_, seller) ->
         if (seller.detail.reach.isInvalid()) {
             val rule = "a phone number, an email and a website (www.flexstore.fr, or with https://)"
             throw InvalidSellerException(ErrorMessage("The seller needs $rule."))
         }
     }
 
-    private fun incorporationIsValidCondition() = PreCondition<Seller> { seller ->
+    private fun incorporationIsValidCondition() = PreCondition<SellerUpdate> { (_, seller) ->
         if (seller.detail.incorporation.isInvalid()) {
             val rule = "a legal form, a share capital in euros (10 000) and the city of its trade register"
             throw InvalidSellerException(ErrorMessage("The seller needs $rule."))
         }
     }
 
-    private fun sellerIsSavedCondition() = PostCondition<Seller> { seller ->
+    private fun sellerIsSavedCondition() = PostCondition<SellerUpdate> { (_, seller) ->
         val currentSeller = sellerRepository.current()
         if (currentSeller != seller) {
             throw SellerUpdateFailed(ErrorMessage("The seller was not saved."))
