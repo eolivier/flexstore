@@ -2,11 +2,15 @@ package org.flexstore.infra.spring.adapter.rest
 
 import org.flexstore.domain.legal.LegalPageKind
 import org.flexstore.domain.legal.usecase.LegalPageUseCases
+import org.flexstore.domain.user.model.UserId
+import org.flexstore.domain.user.model.of
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.infra.spring.adapter.rest.json.JsonLegalPage
 import org.flexstore.infra.spring.adapter.rest.json.JsonLegalText
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.*
 
 // How each legal page is named in the paths of the API
@@ -38,11 +42,13 @@ class AdminLegalPageController(private val legalPageUseCases: LegalPageUseCases)
     @Operation(summary = "Publish a new version of a legal page: legal-notice or terms-of-sale")
     @PutMapping("/{kind}")
     fun publishLegalPage(
+        @AuthenticationPrincipal publisher: Jwt,
         @PathVariable kind: String,
         @RequestBody legalText: JsonLegalText
     ): ResponseEntity<JsonLegalPage> {
         val legalPageKind = legalPageKinds[kind] ?: return ResponseEntity.notFound().build()
-        val legalPage = legalPageUseCases.publish(legalPageKind, legalText.toLegalText())
+        val publisherId = UserId.of(publisher.subject)
+        val legalPage = legalPageUseCases.publish(publisherId, legalPageKind, legalText.toLegalText())
         return ResponseEntity.ok(JsonLegalPage(legalPage))
     }
 }

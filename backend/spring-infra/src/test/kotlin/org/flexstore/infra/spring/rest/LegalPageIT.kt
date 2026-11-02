@@ -93,4 +93,15 @@ class LegalPageIT {
         // Assert
         response.andExpect(status().isForbidden)
     }
+
+    @Test
+    fun `a token with the admin role should not publish a legal page for a user who is not an administrator`() {
+        // Act
+        val response = mockMvc.perform(
+            put("/api/admin/legal-pages/legal-notice").with(asAdmin("u-unknown"))
+                .contentType(MediaType.APPLICATION_JSON).content("""{"text": "Mentions"}""")
+        )
+        // Assert
+        response.andExpect(status().isForbidden)
+    }
 }

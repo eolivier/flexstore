@@ -359,8 +359,8 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         ReadLegalPageUseCase(legalPageRepository)
 
     @Bean
-    open fun publishLegalPageUseCase(legalPageRepository: LegalPageRepository) =
-        PublishLegalPageUseCase(legalPageRepository)
+    open fun publishLegalPageUseCase(legalPageRepository: LegalPageRepository, userRepository: UserRepository) =
+        PublishLegalPageUseCase(legalPageRepository, userRepository)
 
     @Bean
     open fun legalPageUseCases(readLegalPageUseCase: ReadLegalPageUseCase,

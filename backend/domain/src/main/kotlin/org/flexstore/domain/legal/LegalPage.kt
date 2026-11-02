@@ -3,6 +3,7 @@ package org.flexstore.domain.legal
 import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.sharedkernel.InstantProvider
+import org.flexstore.domain.user.model.UserId
 import org.ucop.domain.NominalException
 import java.time.Instant
 
@@ -47,6 +48,9 @@ data class LegalPage(
 
     fun isWritten() = text.isWritten()
 }
+
+// An administrator publishes a legal page: the publisher is the authenticated user who asks for it
+data class LegalPagePublication(val publisher: UserId, val legalPage: LegalPage)
 
 data class InvalidLegalPageException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class LegalPagePublicationFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

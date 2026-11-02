@@ -13,6 +13,7 @@ import org.flexstore.domain.sales.*
 import org.flexstore.domain.seller.*
 import org.flexstore.domain.settings.*
 import org.flexstore.domain.stock.*
+import org.flexstore.domain.user.ActorIsNotAdministratorException
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.usecase.*
 import com.fasterxml.jackson.databind.JsonMappingException
@@ -48,7 +49,8 @@ class RestExceptionHandler {
             is OrderRefusedException -> ResponseEntity
                 .status(403)
                 .body(mapOf("error" to (ex.message ?: "Order refused"), "status" to ex.status.name))
-            is UserCreationForbiddenException, is UserUpdateForbiddenException -> ResponseEntity
+            is UserCreationForbiddenException, is UserUpdateForbiddenException,
+            is ActorIsNotAdministratorException -> ResponseEntity
                 .status(403)
                 .body(mapOf("error" to (ex.message ?: "Forbidden")))
             // Not 422, which tells the front that the cart is empty. The reason tells this 400 from a malformed
