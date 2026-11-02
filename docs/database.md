@@ -1,6 +1,6 @@
 # Physical data model
 
-The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V34**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
+The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V35**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
 
 ![Physical data model](database.png)
 
@@ -144,6 +144,9 @@ erDiagram
         address varchar(500) "on one line"
         siret varchar(20) "14 digits, maybe grouped by spaces"
         vat_number varchar(20) "intra-community: FR12345678901"
+        phone varchar(30) "nullable: none in the versions written before V35"
+        email varchar(255) "nullable: none in the versions written before V35"
+        website varchar(255) "nullable: none in the versions written before V35"
         created_at timestamp
         updated_at timestamp
     }

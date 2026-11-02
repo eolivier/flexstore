@@ -5,11 +5,12 @@ import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.entity.*
 
 // An administrator gives a new version of the seller written on the invoices: its name and address are given,
-// its SIRET and VAT number are well formed. It becomes the current one
+// its SIRET and VAT number are well formed, and so are its phone number, its email and its website. It becomes
+// the current one
 class UpdateSellerUseCase(private val sellerRepository: SellerRepository) : UseCase<Seller> {
 
     override fun getPreConditions(): PreConditions<Seller> =
-        PreConditions(contactIsCompleteCondition(), identifiersAreValidCondition())
+        PreConditions(contactIsCompleteCondition(), identifiersAreValidCondition(), reachIsValidCondition())
 
     override fun getNominalScenario(): NominalScenario<Seller> =
         NominalScenario(Step { seller -> sellerRepository.save(seller) })
@@ -25,6 +26,13 @@ class UpdateSellerUseCase(private val sellerRepository: SellerRepository) : UseC
     private fun identifiersAreValidCondition() = PreCondition<Seller> { seller ->
         if (seller.detail.identifier.isInvalid()) {
             val rule = "a SIRET of 14 digits, a VAT number of its country (FR) then 2 to 13 digits or letters"
+            throw InvalidSellerException(ErrorMessage("The seller needs $rule."))
+        }
+    }
+
+    private fun reachIsValidCondition() = PreCondition<Seller> { seller ->
+        if (seller.detail.reach.isInvalid()) {
+            val rule = "a phone number, an email and a website (www.flexstore.fr, or with https://)"
             throw InvalidSellerException(ErrorMessage("The seller needs $rule."))
         }
     }
