@@ -113,6 +113,14 @@ class RestExceptionHandler {
             is OrderCancelledException -> ResponseEntity
                 .status(409)
                 .body(mapOf("error" to (ex.message ?: "Cancelled order")))
+            // The reasons tell these answers from a malformed request and from a lack of stock: the front asks
+            // the customer to accept the terms of sale, or to read them again
+            is TermsOfSaleNotAcceptedException -> ResponseEntity
+                .status(400)
+                .body(mapOf("error" to (ex.message ?: "Terms of sale not accepted"), "reason" to TERMS_NOT_ACCEPTED))
+            is OutdatedTermsOfSaleException -> ResponseEntity
+                .status(409)
+                .body(mapOf("error" to (ex.message ?: "Terms of sale changed"), "reason" to OUTDATED_TERMS))
             // Not 422, which tells the front that the cart is empty
             is OutOfStockException -> ResponseEntity
                 .status(409)
@@ -199,8 +207,11 @@ class RestExceptionHandler {
         ResponseEntity.status(413).body(mapOf("error" to "An image is 2 MB at most."))
 }
 
-// The reasons of a 400, for the front to tell them apart: a request the domain refuses, or one it never reads
+// The reasons of a 400 or a 409, for the front to tell them apart: a request the domain refuses, or one it never
+// reads
 private const val INCOMPLETE_ADDRESS = "INCOMPLETE_ADDRESS"
+private const val TERMS_NOT_ACCEPTED = "TERMS_OF_SALE_NOT_ACCEPTED"
+private const val OUTDATED_TERMS = "OUTDATED_TERMS_OF_SALE"
 private const val MALFORMED_REQUEST = "MALFORMED_REQUEST"
 private const val INVALID_COMPANY = "INVALID_COMPANY"
 

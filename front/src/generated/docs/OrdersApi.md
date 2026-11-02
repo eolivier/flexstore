@@ -151,7 +151,7 @@ This endpoint does not have any parameters.
 # **placeOrder**
 > JsonOrder placeOrder(jsonOrderAddresses)
 
-The order is delivered and billed to the given addresses (the delivery address when no billing address is given), which become addresses of the customer when they are new. The cart is kept until the order is paid (POST /api/orders/{id}/payment) 
+The order is delivered and billed to the given addresses (the delivery address when no billing address is given), which become addresses of the customer when they are new. The customer accepts the current version of the terms of sale (its id, read from GET /api/legal-pages/terms-of-sale), kept by the order. The cart is kept until the order is paid (POST /api/orders/{id}/payment) 
 
 ### Example
 
@@ -198,8 +198,8 @@ const { status, data } = await apiInstance.placeOrder(
 |-------------|-------------|------------------|
 |**201** | Order placed |  -  |
 |**401** | Not signed in |  -  |
-|**400** | Incomplete delivery or billing address |  -  |
-|**409** | Not enough units in stock for a product of the cart |  -  |
+|**400** | Incomplete delivery or billing address (reason INCOMPLETE_ADDRESS), or terms of sale not accepted (reason TERMS_OF_SALE_NOT_ACCEPTED)  |  -  |
+|**409** | Not enough units in stock for a product of the cart, or terms of sale published again since they were accepted (reason OUTDATED_TERMS_OF_SALE): the customer reads them again  |  -  |
 |**403** | The account is SUSPENDED, LOCKED or DISABLED: { error, status } |  -  |
 |**422** | The cart is empty |  -  |
 

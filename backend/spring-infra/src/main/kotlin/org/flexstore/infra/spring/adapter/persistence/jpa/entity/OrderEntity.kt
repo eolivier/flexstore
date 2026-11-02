@@ -35,6 +35,11 @@ data class OrderEntity(
     @Column(name = "discount_amount", nullable = false, updatable = false)
     val discountAmount: BigDecimal,
 
+    // The version of the terms of sale (a row of the legal_page table) the customer accepted; none (null) for
+    // the orders placed before the customers accepted them
+    @Column(name = "legal_page_id", updatable = false)
+    val legalPageId: String? = null,
+
     // Addresses of the customer (rows of the address table, owned by UserEntity)
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "delivery_address_id", nullable = false)

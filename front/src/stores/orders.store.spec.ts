@@ -25,6 +25,7 @@ const homeAddresses = {
     city: 'Paris',
     country: 'France',
   },
+  termsOfSaleId: 'terms-of-sale-2',
 };
 const emptyCart = { items: [], totalItemsPrice: 0, itemsCurrency: '€' };
 
@@ -157,6 +158,20 @@ describe('orders.store', () => {
     const placement = await store.placeOrder(homeAddresses);
     // Assert
     expect(placement).toEqual({ status: 'incompleteAddress' });
+  });
+
+  it.each([
+    { status: 400, reason: 'TERMS_OF_SALE_NOT_ACCEPTED', expected: 'termsOfSaleNotAccepted' },
+    { status: 409, reason: 'OUTDATED_TERMS_OF_SALE', expected: 'outdatedTermsOfSale' },
+  ])('an order refused with the reason $reason is $expected', async ({ status, reason, expected }) => {
+    // Arrange
+    await signIn();
+    respondWith({ 'POST /api/orders': { status, body: { error: 'Refused', reason } } });
+    const store = useOrdersStore();
+    // Act
+    const placement = await store.placeOrder(homeAddresses);
+    // Assert
+    expect(placement).toEqual({ status: expected });
   });
 
   it('an order refused for another reason tells that reason', async () => {

@@ -23,6 +23,9 @@ export type OrderPlacement =
   // Refused for another reason, told by the shop (a field missing or malformed)
   | { status: 'invalidRequest'; reason: string }
   | { status: 'outOfStock' }
+  // The terms of sale are not accepted, or were published again since the customer read them
+  | { status: 'termsOfSaleNotAccepted' }
+  | { status: 'outdatedTermsOfSale' }
   | { status: 'discountCodeRefused' }
   | { status: 'error' };
 
@@ -68,14 +71,23 @@ export const useOrdersStore = defineStore('orders', () => {
     }
   }
 
-  // A 400 tells an incomplete address only when the shop says so: any other reason is shown as it is given
+  // A 400 tells an incomplete address or terms of sale not accepted only when the shop says so: any other reason
+  // is shown as it is given
   function refusalOf(refusal: { reason?: string; error?: string }): OrderPlacement {
     if (refusal.reason === 'INCOMPLETE_ADDRESS') return { status: 'incompleteAddress' };
+    if (refusal.reason === 'TERMS_OF_SALE_NOT_ACCEPTED') return { status: 'termsOfSaleNotAccepted' };
     return { status: 'invalidRequest', reason: refusal.error ?? '' };
   }
 
+  // A 409 tells terms of sale published again when the shop says so, a lack of stock otherwise
+  function conflictOf(conflict: { reason?: string }): OrderPlacement {
+    if (conflict.reason === 'OUTDATED_TERMS_OF_SALE') return { status: 'outdatedTermsOfSale' };
+    return { status: 'outOfStock' };
+  }
+
   // Places an order from the cart of the customer: it awaits its payment, the cart is emptied once it is paid
-  // Without billing address, the order is billed to the delivery address
+  // Without billing address, the order is billed to the delivery address. The customer accepts the version of
+  // the terms of sale they read
   async function placeOrder(addresses: JsonOrderAddresses): Promise<OrderPlacement> {
     try {
       const response = await authStore.authFetch('/api/orders', {
@@ -85,7 +97,7 @@ export const useOrdersStore = defineStore('orders', () => {
       });
       if (response.status === 400) return refusalOf((await response.json().catch(() => null)) ?? {});
       if (response.status === 403) return { status: 'refused' };
-      if (response.status === 409) return { status: 'outOfStock' };
+      if (response.status === 409) return conflictOf((await response.json().catch(() => null)) ?? {});
       // The discount code is unknown, or no longer usable since it was applied
       if (response.status === 404 || response.status === 410) return { status: 'discountCodeRefused' };
       if (response.status === 422) return { status: 'emptyCart' };

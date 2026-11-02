@@ -147,7 +147,7 @@ class UnpaidOrderIT {
         mockMvc.perform(
             post("/api/cart/save").with(asUser(CUSTOMER_ID)).contentType(MediaType.APPLICATION_JSON).content(item)
         ).andExpect(status().isOk)
-        val body = mockMvc.perform(post("/api/orders").withHomeAddresses().with(asUser(CUSTOMER_ID)))
+        val body = mockMvc.perform(post("/api/orders").withHomeAddresses(mockMvc.currentTermsOfSaleId()).with(asUser(CUSTOMER_ID)))
             .andExpect(status().isCreated).andReturn().response.contentAsString
         return objectMapper.readTree(body)["id"].asText()
     }

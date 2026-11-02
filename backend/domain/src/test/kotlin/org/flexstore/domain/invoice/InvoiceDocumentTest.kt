@@ -25,7 +25,7 @@ class InvoiceDocumentTest : WithAssertions {
 
     private fun documentOf(shippingMethod: ShippingMethod): InvoiceDocument {
         val delivery = OrderDelivery(homeOrderAddresses, shippingMethod)
-        val orderPlacement = OrderPlacement(OrderStamp(OrderId("46555c9f-4e92"), placedAt), Checkout(customer, delivery))
+        val orderPlacement = OrderPlacement(OrderStamp(OrderId("46555c9f-4e92"), placedAt), Checkout(customer, delivery, acceptedTermsOfSale))
         val order = Order.place(orderPlacement, Cart(customer).add(deskLamp, Quantity(1)))
         return InvoiceDocument(invoice, InvoicedSale(AdministeredOrder(order, janeDoe), testSeller))
     }
@@ -82,7 +82,7 @@ class InvoiceDocumentTest : WithAssertions {
         val fiveEurosOff = DiscountCode(PromoCode("FIVE"), DiscountOffer(AmountOff(Price(Amount(BigDecimal(5)), Currency.EUR)), validity))
         val delivery = OrderDelivery(homeOrderAddresses, ShippingMethod.EXPRESS)
         val orderStamp = OrderStamp(OrderId("46555c9f-4e92"), placedAt)
-        val orderPlacement = OrderPlacement(orderStamp, Checkout(customer, delivery))
+        val orderPlacement = OrderPlacement(orderStamp, Checkout(customer, delivery, acceptedTermsOfSale))
         val terms = OrderTerms(FreeShippingThreshold.byDefault(), WithDiscountCode(fiveEurosOff))
         val cart = Cart(customer).add(deskLamp, Quantity(1))
         val order = Order.place(orderPlacement, OrderContent(cart, terms))
@@ -119,7 +119,7 @@ class InvoiceDocumentTest : WithAssertions {
         val cookBook = DefinedProduct(bookId, Sku.from("BOOK"), translations, Category.BOOKS, bookPricing)
         val delivery = OrderDelivery(homeOrderAddresses, ShippingMethod.EXPRESS)
         val orderStamp = OrderStamp(OrderId("46555c9f-4e92"), placedAt)
-        val orderPlacement = OrderPlacement(orderStamp, Checkout(customer, delivery))
+        val orderPlacement = OrderPlacement(orderStamp, Checkout(customer, delivery, acceptedTermsOfSale))
         val cart = Cart(customer).add(deskLamp, Quantity(1)).add(cookBook, Quantity(1))
         val order = Order.place(orderPlacement, cart)
         val invoicedSale = InvoicedSale(AdministeredOrder(order, janeDoe), testSeller)
@@ -146,7 +146,7 @@ class InvoiceDocumentTest : WithAssertions {
         val cookBook = DefinedProduct(bookId, Sku.from("BOOK"), translations, Category.BOOKS, bookPricing)
         val delivery = OrderDelivery(homeOrderAddresses, ShippingMethod.EXPRESS)
         val orderStamp = OrderStamp(OrderId("46555c9f-4e92"), placedAt)
-        val orderPlacement = OrderPlacement(orderStamp, Checkout(customer, delivery))
+        val orderPlacement = OrderPlacement(orderStamp, Checkout(customer, delivery, acceptedTermsOfSale))
         val cart = Cart(customer).add(deskLamp, Quantity(1)).add(cookBook, Quantity(1))
         val order = Order.place(orderPlacement, cart)
         val invoicedSale = InvoicedSale(AdministeredOrder(order, janeDoe), testSeller)

@@ -83,7 +83,7 @@ class OrderIT {
     @Test
     fun `placing an order should require a signed-in customer`() {
         // Act
-        val response = mockMvc.perform(post("/api/orders").withHomeAddresses())
+        val response = mockMvc.perform(post("/api/orders").withHomeAddresses(mockMvc.currentTermsOfSaleId()))
         // Assert
         response.andExpect(status().isUnauthorized)
     }
@@ -94,7 +94,7 @@ class OrderIT {
         addToCart(CUSTOMER_ID, productId = "6", quantity = 2)
         addToCart(CUSTOMER_ID, productId = "9", quantity = 1)
         // Act
-        val response = mockMvc.perform(post("/api/orders").withHomeAddresses().with(asUser(CUSTOMER_ID)))
+        val response = mockMvc.perform(post("/api/orders").withHomeAddresses(mockMvc.currentTermsOfSaleId()).with(asUser(CUSTOMER_ID)))
         // Assert
         response.andExpect(status().isCreated)
             .andExpect(jsonPath("$.id").isNotEmpty)
@@ -121,7 +121,7 @@ class OrderIT {
         addToCart(CUSTOMER_ID, productId = "1", quantity = 1)
         // Act
         val response = mockMvc.perform(
-            post("/api/orders").withHomeAddressesShipped(shippingMethod).with(asUser(CUSTOMER_ID))
+            post("/api/orders").withHomeAddressesShipped(shippingMethod, mockMvc.currentTermsOfSaleId()).with(asUser(CUSTOMER_ID))
         )
         // Assert
         response.andExpect(status().isCreated)
@@ -173,7 +173,7 @@ class OrderIT {
         // Arrange
         addToCart(CUSTOMER_ID, productId = "6", quantity = 1)
         // Act
-        mockMvc.perform(post("/api/orders").withHomeAddresses().with(asUser(CUSTOMER_ID))).andExpect(status().isCreated)
+        mockMvc.perform(post("/api/orders").withHomeAddresses(mockMvc.currentTermsOfSaleId()).with(asUser(CUSTOMER_ID))).andExpect(status().isCreated)
         // Assert
         mockMvc.perform(get("/api/cart/cart-items").with(asUser(CUSTOMER_ID)))
             .andExpect(jsonPath("$.items.length()").value(1))
@@ -230,7 +230,7 @@ class OrderIT {
         // Arrange
         addToCart(CUSTOMER_ID, productId = "6", quantity = 1)
         // Act
-        val response = mockMvc.perform(post("/api/orders").withHomeAddresses().with(asUser(CUSTOMER_ID)))
+        val response = mockMvc.perform(post("/api/orders").withHomeAddresses(mockMvc.currentTermsOfSaleId()).with(asUser(CUSTOMER_ID)))
         // Assert
         response.andExpect(status().isCreated)
             .andExpect(jsonPath("$.deliveryAddress.city").value("Paris"))
@@ -247,7 +247,8 @@ class OrderIT {
                 "street": "12 rue des Lilas", "postalCode": "75011", "city": "Paris", "country": "France"},
             "billingAddress": {"recipientType": "LEGAL_ENTITY", "companyName": "Acme",
                 "vatNumber": "FR12345678901",
-                "street": "3 place du Marché", "postalCode": "69001", "city": "Lyon", "country": "France"}}"""
+                "street": "3 place du Marché", "postalCode": "69001", "city": "Lyon", "country": "France"},
+            "termsOfSaleId": "${mockMvc.currentTermsOfSaleId()}"}"""
         val orderId = objectMapper.readTree(
             mockMvc.perform(post("/api/orders").with(asUser(CUSTOMER_ID)).contentType(MediaType.APPLICATION_JSON).content(addresses))
                 .andExpect(status().isCreated).andReturn().response.contentAsString
@@ -291,9 +292,47 @@ class OrderIT {
     }
 
     @Test
+    fun `an order should keep the version of the terms of sale its customer accepted`() {
+        // Arrange
+        addToCart(CUSTOMER_ID, productId = "6", quantity = 1)
+        val termsOfSaleId = mockMvc.currentTermsOfSaleId()
+        // Act
+        val body = mockMvc.perform(post("/api/orders").withHomeAddresses(termsOfSaleId).with(asUser(CUSTOMER_ID)))
+            .andExpect(status().isCreated).andReturn().response.contentAsString
+        // Assert
+        val orderId = objectMapper.readTree(body)["id"].asText()
+        val acceptedTermsOfSaleId = jdbcTemplate.queryForObject(
+            "SELECT legal_page_id FROM customer_order WHERE id = ?", String::class.java, orderId
+        )
+        assertThat(acceptedTermsOfSaleId).isEqualTo(termsOfSaleId)
+    }
+
+    @Test
+    fun `an order should not be placed without accepting the terms of sale`() {
+        // Arrange
+        addToCart(CUSTOMER_ID, productId = "6", quantity = 1)
+        val request = post("/api/orders").with(asUser(CUSTOMER_ID)).contentType(MediaType.APPLICATION_JSON)
+        // Act
+        val response = mockMvc.perform(request.content(HOME_ADDRESSES))
+        // Assert
+        response.andExpect(status().isBadRequest).andExpect(jsonPath("$.reason").value("TERMS_OF_SALE_NOT_ACCEPTED"))
+    }
+
+    @Test
+    fun `an order should not be placed with a version of the terms of sale that is no longer the current one`() {
+        // Arrange
+        addToCart(CUSTOMER_ID, productId = "6", quantity = 1)
+        val request = post("/api/orders").with(asUser(CUSTOMER_ID)).withHomeAddresses("an-older-version")
+        // Act
+        val response = mockMvc.perform(request)
+        // Assert
+        response.andExpect(status().isConflict).andExpect(jsonPath("$.reason").value("OUTDATED_TERMS_OF_SALE"))
+    }
+
+    @Test
     fun `should not place an order from an empty cart`() {
         // Act
-        val response = mockMvc.perform(post("/api/orders").withHomeAddresses().with(asUser(CUSTOMER_ID)))
+        val response = mockMvc.perform(post("/api/orders").withHomeAddresses(mockMvc.currentTermsOfSaleId()).with(asUser(CUSTOMER_ID)))
         // Assert
         response.andExpect(status().isUnprocessableEntity)
     }
@@ -342,7 +381,7 @@ class OrderIT {
 
     private fun placeOrder(customerId: String, productId: String): String {
         addToCart(customerId, productId, quantity = 1)
-        val body = mockMvc.perform(post("/api/orders").withHomeAddresses().with(asUser(customerId)))
+        val body = mockMvc.perform(post("/api/orders").withHomeAddresses(mockMvc.currentTermsOfSaleId()).with(asUser(customerId)))
             .andExpect(status().isCreated).andReturn().response.contentAsString
         return objectMapper.readTree(body)["id"].asText()
     }

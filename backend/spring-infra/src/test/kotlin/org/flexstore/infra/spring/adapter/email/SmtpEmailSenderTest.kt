@@ -4,6 +4,7 @@ import org.flexstore.domain.sharedkernel.ShopUrl
 import org.assertj.core.api.Assertions.assertThat
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.email.*
+import org.flexstore.domain.legal.LegalPageId
 import org.flexstore.domain.order.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
@@ -26,12 +27,14 @@ import java.time.Instant
 class SmtpEmailSenderTest {
 
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
+    private val acceptedTermsOfSale = AcceptedTermsOfSale(LegalPageId(Identity("terms-of-sale-1")))
     private val lamp = DefinedProduct(ProductId(Identity("lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR))
     private val janeDoe = PrivateIndividual(FullName(FirstName("Jane"), LastName("Doe")))
     private val homeStreet = Street("12 rue des Lilas")
     private val homeTown = Town(PostalCode("75011"), City("Paris"))
     private val homeLocation = Location(StreetAddress(homeStreet), Locality(homeTown, Country("France")))
-    private val checkout = Checkout(customer, OrderAddresses.sameFor(PostalAddress(janeDoe, homeLocation)))
+    private val homeAddresses = OrderAddresses.sameFor(PostalAddress(janeDoe, homeLocation))
+    private val checkout = Checkout(customer, homeAddresses, acceptedTermsOfSale)
     private val orderStamp = OrderStamp(OrderId("c5f7326c-0000"), Instant.parse("2026-10-24T10:00:00Z"))
     private val orderPlacement = OrderPlacement(orderStamp, checkout)
     private val order = Order.place(orderPlacement, Cart(customer).add(lamp, Quantity(1)))

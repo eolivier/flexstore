@@ -8,6 +8,19 @@ import { openExternalPage } from '@/utils/navigation';
 
 vi.mock('@/utils/navigation', () => ({ openExternalPage: vi.fn() }));
 
+// The current version of the terms of sale, read by the customer before ordering
+const getLegalPage = vi.fn();
+vi.mock('@/api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/api')>()),
+  legalPagesApi: { getLegalPage: (kind: string) => getLegalPage(kind) },
+}));
+const termsOfSale = {
+  id: 'terms-of-sale-2',
+  kind: 'TERMS_OF_SALE',
+  text: 'Article 1 - Objet',
+  publishedAt: '2026-11-02T10:00:00Z',
+};
+
 const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
@@ -89,7 +102,18 @@ async function mountCheckout() {
   return { wrapper, router };
 }
 
+async function acceptTermsOfSale(wrapper: Awaited<ReturnType<typeof mountCheckout>>['wrapper']) {
+  await wrapper.find('.terms-of-sale input[type="checkbox"]').setValue(true);
+  await flushPromises();
+}
+
+function orderButton(wrapper: Awaited<ReturnType<typeof mountCheckout>>['wrapper']) {
+  return wrapper.findAll('button').find((button) => button.text() === 'Order and pay')!;
+}
+
+// The customer accepts the terms of sale, then orders
 async function placeOrder(wrapper: Awaited<ReturnType<typeof mountCheckout>>['wrapper']) {
+  await acceptTermsOfSale(wrapper);
   await wrapper
     .findAll('button')
     .find((button) => button.text() === 'Order and pay')!
@@ -109,6 +133,8 @@ describe('Checkout.vue', () => {
     setActivePinia(createPinia());
     mockFetch.mockReset();
     vi.mocked(openExternalPage).mockReset();
+    getLegalPage.mockReset();
+    getLegalPage.mockResolvedValue({ data: termsOfSale });
   });
 
   it('offers the addresses of the customer', async () => {
@@ -131,6 +157,7 @@ describe('Checkout.vue', () => {
     expect(sentAddresses()).toEqual({
       deliveryAddress: { ...home, companyName: '', vatNumber: '' },
       shippingMethod: 'STANDARD',
+      termsOfSaleId: 'terms-of-sale-2',
     });
   });
 
@@ -198,6 +225,7 @@ describe('Checkout.vue', () => {
       deliveryAddress: { ...home, companyName: '', vatNumber: '' },
       billingAddress,
       shippingMethod: 'STANDARD',
+      termsOfSaleId: 'terms-of-sale-2',
     });
   });
 
@@ -310,5 +338,37 @@ describe('Checkout.vue', () => {
     await placeOrder(wrapper);
     // Assert
     expect(wrapper.text()).toContain('Your account does not allow ordering');
+  });
+
+  it('cannot order before the customer accepts the terms of sale', async () => {
+    // Arrange
+    respondWith([home]);
+    // Act
+    const { wrapper } = await mountCheckout();
+    // Assert
+    expect(orderButton(wrapper).attributes('disabled')).toBeDefined();
+  });
+
+  it('orders under the version of the terms of sale the customer accepted', async () => {
+    // Arrange
+    respondWith([home]);
+    const { wrapper } = await mountCheckout();
+    // Act
+    await placeOrder(wrapper);
+    // Assert
+    expect(sentAddresses().termsOfSaleId).toBe('terms-of-sale-2');
+  });
+
+  it('asks to read the terms of sale again when they changed since the customer accepted them', async () => {
+    // Arrange
+    respondWith([home], 409, { error: 'The terms of sale changed', reason: 'OUTDATED_TERMS_OF_SALE' });
+    const { wrapper } = await mountCheckout();
+    // Act
+    await placeOrder(wrapper);
+    // Assert
+    expect(wrapper.text()).toContain('The terms of sale have just changed: read them again');
+    const termsBox = wrapper.find('.terms-of-sale input[type="checkbox"]').element as HTMLInputElement;
+    expect(termsBox.checked).toBe(false);
+    expect(getLegalPage).toHaveBeenCalledTimes(2);
   });
 });

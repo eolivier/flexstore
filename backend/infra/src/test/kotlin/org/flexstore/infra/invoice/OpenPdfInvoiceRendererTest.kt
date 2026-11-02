@@ -4,6 +4,7 @@ import com.lowagie.text.pdf.PdfReader
 import com.lowagie.text.pdf.parser.PdfTextExtractor
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.invoice.*
+import org.flexstore.domain.legal.LegalPageId
 import org.flexstore.domain.order.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.seller.*
@@ -24,6 +25,7 @@ class OpenPdfInvoiceRendererTest {
     private val seller =
         Seller(SellerId(Identity("seller-1")), SellerDetail(sellerContact, sellerIdentifier, sellerReach))
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
+    private val acceptedTermsOfSale = AcceptedTermsOfSale(LegalPageId(Identity("terms-of-sale-1")))
     private val placedAt = Instant.parse("2026-10-24T10:00:00Z")
 
     private fun invoiceDocument(): InvoiceDocument {
@@ -33,7 +35,7 @@ class OpenPdfInvoiceRendererTest {
             Location(StreetAddress(Street("12 rue des Lilas")), Locality(Town(PostalCode("75011"), City("Paris")), Country("France")))
         )
         val delivery = OrderDelivery(OrderAddresses.sameFor(home), ShippingMethod.EXPRESS)
-        val placement = OrderPlacement(OrderStamp(OrderId("46555c9f-4e92"), placedAt), Checkout(customer, delivery))
+        val placement = OrderPlacement(OrderStamp(OrderId("46555c9f-4e92"), placedAt), Checkout(customer, delivery, acceptedTermsOfSale))
         val order = Order.place(placement, Cart(customer).add(lamp, Quantity(1)))
         val invoiceIssue = InvoiceIssue(order.orderId, InvoiceDate(placedAt))
         val invoice = Invoice(InvoiceNumber("2026-000042"), invoiceIssue, seller.id)

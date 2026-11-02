@@ -182,7 +182,8 @@ class AddressBookIT {
         ).andExpect(status().isOk)
         val homeAddresses = """{"deliveryAddress": {"recipientType": "PRIVATE_INDIVIDUAL",
             "firstName": "Jane", "lastName": "Doe",
-            "street": "12 rue des Lilas", "postalCode": "75011", "city": "Paris", "country": "France"}}"""
+            "street": "12 rue des Lilas", "postalCode": "75011", "city": "Paris", "country": "France"},
+            "termsOfSaleId": "${mockMvc.currentTermsOfSaleId()}"}"""
         val placement = post("/api/orders").with(asUser(CUSTOMER_ID))
             .contentType(MediaType.APPLICATION_JSON).content(homeAddresses)
         val body = mockMvc.perform(placement).andExpect(status().isCreated).andReturn().response.contentAsString

@@ -118,8 +118,11 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         KeepOrderAddressesUseCase(userRepository)
 
     @Bean
-    open fun placeOrderUseCase(orderRepository: OrderRepository, stockRepository: StockRepository) =
-        PlaceOrderUseCase(orderRepository, stockRepository)
+    open fun placeOrderUseCase(
+        orderRepository: OrderRepository,
+        stockRepository: StockRepository,
+        legalPageRepository: LegalPageRepository
+    ) = PlaceOrderUseCase(orderRepository, stockRepository, legalPageRepository)
 
     @Bean
     open fun reserveOrderStockUseCase(orderRepository: OrderRepository, stockRepository: StockRepository) =

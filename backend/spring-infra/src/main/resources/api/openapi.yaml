@@ -1013,8 +1013,9 @@ paths:
       summary: Place an order from the cart of the signed-in customer; it awaits its payment
       description: >
         The order is delivered and billed to the given addresses (the delivery address when no billing address
-        is given), which become addresses of the customer when they are new. The cart is kept until the order
-        is paid (POST /api/orders/{id}/payment)
+        is given), which become addresses of the customer when they are new. The customer accepts the current
+        version of the terms of sale (its id, read from GET /api/legal-pages/terms-of-sale), kept by the order.
+        The cart is kept until the order is paid (POST /api/orders/{id}/payment)
       operationId: placeOrder
       security:
       - bearerAuth: []
@@ -1034,9 +1035,13 @@ paths:
         "401":
           description: Not signed in
         "400":
-          description: Incomplete delivery or billing address
+          description: >
+            Incomplete delivery or billing address (reason INCOMPLETE_ADDRESS), or terms of sale not accepted
+            (reason TERMS_OF_SALE_NOT_ACCEPTED)
         "409":
-          description: Not enough units in stock for a product of the cart
+          description: >
+            Not enough units in stock for a product of the cart, or terms of sale published again since they
+            were accepted (reason OUTDATED_TERMS_OF_SALE): the customer reads them again
         "403":
           description: "The account is SUSPENDED, LOCKED or DISABLED: { error, status }"
         "422":
@@ -1446,10 +1451,14 @@ components:
     JsonLegalPage:
       type: object
       required:
+        - id
         - kind
         - text
         - publishedAt
       properties:
+        id:
+          type: string
+          description: The id of this version of the page; the customers accept the terms of sale by it
         kind:
           type: string
           enum: [LEGAL_NOTICE, TERMS_OF_SALE]
@@ -1976,7 +1985,7 @@ components:
           enum: [AWAITING_PAYMENT, PAID, PROCESSING, SHIPPED, DELIVERED, CANCELLED, REFUNDED]
     JsonOrderAddresses:
       type: object
-      required: [deliveryAddress]
+      required: [deliveryAddress, termsOfSaleId]
       properties:
         deliveryAddress:
           $ref: "#/components/schemas/JsonPostalAddress"
@@ -1989,6 +1998,9 @@ components:
         discountCode:
           type: string
           description: The discount code entered, if any (404 when unknown, 410 when expired or used up)
+        termsOfSaleId:
+          type: string
+          description: The id of the version of the terms of sale the customer read and accepted
     JsonDiscountPreview:
       type: object
       required: [code, amountOff, currency]

@@ -11,6 +11,7 @@
   import CheckoutSummary from './CheckoutSummary.vue';
   import ShippingMethodChoice from './ShippingMethodChoice.vue';
   import DiscountCodeField from './DiscountCodeField.vue';
+  import TermsOfSaleAcceptance from './TermsOfSaleAcceptance.vue';
   import type {
     JsonDiscountPreview,
     JsonOrderAddressesShippingMethodEnum,
@@ -44,6 +45,10 @@
   const shippingOptions = ref<JsonShippingOptions | null>(null);
   const shippingMethod = ref<JsonOrderAddressesShippingMethodEnum>('STANDARD');
   const appliedDiscount = ref<JsonDiscountPreview | null>(null);
+  // The version of the terms of sale the customer accepted; null until they tick the box
+  const acceptedTermsOfSaleId = ref<string | null>(null);
+  // Changed to read the terms of sale again, when they were published again since the customer accepted them
+  const termsOfSaleReading = ref(0);
   // Why the last attempt to order failed, as told to the customer
   const error = ref<string | null>(null);
 
@@ -78,6 +83,9 @@
   );
 
   async function placeOrder() {
+    // The button is disabled until the customer accepts the terms of sale
+    const termsOfSaleId = acceptedTermsOfSaleId.value;
+    if (termsOfSaleId === null) return;
     placing.value = true;
     error.value = null;
     const placement = await ordersStore.placeOrder({
@@ -85,7 +93,11 @@
       billingAddress: billedToDelivery.value ? undefined : billingRecipientOnly(billing.value),
       shippingMethod: shippingMethod.value,
       discountCode: appliedDiscount.value?.code,
+      termsOfSaleId,
     });
+    if (placement.status === 'outdatedTermsOfSale') {
+      termsOfSaleReading.value++;
+    }
     if (placement.status !== 'placed') {
       placing.value = false;
       const reason = placement.status === 'invalidRequest' ? placement.reason : '';
@@ -138,6 +150,8 @@
             />
             <v-divider class="my-4" />
             <DiscountCodeField v-model="appliedDiscount" />
+            <v-divider class="my-4" />
+            <TermsOfSaleAcceptance :key="termsOfSaleReading" v-model="acceptedTermsOfSaleId" />
           </v-form>
         </v-card>
       </v-col>
@@ -146,7 +160,7 @@
           :shipping-cost="shippingCost"
           :discount-amount="appliedDiscount?.amountOff ?? 0"
           :placing="placing"
-          :disabled="savedAddresses === null || valid === false"
+          :disabled="savedAddresses === null || valid === false || acceptedTermsOfSaleId === null"
           :error="error"
           @place="placeOrder"
         />

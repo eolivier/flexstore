@@ -120,7 +120,7 @@ class OrderConfirmationEmailIT {
 
     private fun placeOrder(): String {
         addToCart(productId = "6", quantity = 2)
-        val body = mockMvc.perform(post("/api/orders").withHomeAddresses().with(asUser(CUSTOMER_ID)))
+        val body = mockMvc.perform(post("/api/orders").withHomeAddresses(mockMvc.currentTermsOfSaleId()).with(asUser(CUSTOMER_ID)))
             .andExpect(status().isCreated).andReturn().response.contentAsString
         return objectMapper.readTree(body)["id"].asText()
     }

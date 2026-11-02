@@ -19,7 +19,7 @@ class OrderTest : WithAssertions {
     private val mug = DefinedProduct(ProductId(Identity("mug")), Name("Mug"), Price(Amount(BigDecimal(12)), Currency.EUR))
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val placedAt = Instant.parse("2026-10-24T10:00:00Z")
-    private val checkout = Checkout(customer, homeOrderAddresses)
+    private val checkout = Checkout(customer, homeOrderAddresses, acceptedTermsOfSale)
     private val orderPlacement = OrderPlacement(OrderStamp(OrderId("order-1"), placedAt), checkout)
 
     @Test

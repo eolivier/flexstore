@@ -92,7 +92,7 @@ class AccountStatusIT {
         // Arrange
         changeStatus("SUSPENDED").andExpect(status().isOk)
         // Act
-        val response = mockMvc.perform(post("/api/orders").withHomeAddresses().with(asUser(CUSTOMER_ID)))
+        val response = mockMvc.perform(post("/api/orders").withHomeAddresses(mockMvc.currentTermsOfSaleId()).with(asUser(CUSTOMER_ID)))
         // Assert
         response.andExpect(status().isForbidden).andExpect(jsonPath("$.status").value("SUSPENDED"))
     }

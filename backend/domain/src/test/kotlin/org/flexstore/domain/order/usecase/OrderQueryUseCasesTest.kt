@@ -25,7 +25,7 @@ class OrderQueryUseCasesTest : WithAssertions {
 
     private fun placeOrder(orderId: OrderId, customer: CartOwner.Customer, placedAt: Instant): Order {
         val orderStamp = OrderStamp(orderId, placedAt)
-        val checkout = Checkout(customer, homeOrderAddresses)
+        val checkout = Checkout(customer, homeOrderAddresses, acceptedTermsOfSale)
         val orderPlacement = OrderPlacement(orderStamp, checkout)
         val cart = Cart(customer).add(deskLamp, Quantity(1))
         val order = Order.place(orderPlacement, cart)

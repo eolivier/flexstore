@@ -52,7 +52,7 @@ class UnpaidOrderServiceTest : WithAssertions {
 
     private fun placeOrder() {
         val cart = Cart(customer).add(deskLamp, Quantity(2))
-        val checkout = Checkout(customer, homeOrderAddresses)
+        val checkout = Checkout(customer, homeOrderAddresses, acceptedTermsOfSale)
         val orderPlacement = OrderPlacement(OrderStamp(orderId, placedAt), checkout)
         orderRepository.save(Order.place(orderPlacement, cart))
     }

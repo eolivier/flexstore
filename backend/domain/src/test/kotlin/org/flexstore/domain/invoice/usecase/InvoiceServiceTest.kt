@@ -46,7 +46,7 @@ class InvoiceServiceTest : WithAssertions {
     )
 
     private fun storePaidOrder(invoiced: Boolean = true) {
-        val checkout = Checkout(customer, homeOrderAddresses)
+        val checkout = Checkout(customer, homeOrderAddresses, acceptedTermsOfSale)
         val orderPlacement = OrderPlacement(OrderStamp(orderId, placedAt), checkout)
         val order = Order.place(orderPlacement, Cart(customer).add(deskLamp, Quantity(1)))
         orderRepository.save(order.withStatus(OrderStatus.PAID))

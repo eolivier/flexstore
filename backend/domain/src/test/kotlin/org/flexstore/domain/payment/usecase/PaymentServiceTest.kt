@@ -68,7 +68,7 @@ class PaymentServiceTest : WithAssertions {
     private fun placeOrder() {
         val cart = Cart(customer).add(deskLamp, Quantity(1))
         cartRepository.save(cart)
-        val checkout = Checkout(customer, homeOrderAddresses)
+        val checkout = Checkout(customer, homeOrderAddresses, acceptedTermsOfSale)
         val orderPlacement = OrderPlacement(OrderStamp(orderId, Instant.now()), checkout)
         orderRepository.save(Order.place(orderPlacement, cart))
     }
