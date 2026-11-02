@@ -50,8 +50,8 @@ class OpenPdfInvoiceRendererTest {
         assertTrue(String(invoicePdf.content.copyOf(5)) == "%PDF-")
         listOf(
             "Facture n° 2026-000042", "Flexstore SAS", "Tél. : 01 23 45 67 89", "Email : contact@flexstore.fr",
-            "Site : www.flexstore.fr", "Lampe été", "Livraison express", "Prix unitaire HT", "Montant TVA",
-            "Total TTC", "44,90 €"
+            "Site : www.flexstore.fr", "Lampe été", "Livraison express", "Prix unitaire HT", "Taux TVA",
+            "Montant TVA", "Total TTC", "44,90 €"
         )
             .forEach { expected -> assertTrue(text.contains(expected), "\"$expected\" not in:\n$text") }
     }

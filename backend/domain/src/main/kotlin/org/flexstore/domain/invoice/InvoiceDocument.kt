@@ -93,23 +93,24 @@ data class InvoiceDocument(val invoice: Invoice, val sale: InvoicedSale) {
         return InvoiceLines(*lines.toTypedArray())
     }
 
-    fun tableHeader() = InvoiceRow("Désignation", "Quantité", "Prix unitaire HT", "Montant TVA", "Total TTC")
+    fun tableHeader() =
+        InvoiceRow("Désignation", "Quantité", "Prix unitaire HT", "Taux TVA", "Montant TVA", "Total TTC")
 
-    // The lines of the order, its discount, then its shipping: the unit price without VAT, the VAT of the row
-    // and its price with VAT. A product follows its rate of VAT; the discount and the shipping are split among
-    // the rates of the items, as the VAT of the order is
+    // The lines of the order, its discount, then its shipping: the unit price without VAT, the rate of VAT, the
+    // VAT of the row and its price with VAT. A product follows its rate of VAT; the discount and the shipping
+    // are split among the rates of the items, as the VAT of the order is, and give these rates
     fun tableRows(): InvoiceRows {
         val productRows = order.lines.asList().map { line ->
             val unitPriceExcludingVat = VatBreakdown(line.unitPrice, line.vatRate).priceExcludingVat()
             val lineVat = VatBreakdown(line.linePrice(), line.vatRate).vat()
             InvoiceRow(
-                line.productName.value, "${line.quantity.value}", priceOf(unitPriceExcludingVat), priceOf(lineVat),
-                priceOf(line.linePrice())
+                line.productName.value, "${line.quantity.value}", priceOf(unitPriceExcludingVat),
+                rateOf(line.vatRate), priceOf(lineVat), priceOf(line.linePrice())
             )
         }
         val shipping = VatOfAdjustment(order.shipping.cost, order)
         val shippingRow = InvoiceRow(
-            order.shipping.method.label().value, "1", priceOf(shipping.priceExcludingVat()),
+            order.shipping.method.label().value, "1", priceOf(shipping.priceExcludingVat()), ratesOfTheItems(),
             priceOf(shipping.vat()), priceOf(order.shipping.cost)
         )
         return InvoiceRows(productRows + discountRows() + shippingRow)
@@ -120,7 +121,7 @@ data class InvoiceDocument(val invoice: Invoice, val sale: InvoicedSale) {
         val discount = order.discount as? AppliedOrderDiscount ?: return emptyList()
         val amountOff = VatOfAdjustment(discount.amount, order)
         val row = InvoiceRow(
-            discount.label().value, "1", "-${priceOf(amountOff.priceExcludingVat())}",
+            discount.label().value, "1", "-${priceOf(amountOff.priceExcludingVat())}", ratesOfTheItems(),
             "-${priceOf(amountOff.vat())}", "-${priceOf(discount.amount)}"
         )
         return listOf(row)
@@ -142,6 +143,13 @@ data class InvoiceDocument(val invoice: Invoice, val sale: InvoicedSale) {
     )
 
     private fun priceOf(price: Price) = price.formattedIn(FRENCH)
+
+    private fun rateOf(vatRate: VatRate) = "${percentOf(vatRate)} %"
+
+    // The rates of VAT of the items, from the highest: the one of all the items, or 20 % / 5,5 %
+    private fun ratesOfTheItems() = VatRate.entries
+        .filterNot { rate -> order.lines.soldAt(rate).isEmpty() }
+        .joinToString(" / ") { rate -> rateOf(rate) }
 
     // In French, with a decimal comma: 5,5
     private fun percentOf(vatRate: VatRate): String {
