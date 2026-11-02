@@ -4,8 +4,62 @@ All URIs are relative to *http://localhost:8080*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
+|[**getAnyCreditNote**](#getanycreditnote) | **GET** /api/admin/orders/{id}/credit-note | Download the credit note of any refunded order (PDF, ADMIN role)|
 |[**getAnyInvoice**](#getanyinvoice) | **GET** /api/admin/orders/{id}/invoice | Download the invoice of any paid order (PDF, ADMIN role)|
+|[**getCreditNote**](#getcreditnote) | **GET** /api/orders/{id}/credit-note | Download the credit note of a refunded order of the signed-in customer (PDF)|
 |[**getInvoice**](#getinvoice) | **GET** /api/orders/{id}/invoice | Download the invoice of a paid order of the signed-in customer (PDF)|
+
+# **getAnyCreditNote**
+> File getAnyCreditNote()
+
+
+### Example
+
+```typescript
+import {
+    InvoicesApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new InvoicesApi(configuration);
+
+let id: string; // (default to undefined)
+
+const { status, data } = await apiInstance.getAnyCreditNote(
+    id
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **id** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**File**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/pdf
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The credit note |  -  |
+|**403** | Not an administrator |  -  |
+|**404** | No such order, or the order is not refunded (no credit note) |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getAnyInvoice**
 > File getAnyInvoice()
@@ -56,6 +110,59 @@ const { status, data } = await apiInstance.getAnyInvoice(
 |**200** | The invoice |  -  |
 |**403** | Not an administrator |  -  |
 |**404** | No such order, or the order is not paid (no invoice) |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getCreditNote**
+> File getCreditNote()
+
+The credit note cancels the invoice of the order; it is issued when the order is refunded
+
+### Example
+
+```typescript
+import {
+    InvoicesApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new InvoicesApi(configuration);
+
+let id: string; // (default to undefined)
+
+const { status, data } = await apiInstance.getCreditNote(
+    id
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **id** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**File**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/pdf
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The credit note, saved as avoir-&lt;number of the order&gt;.pdf |  -  |
+|**401** | Not signed in |  -  |
+|**404** | No such order of the customer, or the order is not refunded (no credit note) |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

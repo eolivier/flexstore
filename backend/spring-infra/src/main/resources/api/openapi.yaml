@@ -773,6 +773,59 @@ paths:
           description: Not an administrator
         "404":
           description: No such order, or the order is not paid (no invoice)
+  /api/orders/{id}/credit-note:
+    get:
+      tags:
+      - Invoices
+      summary: Download the credit note of a refunded order of the signed-in customer (PDF)
+      description: The credit note cancels the invoice of the order; it is issued when the order is refunded
+      operationId: getCreditNote
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: The credit note, saved as avoir-<number of the order>.pdf
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        "401":
+          description: Not signed in
+        "404":
+          description: No such order of the customer, or the order is not refunded (no credit note)
+  /api/admin/orders/{id}/credit-note:
+    get:
+      tags:
+      - Invoices
+      summary: Download the credit note of any refunded order (PDF, ADMIN role)
+      operationId: getAnyCreditNote
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: The credit note
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        "403":
+          description: Not an administrator
+        "404":
+          description: No such order, or the order is not refunded (no credit note)
   /api/admin/seller:
     get:
       tags:
@@ -1360,8 +1413,9 @@ paths:
       tags:
       - Administration
       summary: Cancel a paid order before it is shipped, refund its payment and put its units back in stock (ADMIN role)
-      description: "The order must be PAID or PROCESSING, and still have the status given; it becomes REFUNDED and its
-        customer is told by email."
+      description: "The order must be PAID or PROCESSING, and still have the status given; it becomes REFUNDED, its
+        invoice is cancelled by a credit note (GET /api/orders/{id}/credit-note), and its customer is told by
+        email."
       operationId: refundOrder
       security:
       - bearerAuth: []

@@ -166,6 +166,9 @@ class RestExceptionHandler {
             is InvoiceNotFoundException -> ResponseEntity
                 .status(404)
                 .body(mapOf("error" to (ex.message ?: "No invoice")))
+            is CreditNoteNotFoundException -> ResponseEntity
+                .status(404)
+                .body(mapOf("error" to (ex.message ?: "No credit note")))
             is ProductImageNotFoundException -> ResponseEntity
                 .status(404)
                 .body(mapOf("error" to (ex.message ?: "No image")))

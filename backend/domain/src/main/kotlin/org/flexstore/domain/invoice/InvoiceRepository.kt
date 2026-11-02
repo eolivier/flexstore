@@ -16,7 +16,21 @@ interface InvoiceRepository {
     fun invoiceIsMissingFor(orderId: OrderId) = !invoiceExistsFor(orderId)
 }
 
-// Turns the content of an invoice into a document (a PDF): the content and its wording are given by the domain
+// The credit notes issued, numbered in their own sequence without gaps
+interface CreditNoteRepository {
+
+    // Issues the credit note of the order, which cancels its invoice, with the next number of the sequence
+    fun issue(creditNoteIssue: CreditNoteIssue): CreditNote
+
+    fun findBy(orderId: OrderId): CreditNote?
+
+    fun creditNoteExistsFor(orderId: OrderId) = findBy(orderId) != null
+
+    fun creditNoteIsMissingFor(orderId: OrderId) = !creditNoteExistsFor(orderId)
+}
+
+// Turns the content of an invoice or of a credit note into a document (a PDF): the content and its wording are
+// given by the domain
 interface InvoiceRenderer {
-    fun render(invoiceDocument: InvoiceDocument): InvoicePdf
+    fun render(billingDocument: BillingDocument): InvoicePdf
 }

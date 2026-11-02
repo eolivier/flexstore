@@ -27,18 +27,21 @@ class InvoiceServiceTest : WithAssertions {
     private val placedAt = Instant.parse("2026-10-24T10:00:00Z")
     private val orderRepository = InMemoryOrderRepository()
     private val invoiceRepository = InMemoryInvoiceRepository()
+    private val creditNoteRepository = InMemoryCreditNoteRepository()
+    private val refundedAt = Instant.parse("2026-10-25T09:00:00Z")
     private val userRepository = InMemoryUserRepository().apply { save(jane) }
     private val sellerRepository = InMemorySellerRepository(testSeller)
-    // Renders the title of the invoice and the name of its seller: enough to know what was rendered
+    // Renders the title of the document and the name of its seller: enough to know what was rendered
     private val titleRenderer = object : InvoiceRenderer {
-        override fun render(invoiceDocument: InvoiceDocument): InvoicePdf {
-            val sellerName = invoiceDocument.seller().asList().first().value
-            return InvoicePdf("${invoiceDocument.title().value} - $sellerName".toByteArray())
+        override fun render(billingDocument: BillingDocument): InvoicePdf {
+            val sellerName = billingDocument.seller().asList().first().value
+            return InvoicePdf("${billingDocument.title().value} - $sellerName".toByteArray())
         }
     }
     private val service = InvoiceService(
         InvoiceUseCases(
             ReadInvoiceUseCase(invoiceRepository),
+            ReadCreditNoteUseCase(creditNoteRepository),
             ReadSellerUseCase(sellerRepository),
             RenderInvoiceUseCase(titleRenderer)
         ),
@@ -51,6 +54,14 @@ class InvoiceServiceTest : WithAssertions {
         val order = Order.place(orderPlacement, Cart(customer).add(deskLamp, Quantity(1)))
         orderRepository.save(order.withStatus(OrderStatus.PAID))
         if (invoiced) invoiceRepository.issue(InvoiceIssue(orderId, InvoiceDate(placedAt)), testSeller.id)
+    }
+
+    // Paid and invoiced, then refunded with a credit note
+    private fun storeRefundedOrder() {
+        storePaidOrder()
+        val paidOrder = orderRepository.findById(orderId)!!
+        orderRepository.save(paidOrder.refundedAt(StatusChangedAt(refundedAt)))
+        creditNoteRepository.issue(CreditNoteIssue(orderId, CreditNoteDate(refundedAt)))
     }
 
     @Test
@@ -95,5 +106,35 @@ class InvoiceServiceTest : WithAssertions {
         val thrown = catchThrowable { service.anyInvoice(orderId) }
         // Assert
         assertThat(thrown).isInstanceOf(InvoiceNotFoundException::class.java)
+    }
+
+    @Test
+    fun `a customer should download the credit note of their refunded order`() {
+        // Arrange
+        storeRefundedOrder()
+        // Act
+        val creditNotePdf = service.customerCreditNote(janeId, orderId)
+        // Assert
+        assertThat(String(creditNotePdf.content)).isEqualTo("Avoir n° AV-2026-000001 - Flexstore SAS")
+    }
+
+    @Test
+    fun `the credit note of the order of another customer should not be found`() {
+        // Arrange
+        storeRefundedOrder()
+        // Act
+        val thrown = catchThrowable { service.customerCreditNote(UserId.ValidUserId("user-2"), orderId) }
+        // Assert
+        assertThat(thrown).isInstanceOf(OrderNotFoundException::class.java)
+    }
+
+    @Test
+    fun `a paid order that is not refunded should have no credit note to download`() {
+        // Arrange
+        storePaidOrder()
+        // Act
+        val thrown = catchThrowable { service.anyCreditNote(orderId) }
+        // Assert
+        assertThat(thrown).isInstanceOf(CreditNoteNotFoundException::class.java)
     }
 }

@@ -61,6 +61,11 @@ export function isInvoiced(status: JsonOrder['status']): boolean {
   return ['PAID', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'REFUNDED'].includes(status);
 }
 
+// A refunded order has its credit note, which cancels its invoice
+export function hasCreditNote(status: JsonOrder['status']): boolean {
+  return status === 'REFUNDED';
+}
+
 // Paid, and not shipped yet: an administrator may cancel it and refund it
 export function isRefundable(status: JsonOrder['status']): boolean {
   return status === 'PAID' || status === 'PROCESSING';

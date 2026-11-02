@@ -631,7 +631,7 @@ const { status, data } = await apiInstance.publishLegalPage(
 # **refundOrder**
 > JsonAdminOrder refundOrder(jsonOrderRefund)
 
-The order must be PAID or PROCESSING, and still have the status given; it becomes REFUNDED and its customer is told by email.
+The order must be PAID or PROCESSING, and still have the status given; it becomes REFUNDED, its invoice is cancelled by a credit note (GET /api/orders/{id}/credit-note), and its customer is told by email.
 
 ### Example
 

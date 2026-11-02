@@ -42,11 +42,17 @@ fun MockHttpServletRequestBuilder.withHomeAddressesShipped(shippingMethod: Strin
 fun MockMvc.pay(orderId: String, customerId: String): ResultActions =
     perform(post("/api/orders/$orderId/payment").with(asUser(customerId)))
 
-// Deletes the orders of a customer: their invoices first (an invoice keeps its order), then the orders, then
-// their payments (an order refers to its last payment)
+// Deletes the orders of a customer: their credit notes and their invoices first (a credit note keeps its
+// invoice, an invoice keeps its order), then the orders, then their payments (an order refers to its last
+// payment)
 fun JdbcTemplate.deleteOrdersOf(customerId: String) {
     val paymentIds = queryForList(
         "SELECT payment_id FROM customer_order WHERE user_id = ? AND payment_id IS NOT NULL", String::class.java, customerId
+    )
+    update(
+        "DELETE FROM credit_note WHERE invoice_id IN (SELECT i.id FROM invoice i " +
+            "JOIN customer_order o ON o.id = i.customer_order_id WHERE o.user_id = ?)",
+        customerId
     )
     update("DELETE FROM invoice WHERE customer_order_id IN (SELECT id FROM customer_order WHERE user_id = ?)", customerId)
     update("DELETE FROM customer_order WHERE user_id = ?", customerId)

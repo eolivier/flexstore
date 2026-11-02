@@ -49,15 +49,19 @@ open class ServiceConfig {
     open fun orderAdministrationService(listAdministeredOrdersUseCase: ListAdministeredOrdersUseCase,
                                         readAdministeredOrderUseCase: ReadAdministeredOrderUseCase,
                                         advanceOrderStatusUseCase: AdvanceOrderStatusUseCase,
-                                        refundOrderUseCase: RefundOrderUseCase,
                                         sendOrderStatusEmailUseCase: SendOrderStatusEmailUseCase) =
         OrderAdministrationService(
             listAdministeredOrdersUseCase,
             readAdministeredOrderUseCase,
             advanceOrderStatusUseCase,
-            refundOrderUseCase,
             sendOrderStatusEmailUseCase
         )
+
+    @Bean
+    open fun orderRefundService(refundOrderUseCase: RefundOrderUseCase,
+                                issueCreditNoteUseCase: IssueCreditNoteUseCase,
+                                refundedOrderUseCases: RefundedOrderUseCases) =
+        OrderRefundService(refundOrderUseCase, issueCreditNoteUseCase, refundedOrderUseCases)
 
     @Bean
     open fun customerRegistrationService(registerCustomerUseCase: RegisterCustomerUseCase,

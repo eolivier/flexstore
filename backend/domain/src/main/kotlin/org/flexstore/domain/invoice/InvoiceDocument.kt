@@ -48,23 +48,37 @@ data class InvoicedSale(val administeredOrder: AdministeredOrder, val seller: Se
     val order get() = administeredOrder.order
 }
 
+// A document of the invoicing of a sale, an invoice or a credit note, laid out the same way by the renderer: its
+// title and dates, who sells, who buys, the table of what is sold, its totals and a footer
+interface BillingDocument {
+    fun title(): InvoiceText
+    fun dates(): InvoiceLines
+    fun seller(): InvoiceLines
+    fun billedTo(): InvoiceLines
+    fun deliveredTo(): InvoiceLines
+    fun tableHeader(): InvoiceRow
+    fun tableRows(): InvoiceRows
+    fun totals(): InvoiceRows
+    fun footer(): InvoiceLines
+}
+
 // The content of an invoice, as the product owner specifies it (in French, the language of the shop): who sells,
 // who buys, what, at which price with and without VAT. The renderer only lays it out
-data class InvoiceDocument(val invoice: Invoice, val sale: InvoicedSale) {
+data class InvoiceDocument(val invoice: Invoice, val sale: InvoicedSale) : BillingDocument {
 
     private val order get() = sale.order
 
     private val vatBreakdowns get() = VatBreakdowns.of(order)
 
-    fun title() = InvoiceText("Facture n° ${invoice.number.value}")
+    override fun title() = InvoiceText("Facture n° ${invoice.number.value}")
 
-    fun dates() = InvoiceLines(
+    override fun dates() = InvoiceLines(
         "Date de facturation : ${DATE_FORMAT.format(invoice.issuedAt.value)}",
         "Commande n° ${order.number()} du ${DATE_FORMAT.format(order.placedAt)}"
     )
 
     // Who sells, how to reach it (what its version of the seller gives), and how it is registered
-    fun seller(): InvoiceLines {
+    override fun seller(): InvoiceLines {
         val (contact, identifier, reach) = sale.seller.detail
         val reachLines = listOfNotNull(
             reach.phone.takeIf { it.isGiven() }?.let { "Tél. : ${it.value}" },
@@ -80,7 +94,7 @@ data class InvoiceDocument(val invoice: Invoice, val sale: InvoicedSale) {
     }
 
     // The billing address, and the email of the customer
-    fun billedTo(): InvoiceLines {
+    override fun billedTo(): InvoiceLines {
         val billingAddress = order.addresses.billing
         val email = sale.administeredOrder.customer.email.value
         val vatNumber = vatNumberOf(billingAddress.recipient)
@@ -88,18 +102,18 @@ data class InvoiceDocument(val invoice: Invoice, val sale: InvoicedSale) {
         return InvoiceLines(*lines.toTypedArray())
     }
 
-    fun deliveredTo(): InvoiceLines {
+    override fun deliveredTo(): InvoiceLines {
         val lines = listOf("Livré à") + linesOf(order.addresses.delivery)
         return InvoiceLines(*lines.toTypedArray())
     }
 
-    fun tableHeader() =
+    override fun tableHeader() =
         InvoiceRow("Désignation", "Quantité", "Prix unitaire HT", "Taux TVA", "Montant TVA", "Total TTC")
 
     // The lines of the order, its discount, then its shipping: the unit price without VAT, the rate of VAT, the
     // VAT of the row and its price with VAT. A product follows its rate of VAT; the discount and the shipping
     // are split among the rates of the items, as the VAT of the order is, and give these rates
-    fun tableRows(): InvoiceRows {
+    override fun tableRows(): InvoiceRows {
         val productRows = order.lines.asList().map { line ->
             val unitPriceExcludingVat = VatBreakdown(line.unitPrice, line.vatRate).priceExcludingVat()
             val lineVat = VatBreakdown(line.linePrice(), line.vatRate).vat()
@@ -128,7 +142,7 @@ data class InvoiceDocument(val invoice: Invoice, val sale: InvoicedSale) {
     }
 
     // The total without VAT, the VAT of each rate, then the total with VAT
-    fun totals(): InvoiceRows {
+    override fun totals(): InvoiceRows {
         val totalExcludingVat = InvoiceRow("Total HT", priceOf(vatBreakdowns.priceExcludingVat()))
         val vatRows = vatBreakdowns.asList().map { breakdown ->
             InvoiceRow("TVA ${percentOf(breakdown.rate)} %", priceOf(breakdown.vat()))
@@ -137,7 +151,7 @@ data class InvoiceDocument(val invoice: Invoice, val sale: InvoicedSale) {
         return InvoiceRows(listOf(totalExcludingVat) + vatRows + totalIncludingVat)
     }
 
-    fun footer() = InvoiceLines(
+    override fun footer() = InvoiceLines(
         "Facture acquittée : la commande a été payée en ligne.",
         "Prix en euros, TVA française comprise."
     )
@@ -173,4 +187,28 @@ data class InvoiceDocument(val invoice: Invoice, val sale: InvoicedSale) {
         is LegalEntity -> recipient.company.vatNumber.takeIf { it.isGiven() }?.let { "TVA : ${it.value}" }
         is PrivateIndividual -> null
     }
+}
+
+// The content of the credit note of a refunded order (in French): it cancels the invoice of the order, whose
+// rows and totals it repeats, as the amounts given back to the customer. It is issued for the seller of the
+// invoice
+data class CreditNoteDocument(val creditNote: CreditNote, val invoiceDocument: InvoiceDocument) :
+    BillingDocument by invoiceDocument {
+
+    private val invoice get() = invoiceDocument.invoice
+
+    private val order get() = invoiceDocument.sale.order
+
+    override fun title() = InvoiceText("Avoir n° ${creditNote.number.value}")
+
+    override fun dates() = InvoiceLines(
+        "Date de l'avoir : ${DATE_FORMAT.format(creditNote.issuedAt.value)}",
+        "Annule la facture n° ${invoice.number.value} du ${DATE_FORMAT.format(invoice.issuedAt.value)}",
+        "Commande n° ${order.number()} du ${DATE_FORMAT.format(order.placedAt)}"
+    )
+
+    override fun footer() = InvoiceLines(
+        "Avoir remboursé : le paiement de la commande a été rendu au client.",
+        "Prix en euros, TVA française comprise."
+    )
 }

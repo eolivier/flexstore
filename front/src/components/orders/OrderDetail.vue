@@ -2,12 +2,12 @@
   import { computed, onMounted, ref, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useOrdersStore, type OrderLookup } from '@/stores/orders.store';
-  import { isInvoiced, orderItemsCount, orderNumber, placedOn } from '@/utils/order';
+  import { hasCreditNote, isInvoiced, orderItemsCount, orderNumber, placedOn } from '@/utils/order';
   import OrderStatusSteps from './OrderStatusSteps.vue';
   import OrderLinesTable from './OrderLinesTable.vue';
   import OrderAddressesCard from './OrderAddressesCard.vue';
   import PayOrderButton from './PayOrderButton.vue';
-  import InvoiceDownloadButton from './InvoiceDownloadButton.vue';
+  import BillingDocumentButton from './BillingDocumentButton.vue';
   import PaymentCountdown from './PaymentCountdown.vue';
 
   const props = defineProps<{ id: string }>();
@@ -61,11 +61,20 @@
           </p>
         </div>
         <v-spacer />
-        <InvoiceDownloadButton
-          v-if="isInvoiced(order.status)"
-          :order="order"
-          :invoice-path="`/api/orders/${encodeURIComponent(order.id)}/invoice`"
-        />
+        <div class="d-flex flex-wrap align-start ga-2">
+          <BillingDocumentButton
+            v-if="isInvoiced(order.status)"
+            :order="order"
+            orders-path="/api/orders"
+            document="invoice"
+          />
+          <BillingDocumentButton
+            v-if="hasCreditNote(order.status)"
+            :order="order"
+            orders-path="/api/orders"
+            document="creditNote"
+          />
+        </div>
       </div>
       <v-card v-if="order.status === 'AWAITING_PAYMENT'" class="pa-5 mb-6">
         <PaymentCountdown v-if="order.paymentDeadline" :order="order" @expired="load" />
