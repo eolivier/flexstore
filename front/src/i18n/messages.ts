@@ -509,6 +509,14 @@ export default {
       loadError: 'The seller could not be loaded.',
       issuedInvoicesNote: 'The invoices already issued keep the seller they were issued with.',
     },
+    stockAlerts: {
+      title: 'Low stocks',
+      none: 'No product runs low.',
+      unitsLeft: '{quantity} left (alert at {threshold})',
+      threshold: 'Low stock alert',
+      thresholdHint: 'You are warned when the stock is at or under this number of units',
+      invalidThreshold: 'A whole number, 0 or more',
+    },
     vatRate: {
       title: 'VAT rate',
       hint: 'The rate of VAT included in the price, written on the invoices',
@@ -1204,6 +1212,14 @@ export default {
       saveError: 'Le vendeur n’a pas pu être enregistré.',
       loadError: 'Le vendeur n’a pas pu être chargé.',
       issuedInvoicesNote: 'Les factures déjà émises gardent le vendeur avec lequel elles ont été émises.',
+    },
+    stockAlerts: {
+      title: 'Stocks bas',
+      none: 'Aucun produit en stock bas.',
+      unitsLeft: '{quantity} restant(s) (alerte à {threshold})',
+      threshold: 'Alerte de stock bas',
+      thresholdHint: 'Vous êtes prévenu quand le stock atteint ce nombre d’unités ou moins',
+      invalidThreshold: 'Un nombre entier, 0 ou plus',
     },
     vatRate: {
       title: 'Taux de TVA',

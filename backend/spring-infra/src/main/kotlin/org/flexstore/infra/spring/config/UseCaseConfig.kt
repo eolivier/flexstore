@@ -304,6 +304,26 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         StockUseCases(listStocksUseCase, readStockUseCase, changeStockUseCase)
 
     @Bean
+    open fun listLowStocksUseCase(stockRepository: StockRepository, userRepository: UserRepository) =
+        ListLowStocksUseCase(stockRepository, userRepository)
+
+    @Bean
+    open fun readStockAlertUseCase(stockRepository: StockRepository, userRepository: UserRepository) =
+        ReadStockAlertUseCase(stockRepository, userRepository)
+
+    @Bean
+    open fun changeStockAlertUseCase(stockRepository: StockRepository,
+                                     productRepository: ProductRepository,
+                                     userRepository: UserRepository) =
+        ChangeStockAlertUseCase(stockRepository, productRepository, userRepository)
+
+    @Bean
+    open fun stockAlertUseCases(listLowStocksUseCase: ListLowStocksUseCase,
+                                readStockAlertUseCase: ReadStockAlertUseCase,
+                                changeStockAlertUseCase: ChangeStockAlertUseCase) =
+        StockAlertUseCases(listLowStocksUseCase, readStockAlertUseCase, changeStockAlertUseCase)
+
+    @Bean
     open fun addProductImageUseCase(productImageRepository: ProductImageRepository,
                                     productRepository: ProductRepository,
                                     imageResizerRepository: ImageResizerRepository) =

@@ -213,8 +213,23 @@ describe('EditProduct.vue', () => {
     await wrapper.find('form').trigger('submit.prevent');
     await flushPromises();
     // Assert
-    const [url, init] = mockFetch.mock.calls.find(([url]) => url.includes('/api/admin/stocks/'))!;
-    expect(url).toMatch(/\/api\/admin\/stocks\/p-1$/);
+    const [, init] = mockFetch.mock.calls.find(([url]) => /\/api\/admin\/stocks\/p-1$/.test(url))!;
     expect(JSON.parse(init.body)).toEqual({ quantity: 7 });
+  });
+
+  it('saves the alert threshold of the product with it', async () => {
+    // Arrange
+    const wrapper = await mountEditProduct();
+    const [, , threshold] = wrapper.findAll('input[type="number"]');
+    await threshold.setValue('12');
+    await flushPromises();
+    // Act
+    await wrapper.find('form').trigger('submit.prevent');
+    await flushPromises();
+    // Assert
+    const [, init] = mockFetch.mock.calls.find(
+      ([url, init]) => /\/api\/admin\/stocks\/p-1\/alert$/.test(url) && init?.method === 'PUT'
+    )!;
+    expect(JSON.parse(init.body)).toEqual({ threshold: 12 });
   });
 });

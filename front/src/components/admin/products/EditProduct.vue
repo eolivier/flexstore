@@ -6,9 +6,11 @@
   import type { ProductTexts, VatRate } from '@/models/product';
   import { textsOf, translationsOf } from '@/utils/productTranslations';
   import { useStocksStore } from '@/stores/stocks.store';
+  import { useStockAlertsStore } from '@/stores/stockAlerts.store';
   import ProductFields from './ProductFields.vue';
   import ProductImageField from './ProductImageField.vue';
   import StockField from './StockField.vue';
+  import AlertThresholdField from './AlertThresholdField.vue';
   import { normalizedSku } from '@/utils/sku';
 
   interface EditedProduct {
@@ -18,13 +20,18 @@
     price: string | null;
     vatRate: VatRate;
     stock: string;
+    alertThreshold: string;
   }
 
   const props = defineProps<{ id: string }>();
 
+  // The threshold of the shop when it cannot be read
+  const DEFAULT_ALERT_THRESHOLD = 5;
+
   const { t } = useI18n();
   const productsStore = useProductsStore();
   const stocksStore = useStocksStore();
+  const stockAlertsStore = useStockAlertsStore();
 
   // null while loading, false when the product cannot be read
   const editedProduct = ref<EditedProduct | null | false>(null);
@@ -37,7 +44,8 @@
   onMounted(async () => {
     // The administrator edits the product in every language
     const adminProduct = productsStore.fetchAdminProduct(props.id);
-    const [product] = await Promise.all([adminProduct, stocksStore.fetchStocks()]);
+    const alertThreshold = stockAlertsStore.thresholdOf(props.id);
+    const [product, threshold] = await Promise.all([adminProduct, alertThreshold, stocksStore.fetchStocks()]);
     editedProduct.value = product
       ? {
           sku: product.sku,
@@ -46,6 +54,7 @@
           price: String(product.price ?? ''),
           vatRate: product.vatRate ?? 'STANDARD',
           stock: String(stocksStore.quantityOf(props.id) ?? 0),
+          alertThreshold: String(threshold ?? DEFAULT_ALERT_THRESHOLD),
         }
       : false;
   });
@@ -53,7 +62,7 @@
   async function save() {
     if (!valid.value || !editedProduct.value || editedProduct.value.price === null) return;
     saving.value = true;
-    const { stock, sku, texts, category, price, vatRate } = editedProduct.value;
+    const { stock, alertThreshold, sku, texts, category, price, vatRate } = editedProduct.value;
     const productSave = await productsStore.updateProduct(props.id, {
       sku: normalizedSku(sku),
       category,
@@ -65,8 +74,10 @@
     skuAlreadyUsed.value = productSave === 'skuAlreadyUsed';
     const productSaved = productSave === 'saved';
     const stockSaved = productSaved && (await stocksStore.changeStock(props.id, parseInt(stock, 10)));
+    const thresholdSaved =
+      stockSaved && (await stockAlertsStore.changeThreshold(props.id, parseInt(alertThreshold, 10)));
     // A SKU already used is said by its field
-    saved.value = skuAlreadyUsed.value ? null : stockSaved;
+    saved.value = skuAlreadyUsed.value ? null : thresholdSaved;
     saving.value = false;
   }
 
@@ -98,6 +109,7 @@
           :sku-already-used="skuAlreadyUsed"
         />
         <StockField v-model="editedProduct.stock" />
+        <AlertThresholdField v-model="editedProduct.alertThreshold" />
         <v-alert v-if="saved === false" type="error" variant="tonal" density="compact" class="my-4">{{
           t('editProduct.error')
         }}</v-alert>

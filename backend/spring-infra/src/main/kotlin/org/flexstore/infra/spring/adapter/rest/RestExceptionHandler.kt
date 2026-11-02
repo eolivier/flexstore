@@ -49,7 +49,7 @@ class RestExceptionHandler {
                 .status(403)
                 .body(mapOf("error" to (ex.message ?: "Order refused"), "status" to ex.status.name))
             is UserCreationForbiddenException, is UserUpdateForbiddenException,
-            is LegalPagePublicationForbiddenException -> ResponseEntity
+            is LegalPagePublicationForbiddenException, is StockAlertForbiddenException -> ResponseEntity
                 .status(403)
                 .body(mapOf("error" to (ex.message ?: "Forbidden")))
             // Not 422, which tells the front that the cart is empty. The reason tells this 400 from a malformed
@@ -128,6 +128,9 @@ class RestExceptionHandler {
             is NegativeStockException -> ResponseEntity
                 .status(400)
                 .body(mapOf("error" to (ex.message ?: "Negative stock")))
+            is NegativeAlertThresholdException -> ResponseEntity
+                .status(400)
+                .body(mapOf("error" to (ex.message ?: "Negative alert threshold")))
             is ImageTooLargeException -> ResponseEntity
                 .status(413)
                 .body(mapOf("error" to (ex.message ?: "Image too large")))

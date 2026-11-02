@@ -17,6 +17,9 @@ import org.springframework.transaction.annotation.Transactional
 interface JpaStockRepository : JpaRepository<StockEntity, String> {
     fun findByProductId(productId: String): StockEntity?
 
+    @Query("SELECT s FROM StockEntity s WHERE s.quantity <= s.alertThreshold")
+    fun findLow(): List<StockEntity>
+
     // One statement: the database checks and takes the units together, one order after the other. The update
     // date is set here, as Hibernate does not set it on a bulk update. The number of rows updated: 0 or 1
     @Modifying(flushAutomatically = true, clearAutomatically = true)
@@ -52,6 +55,20 @@ class PostgresStockRepositoryAdapter(private val jpaRepo: JpaStockRepository) : 
         jpaRepo.save(stockEntity)
     }
 
+    @Transactional(readOnly = true)
+    override fun alertOf(productId: ProductId): StockAlert =
+        jpaRepo.findByProductId(productId.id.value)?.toAlert() ?: StockAlert.byDefaultOf(productId)
+
+    // The row of the product is updated, or created without units
+    override fun saveAlert(stockAlert: StockAlert) {
+        val storedStock = jpaRepo.findByProductId(stockAlert.productId.id.value)
+        val stockEntity = storedStock?.withThresholdOf(stockAlert) ?: stockAlert.toEntity()
+        jpaRepo.save(stockEntity)
+    }
+
+    @Transactional(readOnly = true)
+    override fun findLow() = LowStocks(jpaRepo.findLow().map { LowStock(it.toDomain(), it.toAlert().threshold) })
+
     override fun reserve(productId: ProductId, quantity: Quantity): StockReservation {
         val updatedRows = jpaRepo.takeOut(productId.id.value, quantity.value)
         return if (updatedRows == 1) StockReservation.RESERVED else StockReservation.NOT_COVERED
@@ -66,7 +83,21 @@ class PostgresStockRepositoryAdapter(private val jpaRepo: JpaStockRepository) : 
         return copy(quantity = stock.quantity.value).also { it.createdAt = storedCreatedAt }
     }
 
-    private fun Stock.toEntity() = StockEntity(Identity.nextId().value, productId.id.value, quantity.value)
+    private fun StockEntity.withThresholdOf(stockAlert: StockAlert): StockEntity {
+        val storedCreatedAt = createdAt
+        return copy(alertThreshold = stockAlert.threshold.value).also { it.createdAt = storedCreatedAt }
+    }
+
+    private fun Stock.toEntity() = StockEntity(
+        Identity.nextId().value, productId.id.value, quantity.value, AlertThreshold.byDefault().value
+    )
+
+    private fun StockAlert.toEntity() = StockEntity(
+        Identity.nextId().value, productId.id.value, StockQuantity.none().value, threshold.value
+    )
 
     private fun StockEntity.toDomain() = Stock(ProductId(Identity(productId)), StockQuantity(quantity))
+
+    private fun StockEntity.toAlert() =
+        StockAlert(ProductId(Identity(productId)), AlertThreshold(alertThreshold))
 }

@@ -9,6 +9,7 @@
   import ColorModeButton from '@/components/layout/ColorModeButton.vue';
   import LoadingBar from '@/components/layout/LoadingBar.vue';
   import CatalogSearchField from '@/components/products/CatalogSearchField.vue';
+  import LowStockBell from './LowStockBell.vue';
   import { accountLinksOf, adminLinks, shopLinks } from './navigation';
   import { useAuthStore } from '@/stores/auth.store';
   import { useCartStore } from '@/stores/cart.store';
@@ -89,6 +90,8 @@
       </div>
 
       <ColorModeButton />
+
+      <LowStockBell v-if="authStore.isAdmin" />
 
       <v-menu location="bottom end">
         <template #activator="{ props }">

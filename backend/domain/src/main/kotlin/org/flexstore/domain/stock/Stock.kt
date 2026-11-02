@@ -3,6 +3,7 @@ package org.flexstore.domain.stock
 import org.flexstore.domain.product.ProductId
 import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.sharedkernel.Quantity
+import org.flexstore.domain.user.model.UserId
 import org.ucop.domain.NominalException
 
 // The number of units of a product that the shop has: never negative
@@ -50,6 +51,48 @@ data class Stocks(private val stocks: List<Stock>) {
     fun asList(): List<Stock> = stocks.toList()
 }
 
+// The number of units at or under which the administrators are warned that a product runs low: never negative
+data class AlertThreshold(val value: Int) {
+
+    fun isNegative() = value < 0
+
+    fun isReachedBy(quantity: StockQuantity) = quantity.value <= value
+
+    companion object {
+        // The threshold of a product whose threshold was never given
+        fun byDefault() = AlertThreshold(5)
+    }
+}
+
+// The threshold of the stock of a product, given by an administrator
+data class StockAlert(val productId: ProductId, val threshold: AlertThreshold) {
+
+    companion object {
+        fun byDefaultOf(productId: ProductId) = StockAlert(productId, AlertThreshold.byDefault())
+    }
+}
+
+// An administrator who gives the threshold of the stock of a product
+data class StockAlertChange(val editor: UserId, val stockAlert: StockAlert)
+
+// An administrator who reads the threshold of the stock of a product
+data class StockAlertReading(val reader: UserId, val productId: ProductId)
+
+// An administrator who reads the stocks that reached the threshold of their product
+data class LowStocksReading(val reader: UserId)
+
+// A stock that reached the threshold of its product
+data class LowStock(val stock: Stock, val threshold: AlertThreshold)
+
+// The stocks that reached their threshold, from the lowest, for the administrators
+data class LowStocks(private val lowStocks: List<LowStock>) {
+
+    constructor(vararg lowStocks: LowStock) : this(lowStocks.toList())
+
+    // Read-only view for the adapters (JSON)
+    fun asList(): List<LowStock> = lowStocks.sortedBy { it.stock.quantity.value }
+}
+
 // The units of a reservation are taken out of the stock only if they are all there, at the moment they are
 // taken: another order may have taken them since the stock was read
 enum class StockReservation {
@@ -60,4 +103,9 @@ enum class StockReservation {
 
 data class OutOfStockException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class NegativeStockException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class NegativeAlertThresholdException(override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
+data class StockAlertForbiddenException(override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
+data class StockAlertChangeFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class StockChangeFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
