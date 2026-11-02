@@ -47,7 +47,15 @@ class InvoiceDocumentTest : WithAssertions {
         val invoiceDocument = documentOf(ShippingMethod.STANDARD)
         // Assert
         assertThat(invoiceDocument.seller().asList().map { it.value })
-            .contains("Flexstore SAS", "SIRET : 123 456 789 00012", "TVA intracommunautaire : FR12345678901")
+            .containsExactly(
+                "Flexstore SAS",
+                "1 rue de la Démo, 75001 Paris, France",
+                "Tél. : 01 23 45 67 89",
+                "Email : contact@flexstore.fr",
+                "Site : www.flexstore.fr",
+                "SIRET : 123 456 789 00012",
+                "TVA intracommunautaire : FR12345678901"
+            )
         assertThat(invoiceDocument.billedTo().asList().map { it.value })
             .containsSequence("Facturé à", "Jane Doe").contains("jane@example.com")
     }
@@ -151,6 +159,22 @@ class InvoiceDocumentTest : WithAssertions {
                 InvoiceRow("Cook book", "1", "18,96 €", "1,04 €", "20,00 €"),
                 InvoiceRow("Livraison express", "1", "8,66 €", "1,24 €", "9,90 €")
             )
+        )
+    }
+
+    @Test
+    fun `an invoice of a seller written before its phone, email and website were asked should show none`() {
+        // Arrange
+        val olderSeller = testSeller.copy(detail = testSellerDetail.copy(reach = SellerReach.none()))
+        val order = documentOf(ShippingMethod.STANDARD).sale.administeredOrder
+        // Act
+        val invoiceDocument = InvoiceDocument(invoice, InvoicedSale(order, olderSeller))
+        // Assert
+        assertThat(invoiceDocument.seller().asList().map { it.value }).containsExactly(
+            "Flexstore SAS",
+            "1 rue de la Démo, 75001 Paris, France",
+            "SIRET : 123 456 789 00012",
+            "TVA intracommunautaire : FR12345678901"
         )
     }
 }

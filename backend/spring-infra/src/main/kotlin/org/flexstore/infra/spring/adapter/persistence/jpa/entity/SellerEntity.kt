@@ -22,5 +22,15 @@ data class SellerEntity(
     val siret: String,
 
     @Column(name = "vat_number", nullable = false, updatable = false)
-    val vatNumber: String
+    val vatNumber: String,
+
+    // How the customers reach the seller: null in the versions written before they were asked
+    @Column(updatable = false)
+    val phone: String?,
+
+    @Column(updatable = false)
+    val email: String?,
+
+    @Column(updatable = false)
+    val website: String?
 ) : TimestampedEntity()

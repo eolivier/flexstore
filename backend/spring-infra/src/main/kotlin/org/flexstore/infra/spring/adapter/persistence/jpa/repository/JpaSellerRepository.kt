@@ -28,14 +28,17 @@ class PostgresSellerRepositoryAdapter(private val jpaRepo: JpaSellerRepository) 
 
     override fun save(seller: Seller) {
         val nextVersion = jpaRepo.findFirstByOrderByVersionDesc().version + 1
-        val (contact, identifier) = seller.detail
+        val (contact, identifier, reach) = seller.detail
         val sellerEntity = SellerEntity(
             seller.id.value.value,
             nextVersion,
             contact.name.value,
             contact.address.value,
             identifier.siret.value,
-            identifier.vatNumber.value
+            identifier.vatNumber.value,
+            reach.phone.value.ifEmpty { null },
+            reach.email.value.ifEmpty { null },
+            reach.website.value.ifEmpty { null }
         )
         jpaRepo.save(sellerEntity)
     }
@@ -43,6 +46,9 @@ class PostgresSellerRepositoryAdapter(private val jpaRepo: JpaSellerRepository) 
     private fun SellerEntity.toDomain(): Seller {
         val contact = SellerContact(SellerName(name), SellerAddress(address))
         val identifier = SellerIdentifier(Siret(siret), SellerVatNumber(vatNumber))
-        return Seller(SellerId(Identity(id)), SellerDetail(contact, identifier))
+        // None in the versions written before they were asked
+        val sellerPhone = SellerPhone(phone.orEmpty())
+        val reach = SellerReach(sellerPhone, SellerEmail(email.orEmpty()), SellerWebsite(website.orEmpty()))
+        return Seller(SellerId(Identity(id)), SellerDetail(contact, identifier, reach))
     }
 }

@@ -2,7 +2,7 @@
   import { reactive, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useSellerStore, type Seller, type SellerUpdate } from '@/stores/seller.store';
-  import { isSiret, isVatNumber } from './sellerRules';
+  import { isEmail, isPhone, isSiret, isVatNumber, isWebsite } from './sellerRules';
 
   const props = defineProps<{ seller: Seller }>();
 
@@ -20,6 +20,9 @@
     required: (v: string) => v.trim().length > 0 || t('seller.required'),
     siret: (v: string) => isSiret(v) || t('seller.siretFormat'),
     vatNumber: (v: string) => isVatNumber(v) || t('seller.vatNumberFormat'),
+    phone: (v: string) => isPhone(v) || t('seller.phoneFormat'),
+    email: (v: string) => isEmail(v) || t('seller.emailFormat'),
+    website: (v: string) => isWebsite(v) || t('seller.websiteFormat'),
   };
 
   async function save() {
@@ -52,6 +55,30 @@
       :label="t('seller.vatNumber')"
       :hint="t('seller.vatNumberHint')"
       :rules="[rules.vatNumber]"
+      class="mb-2"
+    />
+    <v-text-field
+      v-model="editedSeller.phone"
+      :label="t('seller.phone')"
+      :rules="[rules.phone]"
+      type="tel"
+      prepend-inner-icon="mdi-phone-outline"
+      class="mb-2"
+    />
+    <v-text-field
+      v-model="editedSeller.email"
+      :label="t('seller.email')"
+      :rules="[rules.email]"
+      type="email"
+      prepend-inner-icon="mdi-email-outline"
+      class="mb-2"
+    />
+    <v-text-field
+      v-model="editedSeller.website"
+      :label="t('seller.website')"
+      :hint="t('seller.websiteHint')"
+      :rules="[rules.website]"
+      prepend-inner-icon="mdi-web"
       class="mb-2"
     />
     <div class="d-flex align-center ga-4 mt-2">

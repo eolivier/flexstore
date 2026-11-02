@@ -2,16 +2,20 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { useAuthStore } from '@/stores/auth.store';
 
-// The seller written on the invoices: the address on one line, the SIRET (14 digits) and the intra-community VAT
-// number of the shop
+// The seller written on the invoices: the address on one line, the SIRET (14 digits), the intra-community VAT
+// number of the shop, and how the customers reach it (empty in the versions written before they were asked)
 export interface Seller {
   name: string;
   address: string;
   siret: string;
   vatNumber: string;
+  phone: string;
+  email: string;
+  website: string;
 }
 
-// saved; invalid: refused by the shop (a malformed SIRET or VAT number); failed: not reached
+// saved; invalid: refused by the shop (a malformed SIRET, VAT number, phone, email or website);
+// failed: not reached
 export type SellerUpdate = 'saved' | 'invalid' | 'failed';
 
 // The seller of the shop, for the administrators: the invoices already issued keep the seller they were

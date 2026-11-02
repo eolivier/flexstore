@@ -651,6 +651,15 @@ export interface JsonSeller {
      * Intra-community VAT number, the country then 2 to 13 digits or letters
      */
     'vatNumber': string;
+    /**
+     * Digits, maybe after a +, grouped by spaces, dots, dashes or parentheses; empty in the versions written before it was asked
+     */
+    'phone': string;
+    'email': string;
+    /**
+     * With or without its scheme
+     */
+    'website': string;
 }
 export interface JsonShippingOption {
     'method': JsonShippingOptionMethodEnum;

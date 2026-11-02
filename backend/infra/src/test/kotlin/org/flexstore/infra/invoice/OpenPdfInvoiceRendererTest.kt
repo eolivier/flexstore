@@ -19,7 +19,10 @@ class OpenPdfInvoiceRendererTest {
     private val sellerContact =
         SellerContact(SellerName("Flexstore SAS"), SellerAddress("1 rue de la Démo, 75001 Paris, France"))
     private val sellerIdentifier = SellerIdentifier(Siret("123 456 789 00012"), SellerVatNumber("FR12345678901"))
-    private val seller = Seller(SellerId(Identity("seller-1")), SellerDetail(sellerContact, sellerIdentifier))
+    private val sellerReach =
+        SellerReach(SellerPhone("01 23 45 67 89"), SellerEmail("contact@flexstore.fr"), SellerWebsite("www.flexstore.fr"))
+    private val seller =
+        Seller(SellerId(Identity("seller-1")), SellerDetail(sellerContact, sellerIdentifier, sellerReach))
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val placedAt = Instant.parse("2026-10-24T10:00:00Z")
 
@@ -46,8 +49,9 @@ class OpenPdfInvoiceRendererTest {
         val text = PdfTextExtractor(PdfReader(invoicePdf.content)).getTextFromPage(1)
         assertTrue(String(invoicePdf.content.copyOf(5)) == "%PDF-")
         listOf(
-            "Facture n° 2026-000042", "Flexstore SAS", "Lampe été", "Livraison express", "Prix unitaire HT",
-            "Montant TVA", "Total TTC", "44,90 €"
+            "Facture n° 2026-000042", "Flexstore SAS", "Tél. : 01 23 45 67 89", "Email : contact@flexstore.fr",
+            "Site : www.flexstore.fr", "Lampe été", "Livraison express", "Prix unitaire HT", "Montant TVA",
+            "Total TTC", "44,90 €"
         )
             .forEach { expected -> assertTrue(text.contains(expected), "\"$expected\" not in:\n$text") }
     }

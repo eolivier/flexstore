@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isSiret, isVatNumber } from './sellerRules';
+import { isEmail, isPhone, isSiret, isVatNumber, isWebsite } from './sellerRules';
 
 describe('sellerRules', () => {
   it.each(['12345678900012', '123 456 789 00012'])('the SIRET "%s" is accepted', (siret) => {
@@ -35,4 +35,22 @@ describe('sellerRules', () => {
       expect(accepted).toBe(false);
     }
   );
+
+  it.each([
+    { rule: isPhone, value: '01 23 45 67 89', expected: true },
+    { rule: isPhone, value: '+33 (0)1 23 45 67 89', expected: true },
+    { rule: isPhone, value: 'abc', expected: false },
+    { rule: isPhone, value: '', expected: false },
+    { rule: isEmail, value: 'contact@flexstore.fr', expected: true },
+    { rule: isEmail, value: 'contact.flexstore.fr', expected: false },
+    { rule: isWebsite, value: 'www.flexstore.fr', expected: true },
+    { rule: isWebsite, value: 'https://www.flexstore.fr/boutique', expected: true },
+    { rule: isWebsite, value: 'flexstore', expected: false },
+    { rule: isWebsite, value: '', expected: false },
+  ])('$rule.name("$value") is $expected', ({ rule, value, expected }) => {
+    // Act
+    const accepted = rule(value);
+    // Assert
+    expect(accepted).toBe(expected);
+  });
 });

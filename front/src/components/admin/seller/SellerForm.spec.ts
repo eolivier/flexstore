@@ -12,6 +12,9 @@ const flexstore = {
   address: '1 rue de la Démo, 75001 Paris, France',
   siret: '123 456 789 00012',
   vatNumber: 'FR12345678901',
+  phone: '01 23 45 67 89',
+  email: 'contact@flexstore.fr',
+  website: 'www.flexstore.fr',
 };
 
 function mountForm() {
@@ -31,7 +34,15 @@ describe('SellerForm.vue', () => {
     const wrapper = mountForm();
     // Assert
     const values = inputs(wrapper).map((input) => (input.element as HTMLInputElement).value);
-    expect(values).toEqual([flexstore.name, flexstore.address, flexstore.siret, flexstore.vatNumber]);
+    expect(values).toEqual([
+      flexstore.name,
+      flexstore.address,
+      flexstore.siret,
+      flexstore.vatNumber,
+      flexstore.phone,
+      flexstore.email,
+      flexstore.website,
+    ]);
   });
 
   it('saves the edited seller', async () => {
@@ -68,6 +79,22 @@ describe('SellerForm.vue', () => {
     await wrapper.find('form').trigger('submit');
     await flushPromises();
     // Assert
-    expect(wrapper.text()).toContain('The shop refused the seller: check its SIRET and its VAT number.');
+    expect(wrapper.text()).toContain(
+      'The shop refused the seller: check its SIRET, its VAT number, its phone, its email and its website.'
+    );
+  });
+
+  it.each([
+    { field: 4, value: 'abc', expected: 'Invalid phone number' },
+    { field: 5, value: 'contact.flexstore.fr', expected: 'Invalid email' },
+    { field: 6, value: 'flexstore', expected: 'Invalid website' },
+  ])('refuses "$value" ($expected)', async ({ field, value, expected }) => {
+    // Arrange
+    const wrapper = mountForm();
+    // Act
+    await inputs(wrapper)[field].setValue(value);
+    await flushPromises();
+    // Assert
+    expect(wrapper.text()).toContain(expected);
   });
 });

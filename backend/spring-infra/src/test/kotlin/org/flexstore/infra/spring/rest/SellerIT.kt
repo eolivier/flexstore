@@ -59,13 +59,17 @@ class SellerIT {
     fun `an admin should change the seller written on the next invoices`() {
         // Arrange
         val sellerJson = """{"name": "Flexstore Group", "address": "2 avenue du Test, 69001 Lyon, France",
-            "siret": "98765432100019", "vatNumber": "FR98765432100"}"""
+            "siret": "98765432100019", "vatNumber": "FR98765432100", "phone": "04 72 00 00 00",
+            "email": "contact@flexstore-group.fr", "website": "https://www.flexstore-group.fr"}"""
         // Act
         val response = updateSeller(sellerJson)
         // Assert
         response.andExpect(status().isOk).andExpect(jsonPath("$.name").value("Flexstore Group"))
         mockMvc.perform(get("/api/admin/seller").with(asAdmin()))
             .andExpect(jsonPath("$.siret").value("98765432100019"))
+            .andExpect(jsonPath("$.phone").value("04 72 00 00 00"))
+            .andExpect(jsonPath("$.email").value("contact@flexstore-group.fr"))
+            .andExpect(jsonPath("$.website").value("https://www.flexstore-group.fr"))
         assertThat(sellerRepository.findBy(sellerBefore.id)).isEqualTo(sellerBefore)
     }
 
@@ -73,7 +77,19 @@ class SellerIT {
     fun `a seller with a malformed SIRET should be refused`() {
         // Arrange
         val sellerJson = """{"name": "Flexstore", "address": "1 rue de la Démo, 75001 Paris, France",
-            "siret": "123", "vatNumber": "FR12345678901"}"""
+            "siret": "123", "vatNumber": "FR12345678901", "phone": "01 23 45 67 89",
+            "email": "contact@flexstore.fr", "website": "www.flexstore.fr"}"""
+        // Act
+        val response = updateSeller(sellerJson)
+        // Assert
+        response.andExpect(status().isBadRequest)
+    }
+
+    @Test
+    fun `a seller without phone number, email or website should be refused`() {
+        // Arrange
+        val sellerJson = """{"name": "Flexstore", "address": "1 rue de la Démo, 75001 Paris, France",
+            "siret": "12345678900012", "vatNumber": "FR12345678901"}"""
         // Act
         val response = updateSeller(sellerJson)
         // Assert

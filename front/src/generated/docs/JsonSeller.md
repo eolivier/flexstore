@@ -9,6 +9,9 @@ Name | Type | Description | Notes
 **address** | **string** | On one line | [default to undefined]
 **siret** | **string** | 14 digits, spaces allowed | [default to undefined]
 **vatNumber** | **string** | Intra-community VAT number, the country then 2 to 13 digits or letters | [default to undefined]
+**phone** | **string** | Digits, maybe after a +, grouped by spaces, dots, dashes or parentheses; empty in the versions written before it was asked | [default to undefined]
+**email** | **string** |  | [default to undefined]
+**website** | **string** | With or without its scheme | [default to undefined]
 
 ## Example
 
@@ -20,6 +23,9 @@ const instance: JsonSeller = {
     address,
     siret,
     vatNumber,
+    phone,
+    email,
+    website,
 };
 ```
 

@@ -63,14 +63,20 @@ data class InvoiceDocument(val invoice: Invoice, val sale: InvoicedSale) {
         "Commande n° ${order.number()} du ${DATE_FORMAT.format(order.placedAt)}"
     )
 
+    // Who sells, how to reach it (what its version of the seller gives), and how it is registered
     fun seller(): InvoiceLines {
-        val (contact, identifier) = sale.seller.detail
-        return InvoiceLines(
-            contact.name.value,
-            contact.address.value,
+        val (contact, identifier, reach) = sale.seller.detail
+        val reachLines = listOfNotNull(
+            reach.phone.takeIf { it.isGiven() }?.let { "Tél. : ${it.value}" },
+            reach.email.takeIf { it.isGiven() }?.let { "Email : ${it.value}" },
+            reach.website.takeIf { it.isGiven() }?.let { "Site : ${it.value}" }
+        )
+        val identifierLines = listOf(
             "SIRET : ${identifier.siret.value}",
             "TVA intracommunautaire : ${identifier.vatNumber.value}"
         )
+        val lines = listOf(contact.name.value, contact.address.value) + reachLines + identifierLines
+        return InvoiceLines(*lines.toTypedArray())
     }
 
     // The billing address, and the email of the customer

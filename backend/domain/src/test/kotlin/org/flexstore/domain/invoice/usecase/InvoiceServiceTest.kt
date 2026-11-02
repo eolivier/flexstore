@@ -68,7 +68,7 @@ class InvoiceServiceTest : WithAssertions {
         // Arrange
         storePaidOrder()
         val renamedContact = testSellerDetail.contact.copy(name = SellerName("Flexstore Group"))
-        val renamedDetail = SellerDetail(renamedContact, testSellerDetail.identifier)
+        val renamedDetail = testSellerDetail.copy(contact = renamedContact)
         val renamedSeller = Seller(SellerId.nextId(), renamedDetail)
         sellerRepository.save(renamedSeller)
         // Act

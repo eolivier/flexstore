@@ -1396,6 +1396,9 @@ components:
         - address
         - siret
         - vatNumber
+        - phone
+        - email
+        - website
       properties:
         name:
           type: string
@@ -1410,6 +1413,17 @@ components:
           type: string
           description: Intra-community VAT number, the country then 2 to 13 digits or letters
           example: FR12345678901
+        phone:
+          type: string
+          description: Digits, maybe after a +, grouped by spaces, dots, dashes or parentheses; empty in the versions written before it was asked
+          example: 01 23 45 67 89
+        email:
+          type: string
+          example: contact@flexstore.fr
+        website:
+          type: string
+          description: With or without its scheme
+          example: www.flexstore.fr
     JsonUser:
       type: object
       properties:
