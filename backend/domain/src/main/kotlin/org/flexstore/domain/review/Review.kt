@@ -130,6 +130,11 @@ data class ReviewCount(val value: Int)
 // What the customers think of a product: the average of its ratings and how many reviews give them
 data class RatingSummary(val productId: ProductId, val average: AverageRating, val reviewCount: ReviewCount)
 
+// An administrator who deletes a review
+data class ReviewDeletion(val editor: UserId, val reviewId: ReviewId)
+
+data class ReviewModerationForbiddenException(override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
 data class InvalidReviewException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class ReviewNotAllowedException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class ReviewAlreadyWrittenException(override val errorMessage: ErrorMessage) :

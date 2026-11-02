@@ -5,11 +5,14 @@ import org.assertj.core.api.WithAssertions
 import org.flexstore.infra.repository.InMemoryProductRepository
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
+import org.flexstore.domain.user.*
 
 class ProposeSkuUseCaseTest : WithAssertions {
 
     private val productRepository = InMemoryProductRepository()
-    private val useCase = ProposeSkuUseCase(productRepository)
+    private val userRepository = usersOfTheAdministration()
+    private val administrator = testAdministrator.id
+    private val useCase = ProposeSkuUseCase(productRepository, userRepository)
 
     @Test
     fun `the SKU proposed should take the first number that no product has`() {
@@ -18,8 +21,18 @@ class ProposeSkuUseCaseTest : WithAssertions {
         val firstMug = DefinedProduct(ProductId(Identity("mug-1")), Name("Mug"), price)
         productRepository.save(firstMug.copy(sku = Sku("HOM-MUG-0001")))
         // Act
-        val sku = useCase.unfold(SkuBasis(Category.HOME, Words.of("Mug")))
+        val sku = useCase.unfold(SkuProposalRequest(administrator, SkuBasis(Category.HOME, Words.of("Mug"))))
         // Assert
         assertThat(sku).isEqualTo(Sku("HOM-MUG-0002"))
+    }
+
+    @Test
+    fun `a customer should not ask for a SKU`() {
+        // Arrange
+        val request = SkuProposalRequest(testCustomer.id, SkuBasis(Category.HOME, Words.of("Mug")))
+        // Act
+        val thrown = catchThrowable { useCase.unfold(request) }
+        // Assert
+        assertThat(thrown).isInstanceOf(ProductAdministrationForbiddenException::class.java)
     }
 }

@@ -3,6 +3,7 @@ package org.flexstore.domain.product
 import org.flexstore.domain.sharedkernel.*
 import org.ucop.domain.NominalException
 import org.flexstore.domain.sharedkernel.ErrorMessage
+import org.flexstore.domain.user.model.UserId
 
 private val NO_DESCRIPTION = Description("No description")
 
@@ -94,6 +95,11 @@ enum class Category {
     AUTOMOTIVE, GROCERY, HEALTH, ACCESSORIES, NOT_DEFINED
 }
 
+// An administrator who asks for a SKU free in the catalog, for a product they create
+data class SkuProposalRequest(val requester: UserId, val skuBasis: SkuBasis)
+
+data class ProductAdministrationForbiddenException(override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
 data class ProductAlreadyExists(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class ProductCreationFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class InvalidSkuException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

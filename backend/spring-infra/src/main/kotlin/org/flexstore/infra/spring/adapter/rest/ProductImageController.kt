@@ -14,6 +14,10 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.multipart.MultipartFile
+import org.flexstore.domain.user.model.UserId
+import org.flexstore.domain.user.model.of
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.oauth2.jwt.Jwt
 
 // The images of the products: read by everyone, given by the administrators (ADMIN role, see SecurityConfig)
 @Tag(name = "Product images")
@@ -50,16 +54,21 @@ class ProductImageController(private val productImageUseCases: ProductImageUseCa
     @Operation(summary = "Give the image of a product, 2 MB at most (JPEG, PNG or WebP): it is kept resized")
     @PutMapping("/api/admin/products/{productId}/image", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun addImage(@PathVariable productId: String, @RequestParam image: MultipartFile) {
+    fun addImage(
+        @AuthenticationPrincipal editor: Jwt,
+        @PathVariable productId: String,
+        @RequestParam image: MultipartFile
+    ) {
         val imageType = ImageType.ofMediaType(image.contentType.orEmpty())
             ?: throw UnreadableImageException(ErrorMessage("The image must be a JPEG, a PNG or a WebP."))
         val content = ImageContent(ImageBytes(image.bytes), imageType)
-        productImageUseCases.add(UploadedImage(ProductId(Identity(productId)), content))
+        val uploadedImage = UploadedImage(ProductId(Identity(productId)), content)
+        productImageUseCases.add(UserId.of(editor.subject), uploadedImage)
     }
 
     @Operation(summary = "Remove the image of a product")
     @DeleteMapping("/api/admin/products/{productId}/image")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun removeImage(@PathVariable productId: String) =
-        productImageUseCases.remove(ProductId(Identity(productId)))
+    fun removeImage(@AuthenticationPrincipal editor: Jwt, @PathVariable productId: String) =
+        productImageUseCases.remove(UserId.of(editor.subject), ProductId(Identity(productId)))
 }

@@ -4,9 +4,12 @@ import org.ucop.domain.NominalException
 import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.entity.*
 import kotlin.reflect.KClass
+import org.flexstore.domain.user.UserRepository
+import org.flexstore.domain.user.model.UserId
 
-// The id of the new product is chosen by the caller, which can then read the created product
-data class CreateProductRequest(val productId: ProductId, val draftProduct: DraftProduct) {
+// An administrator creates a product. The id of the new product is chosen by the caller, which can then read the
+// created product
+data class CreateProductRequest(val creator: UserId, val productId: ProductId, val draftProduct: DraftProduct) {
     fun definedProduct() = DefinedProduct(
         productId,
         draftProduct.sku,
@@ -16,10 +19,17 @@ data class CreateProductRequest(val productId: ProductId, val draftProduct: Draf
     )
 }
 
-class CreateProductUseCase(private val productRepository: ProductRepository) : UseCase<CreateProductRequest> {
+class CreateProductUseCase(
+    private val productRepository: ProductRepository,
+    private val userRepository: UserRepository
+) : UseCase<CreateProductRequest> {
 
-    override fun getPreConditions(): PreConditions<CreateProductRequest> =
-        PreConditions(productDoesNotExistCondition(), skuIsWellFormedCondition(), skuIsFreeCondition())
+    override fun getPreConditions(): PreConditions<CreateProductRequest> = PreConditions(
+        creatorIsAdministratorCondition(),
+        productDoesNotExistCondition(),
+        skuIsWellFormedCondition(),
+        skuIsFreeCondition()
+    )
 
     override fun getNominalScenario(): NominalScenario<CreateProductRequest> {
         val createProductStep = Step<CreateProductRequest> { request ->
@@ -34,6 +44,13 @@ class CreateProductUseCase(private val productRepository: ProductRepository) : U
     override fun getAlternativeScenarii():
         Map<KClass<out NominalException>, AlternativeScenario<CreateProductRequest>> {
         return emptyMap()
+    }
+
+    // The creator must be an existing user with the ADMIN role (read from the users, not from the request)
+    private fun creatorIsAdministratorCondition() = PreCondition<CreateProductRequest> { request ->
+        if (userRepository.isNotAdministrator(request.creator)) {
+            throw ProductAdministrationForbiddenException(ErrorMessage("Only an administrator can create a product."))
+        }
     }
 
     private fun skuIsWellFormedCondition() = PreCondition<CreateProductRequest> { request ->

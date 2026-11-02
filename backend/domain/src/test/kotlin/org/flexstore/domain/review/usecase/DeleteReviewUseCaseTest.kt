@@ -8,6 +8,7 @@ import org.flexstore.domain.user.model.UserId
 import org.flexstore.infra.repository.InMemoryReviewRepository
 import org.junit.jupiter.api.Test
 import java.time.Instant
+import org.flexstore.domain.user.*
 
 class DeleteReviewUseCaseTest : WithAssertions {
 
@@ -19,12 +20,14 @@ class DeleteReviewUseCaseTest : WithAssertions {
         val subject = ReviewSubject(lamp, Reviewer(customer, ReviewerName("Marie D.")))
         save(Review(stamp, subject, Opinion(Rating(1), ReviewComment("Spam"))))
     }
-    private val useCase = DeleteReviewUseCase(reviewRepository)
+    private val userRepository = usersOfTheAdministration()
+    private val administrator = testAdministrator.id
+    private val useCase = DeleteReviewUseCase(reviewRepository, userRepository)
 
     @Test
     fun `an administrator should delete a review, which the rating of the product no longer counts`() {
         // Act
-        useCase.unfold(reviewId)
+        useCase.unfold(ReviewDeletion(administrator, reviewId))
         // Assert
         assertThat(reviewRepository.findAll().summaries().asList()).isEmpty()
     }
@@ -32,7 +35,7 @@ class DeleteReviewUseCaseTest : WithAssertions {
     @Test
     fun `the customer whose review is deleted should be able to review the product again`() {
         // Act
-        useCase.unfold(reviewId)
+        useCase.unfold(ReviewDeletion(administrator, reviewId))
         // Assert
         assertThat(reviewRepository.hasReviewed(customer, lamp)).isFalse()
     }
@@ -40,8 +43,17 @@ class DeleteReviewUseCaseTest : WithAssertions {
     @Test
     fun `a review that does not exist should not be deleted`() {
         // Act
-        val thrown = catchThrowable { useCase.unfold(ReviewId("missing")) }
+        val thrown = catchThrowable { useCase.unfold(ReviewDeletion(administrator, ReviewId("missing"))) }
         // Assert
         assertThat(thrown).isInstanceOf(ReviewNotFoundException::class.java)
+    }
+
+    @Test
+    fun `a customer should not delete a review`() {
+        // Act
+        val thrown = catchThrowable { useCase.unfold(ReviewDeletion(testCustomer.id, reviewId)) }
+        // Assert
+        assertThat(thrown).isInstanceOf(ReviewModerationForbiddenException::class.java)
+        assertThat(reviewRepository.reviewExists(reviewId)).isTrue()
     }
 }
