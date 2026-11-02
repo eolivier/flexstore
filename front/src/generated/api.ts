@@ -228,6 +228,9 @@ export const JsonAdminProductVatRateEnum = {
 
 export type JsonAdminProductVatRateEnum = typeof JsonAdminProductVatRateEnum[keyof typeof JsonAdminProductVatRateEnum];
 
+export interface JsonAlertThreshold {
+    'threshold': number;
+}
 export interface JsonBestSeller {
     'productId': string;
     /**
@@ -372,6 +375,17 @@ export interface JsonLoginResponse {
     'token': string;
     'expiresAt': string;
     'user': JsonUser;
+}
+export interface JsonLowStock {
+    'productId': string;
+    /**
+     * The units left, at or under the threshold
+     */
+    'quantity': number;
+    /**
+     * The alert threshold of the product
+     */
+    'threshold': number;
 }
 export interface JsonNewDiscountCode {
     /**
@@ -735,6 +749,13 @@ export interface JsonStock {
      * The number of units that the shop has
      */
     'quantity': number;
+}
+export interface JsonStockAlert {
+    'productId': string;
+    /**
+     * The number of units at or under which the administrators are warned
+     */
+    'threshold': number;
 }
 export interface JsonStockQuantity {
     'quantity': number;
@@ -4814,6 +4835,84 @@ export const StocksApiAxiosParamCreator = function (configuration?: Configuratio
         },
         /**
          * 
+         * @summary Give the number of units at or under which the administrators are warned (ADMIN role)
+         * @param {string} productId 
+         * @param {JsonAlertThreshold} jsonAlertThreshold 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        changeStockAlert: async (productId: string, jsonAlertThreshold: JsonAlertThreshold, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'productId' is not null or undefined
+            assertParamExists('changeStockAlert', 'productId', productId)
+            // verify required parameter 'jsonAlertThreshold' is not null or undefined
+            assertParamExists('changeStockAlert', 'jsonAlertThreshold', jsonAlertThreshold)
+            const localVarPath = `/api/admin/stocks/{productId}/alert`
+                .replace(`{${"productId"}}`, encodeURIComponent(String(productId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonAlertThreshold, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Retrieve the stocks at or under the alert threshold of their product, from the lowest (ADMIN role)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getLowStocks: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/stocks/low`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Retrieve the stock of a product (0 when it was never given)
          * @param {string} productId 
          * @param {*} [options] Override http request option.
@@ -4834,6 +4933,44 @@ export const StocksApiAxiosParamCreator = function (configuration?: Configuratio
             const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Retrieve the alert threshold of a product, the default one (5) when it was never given (ADMIN role)
+         * @param {string} productId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getStockAlert: async (productId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'productId' is not null or undefined
+            assertParamExists('getStockAlert', 'productId', productId)
+            const localVarPath = `/api/admin/stocks/{productId}/alert`
+                .replace(`{${"productId"}}`, encodeURIComponent(String(productId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
 
     
@@ -4901,6 +5038,32 @@ export const StocksApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Give the number of units at or under which the administrators are warned (ADMIN role)
+         * @param {string} productId 
+         * @param {JsonAlertThreshold} jsonAlertThreshold 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async changeStockAlert(productId: string, jsonAlertThreshold: JsonAlertThreshold, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonStockAlert>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.changeStockAlert(productId, jsonAlertThreshold, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['StocksApi.changeStockAlert']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Retrieve the stocks at or under the alert threshold of their product, from the lowest (ADMIN role)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getLowStocks(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<JsonLowStock>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getLowStocks(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['StocksApi.getLowStocks']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Retrieve the stock of a product (0 when it was never given)
          * @param {string} productId 
          * @param {*} [options] Override http request option.
@@ -4910,6 +5073,19 @@ export const StocksApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getStock(productId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['StocksApi.getStock']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Retrieve the alert threshold of a product, the default one (5) when it was never given (ADMIN role)
+         * @param {string} productId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getStockAlert(productId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonStockAlert>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getStockAlert(productId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['StocksApi.getStockAlert']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -4946,6 +5122,26 @@ export const StocksApiFactory = function (configuration?: Configuration, basePat
         },
         /**
          * 
+         * @summary Give the number of units at or under which the administrators are warned (ADMIN role)
+         * @param {string} productId 
+         * @param {JsonAlertThreshold} jsonAlertThreshold 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        changeStockAlert(productId: string, jsonAlertThreshold: JsonAlertThreshold, options?: RawAxiosRequestConfig): AxiosPromise<JsonStockAlert> {
+            return localVarFp.changeStockAlert(productId, jsonAlertThreshold, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Retrieve the stocks at or under the alert threshold of their product, from the lowest (ADMIN role)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getLowStocks(options?: RawAxiosRequestConfig): AxiosPromise<Array<JsonLowStock>> {
+            return localVarFp.getLowStocks(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Retrieve the stock of a product (0 when it was never given)
          * @param {string} productId 
          * @param {*} [options] Override http request option.
@@ -4953,6 +5149,16 @@ export const StocksApiFactory = function (configuration?: Configuration, basePat
          */
         getStock(productId: string, options?: RawAxiosRequestConfig): AxiosPromise<JsonStock> {
             return localVarFp.getStock(productId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Retrieve the alert threshold of a product, the default one (5) when it was never given (ADMIN role)
+         * @param {string} productId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getStockAlert(productId: string, options?: RawAxiosRequestConfig): AxiosPromise<JsonStockAlert> {
+            return localVarFp.getStockAlert(productId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -4984,6 +5190,28 @@ export class StocksApi extends BaseAPI {
 
     /**
      * 
+     * @summary Give the number of units at or under which the administrators are warned (ADMIN role)
+     * @param {string} productId 
+     * @param {JsonAlertThreshold} jsonAlertThreshold 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public changeStockAlert(productId: string, jsonAlertThreshold: JsonAlertThreshold, options?: RawAxiosRequestConfig) {
+        return StocksApiFp(this.configuration).changeStockAlert(productId, jsonAlertThreshold, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Retrieve the stocks at or under the alert threshold of their product, from the lowest (ADMIN role)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getLowStocks(options?: RawAxiosRequestConfig) {
+        return StocksApiFp(this.configuration).getLowStocks(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Retrieve the stock of a product (0 when it was never given)
      * @param {string} productId 
      * @param {*} [options] Override http request option.
@@ -4991,6 +5219,17 @@ export class StocksApi extends BaseAPI {
      */
     public getStock(productId: string, options?: RawAxiosRequestConfig) {
         return StocksApiFp(this.configuration).getStock(productId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Retrieve the alert threshold of a product, the default one (5) when it was never given (ADMIN role)
+     * @param {string} productId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getStockAlert(productId: string, options?: RawAxiosRequestConfig) {
+        return StocksApiFp(this.configuration).getStockAlert(productId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

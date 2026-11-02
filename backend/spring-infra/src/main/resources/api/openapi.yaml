@@ -1331,6 +1331,80 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/JsonStock"
+  /api/admin/stocks/low:
+    get:
+      tags:
+      - Stocks
+      summary: Retrieve the stocks at or under the alert threshold of their product, from the lowest (ADMIN role)
+      operationId: getLowStocks
+      security:
+      - bearerAuth: []
+      responses:
+        "200":
+          description: The low stocks; a product whose stock was never given is not listed
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/JsonLowStock"
+        "403":
+          description: The signed-in user is not an administrator
+  /api/admin/stocks/{productId}/alert:
+    get:
+      tags:
+      - Stocks
+      summary: Retrieve the alert threshold of a product, the default one (5) when it was never given (ADMIN role)
+      operationId: getStockAlert
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: The alert threshold of the product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonStockAlert"
+        "403":
+          description: The signed-in user is not an administrator
+    put:
+      tags:
+      - Stocks
+      summary: Give the number of units at or under which the administrators are warned (ADMIN role)
+      operationId: changeStockAlert
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonAlertThreshold"
+      responses:
+        "200":
+          description: The new alert threshold of the product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonStockAlert"
+        "400":
+          description: Negative threshold
+        "403":
+          description: The signed-in user is not an administrator
+        "404":
+          description: Unknown product
   /api/admin/stocks/{productId}:
     put:
       tags:
@@ -2037,6 +2111,34 @@ components:
         quantity:
           type: integer
           description: The number of units that the shop has
+    JsonLowStock:
+      type: object
+      required: [productId, quantity, threshold]
+      properties:
+        productId:
+          type: string
+        quantity:
+          type: integer
+          description: The units left, at or under the threshold
+        threshold:
+          type: integer
+          description: The alert threshold of the product
+    JsonStockAlert:
+      type: object
+      required: [productId, threshold]
+      properties:
+        productId:
+          type: string
+        threshold:
+          type: integer
+          description: The number of units at or under which the administrators are warned
+    JsonAlertThreshold:
+      type: object
+      required: [threshold]
+      properties:
+        threshold:
+          type: integer
+          minimum: 0
     JsonStockQuantity:
       type: object
       required: [quantity]

@@ -15,6 +15,7 @@ docs/JsonAccountRegistration.md
 docs/JsonAccountStatus.md
 docs/JsonAdminOrder.md
 docs/JsonAdminProduct.md
+docs/JsonAlertThreshold.md
 docs/JsonBestSeller.md
 docs/JsonCartItem.md
 docs/JsonCartItems.md
@@ -30,6 +31,7 @@ docs/JsonLegalPage.md
 docs/JsonLegalText.md
 docs/JsonLoginRequest.md
 docs/JsonLoginResponse.md
+docs/JsonLowStock.md
 docs/JsonNewDiscountCode.md
 docs/JsonNewReview.md
 docs/JsonOrder.md
@@ -54,6 +56,7 @@ docs/JsonShippingOption.md
 docs/JsonShippingOptions.md
 docs/JsonSkuProposal.md
 docs/JsonStock.md
+docs/JsonStockAlert.md
 docs/JsonStockQuantity.md
 docs/JsonUser.md
 docs/JsonUserCreate.md
