@@ -36,13 +36,15 @@ import org.springframework.context.annotation.Configuration
 open class UseCaseConfig(private val shopUrl: ShopUrl) {
 
     @Bean
-    open fun createProductUseCase(productRepository: ProductRepository): CreateProductUseCase {
-        return CreateProductUseCase(productRepository)
+    open fun createProductUseCase(productRepository: ProductRepository,
+                                  userRepository: UserRepository): CreateProductUseCase {
+        return CreateProductUseCase(productRepository, userRepository)
     }
 
     @Bean
-    open fun updateProductUseCase(productRepository: ProductRepository): UpdateProductUseCase {
-        return UpdateProductUseCase(productRepository)
+    open fun updateProductUseCase(productRepository: ProductRepository,
+                                  userRepository: UserRepository): UpdateProductUseCase {
+        return UpdateProductUseCase(productRepository, userRepository)
     }
 
     @Bean
@@ -264,7 +266,8 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         )
 
     @Bean
-    open fun proposeSkuUseCase(productRepository: ProductRepository) = ProposeSkuUseCase(productRepository)
+    open fun proposeSkuUseCase(productRepository: ProductRepository, userRepository: UserRepository) =
+        ProposeSkuUseCase(productRepository, userRepository)
 
     @Bean
     open fun cartUseCases(addItemToCartUseCase: AddItemToCartUseCase,
@@ -298,8 +301,10 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     open fun listStocksUseCase(stockRepository: StockRepository) = ListStocksUseCase(stockRepository)
 
     @Bean
-    open fun changeStockUseCase(stockRepository: StockRepository, productRepository: ProductRepository) =
-        ChangeStockUseCase(stockRepository, productRepository)
+    open fun changeStockUseCase(stockRepository: StockRepository,
+                                productRepository: ProductRepository,
+                                userRepository: UserRepository) =
+        ChangeStockUseCase(stockRepository, productRepository, userRepository)
 
     @Bean
     open fun stockUseCases(listStocksUseCase: ListStocksUseCase,
@@ -330,12 +335,14 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     @Bean
     open fun addProductImageUseCase(productImageRepository: ProductImageRepository,
                                     productRepository: ProductRepository,
-                                    imageResizerRepository: ImageResizerRepository) =
-        AddProductImageUseCase(productImageRepository, productRepository, imageResizerRepository)
+                                    imageResizerRepository: ImageResizerRepository,
+                                    userRepository: UserRepository) =
+        AddProductImageUseCase(productImageRepository, productRepository, imageResizerRepository, userRepository)
 
     @Bean
-    open fun removeProductImageUseCase(productImageRepository: ProductImageRepository) =
-        RemoveProductImageUseCase(productImageRepository)
+    open fun removeProductImageUseCase(productImageRepository: ProductImageRepository,
+                                       userRepository: UserRepository) =
+        RemoveProductImageUseCase(productImageRepository, userRepository)
 
     @Bean
     open fun readProductImageUseCase(productImageRepository: ProductImageRepository) =
@@ -470,7 +477,8 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         ListRatingSummariesUseCase(reviewRepository)
 
     @Bean
-    open fun deleteReviewUseCase(reviewRepository: ReviewRepository) = DeleteReviewUseCase(reviewRepository)
+    open fun deleteReviewUseCase(reviewRepository: ReviewRepository, userRepository: UserRepository) =
+        DeleteReviewUseCase(reviewRepository, userRepository)
 
     @Bean
     open fun readReviewEligibilityUseCase(reviewRepository: ReviewRepository, orderRepository: OrderRepository) =

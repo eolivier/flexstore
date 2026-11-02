@@ -3,6 +3,7 @@ package org.flexstore.domain.image
 import org.flexstore.domain.product.ProductId
 import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.NominalException
+import org.flexstore.domain.user.model.UserId
 
 // The types of image that the shop accepts
 enum class ImageType(val mediaType: String) {
@@ -51,6 +52,14 @@ data class UploadedImage(val productId: ProductId, val content: ImageContent) {
 }
 
 // The bytes given are not an image of an accepted type
+// An administrator who gives the image of a product
+data class ProductImageUpload(val editor: UserId, val uploadedImage: UploadedImage)
+
+// An administrator who removes the image of a product
+data class ProductImageRemoval(val editor: UserId, val productId: ProductId)
+
+data class ProductImageForbiddenException(override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
 data class UnreadableImageException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class ImageTooLargeException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class ProductImageNotFoundException(override val errorMessage: ErrorMessage) :

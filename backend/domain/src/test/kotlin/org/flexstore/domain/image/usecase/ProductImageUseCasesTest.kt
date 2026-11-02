@@ -8,6 +8,7 @@ import org.flexstore.infra.repository.InMemoryProductImageRepository
 import org.flexstore.infra.repository.InMemoryProductRepository
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
+import org.flexstore.domain.user.*
 
 class ProductImageUseCasesTest : WithAssertions {
 
@@ -29,9 +30,14 @@ class ProductImageUseCasesTest : WithAssertions {
         override fun resize(content: ImageContent, format: ImageFormat) = content
     }
 
+    private val userRepository = usersOfTheAdministration()
+    private val administrator = testAdministrator.id
+
     private fun productImageUseCases(imageResizerRepository: ImageResizerRepository) = ProductImageUseCases(
-        AddProductImageUseCase(productImageRepository, productRepository, imageResizerRepository),
-        RemoveProductImageUseCase(productImageRepository),
+        AddProductImageUseCase(
+            productImageRepository, productRepository, imageResizerRepository, userRepository
+        ),
+        RemoveProductImageUseCase(productImageRepository, userRepository),
         ReadProductImageUseCase(productImageRepository),
         ListProductsWithImageUseCase(productImageRepository)
     )
@@ -46,7 +52,7 @@ class ProductImageUseCasesTest : WithAssertions {
     @Test
     fun `an image should be kept in every format, within the size of each format`() {
         // Act
-        productImageUseCases.add(uploadedImageOf(UploadedImage.MAX_BYTES))
+        productImageUseCases.add(administrator, uploadedImageOf(UploadedImage.MAX_BYTES))
         // Assert
         val large = productImageUseCases.getImage(deskLamp.productId, ImageFormat.LARGE)
         val small = productImageUseCases.getImage(deskLamp.productId, ImageFormat.SMALL)
@@ -60,7 +66,7 @@ class ProductImageUseCasesTest : WithAssertions {
         // Arrange
         val tooLargeImage = uploadedImageOf(UploadedImage.MAX_BYTES + 1)
         // Act
-        val thrown = catchThrowable { productImageUseCases.add(tooLargeImage) }
+        val thrown = catchThrowable { productImageUseCases.add(administrator, tooLargeImage) }
         // Assert
         assertThat(thrown).isInstanceOf(ImageTooLargeException::class.java)
     }
@@ -69,8 +75,9 @@ class ProductImageUseCasesTest : WithAssertions {
     fun `an image that was not reduced to its format should not be kept as such`() {
         // Arrange
         val lazyUseCases = productImageUseCases(lazyResizer)
+        val largeImage = uploadedImageOf(ImageFormat.LARGE.maxBytes + 1)
         // Act
-        val thrown = catchThrowable { lazyUseCases.add(uploadedImageOf(ImageFormat.LARGE.maxBytes + 1)) }
+        val thrown = catchThrowable { lazyUseCases.add(administrator, largeImage) }
         // Assert
         assertThat(thrown).isInstanceOf(ProductImageStorageFailed::class.java)
     }
@@ -80,7 +87,7 @@ class ProductImageUseCasesTest : WithAssertions {
         // Arrange
         val unknownProductImage = uploadedImageOf(1000, ProductId(Identity("unknown")))
         // Act
-        val thrown = catchThrowable { productImageUseCases.add(unknownProductImage) }
+        val thrown = catchThrowable { productImageUseCases.add(administrator, unknownProductImage) }
         // Assert
         assertThat(thrown).isInstanceOf(ProductNotFoundException::class.java)
     }
@@ -88,12 +95,31 @@ class ProductImageUseCasesTest : WithAssertions {
     @Test
     fun `a removed image should no longer be found`() {
         // Arrange
-        productImageUseCases.add(uploadedImageOf(1000))
+        productImageUseCases.add(administrator, uploadedImageOf(1000))
         // Act
-        productImageUseCases.remove(deskLamp.productId)
+        productImageUseCases.remove(administrator, deskLamp.productId)
         // Assert
         val thrown = catchThrowable { productImageUseCases.getImage(deskLamp.productId, ImageFormat.SMALL) }
         assertThat(thrown).isInstanceOf(ProductImageNotFoundException::class.java)
         assertThat(productImageUseCases.getProductsWithImage()).isEqualTo(ProductIds())
+    }
+
+    @Test
+    fun `a customer should not give the image of a product`() {
+        // Act
+        val thrown = catchThrowable { productImageUseCases.add(testCustomer.id, uploadedImageOf(1000)) }
+        // Assert
+        assertThat(thrown).isInstanceOf(ProductImageForbiddenException::class.java)
+        assertThat(productImageRepository.productsWithImage()).doesNotContain(deskLamp.productId)
+    }
+
+    @Test
+    fun `an unknown user should not remove the image of a product`() {
+        // Arrange
+        productImageUseCases.add(administrator, uploadedImageOf(1000))
+        // Act
+        val thrown = catchThrowable { productImageUseCases.remove(unknownUser, deskLamp.productId) }
+        // Assert
+        assertThat(thrown).isInstanceOf(ProductImageForbiddenException::class.java)
     }
 }

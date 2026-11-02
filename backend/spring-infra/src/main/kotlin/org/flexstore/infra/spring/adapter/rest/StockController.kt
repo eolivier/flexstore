@@ -9,6 +9,10 @@ import org.flexstore.domain.stock.usecase.StockUseCases
 import org.flexstore.infra.spring.adapter.rest.json.JsonStock
 import org.flexstore.infra.spring.adapter.rest.json.JsonStockQuantity
 import org.springframework.web.bind.annotation.*
+import org.flexstore.domain.user.model.UserId
+import org.flexstore.domain.user.model.of
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.oauth2.jwt.Jwt
 
 // The stocks of the products: read by everyone, given by the administrators (ADMIN role, see SecurityConfig)
 @Tag(name = "Stocks")
@@ -26,8 +30,12 @@ class StockController(private val stockUseCases: StockUseCases) {
 
     @Operation(summary = "Give the number of units of a product that the shop has (administrator)")
     @PutMapping("/api/admin/stocks/{productId}")
-    fun changeStock(@PathVariable productId: String, @RequestBody stockQuantity: JsonStockQuantity): JsonStock {
+    fun changeStock(
+        @AuthenticationPrincipal editor: Jwt,
+        @PathVariable productId: String,
+        @RequestBody stockQuantity: JsonStockQuantity
+    ): JsonStock {
         val stock = Stock(ProductId(Identity(productId)), StockQuantity(stockQuantity.quantity))
-        return JsonStock.of(stockUseCases.change(stock))
+        return JsonStock.of(stockUseCases.change(UserId.of(editor.subject), stock))
     }
 }

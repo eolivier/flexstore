@@ -6,6 +6,10 @@ import org.flexstore.domain.review.ReviewId
 import org.flexstore.domain.review.usecase.ReviewUseCases
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
+import org.flexstore.domain.user.model.UserId
+import org.flexstore.domain.user.model.of
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.oauth2.jwt.Jwt
 
 // The moderation of the reviews by the administrators (ADMIN role, see SecurityConfig)
 @Tag(name = "Administration")
@@ -16,5 +20,6 @@ class AdminReviewController(private val reviewUseCases: ReviewUseCases) {
     @Operation(summary = "Delete a review: the rating of its product no longer counts it")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun deleteReview(@PathVariable id: String) = reviewUseCases.delete(ReviewId(id))
+    fun deleteReview(@AuthenticationPrincipal editor: Jwt, @PathVariable id: String) =
+        reviewUseCases.delete(UserId.of(editor.subject), ReviewId(id))
 }

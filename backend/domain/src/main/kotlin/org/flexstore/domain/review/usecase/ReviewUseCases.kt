@@ -2,6 +2,7 @@ package org.flexstore.domain.review.usecase
 
 import org.flexstore.domain.product.ProductId
 import org.flexstore.domain.review.*
+import org.flexstore.domain.user.model.UserId
 
 // The use cases of the reviews of the products
 class ReviewUseCases(
@@ -17,7 +18,7 @@ class ReviewUseCases(
 
     fun getSummaries() = listRatingSummariesUseCase.unfold(Unit)
 
-    fun delete(reviewId: ReviewId) = deleteReviewUseCase.unfold(reviewId)
+    fun delete(editor: UserId, reviewId: ReviewId) = deleteReviewUseCase.unfold(ReviewDeletion(editor, reviewId))
 
     fun eligibilityOf(question: ReviewEligibilityQuestion) = readReviewEligibilityUseCase.unfold(question)
 }

@@ -6,6 +6,7 @@ import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.stock.*
 import org.flexstore.infra.repository.InMemoryProductRepository
 import org.flexstore.infra.repository.InMemoryStockRepository
+import org.flexstore.domain.user.*
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 
@@ -15,7 +16,8 @@ class StockUseCasesTest : WithAssertions {
     private val deskLamp = DefinedProduct(ProductId(Identity("desk-lamp")), Name("Desk lamp"), price)
     private val productRepository = InMemoryProductRepository().apply { save(deskLamp) }
     private val stockRepository = InMemoryStockRepository()
-    private val changeStockUseCase = ChangeStockUseCase(stockRepository, productRepository)
+    private val changeStockUseCase =
+        ChangeStockUseCase(stockRepository, productRepository, usersOfTheAdministration())
     private val stockUseCases =
         StockUseCases(ListStocksUseCase(stockRepository), ReadStockUseCase(stockRepository), changeStockUseCase)
 
@@ -30,7 +32,7 @@ class StockUseCasesTest : WithAssertions {
     @Test
     fun `an administrator should give the stock of a product`() {
         // Act
-        val stock = stockUseCases.change(Stock(deskLamp.productId, StockQuantity(12)))
+        val stock = stockUseCases.change(testAdministrator.id, Stock(deskLamp.productId, StockQuantity(12)))
         // Assert
         assertThat(stock).isEqualTo(Stock(deskLamp.productId, StockQuantity(12)))
     }
@@ -40,7 +42,7 @@ class StockUseCasesTest : WithAssertions {
         // Arrange
         val negativeStock = Stock(deskLamp.productId, StockQuantity(-1))
         // Act
-        val thrown = catchThrowable { stockUseCases.change(negativeStock) }
+        val thrown = catchThrowable { stockUseCases.change(testAdministrator.id, negativeStock) }
         // Assert
         assertThat(thrown).isInstanceOf(NegativeStockException::class.java)
     }
@@ -50,8 +52,29 @@ class StockUseCasesTest : WithAssertions {
         // Arrange
         val unknownProductStock = Stock(ProductId(Identity("unknown")), StockQuantity(3))
         // Act
-        val thrown = catchThrowable { stockUseCases.change(unknownProductStock) }
+        val thrown = catchThrowable { stockUseCases.change(testAdministrator.id, unknownProductStock) }
         // Assert
         assertThat(thrown).isInstanceOf(ProductNotFoundException::class.java)
+    }
+
+    @Test
+    fun `a customer should not change the stock of a product`() {
+        // Arrange
+        val stock = Stock(deskLamp.productId, StockQuantity(12))
+        // Act
+        val thrown = catchThrowable { stockUseCases.change(testCustomer.id, stock) }
+        // Assert
+        assertThat(thrown).isInstanceOf(StockChangeForbiddenException::class.java)
+        assertThat(stockRepository.stockOf(deskLamp.productId)).isEqualTo(Stock.noneOf(deskLamp.productId))
+    }
+
+    @Test
+    fun `an unknown user should not change the stock of a product`() {
+        // Arrange
+        val stock = Stock(deskLamp.productId, StockQuantity(12))
+        // Act
+        val thrown = catchThrowable { stockUseCases.change(unknownUser, stock) }
+        // Assert
+        assertThat(thrown).isInstanceOf(StockChangeForbiddenException::class.java)
     }
 }

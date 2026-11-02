@@ -19,6 +19,10 @@ import org.flexstore.infra.spring.metrics.ProductMetrics
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
+import org.flexstore.domain.user.model.UserId
+import org.flexstore.domain.user.model.of
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.oauth2.jwt.Jwt
 
 @Tag(name = "Products")
 @RestController
@@ -33,8 +37,12 @@ class ProductController(private val productUseCases: ProductUseCases,
     )
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    fun create(@RequestBody draftJsonProduct: DraftJsonProduct): JsonProduct {
-        val createProduct = productUseCases.createProduct(mapper.toDomain(draftJsonProduct))
+    fun create(
+        @AuthenticationPrincipal creator: Jwt,
+        @RequestBody draftJsonProduct: DraftJsonProduct
+    ): JsonProduct {
+        val draftProduct = mapper.toDomain(draftJsonProduct)
+        val createProduct = productUseCases.createProduct(UserId.of(creator.subject), draftProduct)
         val toJson = mapper.toJson(createProduct)
         productMetrics.incrementCreated()
         return toJson
@@ -46,8 +54,14 @@ class ProductController(private val productUseCases: ProductUseCases,
     )
     @ApiResponse(responseCode = "404", description = "Unknown product")
     @PutMapping("/{id}")
-    fun update(@PathVariable id: String, @RequestBody editedJsonProduct: EditedJsonProduct): JsonProduct =
-        mapper.toJson(productUseCases.updateProduct(mapper.toDomain(ProductId(Identity(id)), editedJsonProduct)))
+    fun update(
+        @AuthenticationPrincipal editor: Jwt,
+        @PathVariable id: String,
+        @RequestBody editedJsonProduct: EditedJsonProduct
+    ): JsonProduct {
+        val editedProduct = mapper.toDomain(ProductId(Identity(id)), editedJsonProduct)
+        return mapper.toJson(productUseCases.updateProduct(UserId.of(editor.subject), editedProduct))
+    }
 
     @Operation(
         summary = "Retrieve all products",

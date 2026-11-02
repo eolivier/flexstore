@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import java.math.BigDecimal
+import org.flexstore.domain.user.*
 
 // 33 characters, one more than a SKU may have
 private const val TOO_LONG_SKU = "A23456789-123456789-123456789-123"
@@ -14,11 +15,13 @@ private const val TOO_LONG_SKU = "A23456789-123456789-123456789-123"
 class CreateProductUseCaseTest : WithAssertions {
 
     private val productRepository = InMemoryProductRepository()
-    private val useCase = CreateProductUseCase(productRepository)
+    private val userRepository = usersOfTheAdministration()
+    private val administrator = testAdministrator.id
+    private val useCase = CreateProductUseCase(productRepository, userRepository)
     private val readProductUseCase = ReadProductUseCase(productRepository)
-    private val updateProductUseCase = UpdateProductUseCase(productRepository)
+    private val updateProductUseCase = UpdateProductUseCase(productRepository, userRepository)
     private val listProductsUseCase = ListProductsUseCase(productRepository)
-    private val proposeSkuUseCase = ProposeSkuUseCase(productRepository)
+    private val proposeSkuUseCase = ProposeSkuUseCase(productRepository, userRepository)
     private val productUseCases = ProductUseCases(
         useCase,
         readProductUseCase,
@@ -38,7 +41,7 @@ class CreateProductUseCaseTest : WithAssertions {
         // Arrange
         val productId = ProductId.nextId()
         // Act
-        useCase.unfold(CreateProductRequest(productId, lamp))
+        useCase.unfold(CreateProductRequest(administrator, productId, lamp))
         // Assert
         assertThat(productRepository.findById(productId)?.name).isEqualTo(Name("Desk lamp"))
     }
@@ -51,7 +54,7 @@ class CreateProductUseCaseTest : WithAssertions {
         val frenchTranslation = ProductTranslation(Language.FR, frenchText)
         val translatedLamp = lamp.copy(translations = lamp.translations.updatedWith(frenchTranslation))
         // Act
-        useCase.unfold(CreateProductRequest(productId, translatedLamp))
+        useCase.unfold(CreateProductRequest(administrator, productId, translatedLamp))
         // Assert
         val storedLamp = productRepository.findById(productId)!!
         assertThat(storedLamp.translationIn(Language.FR)).isEqualTo(frenchTranslation)
@@ -62,7 +65,7 @@ class CreateProductUseCaseTest : WithAssertions {
         // Arrange
         val productId = ProductId.nextId()
         // Act
-        useCase.unfold(CreateProductRequest(productId, lamp))
+        useCase.unfold(CreateProductRequest(administrator, productId, lamp))
         // Assert
         assertThat(productRepository.findById(productId)?.sku).isEqualTo(lampSku)
     }
@@ -73,8 +76,9 @@ class CreateProductUseCaseTest : WithAssertions {
         // Arrange
         val lampWithMalformedSku = lamp.copy(sku = Sku(malformedSku))
         val productId = ProductId.nextId()
+        val request = CreateProductRequest(administrator, productId, lampWithMalformedSku)
         // Act
-        val thrown = catchThrowable { useCase.unfold(CreateProductRequest(productId, lampWithMalformedSku)) }
+        val thrown = catchThrowable { useCase.unfold(request) }
         // Assert
         assertThat(thrown).isInstanceOf(InvalidSkuException::class.java)
         assertThat(productRepository.productIsMissing(productId)).isTrue()
@@ -85,8 +89,9 @@ class CreateProductUseCaseTest : WithAssertions {
         // Arrange
         val lampWithTShirtSku = lamp.copy(sku = Sku("CLO-1"))
         val productId = ProductId.nextId()
+        val request = CreateProductRequest(administrator, productId, lampWithTShirtSku)
         // Act
-        val thrown = catchThrowable { useCase.unfold(CreateProductRequest(productId, lampWithTShirtSku)) }
+        val thrown = catchThrowable { useCase.unfold(request) }
         // Assert
         assertThat(thrown).isInstanceOf(SkuAlreadyUsedException::class.java)
         assertThat(productRepository.productIsMissing(productId)).isTrue()
@@ -95,9 +100,10 @@ class CreateProductUseCaseTest : WithAssertions {
     @Test
     fun `should not create a product that already exists`() {
         // Arrange
-        useCase.unfold(CreateProductRequest(ProductId.nextId(), lamp))
+        useCase.unfold(CreateProductRequest(administrator, ProductId.nextId(), lamp))
+        val request = CreateProductRequest(administrator, ProductId.nextId(), lamp)
         // Act
-        val thrown = catchThrowable { useCase.unfold(CreateProductRequest(ProductId.nextId(), lamp)) }
+        val thrown = catchThrowable { useCase.unfold(request) }
         // Assert
         assertThat(thrown).isInstanceOf(ProductAlreadyExists::class.java)
     }
@@ -105,12 +111,33 @@ class CreateProductUseCaseTest : WithAssertions {
     @Test
     fun `each creation through the shared product use cases should return its own product`() {
         // Arrange
-        val createdLamp = productUseCases.createProduct(lamp)
+        val createdLamp = productUseCases.createProduct(administrator, lamp)
         // Act
-        val createdMug = productUseCases.createProduct(mug)
+        val createdMug = productUseCases.createProduct(administrator, mug)
         // Assert
         assertThat(createdLamp.name).isEqualTo(Name("Desk lamp"))
         assertThat(createdMug.name).isEqualTo(Name("Mug"))
         assertThat(createdMug.productId).isNotEqualTo(createdLamp.productId)
+    }
+
+    @Test
+    fun `a customer should not create a product`() {
+        // Arrange
+        val request = CreateProductRequest(testCustomer.id, ProductId.nextId(), lamp)
+        // Act
+        val thrown = catchThrowable { useCase.unfold(request) }
+        // Assert
+        assertThat(thrown).isInstanceOf(ProductAdministrationForbiddenException::class.java)
+        assertThat(productRepository.exists(lamp)).isFalse()
+    }
+
+    @Test
+    fun `an unknown user should not create a product`() {
+        // Arrange
+        val request = CreateProductRequest(unknownUser, ProductId.nextId(), lamp)
+        // Act
+        val thrown = catchThrowable { useCase.unfold(request) }
+        // Assert
+        assertThat(thrown).isInstanceOf(ProductAdministrationForbiddenException::class.java)
     }
 }
