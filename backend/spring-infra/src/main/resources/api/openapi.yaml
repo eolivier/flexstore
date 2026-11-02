@@ -814,6 +814,52 @@ paths:
           description: A name or an address missing, a SIRET or a VAT number malformed
         "403":
           description: Not an administrator
+  /api/legal-pages/{kind}:
+    get:
+      tags:
+      - Legal pages
+      summary: Retrieve the current version of a legal page
+      operationId: getLegalPage
+      parameters:
+      - $ref: "#/components/parameters/LegalPageKindPath"
+      responses:
+        "200":
+          description: The current version of the page; its text is empty until the administrators write it
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonLegalPage"
+        "404":
+          description: No such legal page
+  /api/admin/legal-pages/{kind}:
+    put:
+      tags:
+      - Administration
+      summary: Publish a new version of a legal page; the versions before are kept (ADMIN role)
+      operationId: publishLegalPage
+      security:
+      - bearerAuth: []
+      parameters:
+      - $ref: "#/components/parameters/LegalPageKindPath"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonLegalText"
+      responses:
+        "200":
+          description: The page, now current
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonLegalPage"
+        "400":
+          description: An empty text, or a text of more than 50 000 characters
+        "403":
+          description: Not an administrator
+        "404":
+          description: No such legal page
   /api/orders/discount-preview:
     get:
       tags:
@@ -1383,12 +1429,44 @@ components:
       description: Id of the visitor cart (a UUID), returned by POST /api/cart/save
       schema:
         type: string
+    LegalPageKindPath:
+      name: kind
+      in: path
+      required: true
+      description: The legal notice or the terms of sale
+      schema:
+        type: string
+        enum: [legal-notice, terms-of-sale]
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
   schemas:
+    JsonLegalPage:
+      type: object
+      required:
+        - kind
+        - text
+        - publishedAt
+      properties:
+        kind:
+          type: string
+          enum: [LEGAL_NOTICE, TERMS_OF_SALE]
+        text:
+          type: string
+          description: Plain text, its paragraphs separated by line breaks; empty until the administrators write it
+        publishedAt:
+          type: string
+          format: date-time
+    JsonLegalText:
+      type: object
+      required:
+        - text
+      properties:
+        text:
+          type: string
+          description: Plain text, its paragraphs separated by line breaks, 50 000 characters at most
     JsonSeller:
       type: object
       required:

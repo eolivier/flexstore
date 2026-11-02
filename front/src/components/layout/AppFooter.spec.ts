@@ -31,6 +31,13 @@ describe('AppFooter.vue', () => {
     expect(linkTargets(wrapper)).not.toContain('/user-profile');
   });
 
+  it('everyone has the links to the legal notice and the terms of sale', () => {
+    // Act
+    const wrapper = mountFooter();
+    // Assert
+    expect(linkTargets(wrapper)).toEqual(expect.arrayContaining(['/legal-notice', '/terms-of-sale']));
+  });
+
   it('a signed-in customer has the links to their orders and their account', async () => {
     // Arrange
     mockFetch.mockResolvedValueOnce({

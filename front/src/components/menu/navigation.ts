@@ -17,6 +17,12 @@ export function accountLinksOf(signedIn: boolean) {
   return signedIn ? accountLinks : [];
 }
 
+// The legal pages of the shop, read by everyone
+export const legalLinks = [
+  { to: '/legal-notice', label: 'nav.legalNotice' },
+  { to: '/terms-of-sale', label: 'nav.termsOfSale' },
+];
+
 export const adminLinks = [
   { to: '/admin/sales', icon: 'mdi-chart-line', label: 'nav.salesDashboard' },
   { to: '/admin/users', icon: 'mdi-account-multiple-outline', label: 'nav.users' },
@@ -26,5 +32,6 @@ export const adminLinks = [
   { to: '/admin/orders', icon: 'mdi-truck-delivery-outline', label: 'nav.adminOrders' },
   { to: '/admin/discount-codes', icon: 'mdi-ticket-percent-outline', label: 'nav.discountCodes' },
   { to: '/admin/seller', icon: 'mdi-store-outline', label: 'nav.seller' },
+  { to: '/admin/legal-pages', icon: 'mdi-scale-balance', label: 'nav.legalPages' },
   { to: '/admin/settings', icon: 'mdi-cog-outline', label: 'nav.settings' },
 ];

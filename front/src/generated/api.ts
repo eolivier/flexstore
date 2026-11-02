@@ -329,6 +329,28 @@ export interface JsonItem {
     'productCurrency'?: string;
     'productQuantity'?: number;
 }
+export interface JsonLegalPage {
+    'kind': JsonLegalPageKindEnum;
+    /**
+     * Plain text, its paragraphs separated by line breaks; empty until the administrators write it
+     */
+    'text': string;
+    'publishedAt': string;
+}
+
+export const JsonLegalPageKindEnum = {
+    LegalNotice: 'LEGAL_NOTICE',
+    TermsOfSale: 'TERMS_OF_SALE'
+} as const;
+
+export type JsonLegalPageKindEnum = typeof JsonLegalPageKindEnum[keyof typeof JsonLegalPageKindEnum];
+
+export interface JsonLegalText {
+    /**
+     * Plain text, its paragraphs separated by line breaks, 50 000 characters at most
+     */
+    'text': string;
+}
 export interface JsonLoginRequest {
     /**
      * User\'s email address
@@ -1850,6 +1872,50 @@ export const AdministrationApiAxiosParamCreator = function (configuration?: Conf
             };
         },
         /**
+         * 
+         * @summary Publish a new version of a legal page; the versions before are kept (ADMIN role)
+         * @param {PublishLegalPageKindEnum} kind The legal notice or the terms of sale
+         * @param {JsonLegalText} jsonLegalText 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        publishLegalPage: async (kind: PublishLegalPageKindEnum, jsonLegalText: JsonLegalText, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'kind' is not null or undefined
+            assertParamExists('publishLegalPage', 'kind', kind)
+            // verify required parameter 'jsonLegalText' is not null or undefined
+            assertParamExists('publishLegalPage', 'jsonLegalText', jsonLegalText)
+            const localVarPath = `/api/admin/legal-pages/{kind}`
+                .replace(`{${"kind"}}`, encodeURIComponent(String(kind)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonLegalText, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * The order must be PAID or PROCESSING, and still have the status given; it becomes REFUNDED and its customer is told by email.
          * @summary Cancel a paid order before it is shipped, refund its payment and put its units back in stock (ADMIN role)
          * @param {string} id 
@@ -2085,6 +2151,20 @@ export const AdministrationApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * 
+         * @summary Publish a new version of a legal page; the versions before are kept (ADMIN role)
+         * @param {PublishLegalPageKindEnum} kind The legal notice or the terms of sale
+         * @param {JsonLegalText} jsonLegalText 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async publishLegalPage(kind: PublishLegalPageKindEnum, jsonLegalText: JsonLegalText, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonLegalPage>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.publishLegalPage(kind, jsonLegalText, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdministrationApi.publishLegalPage']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * The order must be PAID or PROCESSING, and still have the status given; it becomes REFUNDED and its customer is told by email.
          * @summary Cancel a paid order before it is shipped, refund its payment and put its units back in stock (ADMIN role)
          * @param {string} id 
@@ -2228,6 +2308,17 @@ export const AdministrationApiFactory = function (configuration?: Configuration,
          */
         proposeSku(category: string, name?: string, options?: RawAxiosRequestConfig): AxiosPromise<JsonSkuProposal> {
             return localVarFp.proposeSku(category, name, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Publish a new version of a legal page; the versions before are kept (ADMIN role)
+         * @param {PublishLegalPageKindEnum} kind The legal notice or the terms of sale
+         * @param {JsonLegalText} jsonLegalText 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        publishLegalPage(kind: PublishLegalPageKindEnum, jsonLegalText: JsonLegalText, options?: RawAxiosRequestConfig): AxiosPromise<JsonLegalPage> {
+            return localVarFp.publishLegalPage(kind, jsonLegalText, options).then((request) => request(axios, basePath));
         },
         /**
          * The order must be PAID or PROCESSING, and still have the status given; it becomes REFUNDED and its customer is told by email.
@@ -2378,6 +2469,18 @@ export class AdministrationApi extends BaseAPI {
     }
 
     /**
+     * 
+     * @summary Publish a new version of a legal page; the versions before are kept (ADMIN role)
+     * @param {PublishLegalPageKindEnum} kind The legal notice or the terms of sale
+     * @param {JsonLegalText} jsonLegalText 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public publishLegalPage(kind: PublishLegalPageKindEnum, jsonLegalText: JsonLegalText, options?: RawAxiosRequestConfig) {
+        return AdministrationApiFp(this.configuration).publishLegalPage(kind, jsonLegalText, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * The order must be PAID or PROCESSING, and still have the status given; it becomes REFUNDED and its customer is told by email.
      * @summary Cancel a paid order before it is shipped, refund its payment and put its units back in stock (ADMIN role)
      * @param {string} id 
@@ -2401,6 +2504,11 @@ export class AdministrationApi extends BaseAPI {
     }
 }
 
+export const PublishLegalPageKindEnum = {
+    LegalNotice: 'legal-notice',
+    TermsOfSale: 'terms-of-sale'
+} as const;
+export type PublishLegalPageKindEnum = typeof PublishLegalPageKindEnum[keyof typeof PublishLegalPageKindEnum];
 
 
 /**
@@ -2836,6 +2944,112 @@ export class InvoicesApi extends BaseAPI {
     }
 }
 
+
+
+/**
+ * LegalPagesApi - axios parameter creator
+ */
+export const LegalPagesApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Retrieve the current version of a legal page
+         * @param {GetLegalPageKindEnum} kind The legal notice or the terms of sale
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getLegalPage: async (kind: GetLegalPageKindEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'kind' is not null or undefined
+            assertParamExists('getLegalPage', 'kind', kind)
+            const localVarPath = `/api/legal-pages/{kind}`
+                .replace(`{${"kind"}}`, encodeURIComponent(String(kind)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * LegalPagesApi - functional programming interface
+ */
+export const LegalPagesApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = LegalPagesApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Retrieve the current version of a legal page
+         * @param {GetLegalPageKindEnum} kind The legal notice or the terms of sale
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getLegalPage(kind: GetLegalPageKindEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonLegalPage>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getLegalPage(kind, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['LegalPagesApi.getLegalPage']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * LegalPagesApi - factory interface
+ */
+export const LegalPagesApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = LegalPagesApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Retrieve the current version of a legal page
+         * @param {GetLegalPageKindEnum} kind The legal notice or the terms of sale
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getLegalPage(kind: GetLegalPageKindEnum, options?: RawAxiosRequestConfig): AxiosPromise<JsonLegalPage> {
+            return localVarFp.getLegalPage(kind, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * LegalPagesApi - object-oriented interface
+ */
+export class LegalPagesApi extends BaseAPI {
+    /**
+     * 
+     * @summary Retrieve the current version of a legal page
+     * @param {GetLegalPageKindEnum} kind The legal notice or the terms of sale
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getLegalPage(kind: GetLegalPageKindEnum, options?: RawAxiosRequestConfig) {
+        return LegalPagesApiFp(this.configuration).getLegalPage(kind, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+export const GetLegalPageKindEnum = {
+    LegalNotice: 'legal-notice',
+    TermsOfSale: 'terms-of-sale'
+} as const;
+export type GetLegalPageKindEnum = typeof GetLegalPageKindEnum[keyof typeof GetLegalPageKindEnum];
 
 
 /**

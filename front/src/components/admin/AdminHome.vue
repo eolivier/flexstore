@@ -14,6 +14,7 @@
     '/admin/orders': 'admin.ordersText',
     '/admin/discount-codes': 'admin.discountCodesText',
     '/admin/seller': 'admin.sellerText',
+    '/admin/legal-pages': 'admin.legalPagesText',
     '/admin/settings': 'admin.settingsText',
   };
 </script>
