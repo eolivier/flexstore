@@ -10,8 +10,8 @@ class SellerUseCases(
 ) {
     fun currentSeller() = readCurrentSellerUseCase.unfold(Unit)
 
-    fun update(sellerDetails: SellerDetails): Seller {
-        val seller = Seller(SellerId.nextId(), sellerDetails)
+    fun update(sellerDetail: SellerDetail): Seller {
+        val seller = Seller(SellerId.nextId(), sellerDetail)
         updateSellerUseCase.unfold(seller)
         return readCurrentSellerUseCase.unfold(Unit)
     }

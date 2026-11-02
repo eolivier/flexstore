@@ -39,7 +39,7 @@ class SellerIT {
     // A new version with the details of the seller before the test, which becomes the current one again
     @AfterEach
     fun restoreSeller() {
-        sellerRepository.save(Seller(SellerId.nextId(), sellerBefore.details))
+        sellerRepository.save(Seller(SellerId.nextId(), sellerBefore.detail))
     }
 
     private fun updateSeller(sellerJson: String) = mockMvc.perform(
@@ -52,7 +52,7 @@ class SellerIT {
         val response = mockMvc.perform(get("/api/admin/seller").with(asAdmin()))
         // Assert
         response.andExpect(status().isOk)
-            .andExpect(jsonPath("$.name").value(sellerBefore.details.contact.name.value))
+            .andExpect(jsonPath("$.name").value(sellerBefore.detail.contact.name.value))
     }
 
     @Test

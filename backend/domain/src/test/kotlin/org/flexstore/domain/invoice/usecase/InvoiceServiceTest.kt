@@ -67,9 +67,9 @@ class InvoiceServiceTest : WithAssertions {
     fun `an invoice should keep the seller it was issued with, once the seller is edited`() {
         // Arrange
         storePaidOrder()
-        val renamedContact = testSellerDetails.contact.copy(name = SellerName("Flexstore Group"))
-        val renamedDetails = SellerDetails(renamedContact, testSellerDetails.identifiers)
-        val renamedSeller = Seller(SellerId.nextId(), renamedDetails)
+        val renamedContact = testSellerDetail.contact.copy(name = SellerName("Flexstore Group"))
+        val renamedDetail = SellerDetail(renamedContact, testSellerDetail.identifier)
+        val renamedSeller = Seller(SellerId.nextId(), renamedDetail)
         sellerRepository.save(renamedSeller)
         // Act
         val invoicePdf = service.anyInvoice(orderId)

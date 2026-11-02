@@ -38,17 +38,17 @@ data class SellerContact(val name: SellerName, val address: SellerAddress) {
 }
 
 // How the seller is registered
-data class SellerIdentifiers(val siret: Siret, val vatNumber: SellerVatNumber) {
-    fun areValid() = siret.isValid() && vatNumber.isValid()
+data class SellerIdentifier(val siret: Siret, val vatNumber: SellerVatNumber) {
+    fun isValid() = siret.isValid() && vatNumber.isValid()
 
-    fun areInvalid() = !areValid()
+    fun isInvalid() = !isValid()
 }
 
 // What the administrators write about the seller: who it is, and how it is registered
-data class SellerDetails(val contact: SellerContact, val identifiers: SellerIdentifiers)
+data class SellerDetail(val contact: SellerContact, val identifier: SellerIdentifier)
 
 // The shop that sells, as written on its invoices, in one of its versions
-data class Seller(val id: SellerId, val details: SellerDetails)
+data class Seller(val id: SellerId, val detail: SellerDetail)
 
 data class InvalidSellerException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class SellerUpdateFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

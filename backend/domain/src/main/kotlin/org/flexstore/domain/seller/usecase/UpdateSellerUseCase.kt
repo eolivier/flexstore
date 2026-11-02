@@ -17,13 +17,13 @@ class UpdateSellerUseCase(private val sellerRepository: SellerRepository) : UseC
     override fun getPostConditions(): PostConditions<Seller> = PostConditions(sellerIsSavedCondition())
 
     private fun contactIsCompleteCondition() = PreCondition<Seller> { seller ->
-        if (seller.details.contact.isIncomplete()) {
+        if (seller.detail.contact.isIncomplete()) {
             throw InvalidSellerException(ErrorMessage("The seller needs a name and an address."))
         }
     }
 
     private fun identifiersAreValidCondition() = PreCondition<Seller> { seller ->
-        if (seller.details.identifiers.areInvalid()) {
+        if (seller.detail.identifier.isInvalid()) {
             val rule = "a SIRET of 14 digits, a VAT number of its country (FR) then 2 to 13 digits or letters"
             throw InvalidSellerException(ErrorMessage("The seller needs $rule."))
         }

@@ -49,7 +49,7 @@ class IssueInvoiceUseCaseTest : WithAssertions {
     fun `an order should be invoiced with the current seller`() {
         // Arrange
         storeOrder(OrderId("order-1"), OrderStatus.PAID)
-        val currentSeller = Seller(SellerId.nextId(), testSellerDetails)
+        val currentSeller = Seller(SellerId.nextId(), testSellerDetail)
         sellerRepository.save(currentSeller)
         // Act
         useCase.unfold(InvoiceIssue(OrderId("order-1"), issuedAt))
