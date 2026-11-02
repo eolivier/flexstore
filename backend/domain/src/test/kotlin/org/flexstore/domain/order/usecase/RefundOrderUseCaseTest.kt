@@ -9,6 +9,7 @@ import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.stock.*
 import org.flexstore.domain.user.model.UserId
 import org.flexstore.infra.repository.*
+import org.flexstore.domain.user.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
@@ -27,7 +28,9 @@ class RefundOrderUseCaseTest : WithAssertions {
         save(Stock(deskLamp.productId, StockQuantity(8)))
     }
     private val paymentRepository = InMemoryPaymentRepository(PaymentOutcome.PAID)
-    private val useCase = RefundOrderUseCase(orderRepository, stockRepository, paymentRepository)
+    private val administrator = testAdministrator.id
+    private val useCase =
+        RefundOrderUseCase(orderRepository, stockRepository, paymentRepository, usersOfTheAdministration())
 
     private fun storeOrder(status: OrderStatus) {
         val cart = Cart(customer).add(deskLamp, Quantity(2))
@@ -45,7 +48,7 @@ class RefundOrderUseCaseTest : WithAssertions {
         // Arrange
         storeOrder(status)
         // Act
-        useCase.unfold(OrderRefund(orderId, status))
+        useCase.unfold(OrderRefund(administrator, orderId, status))
         // Assert
         assertThat(storedStatus()).isEqualTo(OrderStatus.REFUNDED)
         assertThat(paymentRepository.isRefunded(orderId)).isTrue()
@@ -56,7 +59,7 @@ class RefundOrderUseCaseTest : WithAssertions {
         // Arrange
         storeOrder(OrderStatus.PAID)
         // Act
-        useCase.unfold(OrderRefund(orderId, OrderStatus.PAID))
+        useCase.unfold(OrderRefund(administrator, orderId, OrderStatus.PAID))
         // Assert
         assertThat(stockRepository.stockOf(deskLamp.productId).quantity).isEqualTo(StockQuantity(10))
     }
@@ -67,7 +70,7 @@ class RefundOrderUseCaseTest : WithAssertions {
         // Arrange
         storeOrder(status)
         // Act
-        val thrown = catchThrowable { useCase.unfold(OrderRefund(orderId, status)) }
+        val thrown = catchThrowable { useCase.unfold(OrderRefund(administrator, orderId, status)) }
         // Assert
         assertThat(thrown).isInstanceOf(OrderNotRefundableException::class.java)
         assertThat(storedStatus()).isEqualTo(status)
@@ -78,8 +81,9 @@ class RefundOrderUseCaseTest : WithAssertions {
     fun `an order whose status changed in the meantime should not be refunded`() {
         // Arrange
         storeOrder(OrderStatus.SHIPPED)
+        val orderRefund = OrderRefund(administrator, orderId, OrderStatus.PROCESSING)
         // Act
-        val thrown = catchThrowable { useCase.unfold(OrderRefund(orderId, OrderStatus.PROCESSING)) }
+        val thrown = catchThrowable { useCase.unfold(orderRefund) }
         // Assert
         assertThat(thrown).isInstanceOf(OrderStatusChangedException::class.java)
         assertThat(storedStatus()).isEqualTo(OrderStatus.SHIPPED)
@@ -91,7 +95,7 @@ class RefundOrderUseCaseTest : WithAssertions {
         storeOrder(OrderStatus.PAID)
         paymentRepository.refuseRefundOf(orderId)
         // Act
-        val thrown = catchThrowable { useCase.unfold(OrderRefund(orderId, OrderStatus.PAID)) }
+        val thrown = catchThrowable { useCase.unfold(OrderRefund(administrator, orderId, OrderStatus.PAID)) }
         // Assert
         assertThat(thrown).isInstanceOf(PaymentRefundRefusedException::class.java)
         assertThat(storedStatus()).isEqualTo(OrderStatus.PAID)
@@ -100,9 +104,19 @@ class RefundOrderUseCaseTest : WithAssertions {
 
     @Test
     fun `an unknown order should not be refunded`() {
+        // Arrange
+        val orderRefund = OrderRefund(administrator, OrderId("unknown"), OrderStatus.PAID)
         // Act
-        val thrown = catchThrowable { useCase.unfold(OrderRefund(OrderId("unknown"), OrderStatus.PAID)) }
+        val thrown = catchThrowable { useCase.unfold(orderRefund) }
         // Assert
         assertThat(thrown).isInstanceOf(OrderNotFoundException::class.java)
+    }
+
+    @Test
+    fun `an unknown user should not refund an order`() {
+        // Act
+        val thrown = catchThrowable { useCase.unfold(OrderRefund(unknownUser, orderId, OrderStatus.PAID)) }
+        // Assert
+        assertThat(thrown).isInstanceOf(OrderAdministrationForbiddenException::class.java)
     }
 }

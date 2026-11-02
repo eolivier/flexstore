@@ -53,7 +53,8 @@ class RestExceptionHandler {
             is SellerAdministrationForbiddenException, is ShopSettingsAdministrationForbiddenException,
             is DiscountCodeAdministrationForbiddenException, is ProductAdministrationForbiddenException,
             is ProductImageForbiddenException, is StockChangeForbiddenException,
-            is ReviewModerationForbiddenException -> ResponseEntity
+            is ReviewModerationForbiddenException, is OrderAdministrationForbiddenException,
+            is CreditNoteForbiddenException, is SalesDashboardForbiddenException -> ResponseEntity
                 .status(403)
                 .body(mapOf("error" to (ex.message ?: "Forbidden")))
             // Not 422, which tells the front that the cart is empty. The reason tells this 400 from a malformed

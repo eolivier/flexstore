@@ -7,6 +7,7 @@ import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.infra.repository.InMemoryOrderRepository
+import org.flexstore.domain.user.*
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -23,7 +24,8 @@ class AdvanceOrderStatusUseCaseTest : WithAssertions {
     private val orderId = OrderId("order-1")
     private val orderRepository = InMemoryOrderRepository()
     private val now = Instant.parse("2026-10-25T09:30:00Z")
-    private val useCase = AdvanceOrderStatusUseCase(orderRepository)
+    private val administrator = testAdministrator.id
+    private val useCase = AdvanceOrderStatusUseCase(orderRepository, usersOfTheAdministration())
 
     // The status changes at a known moment
     @BeforeEach
@@ -51,7 +53,7 @@ class AdvanceOrderStatusUseCaseTest : WithAssertions {
         // Arrange
         storeOrder(OrderStatus.PAID)
         // Act
-        useCase.unfold(OrderStatusAdvance(orderId, OrderStatus.PAID))
+        useCase.unfold(OrderStatusAdvance(administrator, orderId, OrderStatus.PAID))
         // Assert
         val lastChange = orderRepository.findById(orderId)!!.history.asList().last()
         assertThat(lastChange).isEqualTo(OrderStatusChange(OrderStatus.PROCESSING, StatusChangedAt(now)))
@@ -63,7 +65,7 @@ class AdvanceOrderStatusUseCaseTest : WithAssertions {
         // Arrange
         storeOrder(status)
         // Act
-        useCase.unfold(OrderStatusAdvance(orderId, status))
+        useCase.unfold(OrderStatusAdvance(administrator, orderId, status))
         // Assert
         assertThat(storedStatus()).isEqualTo(next)
     }
@@ -74,7 +76,7 @@ class AdvanceOrderStatusUseCaseTest : WithAssertions {
         // Arrange
         storeOrder(status)
         // Act
-        val thrown = catchThrowable { useCase.unfold(OrderStatusAdvance(orderId, status)) }
+        val thrown = catchThrowable { useCase.unfold(OrderStatusAdvance(administrator, orderId, status)) }
         // Assert
         assertThat(thrown).isInstanceOf(OrderStatusCannotAdvanceException::class.java)
         assertThat(storedStatus()).isEqualTo(status)
@@ -84,8 +86,9 @@ class AdvanceOrderStatusUseCaseTest : WithAssertions {
     fun `an order whose status changed since it was seen should not move`() {
         // Arrange
         storeOrder(OrderStatus.SHIPPED)
+        val orderStatusAdvance = OrderStatusAdvance(administrator, orderId, OrderStatus.PROCESSING)
         // Act
-        val thrown = catchThrowable { useCase.unfold(OrderStatusAdvance(orderId, OrderStatus.PROCESSING)) }
+        val thrown = catchThrowable { useCase.unfold(orderStatusAdvance) }
         // Assert
         assertThat(thrown).isInstanceOf(OrderStatusChangedException::class.java)
         assertThat(storedStatus()).isEqualTo(OrderStatus.SHIPPED)
@@ -93,9 +96,21 @@ class AdvanceOrderStatusUseCaseTest : WithAssertions {
 
     @Test
     fun `an unknown order should not be found`() {
+        // Arrange
+        val orderStatusAdvance = OrderStatusAdvance(administrator, orderId, OrderStatus.PROCESSING)
         // Act
-        val thrown = catchThrowable { useCase.unfold(OrderStatusAdvance(orderId, OrderStatus.PROCESSING)) }
+        val thrown = catchThrowable { useCase.unfold(orderStatusAdvance) }
         // Assert
         assertThat(thrown).isInstanceOf(OrderNotFoundException::class.java)
+    }
+
+    @Test
+    fun `a customer should not move an order along its life cycle`() {
+        // Arrange
+        val orderStatusAdvance = OrderStatusAdvance(testCustomer.id, orderId, OrderStatus.PAID)
+        // Act
+        val thrown = catchThrowable { useCase.unfold(orderStatusAdvance) }
+        // Assert
+        assertThat(thrown).isInstanceOf(OrderAdministrationForbiddenException::class.java)
     }
 }

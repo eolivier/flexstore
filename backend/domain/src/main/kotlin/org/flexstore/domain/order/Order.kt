@@ -256,10 +256,16 @@ data class OrderStatusHistory(private val changes: List<OrderStatusChange>) {
 }
 
 // An order to move to the next status of its life cycle, from the status it has when the administrator sees it
-data class OrderStatusAdvance(val orderId: OrderId, val currentStatus: OrderStatus)
+data class OrderStatusAdvance(val editor: UserId, val orderId: OrderId, val currentStatus: OrderStatus)
 
 // An order that an administrator cancels and refunds, from the status it has when the administrator sees it
-data class OrderRefund(val orderId: OrderId, val currentStatus: OrderStatus)
+data class OrderRefund(val editor: UserId, val orderId: OrderId, val currentStatus: OrderStatus)
+
+// An administrator who reads the orders of all the customers
+data class AdministeredOrdersReading(val reader: UserId)
+
+// An administrator who reads any order, with its customer
+data class AdministeredOrderReading(val reader: UserId, val orderId: OrderId)
 
 // A product as ordered: its id and its name when the order was placed
 data class OrderedProduct(val productId: ProductId, val productName: Name)
@@ -426,6 +432,8 @@ data class OrderStatusChangedException(override val errorMessage: ErrorMessage) 
 data class OrderStatusAdvanceFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class OrderNotRefundableException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class OrderRefundFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class OrderAdministrationForbiddenException(override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
 data class OrderNotFoundException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class TermsOfSaleNotAcceptedException(override val errorMessage: ErrorMessage) :
     NominalException(errorMessage)

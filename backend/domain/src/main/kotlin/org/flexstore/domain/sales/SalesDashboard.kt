@@ -7,6 +7,7 @@ import org.flexstore.domain.sharedkernel.ErrorMessage
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
+import org.flexstore.domain.user.model.UserId
 
 // The shop counts its days in its own time zone
 private val SHOP_ZONE: ZoneId = ZoneId.of("Europe/Paris")
@@ -92,4 +93,9 @@ data class SalesDashboard(
     }
 }
 
+// An administrator who reads the sales of the shop
+data class SalesDashboardReading(val reader: UserId, val question: SalesQuestion)
+
+data class SalesDashboardForbiddenException(override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
 data class InvalidSalesPeriodException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

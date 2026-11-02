@@ -15,6 +15,7 @@ import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RestController
+import org.flexstore.domain.user.model.of
 
 // The invoices of the paid orders, and the credit notes of the refunded ones, as PDF documents: for their
 // customer, or for the administrators (ADMIN role, see SecurityConfig)
@@ -31,8 +32,13 @@ class InvoiceController(private val invoiceService: InvoiceService) {
 
     @Operation(summary = "Download the invoice of any paid order (PDF)")
     @GetMapping("/api/admin/orders/{id}/invoice", produces = [MediaType.APPLICATION_PDF_VALUE])
-    fun getAnyInvoice(@PathVariable id: String): ResponseEntity<ByteArray> =
-        pdfResponse(invoiceService.anyInvoice(OrderId(id)), "facture", id)
+    fun getAnyInvoice(
+        @AuthenticationPrincipal reader: Jwt,
+        @PathVariable id: String
+    ): ResponseEntity<ByteArray> {
+        val invoicePdf = invoiceService.anyInvoice(UserId.of(reader.subject), OrderId(id))
+        return pdfResponse(invoicePdf, "facture", id)
+    }
 
     @Operation(summary = "Download the credit note of a refunded order of the signed-in customer (PDF)")
     @GetMapping("/api/orders/{id}/credit-note", produces = [MediaType.APPLICATION_PDF_VALUE])
@@ -43,8 +49,13 @@ class InvoiceController(private val invoiceService: InvoiceService) {
 
     @Operation(summary = "Download the credit note of any refunded order (PDF)")
     @GetMapping("/api/admin/orders/{id}/credit-note", produces = [MediaType.APPLICATION_PDF_VALUE])
-    fun getAnyCreditNote(@PathVariable id: String): ResponseEntity<ByteArray> =
-        pdfResponse(invoiceService.anyCreditNote(OrderId(id)), "avoir", id)
+    fun getAnyCreditNote(
+        @AuthenticationPrincipal reader: Jwt,
+        @PathVariable id: String
+    ): ResponseEntity<ByteArray> {
+        val creditNotePdf = invoiceService.anyCreditNote(UserId.of(reader.subject), OrderId(id))
+        return pdfResponse(creditNotePdf, "avoir", id)
+    }
 
     // Saved by the browser as facture-<number of the order>.pdf, or avoir-<number of the order>.pdf
     private fun pdfResponse(pdf: InvoicePdf, documentName: String, orderId: String): ResponseEntity<ByteArray> {

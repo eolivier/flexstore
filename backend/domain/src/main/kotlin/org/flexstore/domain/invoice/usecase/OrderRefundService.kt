@@ -21,8 +21,10 @@ class OrderRefundService(
 ) {
     fun refund(orderRefund: OrderRefund): AdministeredOrder {
         refundOrderUseCase.unfold(orderRefund)
-        issueCreditNoteUseCase.unfold(CreditNoteIssue(orderRefund.orderId, CreditNoteDate.now()))
-        val refundedOrder = refundedOrderUseCases.readAdministeredOrderUseCase.unfold(orderRefund.orderId)
+        val creditNoteIssue = CreditNoteIssue(orderRefund.orderId, CreditNoteDate.now())
+        issueCreditNoteUseCase.unfold(CreditNoteIssuance(orderRefund.editor, creditNoteIssue))
+        val orderReading = AdministeredOrderReading(orderRefund.editor, orderRefund.orderId)
+        val refundedOrder = refundedOrderUseCases.readAdministeredOrderUseCase.unfold(orderReading)
         refundedOrderUseCases.sendOrderStatusEmailUseCase.unfold(refundedOrder.order)
         return refundedOrder
     }
