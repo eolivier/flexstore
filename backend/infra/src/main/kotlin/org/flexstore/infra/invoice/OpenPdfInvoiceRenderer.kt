@@ -15,44 +15,44 @@ import org.flexstore.domain.invoice.*
 import java.awt.Color
 import java.io.ByteArrayOutputStream
 
-// Lays out the content of an invoice on an A4 page, with OpenPDF: the title and the dates, the seller and the
-// customer side by side, the table of the lines, the totals, then the footer
+// Lays out the content of an invoice or of a credit note on an A4 page, with OpenPDF: the title and the dates,
+// the seller and the customer side by side, the table of the lines, the totals, then the footer
 class OpenPdfInvoiceRenderer : InvoiceRenderer {
 
-    override fun render(invoiceDocument: InvoiceDocument): InvoicePdf {
+    override fun render(billingDocument: BillingDocument): InvoicePdf {
         val output = ByteArrayOutputStream()
         val document = Document(PageSize.A4, 48f, 48f, 48f, 48f)
         PdfWriter.getInstance(document, output)
         document.open()
-        document.add(Paragraph(invoiceDocument.title().value, font(TITLE_SIZE, Font.BOLD)))
-        document.add(linesOf(invoiceDocument.dates(), SMALL_SIZE))
-        document.add(partiesOf(invoiceDocument))
-        document.add(tableOf(invoiceDocument))
-        document.add(totalsOf(invoiceDocument.totals()))
-        document.add(linesOf(invoiceDocument.footer(), SMALL_SIZE).apply { spacingBefore = 24f })
+        document.add(Paragraph(billingDocument.title().value, font(TITLE_SIZE, Font.BOLD)))
+        document.add(linesOf(billingDocument.dates(), SMALL_SIZE))
+        document.add(partiesOf(billingDocument))
+        document.add(tableOf(billingDocument))
+        document.add(totalsOf(billingDocument.totals()))
+        document.add(linesOf(billingDocument.footer(), SMALL_SIZE).apply { spacingBefore = 24f })
         document.close()
         return InvoicePdf(output.toByteArray())
     }
 
     // The seller on the left, the billing then the delivery address on the right
-    private fun partiesOf(invoiceDocument: InvoiceDocument) = PdfPTable(2).apply {
+    private fun partiesOf(billingDocument: BillingDocument) = PdfPTable(2).apply {
         widthPercentage = 100f
         setSpacingBefore(24f)
-        addCell(borderless(linesOf(invoiceDocument.seller(), TEXT_SIZE)))
-        val customer = linesOf(invoiceDocument.billedTo(), TEXT_SIZE).apply {
-            add(linesOf(invoiceDocument.deliveredTo(), TEXT_SIZE).apply { spacingBefore = 12f })
+        addCell(borderless(linesOf(billingDocument.seller(), TEXT_SIZE)))
+        val customer = linesOf(billingDocument.billedTo(), TEXT_SIZE).apply {
+            add(linesOf(billingDocument.deliveredTo(), TEXT_SIZE).apply { spacingBefore = 12f })
         }
         addCell(borderless(customer))
     }
 
-    private fun tableOf(invoiceDocument: InvoiceDocument) = PdfPTable(COLUMN_WIDTHS).apply {
+    private fun tableOf(billingDocument: BillingDocument) = PdfPTable(COLUMN_WIDTHS).apply {
         widthPercentage = 100f
         setSpacingBefore(24f)
         headerRows = 1
-        invoiceDocument.tableHeader().asList().forEachIndexed { column, text ->
+        billingDocument.tableHeader().asList().forEachIndexed { column, text ->
             addCell(cellOf(text, font(TEXT_SIZE, Font.BOLD), column).apply { backgroundColor = HEADER_COLOR })
         }
-        invoiceDocument.tableRows().asList().forEach { row ->
+        billingDocument.tableRows().asList().forEach { row ->
             row.asList().forEachIndexed { column, text ->
                 addCell(cellOf(text, font(TEXT_SIZE, Font.NORMAL), column))
             }

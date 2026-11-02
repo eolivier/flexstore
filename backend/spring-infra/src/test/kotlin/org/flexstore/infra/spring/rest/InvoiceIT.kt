@@ -131,6 +131,62 @@ class InvoiceIT {
         assertThat(ranks[1]).isEqualTo(ranks[0] + 1)
     }
 
+    @Test
+    fun `a customer should download the credit note of their refunded order, as a PDF`() {
+        // Arrange
+        val orderId = placeOrder(paid = true)
+        refund(orderId).andExpect(status().isOk)
+        // Act
+        val response = mockMvc.perform(get("/api/orders/$orderId/credit-note").with(asUser(CUSTOMER_ID)))
+        // Assert
+        val pdf = response.andExpect(status().isOk)
+            .andExpect(content().contentType(MediaType.APPLICATION_PDF))
+            .andExpect(header().string("Content-Disposition", "attachment; filename=\"avoir-${orderId.take(8).uppercase()}.pdf\""))
+            .andReturn().response.contentAsByteArray
+        assertThat(String(pdf.copyOf(5))).isEqualTo("%PDF-")
+    }
+
+    @Test
+    fun `a refunded order should get a credit note numbered in its own sequence`() {
+        // Arrange
+        val orderId = placeOrder(paid = true)
+        // Act
+        refund(orderId).andExpect(status().isOk)
+        // Assert
+        val number = jdbcTemplate.queryForObject(
+            "SELECT c.number FROM credit_note c JOIN invoice i ON i.id = c.invoice_id WHERE i.customer_order_id = ?",
+            String::class.java, orderId
+        )!!
+        assertThat(number).matches("AV-\\d{4}-\\d{6}")
+    }
+
+    @Test
+    fun `a paid order that is not refunded should have no credit note`() {
+        // Arrange
+        val orderId = placeOrder(paid = true)
+        // Act
+        val response = mockMvc.perform(get("/api/orders/$orderId/credit-note").with(asUser(CUSTOMER_ID)))
+        // Assert
+        response.andExpect(status().isNotFound)
+    }
+
+    @Test
+    fun `an administrator should download the credit note of any refunded order`() {
+        // Arrange
+        val orderId = placeOrder(paid = true)
+        refund(orderId).andExpect(status().isOk)
+        // Act
+        val response = mockMvc.perform(get("/api/admin/orders/$orderId/credit-note").with(asAdmin()))
+        // Assert
+        response.andExpect(status().isOk).andExpect(content().contentType(MediaType.APPLICATION_PDF))
+    }
+
+    // An administrator cancels and refunds the paid order
+    private fun refund(orderId: String) = mockMvc.perform(
+        post("/api/admin/orders/$orderId/refund").with(asAdmin())
+            .contentType(MediaType.APPLICATION_JSON).content("""{"currentStatus": "PAID"}""")
+    )
+
     // Without a Stripe key, the payment is simulated: the order is paid at once, and invoiced
     private fun placeOrder(paid: Boolean): String {
         val item = JsonItem("", "1", "Product", "Description", "CLOTHING", BigDecimal.TEN, "€", 1)

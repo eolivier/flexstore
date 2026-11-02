@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.adapter.rest
 
+import org.flexstore.domain.invoice.usecase.OrderRefundService
 import org.flexstore.domain.order.*
 import org.flexstore.domain.order.usecase.*
 import io.swagger.v3.oas.annotations.Operation
@@ -15,7 +16,10 @@ import org.springframework.web.bind.annotation.*
 @Tag(name = "Administration")
 @RestController
 @RequestMapping("/api/admin/orders")
-class AdminOrderController(private val orderAdministrationService: OrderAdministrationService) {
+class AdminOrderController(
+    private val orderAdministrationService: OrderAdministrationService,
+    private val orderRefundService: OrderRefundService
+) {
 
     @Operation(summary = "Retrieve the orders of all the customers, newest first, with their customer")
     @GetMapping
@@ -38,13 +42,16 @@ class AdminOrderController(private val orderAdministrationService: OrderAdminist
         return JsonAdminOrder(advancedOrder)
     }
 
-    @Operation(summary = "Cancel a paid order before it is shipped: refund its payment, put its units back in stock")
+    @Operation(
+        summary = "Cancel a paid order before it is shipped: refund its payment, put its units back in stock, " +
+            "and cancel its invoice by a credit note"
+    )
     @PostMapping("/{orderId}/refund")
-    // The refund, the status and the stock are stored together, or not at all (the business exceptions are
-    // checked exceptions, on which Spring would commit by default)
+    // The refund, the status, the stock and the credit note are stored together, or not at all (the business
+    // exceptions are checked exceptions, on which Spring would commit by default)
     @Transactional(rollbackFor = [Exception::class])
     fun refund(@PathVariable orderId: String, @RequestBody orderRefund: JsonOrderRefund): JsonAdminOrder {
-        val refundedOrder = orderAdministrationService.refund(orderRefund.toOrderRefund(OrderId(orderId)))
+        val refundedOrder = orderRefundService.refund(orderRefund.toOrderRefund(OrderId(orderId)))
         return JsonAdminOrder(refundedOrder)
     }
 }

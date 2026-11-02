@@ -99,6 +99,26 @@ describe('AdminOrderDetail.vue', () => {
     expect(wrapper.text()).not.toContain('Cancel and refund');
   });
 
+  it('offers the invoice and the credit note of a refunded order', async () => {
+    // Arrange
+    respondWith({ ...twoLinesAdminOrder, status: 'REFUNDED' });
+    // Act
+    const wrapper = await mountAdminOrderDetail();
+    // Assert
+    expect(wrapper.text()).toContain('Download the invoice');
+    expect(wrapper.text()).toContain('Download the credit note');
+  });
+
+  it('offers no credit note for an order that is not refunded', async () => {
+    // Arrange
+    respondWith({ ...twoLinesAdminOrder, status: 'PAID' });
+    // Act
+    const wrapper = await mountAdminOrderDetail();
+    // Assert
+    expect(wrapper.text()).toContain('Download the invoice');
+    expect(wrapper.text()).not.toContain('Download the credit note');
+  });
+
   it('says that the payment provider refused the refund', async () => {
     // Arrange
     mockFetch.mockImplementation((_url: string, init?: RequestInit) =>

@@ -1924,7 +1924,7 @@ export const AdministrationApiAxiosParamCreator = function (configuration?: Conf
             };
         },
         /**
-         * The order must be PAID or PROCESSING, and still have the status given; it becomes REFUNDED and its customer is told by email.
+         * The order must be PAID or PROCESSING, and still have the status given; it becomes REFUNDED, its invoice is cancelled by a credit note (GET /api/orders/{id}/credit-note), and its customer is told by email.
          * @summary Cancel a paid order before it is shipped, refund its payment and put its units back in stock (ADMIN role)
          * @param {string} id 
          * @param {JsonOrderRefund} jsonOrderRefund 
@@ -2173,7 +2173,7 @@ export const AdministrationApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * The order must be PAID or PROCESSING, and still have the status given; it becomes REFUNDED and its customer is told by email.
+         * The order must be PAID or PROCESSING, and still have the status given; it becomes REFUNDED, its invoice is cancelled by a credit note (GET /api/orders/{id}/credit-note), and its customer is told by email.
          * @summary Cancel a paid order before it is shipped, refund its payment and put its units back in stock (ADMIN role)
          * @param {string} id 
          * @param {JsonOrderRefund} jsonOrderRefund 
@@ -2329,7 +2329,7 @@ export const AdministrationApiFactory = function (configuration?: Configuration,
             return localVarFp.publishLegalPage(kind, jsonLegalText, options).then((request) => request(axios, basePath));
         },
         /**
-         * The order must be PAID or PROCESSING, and still have the status given; it becomes REFUNDED and its customer is told by email.
+         * The order must be PAID or PROCESSING, and still have the status given; it becomes REFUNDED, its invoice is cancelled by a credit note (GET /api/orders/{id}/credit-note), and its customer is told by email.
          * @summary Cancel a paid order before it is shipped, refund its payment and put its units back in stock (ADMIN role)
          * @param {string} id 
          * @param {JsonOrderRefund} jsonOrderRefund 
@@ -2489,7 +2489,7 @@ export class AdministrationApi extends BaseAPI {
     }
 
     /**
-     * The order must be PAID or PROCESSING, and still have the status given; it becomes REFUNDED and its customer is told by email.
+     * The order must be PAID or PROCESSING, and still have the status given; it becomes REFUNDED, its invoice is cancelled by a credit note (GET /api/orders/{id}/credit-note), and its customer is told by email.
      * @summary Cancel a paid order before it is shipped, refund its payment and put its units back in stock (ADMIN role)
      * @param {string} id 
      * @param {JsonOrderRefund} jsonOrderRefund 
@@ -2784,6 +2784,44 @@ export const InvoicesApiAxiosParamCreator = function (configuration?: Configurat
     return {
         /**
          * 
+         * @summary Download the credit note of any refunded order (PDF, ADMIN role)
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAnyCreditNote: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('getAnyCreditNote', 'id', id)
+            const localVarPath = `/api/admin/orders/{id}/credit-note`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Download the invoice of any paid order (PDF, ADMIN role)
          * @param {string} id 
          * @param {*} [options] Override http request option.
@@ -2793,6 +2831,44 @@ export const InvoicesApiAxiosParamCreator = function (configuration?: Configurat
             // verify required parameter 'id' is not null or undefined
             assertParamExists('getAnyInvoice', 'id', id)
             const localVarPath = `/api/admin/orders/{id}/invoice`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * The credit note cancels the invoice of the order; it is issued when the order is refunded
+         * @summary Download the credit note of a refunded order of the signed-in customer (PDF)
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getCreditNote: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('getCreditNote', 'id', id)
+            const localVarPath = `/api/orders/{id}/credit-note`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -2869,6 +2945,19 @@ export const InvoicesApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
+         * @summary Download the credit note of any refunded order (PDF, ADMIN role)
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getAnyCreditNote(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<File>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getAnyCreditNote(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['InvoicesApi.getAnyCreditNote']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Download the invoice of any paid order (PDF, ADMIN role)
          * @param {string} id 
          * @param {*} [options] Override http request option.
@@ -2878,6 +2967,19 @@ export const InvoicesApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getAnyInvoice(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['InvoicesApi.getAnyInvoice']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * The credit note cancels the invoice of the order; it is issued when the order is refunded
+         * @summary Download the credit note of a refunded order of the signed-in customer (PDF)
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getCreditNote(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<File>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getCreditNote(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['InvoicesApi.getCreditNote']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -2904,6 +3006,16 @@ export const InvoicesApiFactory = function (configuration?: Configuration, baseP
     return {
         /**
          * 
+         * @summary Download the credit note of any refunded order (PDF, ADMIN role)
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAnyCreditNote(id: string, options?: RawAxiosRequestConfig): AxiosPromise<File> {
+            return localVarFp.getAnyCreditNote(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Download the invoice of any paid order (PDF, ADMIN role)
          * @param {string} id 
          * @param {*} [options] Override http request option.
@@ -2911,6 +3023,16 @@ export const InvoicesApiFactory = function (configuration?: Configuration, baseP
          */
         getAnyInvoice(id: string, options?: RawAxiosRequestConfig): AxiosPromise<File> {
             return localVarFp.getAnyInvoice(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * The credit note cancels the invoice of the order; it is issued when the order is refunded
+         * @summary Download the credit note of a refunded order of the signed-in customer (PDF)
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getCreditNote(id: string, options?: RawAxiosRequestConfig): AxiosPromise<File> {
+            return localVarFp.getCreditNote(id, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -2931,6 +3053,17 @@ export const InvoicesApiFactory = function (configuration?: Configuration, baseP
 export class InvoicesApi extends BaseAPI {
     /**
      * 
+     * @summary Download the credit note of any refunded order (PDF, ADMIN role)
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getAnyCreditNote(id: string, options?: RawAxiosRequestConfig) {
+        return InvoicesApiFp(this.configuration).getAnyCreditNote(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Download the invoice of any paid order (PDF, ADMIN role)
      * @param {string} id 
      * @param {*} [options] Override http request option.
@@ -2938,6 +3071,17 @@ export class InvoicesApi extends BaseAPI {
      */
     public getAnyInvoice(id: string, options?: RawAxiosRequestConfig) {
         return InvoicesApiFp(this.configuration).getAnyInvoice(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * The credit note cancels the invoice of the order; it is issued when the order is refunded
+     * @summary Download the credit note of a refunded order of the signed-in customer (PDF)
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getCreditNote(id: string, options?: RawAxiosRequestConfig) {
+        return InvoicesApiFp(this.configuration).getCreditNote(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

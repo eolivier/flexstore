@@ -343,6 +343,21 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     open fun readInvoiceUseCase(invoiceRepository: InvoiceRepository) = ReadInvoiceUseCase(invoiceRepository)
 
     @Bean
+    open fun issueCreditNoteUseCase(orderRepository: OrderRepository,
+                                    invoiceRepository: InvoiceRepository,
+                                    creditNoteRepository: CreditNoteRepository) =
+        IssueCreditNoteUseCase(orderRepository, invoiceRepository, creditNoteRepository)
+
+    @Bean
+    open fun readCreditNoteUseCase(creditNoteRepository: CreditNoteRepository) =
+        ReadCreditNoteUseCase(creditNoteRepository)
+
+    @Bean
+    open fun refundedOrderUseCases(readAdministeredOrderUseCase: ReadAdministeredOrderUseCase,
+                                   sendOrderStatusEmailUseCase: SendOrderStatusEmailUseCase) =
+        RefundedOrderUseCases(readAdministeredOrderUseCase, sendOrderStatusEmailUseCase)
+
+    @Bean
     open fun readSellerUseCase(sellerRepository: SellerRepository) = ReadSellerUseCase(sellerRepository)
 
     @Bean
@@ -375,9 +390,10 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
 
     @Bean
     open fun invoiceUseCases(readInvoiceUseCase: ReadInvoiceUseCase,
+                             readCreditNoteUseCase: ReadCreditNoteUseCase,
                              readSellerUseCase: ReadSellerUseCase,
                              renderInvoiceUseCase: RenderInvoiceUseCase) =
-        InvoiceUseCases(readInvoiceUseCase, readSellerUseCase, renderInvoiceUseCase)
+        InvoiceUseCases(readInvoiceUseCase, readCreditNoteUseCase, readSellerUseCase, renderInvoiceUseCase)
 
     @Bean
     open fun createDiscountCodeUseCase(discountCodeRepository: DiscountCodeRepository) =

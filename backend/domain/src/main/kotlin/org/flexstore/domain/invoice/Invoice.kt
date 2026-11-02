@@ -28,7 +28,29 @@ data class Invoice(val number: InvoiceNumber, val issue: InvoiceIssue, val selle
     val issuedAt get() = issue.issuedAt
 }
 
-// The invoice as a PDF document, to download
+// The number of a credit note, in its own sequence without gaps: AV, the year of issue, then its rank
+// (AV-2026-000007)
+data class CreditNoteNumber(val value: String)
+
+// The moment a credit note is issued: when its order is refunded
+data class CreditNoteDate(val value: Instant) {
+    companion object {
+        fun now() = CreditNoteDate(InstantProvider.now())
+    }
+}
+
+// A credit note to issue for a refunded order, at a given moment
+data class CreditNoteIssue(val orderId: OrderId, val issuedAt: CreditNoteDate)
+
+// The credit note of a refunded order, numbered when it is issued: it cancels the invoice of the order
+data class CreditNote(val number: CreditNoteNumber, val issue: CreditNoteIssue) {
+
+    val orderId get() = issue.orderId
+
+    val issuedAt get() = issue.issuedAt
+}
+
+// The invoice or the credit note as a PDF document, to download
 data class InvoicePdf(val content: ByteArray) {
     override fun equals(other: Any?) = other is InvoicePdf && content.contentEquals(other.content)
     override fun hashCode() = content.contentHashCode()
@@ -38,4 +60,9 @@ data class InvoiceNotFoundException(override val errorMessage: ErrorMessage) : N
 data class InvoiceAlreadyIssuedException(override val errorMessage: ErrorMessage) :
     NominalException(errorMessage)
 data class OrderNotPaidException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class CreditNoteNotFoundException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class CreditNoteAlreadyIssuedException(override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
+data class OrderNotRefundedException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class CreditNoteIssueFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class InvoiceIssueFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
