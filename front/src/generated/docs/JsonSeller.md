@@ -12,6 +12,9 @@ Name | Type | Description | Notes
 **phone** | **string** | Digits, maybe after a +, grouped by spaces, dots, dashes or parentheses; empty in the versions written before it was asked | [default to undefined]
 **email** | **string** |  | [default to undefined]
 **website** | **string** | With or without its scheme | [default to undefined]
+**legalForm** | **string** | SAS, SARL, EURL...; empty in the versions written before it was asked | [default to undefined]
+**shareCapital** | **string** | In euros, digits maybe grouped by spaces; empty in the versions written before it was asked | [default to undefined]
+**registryCity** | **string** | The city of the trade and companies register (RCS); empty in the versions written before it was asked | [default to undefined]
 
 ## Example
 
@@ -26,6 +29,9 @@ const instance: JsonSeller = {
     phone,
     email,
     website,
+    legalForm,
+    shareCapital,
+    registryCity,
 };
 ```
 

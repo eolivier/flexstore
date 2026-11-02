@@ -22,8 +22,12 @@ class OpenPdfInvoiceRendererTest {
     private val sellerIdentifier = SellerIdentifier(Siret("123 456 789 00012"), SellerVatNumber("FR12345678901"))
     private val sellerReach =
         SellerReach(SellerPhone("01 23 45 67 89"), SellerEmail("contact@flexstore.fr"), SellerWebsite("www.flexstore.fr"))
-    private val seller =
-        Seller(SellerId(Identity("seller-1")), SellerDetail(sellerContact, sellerIdentifier, sellerReach))
+    private val sellerIncorporation =
+        SellerIncorporation(SellerLegalForm("SAS"), ShareCapital("10 000"), RegistryCity("Paris"))
+    private val seller = Seller(
+        SellerId(Identity("seller-1")),
+        SellerDetail(sellerContact, sellerIdentifier, sellerReach, sellerIncorporation)
+    )
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val acceptedTermsOfSale = AcceptedTermsOfSale(LegalPageId(Identity("terms-of-sale-1")))
     private val placedAt = Instant.parse("2026-10-24T10:00:00Z")

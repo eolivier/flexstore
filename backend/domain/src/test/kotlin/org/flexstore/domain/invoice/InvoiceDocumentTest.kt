@@ -42,18 +42,20 @@ class InvoiceDocumentTest : WithAssertions {
     }
 
     @Test
-    fun `the invoice should give the seller with its identifiers, and the customer with their email`() {
+    fun `the invoice should give the seller with its incorporation and its identifiers, and the customer`() {
         // Act
         val invoiceDocument = documentOf(ShippingMethod.STANDARD)
         // Assert
         assertThat(invoiceDocument.seller().asList().map { it.value })
             .containsExactly(
                 "Flexstore SAS",
+                "SAS au capital de 10 000 €",
                 "1 rue de la Démo, 75001 Paris, France",
                 "Tél. : 01 23 45 67 89",
                 "Email : contact@flexstore.fr",
                 "Site : www.flexstore.fr",
                 "SIRET : 123 456 789 00012",
+                "RCS Paris 123 456 789",
                 "TVA intracommunautaire : FR12345678901"
             )
         assertThat(invoiceDocument.billedTo().asList().map { it.value })
@@ -163,9 +165,11 @@ class InvoiceDocumentTest : WithAssertions {
     }
 
     @Test
-    fun `an invoice of a seller written before its phone, email and website were asked should show none`() {
+    fun `an invoice of a seller written before its reach and its incorporation were asked should show none`() {
         // Arrange
-        val olderSeller = testSeller.copy(detail = testSellerDetail.copy(reach = SellerReach.none()))
+        val olderSellerDetail =
+            testSellerDetail.copy(reach = SellerReach.none(), incorporation = SellerIncorporation.none())
+        val olderSeller = testSeller.copy(detail = olderSellerDetail)
         val order = documentOf(ShippingMethod.STANDARD).sale.administeredOrder
         // Act
         val invoiceDocument = InvoiceDocument(invoice, InvoicedSale(order, olderSeller))
@@ -175,6 +179,38 @@ class InvoiceDocumentTest : WithAssertions {
             "1 rue de la Démo, 75001 Paris, France",
             "SIRET : 123 456 789 00012",
             "TVA intracommunautaire : FR12345678901"
+        )
+    }
+
+    @Test
+    fun `an invoice to a private individual should say when it was paid`() {
+        // Act
+        val invoiceDocument = documentOf(ShippingMethod.STANDARD)
+        // Assert
+        assertThat(invoiceDocument.footer()).isEqualTo(
+            InvoiceLines(
+                "Facture acquittée le 24 octobre 2026 : la commande a été payée en ligne.",
+                "Prix en euros, TVA française comprise."
+            )
+        )
+    }
+
+    @Test
+    fun `an invoice to a company should also give the terms of a late payment`() {
+        // Arrange
+        val acme = LegalEntity(Company(CompanyName("Acme"), VatNumber("FR12345678901")))
+        val acmeAddresses = OrderAddresses.sameFor(PostalAddress(acme, homeLocation))
+        val delivery = OrderDelivery(acmeAddresses, ShippingMethod.STANDARD)
+        val orderStamp = OrderStamp(OrderId("46555c9f-4e92"), placedAt)
+        val orderPlacement = OrderPlacement(orderStamp, Checkout(customer, delivery, acceptedTermsOfSale))
+        val order = Order.place(orderPlacement, Cart(customer).add(deskLamp, Quantity(1)))
+        val invoicedSale = InvoicedSale(AdministeredOrder(order, janeDoe), testSeller)
+        // Act
+        val invoiceDocument = InvoiceDocument(invoice, invoicedSale)
+        // Assert
+        assertThat(invoiceDocument.footer().asList().map { it.value }).endsWith(
+            "Pas d'escompte pour paiement anticipé.",
+            "En cas de retard de paiement : pénalités au taux d'intérêt légal multiplié par trois, et indemnité forfaitaire de 40 € pour frais de recouvrement."
         )
     }
 }

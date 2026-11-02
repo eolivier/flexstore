@@ -5,12 +5,17 @@ import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.entity.*
 
 // An administrator gives a new version of the seller written on the invoices: its name and address are given,
-// its SIRET and VAT number are well formed, and so are its phone number, its email and its website. It becomes
-// the current one
+// its SIRET and VAT number are well formed, and so are its phone number, its email and its website; its legal
+// form, its share capital and the city of its register are given. It becomes the current one
 class UpdateSellerUseCase(private val sellerRepository: SellerRepository) : UseCase<Seller> {
 
     override fun getPreConditions(): PreConditions<Seller> =
-        PreConditions(contactIsCompleteCondition(), identifiersAreValidCondition(), reachIsValidCondition())
+        PreConditions(
+            contactIsCompleteCondition(),
+            identifiersAreValidCondition(),
+            reachIsValidCondition(),
+            incorporationIsValidCondition()
+        )
 
     override fun getNominalScenario(): NominalScenario<Seller> =
         NominalScenario(Step { seller -> sellerRepository.save(seller) })
@@ -33,6 +38,13 @@ class UpdateSellerUseCase(private val sellerRepository: SellerRepository) : UseC
     private fun reachIsValidCondition() = PreCondition<Seller> { seller ->
         if (seller.detail.reach.isInvalid()) {
             val rule = "a phone number, an email and a website (www.flexstore.fr, or with https://)"
+            throw InvalidSellerException(ErrorMessage("The seller needs $rule."))
+        }
+    }
+
+    private fun incorporationIsValidCondition() = PreCondition<Seller> { seller ->
+        if (seller.detail.incorporation.isInvalid()) {
+            val rule = "a legal form, a share capital in euros (10 000) and the city of its trade register"
             throw InvalidSellerException(ErrorMessage("The seller needs $rule."))
         }
     }

@@ -15,6 +15,9 @@ const flexstore = {
   phone: '01 23 45 67 89',
   email: 'contact@flexstore.fr',
   website: 'www.flexstore.fr',
+  legalForm: 'SAS',
+  shareCapital: '10 000',
+  registryCity: 'Paris',
 };
 
 function mountForm() {
@@ -37,7 +40,10 @@ describe('SellerForm.vue', () => {
     expect(values).toEqual([
       flexstore.name,
       flexstore.address,
+      flexstore.legalForm,
+      flexstore.shareCapital,
       flexstore.siret,
+      flexstore.registryCity,
       flexstore.vatNumber,
       flexstore.phone,
       flexstore.email,
@@ -65,7 +71,7 @@ describe('SellerForm.vue', () => {
     // Arrange
     const wrapper = mountForm();
     // Act
-    await inputs(wrapper)[2].setValue('123');
+    await inputs(wrapper)[4].setValue('123');
     await flushPromises();
     // Assert
     expect(wrapper.text()).toContain('A SIRET has 14 digits');
@@ -80,14 +86,16 @@ describe('SellerForm.vue', () => {
     await flushPromises();
     // Assert
     expect(wrapper.text()).toContain(
-      'The shop refused the seller: check its SIRET, its VAT number, its phone, its email and its website.'
+      'The shop refused the seller: check its SIRET, its VAT number, its phone, its email, its website and its incorporation.'
     );
   });
 
   it.each([
-    { field: 4, value: 'abc', expected: 'Invalid phone number' },
-    { field: 5, value: 'contact.flexstore.fr', expected: 'Invalid email' },
-    { field: 6, value: 'flexstore', expected: 'Invalid website' },
+    { field: 3, value: 'dix mille', expected: 'An amount in euros, in digits' },
+    { field: 5, value: ' ', expected: 'Required' },
+    { field: 7, value: 'abc', expected: 'Invalid phone number' },
+    { field: 8, value: 'contact.flexstore.fr', expected: 'Invalid email' },
+    { field: 9, value: 'flexstore', expected: 'Invalid website' },
   ])('refuses "$value" ($expected)', async ({ field, value, expected }) => {
     // Arrange
     const wrapper = mountForm();

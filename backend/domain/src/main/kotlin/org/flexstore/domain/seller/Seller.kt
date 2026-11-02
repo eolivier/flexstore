@@ -23,7 +23,13 @@ data class SellerAddress(val value: String) {
 // The SIRET of the seller (the French identifier of its establishment): 14 digits, maybe grouped by spaces
 data class Siret(val value: String) {
     fun isValid() = SIRET.matches(value.replace(" ", ""))
+
+    // Its first 9 digits, which identify the company itself
+    fun siren() = SellerSiren(value.replace(" ", "").take(9).chunked(3).joinToString(" "))
 }
+
+// The SIREN of the seller (the French identifier of the company), grouped by 3 digits: 123 456 789
+data class SellerSiren(val value: String)
 
 // The intra-community VAT number of the seller: its country (FR), then 2 to 13 digits or letters
 data class SellerVatNumber(val value: String) {
@@ -62,6 +68,37 @@ data class SellerReach(val phone: SellerPhone, val email: SellerEmail, val websi
     }
 }
 
+// The legal form of the seller: SAS, SARL, EURL...
+data class SellerLegalForm(val value: String) {
+    fun isGiven() = value.isNotBlank()
+}
+
+// The share capital of the seller, in euros: digits, maybe grouped by spaces (10 000)
+data class ShareCapital(val value: String) {
+    fun isValid() = SHARE_CAPITAL.matches(value)
+}
+
+// The city of the trade and companies register (RCS) where the seller is registered
+data class RegistryCity(val value: String) {
+    fun isGiven() = value.isNotBlank()
+}
+
+// How the seller is incorporated, written on the invoices with its SIREN. The versions of the seller written
+// before these were asked have none
+data class SellerIncorporation(
+    val legalForm: SellerLegalForm,
+    val shareCapital: ShareCapital,
+    val registryCity: RegistryCity
+) {
+    fun isValid() = legalForm.isGiven() && shareCapital.isValid() && registryCity.isGiven()
+
+    fun isInvalid() = !isValid()
+
+    companion object {
+        fun none() = SellerIncorporation(SellerLegalForm(""), ShareCapital(""), RegistryCity(""))
+    }
+}
+
 // Who the seller is and where it is
 data class SellerContact(val name: SellerName, val address: SellerAddress) {
     fun isComplete() = name.isGiven() && address.isGiven()
@@ -76,8 +113,14 @@ data class SellerIdentifier(val siret: Siret, val vatNumber: SellerVatNumber) {
     fun isInvalid() = !isValid()
 }
 
-// What the administrators write about the seller: who it is, how it is registered, and how to reach it
-data class SellerDetail(val contact: SellerContact, val identifier: SellerIdentifier, val reach: SellerReach)
+// What the administrators write about the seller: who it is, how it is registered, how to reach it, and how it
+// is incorporated
+data class SellerDetail(
+    val contact: SellerContact,
+    val identifier: SellerIdentifier,
+    val reach: SellerReach,
+    val incorporation: SellerIncorporation
+)
 
 // The shop that sells, as written on its invoices, in one of its versions
 data class Seller(val id: SellerId, val detail: SellerDetail)
@@ -88,6 +131,7 @@ data class SellerNotFoundException(override val errorMessage: ErrorMessage) : No
 
 private val SIRET = Regex("[0-9]{14}")
 private val VAT_NUMBER = Regex("[A-Z]{2}[0-9A-Z]{2,13}")
+private val SHARE_CAPITAL = Regex("[0-9][0-9 ]*")
 private val PHONE = Regex("\\+?[0-9][0-9 .()-]{5,19}")
 private val EMAIL = Regex("[^\\s@]+@[^\\s@]+\\.[^\\s@]+")
 private val WEBSITE = Regex("(https?://)?[^\\s/.]+(\\.[^\\s/.]+)+(/\\S*)?")

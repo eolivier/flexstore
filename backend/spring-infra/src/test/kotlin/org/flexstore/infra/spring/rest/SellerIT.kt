@@ -60,7 +60,8 @@ class SellerIT {
         // Arrange
         val sellerJson = """{"name": "Flexstore Group", "address": "2 avenue du Test, 69001 Lyon, France",
             "siret": "98765432100019", "vatNumber": "FR98765432100", "phone": "04 72 00 00 00",
-            "email": "contact@flexstore-group.fr", "website": "https://www.flexstore-group.fr"}"""
+            "email": "contact@flexstore-group.fr", "website": "https://www.flexstore-group.fr",
+            "legalForm": "SARL", "shareCapital": "50 000", "registryCity": "Lyon"}"""
         // Act
         val response = updateSeller(sellerJson)
         // Assert
@@ -70,6 +71,9 @@ class SellerIT {
             .andExpect(jsonPath("$.phone").value("04 72 00 00 00"))
             .andExpect(jsonPath("$.email").value("contact@flexstore-group.fr"))
             .andExpect(jsonPath("$.website").value("https://www.flexstore-group.fr"))
+            .andExpect(jsonPath("$.legalForm").value("SARL"))
+            .andExpect(jsonPath("$.shareCapital").value("50 000"))
+            .andExpect(jsonPath("$.registryCity").value("Lyon"))
         assertThat(sellerRepository.findBy(sellerBefore.id)).isEqualTo(sellerBefore)
     }
 
@@ -78,6 +82,19 @@ class SellerIT {
         // Arrange
         val sellerJson = """{"name": "Flexstore", "address": "1 rue de la Démo, 75001 Paris, France",
             "siret": "123", "vatNumber": "FR12345678901", "phone": "01 23 45 67 89",
+            "email": "contact@flexstore.fr", "website": "www.flexstore.fr",
+            "legalForm": "SAS", "shareCapital": "10 000", "registryCity": "Paris"}"""
+        // Act
+        val response = updateSeller(sellerJson)
+        // Assert
+        response.andExpect(status().isBadRequest)
+    }
+
+    @Test
+    fun `a seller without its legal form, share capital or register should be refused`() {
+        // Arrange
+        val sellerJson = """{"name": "Flexstore", "address": "1 rue de la Démo, 75001 Paris, France",
+            "siret": "12345678900012", "vatNumber": "FR12345678901", "phone": "01 23 45 67 89",
             "email": "contact@flexstore.fr", "website": "www.flexstore.fr"}"""
         // Act
         val response = updateSeller(sellerJson)
@@ -89,7 +106,8 @@ class SellerIT {
     fun `a seller without phone number, email or website should be refused`() {
         // Arrange
         val sellerJson = """{"name": "Flexstore", "address": "1 rue de la Démo, 75001 Paris, France",
-            "siret": "12345678900012", "vatNumber": "FR12345678901"}"""
+            "siret": "12345678900012", "vatNumber": "FR12345678901",
+            "legalForm": "SAS", "shareCapital": "10 000", "registryCity": "Paris"}"""
         // Act
         val response = updateSeller(sellerJson)
         // Assert

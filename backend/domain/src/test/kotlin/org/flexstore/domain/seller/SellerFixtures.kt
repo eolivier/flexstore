@@ -9,8 +9,12 @@ private val testSellerIdentifier = SellerIdentifier(Siret("123 456 789 00012"), 
 private val testSellerReach =
     SellerReach(SellerPhone("01 23 45 67 89"), SellerEmail("contact@flexstore.fr"), SellerWebsite("www.flexstore.fr"))
 
+private val testSellerIncorporation =
+    SellerIncorporation(SellerLegalForm("SAS"), ShareCapital("10 000"), RegistryCity("Paris"))
+
 // What the tests write about the seller
-val testSellerDetail = SellerDetail(testSellerContact, testSellerIdentifier, testSellerReach)
+val testSellerDetail =
+    SellerDetail(testSellerContact, testSellerIdentifier, testSellerReach, testSellerIncorporation)
 
 // The seller of the tests
 val testSeller = Seller(SellerId(Identity("seller-1")), testSellerDetail)

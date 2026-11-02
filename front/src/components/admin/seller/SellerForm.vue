@@ -2,7 +2,7 @@
   import { reactive, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useSellerStore, type Seller, type SellerUpdate } from '@/stores/seller.store';
-  import { isEmail, isPhone, isSiret, isVatNumber, isWebsite } from './sellerRules';
+  import { isEmail, isPhone, isShareCapital, isSiret, isVatNumber, isWebsite } from './sellerRules';
 
   const props = defineProps<{ seller: Seller }>();
 
@@ -23,6 +23,7 @@
     phone: (v: string) => isPhone(v) || t('seller.phoneFormat'),
     email: (v: string) => isEmail(v) || t('seller.emailFormat'),
     website: (v: string) => isWebsite(v) || t('seller.websiteFormat'),
+    shareCapital: (v: string) => isShareCapital(v) || t('seller.shareCapitalFormat'),
   };
 
   async function save() {
@@ -44,10 +45,31 @@
       class="mb-2"
     />
     <v-text-field
+      v-model="editedSeller.legalForm"
+      :label="t('seller.legalForm')"
+      :hint="t('seller.legalFormHint')"
+      :rules="[rules.required]"
+      class="mb-2"
+    />
+    <v-text-field
+      v-model="editedSeller.shareCapital"
+      :label="t('seller.shareCapital')"
+      :hint="t('seller.shareCapitalHint')"
+      :rules="[rules.shareCapital]"
+      class="mb-2"
+    />
+    <v-text-field
       v-model="editedSeller.siret"
       :label="t('seller.siret')"
       :hint="t('seller.siretHint')"
       :rules="[rules.siret]"
+      class="mb-2"
+    />
+    <v-text-field
+      v-model="editedSeller.registryCity"
+      :label="t('seller.registryCity')"
+      :hint="t('seller.registryCityHint')"
+      :rules="[rules.required]"
       class="mb-2"
     />
     <v-text-field
