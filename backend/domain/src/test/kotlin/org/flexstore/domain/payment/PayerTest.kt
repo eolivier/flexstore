@@ -23,7 +23,7 @@ class PayerTest : WithAssertions {
 
     private fun orderTo(orderAddresses: OrderAddresses): Order {
         val orderStamp = OrderStamp(OrderId("order-1"), Instant.parse("2026-10-24T10:00:00Z"))
-        val orderPlacement = OrderPlacement(orderStamp, Checkout(customer, orderAddresses))
+        val orderPlacement = OrderPlacement(orderStamp, Checkout(customer, orderAddresses, acceptedTermsOfSale))
         return Order.place(orderPlacement, Cart(customer).add(deskLamp, Quantity(1)))
     }
 

@@ -34,7 +34,7 @@ class AddReviewUseCaseTest : WithAssertions {
     private fun storeOrder(status: OrderStatus) {
         val cart = Cart(customer).add(deskLamp, Quantity(1))
         val placement = OrderPlacement(OrderStamp(OrderId.nextId(), Instant.now()),
-            Checkout(customer, homeOrderAddresses))
+            Checkout(customer, homeOrderAddresses, acceptedTermsOfSale))
         orderRepository.save(Order.place(placement, cart).withStatus(status))
     }
 

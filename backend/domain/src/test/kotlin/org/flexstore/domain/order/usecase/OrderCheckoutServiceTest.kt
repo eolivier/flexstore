@@ -6,6 +6,7 @@ import org.flexstore.domain.cart.*
 import org.flexstore.domain.cart.usecase.ReadCartUseCase
 import org.flexstore.domain.discount.*
 import org.flexstore.domain.discount.usecase.*
+import org.flexstore.domain.legal.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.settings.*
 import org.flexstore.domain.product.*
@@ -14,6 +15,7 @@ import org.flexstore.domain.user.model.*
 import org.assertj.core.api.WithAssertions
 import org.flexstore.infra.repository.InMemoryCartRepository
 import org.flexstore.infra.repository.InMemoryDiscountCodeRepository
+import org.flexstore.infra.repository.InMemoryLegalPageRepository
 import org.flexstore.infra.repository.InMemoryOrderRepository
 import org.flexstore.infra.repository.InMemoryUserRepository
 import org.junit.jupiter.params.ParameterizedTest
@@ -42,18 +44,23 @@ class OrderCheckoutServiceTest : WithAssertions {
     private val placedAt = Instant.parse("2026-10-24T10:00:00Z")
     private val discountCodeRepository = InMemoryDiscountCodeRepository()
     private val tenPercentOff = PercentageOff(Percentage(BigDecimal(10)))
+    private val currentTermsOfSale = LegalPage(
+        currentTermsOfSaleId, LegalPageKind.TERMS_OF_SALE, LegalText("Article 1 - Objet"),
+        PublishedAt(Instant.parse("2026-01-01T00:00:00Z"))
+    )
+    private val legalPageRepository = InMemoryLegalPageRepository(listOf(currentTermsOfSale))
 
     private fun giveDiscountCode(code: String, expiresAt: Instant, usageLimit: Int) {
         val validity = DiscountValidity(ExpiryDate(expiresAt), UsageLimit(usageLimit))
         discountCodeRepository.save(DiscountCode(PromoCode(code), DiscountOffer(tenPercentOff, validity)))
     }
-    private val checkout = Checkout(customer, homeOrderAddresses)
+    private val checkout = Checkout(customer, homeOrderAddresses, acceptedTermsOfSale)
     private val service = checkoutServiceWith(stockRepository)
 
     private fun checkoutServiceWith(stockRepository: StockRepository): OrderCheckoutService {
         val orderPlacementUseCases = OrderPlacementUseCases(
             KeepOrderAddressesUseCase(userRepository),
-            PlaceOrderUseCase(orderRepository, stockRepository),
+            PlaceOrderUseCase(orderRepository, stockRepository, legalPageRepository),
             ReserveOrderStockUseCase(orderRepository, stockRepository)
         )
         val checkoutQueryUseCases = CheckoutQueryUseCases(
@@ -97,12 +104,47 @@ class OrderCheckoutServiceTest : WithAssertions {
     }
 
     @Test
+    fun `the order should keep the version of the terms of sale its customer accepted`() {
+        // Arrange
+        cartRepository.save(Cart(customer).add(deskLamp, Quantity(1)))
+        // Act
+        val order = service.placeOrder(checkout)
+        // Assert
+        assertThat(order.termsOfSale).isEqualTo(AcceptedTermsOfSale(currentTermsOfSaleId))
+    }
+
+    @Test
+    fun `an order should not be placed without accepting the terms of sale`() {
+        // Arrange
+        cartRepository.save(Cart(customer).add(deskLamp, Quantity(1)))
+        val checkoutWithoutTerms = Checkout(customer, homeOrderAddresses, NoTermsOfSaleAccepted)
+        // Act
+        val thrown = catchThrowable { service.placeOrder(checkoutWithoutTerms) }
+        // Assert
+        assertThat(thrown).isInstanceOf(TermsOfSaleNotAcceptedException::class.java)
+        assertThat(storedOrders()).isEmpty()
+    }
+
+    @Test
+    fun `an order should not be placed when the terms of sale were published again since they were accepted`() {
+        // Arrange
+        cartRepository.save(Cart(customer).add(deskLamp, Quantity(1)))
+        val newTermsOfSale = currentTermsOfSale.copy(id = LegalPageId.nextId(), text = LegalText("Article 1 - Objet modifié"))
+        legalPageRepository.save(newTermsOfSale)
+        // Act
+        val thrown = catchThrowable { service.placeOrder(checkout) }
+        // Assert
+        assertThat(thrown).isInstanceOf(OutdatedTermsOfSaleException::class.java)
+        assertThat(storedOrders()).isEmpty()
+    }
+
+    @Test
     fun `the order should be shipped as chosen, at the cost of its method`() {
         // Arrange
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(1)))
         val expressDelivery = OrderDelivery(homeOrderAddresses, ShippingMethod.EXPRESS)
         // Act
-        val order = service.placeOrder(Checkout(customer, expressDelivery))
+        val order = service.placeOrder(Checkout(customer, expressDelivery, acceptedTermsOfSale))
         // Assert
         val expressCost = Price(Amount(BigDecimal("9.90")), Currency.EUR)
         assertThat(order.shipping).isEqualTo(OrderShipping(ShippingMethod.EXPRESS, expressCost))
@@ -215,7 +257,7 @@ class OrderCheckoutServiceTest : WithAssertions {
         // Arrange
         val unknownCustomer = CartOwner.Customer(UserId.ValidUserId("unknown-customer"))
         cartRepository.save(Cart(unknownCustomer).add(deskLamp, Quantity(2)))
-        val unknownCustomerCheckout = Checkout(unknownCustomer, homeOrderAddresses)
+        val unknownCustomerCheckout = Checkout(unknownCustomer, homeOrderAddresses, acceptedTermsOfSale)
         // Act
         val thrown = catchThrowable { service.placeOrder(unknownCustomerCheckout) }
         // Assert
@@ -226,7 +268,8 @@ class OrderCheckoutServiceTest : WithAssertions {
     fun `the addresses entered when ordering should become addresses of the customer`() {
         // Arrange
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
-        val billedToTheOffice = Checkout(customer, OrderAddresses(homeAddress, officeAddress))
+        val officeBilling = OrderAddresses(homeAddress, officeAddress)
+        val billedToTheOffice = Checkout(customer, officeBilling, acceptedTermsOfSale)
         // Act
         service.placeOrder(billedToTheOffice)
         // Assert

@@ -25,7 +25,7 @@ class IssueInvoiceUseCaseTest : WithAssertions {
     private val useCase = IssueInvoiceUseCase(orderRepository, invoiceRepository, sellerRepository)
 
     private fun storeOrder(orderId: OrderId, status: OrderStatus) {
-        val checkout = Checkout(customer, homeOrderAddresses)
+        val checkout = Checkout(customer, homeOrderAddresses, acceptedTermsOfSale)
         val orderPlacement = OrderPlacement(OrderStamp(orderId, issuedAt.value), checkout)
         val order = Order.place(orderPlacement, Cart(customer).add(deskLamp, Quantity(1)))
         orderRepository.save(order.withStatus(status))

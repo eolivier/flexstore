@@ -54,6 +54,7 @@ class LegalPageIT {
         val response = mockMvc.perform(get("/api/legal-pages/terms-of-sale"))
         // Assert
         response.andExpect(status().isOk)
+            .andExpect(jsonPath("$.id").isNotEmpty)
             .andExpect(jsonPath("$.kind").value("TERMS_OF_SALE"))
             .andExpect(jsonPath("$.text").value("Article 1 - Objet\nLes présentes conditions..."))
             .andExpect(jsonPath("$.publishedAt").isNotEmpty)

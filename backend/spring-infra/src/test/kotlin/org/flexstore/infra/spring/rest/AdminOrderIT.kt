@@ -278,7 +278,7 @@ class AdminOrderIT {
             post("/api/cart/save").with(asUser(CUSTOMER_ID)).contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(item))
         ).andExpect(status().isOk)
-        val body = mockMvc.perform(post("/api/orders").withHomeAddresses().with(asUser(CUSTOMER_ID)))
+        val body = mockMvc.perform(post("/api/orders").withHomeAddresses(mockMvc.currentTermsOfSaleId()).with(asUser(CUSTOMER_ID)))
             .andExpect(status().isCreated).andReturn().response.contentAsString
         val orderId = objectMapper.readTree(body)["id"].asText()
         if (paid) mockMvc.pay(orderId, CUSTOMER_ID).andExpect(status().isCreated)

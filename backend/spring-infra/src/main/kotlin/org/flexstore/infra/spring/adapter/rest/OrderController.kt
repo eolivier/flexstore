@@ -28,7 +28,7 @@ class OrderController(
 
     @Operation(
         summary = "Place an order from the cart of the signed-in customer, delivered and billed to the given " +
-            "addresses, and reserve its units until it is paid"
+            "addresses, under the current terms of sale they accepted, and reserve its units until it is paid"
     )
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -37,7 +37,8 @@ class OrderController(
     // by default
     @Transactional(rollbackFor = [Exception::class])
     fun placeOrder(@AuthenticationPrincipal jwt: Jwt, @RequestBody addresses: JsonOrderAddresses): JsonOrder {
-        val checkout = Checkout(CartOwner.Customer(customer(jwt)), addresses.toOrderDelivery())
+        val customer = CartOwner.Customer(customer(jwt))
+        val checkout = Checkout(customer, addresses.toOrderDelivery(), addresses.toTermsOfSaleAcceptance())
         val placedOrder = orderCheckoutService.placeOrder(checkout, addresses.toEnteredDiscountCode())
         return JsonOrder(placedOrder, orderUseCases.paymentDelay())
     }

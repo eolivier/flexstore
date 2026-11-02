@@ -27,7 +27,7 @@ class VatBreakdownsTest : WithAssertions {
     private fun orderOf(cart: Cart): Order {
         val delivery = OrderDelivery(homeOrderAddresses, ShippingMethod.EXPRESS)
         val orderStamp = OrderStamp(OrderId("order-1"), Instant.parse("2026-10-24T10:00:00Z"))
-        return Order.place(OrderPlacement(orderStamp, Checkout(customer, delivery)), cart)
+        return Order.place(OrderPlacement(orderStamp, Checkout(customer, delivery, acceptedTermsOfSale)), cart)
     }
 
     private fun priceOf(amount: String) = Price(Amount(BigDecimal(amount)), Currency.EUR)

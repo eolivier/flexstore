@@ -110,7 +110,7 @@ class StockIT {
         changeStock(1)
         addToCart(quantity = 2)
         // Act
-        val response = mockMvc.perform(post("/api/orders").withHomeAddresses().with(asUser(CUSTOMER_ID)))
+        val response = mockMvc.perform(post("/api/orders").withHomeAddresses(mockMvc.currentTermsOfSaleId()).with(asUser(CUSTOMER_ID)))
         // Assert
         response.andExpect(status().isConflict)
     }
@@ -120,7 +120,7 @@ class StockIT {
         // Arrange
         changeStock(5)
         addToCart(quantity = 2)
-        val body = mockMvc.perform(post("/api/orders").withHomeAddresses().with(asUser(CUSTOMER_ID)))
+        val body = mockMvc.perform(post("/api/orders").withHomeAddresses(mockMvc.currentTermsOfSaleId()).with(asUser(CUSTOMER_ID)))
             .andExpect(status().isCreated).andReturn().response.contentAsString
         val orderId = objectMapper.readTree(body)["id"].asText()
         // Act

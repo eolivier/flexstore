@@ -29,7 +29,8 @@ class AdministeredOrdersUseCasesTest : WithAssertions {
 
     private fun placeOrder(orderId: OrderId, customer: CartOwner.Customer, placedAt: Instant): Order {
         val orderStamp = OrderStamp(orderId, placedAt)
-        val orderPlacement = OrderPlacement(orderStamp, Checkout(customer, homeOrderAddresses))
+        val checkout = Checkout(customer, homeOrderAddresses, acceptedTermsOfSale)
+        val orderPlacement = OrderPlacement(orderStamp, checkout)
         val cart = Cart(customer).add(deskLamp, Quantity(1))
         return orderRepository.save(Order.place(orderPlacement, cart))
     }

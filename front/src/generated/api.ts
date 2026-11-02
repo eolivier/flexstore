@@ -330,6 +330,10 @@ export interface JsonItem {
     'productQuantity'?: number;
 }
 export interface JsonLegalPage {
+    /**
+     * The id of this version of the page; the customers accept the terms of sale by it
+     */
+    'id': string;
     'kind': JsonLegalPageKindEnum;
     /**
      * Plain text, its paragraphs separated by line breaks; empty until the administrators write it
@@ -458,6 +462,10 @@ export interface JsonOrderAddresses {
      * The discount code entered, if any (404 when unknown, 410 when expired or used up)
      */
     'discountCode'?: string;
+    /**
+     * The id of the version of the terms of sale the customer read and accepted
+     */
+    'termsOfSaleId': string;
 }
 
 export const JsonOrderAddressesShippingMethodEnum = {
@@ -3164,7 +3172,7 @@ export const OrdersApiAxiosParamCreator = function (configuration?: Configuratio
             };
         },
         /**
-         * The order is delivered and billed to the given addresses (the delivery address when no billing address is given), which become addresses of the customer when they are new. The cart is kept until the order is paid (POST /api/orders/{id}/payment) 
+         * The order is delivered and billed to the given addresses (the delivery address when no billing address is given), which become addresses of the customer when they are new. The customer accepts the current version of the terms of sale (its id, read from GET /api/legal-pages/terms-of-sale), kept by the order. The cart is kept until the order is paid (POST /api/orders/{id}/payment) 
          * @summary Place an order from the cart of the signed-in customer; it awaits its payment
          * @param {JsonOrderAddresses} jsonOrderAddresses 
          * @param {*} [options] Override http request option.
@@ -3291,7 +3299,7 @@ export const OrdersApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * The order is delivered and billed to the given addresses (the delivery address when no billing address is given), which become addresses of the customer when they are new. The cart is kept until the order is paid (POST /api/orders/{id}/payment) 
+         * The order is delivered and billed to the given addresses (the delivery address when no billing address is given), which become addresses of the customer when they are new. The customer accepts the current version of the terms of sale (its id, read from GET /api/legal-pages/terms-of-sale), kept by the order. The cart is kept until the order is paid (POST /api/orders/{id}/payment) 
          * @summary Place an order from the cart of the signed-in customer; it awaits its payment
          * @param {JsonOrderAddresses} jsonOrderAddresses 
          * @param {*} [options] Override http request option.
@@ -3354,7 +3362,7 @@ export const OrdersApiFactory = function (configuration?: Configuration, basePat
             return localVarFp.getShippingOptions(options).then((request) => request(axios, basePath));
         },
         /**
-         * The order is delivered and billed to the given addresses (the delivery address when no billing address is given), which become addresses of the customer when they are new. The cart is kept until the order is paid (POST /api/orders/{id}/payment) 
+         * The order is delivered and billed to the given addresses (the delivery address when no billing address is given), which become addresses of the customer when they are new. The customer accepts the current version of the terms of sale (its id, read from GET /api/legal-pages/terms-of-sale), kept by the order. The cart is kept until the order is paid (POST /api/orders/{id}/payment) 
          * @summary Place an order from the cart of the signed-in customer; it awaits its payment
          * @param {JsonOrderAddresses} jsonOrderAddresses 
          * @param {*} [options] Override http request option.
@@ -3412,7 +3420,7 @@ export class OrdersApi extends BaseAPI {
     }
 
     /**
-     * The order is delivered and billed to the given addresses (the delivery address when no billing address is given), which become addresses of the customer when they are new. The cart is kept until the order is paid (POST /api/orders/{id}/payment) 
+     * The order is delivered and billed to the given addresses (the delivery address when no billing address is given), which become addresses of the customer when they are new. The customer accepts the current version of the terms of sale (its id, read from GET /api/legal-pages/terms-of-sale), kept by the order. The cart is kept until the order is paid (POST /api/orders/{id}/payment) 
      * @summary Place an order from the cart of the signed-in customer; it awaits its payment
      * @param {JsonOrderAddresses} jsonOrderAddresses 
      * @param {*} [options] Override http request option.

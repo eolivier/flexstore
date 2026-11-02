@@ -189,6 +189,6 @@ class DiscountCodeIT {
 
     private fun placeOrderWithCode(code: String) = mockMvc.perform(
         post("/api/orders").with(asUser(CUSTOMER_ID)).contentType(MediaType.APPLICATION_JSON)
-            .content(HOME_ADDRESSES.removeSuffix("}") + """, "discountCode": "$code"}""")
+            .content(homeAddressesAccepting(mockMvc.currentTermsOfSaleId()).removeSuffix("}") + """, "discountCode": "$code"}""")
     )
 }

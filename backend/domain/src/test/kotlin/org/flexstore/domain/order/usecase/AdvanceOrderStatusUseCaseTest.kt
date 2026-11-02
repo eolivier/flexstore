@@ -38,7 +38,8 @@ class AdvanceOrderStatusUseCaseTest : WithAssertions {
 
     private fun storeOrder(status: OrderStatus) {
         val orderStamp = OrderStamp(orderId, Instant.parse("2026-10-24T10:00:00Z"))
-        val orderPlacement = OrderPlacement(orderStamp, Checkout(customer, homeOrderAddresses))
+        val checkout = Checkout(customer, homeOrderAddresses, acceptedTermsOfSale)
+        val orderPlacement = OrderPlacement(orderStamp, checkout)
         val order = Order.place(orderPlacement, Cart(customer).add(deskLamp, Quantity(1)))
         orderRepository.save(order.withStatus(status))
     }

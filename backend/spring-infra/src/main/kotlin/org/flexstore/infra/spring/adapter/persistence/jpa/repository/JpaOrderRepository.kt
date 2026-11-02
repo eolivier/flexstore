@@ -8,6 +8,7 @@ import org.flexstore.infra.spring.adapter.persistence.jpa.toDomain
 import org.flexstore.infra.spring.adapter.persistence.jpa.toEntity
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.discount.PromoCode
+import org.flexstore.domain.legal.LegalPageId
 import org.flexstore.domain.order.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
@@ -71,6 +72,7 @@ class PostgresOrderRepositoryAdapter(
             shippingCost = shipping.cost.amount.value,
             discountCode = (discount as? AppliedOrderDiscount)?.code?.value,
             discountAmount = discountAmount().amount.value,
+            legalPageId = (termsOfSale as? AcceptedTermsOfSale)?.termsOfSaleId?.value?.value,
             deliveryAddress = addressesOfTheCustomer.rowOf(addresses.delivery),
             billingAddress = addressesOfTheCustomer.rowOf(addresses.billing),
             statusChanges = history.asList().mapIndexed { position, change -> change.toEntity(position) },
@@ -98,7 +100,10 @@ class PostgresOrderRepositoryAdapter(
         val orderAddresses = OrderAddresses(deliveryAddress.toDomain(), billingAddress.toDomain())
         val shippingMethod = ShippingMethod.valueOf(this.shippingMethod)
         val delivery = OrderDelivery(orderAddresses, shippingMethod)
-        val checkout = Checkout(CartOwner.Customer(UserId.ValidUserId(userId)), delivery)
+        val termsOfSale = legalPageId
+            ?.let { id -> AcceptedTermsOfSale(LegalPageId(Identity(id))) }
+            ?: NoTermsOfSaleAccepted
+        val checkout = Checkout(CartOwner.Customer(UserId.ValidUserId(userId)), delivery, termsOfSale)
         val orderLines = OrderLines(lines.map { it.toDomain() })
         val currency = orderLines.totalPrice().currency
         val orderShipping = OrderShipping(shippingMethod, Price(Amount(shippingCost), currency))

@@ -8,6 +8,7 @@ const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
 const legalNotice = {
+  id: 'legal-notice-1',
   kind: 'LEGAL_NOTICE' as const,
   text: 'Flexstore SAS',
   publishedAt: '2026-01-01T00:00:00Z',

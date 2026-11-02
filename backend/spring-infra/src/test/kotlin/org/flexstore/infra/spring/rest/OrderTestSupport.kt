@@ -1,11 +1,13 @@
 package org.flexstore.infra.spring.rest
 
+import com.jayway.jsonpath.JsonPath
 import org.flexstore.infra.spring.security.asUser
 import org.springframework.http.MediaType
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.ResultActions
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 
 // The addresses of the orders of the tests: delivered and billed to the same home
@@ -14,13 +16,25 @@ const val HOME_ADDRESSES = """{"deliveryAddress": {"recipientType": "PRIVATE_IND
     "street": "12 rue des Lilas", "complement": "Bâtiment B",
     "postalCode": "75011", "city": "Paris", "country": "France"}}"""
 
-fun MockHttpServletRequestBuilder.withHomeAddresses(): MockHttpServletRequestBuilder =
-    contentType(MediaType.APPLICATION_JSON).content(HOME_ADDRESSES)
+// The id of the current version of the terms of sale, which the customers of the tests accept to order (another
+// test may publish a new version: it is read again for each order)
+fun MockMvc.currentTermsOfSaleId(): String {
+    val termsOfSale = perform(get("/api/legal-pages/terms-of-sale")).andReturn().response.contentAsString
+    return JsonPath.read(termsOfSale, "$.id")
+}
 
-// The addresses of the tests, and the shipping method (STANDARD or EXPRESS)
-fun MockHttpServletRequestBuilder.withHomeAddressesShipped(shippingMethod: String):
+// The addresses of the tests, with the version of the terms of sale accepted
+fun homeAddressesAccepting(termsOfSaleId: String) =
+    HOME_ADDRESSES.removeSuffix("}") + """, "termsOfSaleId": "$termsOfSaleId"}"""
+
+fun MockHttpServletRequestBuilder.withHomeAddresses(termsOfSaleId: String): MockHttpServletRequestBuilder =
+    contentType(MediaType.APPLICATION_JSON).content(homeAddressesAccepting(termsOfSaleId))
+
+// The addresses of the tests, the terms of sale accepted, and the shipping method (STANDARD or EXPRESS)
+fun MockHttpServletRequestBuilder.withHomeAddressesShipped(shippingMethod: String, termsOfSaleId: String):
     MockHttpServletRequestBuilder {
-    val addressesAndShipping = HOME_ADDRESSES.removeSuffix("}") + """, "shippingMethod": "$shippingMethod"}"""
+    val addressesAndShipping =
+        homeAddressesAccepting(termsOfSaleId).removeSuffix("}") + """, "shippingMethod": "$shippingMethod"}"""
     return contentType(MediaType.APPLICATION_JSON).content(addressesAndShipping)
 }
 

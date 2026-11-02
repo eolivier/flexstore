@@ -1,5 +1,7 @@
 package org.flexstore.domain.order.usecase
 
+import org.flexstore.domain.legal.LegalPageKind
+import org.flexstore.domain.legal.LegalPageRepository
 import org.flexstore.domain.order.*
 import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.stock.*
@@ -15,14 +17,18 @@ data class OrderToPlace(val placement: OrderPlacement, val content: OrderContent
 }
 
 // The order is placed from the cart: it awaits its payment (the cart is emptied once it is paid). The stock
-// covers the cart, and the addresses are complete; the units are then reserved (see ReserveOrderStockUseCase)
+// covers the cart, the addresses are complete, and the customer accepted the current terms of sale; the units
+// are then reserved (see ReserveOrderStockUseCase)
 class PlaceOrderUseCase(
     private val orderRepository: OrderRepository,
-    private val stockRepository: StockRepository
+    private val stockRepository: StockRepository,
+    private val legalPageRepository: LegalPageRepository
 ) : UseCase<OrderToPlace> {
 
-    override fun getPreConditions(): PreConditions<OrderToPlace> =
-        PreConditions(cartHasItemsCondition(), stockCoversTheCartCondition(), addressesAreCompleteCondition())
+    override fun getPreConditions(): PreConditions<OrderToPlace> = PreConditions(
+        cartHasItemsCondition(), stockCoversTheCartCondition(), addressesAreCompleteCondition(),
+        termsOfSaleAreAcceptedCondition(), acceptedTermsOfSaleAreCurrentCondition()
+    )
 
     override fun getNominalScenario(): NominalScenario<OrderToPlace> {
         val placeOrderStep = Step<OrderToPlace> { orderToPlace ->
@@ -55,6 +61,22 @@ class PlaceOrderUseCase(
         if (orderToPlace.placement.addresses.isIncomplete()) {
             val message = ErrorMessage("An order needs a complete delivery address and billing address.")
             throw IncompleteOrderAddressException(message)
+        }
+    }
+
+    private fun termsOfSaleAreAcceptedCondition() = PreCondition<OrderToPlace> { orderToPlace ->
+        if (orderToPlace.placement.checkout.termsOfSale == NoTermsOfSaleAccepted) {
+            val message = ErrorMessage("An order needs the customer to accept the terms of sale.")
+            throw TermsOfSaleNotAcceptedException(message)
+        }
+    }
+
+    // The terms of sale were published again since the customer read them: they read the new version first
+    private fun acceptedTermsOfSaleAreCurrentCondition() = PreCondition<OrderToPlace> { orderToPlace ->
+        val currentTermsOfSale = legalPageRepository.current(LegalPageKind.TERMS_OF_SALE)
+        if (orderToPlace.placement.checkout.termsOfSale.isOutdatedComparedTo(currentTermsOfSale.id)) {
+            val message = ErrorMessage("The terms of sale changed since they were accepted: read them again.")
+            throw OutdatedTermsOfSaleException(message)
         }
     }
 

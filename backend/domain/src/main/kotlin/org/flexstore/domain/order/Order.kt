@@ -1,6 +1,7 @@
 package org.flexstore.domain.order
 
 import org.flexstore.domain.cart.*
+import org.flexstore.domain.legal.LegalPageId
 import org.flexstore.domain.product.*
 import org.flexstore.domain.settings.FreeShippingThreshold
 import org.flexstore.domain.settings.PaymentDelay
@@ -22,6 +23,7 @@ private const val ORDER_NUMBER_LENGTH = 8
  * - it is always delivered to a delivery address and billed to a billing address (often the same),
  *   both addresses of the customer
  * - it keeps the statuses it went through, with the moment it reached each one: its status is the last one
+ * - it keeps the version of the terms of sale its customer accepted to place it
  */
 data class Order(val detail: OrderDetail, val history: OrderStatusHistory) {
 
@@ -34,6 +36,8 @@ data class Order(val detail: OrderDetail, val history: OrderStatusHistory) {
     val placedAt get() = detail.placement.placedAt
 
     val addresses get() = detail.placement.addresses
+
+    val termsOfSale get() = detail.placement.checkout.termsOfSale
 
     val lines get() = detail.bill.lines
 
@@ -134,13 +138,17 @@ data class OrderPlacement(val stamp: OrderStamp, val checkout: Checkout) {
 // The id of a new order (chosen by the caller, which can then read the order) and the date it is placed
 data class OrderStamp(val orderId: OrderId, val placedAt: Instant)
 
-// What the customer chooses when checking out: who orders, where the order is delivered and billed, and how it
-// is shipped
-data class Checkout(val customer: CartOwner.Customer, val delivery: OrderDelivery) {
+// What the customer chooses when checking out: who orders, where the order is delivered and billed, how it is
+// shipped, and the terms of sale they accept
+data class Checkout(
+    val customer: CartOwner.Customer,
+    val delivery: OrderDelivery,
+    val termsOfSale: TermsOfSaleAcceptance
+) {
 
     // Shipped the standard way
-    constructor(customer: CartOwner.Customer, addresses: OrderAddresses) :
-        this(customer, OrderDelivery(addresses, ShippingMethod.STANDARD))
+    constructor(customer: CartOwner.Customer, addresses: OrderAddresses, termsOfSale: TermsOfSaleAcceptance) :
+        this(customer, OrderDelivery(addresses, ShippingMethod.STANDARD), termsOfSale)
 
     val addresses get() = delivery.addresses
 }
@@ -157,6 +165,25 @@ data class OrderAddresses(val delivery: PostalAddress, val billing: PostalAddres
     companion object {
         fun sameFor(address: PostalAddress) = OrderAddresses(address, address)
     }
+}
+
+// The terms of sale the customer accepted to place an order: the version they read. The orders placed before
+// the customers accepted the terms of sale have none
+sealed interface TermsOfSaleAcceptance {
+
+    // The version accepted is no longer the current one of the shop
+    fun isOutdatedComparedTo(currentTermsOfSale: LegalPageId): Boolean
+}
+
+data class AcceptedTermsOfSale(val termsOfSaleId: LegalPageId) : TermsOfSaleAcceptance {
+
+    override fun isOutdatedComparedTo(currentTermsOfSale: LegalPageId) = termsOfSaleId != currentTermsOfSale
+}
+
+data object NoTermsOfSaleAccepted : TermsOfSaleAcceptance {
+
+    // Nothing accepted: nothing is outdated, the order is refused for lack of acceptance
+    override fun isOutdatedComparedTo(currentTermsOfSale: LegalPageId) = false
 }
 
 data class OrderId(val value: String) {
@@ -400,4 +427,7 @@ data class OrderStatusAdvanceFailed(override val errorMessage: ErrorMessage) : N
 data class OrderNotRefundableException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class OrderRefundFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class OrderNotFoundException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class TermsOfSaleNotAcceptedException(override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
+data class OutdatedTermsOfSaleException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class OrderPlacementFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

@@ -320,12 +320,19 @@ export default {
       sameAsDelivery: 'Same as the delivery address',
       otherAddress: 'Another address',
       placeOrder: 'Order and pay',
+      termsOfSale: {
+        accept: 'I have read and I accept the terms of sale',
+        read: 'Read the terms of sale',
+        loadError: 'The terms of sale could not be loaded. Please reload the page to order.',
+      },
       errors: {
         emptyCart: 'Your cart is empty.',
         refused: 'Your account does not allow ordering (suspended, locked or disabled). Contact the shop.',
         incompleteAddress: 'Complete the delivery address and the billing address.',
         invalidRequest: 'The shop refused the order: {reason}',
         outOfStock: 'A product of your cart no longer has enough units in stock: change its quantity.',
+        termsOfSaleNotAccepted: 'Accept the terms of sale to order.',
+        outdatedTermsOfSale: 'The terms of sale have just changed: read them again, then accept them to order.',
         discountCodeRefused: 'Your discount code can no longer be used: remove it to order.',
         error: 'The order could not be placed. Please try again.',
       },
@@ -996,6 +1003,11 @@ export default {
       sameAsDelivery: "Identique à l'adresse de livraison",
       otherAddress: 'Une autre adresse',
       placeOrder: 'Commander et payer',
+      termsOfSale: {
+        accept: "J'ai lu et j'accepte les conditions générales de vente",
+        read: 'Lire les conditions générales de vente',
+        loadError: "Les conditions générales de vente n'ont pas pu être chargées. Rechargez la page pour commander.",
+      },
       errors: {
         emptyCart: 'Votre panier est vide.',
         refused:
@@ -1003,6 +1015,9 @@ export default {
         incompleteAddress: "Complétez l'adresse de livraison et l'adresse de facturation.",
         invalidRequest: 'La boutique a refusé la commande : {reason}',
         outOfStock: "Un produit de votre panier n'a plus assez d'unités en stock : modifiez sa quantité.",
+        termsOfSaleNotAccepted: 'Acceptez les conditions générales de vente pour commander.',
+        outdatedTermsOfSale:
+          'Les conditions générales de vente viennent de changer : relisez-les, puis acceptez-les pour commander.',
         discountCodeRefused: "Votre code promo n'est plus utilisable : retirez-le pour commander.",
         error: "La commande n'a pas pu être passée. Veuillez réessayer.",
       },

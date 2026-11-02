@@ -27,7 +27,7 @@ class SalesDashboardTest : WithAssertions {
     private fun order(placedAt: String, status: OrderStatus, product: DefinedProduct, quantity: Int): Order {
         val cart = Cart(customer).add(product, Quantity(quantity))
         val stamp = OrderStamp(OrderId.nextId(), Instant.parse(placedAt))
-        val placement = OrderPlacement(stamp, Checkout(customer, homeOrderAddresses))
+        val placement = OrderPlacement(stamp, Checkout(customer, homeOrderAddresses, acceptedTermsOfSale))
         return Order.place(placement, cart).withStatus(status)
     }
 
