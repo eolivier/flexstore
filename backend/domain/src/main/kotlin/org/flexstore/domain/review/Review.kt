@@ -104,6 +104,14 @@ data class ProductOpinion(val productId: ProductId, val opinion: Opinion)
 // A review to write: by a customer, whose name is read when the review is written
 data class ReviewDraft(val customer: UserId.ValidUserId, val productOpinion: ProductOpinion)
 
+// Whether a customer may review a product: they did not review it yet, and bought (and paid for) it
+enum class ReviewEligibility {
+    CAN_REVIEW, NOT_BOUGHT, ALREADY_REVIEWED
+}
+
+// May this customer review this product?
+data class ReviewEligibilityQuestion(val customer: UserId.ValidUserId, val productId: ProductId)
+
 // A review to add, with its id and the moment it is written
 data class ReviewSubmission(val stamp: ReviewStamp, val draft: ReviewDraft)
 
