@@ -53,14 +53,16 @@ class InvoiceDocumentTest : WithAssertions {
     }
 
     @Test
-    fun `the invoice should list the lines of the order, then its shipping`() {
+    fun `the invoice should list the lines of the order, then its shipping, with their price without VAT`() {
         // Act
         val invoiceDocument = documentOf(ShippingMethod.EXPRESS)
         // Assert
+        assertThat(invoiceDocument.tableHeader())
+            .isEqualTo(InvoiceRow("Désignation", "Quantité", "Prix unitaire HT", "Montant TVA", "Total TTC"))
         assertThat(invoiceDocument.tableRows()).isEqualTo(
             InvoiceRows(
-                InvoiceRow("Desk lamp", "1", "35,00 €", "35,00 €"),
-                InvoiceRow("Livraison express", "1", "9,90 €", "9,90 €")
+                InvoiceRow("Desk lamp", "1", "29,17 €", "5,83 €", "35,00 €"),
+                InvoiceRow("Livraison express", "1", "8,25 €", "1,65 €", "9,90 €")
             )
         )
     }
@@ -80,7 +82,8 @@ class InvoiceDocumentTest : WithAssertions {
         // Act
         val invoiceDocument = InvoiceDocument(invoice, invoicedSale)
         // Assert
-        assertThat(invoiceDocument.tableRows().asList()).contains(InvoiceRow("Remise FIVE", "1", "-5,00 €", "-5,00 €"))
+        assertThat(invoiceDocument.tableRows().asList())
+            .contains(InvoiceRow("Remise FIVE", "1", "-4,17 €", "-0,83 €", "-5,00 €"))
         assertThat(invoiceDocument.totals().asList().last()).isEqualTo(InvoiceRow("Total TTC", "39,90 €"))
     }
 
@@ -121,6 +124,32 @@ class InvoiceDocumentTest : WithAssertions {
                 InvoiceRow("TVA 20 %", "6,88 €"),
                 InvoiceRow("TVA 5,5 %", "1,23 €"),
                 InvoiceRow("Total TTC", "64,90 €")
+            )
+        )
+    }
+
+    @Test
+    fun `each row should give its VAT, the shipping split among the rates of the items`() {
+        // Arrange
+        val bookPricing = ProductPricing(Price(Amount(BigDecimal(20)), Currency.EUR), VatRate.REDUCED)
+        val bookText = ProductText(Name("Cook book"), Description("Recipes"))
+        val translations = ProductTranslations.inDefaultLanguage(bookText)
+        val bookId = ProductId(Identity("cook-book"))
+        val cookBook = DefinedProduct(bookId, Sku.from("BOOK"), translations, Category.BOOKS, bookPricing)
+        val delivery = OrderDelivery(homeOrderAddresses, ShippingMethod.EXPRESS)
+        val orderStamp = OrderStamp(OrderId("46555c9f-4e92"), placedAt)
+        val orderPlacement = OrderPlacement(orderStamp, Checkout(customer, delivery))
+        val cart = Cart(customer).add(deskLamp, Quantity(1)).add(cookBook, Quantity(1))
+        val order = Order.place(orderPlacement, cart)
+        val invoicedSale = InvoicedSale(AdministeredOrder(order, janeDoe), testSeller)
+        // Act
+        val invoiceDocument = InvoiceDocument(invoice, invoicedSale)
+        // Assert
+        assertThat(invoiceDocument.tableRows()).isEqualTo(
+            InvoiceRows(
+                InvoiceRow("Desk lamp", "1", "29,17 €", "5,83 €", "35,00 €"),
+                InvoiceRow("Cook book", "1", "18,96 €", "1,04 €", "20,00 €"),
+                InvoiceRow("Livraison express", "1", "8,66 €", "1,24 €", "9,90 €")
             )
         )
     }

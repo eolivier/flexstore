@@ -45,7 +45,10 @@ class OpenPdfInvoiceRendererTest {
         // Assert
         val text = PdfTextExtractor(PdfReader(invoicePdf.content)).getTextFromPage(1)
         assertTrue(String(invoicePdf.content.copyOf(5)) == "%PDF-")
-        listOf("Facture n° 2026-000042", "Flexstore SAS", "Lampe été", "Livraison express", "Total TTC", "44,90 €")
+        listOf(
+            "Facture n° 2026-000042", "Flexstore SAS", "Lampe été", "Livraison express", "Prix unitaire HT",
+            "Montant TVA", "Total TTC", "44,90 €"
+        )
             .forEach { expected -> assertTrue(text.contains(expected), "\"$expected\" not in:\n$text") }
     }
 }

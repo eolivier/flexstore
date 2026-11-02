@@ -87,23 +87,37 @@ data class InvoiceDocument(val invoice: Invoice, val sale: InvoicedSale) {
         return InvoiceLines(*lines.toTypedArray())
     }
 
-    fun tableHeader() = InvoiceRow("Désignation", "Quantité", "Prix unitaire TTC", "Total TTC")
+    fun tableHeader() = InvoiceRow("Désignation", "Quantité", "Prix unitaire HT", "Montant TVA", "Total TTC")
 
-    // The lines of the order, its discount, then its shipping
+    // The lines of the order, its discount, then its shipping: the unit price without VAT, the VAT of the row
+    // and its price with VAT. A product follows its rate of VAT; the discount and the shipping are split among
+    // the rates of the items, as the VAT of the order is
     fun tableRows(): InvoiceRows {
         val productRows = order.lines.asList().map { line ->
-            InvoiceRow(line.productName.value, "${line.quantity.value}", priceOf(line.unitPrice), priceOf(line.linePrice()))
+            val unitPriceExcludingVat = VatBreakdown(line.unitPrice, line.vatRate).priceExcludingVat()
+            val lineVat = VatBreakdown(line.linePrice(), line.vatRate).vat()
+            InvoiceRow(
+                line.productName.value, "${line.quantity.value}", priceOf(unitPriceExcludingVat), priceOf(lineVat),
+                priceOf(line.linePrice())
+            )
         }
-        val shippingCost = priceOf(order.shipping.cost)
-        val shippingRow = InvoiceRow(order.shipping.method.label().value, "1", shippingCost, shippingCost)
+        val shipping = VatOfAdjustment(order.shipping.cost, order)
+        val shippingRow = InvoiceRow(
+            order.shipping.method.label().value, "1", priceOf(shipping.priceExcludingVat()),
+            priceOf(shipping.vat()), priceOf(order.shipping.cost)
+        )
         return InvoiceRows(productRows + discountRows() + shippingRow)
     }
 
     // The discount of the order, taken off its items, if any
     private fun discountRows(): List<InvoiceRow> {
         val discount = order.discount as? AppliedOrderDiscount ?: return emptyList()
-        val amountOff = "-${priceOf(discount.amount)}"
-        return listOf(InvoiceRow(discount.label().value, "1", amountOff, amountOff))
+        val amountOff = VatOfAdjustment(discount.amount, order)
+        val row = InvoiceRow(
+            discount.label().value, "1", "-${priceOf(amountOff.priceExcludingVat())}",
+            "-${priceOf(amountOff.vat())}", "-${priceOf(discount.amount)}"
+        )
+        return listOf(row)
     }
 
     // The total without VAT, the VAT of each rate, then the total with VAT

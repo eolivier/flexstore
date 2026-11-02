@@ -20,6 +20,26 @@ data class VatBreakdown(val priceIncludingVat: Price, val rate: VatRate) {
     }
 }
 
+// A cost that comes with the items of an order (its shipping, its discount), split among the rates of VAT of the
+// items in proportion to their price, as the VAT of the order is
+data class VatOfAdjustment(val adjustment: Price, val order: Order) {
+
+    fun vat(): Price {
+        val itemsPrice = order.itemsPrice()
+        val zero = Price(Amount(BigDecimal.ZERO), adjustment.currency)
+        if (itemsPrice.isFree()) return zero
+        val soldRates = VatRate.entries.filterNot { rate -> order.lines.soldAt(rate).isEmpty() }
+        return soldRates.fold(zero) { total, rate ->
+            val ratePrice = order.lines.soldAt(rate).totalPrice()
+            val weighted = adjustment.amount.value.multiply(ratePrice.amount.value)
+            val share = weighted.divide(itemsPrice.amount.value, 2, RoundingMode.HALF_UP)
+            total + VatBreakdown(Price(Amount(share), adjustment.currency), rate).vat()
+        }
+    }
+
+    fun priceExcludingVat() = adjustment - vat()
+}
+
 // The VAT of an order, rate by rate, from the highest: the items sold at each rate, with their share of the
 // shipping and of the discount, in proportion to their price (the costs that come with a sale follow the VAT
 // of what is sold). The last rate takes what the rounding leaves, so that the rates add up to the total of the
