@@ -3,6 +3,7 @@ package org.flexstore.infra.spring.rest
 import org.flexstore.domain.legal.*
 import org.flexstore.infra.spring.security.asAdmin
 import org.flexstore.infra.spring.security.asUser
+import org.hamcrest.Matchers.containsString
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -61,11 +62,14 @@ class LegalPageIT {
     }
 
     @Test
-    fun `a visitor should read the legal notice, even before it is written`() {
+    fun `a visitor should read the standard legal notice, written with the seller of the shop`() {
         // Act
         val response = mockMvc.perform(get("/api/legal-pages/legal-notice"))
         // Assert
-        response.andExpect(status().isOk).andExpect(jsonPath("$.kind").value("LEGAL_NOTICE"))
+        response.andExpect(status().isOk)
+            .andExpect(jsonPath("$.kind").value("LEGAL_NOTICE"))
+            .andExpect(jsonPath("$.text").value(containsString("Le site est édité par Flexstore SAS.")))
+            .andExpect(jsonPath("$.text").value(containsString("Directeur de la publication")))
     }
 
     @Test
