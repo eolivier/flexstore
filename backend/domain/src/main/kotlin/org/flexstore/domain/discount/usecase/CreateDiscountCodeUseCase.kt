@@ -2,24 +2,35 @@ package org.flexstore.domain.discount.usecase
 
 import org.flexstore.domain.discount.*
 import org.flexstore.domain.sharedkernel.ErrorMessage
+import org.flexstore.domain.user.UserRepository
 import org.ucop.domain.entity.*
 
 // An administrator gives a new discount code: well formed, with a valid reduction and usage limit, and a code
 // that no other discount code has
 class CreateDiscountCodeUseCase(
-    private val discountCodeRepository: DiscountCodeRepository
-) : UseCase<DiscountCode> {
+    private val discountCodeRepository: DiscountCodeRepository,
+    private val userRepository: UserRepository
+) : UseCase<DiscountCodeCreation> {
 
-    override fun getPreConditions(): PreConditions<DiscountCode> =
-        PreConditions(discountCodeIsValidCondition(), codeIsFreeCondition())
+    override fun getPreConditions(): PreConditions<DiscountCodeCreation> =
+        PreConditions(creatorIsAdministratorCondition(), discountCodeIsValidCondition(), codeIsFreeCondition())
 
-    override fun getNominalScenario(): NominalScenario<DiscountCode> =
-        NominalScenario(Step { discountCode -> discountCodeRepository.save(discountCode) })
+    override fun getNominalScenario(): NominalScenario<DiscountCodeCreation> =
+        NominalScenario(Step { creation -> discountCodeRepository.save(creation.discountCode) })
 
-    override fun getPostConditions(): PostConditions<DiscountCode> =
+    override fun getPostConditions(): PostConditions<DiscountCodeCreation> =
         PostConditions(discountCodeIsStoredCondition())
 
-    private fun discountCodeIsValidCondition() = PreCondition<DiscountCode> { discountCode ->
+    // The creator must be an existing user with the ADMIN role (read from the users, not from the request)
+    private fun creatorIsAdministratorCondition() = PreCondition<DiscountCodeCreation> { creation ->
+        if (userRepository.isNotAdministrator(creation.creator)) {
+            throw DiscountCodeAdministrationForbiddenException(
+                ErrorMessage("Only an administrator can give a discount code.")
+            )
+        }
+    }
+
+    private fun discountCodeIsValidCondition() = PreCondition<DiscountCodeCreation> { (_, discountCode) ->
         val validity = discountCode.offer.validity
         val reason = when {
             discountCode.code.isMalformed() -> "its code is upper-case letters and digits, 3 to 30"
@@ -32,14 +43,14 @@ class CreateDiscountCodeUseCase(
         }
     }
 
-    private fun codeIsFreeCondition() = PreCondition<DiscountCode> { discountCode ->
+    private fun codeIsFreeCondition() = PreCondition<DiscountCodeCreation> { (_, discountCode) ->
         if (discountCodeRepository.codeExists(discountCode.code)) {
             val message = ErrorMessage("The discount code ${discountCode.code.value} already exists.")
             throw DiscountCodeAlreadyExistsException(message)
         }
     }
 
-    private fun discountCodeIsStoredCondition() = PostCondition<DiscountCode> { discountCode ->
+    private fun discountCodeIsStoredCondition() = PostCondition<DiscountCodeCreation> { (_, discountCode) ->
         if (discountCodeRepository.codeIsMissing(discountCode.code)) {
             val message = ErrorMessage("The discount code ${discountCode.code.value} was not stored.")
             throw DiscountCodeCreationFailed(message)

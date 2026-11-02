@@ -33,11 +33,10 @@ open class ServiceConfig {
         InvoiceService(invoiceUseCases, readAdministeredOrderUseCase)
 
     @Bean
-    open fun shopSettingsAdministrationService(readShopSettingsUseCase: ReadShopSettingsUseCase,
-                                        updateShopSettingsUseCase: UpdateShopSettingsUseCase):
-        ShopSettingsAdministrationService {
-        return ShopSettingsAdministrationService(readShopSettingsUseCase, updateShopSettingsUseCase)
-    }
+    open fun shopSettingsAdministrationService(
+        readAdministeredShopSettingsUseCase: ReadAdministeredShopSettingsUseCase,
+        updateShopSettingsUseCase: UpdateShopSettingsUseCase
+    ) = ShopSettingsAdministrationService(readAdministeredShopSettingsUseCase, updateShopSettingsUseCase)
 
     @Bean
     open fun orderCheckoutService(orderPlacementUseCases: OrderPlacementUseCases,

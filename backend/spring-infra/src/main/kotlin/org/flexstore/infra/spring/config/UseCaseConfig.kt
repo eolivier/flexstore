@@ -108,10 +108,14 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     }
 
     @Bean
-    open fun updateShopSettingsUseCase(shopSettingsRepository: ShopSettingsRepository):
-        UpdateShopSettingsUseCase {
-        return UpdateShopSettingsUseCase(shopSettingsRepository)
-    }
+    open fun readAdministeredShopSettingsUseCase(shopSettingsRepository: ShopSettingsRepository,
+                                                 userRepository: UserRepository) =
+        ReadAdministeredShopSettingsUseCase(shopSettingsRepository, userRepository)
+
+    @Bean
+    open fun updateShopSettingsUseCase(shopSettingsRepository: ShopSettingsRepository,
+                                       userRepository: UserRepository) =
+        UpdateShopSettingsUseCase(shopSettingsRepository, userRepository)
 
     @Bean
     open fun keepOrderAddressesUseCase(userRepository: UserRepository) =
@@ -381,11 +385,12 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     open fun readSellerUseCase(sellerRepository: SellerRepository) = ReadSellerUseCase(sellerRepository)
 
     @Bean
-    open fun readCurrentSellerUseCase(sellerRepository: SellerRepository) =
-        ReadCurrentSellerUseCase(sellerRepository)
+    open fun readCurrentSellerUseCase(sellerRepository: SellerRepository, userRepository: UserRepository) =
+        ReadCurrentSellerUseCase(sellerRepository, userRepository)
 
     @Bean
-    open fun updateSellerUseCase(sellerRepository: SellerRepository) = UpdateSellerUseCase(sellerRepository)
+    open fun updateSellerUseCase(sellerRepository: SellerRepository, userRepository: UserRepository) =
+        UpdateSellerUseCase(sellerRepository, userRepository)
 
     @Bean
     open fun sellerUseCases(readCurrentSellerUseCase: ReadCurrentSellerUseCase,
@@ -416,16 +421,19 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         InvoiceUseCases(readInvoiceUseCase, readCreditNoteUseCase, readSellerUseCase, renderInvoiceUseCase)
 
     @Bean
-    open fun createDiscountCodeUseCase(discountCodeRepository: DiscountCodeRepository) =
-        CreateDiscountCodeUseCase(discountCodeRepository)
+    open fun createDiscountCodeUseCase(discountCodeRepository: DiscountCodeRepository,
+                                       userRepository: UserRepository) =
+        CreateDiscountCodeUseCase(discountCodeRepository, userRepository)
 
     @Bean
-    open fun listDiscountCodesUseCase(discountCodeRepository: DiscountCodeRepository) =
-        ListDiscountCodesUseCase(discountCodeRepository)
+    open fun listDiscountCodesUseCase(discountCodeRepository: DiscountCodeRepository,
+                                      userRepository: UserRepository) =
+        ListDiscountCodesUseCase(discountCodeRepository, userRepository)
 
     @Bean
-    open fun deleteDiscountCodeUseCase(discountCodeRepository: DiscountCodeRepository) =
-        DeleteDiscountCodeUseCase(discountCodeRepository)
+    open fun deleteDiscountCodeUseCase(discountCodeRepository: DiscountCodeRepository,
+                                       userRepository: UserRepository) =
+        DeleteDiscountCodeUseCase(discountCodeRepository, userRepository)
 
     @Bean
     open fun readUsableDiscountCodeUseCase(discountCodeRepository: DiscountCodeRepository) =

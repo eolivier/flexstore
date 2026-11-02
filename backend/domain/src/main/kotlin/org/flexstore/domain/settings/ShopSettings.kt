@@ -6,6 +6,7 @@ import java.math.BigDecimal
 import org.ucop.domain.NominalException
 import org.flexstore.domain.sharedkernel.ErrorMessage
 import java.time.Duration
+import org.flexstore.domain.user.model.UserId
 
 enum class Activation { ENABLED, DISABLED }
 
@@ -74,6 +75,14 @@ data class ShopSettings(val orderConfirmationEmail: Activation, val orderRules: 
     }
 }
 
+// An administrator who changes the settings of the shop
+data class ShopSettingsUpdate(val editor: UserId, val settings: ShopSettings)
+
+// An administrator who reads the settings of the shop, to change them
+data class ShopSettingsReading(val reader: UserId)
+
+data class ShopSettingsAdministrationForbiddenException(override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
 data class InvalidFreeShippingThresholdException(override val errorMessage: ErrorMessage) :
     NominalException(errorMessage)
 data class InvalidPaymentDelayException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
