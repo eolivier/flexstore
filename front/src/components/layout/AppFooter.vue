@@ -1,6 +1,6 @@
 <script setup>
   import { useI18n } from 'vue-i18n';
-  import { shopLinks } from '../menu/navigation';
+  import { legalLinks, shopLinks } from '../menu/navigation';
   import { useAuthStore } from '@/stores/auth.store';
 
   const { t } = useI18n();
@@ -37,6 +37,14 @@
           <router-link to="/about" class="footer-link d-block text-body-2 mb-1">{{
             t('nav.about')
           }}</router-link>
+          <router-link
+            v-for="link in legalLinks"
+            :key="link.to"
+            :to="link.to"
+            class="footer-link d-block text-body-2 mb-1"
+          >
+            {{ t(link.label) }}
+          </router-link>
           <template v-if="authStore.isAuthenticated">
             <router-link to="/orders" class="footer-link d-block text-body-2 mb-1">{{
               t('nav.orders')

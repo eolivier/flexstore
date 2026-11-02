@@ -15,6 +15,7 @@ All URIs are relative to *http://localhost:8080*
 |[**getSalesDashboard**](#getsalesdashboard) | **GET** /api/admin/sales-dashboard | Retrieve the revenue, the orders per day and the best sellers of the last 7, 30 or 90 days (ADMIN role)|
 |[**getSeller**](#getseller) | **GET** /api/admin/seller | Retrieve the seller written on the next invoices (ADMIN role)|
 |[**proposeSku**](#proposesku) | **GET** /api/admin/products/sku-proposal | Propose a SKU free in the catalog, from the category and the name of a product (ADMIN role)|
+|[**publishLegalPage**](#publishlegalpage) | **PUT** /api/admin/legal-pages/{kind} | Publish a new version of a legal page; the versions before are kept (ADMIN role)|
 |[**refundOrder**](#refundorder) | **POST** /api/admin/orders/{id}/refund | Cancel a paid order before it is shipped, refund its payment and put its units back in stock (ADMIN role)|
 |[**updateSeller**](#updateseller) | **PUT** /api/admin/seller | Change the seller written on the next invoices; the invoices issued keep theirs (ADMIN role)|
 
@@ -567,6 +568,63 @@ const { status, data } = await apiInstance.proposeSku(
 |-------------|-------------|------------------|
 |**200** | The SKU proposed |  -  |
 |**403** | The signed-in user is not an administrator |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **publishLegalPage**
+> JsonLegalPage publishLegalPage(jsonLegalText)
+
+
+### Example
+
+```typescript
+import {
+    AdministrationApi,
+    Configuration,
+    JsonLegalText
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdministrationApi(configuration);
+
+let kind: 'legal-notice' | 'terms-of-sale'; //The legal notice or the terms of sale (default to undefined)
+let jsonLegalText: JsonLegalText; //
+
+const { status, data } = await apiInstance.publishLegalPage(
+    kind,
+    jsonLegalText
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **jsonLegalText** | **JsonLegalText**|  | |
+| **kind** | [**&#39;legal-notice&#39; | &#39;terms-of-sale&#39;**]**Array<&#39;legal-notice&#39; &#124; &#39;terms-of-sale&#39;>** | The legal notice or the terms of sale | defaults to undefined|
+
+
+### Return type
+
+**JsonLegalPage**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The page, now current |  -  |
+|**400** | An empty text, or a text of more than 50 000 characters |  -  |
+|**403** | Not an administrator |  -  |
+|**404** | No such legal page |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

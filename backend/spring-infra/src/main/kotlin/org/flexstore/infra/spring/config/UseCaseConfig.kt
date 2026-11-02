@@ -15,6 +15,8 @@ import org.flexstore.domain.product.*
 import org.flexstore.domain.settings.*
 import org.flexstore.domain.image.*
 import org.flexstore.domain.image.usecase.*
+import org.flexstore.domain.legal.*
+import org.flexstore.domain.legal.usecase.*
 import org.flexstore.domain.review.*
 import org.flexstore.domain.review.usecase.*
 import org.flexstore.domain.sales.usecase.*
@@ -351,6 +353,19 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     open fun sellerUseCases(readCurrentSellerUseCase: ReadCurrentSellerUseCase,
                             updateSellerUseCase: UpdateSellerUseCase) =
         SellerUseCases(readCurrentSellerUseCase, updateSellerUseCase)
+
+    @Bean
+    open fun readLegalPageUseCase(legalPageRepository: LegalPageRepository) =
+        ReadLegalPageUseCase(legalPageRepository)
+
+    @Bean
+    open fun publishLegalPageUseCase(legalPageRepository: LegalPageRepository) =
+        PublishLegalPageUseCase(legalPageRepository)
+
+    @Bean
+    open fun legalPageUseCases(readLegalPageUseCase: ReadLegalPageUseCase,
+                               publishLegalPageUseCase: PublishLegalPageUseCase) =
+        LegalPageUseCases(readLegalPageUseCase, publishLegalPageUseCase)
 
     @Bean
     open fun renderInvoiceUseCase(invoiceRenderer: InvoiceRenderer) = RenderInvoiceUseCase(invoiceRenderer)

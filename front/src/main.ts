@@ -28,6 +28,8 @@ import AddressBook from './components/account/addresses/AddressBook.vue';
 import ShopSettings from './components/admin/settings/ShopSettings.vue';
 import SalesDashboard from './components/admin/sales/SalesDashboard.vue';
 import SellerSettings from './components/admin/seller/SellerSettings.vue';
+import AdminLegalPages from './components/admin/legal/AdminLegalPages.vue';
+import LegalPage from './components/legal/LegalPage.vue';
 import AdminDiscountCodes from './components/admin/discounts/AdminDiscountCodes.vue';
 import Login from './components/Login.vue';
 import SignUp from './components/account/SignUp.vue';
@@ -119,11 +121,18 @@ const routes = [
     meta: { requiresAuth: true, requiresAdmin: true },
   },
   {
+    path: '/admin/legal-pages',
+    component: AdminLegalPages,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  {
     path: '/admin/settings',
     component: ShopSettings,
     meta: { requiresAuth: true, requiresAdmin: true },
   },
   { path: '/about', component: About },
+  { path: '/legal-notice', component: LegalPage, props: { kind: 'legal-notice' } },
+  { path: '/terms-of-sale', component: LegalPage, props: { kind: 'terms-of-sale' } },
 ];
 const router = createRouter({
   history: createWebHistory(),

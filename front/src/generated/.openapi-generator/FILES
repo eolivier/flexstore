@@ -26,6 +26,8 @@ docs/JsonDiscountCode.md
 docs/JsonDiscountPreview.md
 docs/JsonEmailVerification.md
 docs/JsonItem.md
+docs/JsonLegalPage.md
+docs/JsonLegalText.md
 docs/JsonLoginRequest.md
 docs/JsonLoginResponse.md
 docs/JsonNewDiscountCode.md
@@ -56,6 +58,7 @@ docs/JsonStockQuantity.md
 docs/JsonUser.md
 docs/JsonUserCreate.md
 docs/JsonUserUpdate.md
+docs/LegalPagesApi.md
 docs/OrdersApi.md
 docs/PaymentsApi.md
 docs/ProductImagesApi.md

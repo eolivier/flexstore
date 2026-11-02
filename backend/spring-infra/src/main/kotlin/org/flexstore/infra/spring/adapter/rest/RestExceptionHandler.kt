@@ -7,6 +7,7 @@ import org.flexstore.domain.order.*
 import org.flexstore.domain.payment.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.image.*
+import org.flexstore.domain.legal.*
 import org.flexstore.domain.review.*
 import org.flexstore.domain.sales.*
 import org.flexstore.domain.seller.*
@@ -101,6 +102,9 @@ class RestExceptionHandler {
             is InvalidSellerException -> ResponseEntity
                 .status(400)
                 .body(mapOf("error" to (ex.message ?: "Invalid seller")))
+            is InvalidLegalPageException -> ResponseEntity
+                .status(400)
+                .body(mapOf("error" to (ex.message ?: "Invalid legal page")))
             is InvalidPaymentDelayException -> ResponseEntity
                 .status(400)
                 .body(mapOf("error" to (ex.message ?: "Invalid payment delay")))
