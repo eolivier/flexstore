@@ -1540,6 +1540,9 @@ components:
         - phone
         - email
         - website
+        - legalForm
+        - shareCapital
+        - registryCity
       properties:
         name:
           type: string
@@ -1565,6 +1568,18 @@ components:
           type: string
           description: With or without its scheme
           example: www.flexstore.fr
+        legalForm:
+          type: string
+          description: SAS, SARL, EURL...; empty in the versions written before it was asked
+          example: SAS
+        shareCapital:
+          type: string
+          description: In euros, digits maybe grouped by spaces; empty in the versions written before it was asked
+          example: 10 000
+        registryCity:
+          type: string
+          description: The city of the trade and companies register (RCS); empty in the versions written before it was asked
+          example: Paris
     JsonUser:
       type: object
       properties:

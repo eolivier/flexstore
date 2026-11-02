@@ -77,19 +77,26 @@ data class InvoiceDocument(val invoice: Invoice, val sale: InvoicedSale) : Billi
         "Commande n° ${order.number()} du ${DATE_FORMAT.format(order.placedAt)}"
     )
 
-    // Who sells, how to reach it (what its version of the seller gives), and how it is registered
+    // Who sells, how it is incorporated, how to reach it (what its version of the seller gives), and how it is
+    // registered
     override fun seller(): InvoiceLines {
-        val (contact, identifier, reach) = sale.seller.detail
+        val (contact, identifier, reach, incorporation) = sale.seller.detail
+        val givenIncorporation = incorporation.takeIf { it.isValid() }
+        val incorporationLines = listOfNotNull(
+            givenIncorporation?.let { "${it.legalForm.value} au capital de ${it.shareCapital.value} €" }
+        )
         val reachLines = listOfNotNull(
             reach.phone.takeIf { it.isGiven() }?.let { "Tél. : ${it.value}" },
             reach.email.takeIf { it.isGiven() }?.let { "Email : ${it.value}" },
             reach.website.takeIf { it.isGiven() }?.let { "Site : ${it.value}" }
         )
-        val identifierLines = listOf(
+        val identifierLines = listOfNotNull(
             "SIRET : ${identifier.siret.value}",
+            givenIncorporation?.let { "RCS ${it.registryCity.value} ${identifier.siret.siren().value}" },
             "TVA intracommunautaire : ${identifier.vatNumber.value}"
         )
-        val lines = listOf(contact.name.value, contact.address.value) + reachLines + identifierLines
+        val lines = listOf(contact.name.value) + incorporationLines + contact.address.value + reachLines +
+            identifierLines
         return InvoiceLines(*lines.toTypedArray())
     }
 
@@ -151,10 +158,24 @@ data class InvoiceDocument(val invoice: Invoice, val sale: InvoicedSale) : Billi
         return InvoiceRows(listOf(totalExcludingVat) + vatRows + totalIncludingVat)
     }
 
-    override fun footer() = InvoiceLines(
-        "Facture acquittée : la commande a été payée en ligne.",
-        "Prix en euros, TVA française comprise."
-    )
+    // Paid when ordered, on the day of the invoice; a company also reads the terms of a late payment, written on
+    // every invoice between professionals
+    override fun footer(): InvoiceLines {
+        val paymentLines = listOf(
+            "Facture acquittée le ${DATE_FORMAT.format(invoice.issuedAt.value)} : la commande a été payée en ligne.",
+            "Prix en euros, TVA française comprise."
+        )
+        val lines = paymentLines + professionalTermsOf(order.addresses.billing.recipient)
+        return InvoiceLines(*lines.toTypedArray())
+    }
+
+    private fun professionalTermsOf(recipient: Recipient) = when (recipient) {
+        is LegalEntity -> listOf(
+            "Pas d'escompte pour paiement anticipé.",
+            "En cas de retard de paiement : pénalités au taux d'intérêt légal multiplié par trois, et indemnité forfaitaire de 40 € pour frais de recouvrement."
+        )
+        is PrivateIndividual -> emptyList()
+    }
 
     private fun priceOf(price: Price) = price.formattedIn(FRENCH)
 

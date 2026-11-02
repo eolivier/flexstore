@@ -690,6 +690,18 @@ export interface JsonSeller {
      * With or without its scheme
      */
     'website': string;
+    /**
+     * SAS, SARL, EURL...; empty in the versions written before it was asked
+     */
+    'legalForm': string;
+    /**
+     * In euros, digits maybe grouped by spaces; empty in the versions written before it was asked
+     */
+    'shareCapital': string;
+    /**
+     * The city of the trade and companies register (RCS); empty in the versions written before it was asked
+     */
+    'registryCity': string;
 }
 export interface JsonShippingOption {
     'method': JsonShippingOptionMethodEnum;

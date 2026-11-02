@@ -15,7 +15,6 @@ class SellerUseCasesTest : WithAssertions {
     private val sellerUseCases = SellerUseCases(readCurrentSellerUseCase, UpdateSellerUseCase(sellerRepository))
     private val contact = testSellerDetail.contact
     private val identifier = testSellerDetail.identifier
-    private val reach = testSellerDetail.reach
 
     @Test
     fun `an administrator should read the current seller`() {
@@ -29,7 +28,7 @@ class SellerUseCasesTest : WithAssertions {
     fun `the edited seller should become the current seller, as a new version`() {
         // Arrange
         val renamedContact = SellerContact(SellerName("Flexstore Group"), contact.address)
-        val sellerDetail = SellerDetail(renamedContact, identifier, reach)
+        val sellerDetail = testSellerDetail.copy(contact = renamedContact)
         // Act
         val updatedSeller = sellerUseCases.update(sellerDetail)
         // Assert
@@ -42,7 +41,7 @@ class SellerUseCasesTest : WithAssertions {
     @ValueSource(strings = ["", "   "])
     fun `a seller without name should be refused`(name: String) {
         // Arrange
-        val sellerDetail = SellerDetail(SellerContact(SellerName(name), contact.address), identifier, reach)
+        val sellerDetail = testSellerDetail.copy(contact = SellerContact(SellerName(name), contact.address))
         // Act
         val thrown = catchThrowable { sellerUseCases.update(sellerDetail) }
         // Assert
@@ -53,7 +52,7 @@ class SellerUseCasesTest : WithAssertions {
     @Test
     fun `a seller without address should be refused`() {
         // Arrange
-        val sellerDetail = SellerDetail(SellerContact(contact.name, SellerAddress(" ")), identifier, reach)
+        val sellerDetail = testSellerDetail.copy(contact = SellerContact(contact.name, SellerAddress(" ")))
         // Act
         val thrown = catchThrowable { sellerUseCases.update(sellerDetail) }
         // Assert
@@ -64,7 +63,8 @@ class SellerUseCasesTest : WithAssertions {
     @ValueSource(strings = ["12345678900012", "123 456 789 00012"])
     fun `a SIRET of 14 digits should be accepted, grouped by spaces or not`(siret: String) {
         // Arrange
-        val sellerDetail = SellerDetail(contact, SellerIdentifier(Siret(siret), identifier.vatNumber), reach)
+        val sellerIdentifier = SellerIdentifier(Siret(siret), identifier.vatNumber)
+        val sellerDetail = testSellerDetail.copy(identifier = sellerIdentifier)
         // Act
         val updatedSeller = sellerUseCases.update(sellerDetail)
         // Assert
@@ -75,7 +75,8 @@ class SellerUseCasesTest : WithAssertions {
     @ValueSource(strings = ["", "1234567890001", "123456789000123", "1234567890001A"])
     fun `a SIRET that is not 14 digits should be refused`(siret: String) {
         // Arrange
-        val sellerDetail = SellerDetail(contact, SellerIdentifier(Siret(siret), identifier.vatNumber), reach)
+        val sellerIdentifier = SellerIdentifier(Siret(siret), identifier.vatNumber)
+        val sellerDetail = testSellerDetail.copy(identifier = sellerIdentifier)
         // Act
         val thrown = catchThrowable { sellerUseCases.update(sellerDetail) }
         // Assert
@@ -87,7 +88,7 @@ class SellerUseCasesTest : WithAssertions {
     fun `a VAT number of a country then 2 to 13 digits or letters should be accepted`(vatNumber: String) {
         // Arrange
         val sellerIdentifier = SellerIdentifier(identifier.siret, SellerVatNumber(vatNumber))
-        val sellerDetail = SellerDetail(contact, sellerIdentifier, reach)
+        val sellerDetail = testSellerDetail.copy(identifier = sellerIdentifier)
         // Act
         val updatedSeller = sellerUseCases.update(sellerDetail)
         // Assert
@@ -99,7 +100,7 @@ class SellerUseCasesTest : WithAssertions {
     fun `a VAT number that is not well formed should be refused`(vatNumber: String) {
         // Arrange
         val sellerIdentifier = SellerIdentifier(identifier.siret, SellerVatNumber(vatNumber))
-        val sellerDetail = SellerDetail(contact, sellerIdentifier, reach)
+        val sellerDetail = testSellerDetail.copy(identifier = sellerIdentifier)
         // Act
         val thrown = catchThrowable { sellerUseCases.update(sellerDetail) }
         // Assert
@@ -135,5 +136,22 @@ class SellerUseCasesTest : WithAssertions {
         val updatedSeller = sellerUseCases.update(testSellerDetail.copy(reach = sellerReach))
         // Assert
         assertThat(updatedSeller.detail.reach).isEqualTo(sellerReach)
+    }
+
+    @ParameterizedTest(name = "the legal form \"{0}\", the share capital \"{1}\" and the city \"{2}\" are refused")
+    @CsvSource("'', 10 000, Paris", "SAS, '', Paris", "SAS, dix mille, Paris", "SAS, 10 000, ''")
+    fun `a seller without its legal form, a share capital in euros and its register should be refused`(
+        legalForm: String, shareCapital: String, registryCity: String
+    ) {
+        // Arrange
+        val sellerLegalForm = SellerLegalForm(legalForm)
+        val sellerIncorporation =
+            SellerIncorporation(sellerLegalForm, ShareCapital(shareCapital), RegistryCity(registryCity))
+        // Act
+        val thrown = catchThrowable {
+            sellerUseCases.update(testSellerDetail.copy(incorporation = sellerIncorporation))
+        }
+        // Assert
+        assertThat(thrown).isInstanceOf(InvalidSellerException::class.java)
     }
 }

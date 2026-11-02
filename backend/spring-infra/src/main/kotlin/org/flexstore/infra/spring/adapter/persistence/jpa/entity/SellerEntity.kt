@@ -32,5 +32,15 @@ data class SellerEntity(
     val email: String?,
 
     @Column(updatable = false)
-    val website: String?
+    val website: String?,
+
+    // How the seller is incorporated: null in the versions written before it was asked
+    @Column(name = "legal_form", updatable = false)
+    val legalForm: String?,
+
+    @Column(name = "share_capital", updatable = false)
+    val shareCapital: String?,
+
+    @Column(name = "registry_city", updatable = false)
+    val registryCity: String?
 ) : TimestampedEntity()

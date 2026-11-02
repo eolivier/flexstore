@@ -23,3 +23,8 @@ export function isEmail(email: string) {
 export function isWebsite(website: string) {
   return /^(https?:\/\/)?[^\s/.]+(\.[^\s/.]+)+(\/\S*)?$/.test(website.trim());
 }
+
+// In euros, digits maybe grouped by spaces: 10 000
+export function isShareCapital(shareCapital: string) {
+  return /^[0-9][0-9 ]*$/.test(shareCapital.trim());
+}

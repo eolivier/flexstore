@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isEmail, isPhone, isSiret, isVatNumber, isWebsite } from './sellerRules';
+import { isEmail, isPhone, isShareCapital, isSiret, isVatNumber, isWebsite } from './sellerRules';
 
 describe('sellerRules', () => {
   it.each(['12345678900012', '123 456 789 00012'])('the SIRET "%s" is accepted', (siret) => {
@@ -52,5 +52,19 @@ describe('sellerRules', () => {
     const accepted = rule(value);
     // Assert
     expect(accepted).toBe(expected);
+  });
+
+  it.each(['10000', '10 000', '1'])('the share capital "%s" is accepted', (shareCapital) => {
+    // Act
+    const accepted = isShareCapital(shareCapital);
+    // Assert
+    expect(accepted).toBe(true);
+  });
+
+  it.each(['', 'dix mille', '10 000 €', '-5'])('the share capital "%s" is refused', (shareCapital) => {
+    // Act
+    const accepted = isShareCapital(shareCapital);
+    // Assert
+    expect(accepted).toBe(false);
   });
 });
