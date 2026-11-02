@@ -52,5 +52,7 @@ data class LegalPage(
 // An administrator publishes a legal page: the publisher is the authenticated user who asks for it
 data class LegalPagePublication(val publisher: UserId, val legalPage: LegalPage)
 
+data class LegalPagePublicationForbiddenException(override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
 data class InvalidLegalPageException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class LegalPagePublicationFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

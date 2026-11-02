@@ -3,7 +3,6 @@ package org.flexstore.domain.legal.usecase
 import org.flexstore.domain.legal.*
 import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.sharedkernel.InstantProvider
-import org.flexstore.domain.user.ActorIsNotAdministratorException
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.model.User.DefinedUser
 import org.flexstore.domain.user.model.UserId.ValidUserId
@@ -94,7 +93,7 @@ class LegalPageUseCasesTest : WithAssertions {
             legalPageUseCases.publish(customer.id, LegalPageKind.TERMS_OF_SALE, LegalText("Article 1 - Autre"))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(ActorIsNotAdministratorException::class.java)
+        assertThat(thrown).isInstanceOf(LegalPagePublicationForbiddenException::class.java)
         assertThat(legalPageUseCases.legalPage(LegalPageKind.TERMS_OF_SALE)).isEqualTo(writtenTermsOfSale)
     }
 
@@ -105,7 +104,7 @@ class LegalPageUseCasesTest : WithAssertions {
             legalPageUseCases.publish(ValidUserId("unknown"), LegalPageKind.LEGAL_NOTICE, LegalText("Mentions"))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(ActorIsNotAdministratorException::class.java)
+        assertThat(thrown).isInstanceOf(LegalPagePublicationForbiddenException::class.java)
     }
 
     @ParameterizedTest(name = "the text \"{0}\" is refused")

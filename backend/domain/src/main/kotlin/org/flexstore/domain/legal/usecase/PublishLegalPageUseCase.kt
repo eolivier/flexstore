@@ -2,7 +2,6 @@ package org.flexstore.domain.legal.usecase
 
 import org.flexstore.domain.legal.*
 import org.flexstore.domain.sharedkernel.ErrorMessage
-import org.flexstore.domain.user.IsAdministratorPreCondition
 import org.flexstore.domain.user.UserRepository
 import org.ucop.domain.entity.*
 
@@ -22,8 +21,14 @@ class PublishLegalPageUseCase(
     override fun getPostConditions(): PostConditions<LegalPagePublication> =
         PostConditions(legalPageIsCurrentCondition())
 
-    private fun publisherIsAdministratorCondition() =
-        IsAdministratorPreCondition<LegalPagePublication>(userRepository) { it.publisher }
+    // The publisher must be an existing user with the ADMIN role (read from the users, not from the request)
+    private fun publisherIsAdministratorCondition() = PreCondition<LegalPagePublication> { publication ->
+        if (userRepository.isNotAdministrator(publication.publisher)) {
+            throw LegalPagePublicationForbiddenException(
+                ErrorMessage("Only an administrator can publish a legal page.")
+            )
+        }
+    }
 
     private fun textIsValidCondition() = PreCondition<LegalPagePublication> { publication ->
         val text = publication.legalPage.text
