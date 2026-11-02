@@ -66,11 +66,11 @@ class InvoiceDocumentTest : WithAssertions {
         val invoiceDocument = documentOf(ShippingMethod.EXPRESS)
         // Assert
         assertThat(invoiceDocument.tableHeader())
-            .isEqualTo(InvoiceRow("Désignation", "Quantité", "Prix unitaire HT", "Montant TVA", "Total TTC"))
+            .isEqualTo(InvoiceRow("Désignation", "Quantité", "Prix unitaire HT", "Taux TVA", "Montant TVA", "Total TTC"))
         assertThat(invoiceDocument.tableRows()).isEqualTo(
             InvoiceRows(
-                InvoiceRow("Desk lamp", "1", "29,17 €", "5,83 €", "35,00 €"),
-                InvoiceRow("Livraison express", "1", "8,25 €", "1,65 €", "9,90 €")
+                InvoiceRow("Desk lamp", "1", "29,17 €", "20 %", "5,83 €", "35,00 €"),
+                InvoiceRow("Livraison express", "1", "8,25 €", "20 %", "1,65 €", "9,90 €")
             )
         )
     }
@@ -91,7 +91,7 @@ class InvoiceDocumentTest : WithAssertions {
         val invoiceDocument = InvoiceDocument(invoice, invoicedSale)
         // Assert
         assertThat(invoiceDocument.tableRows().asList())
-            .contains(InvoiceRow("Remise FIVE", "1", "-4,17 €", "-0,83 €", "-5,00 €"))
+            .contains(InvoiceRow("Remise FIVE", "1", "-4,17 €", "20 %", "-0,83 €", "-5,00 €"))
         assertThat(invoiceDocument.totals().asList().last()).isEqualTo(InvoiceRow("Total TTC", "39,90 €"))
     }
 
@@ -137,7 +137,7 @@ class InvoiceDocumentTest : WithAssertions {
     }
 
     @Test
-    fun `each row should give its VAT, the shipping split among the rates of the items`() {
+    fun `each row should give its rate and its VAT, the shipping split among the rates of the items`() {
         // Arrange
         val bookPricing = ProductPricing(Price(Amount(BigDecimal(20)), Currency.EUR), VatRate.REDUCED)
         val bookText = ProductText(Name("Cook book"), Description("Recipes"))
@@ -155,9 +155,9 @@ class InvoiceDocumentTest : WithAssertions {
         // Assert
         assertThat(invoiceDocument.tableRows()).isEqualTo(
             InvoiceRows(
-                InvoiceRow("Desk lamp", "1", "29,17 €", "5,83 €", "35,00 €"),
-                InvoiceRow("Cook book", "1", "18,96 €", "1,04 €", "20,00 €"),
-                InvoiceRow("Livraison express", "1", "8,66 €", "1,24 €", "9,90 €")
+                InvoiceRow("Desk lamp", "1", "29,17 €", "20 %", "5,83 €", "35,00 €"),
+                InvoiceRow("Cook book", "1", "18,96 €", "5,5 %", "1,04 €", "20,00 €"),
+                InvoiceRow("Livraison express", "1", "8,66 €", "20 % / 5,5 %", "1,24 €", "9,90 €")
             )
         )
     }

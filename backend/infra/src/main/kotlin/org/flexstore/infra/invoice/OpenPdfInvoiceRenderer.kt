@@ -60,7 +60,7 @@ class OpenPdfInvoiceRenderer : InvoiceRenderer {
     }
 
     // The totals, under the last two columns of the table; the last one in bold
-    private fun totalsOf(totals: InvoiceRows) = PdfPTable(floatArrayOf(7.8f, 2f, 2f)).apply {
+    private fun totalsOf(totals: InvoiceRows) = PdfPTable(floatArrayOf(8.6f, 2f, 2f)).apply {
         widthPercentage = 100f
         setSpacingBefore(8f)
         val rows = totals.asList()
@@ -99,8 +99,9 @@ class OpenPdfInvoiceRenderer : InvoiceRenderer {
         FontFactory.getFont(FontFactory.HELVETICA, BaseFont.CP1252, size, style)
 }
 
-// Designation, quantity, unit price without VAT, VAT, total with VAT; the totals are under the last two
-private val COLUMN_WIDTHS = floatArrayOf(4f, 1.3f, 2.5f, 2f, 2f)
+// Designation, quantity, unit price without VAT, rate of VAT, VAT, total with VAT; the totals are under the last
+// two
+private val COLUMN_WIDTHS = floatArrayOf(2.8f, 1.5f, 2.5f, 1.8f, 2f, 2f)
 private const val TITLE_SIZE = 20f
 private const val TEXT_SIZE = 10f
 private const val SMALL_SIZE = 9f
