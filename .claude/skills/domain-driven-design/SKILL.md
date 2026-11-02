@@ -1,6 +1,6 @@
 ---
 name: domain-driven-design
-description: Domain-Driven Design and hexagonal architecture principles to follow when writing or reviewing back-end code - where business rules live, what entities, value objects and aggregates may reference (value objects rather than primitive types), the role of use cases, domain services, repositories and adapters, groups of use cases named after their sub-domain (OrderUseCases, not a facade), every use case implementing the UseCase interface of ucop (or QueryUseCase when it answers), methods of the domain model that expose neither a primitive type nor a raw collection, the current moment read from InstantProvider (never a clock member). Use before creating or changing an entity, aggregate, value object, use case, domain service, port (repository interface) or infrastructure adapter, and when reviewing domain code.
+description: Domain-Driven Design and hexagonal architecture principles to follow when writing or reviewing back-end code - where business rules live, what entities, value objects and aggregates may reference (value objects rather than primitive types), the role of use cases, domain services, repositories and adapters, groups of use cases named after their sub-domain (OrderUseCases, not a facade), every use case implementing the UseCase interface of ucop (or QueryUseCase when it answers), methods of the domain model that expose neither a primitive type nor a raw collection, the current moment read from InstantProvider (never a clock member), every administration use case checking in its own precondition that its actor is an administrator. Use before creating or changing an entity, aggregate, value object, use case, domain service, port (repository interface) or infrastructure adapter, and when reviewing domain code.
 ---
 
 # Domain-Driven Design
@@ -493,3 +493,62 @@ Details:
 - The moment that enters a use case is read once, by the use case or the domain service that starts the journey, and passed in its request (`PasswordResetRequest(email, InstantProvider.now())`), so that every rule of the call uses the same moment.
 - A test that depends on the moment fixes it with `InstantProvider.fixAt(...)` and resets it in an `@AfterEach`, so that the next tests read the time of the system again.
 - The infrastructure is not concerned: an adapter that needs the time for a technical reason (the expiry of a session token) may read it itself.
+
+## 13. An administration use case checks in its precondition that its actor is an administrator
+
+Every use case that only an administrator may run (changing the catalog, the stocks, the seller, the legal pages, the discount codes, the settings, the users, administering the orders, reading what only the administration reads) receives **the user who runs it** in its request, and checks in **a private precondition of its own** that this user is an existing user with the ADMIN role, read from the users (`userRepository.isNotAdministrator(...)`), not from the request. The check is not left to the security configuration of the adapter alone (`/api/admin/**`), and it is not shared in a generic precondition class: each use case throws its own exception, with a message that names what was refused.
+
+Avoid:
+
+```kotlin
+// Only the URL protects the rule: another adapter (a batch, a message listener) could run it for anyone
+class ChangeStockAlertUseCase(private val stockRepository: StockRepository) : UseCase<StockAlert> {
+    override fun getPreConditions(): PreConditions<StockAlert> = PreConditions(thresholdIsNotNegativeCondition())
+    ...
+}
+
+// A generic precondition, shared by every use case: a generic message, and the rule hidden in another class
+class IsAdministratorPreCondition<T>(private val actorOf: (T) -> UserId) : PreCondition<T> { ... }
+```
+
+Prefer (as `PublishLegalPageUseCase`):
+
+```kotlin
+// The request names its actor after its role in the journey: editor, reader, publisher, creator...
+data class StockAlertChange(val editor: UserId, val stockAlert: StockAlert)
+
+class ChangeStockAlertUseCase(
+    private val stockRepository: StockRepository,
+    private val productRepository: ProductRepository,
+    private val userRepository: UserRepository
+) : UseCase<StockAlertChange> {
+
+    override fun getPreConditions(): PreConditions<StockAlertChange> = PreConditions(
+        editorIsAdministratorCondition(), productExistsCondition(), thresholdIsNotNegativeCondition()
+    )
+    ...
+
+    // The editor must be an existing user with the ADMIN role (read from the users, not from the request)
+    private fun editorIsAdministratorCondition() = PreCondition<StockAlertChange> { change ->
+        if (userRepository.isNotAdministrator(change.editor)) {
+            throw StockAlertForbiddenException(
+                ErrorMessage("Only an administrator can change the alert threshold of a product.")
+            )
+        }
+    }
+}
+
+// The controller passes the signed-in user, read from its token
+@PutMapping("/api/admin/stocks/{productId}/alert")
+fun changeStockAlert(@AuthenticationPrincipal editor: Jwt, ...): JsonStockAlert =
+    JsonStockAlert.of(stockAlertUseCases.change(UserId.of(editor.subject), stockAlert))
+```
+
+Why: who may run a use case is a rule of the business, so it belongs to the use case like its other rules; it then holds whatever the adapter that calls it, and it is tested with the use case. Reading the role from the users, not from the token, refuses a user whose role was taken back since the token was issued.
+
+Details:
+- **The first precondition**: the actor is checked before the other rules, so that a refused user learns nothing about the data (an unknown product, an invalid value).
+- **Its own exception and message** per sub-domain or use case (`StockAlertForbiddenException`, "Only an administrator can …"), mapped to 403 by the `RestExceptionHandler`.
+- **Query use cases too**: a `QueryUseCase` that only the administration reads takes a request with its reader (`LowStocksReading(reader)`), even when it needs nothing else.
+- **The group of use cases** takes the actor as the first argument of its methods (`stockAlertUseCases.change(editor, stockAlert)`), and passes it to each use case it unfolds.
+- **The tests** of the use case check that an administrator runs it, and that a customer and an unknown user are refused.
