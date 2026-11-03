@@ -3,7 +3,7 @@ package org.flexstore.infra.spring.adapter.rest
 import org.flexstore.domain.cart.CartOwner
 import org.flexstore.domain.order.OrderId
 import org.flexstore.domain.payment.OrderPayment
-import org.flexstore.domain.payment.usecase.PaymentService
+import org.flexstore.domain.payment.PaymentService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.domain.user.model.UserId

@@ -5,6 +5,7 @@ import org.flexstore.domain.payment.usecase.*
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.cart.usecase.*
 import org.flexstore.domain.email.*
+import org.flexstore.domain.invoice.*
 import org.flexstore.domain.invoice.usecase.*
 import org.flexstore.domain.discount.usecase.*
 import org.flexstore.domain.order.*

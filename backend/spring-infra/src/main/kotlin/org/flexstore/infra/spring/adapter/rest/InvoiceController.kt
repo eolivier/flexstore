@@ -3,7 +3,7 @@ package org.flexstore.infra.spring.adapter.rest
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.domain.invoice.InvoicePdf
-import org.flexstore.domain.invoice.usecase.InvoiceService
+import org.flexstore.domain.invoice.InvoiceService
 import org.flexstore.domain.order.OrderId
 import org.flexstore.domain.user.model.UserId
 import org.springframework.http.ContentDisposition
