@@ -273,6 +273,33 @@ export interface JsonChosenPassword {
      */
     'password': string;
 }
+export interface JsonCookieChoice {
+    'choice': JsonCookieChoiceChoiceEnum;
+}
+
+export const JsonCookieChoiceChoiceEnum = {
+    Accepted: 'ACCEPTED',
+    Refused: 'REFUSED'
+} as const;
+
+export type JsonCookieChoiceChoiceEnum = typeof JsonCookieChoiceChoiceEnum[keyof typeof JsonCookieChoiceChoiceEnum];
+
+export interface JsonCookieConsent {
+    'choice': JsonCookieConsentChoiceEnum;
+    /**
+     * When the customer is asked again; absent when UNDECIDED
+     */
+    'expiresAt'?: string;
+}
+
+export const JsonCookieConsentChoiceEnum = {
+    Accepted: 'ACCEPTED',
+    Refused: 'REFUSED',
+    Undecided: 'UNDECIDED'
+} as const;
+
+export type JsonCookieConsentChoiceEnum = typeof JsonCookieConsentChoiceEnum[keyof typeof JsonCookieConsentChoiceEnum];
+
 /**
  * The company a customer buys for (none for a customer who buys for themselves); the address given at the creation of the account is sent to it, for the attention of the customer
  */
@@ -2805,6 +2832,178 @@ export class CartApi extends BaseAPI {
      */
     public mergeCarts(xCartId?: string, options?: RawAxiosRequestConfig) {
         return CartApiFp(this.configuration).mergeCarts(xCartId, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * CookiesApi - axios parameter creator
+ */
+export const CookiesApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * UNDECIDED, without expiry, when the customer never chose or when their choice is 6 months old.
+         * @summary Retrieve the cookie consent of the signed-in customer
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getCookieConsent: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/cookie-consent`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Record the choice of the signed-in customer about the preference cookies, for 6 months
+         * @param {JsonCookieChoice} jsonCookieChoice 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        recordCookieConsent: async (jsonCookieChoice: JsonCookieChoice, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'jsonCookieChoice' is not null or undefined
+            assertParamExists('recordCookieConsent', 'jsonCookieChoice', jsonCookieChoice)
+            const localVarPath = `/api/cookie-consent`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonCookieChoice, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * CookiesApi - functional programming interface
+ */
+export const CookiesApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = CookiesApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * UNDECIDED, without expiry, when the customer never chose or when their choice is 6 months old.
+         * @summary Retrieve the cookie consent of the signed-in customer
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getCookieConsent(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonCookieConsent>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getCookieConsent(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CookiesApi.getCookieConsent']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Record the choice of the signed-in customer about the preference cookies, for 6 months
+         * @param {JsonCookieChoice} jsonCookieChoice 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async recordCookieConsent(jsonCookieChoice: JsonCookieChoice, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonCookieConsent>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.recordCookieConsent(jsonCookieChoice, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CookiesApi.recordCookieConsent']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * CookiesApi - factory interface
+ */
+export const CookiesApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = CookiesApiFp(configuration)
+    return {
+        /**
+         * UNDECIDED, without expiry, when the customer never chose or when their choice is 6 months old.
+         * @summary Retrieve the cookie consent of the signed-in customer
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getCookieConsent(options?: RawAxiosRequestConfig): AxiosPromise<JsonCookieConsent> {
+            return localVarFp.getCookieConsent(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Record the choice of the signed-in customer about the preference cookies, for 6 months
+         * @param {JsonCookieChoice} jsonCookieChoice 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        recordCookieConsent(jsonCookieChoice: JsonCookieChoice, options?: RawAxiosRequestConfig): AxiosPromise<JsonCookieConsent> {
+            return localVarFp.recordCookieConsent(jsonCookieChoice, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * CookiesApi - object-oriented interface
+ */
+export class CookiesApi extends BaseAPI {
+    /**
+     * UNDECIDED, without expiry, when the customer never chose or when their choice is 6 months old.
+     * @summary Retrieve the cookie consent of the signed-in customer
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getCookieConsent(options?: RawAxiosRequestConfig) {
+        return CookiesApiFp(this.configuration).getCookieConsent(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Record the choice of the signed-in customer about the preference cookies, for 6 months
+     * @param {JsonCookieChoice} jsonCookieChoice 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public recordCookieConsent(jsonCookieChoice: JsonCookieChoice, options?: RawAxiosRequestConfig) {
+        return CookiesApiFp(this.configuration).recordCookieConsent(jsonCookieChoice, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
