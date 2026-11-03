@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import type { JsonAdminOrder, JsonOrder } from '@/generated';
 import { useAuthStore } from '@/stores/auth.store';
+import { pageQuery, totalCountOf } from '@/utils/pagination';
 
 // statusChanged: the order changed status in the meantime (another administrator), the orders are reloaded
 export type StatusAdvance = 'advanced' | 'statusChanged' | 'error';
@@ -15,17 +16,23 @@ export type AdminOrderLookup =
 
 // The orders of all the customers, with the customer of each one, for the administrators
 export const useAdminOrdersStore = defineStore('adminOrders', () => {
+  // A page of the orders (newest first): the page shown (from 0), and the number of all the orders
   const orders = ref<JsonAdminOrder[]>([]);
+  const page = ref(0);
+  const total = ref(0);
   const loading = ref(false);
   const loadError = ref(false);
   const authStore = useAuthStore();
 
-  async function fetchAllOrders() {
+  async function fetchAllOrders(pageNumber: number = page.value) {
     loading.value = true;
     loadError.value = false;
-    const response = await authStore.authFetch('/api/admin/orders').catch(() => null);
+    const response = await authStore.authFetch(`/api/admin/orders?${pageQuery(pageNumber)}`).catch(() => null);
     if (response?.ok) {
-      orders.value = await response.json();
+      const pageOrders: JsonAdminOrder[] = await response.json();
+      orders.value = pageOrders;
+      page.value = pageNumber;
+      total.value = totalCountOf(response, pageOrders.length);
     } else {
       loadError.value = true;
     }
@@ -74,5 +81,5 @@ export const useAdminOrdersStore = defineStore('adminOrders', () => {
     return 'refunded';
   }
 
-  return { orders, loading, loadError, fetchAllOrders, fetchOrder, advanceStatus, refundOrder };
+  return { orders, page, total, loading, loadError, fetchAllOrders, fetchOrder, advanceStatus, refundOrder };
 });

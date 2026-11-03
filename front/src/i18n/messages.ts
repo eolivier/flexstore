@@ -357,6 +357,7 @@ export default {
     adminOrders: {
       title: 'Orders',
       count: 'No orders | 1 order | {n} orders',
+      pageCount: '{shown} of {total} orders',
       loading: 'Loading the orders…',
       loadError: 'The orders could not be loaded.',
       number: 'Order',
@@ -603,6 +604,9 @@ export default {
     },
     confirmUserDeletion: 'Are you sure you want to delete this user?',
     cancel: 'Cancel',
+    pagination: {
+      label: 'Pages',
+    },
     confirm: 'Confirm',
     confirmation: 'Confirmation',
     createUser: {
@@ -1075,6 +1079,7 @@ export default {
     adminOrders: {
       title: 'Commandes',
       count: 'Aucune commande | 1 commande | {n} commandes',
+      pageCount: '{shown} commande(s) sur {total}',
       loading: 'Chargement des commandes…',
       loadError: "Les commandes n'ont pas pu être chargées.",
       number: 'Commande',
@@ -1325,6 +1330,9 @@ export default {
     },
     confirmUserDeletion: 'Voulez-vous vraiment supprimer cet utilisateur ?',
     cancel: 'Annuler',
+    pagination: {
+      label: 'Pages',
+    },
     confirm: 'Confirmer',
     confirmation: 'Confirmation',
     createUser: {

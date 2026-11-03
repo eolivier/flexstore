@@ -1,5 +1,7 @@
 package org.flexstore.domain.user
 
+import org.flexstore.domain.sharedkernel.Page
+import org.flexstore.domain.sharedkernel.PageRequest
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.usecase.*
 
@@ -33,7 +35,8 @@ class UserService(
         DeleteUserUseCase(userRepository).unfold(UserDeletion(editor, userId))
     }
 
-    fun readAllUsers(reader: UserId): Users = ListUsersUseCase(userRepository).unfold(UsersReading(reader))
+    fun readAllUsers(reader: UserId, pageRequest: PageRequest): Page<Users> =
+        ListUsersUseCase(userRepository).unfold(UsersReading(reader, pageRequest))
 
     fun changePassword(changePasswordRequest: ChangePasswordRequest) {
         ChangePasswordUseCase(userRepository).unfold(changePasswordRequest)

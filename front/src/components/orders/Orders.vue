@@ -2,6 +2,7 @@
   import { onMounted } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useOrdersStore } from '@/stores/orders.store';
+  import ListPager from '@/components/layout/ListPager.vue';
   import OrderSummaryCard from './OrderSummaryCard.vue';
 
   const { t } = useI18n();
@@ -31,9 +32,16 @@
       </v-btn>
     </v-card>
 
-    <div v-else class="d-flex flex-column ga-4">
-      <OrderSummaryCard v-for="order in ordersStore.orders" :key="order.id" :order="order" />
-    </div>
+    <template v-else>
+      <div class="d-flex flex-column ga-4">
+        <OrderSummaryCard v-for="order in ordersStore.orders" :key="order.id" :order="order" />
+      </div>
+      <ListPager
+        :model-value="ordersStore.page"
+        :total="ordersStore.total"
+        @update:model-value="ordersStore.fetchOrders"
+      />
+    </template>
   </v-container>
 </template>
 

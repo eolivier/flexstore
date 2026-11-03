@@ -54,10 +54,11 @@ class AdministeredOrdersUseCasesTest : WithAssertions {
         val older = placeOrder(OrderId("older"), customer, placedAt)
         val newer = placeOrder(OrderId("newer"), formerCustomer, placedAt.plusSeconds(60))
         // Act
-        val administeredOrders = listUseCase.unfold(AdministeredOrdersReading(administrator))
+        val reading = AdministeredOrdersReading(administrator, PageRequest.first())
+        val administeredOrders = listUseCase.unfold(reading)
         // Assert
         val janeAsCustomer = OrderCustomer(janeDoe, Email("jane@example.com"))
-        assertThat(administeredOrders.asList()).containsExactly(
+        assertThat(administeredOrders.content.asList()).containsExactly(
             AdministeredOrder(newer, OrderCustomer.unknown()),
             AdministeredOrder(older, janeAsCustomer)
         )
@@ -84,7 +85,8 @@ class AdministeredOrdersUseCasesTest : WithAssertions {
     @Test
     fun `a customer should not read the orders of all the customers`() {
         // Act
-        val thrown = catchThrowable { listUseCase.unfold(AdministeredOrdersReading(testCustomer.id)) }
+        val reading = AdministeredOrdersReading(testCustomer.id, PageRequest.first())
+        val thrown = catchThrowable { listUseCase.unfold(reading) }
         // Assert
         assertThat(thrown).isInstanceOf(OrderAdministrationForbiddenException::class.java)
     }
@@ -117,5 +119,42 @@ class AdministeredOrdersUseCasesTest : WithAssertions {
         val thrown = catchThrowable { readUseCase.unfold(AdministeredOrderReading(unknownUser, OrderId("order-1"))) }
         // Assert
         assertThat(thrown).isInstanceOf(OrderNotFoundException::class.java)
+    }
+
+    @Test
+    fun `should list a page of the orders, newest first, with the total of all the orders`() {
+        // Arrange
+        placeOrder(OrderId("oldest"), customer, placedAt)
+        val middle = placeOrder(OrderId("middle"), customer, placedAt.plusSeconds(60))
+        val newest = placeOrder(OrderId("newest"), customer, placedAt.plusSeconds(120))
+        // Act
+        val page = listUseCase.unfold(AdministeredOrdersReading(administrator, PageRequest.of(0, 2)))
+        // Assert
+        assertThat(page.content.asList().map { it.order }).containsExactly(newest, middle)
+        assertThat(page.total).isEqualTo(TotalCount(3))
+    }
+
+    @Test
+    fun `should list the last page with the orders left`() {
+        // Arrange
+        val oldest = placeOrder(OrderId("oldest"), customer, placedAt)
+        placeOrder(OrderId("middle"), customer, placedAt.plusSeconds(60))
+        placeOrder(OrderId("newest"), customer, placedAt.plusSeconds(120))
+        // Act
+        val page = listUseCase.unfold(AdministeredOrdersReading(administrator, PageRequest.of(1, 2)))
+        // Assert
+        assertThat(page.content.asList().map { it.order }).containsExactly(oldest)
+        assertThat(page.total).isEqualTo(TotalCount(3))
+    }
+
+    @Test
+    fun `a page after the last one should be empty`() {
+        // Arrange
+        placeOrder(OrderId("order-1"), customer, placedAt)
+        // Act
+        val page = listUseCase.unfold(AdministeredOrdersReading(administrator, PageRequest.of(5, 2)))
+        // Assert
+        assertThat(page.content.asList()).isEmpty()
+        assertThat(page.total).isEqualTo(TotalCount(1))
     }
 }

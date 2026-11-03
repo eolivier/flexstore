@@ -8,14 +8,21 @@ vi.stubGlobal('fetch', mockFetch);
 const jane = { id: 'u-1', firstName: 'Jane', lastName: 'Doe', email: 'jane@example.com', role: 'USER' as const };
 
 // Answers each API call by method and path
-function respondWith(responses: Record<string, { status: number; body?: unknown }>) {
+function respondWith(
+  responses: Record<string, { status: number; body?: unknown; headers?: Record<string, string> }>
+) {
   mockFetch.mockImplementation((url: string, init?: RequestInit) => {
     const key = Object.keys(responses).find((k) => {
       const [method, path] = k.split(' ');
       return (init?.method ?? 'GET') === method && url.endsWith(path);
     });
-    const { status, body } = key ? responses[key] : { status: 404, body: undefined };
-    return Promise.resolve({ ok: status < 300, status, json: () => Promise.resolve(body) });
+    const { status, body, headers } = key ? responses[key] : { status: 404, body: undefined, headers: {} };
+    return Promise.resolve({
+      ok: status < 300,
+      status,
+      headers: new Headers(headers),
+      json: () => Promise.resolve(body),
+    });
   });
 }
 
@@ -43,7 +50,7 @@ describe('users.store', () => {
     // Arrange
     respondWith({
       'PUT /api/users/u-1': { status, body: jane },
-      'GET /api/users': { status: 200, body: [jane] },
+      'GET /api/users?page=0&size=20': { status: 200, body: [jane] },
     });
     const store = useUsersStore();
     // Act
@@ -79,5 +86,33 @@ describe('users.store', () => {
       email: 'jane@example.com',
       role: 'ADMIN',
     });
+  });
+
+  it('should read the page asked of the users and the number of all the users', async () => {
+    // Arrange
+    respondWith({
+      'GET /api/users?page=1&size=20': { status: 200, body: [jane], headers: { 'X-Total-Count': '21' } },
+    });
+    const store = useUsersStore();
+    // Act
+    await store.fetchUsers(1);
+    // Assert
+    expect(store.users).toEqual([jane]);
+    expect(store.page).toBe(1);
+    expect(store.total).toBe(21);
+  });
+
+  it('should show the page before when the last user of the last page was deleted', async () => {
+    // Arrange
+    respondWith({
+      'GET /api/users?page=1&size=20': { status: 200, body: [], headers: { 'X-Total-Count': '20' } },
+      'GET /api/users?page=0&size=20': { status: 200, body: [jane], headers: { 'X-Total-Count': '20' } },
+    });
+    const store = useUsersStore();
+    // Act
+    await store.fetchUsers(1);
+    // Assert
+    expect(store.page).toBe(0);
+    expect(store.users).toEqual([jane]);
   });
 });

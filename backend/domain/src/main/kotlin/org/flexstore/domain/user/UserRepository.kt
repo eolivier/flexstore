@@ -1,6 +1,9 @@
 package org.flexstore.domain.user
 
+import org.flexstore.domain.sharedkernel.Page
+import org.flexstore.domain.sharedkernel.PageRequest
 import org.flexstore.domain.user.model.*
+
 interface UserRepository {
     fun exists(userId: UserId): Boolean
     fun notExists(userId: UserId): Boolean
@@ -9,6 +12,9 @@ interface UserRepository {
     fun findById(id: UserId):User
     fun findByEmail(email: Email): User
     fun findAll(): List<User>
+
+    // A page of the users, the first created first, with the number of all the users
+    fun findAll(pageRequest: PageRequest): Page<Users>
     fun delete(id: UserId):Boolean
     fun passwordMatches(email: Email, password: Password): Boolean
     fun passwordDoesNotMatch(email: Email, password: Password): Boolean = !passwordMatches(email, password)

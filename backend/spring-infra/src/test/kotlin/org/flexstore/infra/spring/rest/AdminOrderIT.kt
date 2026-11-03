@@ -29,6 +29,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.header
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.math.BigDecimal
@@ -283,5 +284,18 @@ class AdminOrderIT {
         val orderId = objectMapper.readTree(body)["id"].asText()
         if (paid) mockMvc.pay(orderId, CUSTOMER_ID).andExpect(status().isCreated)
         return orderId
+    }
+
+    @Test
+    fun `an administrator should list a page of the orders, newest first, with the total in a header`() {
+        // Arrange
+        val orderId = placeOrder()
+        // Act
+        val response = mockMvc.perform(get("/api/admin/orders").param("size", "1").with(asAdmin()))
+        // Assert
+        response.andExpect(status().isOk)
+            .andExpect(header().exists("X-Total-Count"))
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].id").value(orderId))
     }
 }

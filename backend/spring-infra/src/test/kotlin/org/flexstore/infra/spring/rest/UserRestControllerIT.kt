@@ -21,6 +21,7 @@ import org.flexstore.infra.spring.security.asAdmin
 import org.flexstore.infra.spring.security.asUser
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.header
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import kotlin.test.Test
@@ -260,5 +261,15 @@ class UserRestControllerIT {
 
     private fun createJsonUser(): DefinedJsonUser {
         return DefinedJsonUser(USER_ID,"John", "Doe", "john.doe@example.com", "testpassword")
+    }
+
+    @Test
+    fun `an administrator should read a page of the users with the total in a header`() {
+        // Act
+        val response = mockMvc.perform(get("/api/users").param("size", "1").with(asAdmin()))
+        // Assert
+        response.andExpect(status().isOk)
+            .andExpect(header().exists("X-Total-Count"))
+            .andExpect(jsonPath("$.length()").value(1))
     }
 }

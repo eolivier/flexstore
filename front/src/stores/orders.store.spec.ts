@@ -30,14 +30,21 @@ const homeAddresses = {
 const emptyCart = { items: [], totalItemsPrice: 0, itemsCurrency: '€' };
 
 // Answers each API call by method and path
-function respondWith(responses: Record<string, { status: number; body?: unknown }>) {
+function respondWith(
+  responses: Record<string, { status: number; body?: unknown; headers?: Record<string, string> }>
+) {
   mockFetch.mockImplementation((url: string, init?: RequestInit) => {
     const key = Object.keys(responses).find((k) => {
       const [method, path] = k.split(' ');
       return (init?.method ?? 'GET') === method && url.endsWith(path);
     });
-    const { status, body } = key ? responses[key] : { status: 404, body: undefined };
-    return Promise.resolve({ ok: status < 300, status, json: () => Promise.resolve(body) });
+    const { status, body, headers } = key ? responses[key] : { status: 404, body: undefined, headers: {} };
+    return Promise.resolve({
+      ok: status < 300,
+      status,
+      headers: new Headers(headers),
+      json: () => Promise.resolve(body),
+    });
   });
 }
 
@@ -71,14 +78,43 @@ describe('orders.store', () => {
   it('should load the orders of the signed-in customer', async () => {
     // Arrange
     await signIn();
-    respondWith({ 'GET /api/orders': { status: 200, body: [order] } });
+    respondWith({ 'GET /api/orders?page=0&size=20': { status: 200, body: [order] } });
     const store = useOrdersStore();
     // Act
     await store.fetchOrders();
     // Assert
     expect(store.orders).toEqual([order]);
-    const [, init] = mockFetch.mock.calls.find(([url]) => url.endsWith('/api/orders'))!;
+    const [, init] = mockFetch.mock.calls.find(([url]) => url.endsWith('/api/orders?page=0&size=20'))!;
     expect(new Headers(init.headers).get('Authorization')).toBe('Bearer jwt-token');
+  });
+
+  it('should read the page asked and the number of all the orders in the header', async () => {
+    // Arrange
+    await signIn();
+    respondWith({
+      'GET /api/orders?page=1&size=20': { status: 200, body: [order], headers: { 'X-Total-Count': '21' } },
+    });
+    const store = useOrdersStore();
+    // Act
+    await store.fetchOrders(1);
+    // Assert
+    expect(store.page).toBe(1);
+    expect(store.total).toBe(21);
+  });
+
+  it('should reload the page shown when no page is asked', async () => {
+    // Arrange
+    await signIn();
+    respondWith({
+      'GET /api/orders?page=2&size=20': { status: 200, body: [order], headers: { 'X-Total-Count': '41' } },
+    });
+    const store = useOrdersStore();
+    await store.fetchOrders(2);
+    mockFetch.mockClear();
+    // Act
+    await store.fetchOrders();
+    // Assert
+    expect(mockFetch.mock.calls[0][0]).toContain('page=2');
   });
 
   it('should place an order awaiting its payment, keeping the cart', async () => {

@@ -24,6 +24,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.header
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.assertj.core.api.Assertions.assertThat
@@ -384,5 +385,37 @@ class OrderIT {
         val body = mockMvc.perform(post("/api/orders").withHomeAddresses(mockMvc.currentTermsOfSaleId()).with(asUser(customerId)))
             .andExpect(status().isCreated).andReturn().response.contentAsString
         return objectMapper.readTree(body)["id"].asText()
+    }
+
+    @Test
+    fun `should list the orders of the customer page by page, with their total in a header`() {
+        // Arrange
+        placeOrder(CUSTOMER_ID, productId = "1")
+        val middleId = placeOrder(CUSTOMER_ID, productId = "2")
+        val newestId = placeOrder(CUSTOMER_ID, productId = "4")
+        // Act
+        val firstPage = mockMvc.perform(get("/api/orders").param("size", "2").with(asUser(CUSTOMER_ID)))
+        val secondPage = mockMvc.perform(get("/api/orders").param("page", "1").param("size", "2").with(asUser(CUSTOMER_ID)))
+        // Assert
+        firstPage.andExpect(status().isOk)
+            .andExpect(header().string("X-Total-Count", "3"))
+            .andExpect(jsonPath("$.length()").value(2))
+            .andExpect(jsonPath("$[0].id").value(newestId))
+            .andExpect(jsonPath("$[1].id").value(middleId))
+        secondPage.andExpect(status().isOk)
+            .andExpect(header().string("X-Total-Count", "3"))
+            .andExpect(jsonPath("$.length()").value(1))
+    }
+
+    @Test
+    fun `a page size above the maximum should be brought back to it`() {
+        // Arrange
+        placeOrder(CUSTOMER_ID, productId = "1")
+        // Act
+        val response = mockMvc.perform(get("/api/orders").param("size", "100000").with(asUser(CUSTOMER_ID)))
+        // Assert
+        response.andExpect(status().isOk)
+            .andExpect(header().string("X-Total-Count", "1"))
+            .andExpect(jsonPath("$.length()").value(1))
     }
 }

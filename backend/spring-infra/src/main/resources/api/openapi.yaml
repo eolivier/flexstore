@@ -84,18 +84,27 @@ paths:
     get:
       tags:
       - Users
-      summary: Retrieve all users
-      description: Returns the full list of users
+      summary: Retrieve a page of the users, the first created first (ADMIN role)
+      description: The total number of users is in the header X-Total-Count; a size above 100 is brought back
+        to 100
       operationId: getAllUsers
       security:
       - bearerAuth: []
+      parameters:
+      - $ref: "#/components/parameters/Page"
+      - $ref: "#/components/parameters/PageSize"
       responses:
         "200":
-          description: Successfully retrieved the list of users
+          description: A page of the users
+          headers:
+            X-Total-Count:
+              $ref: "#/components/headers/TotalCount"
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/JsonUser"
+                type: array
+                items:
+                  $ref: "#/components/schemas/JsonUser"
     post:
       tags:
       - Users
@@ -1143,13 +1152,21 @@ paths:
     get:
       tags:
       - Orders
-      summary: Retrieve the orders of the signed-in customer, newest first
+      summary: Retrieve a page of the orders of the signed-in customer, newest first
+      description: The total number of orders is in the header X-Total-Count; a size above 100 is brought back
+        to 100
       operationId: getOrders
       security:
       - bearerAuth: []
+      parameters:
+      - $ref: "#/components/parameters/Page"
+      - $ref: "#/components/parameters/PageSize"
       responses:
         "200":
-          description: The orders
+          description: A page of the orders
+          headers:
+            X-Total-Count:
+              $ref: "#/components/headers/TotalCount"
           content:
             application/json:
               schema:
@@ -1483,13 +1500,21 @@ paths:
     get:
       tags:
       - Administration
-      summary: Retrieve the orders of all the customers, newest first, with their customer (ADMIN role)
+      summary: Retrieve a page of the orders of all the customers, newest first, with their customer (ADMIN role)
+      description: The total number of orders is in the header X-Total-Count; a size above 100 is brought back
+        to 100
       operationId: getAllOrders
       security:
       - bearerAuth: []
+      parameters:
+      - $ref: "#/components/parameters/Page"
+      - $ref: "#/components/parameters/PageSize"
       responses:
         "200":
-          description: The orders of all the customers
+          description: A page of the orders of all the customers
+          headers:
+            X-Total-Count:
+              $ref: "#/components/headers/TotalCount"
           content:
             application/json:
               schema:
@@ -1595,7 +1620,32 @@ paths:
         "409":
           description: The order no longer has the given status, or it is delivered (no next status)
 components:
+  headers:
+    TotalCount:
+      description: The number of items of the whole list, whatever the page read
+      schema:
+        type: integer
+        format: int64
   parameters:
+    Page:
+      name: page
+      in: query
+      required: false
+      description: The number of the page, from 0 (a negative number is brought back to 0)
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+    PageSize:
+      name: size
+      in: query
+      required: false
+      description: The number of items of a page (a size out of 1 to 100 is brought back to the nearest limit)
+      schema:
+        type: integer
+        default: 20
+        minimum: 1
+        maximum: 100
     CartId:
       name: X-Cart-Id
       in: header

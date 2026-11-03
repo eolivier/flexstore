@@ -9,6 +9,7 @@ import type {
 } from '@/generated';
 import { useAuthStore } from '@/stores/auth.store';
 import { useCartStore } from '@/stores/cart.store';
+import { pageQuery, totalCountOf } from '@/utils/pagination';
 
 // started: the customer opens the checkout page of the payment provider
 export type PaymentStart =
@@ -39,16 +40,22 @@ export type DiscountCheck =
 // The orders of the signed-in customer
 export const useOrdersStore = defineStore('orders', () => {
   const orders = ref<JsonOrder[] | null>(null);
+  // The page of the orders shown (from 0), and the number of all the orders of the customer
+  const page = ref(0);
+  const total = ref(0);
   const loadError = ref(false);
   const authStore = useAuthStore();
   const cartStore = useCartStore();
 
-  async function fetchOrders() {
+  async function fetchOrders(pageNumber: number = page.value) {
     loadError.value = false;
     try {
-      const response = await authStore.authFetch('/api/orders');
+      const response = await authStore.authFetch(`/api/orders?${pageQuery(pageNumber)}`);
       if (response.ok) {
-        orders.value = await response.json();
+        const pageOrders: JsonOrder[] = await response.json();
+        orders.value = pageOrders;
+        page.value = pageNumber;
+        total.value = totalCountOf(response, pageOrders.length);
       } else {
         loadError.value = true;
       }
@@ -150,6 +157,8 @@ export const useOrdersStore = defineStore('orders', () => {
 
   return {
     orders,
+    page,
+    total,
     loadError,
     fetchOrders,
     fetchOrder,

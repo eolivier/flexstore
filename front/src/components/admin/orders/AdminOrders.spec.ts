@@ -78,7 +78,7 @@ describe('AdminOrders.vue', () => {
     await wrapper.find('input[type="text"]').setValue('martin');
     await flushPromises();
     // Assert
-    expect(wrapper.text()).toContain('1 order');
+    expect(wrapper.text()).toContain('1 of 2 orders');
     expect(wrapper.text()).toContain('Ana Martin');
     expect(wrapper.text()).not.toContain('John Smith');
   });

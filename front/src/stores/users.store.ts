@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import type { AccountStatus, User } from '@/models/user';
+import { pageQuery, totalCountOf } from '@/utils/pagination';
 import { useAuthStore } from './auth.store';
 
 // The fields of a user an administrator edits: the password is changed by a separate operation
@@ -8,17 +9,25 @@ export type EditedUser = Pick<User, 'firstName' | 'lastName' | 'email'> & { role
 export type UserEdition = 'saved' | 'emailUsed' | 'error';
 
 export const useUsersStore = defineStore('users', () => {
+  // A page of the users: the page shown (from 0), and the number of all the users
   const users = ref<User[]>([]);
+  const page = ref(0);
+  const total = ref(0);
   const loading = ref(false);
   // User management is reserved to admins: requests carry the token of the signed-in user
   const authStore = useAuthStore();
 
-  async function fetchUsers() {
+  async function fetchUsers(pageNumber: number = page.value) {
     loading.value = true;
     try {
-      const response = await authStore.authFetch('/api/users');
+      const response = await authStore.authFetch(`/api/users?${pageQuery(pageNumber)}`);
       if (response.ok) {
-        users.value = await response.json();
+        const pageUsers: User[] = await response.json();
+        users.value = pageUsers;
+        page.value = pageNumber;
+        total.value = totalCountOf(response, pageUsers.length);
+        // The last user of the last page was deleted: the page before is the last one now
+        if (pageUsers.length === 0 && pageNumber > 0) await fetchUsers(pageNumber - 1);
       } else {
         console.error('Error when loading users');
       }
@@ -94,5 +103,5 @@ export const useUsersStore = defineStore('users', () => {
     return true;
   }
 
-  return { users, loading, fetchUsers, fetchUser, addUser, updateUser, changeStatus, deleteUser };
+  return { users, page, total, loading, fetchUsers, fetchUser, addUser, updateUser, changeStatus, deleteUser };
 });

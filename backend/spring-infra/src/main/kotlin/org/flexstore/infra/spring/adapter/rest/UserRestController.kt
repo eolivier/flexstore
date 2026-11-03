@@ -23,6 +23,10 @@ import org.flexstore.infra.spring.adapter.rest.json.JsonUser
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
+import org.flexstore.domain.sharedkernel.PageNumber
+import org.flexstore.domain.sharedkernel.PageRequest
+import org.flexstore.domain.sharedkernel.PageSize
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @Tag(name = "Users")
@@ -56,8 +60,14 @@ class UserRestController(val userService: UserService, private val jwtTokenServi
         ]
     )
     @GetMapping
-    fun getAllUsers(@AuthenticationPrincipal reader: Jwt): List<JsonUser> =
-        userService.readAllUsers(UserId.of(reader.subject)).asList().toJsonUsers()
+    fun getAllUsers(
+        @AuthenticationPrincipal reader: Jwt,
+        @RequestParam(defaultValue = "${PageNumber.FIRST}") page: Int,
+        @RequestParam(defaultValue = "${PageSize.DEFAULT}") size: Int
+    ): ResponseEntity<List<JsonUser>> {
+        val users = userService.readAllUsers(UserId.of(reader.subject), PageRequest.of(page, size))
+        return pagedBody(users.content.asList().toJsonUsers(), users.total)
+    }
 
     @Operation(summary = "Retrieve a user by ID",
         responses = [

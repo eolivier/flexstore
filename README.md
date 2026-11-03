@@ -33,6 +33,7 @@ This repo is meant to be a learning vehicle and a ready-to-fork base for real pr
 - Stock: the number of units of each product is shown in the catalog (out of stock, a few left); an order asking for more than the stock is refused, a paid order takes its units out; the administrators give the stock of each product
 - Pay an order with Stripe Checkout (the card is entered on the page of Stripe, never on the shop), or with a simulated payment without a Stripe key; once paid, the cart is emptied and a confirmation email is sent to the customer (can be turned off in the administration settings)
 - Orders page: the customer's orders, newest first, with their status and total
+- Pages: the orders of the customer, the orders of all the customers and the users (administration) are read a page at a time (`GET /api/orders`, `GET /api/admin/orders`, `GET /api/users`, with the query parameters `page`, from 0, and `size`, 20 by default and 100 at most: a larger size is brought back to 100); the answer stays an array and gives the number of items of the whole list in the header `X-Total-Count`. The filters of the administration orders apply to the orders of the page shown. The catalog and the other administration lists are not paginated
 - Order detail: date, status, lines (product, unit price, quantity, total) and order total; shown right after the order is placed
 
 **Account and administration** (sign-in required)

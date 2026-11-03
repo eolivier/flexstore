@@ -2,6 +2,8 @@ package org.flexstore.domain.order.service
 
 import org.flexstore.domain.order.usecase.*
 import org.flexstore.domain.order.*
+import org.flexstore.domain.sharedkernel.Page
+import org.flexstore.domain.sharedkernel.PageRequest
 import org.flexstore.domain.user.model.UserId
 
 // Domain service: the administrators follow the orders of all the customers, with the customer of each one, and
@@ -13,8 +15,8 @@ class OrderAdministrationService(
     private val advanceOrderStatusUseCase: AdvanceOrderStatusUseCase,
     private val sendOrderStatusEmailUseCase: SendOrderStatusEmailUseCase
 ) {
-    fun getAllOrders(reader: UserId): AdministeredOrders =
-        listAdministeredOrdersUseCase.unfold(AdministeredOrdersReading(reader))
+    fun getAllOrders(reader: UserId, pageRequest: PageRequest): Page<AdministeredOrders> =
+        listAdministeredOrdersUseCase.unfold(AdministeredOrdersReading(reader, pageRequest))
 
     fun getOrder(reader: UserId, orderId: OrderId): AdministeredOrder =
         readAdministeredOrderUseCase.unfold(AdministeredOrderReading(reader, orderId))
