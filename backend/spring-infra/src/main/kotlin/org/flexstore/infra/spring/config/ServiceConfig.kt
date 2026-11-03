@@ -8,6 +8,7 @@ import org.flexstore.domain.email.*
 import org.flexstore.domain.invoice.usecase.*
 import org.flexstore.domain.discount.usecase.*
 import org.flexstore.domain.order.*
+import org.flexstore.domain.order.service.*
 import org.flexstore.domain.order.usecase.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.settings.*
