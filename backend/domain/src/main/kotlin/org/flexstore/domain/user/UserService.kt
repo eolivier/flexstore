@@ -13,9 +13,9 @@ class UserService(
         return createUserUseCase.createdUser
     }
 
-    fun readUser(userId: UserId): User {
+    fun readUser(reader: UserId, userId: UserId): User {
         val readUserUseCase = ReadUserUseCase(userRepository)
-        readUserUseCase.unfold(userId)
+        readUserUseCase.unfold(UserReading(reader, userId))
         return readUserUseCase.retrievedUser
     }
 
@@ -26,14 +26,14 @@ class UserService(
 
     fun changeAccountStatus(change: AccountStatusChange): User {
         ChangeAccountStatusUseCase(userRepository).unfold(change)
-        return readUser(change.userId)
+        return readUser(change.editor, change.userId)
     }
 
-    fun deleteUser(userId: UserId) {
-        DeleteUserUseCase(userRepository).unfold(userId)
+    fun deleteUser(editor: UserId, userId: UserId) {
+        DeleteUserUseCase(userRepository).unfold(UserDeletion(editor, userId))
     }
 
-    fun readAllUsers(): List<User>  = userRepository.findAll()
+    fun readAllUsers(reader: UserId): Users = ListUsersUseCase(userRepository).unfold(UsersReading(reader))
 
     fun changePassword(changePasswordRequest: ChangePasswordRequest) {
         ChangePasswordUseCase(userRepository).unfold(changePasswordRequest)

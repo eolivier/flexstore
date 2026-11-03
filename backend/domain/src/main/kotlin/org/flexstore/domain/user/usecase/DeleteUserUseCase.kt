@@ -7,34 +7,44 @@ import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.entity.*
 import kotlin.reflect.KClass
 
-class DeleteUserUseCase(private val userRepository: UserRepository) : UseCase<UserId> {
+// An administrator who deletes a user
+data class UserDeletion(val editor: UserId, val userId: UserId)
 
-    override fun getPreConditions(): PreConditions<UserId> {
-        return PreConditions(userExistsCondition())
+class DeleteUserUseCase(private val userRepository: UserRepository) : UseCase<UserDeletion> {
+
+    override fun getPreConditions(): PreConditions<UserDeletion> {
+        return PreConditions(editorIsAdministratorCondition(), userExistsCondition())
     }
 
-    override fun getNominalScenario(): NominalScenario<UserId> {
+    override fun getNominalScenario(): NominalScenario<UserDeletion> {
         // Steps
-        val deleteUserStep = Step<UserId> { userId -> userRepository.delete(userId) }
+        val deleteUserStep = Step<UserDeletion> { (_, userId) -> userRepository.delete(userId) }
         // Nominal scenario
         return NominalScenario(listOf(deleteUserStep))
     }
 
-    override fun getPostConditions(): PostConditions<UserId> {
+    override fun getPostConditions(): PostConditions<UserDeletion> {
         return PostConditions(userDeletedCondition())
     }
 
-    override fun getAlternativeScenarii(): Map<KClass<out NominalException>, AlternativeScenario<UserId>> {
+    override fun getAlternativeScenarii(): Map<KClass<out NominalException>, AlternativeScenario<UserDeletion>> {
         return emptyMap()
     }
 
-    private fun userExistsCondition() = PreCondition<UserId> { userId ->
+    // The editor must be an existing user with the ADMIN role (read from the users, not from the request)
+    private fun editorIsAdministratorCondition() = PreCondition<UserDeletion> { deletion ->
+        if (userRepository.isNotAdministrator(deletion.editor)) {
+            throw UserDeletionForbiddenException(ErrorMessage("Only an administrator can delete a user."))
+        }
+    }
+
+    private fun userExistsCondition() = PreCondition<UserDeletion> { (_, userId) ->
         if (userRepository.notExists(userId)) {
             throw UserNotFoundException(ErrorMessage("User with ID ${userId.value} does not exist."))
         }
     }
 
-    private fun userDeletedCondition() = PostCondition<UserId> { userId ->
+    private fun userDeletedCondition() = PostCondition<UserDeletion> { (_, userId) ->
         if (userRepository.exists(userId)) {
             throw UserDeletionFailed(ErrorMessage("User with ID ${userId.value} was not deleted."))
         }

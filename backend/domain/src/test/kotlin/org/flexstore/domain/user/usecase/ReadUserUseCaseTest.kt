@@ -14,7 +14,10 @@ import kotlin.test.Test
 
 class ReadUserUseCaseTest {
 
-    private val userRepository = mockk<UserRepository>()
+    private val administrator = ValidUserId("admin-1")
+    private val userRepository = mockk<UserRepository> {
+        every { isNotAdministrator(administrator) } returns false
+    }
     private val readUserUseCase = ReadUserUseCase(userRepository)
     private val userId = ValidUserId("123")
 
@@ -25,7 +28,7 @@ class ReadUserUseCaseTest {
         every { userRepository.findById(userId) } returns user
         every { userRepository.notExists(userId) } returns false
         // Act
-        readUserUseCase.unfold(userId)
+        readUserUseCase.unfold(UserReading(administrator, userId))
         // Assert
         assertThat(readUserUseCase.retrievedUser).isEqualTo(user)
     }
@@ -35,7 +38,7 @@ class ReadUserUseCaseTest {
         // Arrange
         val invalidUserId = InvalidUserId("@")
         // Act
-        val thrown = catchThrowable { readUserUseCase.unfold(invalidUserId) }
+        val thrown = catchThrowable { readUserUseCase.unfold(UserReading(administrator, invalidUserId)) }
         // Assert
         assertThat(thrown).isInstanceOf(InvalidUserIdException::class.java).hasMessage("User ID @ is invalid.")
         verify(exactly = 0) { userRepository.exists(invalidUserId) }
@@ -46,8 +49,20 @@ class ReadUserUseCaseTest {
         // Arrange
         every { userRepository.notExists(userId) } returns true
         // Act
-        val thrown = catchThrowable { readUserUseCase.unfold(userId) }
+        val thrown = catchThrowable { readUserUseCase.unfold(UserReading(administrator, userId)) }
         // Assert
         assertThat(thrown).isInstanceOf(UserNotFoundException::class.java).hasMessage("User with ID 123 does not exist.")
+    }
+
+    @Test
+    fun `a customer should not read a user`() {
+        // Arrange
+        val customer = ValidUserId("customer-1")
+        every { userRepository.isNotAdministrator(customer) } returns true
+        // Act
+        val thrown = catchThrowable { readUserUseCase.unfold(UserReading(customer, userId)) }
+        // Assert
+        assertThat(thrown).isInstanceOf(UserReadingForbiddenException::class.java)
+        verify(exactly = 0) { userRepository.findById(userId) }
     }
 }

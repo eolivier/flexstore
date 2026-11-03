@@ -49,6 +49,7 @@ class RestExceptionHandler {
                 .status(403)
                 .body(mapOf("error" to (ex.message ?: "Order refused"), "status" to ex.status.name))
             is UserCreationForbiddenException, is UserUpdateForbiddenException,
+            is UserReadingForbiddenException, is UserDeletionForbiddenException,
             is LegalPagePublicationForbiddenException, is StockAlertForbiddenException,
             is SellerAdministrationForbiddenException, is ShopSettingsAdministrationForbiddenException,
             is DiscountCodeAdministrationForbiddenException, is ProductAdministrationForbiddenException,
