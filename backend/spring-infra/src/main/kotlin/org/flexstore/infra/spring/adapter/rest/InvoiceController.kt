@@ -26,7 +26,7 @@ class InvoiceController(private val invoiceService: InvoiceService) {
     @Operation(summary = "Download the invoice of a paid order of the signed-in customer (PDF)")
     @GetMapping("/api/orders/{id}/invoice", produces = [MediaType.APPLICATION_PDF_VALUE])
     fun getInvoice(@AuthenticationPrincipal jwt: Jwt, @PathVariable id: String): ResponseEntity<ByteArray> {
-        val invoicePdf = invoiceService.customerInvoice(UserId.ValidUserId(jwt.subject), OrderId(id))
+        val invoicePdf = invoiceService.invoice(UserId.of(jwt.subject), OrderId(id))
         return pdfResponse(invoicePdf, "facture", id)
     }
 
@@ -36,14 +36,14 @@ class InvoiceController(private val invoiceService: InvoiceService) {
         @AuthenticationPrincipal reader: Jwt,
         @PathVariable id: String
     ): ResponseEntity<ByteArray> {
-        val invoicePdf = invoiceService.anyInvoice(UserId.of(reader.subject), OrderId(id))
+        val invoicePdf = invoiceService.invoice(UserId.of(reader.subject), OrderId(id))
         return pdfResponse(invoicePdf, "facture", id)
     }
 
     @Operation(summary = "Download the credit note of a refunded order of the signed-in customer (PDF)")
     @GetMapping("/api/orders/{id}/credit-note", produces = [MediaType.APPLICATION_PDF_VALUE])
     fun getCreditNote(@AuthenticationPrincipal jwt: Jwt, @PathVariable id: String): ResponseEntity<ByteArray> {
-        val creditNotePdf = invoiceService.customerCreditNote(UserId.ValidUserId(jwt.subject), OrderId(id))
+        val creditNotePdf = invoiceService.creditNote(UserId.of(jwt.subject), OrderId(id))
         return pdfResponse(creditNotePdf, "avoir", id)
     }
 
@@ -53,7 +53,7 @@ class InvoiceController(private val invoiceService: InvoiceService) {
         @AuthenticationPrincipal reader: Jwt,
         @PathVariable id: String
     ): ResponseEntity<ByteArray> {
-        val creditNotePdf = invoiceService.anyCreditNote(UserId.of(reader.subject), OrderId(id))
+        val creditNotePdf = invoiceService.creditNote(UserId.of(reader.subject), OrderId(id))
         return pdfResponse(creditNotePdf, "avoir", id)
     }
 

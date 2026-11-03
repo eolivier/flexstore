@@ -29,12 +29,8 @@ open class ServiceConfig {
 
     @Bean
     open fun invoiceService(invoiceUseCases: InvoiceUseCases,
-                            readCustomerOrderWithCustomerUseCase: ReadCustomerOrderWithCustomerUseCase,
-                            readAdministeredOrderUseCase: ReadAdministeredOrderUseCase): InvoiceService {
-        val billedOrderUseCases =
-            BilledOrderUseCases(readCustomerOrderWithCustomerUseCase, readAdministeredOrderUseCase)
-        return InvoiceService(invoiceUseCases, billedOrderUseCases)
-    }
+                            readAdministeredOrderUseCase: ReadAdministeredOrderUseCase) =
+        InvoiceService(invoiceUseCases, readAdministeredOrderUseCase)
 
     @Bean
     open fun shopSettingsAdministrationService(

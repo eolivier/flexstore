@@ -5,15 +5,15 @@ import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.UserRepository
 import org.ucop.domain.entity.*
 
-// An administrator reads any order, with the customer who placed it; the customer is unknown when their account
-// cannot be read any more
+// An order, with the customer who placed it, read by an administrator (any order) or by its customer (to
+// download its invoice or its credit note); the customer is unknown when their account cannot be read any more
 class ReadAdministeredOrderUseCase(
     private val orderRepository: OrderRepository,
     private val userRepository: UserRepository
 ) : QueryUseCase<AdministeredOrderReading, AdministeredOrder> {
 
     override fun getPreConditions(): PreConditions<AdministeredOrderReading> =
-        PreConditions(readerIsAdministratorCondition(), orderExistsCondition())
+        PreConditions(orderIsReadableByTheReaderCondition())
 
     override fun getNominalQuery() = NominalQuery<AdministeredOrderReading, AdministeredOrder> { (_, orderId) ->
         val order = orderRepository.findById(orderId)!!
@@ -22,16 +22,20 @@ class ReadAdministeredOrderUseCase(
 
     override fun getPostConditions(): PostConditions<AdministeredOrder> = PostConditions.none()
 
-    // The reader must be an existing user with the ADMIN role (read from the users, not from the request)
-    private fun readerIsAdministratorCondition() = PreCondition<AdministeredOrderReading> { request ->
-        if (userRepository.isNotAdministrator(request.reader)) {
-            throw OrderAdministrationForbiddenException(ErrorMessage("Only an administrator can read any order."))
-        }
+    // Unknown, or, for a reader who is not an administrator (read from the users, not from the request), an
+    // order of another customer
+    private fun orderIsMissingFor(reading: AdministeredOrderReading): Boolean {
+        val (reader, orderId) = reading
+        if (orderRepository.orderIsMissing(orderId)) return true
+        val order = orderRepository.findById(orderId)!!
+        return userRepository.isNotAdministrator(reader) && order.doesNotBelongTo(reader)
     }
 
-    private fun orderExistsCondition() = PreCondition<AdministeredOrderReading> { (_, orderId) ->
-        if (orderRepository.orderIsMissing(orderId)) {
-            throw OrderNotFoundException(ErrorMessage("Order ${orderId.value} not found."))
+    // An administrator reads any order, a customer their own ones; the order of another customer is reported as
+    // not found, so that its existence is not revealed
+    private fun orderIsReadableByTheReaderCondition() = PreCondition<AdministeredOrderReading> { reading ->
+        if (orderIsMissingFor(reading)) {
+            throw OrderNotFoundException(ErrorMessage("Order ${reading.orderId.value} not found."))
         }
     }
 

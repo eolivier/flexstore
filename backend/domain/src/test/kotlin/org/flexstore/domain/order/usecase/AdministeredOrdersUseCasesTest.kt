@@ -90,10 +90,32 @@ class AdministeredOrdersUseCasesTest : WithAssertions {
     }
 
     @Test
-    fun `an unknown user should not read any order`() {
+    fun `a customer should read their own order with their name and email`() {
+        // Arrange
+        val order = placeOrder(OrderId("order-1"), customer, placedAt)
+        // Act
+        val administeredOrder = readUseCase.unfold(AdministeredOrderReading(janeId, OrderId("order-1")))
+        // Assert
+        assertThat(administeredOrder).isEqualTo(AdministeredOrder(order, OrderCustomer(janeDoe, Email("jane@example.com"))))
+    }
+
+    @Test
+    fun `the order of another customer should not be found`() {
+        // Arrange
+        placeOrder(OrderId("order-1"), customer, placedAt)
+        // Act
+        val thrown = catchThrowable { readUseCase.unfold(AdministeredOrderReading(testCustomer.id, OrderId("order-1"))) }
+        // Assert
+        assertThat(thrown).isInstanceOf(OrderNotFoundException::class.java)
+    }
+
+    @Test
+    fun `an unknown user should not find any order`() {
+        // Arrange
+        placeOrder(OrderId("order-1"), customer, placedAt)
         // Act
         val thrown = catchThrowable { readUseCase.unfold(AdministeredOrderReading(unknownUser, OrderId("order-1"))) }
         // Assert
-        assertThat(thrown).isInstanceOf(OrderAdministrationForbiddenException::class.java)
+        assertThat(thrown).isInstanceOf(OrderNotFoundException::class.java)
     }
 }

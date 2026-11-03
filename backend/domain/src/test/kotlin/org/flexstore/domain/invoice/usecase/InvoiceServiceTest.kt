@@ -47,10 +47,7 @@ class InvoiceServiceTest : WithAssertions {
             ReadSellerUseCase(sellerRepository),
             RenderInvoiceUseCase(titleRenderer)
         ),
-        BilledOrderUseCases(
-            ReadCustomerOrderWithCustomerUseCase(orderRepository, userRepository),
-            ReadAdministeredOrderUseCase(orderRepository, userRepository)
-        )
+        ReadAdministeredOrderUseCase(orderRepository, userRepository)
     )
 
     private fun storePaidOrder(invoiced: Boolean = true) {
@@ -74,7 +71,7 @@ class InvoiceServiceTest : WithAssertions {
         // Arrange
         storePaidOrder()
         // Act
-        val invoicePdf = service.customerInvoice(janeId, orderId)
+        val invoicePdf = service.invoice(janeId, orderId)
         // Assert
         assertThat(String(invoicePdf.content)).isEqualTo("Facture n° 2026-000001 - Flexstore SAS")
     }
@@ -88,7 +85,7 @@ class InvoiceServiceTest : WithAssertions {
         val renamedSeller = Seller(SellerId.nextId(), renamedDetail)
         sellerRepository.save(renamedSeller)
         // Act
-        val invoicePdf = service.anyInvoice(administrator, orderId)
+        val invoicePdf = service.invoice(administrator, orderId)
         // Assert
         assertThat(String(invoicePdf.content)).isEqualTo("Facture n° 2026-000001 - Flexstore SAS")
     }
@@ -98,7 +95,7 @@ class InvoiceServiceTest : WithAssertions {
         // Arrange
         storePaidOrder()
         // Act
-        val thrown = catchThrowable { service.customerInvoice(UserId.ValidUserId("user-2"), orderId) }
+        val thrown = catchThrowable { service.invoice(UserId.ValidUserId("user-2"), orderId) }
         // Assert
         assertThat(thrown).isInstanceOf(OrderNotFoundException::class.java)
     }
@@ -108,7 +105,7 @@ class InvoiceServiceTest : WithAssertions {
         // Arrange
         storePaidOrder(invoiced = false)
         // Act
-        val thrown = catchThrowable { service.anyInvoice(administrator, orderId) }
+        val thrown = catchThrowable { service.invoice(administrator, orderId) }
         // Assert
         assertThat(thrown).isInstanceOf(InvoiceNotFoundException::class.java)
     }
@@ -118,7 +115,7 @@ class InvoiceServiceTest : WithAssertions {
         // Arrange
         storeRefundedOrder()
         // Act
-        val creditNotePdf = service.customerCreditNote(janeId, orderId)
+        val creditNotePdf = service.creditNote(janeId, orderId)
         // Assert
         assertThat(String(creditNotePdf.content)).isEqualTo("Avoir n° AV-2026-000001 - Flexstore SAS")
     }
@@ -128,7 +125,7 @@ class InvoiceServiceTest : WithAssertions {
         // Arrange
         storeRefundedOrder()
         // Act
-        val thrown = catchThrowable { service.customerCreditNote(UserId.ValidUserId("user-2"), orderId) }
+        val thrown = catchThrowable { service.creditNote(UserId.ValidUserId("user-2"), orderId) }
         // Assert
         assertThat(thrown).isInstanceOf(OrderNotFoundException::class.java)
     }
@@ -138,16 +135,18 @@ class InvoiceServiceTest : WithAssertions {
         // Arrange
         storePaidOrder()
         // Act
-        val thrown = catchThrowable { service.anyCreditNote(administrator, orderId) }
+        val thrown = catchThrowable { service.creditNote(administrator, orderId) }
         // Assert
         assertThat(thrown).isInstanceOf(CreditNoteNotFoundException::class.java)
     }
 
     @Test
-    fun `a customer should not download the invoice of any order`() {
+    fun `an administrator should download the invoice of the order of any customer`() {
+        // Arrange
+        storePaidOrder()
         // Act
-        val thrown = catchThrowable { service.anyInvoice(testCustomer.id, orderId) }
+        val invoicePdf = service.invoice(administrator, orderId)
         // Assert
-        assertThat(thrown).isInstanceOf(OrderAdministrationForbiddenException::class.java)
+        assertThat(String(invoicePdf.content)).isEqualTo("Facture n° 2026-000001 - Flexstore SAS")
     }
 }
