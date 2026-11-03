@@ -90,6 +90,12 @@ open class ServiceConfig {
         AddressBookService(readAccountUseCase, addressUseCases)
 
     @Bean
+    open fun signInService(userRepository: UserRepository,
+                           recordFailedSignInUseCase: RecordFailedSignInUseCase,
+                           resetFailedSignInsUseCase: ResetFailedSignInsUseCase) =
+        SignInService(userRepository, recordFailedSignInUseCase, resetFailedSignInsUseCase)
+
+    @Bean
     open fun userService(userRepository: UserRepository): UserService {
         return UserService(userRepository)
     }

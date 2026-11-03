@@ -55,6 +55,15 @@ class AccountStatusIT {
         post("/api/users/login").contentType(MediaType.APPLICATION_JSON).content("""{"email": "$CUSTOMER_EMAIL", "password": "password123"}""")
     )
 
+    private fun signInWith(password: String) = mockMvc.perform(
+        post("/api/users/login").contentType(MediaType.APPLICATION_JSON)
+            .content("""{"email": "$CUSTOMER_EMAIL", "password": "$password"}""")
+    )
+
+    private fun failSigningIn(times: Int) = repeat(times) {
+        signInWith("wrong-password").andExpect(status().isUnauthorized)
+    }
+
     @Test
     fun `an administrator should change the status of an account`() {
         // Act
@@ -122,5 +131,59 @@ class AccountStatusIT {
         )
         // Assert
         response.andExpect(status().isForbidden)
+    }
+
+    @Test
+    fun `an account should be locked after 5 failed sign-ins, and know why`() {
+        // Arrange
+        failSigningIn(5)
+        // Act
+        val response = signIn()
+        // Assert
+        response.andExpect(status().isForbidden).andExpect(jsonPath("$.status").value("LOCKED"))
+    }
+
+    @Test
+    fun `an account below the limit of failed sign-ins should still sign in`() {
+        // Arrange
+        failSigningIn(4)
+        // Act
+        val response = signIn()
+        // Assert
+        response.andExpect(status().isOk)
+    }
+
+    @Test
+    fun `a successful sign-in should start the count of failed sign-ins again`() {
+        // Arrange
+        failSigningIn(4)
+        signIn().andExpect(status().isOk)
+        failSigningIn(4)
+        // Act
+        val response = signIn()
+        // Assert
+        response.andExpect(status().isOk)
+    }
+
+    @Test
+    fun `an account locked by failed sign-ins should sign in again once an administrator reactivates it`() {
+        // Arrange
+        failSigningIn(5)
+        changeStatus("ACTIVE").andExpect(status().isOk)
+        // Act
+        val response = signIn()
+        // Assert
+        response.andExpect(status().isOk)
+    }
+
+    @Test
+    fun `failed sign-ins of an unknown email should not reveal anything`() {
+        // Act
+        val response = mockMvc.perform(
+            post("/api/users/login").contentType(MediaType.APPLICATION_JSON)
+                .content("""{"email": "nobody.at.all@example.com", "password": "wrong-password"}""")
+        )
+        // Assert
+        response.andExpect(status().isUnauthorized)
     }
 }

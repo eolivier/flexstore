@@ -38,10 +38,4 @@ class UserService(
     fun changePassword(changePasswordRequest: ChangePasswordRequest) {
         ChangePasswordUseCase(userRepository).unfold(changePasswordRequest)
     }
-
-    fun login(loginRequest: LoginRequest): User {
-        val loginUseCase = LoginUseCase(userRepository)
-        loginUseCase.unfold(loginRequest)
-        return loginUseCase.authenticatedUser
-    }
 }
