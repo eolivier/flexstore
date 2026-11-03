@@ -15,6 +15,8 @@ import org.flexstore.infra.spring.adapter.rest.json.DraftJsonUser
 import org.flexstore.infra.spring.adapter.rest.json.JsonChangePasswordRequest
 import org.flexstore.infra.spring.adapter.rest.json.JsonLoginRequest
 import org.flexstore.infra.spring.adapter.rest.json.JsonLoginResponse
+import org.flexstore.infra.spring.adapter.rest.json.JsonRefreshRequest
+import org.flexstore.infra.spring.adapter.rest.json.JsonRefreshResponse
 import org.flexstore.infra.spring.adapter.rest.json.JsonAccountStatus
 import org.flexstore.infra.spring.security.JwtTokenService
 import org.flexstore.infra.spring.adapter.rest.json.DefinedJsonUser
@@ -35,7 +37,9 @@ import org.springframework.web.bind.annotation.*
 class UserRestController(
     val userService: UserService,
     private val signInService: SignInService,
-    private val jwtTokenService: JwtTokenService) {
+    private val userSessionService: UserSessionService,
+    private val jwtTokenService: JwtTokenService
+) {
 
     @Operation(summary = "Create a user")
     @ApiResponse(responseCode = "201", description = "User created",
@@ -168,7 +172,46 @@ class UserRestController(
     @ResponseStatus(HttpStatus.OK)
     fun login(@RequestBody jsonLoginRequest: JsonLoginRequest): JsonLoginResponse {
         val user = signInService.signIn(jsonLoginRequest.toLoginRequest()) as User.DefinedUser
-        val token = jwtTokenService.issue(user)
-        return JsonLoginResponse(token.value, token.expiresAt.toString(), user.toJsonUser())
+        val refreshSession = userSessionService.open(user.id)
+        val token = jwtTokenService.issue(user.account())
+        return JsonLoginResponse(
+            token.value, token.expiresAt.toString(), refreshSession.refreshToken.value,
+            refreshSession.expiry.value.toString(), user.toJsonUser()
+        )
+    }
+
+    @Operation(summary = "Renew the access of a signed-in user with their refresh token",
+        description = "The refresh token works once: the response holds a new token and a new refresh token. " +
+            "A refresh token that was already used ends all the sessions of its user.",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "A new token and the refresh token that replaces the one presented",
+                content = [Content(schema = Schema(implementation = JsonRefreshResponse::class))]
+            ),
+            ApiResponse(responseCode = "401", description = "Unknown, expired or already used refresh token"),
+            ApiResponse(responseCode = "403", description = "The account is suspended, locked or disabled")
+        ]
+    )
+    @PostMapping("/refresh")
+    @ResponseStatus(HttpStatus.OK)
+    fun refresh(@RequestBody jsonRefreshRequest: JsonRefreshRequest): JsonRefreshResponse {
+        val signedInSession = userSessionService.refresh(jsonRefreshRequest.toRefreshToken())
+        val token = jwtTokenService.issue(signedInSession.account)
+        val refreshSession = signedInSession.refreshSession
+        return JsonRefreshResponse(
+            token.value, token.expiresAt.toString(), refreshSession.refreshToken.value,
+            refreshSession.expiry.value.toString()
+        )
+    }
+
+    @Operation(summary = "Sign out: end the session of a refresh token",
+        description = "Signing out twice, or with an unknown refresh token, is no error.",
+        responses = [ApiResponse(responseCode = "204", description = "The session is ended")]
+    )
+    @PostMapping("/logout")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun logout(@RequestBody jsonRefreshRequest: JsonRefreshRequest) {
+        userSessionService.close(jsonRefreshRequest.toRefreshToken())
     }
 }

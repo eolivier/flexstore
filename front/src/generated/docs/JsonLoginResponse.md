@@ -7,6 +7,8 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **token** | **string** | JWT to send in the Authorization header: Bearer &lt;token&gt; | [default to undefined]
 **expiresAt** | **string** |  | [default to undefined]
+**refreshToken** | **string** | Opaque secret that renews the token once it expired (POST /api/users/refresh); it works once | [default to undefined]
+**refreshExpiresAt** | **string** |  | [default to undefined]
 **user** | [**JsonUser**](JsonUser.md) |  | [default to undefined]
 
 ## Example
@@ -17,6 +19,8 @@ import { JsonLoginResponse } from './api';
 const instance: JsonLoginResponse = {
     token,
     expiresAt,
+    refreshToken,
+    refreshExpiresAt,
     user,
 };
 ```

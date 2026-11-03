@@ -97,6 +97,19 @@ open class ServiceConfig {
         SignInService(userRepository, recordFailedSignInUseCase, resetFailedSignInsUseCase)
 
     @Bean
+    open fun userSessionService(
+        openSessionUseCase: OpenSessionUseCase,
+        readRefreshSessionUseCase: ReadRefreshSessionUseCase,
+        rotateRefreshSessionUseCase: RotateRefreshSessionUseCase,
+        revokeRefreshSessionUseCase: RevokeRefreshSessionUseCase,
+        revokeAllRefreshSessionsUseCase: RevokeAllRefreshSessionsUseCase,
+        readAccountUseCase: ReadAccountUseCase
+    ) = UserSessionService(
+        openSessionUseCase, readRefreshSessionUseCase, rotateRefreshSessionUseCase, revokeRefreshSessionUseCase,
+        revokeAllRefreshSessionsUseCase, readAccountUseCase
+    )
+
+    @Bean
     open fun userService(userRepository: UserRepository): UserService {
         return UserService(userRepository)
     }

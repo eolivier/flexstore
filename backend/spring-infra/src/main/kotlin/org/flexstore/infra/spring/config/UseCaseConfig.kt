@@ -537,6 +537,30 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     ) = CookieConsentUseCases(readCookieConsentUseCase, recordCookieConsentUseCase)
 
     @Bean
+    open fun openSessionUseCase(
+        refreshSessionRepository: RefreshSessionRepository,
+        userRepository: UserRepository
+    ) = OpenSessionUseCase(refreshSessionRepository, userRepository)
+
+    @Bean
+    open fun readRefreshSessionUseCase(refreshSessionRepository: RefreshSessionRepository) =
+        ReadRefreshSessionUseCase(refreshSessionRepository)
+
+    @Bean
+    open fun rotateRefreshSessionUseCase(
+        refreshSessionRepository: RefreshSessionRepository,
+        userRepository: UserRepository
+    ) = RotateRefreshSessionUseCase(refreshSessionRepository, userRepository)
+
+    @Bean
+    open fun revokeRefreshSessionUseCase(refreshSessionRepository: RefreshSessionRepository) =
+        RevokeRefreshSessionUseCase(refreshSessionRepository)
+
+    @Bean
+    open fun revokeAllRefreshSessionsUseCase(refreshSessionRepository: RefreshSessionRepository) =
+        RevokeAllRefreshSessionsUseCase(refreshSessionRepository)
+
+    @Bean
     open fun readSalesDashboardUseCase(orderRepository: OrderRepository, userRepository: UserRepository) =
         ReadSalesDashboardUseCase(orderRepository, userRepository)
 }

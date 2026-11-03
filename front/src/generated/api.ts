@@ -401,6 +401,11 @@ export interface JsonLoginResponse {
      */
     'token': string;
     'expiresAt': string;
+    /**
+     * Opaque secret that renews the token once it expired (POST /api/users/refresh); it works once
+     */
+    'refreshToken': string;
+    'refreshExpiresAt': string;
     'user': JsonUser;
 }
 export interface JsonLowStock {
@@ -659,6 +664,21 @@ export interface JsonRatingSummary {
      */
     'average': number;
     'reviewCount': number;
+}
+export interface JsonRefreshRequest {
+    'refreshToken': string;
+}
+export interface JsonRefreshResponse {
+    /**
+     * JWT to send in the Authorization header: Bearer <token>
+     */
+    'token': string;
+    'expiresAt': string;
+    /**
+     * The refresh token that replaces the one presented
+     */
+    'refreshToken': string;
+    'refreshExpiresAt': string;
 }
 export interface JsonReview {
     'id': string;
@@ -5730,7 +5750,7 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
             };
         },
         /**
-         * Validates user credentials and returns user information on success
+         * Validates user credentials and returns the token (valid for 15 minutes), the refresh token (valid for 7 days, it works once) and the user
          * @summary Authenticate a user
          * @param {JsonLoginRequest} jsonLoginRequest 
          * @param {*} [options] Override http request option.
@@ -5759,6 +5779,78 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(jsonLoginRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Signing out twice, or with an unknown refresh token, is no error
+         * @summary Sign out, ending the session of a refresh token
+         * @param {JsonRefreshRequest} jsonRefreshRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        logoutUser: async (jsonRefreshRequest: JsonRefreshRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'jsonRefreshRequest' is not null or undefined
+            assertParamExists('logoutUser', 'jsonRefreshRequest', jsonRefreshRequest)
+            const localVarPath = `/api/users/logout`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonRefreshRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * The refresh token works once: the response holds a new token and a new refresh token that replaces it. A refresh token that was already used (or whose session was ended) ends all the sessions of its user. Public route: the refresh token is the credential.
+         * @summary Renew the access of a signed-in user with their refresh token
+         * @param {JsonRefreshRequest} jsonRefreshRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        refreshSession: async (jsonRefreshRequest: JsonRefreshRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'jsonRefreshRequest' is not null or undefined
+            assertParamExists('refreshSession', 'jsonRefreshRequest', jsonRefreshRequest)
+            const localVarPath = `/api/users/refresh`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonRefreshRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -5900,7 +5992,7 @@ export const UsersApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Validates user credentials and returns user information on success
+         * Validates user credentials and returns the token (valid for 15 minutes), the refresh token (valid for 7 days, it works once) and the user
          * @summary Authenticate a user
          * @param {JsonLoginRequest} jsonLoginRequest 
          * @param {*} [options] Override http request option.
@@ -5910,6 +6002,32 @@ export const UsersApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.loginUser(jsonLoginRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['UsersApi.loginUser']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Signing out twice, or with an unknown refresh token, is no error
+         * @summary Sign out, ending the session of a refresh token
+         * @param {JsonRefreshRequest} jsonRefreshRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async logoutUser(jsonRefreshRequest: JsonRefreshRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.logoutUser(jsonRefreshRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UsersApi.logoutUser']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * The refresh token works once: the response holds a new token and a new refresh token that replaces it. A refresh token that was already used (or whose session was ended) ends all the sessions of its user. Public route: the refresh token is the credential.
+         * @summary Renew the access of a signed-in user with their refresh token
+         * @param {JsonRefreshRequest} jsonRefreshRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async refreshSession(jsonRefreshRequest: JsonRefreshRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonRefreshResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.refreshSession(jsonRefreshRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UsersApi.refreshSession']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -5999,7 +6117,7 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
             return localVarFp.getUser(id, options).then((request) => request(axios, basePath));
         },
         /**
-         * Validates user credentials and returns user information on success
+         * Validates user credentials and returns the token (valid for 15 minutes), the refresh token (valid for 7 days, it works once) and the user
          * @summary Authenticate a user
          * @param {JsonLoginRequest} jsonLoginRequest 
          * @param {*} [options] Override http request option.
@@ -6007,6 +6125,26 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
          */
         loginUser(jsonLoginRequest: JsonLoginRequest, options?: RawAxiosRequestConfig): AxiosPromise<JsonLoginResponse> {
             return localVarFp.loginUser(jsonLoginRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Signing out twice, or with an unknown refresh token, is no error
+         * @summary Sign out, ending the session of a refresh token
+         * @param {JsonRefreshRequest} jsonRefreshRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        logoutUser(jsonRefreshRequest: JsonRefreshRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.logoutUser(jsonRefreshRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * The refresh token works once: the response holds a new token and a new refresh token that replaces it. A refresh token that was already used (or whose session was ended) ends all the sessions of its user. Public route: the refresh token is the credential.
+         * @summary Renew the access of a signed-in user with their refresh token
+         * @param {JsonRefreshRequest} jsonRefreshRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        refreshSession(jsonRefreshRequest: JsonRefreshRequest, options?: RawAxiosRequestConfig): AxiosPromise<JsonRefreshResponse> {
+            return localVarFp.refreshSession(jsonRefreshRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Reserved to an administrator, checked by the domain (403 otherwise)
@@ -6096,7 +6234,7 @@ export class UsersApi extends BaseAPI {
     }
 
     /**
-     * Validates user credentials and returns user information on success
+     * Validates user credentials and returns the token (valid for 15 minutes), the refresh token (valid for 7 days, it works once) and the user
      * @summary Authenticate a user
      * @param {JsonLoginRequest} jsonLoginRequest 
      * @param {*} [options] Override http request option.
@@ -6104,6 +6242,28 @@ export class UsersApi extends BaseAPI {
      */
     public loginUser(jsonLoginRequest: JsonLoginRequest, options?: RawAxiosRequestConfig) {
         return UsersApiFp(this.configuration).loginUser(jsonLoginRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Signing out twice, or with an unknown refresh token, is no error
+     * @summary Sign out, ending the session of a refresh token
+     * @param {JsonRefreshRequest} jsonRefreshRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public logoutUser(jsonRefreshRequest: JsonRefreshRequest, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).logoutUser(jsonRefreshRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * The refresh token works once: the response holds a new token and a new refresh token that replaces it. A refresh token that was already used (or whose session was ended) ends all the sessions of its user. Public route: the refresh token is the credential.
+     * @summary Renew the access of a signed-in user with their refresh token
+     * @param {JsonRefreshRequest} jsonRefreshRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public refreshSession(jsonRefreshRequest: JsonRefreshRequest, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).refreshSession(jsonRefreshRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
