@@ -31,6 +31,9 @@ const val ROLES_CLAIM = "roles"
  * The catalog, the cart and the login are public (merging a visitor cart requires a signed-in user);
  * managing users and products requires the ADMIN role.
  */
+// The size of the key that signs the tokens (HMAC SHA-256)
+private const val JWT_KEY_BYTES = 32
+
 @Configuration
 open class SecurityConfig(@Value("\${flexstore.security.jwt-secret:}") private val jwtSecret: String) {
 
@@ -38,12 +41,14 @@ open class SecurityConfig(@Value("\${flexstore.security.jwt-secret:}") private v
 
     private val secretKey: SecretKey by lazy {
         val secret = jwtSecret.toByteArray()
-        val keyBytes = if (secret.size >= 32) {
+        val keyBytes = if (secret.size >= JWT_KEY_BYTES) {
             secret
         } else {
             // Without a configured secret, tokens are only valid until the application restarts
-            logger.warn("FLEXSTORE_JWT_SECRET is missing or shorter than 32 characters: using a random secret")
-            ByteArray(32).also { SecureRandom().nextBytes(it) }
+            logger.warn(
+                "FLEXSTORE_JWT_SECRET is missing or shorter than $JWT_KEY_BYTES characters: using a random secret"
+            )
+            ByteArray(JWT_KEY_BYTES).also { SecureRandom().nextBytes(it) }
         }
         SecretKeySpec(keyBytes, "HmacSHA256")
     }

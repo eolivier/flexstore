@@ -22,8 +22,9 @@ data class PaymentDelay(val minutes: Int) {
 
     companion object {
         const val MAX_MINUTES = 24 * 60
+        private const val DEFAULT_MINUTES = 10
 
-        fun byDefault() = PaymentDelay(10)
+        fun byDefault() = PaymentDelay(DEFAULT_MINUTES)
     }
 }
 
@@ -37,7 +38,9 @@ data class FreeShippingThreshold(val price: Price) {
     fun isInvalid() = !isValid()
 
     companion object {
-        fun byDefault() = FreeShippingThreshold(Price(Amount(BigDecimal(50)), Currency.EUR))
+        private const val DEFAULT_EUROS = 50
+
+        fun byDefault() = FreeShippingThreshold(Price(Amount(BigDecimal(DEFAULT_EUROS)), Currency.EUR))
     }
 }
 

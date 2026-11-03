@@ -28,6 +28,11 @@ data class Price(val amount: Amount, val currency: Currency) {
 }
 data class Amount(val value: BigDecimal) {
     fun multiply(quantity: Quantity) = Amount(this.value.multiply(BigDecimal(quantity.value)))
+
+    companion object {
+        // An amount of money is given to the cent: 2 digits after the decimal point
+        const val CENT_SCALE = 2
+    }
 }
 data class Quantity(val value: Int) {
     fun addNewQuantity(newQuantity: Quantity) = Quantity(this.value + newQuantity.value)

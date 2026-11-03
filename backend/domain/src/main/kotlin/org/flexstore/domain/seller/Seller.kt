@@ -21,12 +21,18 @@ data class SellerAddress(val value: String) {
     fun isGiven() = value.isNotBlank()
 }
 
+private const val SIREN_DIGITS = 9
+private const val SIREN_GROUP_DIGITS = 3
+
 // The SIRET of the seller (the French identifier of its establishment): 14 digits, maybe grouped by spaces
 data class Siret(val value: String) {
     fun isValid() = SIRET.matches(value.replace(" ", ""))
 
     // Its first 9 digits, which identify the company itself
-    fun siren() = SellerSiren(value.replace(" ", "").take(9).chunked(3).joinToString(" "))
+    fun siren(): SellerSiren {
+        val sirenDigits = value.replace(" ", "").take(SIREN_DIGITS)
+        return SellerSiren(sirenDigits.chunked(SIREN_GROUP_DIGITS).joinToString(" "))
+    }
 }
 
 // The SIREN of the seller (the French identifier of the company), grouped by 3 digits: 123 456 789

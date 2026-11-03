@@ -5,12 +5,14 @@ import org.flexstore.domain.sharedkernel.*
 import java.math.BigDecimal
 import java.math.RoundingMode
 
+private const val PERCENT_DECIMAL_PLACES = 2
+
 // A price that includes the VAT, split into its amount without VAT and its VAT (rounded to the cent)
 data class VatBreakdown(val priceIncludingVat: Price, val rate: VatRate) {
 
     fun priceExcludingVat(): Price {
-        val divisor = BigDecimal.ONE.add(rate.percent.movePointLeft(2))
-        val amount = priceIncludingVat.amount.value.divide(divisor, 2, RoundingMode.HALF_UP)
+        val divisor = BigDecimal.ONE.add(rate.percent.movePointLeft(PERCENT_DECIMAL_PLACES))
+        val amount = priceIncludingVat.amount.value.divide(divisor, Amount.CENT_SCALE, RoundingMode.HALF_UP)
         return Price(Amount(amount), priceIncludingVat.currency)
     }
 
@@ -32,7 +34,7 @@ data class VatOfAdjustment(val adjustment: Price, val order: Order) {
         return soldRates.fold(zero) { total, rate ->
             val ratePrice = order.lines.soldAt(rate).totalPrice()
             val weighted = adjustment.amount.value.multiply(ratePrice.amount.value)
-            val share = weighted.divide(itemsPrice.amount.value, 2, RoundingMode.HALF_UP)
+            val share = weighted.divide(itemsPrice.amount.value, Amount.CENT_SCALE, RoundingMode.HALF_UP)
             total + VatBreakdown(Price(Amount(share), adjustment.currency), rate).vat()
         }
     }
@@ -71,7 +73,7 @@ data class VatBreakdowns(private val breakdowns: List<VatBreakdown>) {
         private fun shareOf(adjustments: Price, ratePrice: Price, itemsPrice: Price): Price {
             if (itemsPrice.isFree()) return Price(Amount(BigDecimal.ZERO), adjustments.currency)
             val weighted = adjustments.amount.value.multiply(ratePrice.amount.value)
-            val share = weighted.divide(itemsPrice.amount.value, 2, RoundingMode.HALF_UP)
+            val share = weighted.divide(itemsPrice.amount.value, Amount.CENT_SCALE, RoundingMode.HALF_UP)
             return Price(Amount(share), adjustments.currency)
         }
     }

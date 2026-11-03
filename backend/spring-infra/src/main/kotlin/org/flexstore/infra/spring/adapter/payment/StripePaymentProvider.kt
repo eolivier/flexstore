@@ -26,6 +26,9 @@ import org.flexstore.domain.payment.*
 import org.flexstore.domain.sharedkernel.ErrorMessage
 import java.math.BigDecimal
 
+// Stripe amounts are in cents
+private val CENTS_PER_EURO = BigDecimal(100)
+
 // Stripe Checkout: the customer pays on the page of Stripe (the card never reaches the shop),
 // then comes back to the confirmation page of the order. Stripe confirms the payment later, with its webhook.
 // The page is prefilled through a Stripe customer: the email of the payer and the name of the cardholder
@@ -102,7 +105,7 @@ class StripePaymentProvider(private val secretKey: String, private val shopUrl: 
     // The discount of the order, as a Stripe coupon of its amount, used once; none without discount
     private fun discountOf(order: Order): SessionCreateParams.Discount? {
         val discount = order.discount as? AppliedOrderDiscount ?: return null
-        val amountOffInCents = discount.amount.amount.value.multiply(BigDecimal(100)).longValueExact()
+        val amountOffInCents = discount.amount.amount.value.multiply(CENTS_PER_EURO).longValueExact()
         val couponParams = CouponCreateParams.builder()
             .setAmountOff(amountOffInCents)
             .setCurrency(discount.amount.currency.name.lowercase())
@@ -126,7 +129,7 @@ class StripePaymentProvider(private val secretKey: String, private val shopUrl: 
 
     private fun lineItemOf(name: String, unitPrice: Price, quantity: Long): LineItem {
         val productData = PriceData.ProductData.builder().setName(name).build()
-        val unitAmountInCents = unitPrice.amount.value.multiply(BigDecimal(100)).longValueExact()
+        val unitAmountInCents = unitPrice.amount.value.multiply(CENTS_PER_EURO).longValueExact()
         val priceData = PriceData.builder()
             .setCurrency(unitPrice.currency.name.lowercase())
             .setUnitAmount(unitAmountInCents)
