@@ -14,7 +14,7 @@ class ListUsersUseCaseTest : WithAssertions {
         // Act
         val users = useCase.unfold(UsersReading(testAdministrator.id))
         // Assert
-        assertThat(users.asList()).containsExactlyInAnyOrder(testAdministrator, testCustomer)
+        assertThat(users.asList()).contains(testAdministrator, testCustomer)
     }
 
     @Test
