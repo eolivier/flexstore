@@ -1,5 +1,6 @@
-package org.flexstore.domain.payment.usecase
+package org.flexstore.domain.payment
 
+import org.flexstore.domain.payment.usecase.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.order.usecase.*
 import org.flexstore.domain.invoice.InvoiceDate

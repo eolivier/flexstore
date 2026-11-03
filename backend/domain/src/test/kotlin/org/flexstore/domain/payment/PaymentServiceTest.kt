@@ -1,9 +1,10 @@
-package org.flexstore.domain.payment.usecase
+package org.flexstore.domain.payment
 
 import org.flexstore.domain.user.blockedCustomerId
 import org.flexstore.domain.user.customerWithStatus
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
+import org.flexstore.domain.payment.usecase.*
 import org.flexstore.domain.stock.*
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.cart.*
