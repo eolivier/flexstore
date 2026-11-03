@@ -69,71 +69,50 @@ class UserReadCacheTest {
     }
 
     @Test
-    fun `checking that a user exists twice should read the table once`() {
-        // Act
-        userRepository.exists(janeId)
-        userRepository.exists(janeId)
-        // Assert
-        verify(jpaUserRepository, times(1)).existsById(janeId.value)
-    }
-
-    @Test
     fun `an update should evict the key of the user`() {
         // Arrange
         userRepository.findById(janeId)
-        userRepository.exists(janeId)
         userRepository.save(updatedJane)
         clearInvocations(jpaUserRepository)
         // Act
         userRepository.findById(janeId)
-        userRepository.exists(janeId)
         // Assert
         verify(jpaUserRepository, times(1)).findById(janeId.value)
-        verify(jpaUserRepository, times(1)).existsById(janeId.value)
     }
 
     @Test
     fun `a delete should evict the key of the user`() {
         // Arrange
         userRepository.findById(janeId)
-        userRepository.exists(janeId)
         userRepository.delete(janeId)
         clearInvocations(jpaUserRepository)
         // Act
         userRepository.findById(janeId)
-        userRepository.exists(janeId)
         // Assert
         verify(jpaUserRepository, times(1)).findById(janeId.value)
-        verify(jpaUserRepository, times(1)).existsById(janeId.value)
     }
 
     @Test
     fun `an update should keep the other users in the cache`() {
         // Arrange
         userRepository.findById(bobId)
-        userRepository.exists(bobId)
         userRepository.save(updatedJane)
         clearInvocations(jpaUserRepository)
         // Act
         userRepository.findById(bobId)
-        userRepository.exists(bobId)
         // Assert
         verify(jpaUserRepository, never()).findById(bobId.value)
-        verify(jpaUserRepository, never()).existsById(bobId.value)
     }
 
     @Test
     fun `a delete should keep the other users in the cache`() {
         // Arrange
         userRepository.findById(bobId)
-        userRepository.exists(bobId)
         userRepository.delete(janeId)
         clearInvocations(jpaUserRepository)
         // Act
         userRepository.findById(bobId)
-        userRepository.exists(bobId)
         // Assert
         verify(jpaUserRepository, never()).findById(bobId.value)
-        verify(jpaUserRepository, never()).existsById(bobId.value)
     }
 }

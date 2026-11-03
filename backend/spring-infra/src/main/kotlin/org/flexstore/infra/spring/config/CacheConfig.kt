@@ -8,11 +8,10 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import java.time.Duration
 
-// The caches of the reads of the user table, keyed by the id of the user: every insert, update and delete of a
+// The cache of the reads of the user table, keyed by the id of the user: every insert, update and delete of a
 // user evicts that id only. The entries also expire, so that a row changed by something other than this
 // application is read again in the end
 const val USERS_CACHE = "users"
-const val USER_EXISTENCE_CACHE = "userExistence"
 
 private const val MAXIMUM_CACHED_ENTRIES = 1_000L
 private const val ENTRY_LIFETIME_MINUTES = 10L
@@ -23,7 +22,7 @@ open class CacheConfig {
 
     @Bean
     open fun cacheManager(): CacheManager {
-        val cacheManager = CaffeineCacheManager(USERS_CACHE, USER_EXISTENCE_CACHE)
+        val cacheManager = CaffeineCacheManager(USERS_CACHE)
         val entryLifetime = Duration.ofMinutes(ENTRY_LIFETIME_MINUTES)
         val caffeine = Caffeine.newBuilder().maximumSize(MAXIMUM_CACHED_ENTRIES).expireAfterWrite(entryLifetime)
         cacheManager.setCaffeine(caffeine)
