@@ -5,7 +5,7 @@ All URIs are relative to *http://localhost:8080*
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
 |[**getOrder**](#getorder) | **GET** /api/orders/{id} | Retrieve an order of the signed-in customer|
-|[**getOrders**](#getorders) | **GET** /api/orders | Retrieve the orders of the signed-in customer, newest first|
+|[**getOrders**](#getorders) | **GET** /api/orders | Retrieve a page of the orders of the signed-in customer, newest first|
 |[**getShippingOptions**](#getshippingoptions) | **GET** /api/orders/shipping-options | Retrieve the shipping methods, with their cost for the cart of the signed-in customer|
 |[**placeOrder**](#placeorder) | **POST** /api/orders | Place an order from the cart of the signed-in customer; it awaits its payment|
 |[**previewDiscount**](#previewdiscount) | **GET** /api/orders/discount-preview | Retrieve what a discount code takes off the cart of the signed-in customer|
@@ -64,6 +64,7 @@ const { status, data } = await apiInstance.getOrder(
 # **getOrders**
 > Array<JsonOrder> getOrders()
 
+The total number of orders is in the header X-Total-Count; a size above 100 is brought back to 100
 
 ### Example
 
@@ -76,11 +77,21 @@ import {
 const configuration = new Configuration();
 const apiInstance = new OrdersApi(configuration);
 
-const { status, data } = await apiInstance.getOrders();
+let page: number; //The number of the page, from 0 (a negative number is brought back to 0) (optional) (default to 0)
+let size: number; //The number of items of a page (a size out of 1 to 100 is brought back to the nearest limit) (optional) (default to 20)
+
+const { status, data } = await apiInstance.getOrders(
+    page,
+    size
+);
 ```
 
 ### Parameters
-This endpoint does not have any parameters.
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **page** | [**number**] | The number of the page, from 0 (a negative number is brought back to 0) | (optional) defaults to 0|
+| **size** | [**number**] | The number of items of a page (a size out of 1 to 100 is brought back to the nearest limit) | (optional) defaults to 20|
 
 
 ### Return type
@@ -100,7 +111,7 @@ This endpoint does not have any parameters.
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | The orders |  -  |
+|**200** | A page of the orders |  * X-Total-Count -  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

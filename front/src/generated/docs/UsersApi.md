@@ -8,7 +8,7 @@ All URIs are relative to *http://localhost:8080*
 |[**changePassword**](#changepassword) | **POST** /api/users/{id}/password | Change the password of a user|
 |[**createUser**](#createuser) | **POST** /api/users | Create a user|
 |[**deleteUser**](#deleteuser) | **DELETE** /api/users/{id} | Delete a user by ID|
-|[**getAllUsers**](#getallusers) | **GET** /api/users | Retrieve all users|
+|[**getAllUsers**](#getallusers) | **GET** /api/users | Retrieve a page of the users, the first created first (ADMIN role)|
 |[**getUser**](#getuser) | **GET** /api/users/{id} | Retrieve a user by ID|
 |[**loginUser**](#loginuser) | **POST** /api/users/login | Authenticate a user|
 |[**updateUser**](#updateuser) | **PUT** /api/users/{id} | Edit a user by ID (first name, last name, email, role; not the password)|
@@ -230,9 +230,9 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getAllUsers**
-> JsonUser getAllUsers()
+> Array<JsonUser> getAllUsers()
 
-Returns the full list of users
+The total number of users is in the header X-Total-Count; a size above 100 is brought back to 100
 
 ### Example
 
@@ -245,16 +245,26 @@ import {
 const configuration = new Configuration();
 const apiInstance = new UsersApi(configuration);
 
-const { status, data } = await apiInstance.getAllUsers();
+let page: number; //The number of the page, from 0 (a negative number is brought back to 0) (optional) (default to 0)
+let size: number; //The number of items of a page (a size out of 1 to 100 is brought back to the nearest limit) (optional) (default to 20)
+
+const { status, data } = await apiInstance.getAllUsers(
+    page,
+    size
+);
 ```
 
 ### Parameters
-This endpoint does not have any parameters.
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **page** | [**number**] | The number of the page, from 0 (a negative number is brought back to 0) | (optional) defaults to 0|
+| **size** | [**number**] | The number of items of a page (a size out of 1 to 100 is brought back to the nearest limit) | (optional) defaults to 20|
 
 
 ### Return type
 
-**JsonUser**
+**Array<JsonUser>**
 
 ### Authorization
 
@@ -269,7 +279,7 @@ This endpoint does not have any parameters.
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | Successfully retrieved the list of users |  -  |
+|**200** | A page of the users |  * X-Total-Count -  <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

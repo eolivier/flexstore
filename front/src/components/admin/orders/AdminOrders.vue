@@ -9,9 +9,11 @@
   import { formatPrice } from '@/utils/price';
   import AdvanceOrderStatusButton from './AdvanceOrderStatusButton.vue';
   import AdminOrderFilters from './AdminOrderFilters.vue';
+  import ListPager from '@/components/layout/ListPager.vue';
   import { matchesOrderFilter, noOrderFilter, type AdminOrderFilter } from '@/utils/adminOrderFilter';
 
-  // The orders of all the customers: the administrator moves each one to its next status
+  // The orders of all the customers, a page at a time: the administrator moves each one to its next status.
+  // The filters apply to the orders of the page shown
   const adminOrdersStore = useAdminOrdersStore();
   const { t, locale } = useI18n();
 
@@ -54,7 +56,7 @@
     <AdminBreadcrumbs />
     <h1 class="text-h4 font-weight-bold">{{ t('adminOrders.title') }}</h1>
     <p class="text-body-2 text-medium-emphasis mt-1 mb-6">
-      {{ t('adminOrders.count', filteredOrders.length) }}
+      {{ t('adminOrders.pageCount', { shown: filteredOrders.length, total: adminOrdersStore.total }) }}
     </p>
 
     <AdminOrderFilters v-model="filter" />
@@ -70,6 +72,8 @@
       :loading="adminOrdersStore.loading"
       :loading-text="t('adminOrders.loading')"
       item-value="id"
+      :items-per-page="-1"
+      hide-default-footer
       :no-data-text="t('adminOrders.noMatch')"
     >
       <template #item.number="{ item }">
@@ -94,5 +98,10 @@
         <AdvanceOrderStatusButton :order="item" :advancing="advancingOrderId === item.id" @advance="advance" />
       </template>
     </v-data-table>
+    <ListPager
+      :model-value="adminOrdersStore.page"
+      :total="adminOrdersStore.total"
+      @update:model-value="adminOrdersStore.fetchAllOrders"
+    />
   </v-container>
 </template>

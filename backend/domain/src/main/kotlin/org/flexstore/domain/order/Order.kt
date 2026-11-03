@@ -262,7 +262,7 @@ data class OrderStatusAdvance(val editor: UserId, val orderId: OrderId, val curr
 data class OrderRefund(val editor: UserId, val orderId: OrderId, val currentStatus: OrderStatus)
 
 // An administrator who reads the orders of all the customers
-data class AdministeredOrdersReading(val reader: UserId)
+data class AdministeredOrdersReading(val reader: UserId, val pageRequest: PageRequest)
 
 // A user who reads an order with its customer: an administrator, or the customer of the order
 data class AdministeredOrderReading(val reader: UserId, val orderId: OrderId)

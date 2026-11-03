@@ -13,6 +13,8 @@ import org.flexstore.domain.order.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.*
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
@@ -20,7 +22,12 @@ import org.springframework.transaction.annotation.Transactional
 @Repository
 interface JpaOrderRepository : JpaRepository<OrderEntity, String> {
     fun findAllByUserId(userId: String): List<OrderEntity>
+
+    fun findAllByUserId(userId: String, pageable: Pageable): org.springframework.data.domain.Page<OrderEntity>
 }
+
+// The newest orders first; the id keeps the order of two orders placed at the same moment stable
+private val NEWEST_FIRST = Sort.by(Sort.Order.desc("placedAt"), Sort.Order.desc("id"))
 
 @Repository
 @Transactional
@@ -59,6 +66,21 @@ class PostgresOrderRepositoryAdapter(
     @Transactional(readOnly = true)
     override fun findAllBy(customer: UserId.ValidUserId) =
         Orders(jpaRepo.findAllByUserId(customer.value).map { it.toDomain() })
+
+    @Transactional(readOnly = true)
+    override fun findAll(pageRequest: PageRequest) = jpaRepo.findAll(pageableOf(pageRequest)).toOrdersPage()
+
+    @Transactional(readOnly = true)
+    override fun findAllBy(customer: UserId.ValidUserId, pageRequest: PageRequest) =
+        jpaRepo.findAllByUserId(customer.value, pageableOf(pageRequest)).toOrdersPage()
+
+    private fun pageableOf(pageRequest: PageRequest): Pageable {
+        val (number, size) = pageRequest
+        return org.springframework.data.domain.PageRequest.of(number.value, size.value, NEWEST_FIRST)
+    }
+
+    private fun org.springframework.data.domain.Page<OrderEntity>.toOrdersPage() =
+        Page(Orders(content.map { it.toDomain() }), TotalCount(totalElements))
 
     private fun Order.toEntity(): OrderEntity {
         val customerEntity = jpaUserRepository.findById(customer.value).orElseThrow()

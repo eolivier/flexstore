@@ -16,6 +16,10 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.transaction.annotation.Transactional
+import org.flexstore.domain.sharedkernel.PageNumber
+import org.flexstore.domain.sharedkernel.PageRequest
+import org.flexstore.domain.sharedkernel.PageSize
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 // The orders of the signed-in customer (the token gives the customer)
@@ -59,11 +63,20 @@ class OrderController(
         return JsonDiscountPreview(discountPreview)
     }
 
-    @Operation(summary = "Retrieve the orders of the signed-in customer, newest first")
+    @Operation(
+        summary = "Retrieve a page of the orders of the signed-in customer, newest first",
+        description = "The total number of orders is in the header X-Total-Count; a size above 100 is " +
+            "brought back to 100"
+    )
     @GetMapping
-    fun getOrders(@AuthenticationPrincipal jwt: Jwt): List<JsonOrder> {
+    fun getOrders(
+        @AuthenticationPrincipal jwt: Jwt,
+        @RequestParam(defaultValue = "${PageNumber.FIRST}") page: Int,
+        @RequestParam(defaultValue = "${PageSize.DEFAULT}") size: Int
+    ): ResponseEntity<List<JsonOrder>> {
         val paymentDelay = orderUseCases.paymentDelay()
-        return orderUseCases.getOrders(customer(jwt)).asList().map { JsonOrder(it, paymentDelay) }
+        val orders = orderUseCases.getOrders(customer(jwt), PageRequest.of(page, size))
+        return pagedBody(orders.content.asList().map { JsonOrder(it, paymentDelay) }, orders.total)
     }
 
     @Operation(summary = "Retrieve an order of the signed-in customer")

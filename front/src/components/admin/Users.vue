@@ -3,6 +3,7 @@
   import { computed, onMounted, ref } from 'vue';
   import { useUsersStore } from '@/stores/users.store.ts';
   import ConfirmDialog from '@/components/ConfirmDialog.vue';
+  import ListPager from '@/components/layout/ListPager.vue';
   import { FullName, type AccountStatus, type User } from '@/models/user';
   import { useI18n } from 'vue-i18n';
 
@@ -57,7 +58,7 @@
     <div class="d-flex flex-wrap align-end ga-4 mb-6">
       <div>
         <h1 class="text-h4 font-weight-bold">{{ t('users.title') }}</h1>
-        <p class="text-body-2 text-medium-emphasis mt-1">{{ t('users.count', usersStore.users.length) }}</p>
+        <p class="text-body-2 text-medium-emphasis mt-1">{{ t('users.count', usersStore.total) }}</p>
       </div>
       <v-spacer />
       <v-btn to="/admin/create-user" color="primary" prepend-icon="mdi-account-plus-outline">{{
@@ -71,6 +72,8 @@
       :loading="usersStore.loading"
       :loading-text="t('users.loading')"
       item-value="id"
+      :items-per-page="-1"
+      hide-default-footer
     >
       <template #item.name="{ item }">
         <div class="d-flex align-center py-2">
@@ -108,6 +111,11 @@
         />
       </template>
     </v-data-table>
+    <ListPager
+      :model-value="usersStore.page"
+      :total="usersStore.total"
+      @update:model-value="usersStore.fetchUsers"
+    />
 
     <ConfirmDialog
       v-model="dialog"

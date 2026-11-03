@@ -10,6 +10,10 @@ import org.flexstore.infra.spring.adapter.rest.json.JsonAdminOrder
 import org.flexstore.infra.spring.adapter.rest.json.JsonOrderRefund
 import org.flexstore.infra.spring.adapter.rest.json.JsonOrderStatusAdvance
 import org.springframework.transaction.annotation.Transactional
+import org.flexstore.domain.sharedkernel.PageNumber
+import org.flexstore.domain.sharedkernel.PageRequest
+import org.flexstore.domain.sharedkernel.PageSize
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.flexstore.domain.user.model.UserId
 import org.flexstore.domain.user.model.of
@@ -26,10 +30,21 @@ class AdminOrderController(
     private val orderRefundService: OrderRefundService
 ) {
 
-    @Operation(summary = "Retrieve the orders of all the customers, newest first, with their customer")
+    @Operation(
+        summary = "Retrieve a page of the orders of all the customers, newest first, with their customer",
+        description = "The total number of orders is in the header X-Total-Count; a size above 100 is " +
+            "brought back to 100"
+    )
     @GetMapping
-    fun getAllOrders(@AuthenticationPrincipal reader: Jwt): List<JsonAdminOrder> =
-        orderAdministrationService.getAllOrders(UserId.of(reader.subject)).asList().map { JsonAdminOrder(it) }
+    fun getAllOrders(
+        @AuthenticationPrincipal reader: Jwt,
+        @RequestParam(defaultValue = "${PageNumber.FIRST}") page: Int,
+        @RequestParam(defaultValue = "${PageSize.DEFAULT}") size: Int
+    ): ResponseEntity<List<JsonAdminOrder>> {
+        val pageRequest = PageRequest.of(page, size)
+        val orders = orderAdministrationService.getAllOrders(UserId.of(reader.subject), pageRequest)
+        return pagedBody(orders.content.asList().map { JsonAdminOrder(it) }, orders.total)
+    }
 
     @Operation(summary = "Retrieve any order, with its customer")
     @GetMapping("/{orderId}")

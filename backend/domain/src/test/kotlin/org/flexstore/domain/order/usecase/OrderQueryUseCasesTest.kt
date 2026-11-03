@@ -46,9 +46,10 @@ class OrderQueryUseCasesTest : WithAssertions {
         val newer = placeOrder(OrderId("newer"), customer, placedAt.plusSeconds(60))
         placeOrder(OrderId("other"), otherCustomer, placedAt)
         // Act
-        val orders = listCustomerOrdersUseCase.unfold(customer.userId)
+        val page = listCustomerOrdersUseCase.unfold(CustomerOrdersReading(customer.userId, PageRequest.first()))
         // Assert
-        assertThat(orders.asList()).containsExactly(newer, older)
+        assertThat(page.content.asList()).containsExactly(newer, older)
+        assertThat(page.total).isEqualTo(TotalCount(2))
     }
 
     @Test
@@ -102,8 +103,10 @@ class OrderQueryUseCasesTest : WithAssertions {
 
     @Test
     fun `an unknown customer should not list orders`() {
+        // Arrange
+        val reading = CustomerOrdersReading(unknownCustomerId, PageRequest.of(0, 2))
         // Act
-        val thrown = catchThrowable { listCustomerOrdersUseCase.unfold(unknownCustomerId) }
+        val thrown = catchThrowable { listCustomerOrdersUseCase.unfold(reading) }
         // Assert
         assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
     }
@@ -124,8 +127,9 @@ class OrderQueryUseCasesTest : WithAssertions {
     fun `a customer whose account is refused should not list orders`(status: AccountStatus) {
         // Arrange
         userRepository.save(customerWithStatus(status))
+        val reading = CustomerOrdersReading(blockedCustomerId, PageRequest.of(0, 2))
         // Act
-        val thrown = catchThrowable { listCustomerOrdersUseCase.unfold(blockedCustomerId) }
+        val thrown = catchThrowable { listCustomerOrdersUseCase.unfold(reading) }
         // Assert
         assertThat(thrown).isInstanceOf(AccountRefusedException::class.java)
     }
@@ -134,9 +138,28 @@ class OrderQueryUseCasesTest : WithAssertions {
     fun `a customer whose email is not verified yet should list orders`() {
         // Arrange
         userRepository.save(customerWithStatus(AccountStatus.PENDING_VERIFICATION))
+        val reading = CustomerOrdersReading(blockedCustomerId, PageRequest.of(0, 2))
         // Act
-        val orders = listCustomerOrdersUseCase.unfold(blockedCustomerId)
+        val page = listCustomerOrdersUseCase.unfold(reading)
         // Assert
-        assertThat(orders.asList()).isEmpty()
+        assertThat(page.content.asList()).isEmpty()
+    }
+
+    @Test
+    fun `should list a page of the orders of the customer, newest first, with the total of their orders`() {
+        // Arrange
+        val oldest = placeOrder(OrderId("oldest"), customer, placedAt)
+        val middle = placeOrder(OrderId("middle"), customer, placedAt.plusSeconds(60))
+        val newest = placeOrder(OrderId("newest"), customer, placedAt.plusSeconds(120))
+        placeOrder(OrderId("other"), otherCustomer, placedAt)
+        val firstPage = CustomerOrdersReading(customer.userId, PageRequest.of(0, 2))
+        val secondPage = CustomerOrdersReading(customer.userId, PageRequest.of(1, 2))
+        // Act
+        val first = listCustomerOrdersUseCase.unfold(firstPage)
+        val second = listCustomerOrdersUseCase.unfold(secondPage)
+        // Assert
+        assertThat(first.content.asList()).containsExactly(newest, middle)
+        assertThat(second.content.asList()).containsExactly(oldest)
+        assertThat(first.total).isEqualTo(TotalCount(3))
     }
 }

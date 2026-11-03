@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.config
 
+import org.flexstore.infra.spring.adapter.rest.TOTAL_COUNT_HEADER
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.servlet.config.annotation.CorsRegistry
@@ -13,6 +14,8 @@ open class CorsConfig {
             registry.addMapping("/api/**")
                 .allowedOriginPatterns("https://*flexstore-front.pages.dev", "http://localhost:5173")
                 .allowedMethods("GET", "POST", "PUT", "DELETE")
+                // The front end reads the number of items of a paged list in this header
+                .exposedHeaders(TOTAL_COUNT_HEADER)
         }
     }
 }

@@ -3,6 +3,7 @@ package org.flexstore.domain.order.usecase
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.settings.usecase.ReadShopSettingsUseCase
+import org.flexstore.domain.sharedkernel.PageRequest
 import org.flexstore.domain.user.model.*
 
 // The use cases of the orders: reading them (with the delay to pay them), the shipping options, confirming an
@@ -14,7 +15,8 @@ class OrderUseCases(
     private val proposeShippingOptionsUseCase: ProposeShippingOptionsUseCase
 ) {
 
-    fun getOrders(customer: UserId.ValidUserId) = orderQueryUseCases.listCustomerOrdersUseCase.unfold(customer)
+    fun getOrders(customer: UserId.ValidUserId, pageRequest: PageRequest) =
+        orderQueryUseCases.listCustomerOrdersUseCase.unfold(CustomerOrdersReading(customer, pageRequest))
 
     fun getOrder(customer: UserId.ValidUserId, orderId: OrderId) =
         orderQueryUseCases.readCustomerOrderUseCase.unfold(CustomerOrderLookup(customer, orderId))

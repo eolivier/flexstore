@@ -11,6 +11,7 @@ import org.flexstore.domain.user.model.*
 import org.flexstore.infra.spring.config.USERS_CACHE
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
+import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Repository
@@ -131,6 +132,15 @@ class PostgresUserRepositoryAdapter(
     }
 
     override fun findAll(): List<User> = jpaRepo.findAll().map { it.toDomain() }
+
+    // The first created first; the id keeps the order of two users created at the same moment stable
+    override fun findAll(pageRequest: PageRequest): Page<Users> {
+        val pageable = org.springframework.data.domain.PageRequest.of(
+            pageRequest.number.value, pageRequest.size.value, Sort.by("createdAt", "id")
+        )
+        val userEntities = jpaRepo.findAll(pageable)
+        return Page(Users(userEntities.content.map { it.toDomain() }), TotalCount(userEntities.totalElements))
+    }
 
     @CacheEvict(USERS_CACHE, key = "#p0.value")
     override fun delete(id: UserId): Boolean {

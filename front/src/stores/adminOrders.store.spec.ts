@@ -8,8 +8,13 @@ vi.stubGlobal('fetch', mockFetch);
 
 const shippedOrder = { ...twoLinesOrder, status: 'SHIPPED' as const };
 
-function respondWith(status: number, body?: unknown) {
-  mockFetch.mockResolvedValue({ ok: status < 300, status, json: () => Promise.resolve(body) });
+function respondWith(status: number, body?: unknown, headers: Record<string, string> = {}) {
+  mockFetch.mockResolvedValue({
+    ok: status < 300,
+    status,
+    headers: new Headers(headers),
+    json: () => Promise.resolve(body),
+  });
 }
 
 describe('adminOrders.store', () => {
@@ -55,5 +60,30 @@ describe('adminOrders.store', () => {
     const statusAdvance = await store.advanceStatus(twoLinesOrder);
     // Assert
     expect(statusAdvance).toBe(expected);
+  });
+
+  it('loads the page asked of the orders and the number of all the orders', async () => {
+    // Arrange
+    respondWith(200, [twoLinesOrder], { 'X-Total-Count': '41' });
+    const store = useAdminOrdersStore();
+    // Act
+    await store.fetchAllOrders(2);
+    // Assert
+    expect(mockFetch.mock.calls[0][0]).toContain('/api/admin/orders?page=2&size=20');
+    expect(store.page).toBe(2);
+    expect(store.total).toBe(41);
+  });
+
+  it('reloads the page shown when the status of an order changed in the meantime', async () => {
+    // Arrange
+    respondWith(200, [twoLinesOrder], { 'X-Total-Count': '41' });
+    const store = useAdminOrdersStore();
+    await store.fetchAllOrders(2);
+    respondWith(409);
+    // Act
+    await store.advanceStatus(twoLinesOrder);
+    // Assert
+    const reloadUrl = mockFetch.mock.calls[mockFetch.mock.calls.length - 1][0];
+    expect(reloadUrl).toContain('/api/admin/orders?page=2&size=20');
   });
 });

@@ -1715,12 +1715,14 @@ export const AdministrationApiAxiosParamCreator = function (configuration?: Conf
             };
         },
         /**
-         * 
-         * @summary Retrieve the orders of all the customers, newest first, with their customer (ADMIN role)
+         * The total number of orders is in the header X-Total-Count; a size above 100 is brought back to 100
+         * @summary Retrieve a page of the orders of all the customers, newest first, with their customer (ADMIN role)
+         * @param {number} [page] The number of the page, from 0 (a negative number is brought back to 0)
+         * @param {number} [size] The number of items of a page (a size out of 1 to 100 is brought back to the nearest limit)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getAllOrders: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getAllOrders: async (page?: number, size?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/admin/orders`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1736,6 +1738,14 @@ export const AdministrationApiAxiosParamCreator = function (configuration?: Conf
             // authentication bearerAuth required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
+            }
 
 
     
@@ -2143,13 +2153,15 @@ export const AdministrationApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 
-         * @summary Retrieve the orders of all the customers, newest first, with their customer (ADMIN role)
+         * The total number of orders is in the header X-Total-Count; a size above 100 is brought back to 100
+         * @summary Retrieve a page of the orders of all the customers, newest first, with their customer (ADMIN role)
+         * @param {number} [page] The number of the page, from 0 (a negative number is brought back to 0)
+         * @param {number} [size] The number of items of a page (a size out of 1 to 100 is brought back to the nearest limit)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getAllOrders(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<JsonAdminOrder>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getAllOrders(options);
+        async getAllOrders(page?: number, size?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<JsonAdminOrder>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getAllOrders(page, size, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdministrationApi.getAllOrders']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -2320,13 +2332,15 @@ export const AdministrationApiFactory = function (configuration?: Configuration,
             return localVarFp.getAdminProduct(id, options).then((request) => request(axios, basePath));
         },
         /**
-         * 
-         * @summary Retrieve the orders of all the customers, newest first, with their customer (ADMIN role)
+         * The total number of orders is in the header X-Total-Count; a size above 100 is brought back to 100
+         * @summary Retrieve a page of the orders of all the customers, newest first, with their customer (ADMIN role)
+         * @param {number} [page] The number of the page, from 0 (a negative number is brought back to 0)
+         * @param {number} [size] The number of items of a page (a size out of 1 to 100 is brought back to the nearest limit)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getAllOrders(options?: RawAxiosRequestConfig): AxiosPromise<Array<JsonAdminOrder>> {
-            return localVarFp.getAllOrders(options).then((request) => request(axios, basePath));
+        getAllOrders(page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<JsonAdminOrder>> {
+            return localVarFp.getAllOrders(page, size, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -2473,13 +2487,15 @@ export class AdministrationApi extends BaseAPI {
     }
 
     /**
-     * 
-     * @summary Retrieve the orders of all the customers, newest first, with their customer (ADMIN role)
+     * The total number of orders is in the header X-Total-Count; a size above 100 is brought back to 100
+     * @summary Retrieve a page of the orders of all the customers, newest first, with their customer (ADMIN role)
+     * @param {number} [page] The number of the page, from 0 (a negative number is brought back to 0)
+     * @param {number} [size] The number of items of a page (a size out of 1 to 100 is brought back to the nearest limit)
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public getAllOrders(options?: RawAxiosRequestConfig) {
-        return AdministrationApiFp(this.configuration).getAllOrders(options).then((request) => request(this.axios, this.basePath));
+    public getAllOrders(page?: number, size?: number, options?: RawAxiosRequestConfig) {
+        return AdministrationApiFp(this.configuration).getAllOrders(page, size, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -3480,12 +3496,14 @@ export const OrdersApiAxiosParamCreator = function (configuration?: Configuratio
             };
         },
         /**
-         * 
-         * @summary Retrieve the orders of the signed-in customer, newest first
+         * The total number of orders is in the header X-Total-Count; a size above 100 is brought back to 100
+         * @summary Retrieve a page of the orders of the signed-in customer, newest first
+         * @param {number} [page] The number of the page, from 0 (a negative number is brought back to 0)
+         * @param {number} [size] The number of items of a page (a size out of 1 to 100 is brought back to the nearest limit)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getOrders: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getOrders: async (page?: number, size?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/orders`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -3501,6 +3519,14 @@ export const OrdersApiAxiosParamCreator = function (configuration?: Configuratio
             // authentication bearerAuth required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
+            }
 
 
     
@@ -3651,13 +3677,15 @@ export const OrdersApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 
-         * @summary Retrieve the orders of the signed-in customer, newest first
+         * The total number of orders is in the header X-Total-Count; a size above 100 is brought back to 100
+         * @summary Retrieve a page of the orders of the signed-in customer, newest first
+         * @param {number} [page] The number of the page, from 0 (a negative number is brought back to 0)
+         * @param {number} [size] The number of items of a page (a size out of 1 to 100 is brought back to the nearest limit)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getOrders(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<JsonOrder>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getOrders(options);
+        async getOrders(page?: number, size?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<JsonOrder>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getOrders(page, size, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['OrdersApi.getOrders']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -3720,13 +3748,15 @@ export const OrdersApiFactory = function (configuration?: Configuration, basePat
             return localVarFp.getOrder(id, options).then((request) => request(axios, basePath));
         },
         /**
-         * 
-         * @summary Retrieve the orders of the signed-in customer, newest first
+         * The total number of orders is in the header X-Total-Count; a size above 100 is brought back to 100
+         * @summary Retrieve a page of the orders of the signed-in customer, newest first
+         * @param {number} [page] The number of the page, from 0 (a negative number is brought back to 0)
+         * @param {number} [size] The number of items of a page (a size out of 1 to 100 is brought back to the nearest limit)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getOrders(options?: RawAxiosRequestConfig): AxiosPromise<Array<JsonOrder>> {
-            return localVarFp.getOrders(options).then((request) => request(axios, basePath));
+        getOrders(page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<JsonOrder>> {
+            return localVarFp.getOrders(page, size, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -3776,13 +3806,15 @@ export class OrdersApi extends BaseAPI {
     }
 
     /**
-     * 
-     * @summary Retrieve the orders of the signed-in customer, newest first
+     * The total number of orders is in the header X-Total-Count; a size above 100 is brought back to 100
+     * @summary Retrieve a page of the orders of the signed-in customer, newest first
+     * @param {number} [page] The number of the page, from 0 (a negative number is brought back to 0)
+     * @param {number} [size] The number of items of a page (a size out of 1 to 100 is brought back to the nearest limit)
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public getOrders(options?: RawAxiosRequestConfig) {
-        return OrdersApiFp(this.configuration).getOrders(options).then((request) => request(this.axios, this.basePath));
+    public getOrders(page?: number, size?: number, options?: RawAxiosRequestConfig) {
+        return OrdersApiFp(this.configuration).getOrders(page, size, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -5616,12 +5648,14 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
             };
         },
         /**
-         * Returns the full list of users
-         * @summary Retrieve all users
+         * The total number of users is in the header X-Total-Count; a size above 100 is brought back to 100
+         * @summary Retrieve a page of the users, the first created first (ADMIN role)
+         * @param {number} [page] The number of the page, from 0 (a negative number is brought back to 0)
+         * @param {number} [size] The number of items of a page (a size out of 1 to 100 is brought back to the nearest limit)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getAllUsers: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getAllUsers: async (page?: number, size?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/users`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -5637,6 +5671,14 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
             // authentication bearerAuth required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
+            }
 
 
     
@@ -5831,13 +5873,15 @@ export const UsersApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Returns the full list of users
-         * @summary Retrieve all users
+         * The total number of users is in the header X-Total-Count; a size above 100 is brought back to 100
+         * @summary Retrieve a page of the users, the first created first (ADMIN role)
+         * @param {number} [page] The number of the page, from 0 (a negative number is brought back to 0)
+         * @param {number} [size] The number of items of a page (a size out of 1 to 100 is brought back to the nearest limit)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getAllUsers(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonUser>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getAllUsers(options);
+        async getAllUsers(page?: number, size?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<JsonUser>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getAllUsers(page, size, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['UsersApi.getAllUsers']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -5934,13 +5978,15 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
             return localVarFp.deleteUser(id, options).then((request) => request(axios, basePath));
         },
         /**
-         * Returns the full list of users
-         * @summary Retrieve all users
+         * The total number of users is in the header X-Total-Count; a size above 100 is brought back to 100
+         * @summary Retrieve a page of the users, the first created first (ADMIN role)
+         * @param {number} [page] The number of the page, from 0 (a negative number is brought back to 0)
+         * @param {number} [size] The number of items of a page (a size out of 1 to 100 is brought back to the nearest limit)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getAllUsers(options?: RawAxiosRequestConfig): AxiosPromise<JsonUser> {
-            return localVarFp.getAllUsers(options).then((request) => request(axios, basePath));
+        getAllUsers(page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<JsonUser>> {
+            return localVarFp.getAllUsers(page, size, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -6027,13 +6073,15 @@ export class UsersApi extends BaseAPI {
     }
 
     /**
-     * Returns the full list of users
-     * @summary Retrieve all users
+     * The total number of users is in the header X-Total-Count; a size above 100 is brought back to 100
+     * @summary Retrieve a page of the users, the first created first (ADMIN role)
+     * @param {number} [page] The number of the page, from 0 (a negative number is brought back to 0)
+     * @param {number} [size] The number of items of a page (a size out of 1 to 100 is brought back to the nearest limit)
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public getAllUsers(options?: RawAxiosRequestConfig) {
-        return UsersApiFp(this.configuration).getAllUsers(options).then((request) => request(this.axios, this.basePath));
+    public getAllUsers(page?: number, size?: number, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).getAllUsers(page, size, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
