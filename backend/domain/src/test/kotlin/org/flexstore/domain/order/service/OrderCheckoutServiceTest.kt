@@ -10,6 +10,7 @@ import org.flexstore.domain.discount.usecase.*
 import org.flexstore.domain.legal.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.settings.*
+import org.flexstore.domain.settings.usecase.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.*

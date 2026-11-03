@@ -1,5 +1,6 @@
 package org.flexstore.domain.settings
 
+import org.flexstore.domain.settings.usecase.*
 import org.flexstore.domain.user.model.UserId
 
 // Domain service: the administrators turn the features of the shop on or off. A change reads the current

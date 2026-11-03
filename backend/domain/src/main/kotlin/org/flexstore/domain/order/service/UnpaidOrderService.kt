@@ -3,7 +3,7 @@ package org.flexstore.domain.order.service
 import org.flexstore.domain.order.usecase.*
 import org.flexstore.domain.sharedkernel.InstantProvider
 import org.flexstore.domain.order.*
-import org.flexstore.domain.settings.ReadShopSettingsUseCase
+import org.flexstore.domain.settings.usecase.ReadShopSettingsUseCase
 import org.ucop.domain.NominalException
 
 // Domain service: the orders not paid within the payment delay of the shop settings are cancelled, so that their

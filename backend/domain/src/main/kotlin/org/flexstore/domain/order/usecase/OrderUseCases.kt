@@ -2,7 +2,7 @@ package org.flexstore.domain.order.usecase
 
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.order.*
-import org.flexstore.domain.settings.ReadShopSettingsUseCase
+import org.flexstore.domain.settings.usecase.ReadShopSettingsUseCase
 import org.flexstore.domain.user.model.*
 
 // The use cases of the orders: reading them (with the delay to pay them), the shipping options, confirming an

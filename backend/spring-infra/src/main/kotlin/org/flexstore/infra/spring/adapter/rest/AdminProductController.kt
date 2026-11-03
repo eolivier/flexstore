@@ -1,6 +1,7 @@
 package org.flexstore.infra.spring.adapter.rest
 
 import org.flexstore.domain.product.*
+import org.flexstore.domain.product.usecase.*
 import org.flexstore.domain.sharedkernel.Identity
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag

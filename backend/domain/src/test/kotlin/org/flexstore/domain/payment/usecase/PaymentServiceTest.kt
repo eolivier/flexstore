@@ -9,7 +9,7 @@ import org.flexstore.domain.invoice.usecase.IssueInvoiceUseCase
 import org.flexstore.domain.payment.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.seller.testSeller
-import org.flexstore.domain.settings.ReadShopSettingsUseCase
+import org.flexstore.domain.settings.usecase.ReadShopSettingsUseCase
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.infra.repository.*

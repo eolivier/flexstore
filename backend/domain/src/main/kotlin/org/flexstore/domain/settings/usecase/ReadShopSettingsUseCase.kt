@@ -1,5 +1,6 @@
-package org.flexstore.domain.settings
+package org.flexstore.domain.settings.usecase
 
+import org.flexstore.domain.settings.*
 import org.ucop.domain.entity.*
 
 // The settings of the shop

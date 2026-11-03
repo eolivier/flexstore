@@ -1,6 +1,7 @@
 package org.flexstore.domain.settings
 
 import org.assertj.core.api.WithAssertions
+import org.flexstore.domain.settings.usecase.*
 import org.flexstore.domain.user.*
 import org.flexstore.infra.repository.InMemoryShopSettingsRepository
 import org.junit.jupiter.api.Test
