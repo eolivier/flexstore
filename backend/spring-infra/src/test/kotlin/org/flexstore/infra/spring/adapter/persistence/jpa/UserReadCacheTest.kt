@@ -15,6 +15,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.Mockito.*
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import java.util.Optional
+import java.util.function.Supplier
 
 // The cache of the reads of the user table, with the real adapter behind the Spring cache, without a database
 class UserReadCacheTest {
@@ -35,7 +36,7 @@ class UserReadCacheTest {
         `when`(jpaUserRepository.save(any(UserEntity::class.java))).thenAnswer { it.arguments[0] }
         context = AnnotationConfigApplicationContext()
         context.register(CacheConfig::class.java, PostgresUserRepositoryAdapter::class.java)
-        context.registerBean(JpaUserRepository::class.java, { jpaUserRepository })
+        context.registerBean(JpaUserRepository::class.java, Supplier { jpaUserRepository })
         context.refresh()
         userRepository = context.getBean(UserRepository::class.java)
     }
