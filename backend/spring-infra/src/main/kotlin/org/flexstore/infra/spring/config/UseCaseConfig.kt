@@ -4,6 +4,8 @@ import org.flexstore.domain.payment.*
 import org.flexstore.domain.payment.usecase.*
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.cart.usecase.*
+import org.flexstore.domain.cookie.CookieConsentRepository
+import org.flexstore.domain.cookie.usecase.*
 import org.flexstore.domain.email.*
 import org.flexstore.domain.invoice.*
 import org.flexstore.domain.invoice.usecase.*
@@ -496,6 +498,24 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
             addReviewUseCase, listProductReviewsUseCase, listRatingSummariesUseCase, deleteReviewUseCase,
             readReviewEligibilityUseCase
         )
+
+    @Bean
+    open fun readCookieConsentUseCase(
+        cookieConsentRepository: CookieConsentRepository,
+        userRepository: UserRepository
+    ) = ReadCookieConsentUseCase(cookieConsentRepository, userRepository)
+
+    @Bean
+    open fun recordCookieConsentUseCase(
+        cookieConsentRepository: CookieConsentRepository,
+        userRepository: UserRepository
+    ) = RecordCookieConsentUseCase(cookieConsentRepository, userRepository)
+
+    @Bean
+    open fun cookieConsentUseCases(
+        readCookieConsentUseCase: ReadCookieConsentUseCase,
+        recordCookieConsentUseCase: RecordCookieConsentUseCase
+    ) = CookieConsentUseCases(readCookieConsentUseCase, recordCookieConsentUseCase)
 
     @Bean
     open fun readSalesDashboardUseCase(orderRepository: OrderRepository, userRepository: UserRepository) =
