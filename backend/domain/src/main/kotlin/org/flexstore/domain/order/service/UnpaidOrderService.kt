@@ -1,5 +1,6 @@
-package org.flexstore.domain.order.usecase
+package org.flexstore.domain.order.service
 
+import org.flexstore.domain.order.usecase.*
 import org.flexstore.domain.sharedkernel.InstantProvider
 import org.flexstore.domain.order.*
 import org.flexstore.domain.settings.ReadShopSettingsUseCase

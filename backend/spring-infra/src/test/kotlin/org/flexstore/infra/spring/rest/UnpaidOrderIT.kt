@@ -2,7 +2,7 @@ package org.flexstore.infra.spring.rest
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
-import org.flexstore.domain.order.usecase.UnpaidOrderService
+import org.flexstore.domain.order.service.UnpaidOrderService
 import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaCartItemRepository
 import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaCartRepository
 import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaOrderRepository

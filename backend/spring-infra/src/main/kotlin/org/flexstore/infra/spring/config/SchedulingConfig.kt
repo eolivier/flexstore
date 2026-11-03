@@ -1,6 +1,6 @@
 package org.flexstore.infra.spring.config
 
-import org.flexstore.domain.order.usecase.UnpaidOrderService
+import org.flexstore.domain.order.service.UnpaidOrderService
 import org.flexstore.infra.spring.adapter.scheduling.UnpaidOrderScheduler
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean

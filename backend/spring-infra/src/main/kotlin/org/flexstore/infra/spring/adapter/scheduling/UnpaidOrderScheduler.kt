@@ -1,6 +1,6 @@
 package org.flexstore.infra.spring.adapter.scheduling
 
-import org.flexstore.domain.order.usecase.UnpaidOrderService
+import org.flexstore.domain.order.service.UnpaidOrderService
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 

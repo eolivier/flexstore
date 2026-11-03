@@ -1,5 +1,6 @@
-package org.flexstore.domain.order.usecase
+package org.flexstore.domain.order.service
 
+import org.flexstore.domain.order.usecase.*
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.order.*
