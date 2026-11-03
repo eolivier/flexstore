@@ -59,8 +59,10 @@ data class AlertThreshold(val value: Int) {
     fun isReachedBy(quantity: StockQuantity) = quantity.value <= value
 
     companion object {
+        private const val DEFAULT_UNITS = 5
+
         // The threshold of a product whose threshold was never given
-        fun byDefault() = AlertThreshold(5)
+        fun byDefault() = AlertThreshold(DEFAULT_UNITS)
     }
 }
 

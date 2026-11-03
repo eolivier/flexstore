@@ -24,7 +24,12 @@ data class PromoCode(val value: String) {
 
 // A percentage, from more than 0 to 100
 data class Percentage(val value: BigDecimal) {
-    fun isInvalid() = value.signum() <= 0 || value > BigDecimal(100)
+    fun isInvalid() = value.signum() <= 0 || value > WHOLE
+
+    companion object {
+        // 100 %: the whole price
+        val WHOLE = BigDecimal(100)
+    }
 }
 
 // What a discount code takes off the price of the items of an order, never more than that price
@@ -38,7 +43,7 @@ data class PercentageOff(val percentage: Percentage) : Reduction {
 
     override fun amountOff(itemsPrice: Price): Price {
         val share = itemsPrice.amount.value.multiply(percentage.value)
-        val amount = share.divide(BigDecimal(100), 2, RoundingMode.HALF_UP)
+        val amount = share.divide(Percentage.WHOLE, Amount.CENT_SCALE, RoundingMode.HALF_UP)
         return Price(Amount(amount), itemsPrice.currency)
     }
 

@@ -29,11 +29,13 @@ data class ImageContent(val bytes: ImageBytes, val type: ImageType) {
     fun size() = bytes.size()
 }
 
+private const val BYTES_PER_KILOBYTE = 1024
+
 // The formats in which an image of a product is kept: the large one for the page of the product,
 // the small one for the cards of the catalog and the cart
 enum class ImageFormat(val maxSide: Int, val maxBytes: Int) {
-    LARGE(maxSide = 1600, maxBytes = 500 * 1024),
-    SMALL(maxSide = 400, maxBytes = 60 * 1024);
+    LARGE(maxSide = 1600, maxBytes = 500 * BYTES_PER_KILOBYTE),
+    SMALL(maxSide = 400, maxBytes = 60 * BYTES_PER_KILOBYTE);
 
     fun accepts(content: ImageContent) = content.size() <= maxBytes
 }
@@ -47,7 +49,8 @@ data class UploadedImage(val productId: ProductId, val content: ImageContent) {
     fun isTooLarge() = content.size() > MAX_BYTES
 
     companion object {
-        const val MAX_BYTES = 2 * 1024 * 1024
+        const val MAX_MEGABYTES = 2
+        const val MAX_BYTES = MAX_MEGABYTES * BYTES_PER_KILOBYTE * BYTES_PER_KILOBYTE
     }
 }
 

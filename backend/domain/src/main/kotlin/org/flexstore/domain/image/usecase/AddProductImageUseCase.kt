@@ -47,7 +47,7 @@ class AddProductImageUseCase(
 
     private fun imageIsNotTooLargeCondition() = PreCondition<ProductImageUpload> { (_, uploadedImage) ->
         if (uploadedImage.isTooLarge()) {
-            val message = ErrorMessage("An image is ${UploadedImage.MAX_BYTES / 1024 / 1024} MB at most.")
+            val message = ErrorMessage("An image is ${UploadedImage.MAX_MEGABYTES} MB at most.")
             throw ImageTooLargeException(message)
         }
     }

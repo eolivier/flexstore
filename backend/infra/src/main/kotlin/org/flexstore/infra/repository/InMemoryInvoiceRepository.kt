@@ -5,6 +5,8 @@ import org.flexstore.domain.order.OrderId
 import org.flexstore.domain.seller.*
 import java.time.ZoneId
 
+private const val NUMBER_DIGITS = 6
+
 // The invoices in memory, numbered from 1 in the order they are issued: for the tests
 class InMemoryInvoiceRepository : InvoiceRepository {
 
@@ -12,7 +14,7 @@ class InMemoryInvoiceRepository : InvoiceRepository {
 
     override fun issue(invoiceIssue: InvoiceIssue, sellerId: SellerId): Invoice {
         val year = invoiceIssue.issuedAt.value.atZone(ZoneId.of("Europe/Paris")).year
-        val number = InvoiceNumber("$year-${(invoices.size + 1).toString().padStart(6, '0')}")
+        val number = InvoiceNumber("$year-${(invoices.size + 1).toString().padStart(NUMBER_DIGITS, '0')}")
         val invoice = Invoice(number, invoiceIssue, sellerId)
         invoices.add(invoice)
         return invoice

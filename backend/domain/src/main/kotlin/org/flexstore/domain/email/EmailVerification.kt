@@ -12,10 +12,11 @@ import java.util.Base64
 // The secret of a verification link: random, it cannot be guessed
 data class VerificationToken(val value: String) {
     companion object {
+        private const val TOKEN_BYTES = 32
         private val random = SecureRandom()
 
         fun nextToken(): VerificationToken {
-            val bytes = ByteArray(32).also { random.nextBytes(it) }
+            val bytes = ByteArray(TOKEN_BYTES).also { random.nextBytes(it) }
             return VerificationToken(Base64.getUrlEncoder().withoutPadding().encodeToString(bytes))
         }
     }

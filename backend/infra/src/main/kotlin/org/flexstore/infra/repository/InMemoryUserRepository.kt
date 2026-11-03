@@ -5,6 +5,8 @@ import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
 import at.favre.lib.crypto.bcrypt.BCrypt
 
+private const val BCRYPT_COST = 12
+
 class InMemoryUserRepository : UserRepository {
     
     private val bcryptHasher = BCrypt.withDefaults()
@@ -31,7 +33,7 @@ class InMemoryUserRepository : UserRepository {
     private fun hashPasswordIfNeeded(user: User.DefinedUser): User.DefinedUser {
         return when (user.password) {
             is PlainPassword -> {
-                val hashedPassword = bcryptHasher.hashToString(12, user.password.value.toCharArray())
+                val hashedPassword = bcryptHasher.hashToString(BCRYPT_COST, user.password.value.toCharArray())
                 user.copy(password = HashedPassword(hashedPassword))
             }
             is HashedPassword -> user
@@ -74,19 +76,19 @@ class InMemoryUserRepository : UserRepository {
                 id = UserId.ValidUserId("u-1"),
                 fullName = FullName(FirstName("Alice"), LastName("Smith")),
                 email = Email("alice.smith@example.com"),
-                password = HashedPassword(bcryptHasher.hashToString(12, "password123".toCharArray()))
+                password = HashedPassword(bcryptHasher.hashToString(BCRYPT_COST, "password123".toCharArray()))
             ),
             User.DefinedUser(
                 id = UserId.ValidUserId("u-2"),
                 fullName = FullName(FirstName("Bob"), LastName("Johnson")),
                 email = Email("bob.johnson@example.com"),
-                password = HashedPassword(bcryptHasher.hashToString(12, "password456".toCharArray()))
+                password = HashedPassword(bcryptHasher.hashToString(BCRYPT_COST, "password456".toCharArray()))
             ),
             User.DefinedUser(
                 id = UserId.ValidUserId("u-3"),
                 fullName = FullName(FirstName("Charlie"), LastName("Brown")),
                 email = Email("charlie.brown@example.com"),
-                password = HashedPassword(bcryptHasher.hashToString(12, "password789".toCharArray()))
+                password = HashedPassword(bcryptHasher.hashToString(BCRYPT_COST, "password789".toCharArray()))
             )
         )
         demoUsers.forEach { users[it.id] = it }
