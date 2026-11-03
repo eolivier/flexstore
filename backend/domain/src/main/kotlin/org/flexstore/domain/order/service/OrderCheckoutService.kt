@@ -6,7 +6,7 @@ import org.flexstore.domain.cart.usecase.ReadCartUseCase
 import org.flexstore.domain.discount.*
 import org.flexstore.domain.discount.usecase.CheckoutDiscountUseCases
 import org.flexstore.domain.order.*
-import org.flexstore.domain.settings.ReadShopSettingsUseCase
+import org.flexstore.domain.settings.usecase.ReadShopSettingsUseCase
 import org.flexstore.domain.sharedkernel.InstantProvider
 import java.time.Instant
 

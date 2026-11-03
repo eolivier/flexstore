@@ -13,7 +13,9 @@ import org.flexstore.domain.order.*
 import org.flexstore.domain.order.service.*
 import org.flexstore.domain.order.usecase.*
 import org.flexstore.domain.product.*
+import org.flexstore.domain.product.usecase.*
 import org.flexstore.domain.settings.*
+import org.flexstore.domain.settings.usecase.*
 import org.flexstore.domain.image.*
 import org.flexstore.domain.image.usecase.*
 import org.flexstore.domain.legal.*

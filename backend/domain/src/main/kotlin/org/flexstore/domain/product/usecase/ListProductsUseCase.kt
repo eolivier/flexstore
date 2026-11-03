@@ -1,5 +1,6 @@
-package org.flexstore.domain.product
+package org.flexstore.domain.product.usecase
 
+import org.flexstore.domain.product.*
 import org.ucop.domain.entity.*
 
 // The products of the catalog
