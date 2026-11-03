@@ -1,6 +1,6 @@
 ---
 name: domain-driven-design
-description: Domain-Driven Design and hexagonal architecture principles to follow when writing or reviewing back-end code - where business rules live, what entities, value objects and aggregates may reference (value objects rather than primitive types), the role of use cases, domain services, repositories and adapters, groups of use cases named after their sub-domain (OrderUseCases, not a facade), every use case implementing the UseCase interface of ucop (or QueryUseCase when it answers), methods of the domain model that expose neither a primitive type nor a raw collection, the current moment read from InstantProvider (never a clock member), every administration use case checking in its own precondition that its actor is an administrator. Use before creating or changing an entity, aggregate, value object, use case, domain service, port (repository interface) or infrastructure adapter, and when reviewing domain code.
+description: Domain-Driven Design and hexagonal architecture principles to follow when writing or reviewing back-end code - where business rules live, what entities, value objects and aggregates may reference (value objects rather than primitive types), the role of use cases, domain services, repositories and adapters, groups of use cases named after their sub-domain (OrderUseCases, not a facade), every use case implementing the UseCase interface of ucop (or QueryUseCase when it answers), methods of the domain model that expose neither a primitive type nor a raw collection, the current moment read from InstantProvider (never a clock member), every administration use case checking in its own precondition that its actor is an administrator, one use case (not two) for a journey that the customer concerned or an administrator may run. Use before creating or changing an entity, aggregate, value object, use case, domain service, port (repository interface) or infrastructure adapter, and when reviewing domain code.
 ---
 
 # Domain-Driven Design
@@ -552,3 +552,47 @@ Details:
 - **Query use cases too**: a `QueryUseCase` that only the administration reads takes a request with its reader (`LowStocksReading(reader)`), even when it needs nothing else.
 - **The group of use cases** takes the actor as the first argument of its methods (`stockAlertUseCases.change(editor, stockAlert)`), and passes it to each use case it unfolds.
 - **The tests** of the use case check that an administrator runs it, and that a customer and an unknown user are refused.
+
+## 14. One use case for a journey that the customer concerned or an administrator may run
+
+When the same journey may be run by the customer it concerns or by an administrator (reading an order, downloading its invoice or its credit note), it is **one use case**, not a customer version and an administration version. Its request names the user who runs it, and its precondition accepts **either an administrator or the customer the data belongs to**.
+
+Avoid:
+
+```kotlin
+// Two use cases that read the same order: the rules are written twice and drift apart
+class ReadAdministeredOrderUseCase(...) : QueryUseCase<AdministeredOrderReading, AdministeredOrder>  // admin only
+class ReadCustomerOrderWithCustomerUseCase(...) : QueryUseCase<CustomerOrderLookup, AdministeredOrder>  // owner only
+```
+
+Prefer:
+
+```kotlin
+// The reader is an administrator, or the customer of the order
+data class AdministeredOrderReading(val reader: UserId, val orderId: OrderId)
+
+class ReadAdministeredOrderUseCase(
+    private val orderRepository: OrderRepository,
+    private val userRepository: UserRepository
+) : QueryUseCase<AdministeredOrderReading, AdministeredOrder> {
+
+    override fun getPreConditions(): PreConditions<AdministeredOrderReading> =
+        PreConditions(orderIsReadableByTheReaderCondition())
+    ...
+
+    // An administrator reads any order, a customer their own ones; the order of another customer is reported as
+    // not found, so that its existence is not revealed
+    private fun orderIsReadableByTheReaderCondition() = PreCondition<AdministeredOrderReading> { reading ->
+        if (orderIsMissingFor(reading)) {
+            throw OrderNotFoundException(ErrorMessage("Order ${reading.orderId.value} not found."))
+        }
+    }
+}
+```
+
+Why: a journey is one set of business rules (preconditions, scenario, postconditions); two use cases for two kinds of actor duplicate them and let them drift apart. Who may run it is one of these rules, written once, in one precondition.
+
+Details:
+- **The domain service or the group of use cases** offers one method for both (`invoiceService.invoice(reader, orderId)`), which the customer's and the administration's endpoints both call.
+- **A journey reserved to the administrators** (section 13) stays checked by its own administrator precondition; this section is for the journeys open to the customer concerned as well.
+- **The tests** check that an administrator and the customer concerned run it, and that another customer and an unknown user are refused.
