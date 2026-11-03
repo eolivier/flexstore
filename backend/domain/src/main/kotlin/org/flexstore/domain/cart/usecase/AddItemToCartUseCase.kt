@@ -5,17 +5,21 @@ import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
 import org.ucop.domain.NominalException
 import org.flexstore.domain.sharedkernel.ErrorMessage
+import org.flexstore.domain.user.UserRepository
+import org.flexstore.domain.user.model.AccountRefusedException
+import org.flexstore.domain.user.model.UserNotFoundException
 import org.ucop.domain.entity.*
 
 data class AddItemToCartRequest(val owner: CartOwner, val productId: ProductId, val quantity: Quantity)
 
 class AddItemToCartUseCase(
     private val cartRepository: CartRepository,
-    private val productRepository: ProductRepository
+    private val productRepository: ProductRepository,
+    private val userRepository: UserRepository
 ) : UseCase<AddItemToCartRequest> {
 
     override fun getPreConditions(): PreConditions<AddItemToCartRequest> =
-        PreConditions(productExistsCondition())
+        PreConditions(ownerCanActCondition(), productExistsCondition())
 
     override fun getNominalScenario(): NominalScenario<AddItemToCartRequest> {
         val addItemStep = Step<AddItemToCartRequest> { request ->
@@ -31,6 +35,23 @@ class AddItemToCartUseCase(
     private fun catalogProduct(productId: ProductId): DefinedProduct =
         productRepository.findById(productId)
             ?: throw ProductNotFoundException(ErrorMessage("Product ${productId.id.value} not found."))
+
+    // A customer owner must be an existing user whose account is not suspended, locked or disabled
+    // (read from the users, not from the request); a visitor has none
+    private fun ownerCanActCondition() = PreCondition<AddItemToCartRequest> { request ->
+        val owner = request.owner
+        if (owner is CartOwner.Customer) {
+            val customerId = owner.userId
+            if (userRepository.notExists(customerId)) {
+                throw UserNotFoundException(ErrorMessage("User ${customerId.value} not found."))
+            }
+            val status = userRepository.statusOf(customerId)
+            if (status.refusesSignIn()) {
+                val message = ErrorMessage("The account ${customerId.value} is $status: it cannot act.")
+                throw AccountRefusedException(status, message)
+            }
+        }
+    }
 
     private fun productExistsCondition() = PreCondition<AddItemToCartRequest> { request ->
         catalogProduct(request.productId)

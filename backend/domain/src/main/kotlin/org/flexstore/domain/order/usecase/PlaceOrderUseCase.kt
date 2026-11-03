@@ -5,6 +5,9 @@ import org.flexstore.domain.legal.LegalPageRepository
 import org.flexstore.domain.order.*
 import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.stock.*
+import org.flexstore.domain.user.UserRepository
+import org.flexstore.domain.user.model.AccountRefusedException
+import org.flexstore.domain.user.model.UserNotFoundException
 import org.ucop.domain.entity.*
 
 // An order to place, and what it is placed from: the cart of the customer and the threshold of free shipping,
@@ -22,12 +25,14 @@ data class OrderToPlace(val placement: OrderPlacement, val content: OrderContent
 class PlaceOrderUseCase(
     private val orderRepository: OrderRepository,
     private val stockRepository: StockRepository,
-    private val legalPageRepository: LegalPageRepository
+    private val legalPageRepository: LegalPageRepository,
+    private val userRepository: UserRepository
 ) : UseCase<OrderToPlace> {
 
     override fun getPreConditions(): PreConditions<OrderToPlace> = PreConditions(
-        cartHasItemsCondition(), stockCoversTheCartCondition(), addressesAreCompleteCondition(),
-        termsOfSaleAreAcceptedCondition(), acceptedTermsOfSaleAreCurrentCondition()
+        customerCanActCondition(), cartHasItemsCondition(), stockCoversTheCartCondition(),
+        addressesAreCompleteCondition(), termsOfSaleAreAcceptedCondition(),
+        acceptedTermsOfSaleAreCurrentCondition()
     )
 
     override fun getNominalScenario(): NominalScenario<OrderToPlace> {
@@ -38,6 +43,20 @@ class PlaceOrderUseCase(
     }
 
     override fun getPostConditions(): PostConditions<OrderToPlace> = PostConditions(orderIsStoredCondition())
+
+    // The customer must be an existing user whose account is not suspended, locked or disabled (read
+    // from the users, not from the request)
+    private fun customerCanActCondition() = PreCondition<OrderToPlace> { orderToPlace ->
+        val customerId = orderToPlace.placement.customer.userId
+        if (userRepository.notExists(customerId)) {
+            throw UserNotFoundException(ErrorMessage("User ${customerId.value} not found."))
+        }
+        val status = userRepository.statusOf(customerId)
+        if (status.refusesSignIn()) {
+            val message = ErrorMessage("The account ${customerId.value} is $status: it cannot act.")
+            throw AccountRefusedException(status, message)
+        }
+    }
 
     private fun cartHasItemsCondition() = PreCondition<OrderToPlace> { orderToPlace ->
         if (orderToPlace.cart.isEmpty()) {
