@@ -8,6 +8,9 @@ import org.flexstore.infra.spring.adapter.persistence.jpa.toEntity
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
+import org.flexstore.infra.spring.config.USERS_CACHE
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Repository
@@ -18,6 +21,7 @@ interface JpaUserRepository : JpaRepository<UserEntity, String> {
     fun findByEmail(email: String): UserEntity?
 }
 
+// The reads of the user table are cached; every insert, update and delete empties the cache (CacheConfig)
 @Repository
 class PostgresUserRepositoryAdapter(
     private val jpaRepo: JpaUserRepository
@@ -25,12 +29,15 @@ class PostgresUserRepositoryAdapter(
 
     private val passwordEncoder = BCryptPasswordEncoder()
 
+    @Cacheable(USERS_CACHE, key = "'exists:' + #p0.value")
     override fun exists(userId: UserId): Boolean = jpaRepo.existsById(userId.value)
 
     override fun notExists(userId: UserId): Boolean = !exists(userId)
 
+    @Cacheable(USERS_CACHE, key = "'emailUnused:' + #p0.value")
     override fun notExistsBasedOn(email: Email): Boolean = !jpaRepo.existsByEmail(email.value)
 
+    @CacheEvict(USERS_CACHE, allEntries = true)
     override fun save(user: User): User {
         var savedUser = user
         when(user) {
@@ -112,18 +119,22 @@ class PostgresUserRepositoryAdapter(
         return listOf(entity)
     }
 
+    @Cacheable(USERS_CACHE, key = "'id:' + #p0.value")
     override fun findById(id: UserId): User =
         jpaRepo.findById(id.value)
             .orElseThrow { NoSuchElementException("User ${id.value} not found") }
             .toDomain()
 
+    @Cacheable(USERS_CACHE, key = "'email:' + #p0.value")
     override fun findByEmail(email: Email): User {
         val entity = jpaRepo.findByEmail(email.value)
         return entity?.toDomain() ?: User.UndefinedUser(UserId.InvalidUserId(""), "User not found with email ${email.value}")
     }
 
+    @Cacheable(USERS_CACHE, key = "'all'")
     override fun findAll(): List<User> = jpaRepo.findAll().map { it.toDomain() }
 
+    @CacheEvict(USERS_CACHE, allEntries = true)
     override fun delete(id: UserId): Boolean {
         return if (jpaRepo.existsById(id.value)) {
             jpaRepo.deleteById(id.value)
