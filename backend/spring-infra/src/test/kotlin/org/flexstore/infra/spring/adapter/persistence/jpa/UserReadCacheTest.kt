@@ -11,6 +11,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.Mockito.*
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
@@ -21,7 +22,9 @@ import java.util.function.Supplier
 class UserReadCacheTest {
 
     private val janeEmail = Email("jane.doe@example.com")
+    private val bobEmail = Email("bob.martin@example.com")
     private val janeEntity = UserEntity("user-1", "Jane", "Doe", janeEmail.value, "hashed")
+    private val bobEntity = UserEntity("user-2", "Bob", "Martin", bobEmail.value, "hashed")
 
     private val jpaUserRepository = mock(JpaUserRepository::class.java)
     private lateinit var context: AnnotationConfigApplicationContext
@@ -30,8 +33,8 @@ class UserReadCacheTest {
     @BeforeEach
     fun startSpring() {
         `when`(jpaUserRepository.findByEmail(janeEmail.value)).thenReturn(janeEntity)
-        `when`(jpaUserRepository.findAll()).thenReturn(listOf(janeEntity))
-        `when`(jpaUserRepository.existsById("user-1")).thenReturn(true)
+        `when`(jpaUserRepository.findByEmail(bobEmail.value)).thenReturn(bobEntity)
+        `when`(jpaUserRepository.findAll()).thenReturn(listOf(janeEntity, bobEntity))
         `when`(jpaUserRepository.findById("user-1")).thenReturn(Optional.of(janeEntity))
         `when`(jpaUserRepository.save(any(UserEntity::class.java))).thenAnswer { it.arguments[0] }
         context = AnnotationConfigApplicationContext()
@@ -64,42 +67,68 @@ class UserReadCacheTest {
         verify(jpaUserRepository, times(1)).findByEmail(janeEmail.value)
     }
 
-    @ParameterizedTest(name = "{0} should empty the cache")
-    @MethodSource("writes")
-    fun `an insert, an update or a delete should empty the cache`(name: String, write: (UserRepository) -> Any) {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("writesOfJane")
+    fun `an insert, an update or a delete should forget the user concerned and the list`(
+        write: String,
+        action: (UserRepository) -> Any
+    ) {
         // Arrange
+        userRepository.findByEmail(janeEmail)
         userRepository.findAll()
         // Act
-        write(userRepository)
-        val users = userRepository.findAll()
+        action(userRepository)
+        userRepository.findByEmail(janeEmail)
+        userRepository.findAll()
         // Assert
-        assertThat(users).hasSize(1)
+        verify(jpaUserRepository, times(2)).findByEmail(janeEmail.value)
         verify(jpaUserRepository, times(2)).findAll()
     }
 
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("writesOfJane")
+    fun `an insert, an update or a delete should keep the other users in the cache`(
+        write: String,
+        action: (UserRepository) -> Any
+    ) {
+        // Arrange
+        userRepository.findByEmail(bobEmail)
+        // Act
+        action(userRepository)
+        userRepository.findByEmail(bobEmail)
+        // Assert
+        verify(jpaUserRepository, times(1)).findByEmail(bobEmail.value)
+    }
+
+    @Test
+    fun `an update that changes the email should forget the previous email`() {
+        // Arrange
+        userRepository.findByEmail(janeEmail)
+        val newEmail = Email("jane.smith@example.com")
+        val marriedJane = janeWith(newEmail)
+        // Act
+        userRepository.save(marriedJane)
+        userRepository.findByEmail(janeEmail)
+        // Assert
+        verify(jpaUserRepository, times(2)).findByEmail(janeEmail.value)
+    }
+
     companion object {
-        private val newcomer = User.of(
-            FullName(FirstName("John"), LastName("Smith")), Email("john.smith@example.com"), PlainPassword("secret123")
+        private fun janeWith(email: Email) = User.DefinedUser(
+            UserId.ValidUserId("user-1"), FullName(FirstName("Jane"), LastName("Doe")), email, HashedPassword("hashed")
         )
-        private val updatedJane = User.DefinedUser(
-            UserId.ValidUserId("user-1"), FullName(FirstName("Janet"), LastName("Doe")),
-            Email("jane.doe@example.com"), HashedPassword("hashed")
+
+        private val newcomer = User.of(
+            FullName(FirstName("Jane"), LastName("Doe")), Email("jane.doe@example.com"), PlainPassword("secret123")
         )
 
         @JvmStatic
-        fun writes() = listOf(
-            org.junit.jupiter.params.provider.Arguments.of("an insert", { repository: UserRepository ->
-                repository.save(newcomer)
-                Unit
+        fun writesOfJane() = listOf(
+            Arguments.of("an insert", { repository: UserRepository -> repository.save(newcomer) }),
+            Arguments.of("an update", { repository: UserRepository ->
+                repository.save(janeWith(Email("jane.doe@example.com")))
             }),
-            org.junit.jupiter.params.provider.Arguments.of("an update", { repository: UserRepository ->
-                repository.save(updatedJane)
-                Unit
-            }),
-            org.junit.jupiter.params.provider.Arguments.of("a delete", { repository: UserRepository ->
-                repository.delete(UserId.ValidUserId("user-1"))
-                Unit
-            })
+            Arguments.of("a delete", { repository: UserRepository -> repository.delete(UserId.ValidUserId("user-1")) })
         )
     }
 }

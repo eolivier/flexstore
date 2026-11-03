@@ -8,8 +8,9 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import java.time.Duration
 
-// The cache of the reads of the user table: every update, delete and insert of a user empties it. The entries
-// also expire, so that a row changed by something other than this application is read again in the end
+// The cache of the reads of the user table: every insert, update and delete of a user makes it forget what it
+// holds about that user. The entries also expire, so that a row changed by something other than this application
+// is read again in the end
 const val USERS_CACHE = "users"
 
 @Configuration
