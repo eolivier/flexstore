@@ -105,8 +105,11 @@ The domain is split by business function, not by technical kind, so that the sub
 
 When a functional package holds too many classes to read at a glance, split it inside with technical sub-packages:
 - `model`: value objects, entities, aggregates (and their business exceptions);
-- `usecase`: the use cases and their requests;
+- `usecase`: the use cases and their requests (never the domain services);
+- `service`: the domain services (section 7);
 - `repository`: the repository ports.
+
+A domain service is not a use case: it never goes in `usecase`. It stays at the root of its functional package, next to the sub-packages that exist, until the package holds **at least 3 services**; from the third one, they go in a `service` sub-package.
 
 A technical sub-package holds **at least 3 files**. Do not create a `model`, `usecase` or `repository` sub-package to move one or two files into it: keep them at the level of their functional package, next to the sub-packages that do exist. Create the sub-package once a third file of that kind arrives, and move the files back up if one of them goes away and fewer than 3 remain.
 
@@ -115,7 +118,8 @@ The elements common to several functions (shared value objects such as `Identity
 Dependencies between the technical sub-packages go one way:
 - `model` depends on neither `usecase` nor `repository` (it may use the `model` of another function and the shared kernel);
 - `repository` uses `model`;
-- `usecase` uses `repository` and `model`.
+- `usecase` uses `repository` and `model`;
+- `service` uses `usecase`, `repository` and `model`; no use case uses a service.
 
 So a model class never receives a use case request: when the model needs the data of a request, that data is a model value object, which the use case takes as its input (e.g. `Order.place(placement: OrderPlacement, cart)`, with `PlaceOrderUseCase : UseCase<OrderPlacement>`). The same direction applies inside a flat functional package, between the classes of each kind.
 
@@ -140,6 +144,8 @@ and, once the package grows:
 ```
 domain/order/model/Order.kt, OrderLines.kt, OrderStatus.kt...
 domain/order/usecase/PlaceOrderUseCase.kt, ReadOrdersUseCase.kt...
+domain/order/service/OrderCheckoutService.kt, OrderAdministrationService.kt, UnpaidOrderService.kt
+                                       (from 3 services; with fewer, they stay at the root: domain/order/OrderCheckoutService.kt)
 domain/order/OrderRepository.kt        (fewer than 3 ports: no repository/ sub-package)
 ```
 
@@ -223,7 +229,7 @@ It plays one or both of these roles:
 Rules:
 - it acts on a repository **either** itself **or** through the use cases that use that repository, never both: when a use case already works with a repository, the service delegates to use cases for that repository (a read use case to read, the update use case to write) instead of also referencing the port;
 - it holds no state between calls (section 3), and no rule that an entity, an aggregate or a value object could hold: it decides the order of the steps, the rules stay in the model and the use cases;
-- it lives in the functional package of the journey it serves (section 4) and is tested in the domain, with in-memory repositories or mocks.
+- it lives in the functional package of the journey it serves, at its root or in its `service` sub-package from 3 services, never in `usecase` (section 4), and is tested in the domain, with in-memory repositories or mocks.
 
 Before creating one, check the alternatives: a rule about one object goes into that object; a rule that needs external data receives that data as a parameter, loaded by the use case (section 2); a single business action is a single use case. A class that only forwards each call to one use case is a facade, not a domain service: it adds no logic of its own.
 
