@@ -58,23 +58,26 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
 
     @Bean
     open fun addItemToCartUseCase(cartRepository: CartRepository,
-                                  productRepository: ProductRepository): AddItemToCartUseCase {
-        return AddItemToCartUseCase(cartRepository, productRepository)
+                                  productRepository: ProductRepository,
+                                  userRepository: UserRepository): AddItemToCartUseCase {
+        return AddItemToCartUseCase(cartRepository, productRepository, userRepository)
     }
 
     @Bean
-    open fun changeCartItemQuantityUseCase(cartRepository: CartRepository): ChangeCartItemQuantityUseCase {
-        return ChangeCartItemQuantityUseCase(cartRepository)
+    open fun changeCartItemQuantityUseCase(cartRepository: CartRepository,
+                                           userRepository: UserRepository): ChangeCartItemQuantityUseCase {
+        return ChangeCartItemQuantityUseCase(cartRepository, userRepository)
     }
 
     @Bean
-    open fun readCartUseCase(cartRepository: CartRepository): ReadCartUseCase {
-        return ReadCartUseCase(cartRepository)
+    open fun readCartUseCase(cartRepository: CartRepository, userRepository: UserRepository): ReadCartUseCase {
+        return ReadCartUseCase(cartRepository, userRepository)
     }
 
     @Bean
-    open fun mergeCartsUseCase(cartRepository: CartRepository): MergeCartsUseCase {
-        return MergeCartsUseCase(cartRepository)
+    open fun mergeCartsUseCase(cartRepository: CartRepository,
+                               userRepository: UserRepository): MergeCartsUseCase {
+        return MergeCartsUseCase(cartRepository, userRepository)
     }
 
     @Bean
@@ -128,8 +131,9 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     open fun placeOrderUseCase(
         orderRepository: OrderRepository,
         stockRepository: StockRepository,
-        legalPageRepository: LegalPageRepository
-    ) = PlaceOrderUseCase(orderRepository, stockRepository, legalPageRepository)
+        legalPageRepository: LegalPageRepository,
+        userRepository: UserRepository
+    ) = PlaceOrderUseCase(orderRepository, stockRepository, legalPageRepository, userRepository)
 
     @Bean
     open fun reserveOrderStockUseCase(orderRepository: OrderRepository, stockRepository: StockRepository) =
@@ -148,8 +152,8 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         CheckoutQueryUseCases(readCartUseCase, readShopSettingsUseCase, readCustomerOrderUseCase)
 
     @Bean
-    open fun listCustomerOrdersUseCase(orderRepository: OrderRepository) =
-        ListCustomerOrdersUseCase(orderRepository)
+    open fun listCustomerOrdersUseCase(orderRepository: OrderRepository, userRepository: UserRepository) =
+        ListCustomerOrdersUseCase(orderRepository, userRepository)
 
     @Bean
     open fun listAllOrdersUseCase(orderRepository: OrderRepository) = ListAllOrdersUseCase(orderRepository)
@@ -158,8 +162,8 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     open fun readAnyOrderUseCase(orderRepository: OrderRepository) = ReadAnyOrderUseCase(orderRepository)
 
     @Bean
-    open fun readCustomerOrderUseCase(orderRepository: OrderRepository) =
-        ReadCustomerOrderUseCase(orderRepository)
+    open fun readCustomerOrderUseCase(orderRepository: OrderRepository, userRepository: UserRepository) =
+        ReadCustomerOrderUseCase(orderRepository, userRepository)
 
     @Bean
     open fun orderQueryUseCases(listCustomerOrdersUseCase: ListCustomerOrdersUseCase,
@@ -292,8 +296,9 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     @Bean
     open fun proposeShippingOptionsUseCase(
         cartRepository: CartRepository,
-        shopSettingsRepository: ShopSettingsRepository
-    ) = ProposeShippingOptionsUseCase(cartRepository, shopSettingsRepository)
+        shopSettingsRepository: ShopSettingsRepository,
+        userRepository: UserRepository
+    ) = ProposeShippingOptionsUseCase(cartRepository, shopSettingsRepository, userRepository)
 
     @Bean
     open fun readStockUseCase(stockRepository: StockRepository) = ReadStockUseCase(stockRepository)
@@ -483,8 +488,11 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         DeleteReviewUseCase(reviewRepository, userRepository)
 
     @Bean
-    open fun readReviewEligibilityUseCase(reviewRepository: ReviewRepository, orderRepository: OrderRepository) =
-        ReadReviewEligibilityUseCase(reviewRepository, orderRepository)
+    open fun readReviewEligibilityUseCase(
+        reviewRepository: ReviewRepository,
+        orderRepository: OrderRepository,
+        userRepository: UserRepository
+    ) = ReadReviewEligibilityUseCase(reviewRepository, orderRepository, userRepository)
 
     @Bean
     open fun reviewUseCases(addReviewUseCase: AddReviewUseCase,

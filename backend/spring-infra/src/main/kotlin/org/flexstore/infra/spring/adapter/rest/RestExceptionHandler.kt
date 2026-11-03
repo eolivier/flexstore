@@ -45,6 +45,9 @@ class RestExceptionHandler {
             is AccountSignInRefusedException -> ResponseEntity
                 .status(403)
                 .body(mapOf("error" to (ex.message ?: "Sign-in refused"), "status" to ex.status.name))
+            is AccountRefusedException -> ResponseEntity
+                .status(403)
+                .body(mapOf("error" to (ex.message ?: "Account refused"), "status" to ex.status.name))
             is OrderRefusedException -> ResponseEntity
                 .status(403)
                 .body(mapOf("error" to (ex.message ?: "Order refused"), "status" to ex.status.name))

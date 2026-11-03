@@ -29,4 +29,7 @@ enum class AccountStatus {
 
 data class AccountSignInRefusedException(val status: AccountStatus, override val errorMessage: ErrorMessage) :
     NominalException(errorMessage)
+// The account of the user who runs a use case is suspended, locked or disabled: the user cannot act
+data class AccountRefusedException(val status: AccountStatus, override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
 data class InvalidStatusChangeException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

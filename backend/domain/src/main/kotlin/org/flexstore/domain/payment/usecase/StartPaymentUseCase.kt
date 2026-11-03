@@ -5,6 +5,8 @@ import org.flexstore.domain.payment.*
 import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.UserRepository
 import org.flexstore.domain.user.model.User
+import org.flexstore.domain.user.model.AccountRefusedException
+import org.flexstore.domain.user.model.UserNotFoundException
 import org.ucop.domain.entity.*
 
 // A customer starts the payment of one of their orders, awaiting its payment, on the payment provider
@@ -16,7 +18,8 @@ class StartPaymentUseCase(
 
     override fun getPreConditions(): PreConditions<OrderPayment> =
         PreConditions(
-            orderOfTheCustomerCondition(), orderAwaitsPaymentCondition(), orderIsNotCancelledCondition()
+            customerCanActCondition(), orderOfTheCustomerCondition(), orderAwaitsPaymentCondition(),
+            orderIsNotCancelledCondition()
         )
 
     override fun getNominalScenario(): NominalScenario<OrderPayment> {
@@ -29,6 +32,20 @@ class StartPaymentUseCase(
     }
 
     override fun getPostConditions(): PostConditions<OrderPayment> = PostConditions(sessionIsKeptCondition())
+
+    // The customer must be an existing user whose account is not suspended, locked or disabled (read
+    // from the users, not from the request)
+    private fun customerCanActCondition() = PreCondition<OrderPayment> { orderPayment ->
+        val customerId = orderPayment.customer.userId
+        if (userRepository.notExists(customerId)) {
+            throw UserNotFoundException(ErrorMessage("User ${customerId.value} not found."))
+        }
+        val status = userRepository.statusOf(customerId)
+        if (status.refusesSignIn()) {
+            val message = ErrorMessage("The account ${customerId.value} is $status: it cannot act.")
+            throw AccountRefusedException(status, message)
+        }
+    }
 
     // The order of another customer is reported as not found, so that its existence is not revealed
     private fun orderOfTheCustomerCondition() = PreCondition<OrderPayment> { orderPayment ->

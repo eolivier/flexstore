@@ -1,5 +1,10 @@
 package org.flexstore.domain.review.usecase
 
+import org.flexstore.domain.user.blockedCustomerId
+import org.flexstore.domain.user.customerWithStatus
+import org.flexstore.domain.user.model.AccountRefusedException
+import org.flexstore.domain.user.model.AccountStatus
+import org.junit.jupiter.params.provider.EnumSource
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.cart.Cart
 import org.flexstore.domain.cart.CartOwner
@@ -7,7 +12,10 @@ import org.flexstore.domain.order.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.review.*
 import org.flexstore.domain.sharedkernel.*
+import org.flexstore.domain.user.customersWithIds
 import org.flexstore.domain.user.model.UserId
+import org.flexstore.domain.user.model.UserNotFoundException
+import org.flexstore.domain.user.unknownCustomerId
 import org.flexstore.infra.repository.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -23,7 +31,8 @@ class ReadReviewEligibilityUseCaseTest : WithAssertions {
     private val customer = CartOwner.Customer(customerId)
     private val reviewRepository = InMemoryReviewRepository()
     private val orderRepository = InMemoryOrderRepository()
-    private val useCase = ReadReviewEligibilityUseCase(reviewRepository, orderRepository)
+    private val userRepository = customersWithIds(customerId.value)
+    private val useCase = ReadReviewEligibilityUseCase(reviewRepository, orderRepository, userRepository)
     private val question = ReviewEligibilityQuestion(customerId, deskLamp.productId)
 
     private fun storeOrder(status: OrderStatus) {
@@ -78,5 +87,27 @@ class ReadReviewEligibilityUseCaseTest : WithAssertions {
         val eligibility = useCase.unfold(question)
         // Assert
         assertThat(eligibility).isEqualTo(ReviewEligibility.ALREADY_REVIEWED)
+    }
+
+    @Test
+    fun `an unknown customer should not read their eligibility`() {
+        // Arrange
+        val unknownQuestion = ReviewEligibilityQuestion(unknownCustomerId, deskLamp.productId)
+        // Act
+        val thrown = catchThrowable { useCase.unfold(unknownQuestion) }
+        // Assert
+        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
+    }
+
+    @ParameterizedTest
+    @EnumSource(AccountStatus::class, names = ["SUSPENDED", "LOCKED", "DISABLED"])
+    fun `a customer whose account is refused should not read their eligibility`(status: AccountStatus) {
+        // Arrange
+        userRepository.save(customerWithStatus(status))
+        val blockedQuestion = ReviewEligibilityQuestion(blockedCustomerId, deskLamp.productId)
+        // Act
+        val thrown = catchThrowable { useCase.unfold(blockedQuestion) }
+        // Assert
+        assertThat(thrown).isInstanceOf(AccountRefusedException::class.java)
     }
 }

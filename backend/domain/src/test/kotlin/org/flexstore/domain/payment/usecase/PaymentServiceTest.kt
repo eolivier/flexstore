@@ -1,5 +1,9 @@
 package org.flexstore.domain.payment.usecase
 
+import org.flexstore.domain.user.blockedCustomerId
+import org.flexstore.domain.user.customerWithStatus
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 import org.flexstore.domain.stock.*
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.cart.*
@@ -11,6 +15,8 @@ import org.flexstore.domain.product.*
 import org.flexstore.domain.seller.testSeller
 import org.flexstore.domain.settings.ReadShopSettingsUseCase
 import org.flexstore.domain.sharedkernel.*
+import org.flexstore.domain.user.customerOf
+import org.flexstore.domain.user.unknownCustomerId
 import org.flexstore.domain.user.model.*
 import org.flexstore.infra.repository.*
 import org.junit.jupiter.api.Test
@@ -30,13 +36,16 @@ class PaymentServiceTest : WithAssertions {
     private val deskLampStock = Stock(deskLamp.productId, StockQuantity(5))
     private val stockRepository = InMemoryStockRepository().apply { save(deskLampStock) }
     private val cartRepository = InMemoryCartRepository()
-    private val userRepository = InMemoryUserRepository().apply { save(definedUser) }
+    private val userRepository = InMemoryUserRepository().apply {
+        save(definedUser)
+        save(customerOf("user-2"))
+    }
     private val emailRepository = InMemoryEmailRepository()
     private val orderQueryUseCases = OrderQueryUseCases(
-        ListCustomerOrdersUseCase(orderRepository),
+        ListCustomerOrdersUseCase(orderRepository, userRepository),
         ListAllOrdersUseCase(orderRepository),
         ReadAnyOrderUseCase(orderRepository),
-        ReadCustomerOrderUseCase(orderRepository)
+        ReadCustomerOrderUseCase(orderRepository, userRepository)
     )
     private val shopSettingsRepository = InMemoryShopSettingsRepository()
     private val invoiceRepository = InMemoryInvoiceRepository()
@@ -54,7 +63,7 @@ class PaymentServiceTest : WithAssertions {
                 orderQueryUseCases,
                 sendEmailUseCase,
                 readShopSettingsUseCase,
-                ProposeShippingOptionsUseCase(cartRepository, shopSettingsRepository)
+                ProposeShippingOptionsUseCase(cartRepository, shopSettingsRepository, userRepository)
             )
         val sellerRepository = InMemorySellerRepository(testSeller)
         val issueInvoiceUseCase = IssueInvoiceUseCase(orderRepository, invoiceRepository, sellerRepository)
@@ -185,5 +194,29 @@ class PaymentServiceTest : WithAssertions {
         val thrown = catchThrowable { paidAtOnce.pay(OrderPayment(otherCustomer, orderId)) }
         // Assert
         assertThat(thrown).isInstanceOf(OrderNotFoundException::class.java)
+    }
+
+    @Test
+    fun `an unknown customer should not pay an order`() {
+        // Arrange
+        placeOrder()
+        val unknownCustomer = CartOwner.Customer(unknownCustomerId)
+        // Act
+        val thrown = catchThrowable { paidAtOnce.pay(OrderPayment(unknownCustomer, orderId)) }
+        // Assert
+        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
+    }
+
+    @ParameterizedTest
+    @EnumSource(AccountStatus::class, names = ["SUSPENDED", "LOCKED", "DISABLED"])
+    fun `a customer whose account is refused should not pay an order`(status: AccountStatus) {
+        // Arrange
+        userRepository.save(customerWithStatus(status))
+        placeOrder()
+        val blockedCustomer = CartOwner.Customer(blockedCustomerId)
+        // Act
+        val thrown = catchThrowable { paidAtOnce.pay(OrderPayment(blockedCustomer, orderId)) }
+        // Assert
+        assertThat(thrown).isInstanceOf(AccountRefusedException::class.java)
     }
 }

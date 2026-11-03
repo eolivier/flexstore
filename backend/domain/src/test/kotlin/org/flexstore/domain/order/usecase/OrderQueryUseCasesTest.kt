@@ -1,10 +1,16 @@
 package org.flexstore.domain.order.usecase
 
+import org.flexstore.domain.user.blockedCustomerId
+import org.flexstore.domain.user.customerWithStatus
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.*
+import org.flexstore.domain.user.customersWithIds
+import org.flexstore.domain.user.unknownCustomerId
 import org.assertj.core.api.WithAssertions
 import org.flexstore.infra.repository.InMemoryOrderRepository
 import org.junit.jupiter.api.Test
@@ -18,8 +24,9 @@ class OrderQueryUseCasesTest : WithAssertions {
     private val otherCustomer = CartOwner.Customer(UserId.ValidUserId("user-2"))
     private val placedAt = Instant.parse("2026-10-24T10:00:00Z")
     private val orderRepository = InMemoryOrderRepository()
-    private val listCustomerOrdersUseCase = ListCustomerOrdersUseCase(orderRepository)
-    private val readCustomerOrderUseCase = ReadCustomerOrderUseCase(orderRepository)
+    private val userRepository = customersWithIds("user-1", "user-2")
+    private val listCustomerOrdersUseCase = ListCustomerOrdersUseCase(orderRepository, userRepository)
+    private val readCustomerOrderUseCase = ReadCustomerOrderUseCase(orderRepository, userRepository)
     private val readAnyOrderUseCase = ReadAnyOrderUseCase(orderRepository)
     private val listAllOrdersUseCase = ListAllOrdersUseCase(orderRepository)
 
@@ -91,5 +98,45 @@ class OrderQueryUseCasesTest : WithAssertions {
         val orders = listAllOrdersUseCase.unfold(Unit)
         // Assert
         assertThat(orders.asList()).containsExactly(newer, older)
+    }
+
+    @Test
+    fun `an unknown customer should not list orders`() {
+        // Act
+        val thrown = catchThrowable { listCustomerOrdersUseCase.unfold(unknownCustomerId) }
+        // Assert
+        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
+    }
+
+    @Test
+    fun `an unknown customer should not read an order`() {
+        // Arrange
+        placeOrder(OrderId("order-1"), customer, placedAt)
+        val lookup = CustomerOrderLookup(unknownCustomerId, OrderId("order-1"))
+        // Act
+        val thrown = catchThrowable { readCustomerOrderUseCase.unfold(lookup) }
+        // Assert
+        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
+    }
+
+    @ParameterizedTest
+    @EnumSource(AccountStatus::class, names = ["SUSPENDED", "LOCKED", "DISABLED"])
+    fun `a customer whose account is refused should not list orders`(status: AccountStatus) {
+        // Arrange
+        userRepository.save(customerWithStatus(status))
+        // Act
+        val thrown = catchThrowable { listCustomerOrdersUseCase.unfold(blockedCustomerId) }
+        // Assert
+        assertThat(thrown).isInstanceOf(AccountRefusedException::class.java)
+    }
+
+    @Test
+    fun `a customer whose email is not verified yet should list orders`() {
+        // Arrange
+        userRepository.save(customerWithStatus(AccountStatus.PENDING_VERIFICATION))
+        // Act
+        val orders = listCustomerOrdersUseCase.unfold(blockedCustomerId)
+        // Assert
+        assertThat(orders.asList()).isEmpty()
     }
 }

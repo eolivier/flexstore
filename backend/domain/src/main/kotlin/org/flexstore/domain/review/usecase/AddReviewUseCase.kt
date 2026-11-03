@@ -17,8 +17,8 @@ class AddReviewUseCase(
 ) : UseCase<ReviewSubmission> {
 
     override fun getPreConditions(): PreConditions<ReviewSubmission> =
-        PreConditions(opinionIsValidCondition(), productExistsCondition(), customerBoughtTheProductCondition(),
-            reviewIsNotWrittenYetCondition())
+        PreConditions(customerCanActCondition(), opinionIsValidCondition(), productExistsCondition(),
+            customerBoughtTheProductCondition(), reviewIsNotWrittenYetCondition())
 
     override fun getNominalScenario(): NominalScenario<ReviewSubmission> =
         NominalScenario(Step { submission -> reviewRepository.save(reviewOf(submission)) })
@@ -38,6 +38,20 @@ class AddReviewUseCase(
             is User.DefinedUser -> ReviewerName.of(user.fullName)
             else -> ReviewerName.of(FullName.none())
         }
+
+    // The customer must be an existing user whose account is not suspended, locked or disabled (read
+    // from the users, not from the request)
+    private fun customerCanActCondition() = PreCondition<ReviewSubmission> { submission ->
+        val customer = submission.draft.customer
+        if (userRepository.notExists(customer)) {
+            throw UserNotFoundException(ErrorMessage("User ${customer.value} not found."))
+        }
+        val status = userRepository.statusOf(customer)
+        if (status.refusesSignIn()) {
+            val message = ErrorMessage("The account ${customer.value} is $status: it cannot act.")
+            throw AccountRefusedException(status, message)
+        }
+    }
 
     private fun opinionIsValidCondition() = PreCondition<ReviewSubmission> { submission ->
         val opinion = submission.draft.productOpinion.opinion
