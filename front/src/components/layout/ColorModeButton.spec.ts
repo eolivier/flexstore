@@ -4,6 +4,7 @@ import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import ColorModeButton from './ColorModeButton.vue';
 import { themes } from '@/plugins/themes';
+import { rememberCookieChoice } from '@/utils/cookieConsent';
 import { i18n } from '@/test/setup';
 
 function mountButton(defaultTheme: string) {
@@ -29,6 +30,7 @@ describe('ColorModeButton.vue', () => {
 
   it('a click switches the light theme to the dark one and remembers it', async () => {
     // Arrange
+    rememberCookieChoice('accepted');
     const { wrapper, vuetify } = mountButton('flexstoreLight');
     // Act
     await wrapper.find('button').trigger('click');

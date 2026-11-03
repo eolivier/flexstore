@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { initialColorMode, oppositeColorMode, rememberColorMode } from './colorMode';
+import { forgetColorMode, initialColorMode, oppositeColorMode, rememberColorMode } from './colorMode';
+import { rememberCookieChoice } from './cookieConsent';
 
 function systemPrefersDark(prefersDark: boolean) {
   vi.stubGlobal('matchMedia', (query: string) => ({ matches: prefersDark, media: query }));
@@ -32,11 +33,34 @@ describe('colorMode', () => {
   it('the mode chosen by the customer wins over the one of the system', () => {
     // Arrange
     systemPrefersDark(true);
+    rememberCookieChoice('accepted');
     rememberColorMode('light');
     // Act
     const colorMode = initialColorMode();
     // Assert
     expect(colorMode).toBe('light');
+  });
+
+  it.each(['undecided', 'refused'] as const)(
+    'the mode is not remembered when the cookie choice is "%s"',
+    (choice) => {
+      // Arrange
+      rememberCookieChoice(choice);
+      // Act
+      rememberColorMode('dark');
+      // Assert
+      expect(localStorage.getItem('flexstore.colorMode')).toBeNull();
+    }
+  );
+
+  it('a forgotten mode is no longer stored', () => {
+    // Arrange
+    rememberCookieChoice('accepted');
+    rememberColorMode('dark');
+    // Act
+    forgetColorMode();
+    // Assert
+    expect(localStorage.getItem('flexstore.colorMode')).toBeNull();
   });
 
   it('an unknown stored mode is ignored', () => {
