@@ -32,6 +32,9 @@ sealed class User(open val id: UserId) {
 
         fun account() = Account(id, fullName, email, role, status, phoneNumber, postalAddresses, customerType)
 
+        // Too many failed sign-ins: an administrator reactivates the account
+        fun locked() = copy(status = AccountStatus.LOCKED)
+
         fun isAdministrator() = role == Role.ADMIN
 
         fun isNotAdministrator() = role != Role.ADMIN

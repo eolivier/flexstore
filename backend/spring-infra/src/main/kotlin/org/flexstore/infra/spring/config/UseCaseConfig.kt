@@ -259,6 +259,15 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         return ReadAccountUseCase(userRepository)
     }
 
+    @Bean
+    open fun recordFailedSignInUseCase(userRepository: UserRepository,
+                                       failedSignInRepository: FailedSignInRepository) =
+        RecordFailedSignInUseCase(userRepository, failedSignInRepository)
+
+    @Bean
+    open fun resetFailedSignInsUseCase(failedSignInRepository: FailedSignInRepository) =
+        ResetFailedSignInsUseCase(failedSignInRepository)
+
     // The groups of use cases of a sub-domain
     @Bean
     open fun productUseCases(createProductUseCase: CreateProductUseCase,

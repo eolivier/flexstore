@@ -1,6 +1,6 @@
 # Physical data model
 
-The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V42**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
+The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V43**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
 
 ![Physical data model](database.png)
 
@@ -39,6 +39,14 @@ erDiagram
         token_hash varchar(64) UK "SHA-256 of the token of the link"
         user_id varchar(50) FK "a user may have several links over time"
         expires_at timestamptz
+        created_at timestamp
+        updated_at timestamp
+    }
+
+    failed_sign_in {
+        id varchar(50) PK
+        user_id varchar(50) FK,UK "at most one row per account, only while the count is above 0"
+        attempt_count int "failed sign-ins in a row, 1 to 4: at the 5th the account is locked and the row deleted"
         created_at timestamp
         updated_at timestamp
     }
@@ -298,6 +306,7 @@ erDiagram
     user ||--o| customer_company : "user_id (cascade)"
     user ||--o| password_reset : "user_id (cascade)"
     user ||--o| cookie_consent : "user_id (cascade)"
+    user ||--o| failed_sign_in : "user_id (cascade)"
     user ||--o{ user_address : "user_id (cascade)"
     user_address }o--|| address : "address_id"
     user ||--o{ customer_order : "user_id (cascade)"
@@ -330,5 +339,6 @@ erDiagram
 - The `legal_page` rows are the legal notice and the terms of sale of the shop, written by the administrators and read by everyone. Each publication adds a version of its kind and never changes one, so that the terms of sale of a given date can be found again. The migration creates a first, empty version of each kind; V38 adds a standard version of each one, written with the current seller, while its current version is still empty. An order keeps the version of the terms of sale its customer accepted (`legal_page_id`); the orders placed before V37 have none.
 - A customer who creates their account for their company gives it once: its `customer_company` row (name, SIREN, VAT number). The address they give is then addressed to the company, for their attention (`address.recipient_type` `LEGAL_ENTITY`, with the company name and the VAT number).
 - A signed-in customer's choice about the preference cookies is one `cookie_consent` row, replaced by each new choice and valid until `expires_at` (6 months after the choice). A visitor who is not signed in keeps theirs in their browser; at sign-in it is recorded here and removed from the browser.
+- A wrong password for an existing account adds one to its `failed_sign_in` row (created by the first failure). At the 5th failure in a row, the account becomes `LOCKED` and the row is deleted, so that the count starts again when an administrator reactivates the account; a successful sign-in deletes the row too. An email that belongs to no account, and an account that cannot sign in already, are not counted.
 - `user` is quoted in SQL (`"user"`), a reserved word; the orders are stored in `customer_order` for the same reason.
 - The name and the description of a `product` are in `product_translation`, one row per language: always one in the default language (`en`), which the application requires, and one per other language the product is translated into. A product without a translation in the language of the customer is shown in `en`.

@@ -28,7 +28,10 @@ import org.springframework.web.bind.annotation.*
 @Tag(name = "Users")
 @RestController
 @RequestMapping("/api/users")
-class UserRestController(val userService: UserService, private val jwtTokenService: JwtTokenService) {
+class UserRestController(
+    val userService: UserService,
+    private val signInService: SignInService,
+    private val jwtTokenService: JwtTokenService) {
 
     @Operation(summary = "Create a user")
     @ApiResponse(responseCode = "201", description = "User created",
@@ -154,7 +157,7 @@ class UserRestController(val userService: UserService, private val jwtTokenServi
     @PostMapping("/login")
     @ResponseStatus(HttpStatus.OK)
     fun login(@RequestBody jsonLoginRequest: JsonLoginRequest): JsonLoginResponse {
-        val user = userService.login(jsonLoginRequest.toLoginRequest()) as User.DefinedUser
+        val user = signInService.signIn(jsonLoginRequest.toLoginRequest()) as User.DefinedUser
         val token = jwtTokenService.issue(user)
         return JsonLoginResponse(token.value, token.expiresAt.toString(), user.toJsonUser())
     }
