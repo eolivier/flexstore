@@ -1,9 +1,15 @@
 package org.flexstore.domain.cart.usecase
 
+import org.flexstore.domain.user.blockedCustomerId
+import org.flexstore.domain.user.customerWithStatus
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.*
+import org.flexstore.domain.user.customersWithIds
+import org.flexstore.domain.user.unknownCustomerId
 import org.assertj.core.api.WithAssertions
 import org.flexstore.infra.repository.InMemoryCartRepository
 import org.flexstore.infra.repository.InMemoryProductRepository
@@ -16,7 +22,8 @@ class AddItemToCartUseCaseTest : WithAssertions {
     private val owner = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val cartRepository = InMemoryCartRepository()
     private val productRepository = InMemoryProductRepository().apply { save(product) }
-    private val useCase = AddItemToCartUseCase(cartRepository, productRepository)
+    private val userRepository = customersWithIds("user-1", "user-2")
+    private val useCase = AddItemToCartUseCase(cartRepository, productRepository, userRepository)
 
     @Test
     fun `should add the catalog product to the cart`() {
@@ -72,5 +79,38 @@ class AddItemToCartUseCaseTest : WithAssertions {
         useCase.unfold(AddItemToCartRequest(owner, product.productId, Quantity(1)))
         // Assert
         assertThat(cartRepository.load(otherOwner).items.asList()).isEmpty()
+    }
+
+    @Test
+    fun `an unknown customer should not add an item to a cart`() {
+        // Arrange
+        val unknownOwner = CartOwner.Customer(unknownCustomerId)
+        val request = AddItemToCartRequest(unknownOwner, product.productId, Quantity(1))
+        // Act
+        val thrown = catchThrowable { useCase.unfold(request) }
+        // Assert
+        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
+    }
+
+    @Test
+    fun `a visitor should add an item to a cart without being a user`() {
+        // Arrange
+        val visitor = CartOwner.Visitor(VisitorCartId.nextId())
+        // Act
+        useCase.unfold(AddItemToCartRequest(visitor, product.productId, Quantity(1)))
+        // Assert
+        assertThat(cartRepository.load(visitor).findBy(product.productId)).isInstanceOf(CartItem::class.java)
+    }
+
+    @ParameterizedTest
+    @EnumSource(AccountStatus::class, names = ["SUSPENDED", "LOCKED", "DISABLED"])
+    fun `a customer whose account is refused should not add an item to a cart`(status: AccountStatus) {
+        // Arrange
+        userRepository.save(customerWithStatus(status))
+        val request = AddItemToCartRequest(CartOwner.Customer(blockedCustomerId), product.productId, Quantity(1))
+        // Act
+        val thrown = catchThrowable { useCase.unfold(request) }
+        // Assert
+        assertThat(thrown).isInstanceOf(AccountRefusedException::class.java)
     }
 }

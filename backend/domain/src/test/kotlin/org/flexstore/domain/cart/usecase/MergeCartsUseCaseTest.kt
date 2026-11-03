@@ -1,9 +1,15 @@
 package org.flexstore.domain.cart.usecase
 
+import org.flexstore.domain.user.blockedCustomerId
+import org.flexstore.domain.user.customerWithStatus
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.*
+import org.flexstore.domain.user.customersWithIds
+import org.flexstore.domain.user.unknownCustomerId
 import org.assertj.core.api.WithAssertions
 import org.flexstore.infra.repository.InMemoryCartRepository
 import org.junit.jupiter.api.Test
@@ -16,7 +22,8 @@ class MergeCartsUseCaseTest : WithAssertions {
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val visitor = CartOwner.Visitor(VisitorCartId.nextId())
     private val cartRepository = InMemoryCartRepository()
-    private val useCase = MergeCartsUseCase(cartRepository)
+    private val userRepository = customersWithIds("user-1")
+    private val useCase = MergeCartsUseCase(cartRepository, userRepository)
 
     @Test
     fun `should merge the visitor cart into the customer cart`() {
@@ -49,5 +56,29 @@ class MergeCartsUseCaseTest : WithAssertions {
         useCase.unfold(MergeCartsRequest(visitor, customer))
         // Assert
         assertThat(cartRepository.load(customer)).isEqualTo(customerCart)
+    }
+
+    @Test
+    fun `an unknown customer should not merge a visitor cart`() {
+        // Arrange
+        cartRepository.save(Cart(visitor).add(product1, Quantity(1)))
+        val unknownCustomer = CartOwner.Customer(unknownCustomerId)
+        // Act
+        val thrown = catchThrowable { useCase.unfold(MergeCartsRequest(visitor, unknownCustomer)) }
+        // Assert
+        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
+        assertThat(cartRepository.load(visitor).hasItems()).isTrue()
+    }
+
+    @ParameterizedTest
+    @EnumSource(AccountStatus::class, names = ["SUSPENDED", "LOCKED", "DISABLED"])
+    fun `a customer whose account is refused should not merge a visitor cart`(status: AccountStatus) {
+        // Arrange
+        userRepository.save(customerWithStatus(status))
+        val blockedCustomer = CartOwner.Customer(blockedCustomerId)
+        // Act
+        val thrown = catchThrowable { useCase.unfold(MergeCartsRequest(visitor, blockedCustomer)) }
+        // Assert
+        assertThat(thrown).isInstanceOf(AccountRefusedException::class.java)
     }
 }

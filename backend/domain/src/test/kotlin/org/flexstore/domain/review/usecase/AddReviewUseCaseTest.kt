@@ -1,5 +1,8 @@
 package org.flexstore.domain.review.usecase
 
+import org.flexstore.domain.user.blockedCustomerId
+import org.flexstore.domain.user.customerWithStatus
+import org.junit.jupiter.params.provider.EnumSource
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.cart.Cart
 import org.flexstore.domain.cart.CartOwner
@@ -116,5 +119,31 @@ class AddReviewUseCaseTest : WithAssertions {
         val thrown = catchThrowable { useCase.unfold(submission(sturdy, ProductId(Identity("unknown")))) }
         // Assert
         assertThat(thrown).isInstanceOf(ProductNotFoundException::class.java)
+    }
+
+    @Test
+    fun `an unknown user should not write a review`() {
+        // Arrange
+        storeOrder(OrderStatus.DELIVERED)
+        val stamp = ReviewStamp(ReviewId("review-2"), ReviewedAt(Instant.parse("2026-10-31T10:00:00Z")))
+        val draft = ReviewDraft(UserId.ValidUserId("unknown-user"), ProductOpinion(deskLamp.productId, sturdy))
+        // Act
+        val thrown = catchThrowable { useCase.unfold(ReviewSubmission(stamp, draft)) }
+        // Assert
+        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
+    }
+
+    @ParameterizedTest
+    @EnumSource(AccountStatus::class, names = ["SUSPENDED", "LOCKED", "DISABLED"])
+    fun `a user whose account is refused should not write a review`(status: AccountStatus) {
+        // Arrange
+        userRepository.save(customerWithStatus(status))
+        storeOrder(OrderStatus.DELIVERED)
+        val stamp = ReviewStamp(ReviewId("review-3"), ReviewedAt(Instant.parse("2026-10-31T10:00:00Z")))
+        val draft = ReviewDraft(blockedCustomerId, ProductOpinion(deskLamp.productId, sturdy))
+        // Act
+        val thrown = catchThrowable { useCase.unfold(ReviewSubmission(stamp, draft)) }
+        // Assert
+        assertThat(thrown).isInstanceOf(AccountRefusedException::class.java)
     }
 }

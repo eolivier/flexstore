@@ -17,6 +17,9 @@ interface UserRepository {
     fun emailIsUsedByAnotherUser(email: Email, userId: UserId): Boolean =
         findByEmail(email).let { user -> user is User.DefinedUser && user.id != userId }
 
+    // The status of the account of an existing user
+    fun statusOf(userId: UserId): AccountStatus = (findById(userId) as User.DefinedUser).status
+
     // Managing the users (create, edit) is reserved to an existing user with the ADMIN role
     fun isNotAdministrator(userId: UserId): Boolean {
         if (notExists(userId)) return true
