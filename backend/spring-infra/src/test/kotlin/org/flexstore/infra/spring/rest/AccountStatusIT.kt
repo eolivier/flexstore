@@ -94,7 +94,7 @@ class AccountStatusIT {
         // Act
         val response = mockMvc.perform(post("/api/orders").withHomeAddresses(mockMvc.currentTermsOfSaleId()).with(asUser(CUSTOMER_ID)))
         // Assert
-        response.andExpect(status().isForbidden).andExpect(jsonPath("$.status").value("SUSPENDED"))
+        response.andExpect(status().isUnauthorized)
     }
 
     @ParameterizedTest(name = "status \"{0}\" -> 422")

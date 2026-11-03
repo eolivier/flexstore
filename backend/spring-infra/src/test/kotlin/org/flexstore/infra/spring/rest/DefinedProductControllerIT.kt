@@ -8,6 +8,7 @@ import org.flexstore.infra.spring.security.asAdmin
 import org.flexstore.infra.spring.security.asUser
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.springframework.beans.factory.annotation.Autowired
@@ -25,6 +26,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
+@ExtendWith(ExistingCustomer::class)
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -159,7 +161,7 @@ class DefinedProductControllerIT {
     @Test
     fun `a customer should not read the translations of a product as an administrator`() {
         // Act
-        val response = mockMvc.perform(get("/api/admin/products/2").with(asUser("a-customer")))
+        val response = mockMvc.perform(get("/api/admin/products/2").with(asUser(EXISTING_CUSTOMER_ID)))
         // Assert
         response.andExpect(status().isForbidden)
     }
@@ -260,7 +262,7 @@ class DefinedProductControllerIT {
     fun `a customer should not be proposed a SKU`() {
         // Act
         val response = mockMvc.perform(
-            get("/api/admin/products/sku-proposal").with(asUser("a-customer")).param("category", "CLOTHING")
+            get("/api/admin/products/sku-proposal").with(asUser(EXISTING_CUSTOMER_ID)).param("category", "CLOTHING")
         )
         // Assert
         response.andExpect(status().isForbidden)
@@ -301,7 +303,7 @@ class DefinedProductControllerIT {
     fun `should forbid the edition of a product to a user without the admin role`() {
         // Act
         val response = mockMvc.perform(
-            put("/api/products/1").with(asUser("a-customer")).contentType(MediaType.APPLICATION_JSON)
+            put("/api/products/1").with(asUser(EXISTING_CUSTOMER_ID)).contentType(MediaType.APPLICATION_JSON)
                 .content(editedProduct("Bedside lamp", 42))
         )
         // Assert

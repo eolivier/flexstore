@@ -3,6 +3,7 @@ package org.flexstore.infra.spring.rest
 import org.flexstore.infra.spring.security.asAdmin
 import org.flexstore.infra.spring.security.asUser
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -12,6 +13,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
+@ExtendWith(ExistingCustomer::class)
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -50,7 +52,7 @@ class SalesDashboardIT {
     @Test
     fun `a customer should not read the sales`() {
         // Act
-        val response = mockMvc.perform(get("/api/admin/sales-dashboard").with(asUser("it-sales-customer")))
+        val response = mockMvc.perform(get("/api/admin/sales-dashboard").with(asUser(EXISTING_CUSTOMER_ID)))
         // Assert
         response.andExpect(status().isForbidden)
     }

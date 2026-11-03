@@ -7,6 +7,7 @@ import org.flexstore.infra.spring.security.asUser
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -18,6 +19,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
+@ExtendWith(ExistingCustomer::class)
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -117,7 +119,7 @@ class SellerIT {
     @Test
     fun `a customer should not read the seller of the administration`() {
         // Act
-        val response = mockMvc.perform(get("/api/admin/seller").with(asUser("u-customer")))
+        val response = mockMvc.perform(get("/api/admin/seller").with(asUser(EXISTING_CUSTOMER_ID)))
         // Assert
         response.andExpect(status().isForbidden)
     }

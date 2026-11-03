@@ -23,6 +23,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 private const val PRODUCT_ID = "5"
 
 @ExtendWith(RefilledStocks::class)
+@ExtendWith(ExistingCustomer::class)
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -85,7 +86,7 @@ class StockAlertIT {
     @Test
     fun `a customer should not read the low stocks`() {
         // Act
-        val response = mockMvc.perform(get("/api/admin/stocks/low").with(asUser("u-customer")))
+        val response = mockMvc.perform(get("/api/admin/stocks/low").with(asUser(EXISTING_CUSTOMER_ID)))
         // Assert
         response.andExpect(status().isForbidden)
     }

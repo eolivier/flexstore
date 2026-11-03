@@ -5,6 +5,7 @@ import org.flexstore.infra.spring.security.asAdmin
 import org.flexstore.infra.spring.security.asUser
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -27,6 +28,7 @@ import javax.imageio.ImageIO
 // Product 7 of the catalog (Smartwatch): its image is given by the tests, then removed
 private const val PRODUCT_ID = "7"
 
+@ExtendWith(ExistingCustomer::class)
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -86,7 +88,7 @@ class ProductImageIT {
         val response = mockMvc.perform(
             multipart(HttpMethod.PUT, "/api/admin/products/$PRODUCT_ID/image")
                 .file(MockMultipartFile("image", "watch.png", "image/png", png(10, 10)))
-                .with(asUser("it-image-customer"))
+                .with(asUser(EXISTING_CUSTOMER_ID))
         )
         // Assert
         response.andExpect(status().isForbidden)
