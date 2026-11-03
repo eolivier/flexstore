@@ -1,6 +1,6 @@
 # Physical data model
 
-The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V41**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
+The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V42**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
 
 ![Physical data model](database.png)
 
@@ -236,6 +236,15 @@ erDiagram
         updated_at timestamp
     }
 
+    cookie_consent {
+        id varchar(50) PK
+        user_id varchar(50) FK,UK "at most one choice per customer"
+        choice varchar(20) "ACCEPTED or REFUSED"
+        expires_at timestamptz "6 months after the choice: the customer is asked again"
+        created_at timestamp
+        updated_at timestamp
+    }
+
     stock {
         id varchar(50) PK
         product_id varchar(50) FK,UK "a product without row has none"
@@ -288,6 +297,7 @@ erDiagram
     user ||--o{ email_verification : "user_id (cascade)"
     user ||--o| customer_company : "user_id (cascade)"
     user ||--o| password_reset : "user_id (cascade)"
+    user ||--o| cookie_consent : "user_id (cascade)"
     user ||--o{ user_address : "user_id (cascade)"
     user_address }o--|| address : "address_id"
     user ||--o{ customer_order : "user_id (cascade)"
@@ -319,5 +329,6 @@ erDiagram
 - A `credit_note` cancels the `invoice` of a refunded order, and is written with the seller of that invoice. The credit notes have their own sequence of numbers (`credit_note_counter`), as the invoices; V39 issues the credit notes of the orders refunded before it, dated when they were refunded.
 - The `legal_page` rows are the legal notice and the terms of sale of the shop, written by the administrators and read by everyone. Each publication adds a version of its kind and never changes one, so that the terms of sale of a given date can be found again. The migration creates a first, empty version of each kind; V38 adds a standard version of each one, written with the current seller, while its current version is still empty. An order keeps the version of the terms of sale its customer accepted (`legal_page_id`); the orders placed before V37 have none.
 - A customer who creates their account for their company gives it once: its `customer_company` row (name, SIREN, VAT number). The address they give is then addressed to the company, for their attention (`address.recipient_type` `LEGAL_ENTITY`, with the company name and the VAT number).
+- A signed-in customer's choice about the preference cookies is one `cookie_consent` row, replaced by each new choice and valid until `expires_at` (6 months after the choice). A visitor who is not signed in keeps theirs in their browser; at sign-in it is recorded here and removed from the browser.
 - `user` is quoted in SQL (`"user"`), a reserved word; the orders are stored in `customer_order` for the same reason.
 - The name and the description of a `product` are in `product_translation`, one row per language: always one in the default language (`en`), which the application requires, and one per other language the product is translated into. A product without a translation in the language of the customer is shown in `en`.

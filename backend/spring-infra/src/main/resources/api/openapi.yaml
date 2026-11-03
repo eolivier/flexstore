@@ -469,6 +469,47 @@ paths:
           description: Merged
         "401":
           description: Not signed in
+  /api/cookie-consent:
+    get:
+      tags:
+      - Cookies
+      summary: Retrieve the cookie consent of the signed-in customer
+      description: "UNDECIDED, without expiry, when the customer never chose or when their choice is 6 months
+        old."
+      operationId: getCookieConsent
+      security:
+      - bearerAuth: []
+      responses:
+        "200":
+          description: The cookie consent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonCookieConsent"
+        "401":
+          description: Not signed in
+    put:
+      tags:
+      - Cookies
+      summary: Record the choice of the signed-in customer about the preference cookies, for 6 months
+      operationId: recordCookieConsent
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonCookieChoice"
+      responses:
+        "200":
+          description: The recorded cookie consent, with its expiry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonCookieConsent"
+        "401":
+          description: Not signed in
   /api/admin/products/sku-proposal:
     get:
       tags:
@@ -2123,6 +2164,24 @@ components:
         threshold:
           type: integer
           description: The alert threshold of the product
+    JsonCookieConsent:
+      type: object
+      required: [choice]
+      properties:
+        choice:
+          type: string
+          enum: [ACCEPTED, REFUSED, UNDECIDED]
+        expiresAt:
+          type: string
+          format: date-time
+          description: When the customer is asked again; absent when UNDECIDED
+    JsonCookieChoice:
+      type: object
+      required: [choice]
+      properties:
+        choice:
+          type: string
+          enum: [ACCEPTED, REFUSED]
     JsonStockAlert:
       type: object
       required: [productId, threshold]

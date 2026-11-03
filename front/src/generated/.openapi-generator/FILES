@@ -7,6 +7,7 @@ configuration.ts
 docs/AccountsApi.md
 docs/AdministrationApi.md
 docs/CartApi.md
+docs/CookiesApi.md
 docs/DraftJsonProduct.md
 docs/EditedJsonProduct.md
 docs/InvoicesApi.md
@@ -21,6 +22,8 @@ docs/JsonCartItem.md
 docs/JsonCartItems.md
 docs/JsonChangePasswordRequest.md
 docs/JsonChosenPassword.md
+docs/JsonCookieChoice.md
+docs/JsonCookieConsent.md
 docs/JsonCustomerCompany.md
 docs/JsonDailySales.md
 docs/JsonDiscountCode.md
