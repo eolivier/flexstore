@@ -1,6 +1,5 @@
 package org.flexstore.infra.spring.adapter.persistence.jpa
 
-import org.assertj.core.api.Assertions.assertThat
 import org.flexstore.domain.user.UserRepository
 import org.flexstore.domain.user.model.*
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.UserEntity
@@ -10,9 +9,6 @@ import org.flexstore.infra.spring.config.CacheConfig
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.Arguments
-import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.Mockito.*
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import java.util.Optional
@@ -21,10 +17,17 @@ import java.util.function.Supplier
 // The cache of the reads of the user table, with the real adapter behind the Spring cache, without a database
 class UserReadCacheTest {
 
-    private val janeEmail = Email("jane.doe@example.com")
-    private val bobEmail = Email("bob.martin@example.com")
-    private val janeEntity = UserEntity("user-1", "Jane", "Doe", janeEmail.value, "hashed")
-    private val bobEntity = UserEntity("user-2", "Bob", "Martin", bobEmail.value, "hashed")
+    private val janeId = UserId.ValidUserId("user-1")
+    private val bobId = UserId.ValidUserId("user-2")
+    private val janeEntity = UserEntity(janeId.value, "Jane", "Doe", "jane.doe@example.com", "hashed")
+    private val bobEntity = UserEntity(bobId.value, "Bob", "Martin", "bob.martin@example.com", "hashed")
+    private val updatedJane = User.DefinedUser(
+        janeId, FullName(FirstName("Janet"), LastName("Doe")), Email("jane.doe@example.com"),
+        HashedPassword("hashed")
+    )
+    private val newcomer = User.of(
+        FullName(FirstName("John"), LastName("Smith")), Email("john.smith@example.com"), PlainPassword("secret123")
+    )
 
     private val jpaUserRepository = mock(JpaUserRepository::class.java)
     private lateinit var context: AnnotationConfigApplicationContext
@@ -32,10 +35,11 @@ class UserReadCacheTest {
 
     @BeforeEach
     fun startSpring() {
-        `when`(jpaUserRepository.findByEmail(janeEmail.value)).thenReturn(janeEntity)
-        `when`(jpaUserRepository.findByEmail(bobEmail.value)).thenReturn(bobEntity)
         `when`(jpaUserRepository.findAll()).thenReturn(listOf(janeEntity, bobEntity))
-        `when`(jpaUserRepository.findById("user-1")).thenReturn(Optional.of(janeEntity))
+        `when`(jpaUserRepository.findById(janeId.value)).thenReturn(Optional.of(janeEntity))
+        `when`(jpaUserRepository.findById(bobId.value)).thenReturn(Optional.of(bobEntity))
+        `when`(jpaUserRepository.existsById(janeId.value)).thenReturn(true)
+        `when`(jpaUserRepository.existsById(bobId.value)).thenReturn(true)
         `when`(jpaUserRepository.save(any(UserEntity::class.java))).thenAnswer { it.arguments[0] }
         context = AnnotationConfigApplicationContext()
         context.register(CacheConfig::class.java, PostgresUserRepositoryAdapter::class.java)
@@ -59,76 +63,98 @@ class UserReadCacheTest {
     }
 
     @Test
-    fun `reading a user by email twice should read the table once`() {
+    fun `reading a user by id twice should read the table once`() {
         // Act
-        userRepository.findByEmail(janeEmail)
-        userRepository.findByEmail(janeEmail)
+        userRepository.findById(janeId)
+        userRepository.findById(janeId)
         // Assert
-        verify(jpaUserRepository, times(1)).findByEmail(janeEmail.value)
-    }
-
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("writesOfJane")
-    fun `an insert, an update or a delete should forget the user concerned and the list`(
-        write: String,
-        action: (UserRepository) -> Any
-    ) {
-        // Arrange
-        userRepository.findByEmail(janeEmail)
-        userRepository.findAll()
-        // Act
-        action(userRepository)
-        userRepository.findByEmail(janeEmail)
-        userRepository.findAll()
-        // Assert
-        verify(jpaUserRepository, times(2)).findByEmail(janeEmail.value)
-        verify(jpaUserRepository, times(2)).findAll()
-    }
-
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("writesOfJane")
-    fun `an insert, an update or a delete should keep the other users in the cache`(
-        write: String,
-        action: (UserRepository) -> Any
-    ) {
-        // Arrange
-        userRepository.findByEmail(bobEmail)
-        // Act
-        action(userRepository)
-        userRepository.findByEmail(bobEmail)
-        // Assert
-        verify(jpaUserRepository, times(1)).findByEmail(bobEmail.value)
+        verify(jpaUserRepository, times(1)).findById(janeId.value)
     }
 
     @Test
-    fun `an update that changes the email should forget the previous email`() {
-        // Arrange
-        userRepository.findByEmail(janeEmail)
-        val newEmail = Email("jane.smith@example.com")
-        val marriedJane = janeWith(newEmail)
+    fun `checking that a user exists twice should read the table once`() {
         // Act
-        userRepository.save(marriedJane)
-        userRepository.findByEmail(janeEmail)
+        userRepository.exists(janeId)
+        userRepository.exists(janeId)
         // Assert
-        verify(jpaUserRepository, times(2)).findByEmail(janeEmail.value)
+        verify(jpaUserRepository, times(1)).existsById(janeId.value)
     }
 
-    companion object {
-        private fun janeWith(email: Email) = User.DefinedUser(
-            UserId.ValidUserId("user-1"), FullName(FirstName("Jane"), LastName("Doe")), email, HashedPassword("hashed")
-        )
+    @Test
+    fun `an insert should evict the list of the users`() {
+        // Arrange
+        userRepository.findAll()
+        userRepository.save(newcomer)
+        clearInvocations(jpaUserRepository)
+        // Act
+        userRepository.findAll()
+        // Assert
+        verify(jpaUserRepository, times(1)).findAll()
+    }
 
-        private val newcomer = User.of(
-            FullName(FirstName("Jane"), LastName("Doe")), Email("jane.doe@example.com"), PlainPassword("secret123")
-        )
+    @Test
+    fun `an update should evict the user and the list of the users`() {
+        // Arrange
+        userRepository.findById(janeId)
+        userRepository.exists(janeId)
+        userRepository.findAll()
+        userRepository.save(updatedJane)
+        clearInvocations(jpaUserRepository)
+        // Act
+        userRepository.findById(janeId)
+        userRepository.exists(janeId)
+        userRepository.findAll()
+        // Assert
+        verify(jpaUserRepository, times(1)).findById(janeId.value)
+        verify(jpaUserRepository, times(1)).existsById(janeId.value)
+        verify(jpaUserRepository, times(1)).findAll()
+    }
 
-        @JvmStatic
-        fun writesOfJane() = listOf(
-            Arguments.of("an insert", { repository: UserRepository -> repository.save(newcomer) }),
-            Arguments.of("an update", { repository: UserRepository ->
-                repository.save(janeWith(Email("jane.doe@example.com")))
-            }),
-            Arguments.of("a delete", { repository: UserRepository -> repository.delete(UserId.ValidUserId("user-1")) })
-        )
+    @Test
+    fun `a delete should evict the user and the list of the users`() {
+        // Arrange
+        userRepository.findById(janeId)
+        userRepository.exists(janeId)
+        userRepository.findAll()
+        userRepository.delete(janeId)
+        clearInvocations(jpaUserRepository)
+        // Act
+        userRepository.findById(janeId)
+        userRepository.exists(janeId)
+        userRepository.findAll()
+        // Assert
+        verify(jpaUserRepository, times(1)).findById(janeId.value)
+        verify(jpaUserRepository, times(1)).existsById(janeId.value)
+        verify(jpaUserRepository, times(1)).findAll()
+    }
+
+    @Test
+    fun `an update should keep the other users in the cache`() {
+        // Arrange
+        userRepository.findById(bobId)
+        userRepository.exists(bobId)
+        userRepository.save(updatedJane)
+        clearInvocations(jpaUserRepository)
+        // Act
+        userRepository.findById(bobId)
+        userRepository.exists(bobId)
+        // Assert
+        verify(jpaUserRepository, never()).findById(bobId.value)
+        verify(jpaUserRepository, never()).existsById(bobId.value)
+    }
+
+    @Test
+    fun `a delete should keep the other users in the cache`() {
+        // Arrange
+        userRepository.findById(bobId)
+        userRepository.exists(bobId)
+        userRepository.delete(janeId)
+        clearInvocations(jpaUserRepository)
+        // Act
+        userRepository.findById(bobId)
+        userRepository.exists(bobId)
+        // Assert
+        verify(jpaUserRepository, never()).findById(bobId.value)
+        verify(jpaUserRepository, never()).existsById(bobId.value)
     }
 }
