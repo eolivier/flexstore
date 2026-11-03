@@ -56,7 +56,8 @@ class UserRestController(val userService: UserService, private val jwtTokenServi
         ]
     )
     @GetMapping
-    fun getAllUsers(): List<JsonUser> = userService.readAllUsers().toJsonUsers()
+    fun getAllUsers(@AuthenticationPrincipal reader: Jwt): List<JsonUser> =
+        userService.readAllUsers(UserId.of(reader.subject)).toJsonUsers()
 
     @Operation(summary = "Retrieve a user by ID",
         responses = [
@@ -70,9 +71,9 @@ class UserRestController(val userService: UserService, private val jwtTokenServi
         ]
     )
     @GetMapping("/{id}")
-    fun getUser(@PathVariable id: String): JsonUser {
+    fun getUser(@AuthenticationPrincipal reader: Jwt, @PathVariable id: String): JsonUser {
         val userId = ValidUserId(id)
-        return userService.readUser(userId).toJsonUser()
+        return userService.readUser(UserId.of(reader.subject), userId).toJsonUser()
     }
 
     @Operation(summary = "Update a user by ID",
@@ -90,8 +91,9 @@ class UserRestController(val userService: UserService, private val jwtTokenServi
         @PathVariable id: String,
         @RequestBody editedUser: EditedJsonUser
     ): JsonUser {
-        userService.updateUser(UpdateUserRequest(UserId.of(editor.subject), editedUser.toUser(id)))
-        return userService.readUser(UserId.of(id)).toJsonUser()
+        val editorId = UserId.of(editor.subject)
+        userService.updateUser(UpdateUserRequest(editorId, editedUser.toUser(id)))
+        return userService.readUser(editorId, UserId.of(id)).toJsonUser()
     }
 
     @Operation(summary = "Change the status of an account: ACTIVE, SUSPENDED, LOCKED or DISABLED (administrator only)")
@@ -117,9 +119,9 @@ class UserRestController(val userService: UserService, private val jwtTokenServi
     )
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun deleteUser(@PathVariable id: String) {
+    fun deleteUser(@AuthenticationPrincipal editor: Jwt, @PathVariable id: String) {
         val userId = ValidUserId(id)
-        userService.deleteUser(userId)
+        userService.deleteUser(UserId.of(editor.subject), userId)
     }
 
     @Operation(summary = "Change the password of a user",

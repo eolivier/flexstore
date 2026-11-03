@@ -12,7 +12,10 @@ import org.junit.jupiter.api.Test
 
 class DeleteUserUseCaseTest {
 
-    private val userRepository = mockk<UserRepository>()
+    private val administrator = ValidUserId("admin-1")
+    private val userRepository = mockk<UserRepository> {
+        every { isNotAdministrator(administrator) } returns false
+    }
     private val deleteUserUseCase = DeleteUserUseCase(userRepository)
     private val userId = ValidUserId("123")
 
@@ -23,7 +26,7 @@ class DeleteUserUseCaseTest {
         every { userRepository.exists(userId) } returns false
         every { userRepository.delete(userId) } returns true
         // Act
-        deleteUserUseCase.unfold(userId)
+        deleteUserUseCase.unfold(UserDeletion(administrator, userId))
         // Assert
         verify { userRepository.delete(userId) }
     }
@@ -33,7 +36,7 @@ class DeleteUserUseCaseTest {
         // Arrange
         every { userRepository.notExists(userId) } returns true
         // Act
-        val thrown = catchThrowable { deleteUserUseCase.unfold(userId) }
+        val thrown = catchThrowable { deleteUserUseCase.unfold(UserDeletion(administrator, userId)) }
         // Assert
         assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
     }
@@ -45,8 +48,20 @@ class DeleteUserUseCaseTest {
         every { userRepository.delete(userId) } returns false
         every { userRepository.notExists(userId) } returns false
         // Act
-        val thrown = catchThrowable { deleteUserUseCase.unfold(userId) }
+        val thrown = catchThrowable { deleteUserUseCase.unfold(UserDeletion(administrator, userId)) }
         // Assert
         assertThat(thrown).isInstanceOf(UserDeletionFailed::class.java)
+    }
+
+    @Test
+    fun `a customer should not delete a user`() {
+        // Arrange
+        val customer = ValidUserId("customer-1")
+        every { userRepository.isNotAdministrator(customer) } returns true
+        // Act
+        val thrown = catchThrowable { deleteUserUseCase.unfold(UserDeletion(customer, userId)) }
+        // Assert
+        assertThat(thrown).isInstanceOf(UserDeletionForbiddenException::class.java)
+        verify(exactly = 0) { userRepository.delete(userId) }
     }
 }

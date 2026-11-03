@@ -182,7 +182,7 @@ class UserRestControllerIT {
         )
         // Assert
         response.andExpect(status().isForbidden)
-        assertThat((userService.readUser(UserId.of(USER_ID)) as User.DefinedUser).fullName.value).isEqualTo("John Doe")
+        assertThat((userService.readUser(UserId.of(ADMIN_ACCOUNT_ID), UserId.of(USER_ID)) as User.DefinedUser).fullName.value).isEqualTo("John Doe")
     }
 
     @Test
