@@ -188,7 +188,8 @@ export default {
       signIn: 'Sign in to review a product you bought.',
       delete: 'Delete this review',
       deleteTitle: 'Delete the review of {name}?',
-      deleteMessage: 'The rating of the product will no longer count it. The customer may review the product again.',
+      deleteMessage:
+        'The rating of the product will no longer count it. The customer may review the product again.',
       deletionFailed: 'The review could not be deleted.',
       onlyBuyers: 'Once you have bought this product, you can review it here.',
       errors: {
@@ -583,6 +584,19 @@ export default {
       saveError: 'The page could not be published.',
       versionsNote: 'Each publication is kept as a new version: the versions before are not lost.',
     },
+    cookies: {
+      title: 'Cookies',
+      bannerText:
+        'We use essential cookies to keep you signed in and to keep your cart. With your consent, we also remember your preferences, such as the light or dark mode. You can change your choice in your account.',
+      accept: 'Accept',
+      refuse: 'Refuse',
+      settingsTitle: 'Cookies',
+      settingsText: 'Choose the cookies that Flexstore may keep in your browser.',
+      essential: 'Essential cookies',
+      essentialText: 'Sign-in and cart. They are needed for the shop to work and cannot be turned off.',
+      preferences: 'Preference cookies',
+      preferencesText: 'Remember your preferences, such as the light or dark mode, for your next visits.',
+    },
     footer: {
       tagline: 'Everyday essentials, delivered fast.',
       rights: 'All rights reserved.',
@@ -876,7 +890,7 @@ export default {
     },
     reviews: {
       title: 'Avis des clients',
-      none: "Aucun avis pour le moment.",
+      none: 'Aucun avis pour le moment.',
       average: 'Note moyenne : {average} sur 5',
       count: 'Aucun avis | 1 avis | {n} avis',
       write: 'Donner votre avis sur ce produit',
@@ -950,7 +964,8 @@ export default {
     },
     salesDashboard: {
       title: 'Ventes',
-      subtitle: "Les commandes payées, ni annulées ni remboursées, passées sur la période (jours à l'heure de Paris).",
+      subtitle:
+        "Les commandes payées, ni annulées ni remboursées, passées sur la période (jours à l'heure de Paris).",
       lastDays: '{n} derniers jours',
       revenue: "Chiffre d'affaires",
       orders: 'Commandes',
@@ -1024,7 +1039,8 @@ export default {
       termsOfSale: {
         accept: "J'ai lu et j'accepte les conditions générales de vente",
         read: 'Lire les conditions générales de vente',
-        loadError: "Les conditions générales de vente n'ont pas pu être chargées. Rechargez la page pour commander.",
+        loadError:
+          "Les conditions générales de vente n'ont pas pu être chargées. Rechargez la page pour commander.",
       },
       errors: {
         emptyCart: 'Votre panier est vide.',
@@ -1288,6 +1304,20 @@ export default {
       saveError: 'La page n’a pas pu être publiée.',
       versionsNote:
         'Chaque publication est conservée comme une nouvelle version : les précédentes ne sont pas perdues.',
+    },
+    cookies: {
+      title: 'Cookies',
+      bannerText:
+        'Nous utilisons des cookies essentiels pour vous garder connecté et conserver votre panier. Avec votre accord, nous retenons aussi vos préférences, comme le mode clair ou sombre. Vous pouvez modifier votre choix dans votre compte.',
+      accept: 'Accepter',
+      refuse: 'Refuser',
+      settingsTitle: 'Cookies',
+      settingsText: 'Choisissez les cookies que Flexstore peut conserver dans votre navigateur.',
+      essential: 'Cookies essentiels',
+      essentialText:
+        'Connexion et panier. Ils sont nécessaires au fonctionnement de la boutique et ne peuvent pas être désactivés.',
+      preferences: 'Cookies de préférences',
+      preferencesText: 'Retiennent vos préférences, comme le mode clair ou sombre, pour vos prochaines visites.',
     },
     footer: {
       tagline: "L'essentiel du quotidien, livré rapidement.",

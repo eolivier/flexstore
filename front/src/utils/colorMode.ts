@@ -1,3 +1,5 @@
+import { preferencesAccepted } from '@/utils/cookieConsent';
+
 // Light or dark: the mode chosen by the customer, kept in the browser; otherwise the one of their system
 export type ColorMode = 'light' | 'dark';
 
@@ -24,11 +26,23 @@ export function initialColorMode(): ColorMode {
   }
 }
 
+// A preference cookie: only kept when the customer accepted the preference cookies
 export function rememberColorMode(colorMode: ColorMode): void {
+  if (!preferencesAccepted()) {
+    return;
+  }
   try {
     localStorage.setItem(COLOR_MODE_KEY, colorMode);
   } catch {
     // Not remembered: the next visit follows the system again
+  }
+}
+
+export function forgetColorMode(): void {
+  try {
+    localStorage.removeItem(COLOR_MODE_KEY);
+  } catch {
+    // Nothing to forget
   }
 }
 
