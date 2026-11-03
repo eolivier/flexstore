@@ -1,6 +1,6 @@
 ---
 name: fluent-code-reading-semantic
-description: Principles that make code read like the business language - wrapping collections in their own class, naming boolean methods affirmatively, no negated condition before an else (swap the branches), naming a condition with a method (a deadline that is reached rather than a comparison of dates), naming variables after their type, intermediate variables, strong types rather than nullable ones, no nullable type marker (`?`) in declarations, one or two arguments per method, lines of 113 characters at most, singular or plural names, no repeated names, no null arguments, beans declared step by step (repository, use case, service). Use before writing, changing or reviewing domain or application code (entities, value objects, aggregates, use cases), in any language.
+description: Principles that make code read like the business language - wrapping collections in their own class, naming boolean methods affirmatively, no negated condition before an else (swap the branches), naming a condition with a method (a deadline that is reached rather than a comparison of dates), naming variables after their type, intermediate variables, strong types rather than nullable ones, no nullable type marker (`?`) in declarations, no magic number, one or two arguments per method, lines of 113 characters at most, singular or plural names, no repeated names, no null arguments, beans declared step by step (repository, use case, service). Use before writing, changing or reviewing domain or application code (entities, value objects, aggregates, use cases), in any language.
 ---
 
 # Fluent code reading semantic
@@ -571,4 +571,33 @@ Details:
 - An `if` without `else` keeps its condition as the rule reads, written affirmatively when a method exists for it (principle 2): `if (order.isNotAwaitingPayment()) throw ...`, a guard clause that returns early.
 - When the condition combines several parts (`!a && !b`), name it with an affirmative method or variable (principle 3) rather than swapping branches around a negated expression.
 - An `else if` chain is ordered by the business cases, each one affirmative.
+
+## 18. No magic number: name every number that carries a meaning
+
+A number that means something (a size, a duration, a limit, a threshold, a delay, a count) is not written inline in the code: it is a named constant, or a value object of the domain (section 8 of the `domain-driven-design` skill, for the business values), whose name says what the number is and in which unit.
+
+Avoid:
+
+```kotlin
+val caffeine = Caffeine.newBuilder().maximumSize(1_000).expireAfterWrite(Duration.ofMinutes(10))
+```
+
+Prefer:
+
+```kotlin
+private const val MAXIMUM_CACHED_ENTRIES = 1_000L
+private const val ENTRY_LIFETIME_MINUTES = 10L
+
+val entryLifetime = Duration.ofMinutes(ENTRY_LIFETIME_MINUTES)
+val caffeine = Caffeine.newBuilder().maximumSize(MAXIMUM_CACHED_ENTRIES).expireAfterWrite(entryLifetime)
+```
+
+Why: a reader of `10` does not know whether it is minutes, seconds or a count, nor why; the name says it, and the number is changed in one place.
+
+Details:
+- **A business number** (a validity of 6 months, a payment delay, a free shipping threshold) belongs to the domain: a constant of its class or a value object (`PaymentDelay`), not a constant of an adapter.
+- **A technical number** (a cache size, a timeout, a page size) is a constant at the top of the file that uses it, or a property of the configuration when it must change without a build.
+- **Not magic**: `0` and `1` used as such (an empty count, an increment, the first index), and `100` in a percentage computation when the code says so.
+- **In tests**, a literal number is tolerated: the value is part of the example (`Quantity(3)`, `Price(Amount(BigDecimal(35)), Currency.EUR)`); name it only when the same number must stay consistent across several lines.
+- The same applies to TypeScript and Vue (`const MAX_PAYMENT_DELAY_MINUTES = 24 * 60`).
 
