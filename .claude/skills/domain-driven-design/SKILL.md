@@ -111,6 +111,8 @@ When a functional package holds too many classes to read at a glance, split it i
 
 A domain service is not a use case: it never goes in `usecase`. It stays at the root of its functional package, next to the sub-packages that exist, until the package holds **at least 3 services**; from the third one, they go in a `service` sub-package.
 
+The same goes for the use cases: as soon as a functional package contains **at least 3 use cases**, create its `usecase` sub-package and move them there (with their requests and the groups of use cases such as `OrderUseCases`), whatever the size of the package. With fewer than 3 use cases, they stay at the root of the package.
+
 A technical sub-package holds **at least 3 files**. Do not create a `model`, `usecase` or `repository` sub-package to move one or two files into it: keep them at the level of their functional package, next to the sub-packages that do exist. Create the sub-package once a third file of that kind arrives, and move the files back up if one of them goes away and fewer than 3 remain.
 
 The elements common to several functions (shared value objects such as `Identity`, `Price`, `Quantity`, `Name`) go in a **shared kernel**: `org.flexstore.domain.sharedkernel`. Keep it small: an element used by a single function belongs to that function.
