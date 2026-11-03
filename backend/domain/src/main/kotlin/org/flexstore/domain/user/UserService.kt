@@ -33,7 +33,7 @@ class UserService(
         DeleteUserUseCase(userRepository).unfold(UserDeletion(editor, userId))
     }
 
-    fun readAllUsers(reader: UserId): List<User> = ListUsersUseCase(userRepository).unfold(UsersReading(reader))
+    fun readAllUsers(reader: UserId): Users = ListUsersUseCase(userRepository).unfold(UsersReading(reader))
 
     fun changePassword(changePasswordRequest: ChangePasswordRequest) {
         ChangePasswordUseCase(userRepository).unfold(changePasswordRequest)

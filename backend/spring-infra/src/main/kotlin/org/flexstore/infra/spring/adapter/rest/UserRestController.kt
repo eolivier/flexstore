@@ -57,7 +57,7 @@ class UserRestController(val userService: UserService, private val jwtTokenServi
     )
     @GetMapping
     fun getAllUsers(@AuthenticationPrincipal reader: Jwt): List<JsonUser> =
-        userService.readAllUsers(UserId.of(reader.subject)).toJsonUsers()
+        userService.readAllUsers(UserId.of(reader.subject)).asList().toJsonUsers()
 
     @Operation(summary = "Retrieve a user by ID",
         responses = [
