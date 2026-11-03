@@ -9,6 +9,7 @@ import org.flexstore.infra.spring.adapter.rest.json.DefinedJsonUser
 import org.flexstore.infra.spring.adapter.rest.json.DraftJsonUser
 import org.flexstore.infra.spring.adapter.rest.json.EditedJsonUser
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -29,6 +30,7 @@ import org.junit.jupiter.params.provider.CsvSource
 private const val USER_ID = "1"
 private const val DRAFT_USER_EMAIL = "draft.user@example.com"
 
+@ExtendWith(ExistingCustomer::class)
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -93,7 +95,7 @@ class UserRestControllerIT {
         val draftJsonUser = DraftJsonUser("Draft", "User", DRAFT_USER_EMAIL, "testpassword")
         // Act
         val response = mockMvc.perform(
-            post("/api/users").with(asAdmin("not-a-user")).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(draftJsonUser))
+            post("/api/users").with(asAdmin(EXISTING_CUSTOMER_ID)).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(draftJsonUser))
         )
         // Assert
         response.andExpect(status().isForbidden)
@@ -178,7 +180,7 @@ class UserRestControllerIT {
         val editedUser = EditedJsonUser("Jane", "Doe", "jane.doe@example.com", "USER")
         // Act
         val response = mockMvc.perform(
-            put("/api/users/$USER_ID").with(asAdmin("not-a-user")).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(editedUser))
+            put("/api/users/$USER_ID").with(asAdmin(EXISTING_CUSTOMER_ID)).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(editedUser))
         )
         // Assert
         response.andExpect(status().isForbidden)

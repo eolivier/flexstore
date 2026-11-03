@@ -1,6 +1,7 @@
 package org.flexstore.infra.spring.security
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret
+import org.flexstore.domain.user.usecase.ReadAccountUseCase
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -19,6 +20,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.access.intercept.AuthorizationFilter
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext
 import java.security.SecureRandom
 import javax.crypto.SecretKey
@@ -54,7 +56,10 @@ open class SecurityConfig(@Value("\${flexstore.security.jwt-secret:}") private v
     }
 
     @Bean
-    open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+    open fun securityFilterChain(
+        http: HttpSecurity,
+        readAccountUseCase: ReadAccountUseCase
+    ): SecurityFilterChain {
         http
             .cors(withDefaults())
             // Tokens are sent in the Authorization header, not in cookies: no CSRF risk
@@ -90,6 +95,8 @@ open class SecurityConfig(@Value("\${flexstore.security.jwt-secret:}") private v
             .oauth2ResourceServer {
                 it.jwt { jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()) }
             }
+            // Not a bean: a Filter bean would also be registered outside of the security chain
+            .addFilterBefore(AccountAuthorizationFilter(readAccountUseCase), AuthorizationFilter::class.java)
         return http.build()
     }
 
