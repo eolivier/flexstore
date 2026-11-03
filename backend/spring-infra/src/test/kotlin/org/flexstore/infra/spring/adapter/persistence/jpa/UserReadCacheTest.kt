@@ -25,9 +25,6 @@ class UserReadCacheTest {
         janeId, FullName(FirstName("Janet"), LastName("Doe")), Email("jane.doe@example.com"),
         HashedPassword("hashed")
     )
-    private val newcomer = User.of(
-        FullName(FirstName("John"), LastName("Smith")), Email("john.smith@example.com"), PlainPassword("secret123")
-    )
 
     private val jpaUserRepository = mock(JpaUserRepository::class.java)
     private lateinit var context: AnnotationConfigApplicationContext
@@ -54,12 +51,12 @@ class UserReadCacheTest {
     }
 
     @Test
-    fun `reading the users twice should read the table once`() {
+    fun `the list of the users should not be cached`() {
         // Act
         userRepository.findAll()
         userRepository.findAll()
         // Assert
-        verify(jpaUserRepository, times(1)).findAll()
+        verify(jpaUserRepository, times(2)).findAll()
     }
 
     @Test
@@ -81,51 +78,33 @@ class UserReadCacheTest {
     }
 
     @Test
-    fun `an insert should evict the list of the users`() {
-        // Arrange
-        userRepository.findAll()
-        userRepository.save(newcomer)
-        clearInvocations(jpaUserRepository)
-        // Act
-        userRepository.findAll()
-        // Assert
-        verify(jpaUserRepository, times(1)).findAll()
-    }
-
-    @Test
-    fun `an update should evict the user and the list of the users`() {
+    fun `an update should evict the key of the user`() {
         // Arrange
         userRepository.findById(janeId)
         userRepository.exists(janeId)
-        userRepository.findAll()
         userRepository.save(updatedJane)
         clearInvocations(jpaUserRepository)
         // Act
         userRepository.findById(janeId)
         userRepository.exists(janeId)
-        userRepository.findAll()
         // Assert
         verify(jpaUserRepository, times(1)).findById(janeId.value)
         verify(jpaUserRepository, times(1)).existsById(janeId.value)
-        verify(jpaUserRepository, times(1)).findAll()
     }
 
     @Test
-    fun `a delete should evict the user and the list of the users`() {
+    fun `a delete should evict the key of the user`() {
         // Arrange
         userRepository.findById(janeId)
         userRepository.exists(janeId)
-        userRepository.findAll()
         userRepository.delete(janeId)
         clearInvocations(jpaUserRepository)
         // Act
         userRepository.findById(janeId)
         userRepository.exists(janeId)
-        userRepository.findAll()
         // Assert
         verify(jpaUserRepository, times(1)).findById(janeId.value)
         verify(jpaUserRepository, times(1)).existsById(janeId.value)
-        verify(jpaUserRepository, times(1)).findAll()
     }
 
     @Test

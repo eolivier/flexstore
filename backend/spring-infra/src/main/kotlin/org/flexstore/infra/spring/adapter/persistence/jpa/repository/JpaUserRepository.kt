@@ -9,6 +9,7 @@ import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.infra.spring.config.USERS_CACHE
+import org.flexstore.infra.spring.config.USER_EXISTENCE_CACHE
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.cache.annotation.Caching
@@ -16,17 +17,15 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Repository
 
-private const val ALL_USERS_KEY = "all"
-
 @Repository
 interface JpaUserRepository : JpaRepository<UserEntity, String> {
     fun existsByEmail(email: String): Boolean
     fun findByEmail(email: String): UserEntity?
 }
 
-// The reads of the user table by id, and the list of the users, are cached; every insert, update and delete
-// evicts the keys of the user concerned and the list, the other users stay cached. The reads by email are not
-// cached: an update of the email would leave the entry of the previous email behind
+// The reads of a user by id (the user, and whether it exists) are cached under the id of the user; every insert,
+// update and delete evicts that id only, the other users stay cached. Not cached: the reads by email (an update
+// of the email would leave the entry of the previous email behind) and the list of the users (it holds them all)
 @Repository
 class PostgresUserRepositoryAdapter(
     private val jpaRepo: JpaUserRepository
@@ -34,7 +33,7 @@ class PostgresUserRepositoryAdapter(
 
     private val passwordEncoder = BCryptPasswordEncoder()
 
-    @Cacheable(USERS_CACHE, key = "'exists:' + #p0.value")
+    @Cacheable(USER_EXISTENCE_CACHE, key = "#p0.value")
     override fun exists(userId: UserId): Boolean = jpaRepo.existsById(userId.value)
 
     override fun notExists(userId: UserId): Boolean = !exists(userId)
@@ -43,9 +42,8 @@ class PostgresUserRepositoryAdapter(
 
     @Caching(
         evict = [
-            CacheEvict(USERS_CACHE, key = "'id:' + #result.id.value"),
-            CacheEvict(USERS_CACHE, key = "'exists:' + #result.id.value"),
-            CacheEvict(USERS_CACHE, key = "'$ALL_USERS_KEY'")
+            CacheEvict(USERS_CACHE, key = "#result.id.value"),
+            CacheEvict(USER_EXISTENCE_CACHE, key = "#result.id.value")
         ]
     )
     override fun save(user: User): User {
@@ -129,7 +127,7 @@ class PostgresUserRepositoryAdapter(
         return listOf(entity)
     }
 
-    @Cacheable(USERS_CACHE, key = "'id:' + #p0.value")
+    @Cacheable(USERS_CACHE, key = "#p0.value")
     override fun findById(id: UserId): User =
         jpaRepo.findById(id.value)
             .orElseThrow { NoSuchElementException("User ${id.value} not found") }
@@ -140,14 +138,12 @@ class PostgresUserRepositoryAdapter(
         return entity?.toDomain() ?: User.UndefinedUser(UserId.InvalidUserId(""), "User not found with email ${email.value}")
     }
 
-    @Cacheable(USERS_CACHE, key = "'$ALL_USERS_KEY'")
     override fun findAll(): List<User> = jpaRepo.findAll().map { it.toDomain() }
 
     @Caching(
         evict = [
-            CacheEvict(USERS_CACHE, key = "'id:' + #p0.value"),
-            CacheEvict(USERS_CACHE, key = "'exists:' + #p0.value"),
-            CacheEvict(USERS_CACHE, key = "'$ALL_USERS_KEY'")
+            CacheEvict(USERS_CACHE, key = "#p0.value"),
+            CacheEvict(USER_EXISTENCE_CACHE, key = "#p0.value")
         ]
     )
     override fun delete(id: UserId): Boolean {
