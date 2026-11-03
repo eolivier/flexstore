@@ -10,6 +10,7 @@
   import BillingDocumentButton from './BillingDocumentButton.vue';
   import PaymentCountdown from './PaymentCountdown.vue';
   import AccountBreadcrumbs from '@/components/account/AccountBreadcrumbs.vue';
+  import OrderTrackingCard from './OrderTrackingCard.vue';
 
   const props = defineProps<{ id: string }>();
 
@@ -52,6 +53,7 @@
       <v-card class="pa-5 mb-6">
         <OrderStatusSteps :status="order.status" />
       </v-card>
+      <OrderTrackingCard v-if="order.tracking" :tracking="order.tracking" />
       <div class="d-flex flex-wrap align-end ga-4 mb-6">
         <div>
           <h1 class="text-h4 font-weight-bold">

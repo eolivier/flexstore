@@ -19,19 +19,22 @@ class AdvanceOrderStatusUseCase(
         editorIsAdministratorCondition(),
         orderExistsCondition(),
         initialStatusIsCurrentCondition(),
-        initialStatusHasNextCondition()
+        initialStatusHasNextCondition(),
+        trackingIsValidCondition(),
+        trackingIsGivenWhenShippingOnlyCondition()
     )
 
     override fun getNominalScenario(): NominalScenario<OrderStatusAdvance> {
         val advanceStep = Step<OrderStatusAdvance> { orderStatusAdvance ->
             val order = orderRepository.findById(orderStatusAdvance.orderId)!!
-            orderRepository.save(order.advancedAt(StatusChangedAt.now()))
+            val advancedOrder = order.advancedAt(StatusChangedAt.now())
+            orderRepository.save(advancedOrder.withTracking(orderStatusAdvance.tracking))
         }
         return NominalScenario(listOf(advanceStep))
     }
 
     override fun getPostConditions(): PostConditions<OrderStatusAdvance> =
-        PostConditions(finalStatusIsNextCondition())
+        PostConditions(finalStatusIsNextCondition(), trackingIsKeptCondition())
 
     // The editor must be an existing user with the ADMIN role (read from the users, not from the request)
     private fun editorIsAdministratorCondition() = PreCondition<OrderStatusAdvance> { request ->
@@ -59,6 +62,30 @@ class AdvanceOrderStatusUseCase(
         if (orderStatusAdvance.currentStatus.isNotMovedByAnAdministrator()) {
             val message = "An order ${orderStatusAdvance.currentStatus} is not moved by an administrator."
             throw OrderStatusCannotAdvanceException(ErrorMessage(message))
+        }
+    }
+
+    private fun trackingIsValidCondition() = PreCondition<OrderStatusAdvance> { orderStatusAdvance ->
+        if (orderStatusAdvance.tracking.isInvalid()) {
+            val message = "A tracking number is letters, digits and hyphens, ${TrackingNumber.MAX_LENGTH} at most."
+            throw InvalidOrderTrackingException(ErrorMessage(message))
+        }
+    }
+
+    // Only the order that is shipped is given a carrier and a tracking number
+    private fun trackingIsGivenWhenShippingOnlyCondition() = PreCondition<OrderStatusAdvance> { advance ->
+        if (advance.tracking.isGiven() && advance.currentStatus.isShippedNext().not()) {
+            val message = "A carrier and a tracking number are given when the order is shipped."
+            throw InvalidOrderTrackingException(ErrorMessage(message))
+        }
+    }
+
+    private fun trackingIsKeptCondition() = PostCondition<OrderStatusAdvance> { orderStatusAdvance ->
+        val tracking = orderStatusAdvance.tracking
+        val storedTracking = orderRepository.findById(orderStatusAdvance.orderId)?.tracking
+        if (tracking.isGiven() && storedTracking != tracking) {
+            val message = "The tracking of order ${orderStatusAdvance.orderId.value} was not kept."
+            throw OrderTrackingChangeFailed(ErrorMessage(message))
         }
     }
 

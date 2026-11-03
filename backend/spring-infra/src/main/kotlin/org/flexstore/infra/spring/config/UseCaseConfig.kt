@@ -214,6 +214,10 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         AddPostalAddressUseCase(userRepository)
 
     @Bean
+    open fun correctOrderTrackingUseCase(orderRepository: OrderRepository, userRepository: UserRepository) =
+        CorrectOrderTrackingUseCase(orderRepository, userRepository)
+
+    @Bean
     open fun changePostalAddressUseCase(userRepository: UserRepository) =
         ChangePostalAddressUseCase(userRepository)
 

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { createMemoryHistory, createRouter } from 'vue-router';
@@ -25,12 +25,16 @@ const router = createRouter({
 });
 
 async function mountAdminOrders() {
-  const wrapper = mount(AdminOrders, { global: { plugins: [vuetify, i18n, router] } });
+  const wrapper = mount(AdminOrders, { global: { plugins: [vuetify, i18n, router] }, attachTo: document.body });
   await flushPromises();
   return wrapper;
 }
 
 describe('AdminOrders.vue', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+  });
+
   beforeEach(() => {
     setActivePinia(createPinia());
     mockFetch.mockReset();
@@ -119,6 +123,11 @@ describe('AdminOrders.vue', () => {
       .findAll('button')
       .find((button) => button.text() === 'Move to: Shipped')!
       .trigger('click');
+    await flushPromises();
+    const shipWithoutTracking = [...document.querySelectorAll('button')].find(
+      (button) => button.textContent?.trim() === 'Ship without tracking'
+    )!;
+    shipWithoutTracking.click();
     await flushPromises();
     // Assert
     expect(wrapper.text()).toContain('Shipped');

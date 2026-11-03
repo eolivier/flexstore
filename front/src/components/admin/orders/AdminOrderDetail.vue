@@ -5,6 +5,8 @@
   import type { JsonOrder } from '@/generated';
   import { useAdminOrdersStore, type AdminOrderLookup } from '@/stores/adminOrders.store';
   import { hasCreditNote, isInvoiced, orderItemsCount, orderNumber, placedOn } from '@/utils/order';
+  import { allowsTrackingCorrection, type TrackingInput } from '@/utils/tracking';
+  import OrderTrackingCard from '@/components/orders/OrderTrackingCard.vue';
   import OrderStatusSteps from '@/components/orders/OrderStatusSteps.vue';
   import OrderLinesTable from '@/components/orders/OrderLinesTable.vue';
   import OrderAddressesCard from '@/components/orders/OrderAddressesCard.vue';
@@ -12,6 +14,7 @@
   import AdminOrderStatusHistory from './AdminOrderStatusHistory.vue';
   import AdvanceOrderStatusButton from './AdvanceOrderStatusButton.vue';
   import RefundOrderButton from './RefundOrderButton.vue';
+  import EditTrackingButton from './EditTrackingButton.vue';
   import BillingDocumentButton from '@/components/orders/BillingDocumentButton.vue';
 
   // An order of any customer, with the customer who placed it: the administrator moves it to its next status
@@ -24,19 +27,29 @@
   const order = computed(() => (orderLookup.value?.status === 'found' ? orderLookup.value.order : null));
   const advancing = ref(false);
   const refunding = ref(false);
+  const correctingTracking = ref(false);
   const feedback = ref<string | null>(null);
 
   async function load() {
     orderLookup.value = await adminOrdersStore.fetchOrder(props.id);
   }
 
-  async function advance(shownOrder: JsonOrder) {
+  async function advance(shownOrder: JsonOrder, tracking: TrackingInput) {
     advancing.value = true;
     feedback.value = null;
-    const statusAdvance = await adminOrdersStore.advanceStatus(shownOrder);
+    const statusAdvance = await adminOrdersStore.advanceStatus(shownOrder, tracking);
     if (statusAdvance !== 'advanced') feedback.value = t(`adminOrders.${statusAdvance}`);
     await load();
     advancing.value = false;
+  }
+
+  async function correctTracking(shownOrder: JsonOrder, tracking: TrackingInput) {
+    correctingTracking.value = true;
+    feedback.value = null;
+    const correction = await adminOrdersStore.correctTracking(shownOrder, tracking);
+    if (correction !== 'corrected') feedback.value = t(`orderTracking.${correction}`);
+    await load();
+    correctingTracking.value = false;
   }
 
   async function refund(shownOrder: JsonOrder) {
@@ -85,6 +98,12 @@
             orders-path="/api/admin/orders"
             document="creditNote"
           />
+          <EditTrackingButton
+            v-if="allowsTrackingCorrection(order.status)"
+            :current="order.tracking ?? null"
+            :saving="correctingTracking"
+            @correct="(tracking) => correctTracking(order!, tracking)"
+          />
           <RefundOrderButton :order="order" :refunding="refunding" @refund="refund" />
           <AdvanceOrderStatusButton :order="order" :advancing="advancing" @advance="advance" />
         </div>
@@ -99,6 +118,7 @@
       <v-card v-else class="pa-5 mb-6">
         <OrderStatusSteps :status="order.status" />
       </v-card>
+      <OrderTrackingCard v-if="order.tracking" :tracking="order.tracking" />
       <AdminOrderCustomerCard :customer="order.customer" />
       <AdminOrderStatusHistory :status-history="order.statusHistory" />
       <OrderLinesTable :order="order" />
