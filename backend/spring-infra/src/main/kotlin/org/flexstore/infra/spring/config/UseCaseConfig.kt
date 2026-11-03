@@ -176,8 +176,9 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     open fun refundOrderUseCase(
         orderRepository: OrderRepository,
         stockRepository: StockRepository,
-        paymentRepository: PaymentRepository
-    ) = RefundOrderUseCase(orderRepository, stockRepository, paymentRepository)
+        paymentRepository: PaymentRepository,
+        userRepository: UserRepository
+    ) = RefundOrderUseCase(orderRepository, stockRepository, paymentRepository, userRepository)
 
     @Bean
     open fun sendOrderStatusEmailUseCase(userRepository: UserRepository, emailRepository: EmailRepository) =
@@ -192,9 +193,8 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         ReadAdministeredOrderUseCase(orderRepository, userRepository)
 
     @Bean
-    open fun advanceOrderStatusUseCase(orderRepository: OrderRepository): AdvanceOrderStatusUseCase {
-        return AdvanceOrderStatusUseCase(orderRepository)
-    }
+    open fun advanceOrderStatusUseCase(orderRepository: OrderRepository, userRepository: UserRepository) =
+        AdvanceOrderStatusUseCase(orderRepository, userRepository)
 
     @Bean
     open fun changePostalAddressUseCase(userRepository: UserRepository) =
@@ -376,8 +376,9 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     @Bean
     open fun issueCreditNoteUseCase(orderRepository: OrderRepository,
                                     invoiceRepository: InvoiceRepository,
-                                    creditNoteRepository: CreditNoteRepository) =
-        IssueCreditNoteUseCase(orderRepository, invoiceRepository, creditNoteRepository)
+                                    creditNoteRepository: CreditNoteRepository,
+                                    userRepository: UserRepository) =
+        IssueCreditNoteUseCase(orderRepository, invoiceRepository, creditNoteRepository, userRepository)
 
     @Bean
     open fun readCreditNoteUseCase(creditNoteRepository: CreditNoteRepository) =
@@ -496,6 +497,6 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         )
 
     @Bean
-    open fun readSalesDashboardUseCase(orderRepository: OrderRepository) =
-        ReadSalesDashboardUseCase(orderRepository)
+    open fun readSalesDashboardUseCase(orderRepository: OrderRepository, userRepository: UserRepository) =
+        ReadSalesDashboardUseCase(orderRepository, userRepository)
 }

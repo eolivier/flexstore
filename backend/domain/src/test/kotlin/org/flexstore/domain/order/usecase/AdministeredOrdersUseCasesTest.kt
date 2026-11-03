@@ -8,6 +8,7 @@ import org.flexstore.domain.user.model.*
 import org.assertj.core.api.WithAssertions
 import org.flexstore.infra.repository.InMemoryOrderRepository
 import org.flexstore.infra.repository.InMemoryUserRepository
+import org.flexstore.domain.user.*
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.time.Instant
@@ -23,7 +24,8 @@ class AdministeredOrdersUseCasesTest : WithAssertions {
     private val formerCustomer = CartOwner.Customer(UserId.ValidUserId("deleted-user"))
     private val placedAt = Instant.parse("2026-10-24T10:00:00Z")
     private val orderRepository = InMemoryOrderRepository()
-    private val userRepository = InMemoryUserRepository().apply { save(jane) }
+    private val userRepository = usersOfTheAdministration().apply { save(jane) }
+    private val administrator = testAdministrator.id
     private val listUseCase = ListAdministeredOrdersUseCase(orderRepository, userRepository)
     private val readUseCase = ReadAdministeredOrderUseCase(orderRepository, userRepository)
 
@@ -40,7 +42,7 @@ class AdministeredOrdersUseCasesTest : WithAssertions {
         // Arrange
         val order = placeOrder(OrderId("order-1"), customer, placedAt)
         // Act
-        val administeredOrder = readUseCase.unfold(OrderId("order-1"))
+        val administeredOrder = readUseCase.unfold(AdministeredOrderReading(administrator, OrderId("order-1")))
         // Assert
         val janeAsCustomer = OrderCustomer(janeDoe, Email("jane@example.com"))
         assertThat(administeredOrder).isEqualTo(AdministeredOrder(order, janeAsCustomer))
@@ -52,7 +54,7 @@ class AdministeredOrdersUseCasesTest : WithAssertions {
         val older = placeOrder(OrderId("older"), customer, placedAt)
         val newer = placeOrder(OrderId("newer"), formerCustomer, placedAt.plusSeconds(60))
         // Act
-        val administeredOrders = listUseCase.unfold(Unit)
+        val administeredOrders = listUseCase.unfold(AdministeredOrdersReading(administrator))
         // Assert
         val janeAsCustomer = OrderCustomer(janeDoe, Email("jane@example.com"))
         assertThat(administeredOrders.asList()).containsExactly(
@@ -66,7 +68,7 @@ class AdministeredOrdersUseCasesTest : WithAssertions {
         // Arrange
         placeOrder(OrderId("order-1"), formerCustomer, placedAt)
         // Act
-        val administeredOrder = readUseCase.unfold(OrderId("order-1"))
+        val administeredOrder = readUseCase.unfold(AdministeredOrderReading(administrator, OrderId("order-1")))
         // Assert
         assertThat(administeredOrder.customer).isEqualTo(OrderCustomer.unknown())
     }
@@ -74,7 +76,45 @@ class AdministeredOrdersUseCasesTest : WithAssertions {
     @Test
     fun `should report an unknown order`() {
         // Act
-        val thrown = catchThrowable { readUseCase.unfold(OrderId("unknown")) }
+        val thrown = catchThrowable { readUseCase.unfold(AdministeredOrderReading(administrator, OrderId("unknown"))) }
+        // Assert
+        assertThat(thrown).isInstanceOf(OrderNotFoundException::class.java)
+    }
+
+    @Test
+    fun `a customer should not read the orders of all the customers`() {
+        // Act
+        val thrown = catchThrowable { listUseCase.unfold(AdministeredOrdersReading(testCustomer.id)) }
+        // Assert
+        assertThat(thrown).isInstanceOf(OrderAdministrationForbiddenException::class.java)
+    }
+
+    @Test
+    fun `a customer should read their own order with their name and email`() {
+        // Arrange
+        val order = placeOrder(OrderId("order-1"), customer, placedAt)
+        // Act
+        val administeredOrder = readUseCase.unfold(AdministeredOrderReading(janeId, OrderId("order-1")))
+        // Assert
+        assertThat(administeredOrder).isEqualTo(AdministeredOrder(order, OrderCustomer(janeDoe, Email("jane@example.com"))))
+    }
+
+    @Test
+    fun `the order of another customer should not be found`() {
+        // Arrange
+        placeOrder(OrderId("order-1"), customer, placedAt)
+        // Act
+        val thrown = catchThrowable { readUseCase.unfold(AdministeredOrderReading(testCustomer.id, OrderId("order-1"))) }
+        // Assert
+        assertThat(thrown).isInstanceOf(OrderNotFoundException::class.java)
+    }
+
+    @Test
+    fun `an unknown user should not find any order`() {
+        // Arrange
+        placeOrder(OrderId("order-1"), customer, placedAt)
+        // Act
+        val thrown = catchThrowable { readUseCase.unfold(AdministeredOrderReading(unknownUser, OrderId("order-1"))) }
         // Assert
         assertThat(thrown).isInstanceOf(OrderNotFoundException::class.java)
     }

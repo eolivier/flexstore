@@ -6,6 +6,7 @@ import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.NominalException
 import org.flexstore.domain.sharedkernel.InstantProvider
 import java.time.Instant
+import org.flexstore.domain.user.model.UserId
 
 // The number of an invoice, in a sequence without gaps: the year of issue, then its rank (2026-000042)
 data class InvoiceNumber(val value: String)
@@ -60,6 +61,10 @@ data class InvoiceNotFoundException(override val errorMessage: ErrorMessage) : N
 data class InvoiceAlreadyIssuedException(override val errorMessage: ErrorMessage) :
     NominalException(errorMessage)
 data class OrderNotPaidException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+// An administrator who issues the credit note of an order they refunded
+data class CreditNoteIssuance(val issuer: UserId, val creditNoteIssue: CreditNoteIssue)
+
+data class CreditNoteForbiddenException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class CreditNoteNotFoundException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class CreditNoteAlreadyIssuedException(override val errorMessage: ErrorMessage) :
     NominalException(errorMessage)

@@ -4,7 +4,6 @@ import org.flexstore.domain.invoice.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.order.usecase.ReadAdministeredOrderUseCase
 import org.flexstore.domain.seller.usecase.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.model.UserId
 
 // The use cases that give the document of an invoice or of a credit note
@@ -23,26 +22,16 @@ class InvoiceService(
     private val readAdministeredOrderUseCase: ReadAdministeredOrderUseCase
 ) {
     // The invoice of an order of another customer is reported as not found, as the order itself
-    fun customerInvoice(customer: UserId.ValidUserId, orderId: OrderId): InvoicePdf =
-        render(invoiceDocumentOf(customerOrder(customer, orderId)))
-
-    fun anyInvoice(orderId: OrderId): InvoicePdf =
-        render(invoiceDocumentOf(readAdministeredOrderUseCase.unfold(orderId)))
+    fun invoice(reader: UserId, orderId: OrderId): InvoicePdf =
+        render(invoiceDocumentOf(orderOf(reader, orderId)))
 
     // The credit note of an order of another customer is reported as not found, as the order itself
-    fun customerCreditNote(customer: UserId.ValidUserId, orderId: OrderId): InvoicePdf =
-        render(creditNoteDocumentOf(customerOrder(customer, orderId)))
+    fun creditNote(reader: UserId, orderId: OrderId): InvoicePdf =
+        render(creditNoteDocumentOf(orderOf(reader, orderId)))
 
-    fun anyCreditNote(orderId: OrderId): InvoicePdf =
-        render(creditNoteDocumentOf(readAdministeredOrderUseCase.unfold(orderId)))
-
-    private fun customerOrder(customer: UserId.ValidUserId, orderId: OrderId): AdministeredOrder {
-        val administeredOrder = readAdministeredOrderUseCase.unfold(orderId)
-        if (administeredOrder.order.doesNotBelongTo(customer)) {
-            throw OrderNotFoundException(ErrorMessage("Order ${orderId.value} not found."))
-        }
-        return administeredOrder
-    }
+    // Any order for an administrator, their own ones for a customer
+    private fun orderOf(reader: UserId, orderId: OrderId) =
+        readAdministeredOrderUseCase.unfold(AdministeredOrderReading(reader, orderId))
 
     private fun invoiceDocumentOf(administeredOrder: AdministeredOrder): InvoiceDocument {
         val invoice = invoiceUseCases.readInvoiceUseCase.unfold(administeredOrder.order.orderId)

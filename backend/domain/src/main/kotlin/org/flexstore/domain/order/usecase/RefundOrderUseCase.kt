@@ -5,6 +5,7 @@ import org.flexstore.domain.payment.PaymentRepository
 import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.stock.StockRepository
 import org.ucop.domain.entity.*
+import org.flexstore.domain.user.UserRepository
 
 // An administrator cancels a paid order before it is shipped: its payment is given back to the customer, and its
 // units go back to the stock.
@@ -13,11 +14,16 @@ import org.ucop.domain.entity.*
 class RefundOrderUseCase(
     private val orderRepository: OrderRepository,
     private val stockRepository: StockRepository,
-    private val paymentRepository: PaymentRepository
+    private val paymentRepository: PaymentRepository,
+    private val userRepository: UserRepository
 ) : UseCase<OrderRefund> {
 
-    override fun getPreConditions(): PreConditions<OrderRefund> =
-        PreConditions(orderExistsCondition(), initialStatusIsCurrentCondition(), orderIsRefundableCondition())
+    override fun getPreConditions(): PreConditions<OrderRefund> = PreConditions(
+        editorIsAdministratorCondition(),
+        orderExistsCondition(),
+        initialStatusIsCurrentCondition(),
+        orderIsRefundableCondition()
+    )
 
     // The payment is refunded first: when the provider refuses it, the order stays as it is
     override fun getNominalScenario(): NominalScenario<OrderRefund> {
@@ -39,6 +45,13 @@ class RefundOrderUseCase(
 
     // Only called once the order is known
     private fun order(orderRefund: OrderRefund) = orderRepository.findById(orderRefund.orderId)!!
+
+    // The editor must be an existing user with the ADMIN role (read from the users, not from the request)
+    private fun editorIsAdministratorCondition() = PreCondition<OrderRefund> { request ->
+        if (userRepository.isNotAdministrator(request.editor)) {
+            throw OrderAdministrationForbiddenException(ErrorMessage("Only an administrator can cancel and refund an order."))
+        }
+    }
 
     private fun orderExistsCondition() = PreCondition<OrderRefund> { orderRefund ->
         if (orderRepository.orderIsMissing(orderRefund.orderId)) {

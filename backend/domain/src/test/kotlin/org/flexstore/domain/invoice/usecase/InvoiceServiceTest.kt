@@ -4,13 +4,14 @@ import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.invoice.*
 import org.flexstore.domain.order.*
-import org.flexstore.domain.order.usecase.ReadAdministeredOrderUseCase
+import org.flexstore.domain.order.usecase.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.seller.*
 import org.flexstore.domain.seller.usecase.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.infra.repository.*
+import org.flexstore.domain.user.*
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.time.Instant
@@ -29,7 +30,8 @@ class InvoiceServiceTest : WithAssertions {
     private val invoiceRepository = InMemoryInvoiceRepository()
     private val creditNoteRepository = InMemoryCreditNoteRepository()
     private val refundedAt = Instant.parse("2026-10-25T09:00:00Z")
-    private val userRepository = InMemoryUserRepository().apply { save(jane) }
+    private val userRepository = usersOfTheAdministration().apply { save(jane) }
+    private val administrator = testAdministrator.id
     private val sellerRepository = InMemorySellerRepository(testSeller)
     // Renders the title of the document and the name of its seller: enough to know what was rendered
     private val titleRenderer = object : InvoiceRenderer {
@@ -69,7 +71,7 @@ class InvoiceServiceTest : WithAssertions {
         // Arrange
         storePaidOrder()
         // Act
-        val invoicePdf = service.customerInvoice(janeId, orderId)
+        val invoicePdf = service.invoice(janeId, orderId)
         // Assert
         assertThat(String(invoicePdf.content)).isEqualTo("Facture n° 2026-000001 - Flexstore SAS")
     }
@@ -83,7 +85,7 @@ class InvoiceServiceTest : WithAssertions {
         val renamedSeller = Seller(SellerId.nextId(), renamedDetail)
         sellerRepository.save(renamedSeller)
         // Act
-        val invoicePdf = service.anyInvoice(orderId)
+        val invoicePdf = service.invoice(administrator, orderId)
         // Assert
         assertThat(String(invoicePdf.content)).isEqualTo("Facture n° 2026-000001 - Flexstore SAS")
     }
@@ -93,7 +95,7 @@ class InvoiceServiceTest : WithAssertions {
         // Arrange
         storePaidOrder()
         // Act
-        val thrown = catchThrowable { service.customerInvoice(UserId.ValidUserId("user-2"), orderId) }
+        val thrown = catchThrowable { service.invoice(UserId.ValidUserId("user-2"), orderId) }
         // Assert
         assertThat(thrown).isInstanceOf(OrderNotFoundException::class.java)
     }
@@ -103,7 +105,7 @@ class InvoiceServiceTest : WithAssertions {
         // Arrange
         storePaidOrder(invoiced = false)
         // Act
-        val thrown = catchThrowable { service.anyInvoice(orderId) }
+        val thrown = catchThrowable { service.invoice(administrator, orderId) }
         // Assert
         assertThat(thrown).isInstanceOf(InvoiceNotFoundException::class.java)
     }
@@ -113,7 +115,7 @@ class InvoiceServiceTest : WithAssertions {
         // Arrange
         storeRefundedOrder()
         // Act
-        val creditNotePdf = service.customerCreditNote(janeId, orderId)
+        val creditNotePdf = service.creditNote(janeId, orderId)
         // Assert
         assertThat(String(creditNotePdf.content)).isEqualTo("Avoir n° AV-2026-000001 - Flexstore SAS")
     }
@@ -123,7 +125,7 @@ class InvoiceServiceTest : WithAssertions {
         // Arrange
         storeRefundedOrder()
         // Act
-        val thrown = catchThrowable { service.customerCreditNote(UserId.ValidUserId("user-2"), orderId) }
+        val thrown = catchThrowable { service.creditNote(UserId.ValidUserId("user-2"), orderId) }
         // Assert
         assertThat(thrown).isInstanceOf(OrderNotFoundException::class.java)
     }
@@ -133,8 +135,18 @@ class InvoiceServiceTest : WithAssertions {
         // Arrange
         storePaidOrder()
         // Act
-        val thrown = catchThrowable { service.anyCreditNote(orderId) }
+        val thrown = catchThrowable { service.creditNote(administrator, orderId) }
         // Assert
         assertThat(thrown).isInstanceOf(CreditNoteNotFoundException::class.java)
+    }
+
+    @Test
+    fun `an administrator should download the invoice of the order of any customer`() {
+        // Arrange
+        storePaidOrder()
+        // Act
+        val invoicePdf = service.invoice(administrator, orderId)
+        // Assert
+        assertThat(String(invoicePdf.content)).isEqualTo("Facture n° 2026-000001 - Flexstore SAS")
     }
 }

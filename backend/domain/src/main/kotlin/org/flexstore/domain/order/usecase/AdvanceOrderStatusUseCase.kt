@@ -3,6 +3,7 @@ package org.flexstore.domain.order.usecase
 import org.flexstore.domain.order.*
 import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.entity.*
+import org.flexstore.domain.user.UserRepository
 
 // An administrator moves an order to the next status of its life cycle: paid -> processing -> shipped ->
 // delivered (the payment moves an order awaiting it).
@@ -10,11 +11,16 @@ import org.ucop.domain.entity.*
 // and it has a next one. The final status is checked after: the order has the next status of the initial one
 // The moment of the change is read from InstantProvider
 class AdvanceOrderStatusUseCase(
-    private val orderRepository: OrderRepository
+    private val orderRepository: OrderRepository,
+    private val userRepository: UserRepository
 ) : UseCase<OrderStatusAdvance> {
 
-    override fun getPreConditions(): PreConditions<OrderStatusAdvance> =
-        PreConditions(orderExistsCondition(), initialStatusIsCurrentCondition(), initialStatusHasNextCondition())
+    override fun getPreConditions(): PreConditions<OrderStatusAdvance> = PreConditions(
+        editorIsAdministratorCondition(),
+        orderExistsCondition(),
+        initialStatusIsCurrentCondition(),
+        initialStatusHasNextCondition()
+    )
 
     override fun getNominalScenario(): NominalScenario<OrderStatusAdvance> {
         val advanceStep = Step<OrderStatusAdvance> { orderStatusAdvance ->
@@ -26,6 +32,13 @@ class AdvanceOrderStatusUseCase(
 
     override fun getPostConditions(): PostConditions<OrderStatusAdvance> =
         PostConditions(finalStatusIsNextCondition())
+
+    // The editor must be an existing user with the ADMIN role (read from the users, not from the request)
+    private fun editorIsAdministratorCondition() = PreCondition<OrderStatusAdvance> { request ->
+        if (userRepository.isNotAdministrator(request.editor)) {
+            throw OrderAdministrationForbiddenException(ErrorMessage("Only an administrator can move an order along its life cycle."))
+        }
+    }
 
     private fun orderExistsCondition() = PreCondition<OrderStatusAdvance> { orderStatusAdvance ->
         if (orderRepository.orderIsMissing(orderStatusAdvance.orderId)) {

@@ -55,9 +55,9 @@ data class Order(val detail: OrderDetail, val history: OrderStatusHistory) {
     // The number shown to the customer: the beginning of the order id
     fun number() = orderId.value.take(ORDER_NUMBER_LENGTH).uppercase()
 
-    fun belongsTo(customer: UserId.ValidUserId) = this.customer == customer
+    fun belongsTo(customer: UserId) = this.customer == customer
 
-    fun doesNotBelongTo(customer: UserId.ValidUserId) = !belongsTo(customer)
+    fun doesNotBelongTo(customer: UserId) = !belongsTo(customer)
 
     // The order at the next status of its life cycle
     fun advancedAt(changedAt: StatusChangedAt) = movedTo(status.next(), changedAt)
@@ -256,10 +256,16 @@ data class OrderStatusHistory(private val changes: List<OrderStatusChange>) {
 }
 
 // An order to move to the next status of its life cycle, from the status it has when the administrator sees it
-data class OrderStatusAdvance(val orderId: OrderId, val currentStatus: OrderStatus)
+data class OrderStatusAdvance(val editor: UserId, val orderId: OrderId, val currentStatus: OrderStatus)
 
 // An order that an administrator cancels and refunds, from the status it has when the administrator sees it
-data class OrderRefund(val orderId: OrderId, val currentStatus: OrderStatus)
+data class OrderRefund(val editor: UserId, val orderId: OrderId, val currentStatus: OrderStatus)
+
+// An administrator who reads the orders of all the customers
+data class AdministeredOrdersReading(val reader: UserId)
+
+// A user who reads an order with its customer: an administrator, or the customer of the order
+data class AdministeredOrderReading(val reader: UserId, val orderId: OrderId)
 
 // A product as ordered: its id and its name when the order was placed
 data class OrderedProduct(val productId: ProductId, val productName: Name)
@@ -426,6 +432,8 @@ data class OrderStatusChangedException(override val errorMessage: ErrorMessage) 
 data class OrderStatusAdvanceFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class OrderNotRefundableException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class OrderRefundFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class OrderAdministrationForbiddenException(override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
 data class OrderNotFoundException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class TermsOfSaleNotAcceptedException(override val errorMessage: ErrorMessage) :
     NominalException(errorMessage)

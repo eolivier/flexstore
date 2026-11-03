@@ -12,6 +12,7 @@ import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.stock.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.infra.repository.*
+import org.flexstore.domain.user.*
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -36,11 +37,12 @@ class OrderRefundServiceTest : WithAssertions {
     private val paymentRepository = InMemoryPaymentRepository(PaymentOutcome.PAID)
     private val invoiceRepository = InMemoryInvoiceRepository()
     private val creditNoteRepository = InMemoryCreditNoteRepository()
-    private val userRepository = InMemoryUserRepository().apply { save(jane) }
+    private val userRepository = usersOfTheAdministration().apply { save(jane) }
+    private val administrator = testAdministrator.id
     private val emailRepository = InMemoryEmailRepository()
     private val service = OrderRefundService(
-        RefundOrderUseCase(orderRepository, stockRepository, paymentRepository),
-        IssueCreditNoteUseCase(orderRepository, invoiceRepository, creditNoteRepository),
+        RefundOrderUseCase(orderRepository, stockRepository, paymentRepository, userRepository),
+        IssueCreditNoteUseCase(orderRepository, invoiceRepository, creditNoteRepository, userRepository),
         RefundedOrderUseCases(
             ReadAdministeredOrderUseCase(orderRepository, userRepository),
             SendOrderStatusEmailUseCase(userRepository, emailRepository)
@@ -71,7 +73,7 @@ class OrderRefundServiceTest : WithAssertions {
         // Arrange
         storePaidOrder()
         // Act
-        val refundedOrder = service.refund(OrderRefund(orderId, OrderStatus.PAID))
+        val refundedOrder = service.refund(OrderRefund(administrator, orderId, OrderStatus.PAID))
         // Assert
         assertThat(refundedOrder.order.isRefunded()).isTrue()
         val creditNoteIssue = CreditNoteIssue(orderId, CreditNoteDate(refundedAt))
@@ -84,7 +86,7 @@ class OrderRefundServiceTest : WithAssertions {
         // Arrange
         storePaidOrder()
         // Act
-        service.refund(OrderRefund(orderId, OrderStatus.PAID))
+        service.refund(OrderRefund(administrator, orderId, OrderStatus.PAID))
         // Assert
         assertThat(emailRepository.sentOrderStatusEmails()).hasSize(1)
     }
@@ -93,10 +95,22 @@ class OrderRefundServiceTest : WithAssertions {
     fun `an order whose status changed in the meantime should get no credit note`() {
         // Arrange
         storePaidOrder()
+        val orderRefund = OrderRefund(administrator, orderId, OrderStatus.PROCESSING)
         // Act
-        val thrown = catchThrowable { service.refund(OrderRefund(orderId, OrderStatus.PROCESSING)) }
+        val thrown = catchThrowable { service.refund(orderRefund) }
         // Assert
         assertThat(thrown).isInstanceOf(OrderStatusChangedException::class.java)
         assertThat(creditNoteRepository.creditNoteIsMissingFor(orderId)).isTrue()
+    }
+
+    @Test
+    fun `a customer should not refund an order`() {
+        // Arrange
+        storePaidOrder()
+        // Act
+        val thrown = catchThrowable { service.refund(OrderRefund(testCustomer.id, orderId, OrderStatus.PAID)) }
+        // Assert
+        assertThat(thrown).isInstanceOf(OrderAdministrationForbiddenException::class.java)
+        assertThat(orderRepository.findById(orderId)?.status).isEqualTo(OrderStatus.PAID)
     }
 }

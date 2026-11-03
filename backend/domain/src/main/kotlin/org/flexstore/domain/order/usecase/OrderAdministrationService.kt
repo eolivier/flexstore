@@ -1,6 +1,7 @@
 package org.flexstore.domain.order.usecase
 
 import org.flexstore.domain.order.*
+import org.flexstore.domain.user.model.UserId
 
 // Domain service: the administrators follow the orders of all the customers, with the customer of each one, and
 // move them along their life cycle. An order moved is read back, then its customer is told when it is shipped or
@@ -11,13 +12,15 @@ class OrderAdministrationService(
     private val advanceOrderStatusUseCase: AdvanceOrderStatusUseCase,
     private val sendOrderStatusEmailUseCase: SendOrderStatusEmailUseCase
 ) {
-    fun getAllOrders(): AdministeredOrders = listAdministeredOrdersUseCase.unfold(Unit)
+    fun getAllOrders(reader: UserId): AdministeredOrders =
+        listAdministeredOrdersUseCase.unfold(AdministeredOrdersReading(reader))
 
-    fun getOrder(orderId: OrderId): AdministeredOrder = readAdministeredOrderUseCase.unfold(orderId)
+    fun getOrder(reader: UserId, orderId: OrderId): AdministeredOrder =
+        readAdministeredOrderUseCase.unfold(AdministeredOrderReading(reader, orderId))
 
     fun advance(orderStatusAdvance: OrderStatusAdvance): AdministeredOrder {
         advanceOrderStatusUseCase.unfold(orderStatusAdvance)
-        val advancedOrder = readAdministeredOrderUseCase.unfold(orderStatusAdvance.orderId)
+        val advancedOrder = getOrder(orderStatusAdvance.editor, orderStatusAdvance.orderId)
         sendOrderStatusEmailUseCase.unfold(advancedOrder.order)
         return advancedOrder
     }
