@@ -33,6 +33,10 @@ dependencies {
     // JPA + Hibernate
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 
+    // Cache of the reads of the user table
+    implementation("org.springframework.boot:spring-boot-starter-cache")
+    implementation("com.github.ben-manes.caffeine:caffeine")
+
     // Driver PostgreSQL
     runtimeOnly("org.postgresql:postgresql")
 

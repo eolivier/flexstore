@@ -8,6 +8,9 @@ import org.flexstore.infra.spring.adapter.persistence.jpa.toEntity
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
+import org.flexstore.infra.spring.config.USERS_CACHE
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Repository
@@ -18,6 +21,9 @@ interface JpaUserRepository : JpaRepository<UserEntity, String> {
     fun findByEmail(email: String): UserEntity?
 }
 
+// The read of a user by id is cached under the id of the user; every insert, update and delete evicts that id
+// only, the other users stay cached. Not cached: the reads by email (an update of the email would leave the
+// entry of the previous email behind), the existence of a user and the list of the users (it holds them all)
 @Repository
 class PostgresUserRepositoryAdapter(
     private val jpaRepo: JpaUserRepository
@@ -31,6 +37,7 @@ class PostgresUserRepositoryAdapter(
 
     override fun notExistsBasedOn(email: Email): Boolean = !jpaRepo.existsByEmail(email.value)
 
+    @CacheEvict(USERS_CACHE, key = "#result.id.value")
     override fun save(user: User): User {
         var savedUser = user
         when(user) {
@@ -112,6 +119,7 @@ class PostgresUserRepositoryAdapter(
         return listOf(entity)
     }
 
+    @Cacheable(USERS_CACHE, key = "#p0.value")
     override fun findById(id: UserId): User =
         jpaRepo.findById(id.value)
             .orElseThrow { NoSuchElementException("User ${id.value} not found") }
@@ -124,6 +132,7 @@ class PostgresUserRepositoryAdapter(
 
     override fun findAll(): List<User> = jpaRepo.findAll().map { it.toDomain() }
 
+    @CacheEvict(USERS_CACHE, key = "#p0.value")
     override fun delete(id: UserId): Boolean {
         return if (jpaRepo.existsById(id.value)) {
             jpaRepo.deleteById(id.value)
