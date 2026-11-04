@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.adapter.rest
 
+import org.flexstore.domain.twofactor.TwoFactorAuthenticationService
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.model.UserId.ValidUserId
@@ -18,6 +19,10 @@ import org.flexstore.infra.spring.adapter.rest.json.JsonLoginResponse
 import org.flexstore.infra.spring.adapter.rest.json.JsonRefreshRequest
 import org.flexstore.infra.spring.adapter.rest.json.JsonRefreshResponse
 import org.flexstore.infra.spring.adapter.rest.json.JsonAccountStatus
+import org.flexstore.infra.spring.adapter.rest.json.JsonTwoFactorChallengeVerification
+import org.flexstore.infra.spring.adapter.rest.json.JsonTwoFactorCode
+import org.flexstore.infra.spring.adapter.rest.json.JsonTwoFactorDisableRequest
+import org.flexstore.infra.spring.adapter.rest.json.JsonTwoFactorEnrollment
 import org.flexstore.infra.spring.security.JwtTokenService
 import org.flexstore.infra.spring.adapter.rest.json.DefinedJsonUser
 import org.flexstore.infra.spring.adapter.rest.json.EditedJsonUser
@@ -38,7 +43,8 @@ class UserRestController(
     val userService: UserService,
     private val signInService: SignInService,
     private val userSessionService: UserSessionService,
-    private val jwtTokenService: JwtTokenService
+    private val jwtTokenService: JwtTokenService,
+    private val twoFactorAuthenticationService: TwoFactorAuthenticationService
 ) {
 
     @Operation(summary = "Create a user")
@@ -160,7 +166,8 @@ class UserRestController(
         responses = [
             ApiResponse(
                 responseCode = "200",
-                description = "Successfully authenticated: the token is returned with the user",
+                description = "SIGNED_IN: the token is returned with the user; TWO_FACTOR_REQUIRED: the code of " +
+                    "the authenticator app is still needed, see POST /api/users/login/two-factor-authentication",
                 content = [
                     Content(schema = Schema(implementation = JsonLoginResponse::class))
                 ]
@@ -171,13 +178,11 @@ class UserRestController(
     @PostMapping("/login")
     @ResponseStatus(HttpStatus.OK)
     fun login(@RequestBody jsonLoginRequest: JsonLoginRequest): JsonLoginResponse {
-        val user = signInService.signIn(jsonLoginRequest.toLoginRequest()) as User.DefinedUser
-        val refreshSession = userSessionService.open(user.id)
-        val token = jwtTokenService.issue(user.account())
-        return JsonLoginResponse(
-            token.value, token.expiresAt.toString(), refreshSession.refreshToken.value,
-            refreshSession.expiry.value.toString(), user.toJsonUser()
-        )
+        return when (val outcome = signInService.signIn(jsonLoginRequest.toLoginRequest())) {
+            is SignInOutcome.SignedIn -> sessionOf(outcome.user)
+            is SignInOutcome.TwoFactorChallengeRequired ->
+                JsonLoginResponse.twoFactorChallengeRequired(outcome.challengeId.value)
+        }
     }
 
     @Operation(summary = "Renew the access of a signed-in user with their refresh token",
@@ -213,5 +218,68 @@ class UserRestController(
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun logout(@RequestBody jsonRefreshRequest: JsonRefreshRequest) {
         userSessionService.close(jsonRefreshRequest.toRefreshToken())
+    }
+
+    @Operation(summary = "Complete a challenged sign-in with the code of the authenticator app",
+        responses = [
+            ApiResponse(responseCode = "200", description = "Successfully authenticated: the token and the user"),
+            ApiResponse(responseCode = "401", description = "Wrong code, or unknown or expired challenge")
+        ]
+    )
+    @PostMapping("/login/two-factor-authentication")
+    @ResponseStatus(HttpStatus.OK)
+    fun verifyTwoFactorCode(@RequestBody verification: JsonTwoFactorChallengeVerification): JsonLoginResponse {
+        val user = signInService.verifyTwoFactorCode(verification.toTwoFactorCodeVerification())
+        return sessionOf(user)
+    }
+
+    @Operation(summary = "Start the enrollment of two-factor authentication (administrator only)",
+        responses = [
+            ApiResponse(responseCode = "200", description = "The secret and the link of the QR code"),
+            ApiResponse(responseCode = "403", description = "Not an administrator, or not the signed-in user")
+        ]
+    )
+    @PostMapping("/{id}/two-factor-authentication/enrollment")
+    fun startTwoFactorEnrollment(@PathVariable id: String): JsonTwoFactorEnrollment =
+        JsonTwoFactorEnrollment.of(twoFactorAuthenticationService.startEnrollment(UserId.of(id)))
+
+    @Operation(summary = "Confirm the enrollment with the first code of the authenticator app",
+        responses = [
+            ApiResponse(responseCode = "204", description = "Two-factor authentication is now enabled"),
+            ApiResponse(responseCode = "401", description = "Wrong code"),
+            ApiResponse(responseCode = "403", description = "Not an administrator, or not the signed-in user"),
+            ApiResponse(responseCode = "409", description = "No enrollment is pending")
+        ]
+    )
+    @PostMapping("/{id}/two-factor-authentication/confirmation")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun confirmTwoFactorEnrollment(@PathVariable id: String, @RequestBody code: JsonTwoFactorCode) {
+        twoFactorAuthenticationService.confirmEnrollment(UserId.of(id), code.toTwoFactorCode())
+    }
+
+    @Operation(summary = "Disable two-factor authentication, confirmed with the current password",
+        responses = [
+            ApiResponse(responseCode = "204", description = "Two-factor authentication is now disabled"),
+            ApiResponse(responseCode = "400", description = "Wrong current password"),
+            ApiResponse(responseCode = "403", description = "Not an administrator, or not the signed-in user"),
+            ApiResponse(responseCode = "409", description = "Two-factor authentication is not enabled")
+        ]
+    )
+    @DeleteMapping("/{id}/two-factor-authentication")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun disableTwoFactorAuthentication(
+        @PathVariable id: String,
+        @RequestBody request: JsonTwoFactorDisableRequest
+    ) {
+        twoFactorAuthenticationService.disable(UserId.of(id), request.toPlainPassword())
+    }
+
+    private fun sessionOf(user: User.DefinedUser): JsonLoginResponse {
+        val refreshSession = userSessionService.open(user.id)
+        val token = jwtTokenService.issue(user.account())
+        return JsonLoginResponse.signedIn(
+            token.value, token.expiresAt.toString(), refreshSession.refreshToken.value,
+            refreshSession.expiry.value.toString(), user.toJsonUser()
+        )
     }
 }

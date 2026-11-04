@@ -13,6 +13,7 @@ import org.flexstore.domain.sales.*
 import org.flexstore.domain.seller.*
 import org.flexstore.domain.settings.*
 import org.flexstore.domain.stock.*
+import org.flexstore.domain.twofactor.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.usecase.*
 import com.fasterxml.jackson.databind.JsonMappingException
@@ -63,9 +64,18 @@ class RestExceptionHandler {
             is DiscountCodeAdministrationForbiddenException, is ProductAdministrationForbiddenException,
             is ProductImageForbiddenException, is StockChangeForbiddenException,
             is ReviewModerationForbiddenException, is OrderAdministrationForbiddenException,
-            is CreditNoteForbiddenException, is SalesDashboardForbiddenException -> ResponseEntity
+            is CreditNoteForbiddenException, is SalesDashboardForbiddenException,
+            is TwoFactorAuthenticationForbiddenException -> ResponseEntity
                 .status(403)
                 .body(mapOf("error" to (ex.message ?: "Forbidden")))
+            // The code is wrong, or the sign-in challenge is unknown or older than its validity
+            is TwoFactorCodeInvalidException, is TwoFactorChallengeNotFoundException -> ResponseEntity
+                .status(401)
+                .body(mapOf("error" to (ex.message ?: "Invalid two-factor code")))
+            is TwoFactorAuthenticationAlreadyEnabledException, is TwoFactorEnrollmentNotPendingException,
+            is TwoFactorAuthenticationNotEnabledException -> ResponseEntity
+                .status(409)
+                .body(mapOf("error" to (ex.message ?: "Two-factor authentication conflict")))
             // Not 422, which tells the front that the cart is empty. The reason tells this 400 from a malformed
             // request
             is IncompleteOrderAddressException -> ResponseEntity

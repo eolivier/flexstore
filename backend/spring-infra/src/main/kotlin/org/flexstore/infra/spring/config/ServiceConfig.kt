@@ -14,6 +14,9 @@ import org.flexstore.domain.order.usecase.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.settings.*
 import org.flexstore.domain.settings.usecase.*
+import org.flexstore.domain.twofactor.TwoFactorAuthenticationService
+import org.flexstore.domain.twofactor.TwoFactorChallengeRepository
+import org.flexstore.domain.twofactor.usecase.*
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.usecase.*
@@ -93,8 +96,11 @@ open class ServiceConfig {
     @Bean
     open fun signInService(userRepository: UserRepository,
                            recordFailedSignInUseCase: RecordFailedSignInUseCase,
-                           resetFailedSignInsUseCase: ResetFailedSignInsUseCase) =
-        SignInService(userRepository, recordFailedSignInUseCase, resetFailedSignInsUseCase)
+                           resetFailedSignInsUseCase: ResetFailedSignInsUseCase,
+                           twoFactorChallengeRepository: TwoFactorChallengeRepository) =
+        SignInService(
+            userRepository, recordFailedSignInUseCase, resetFailedSignInsUseCase, twoFactorChallengeRepository
+        )
 
     @Bean
     open fun userSessionService(
@@ -113,4 +119,15 @@ open class ServiceConfig {
     open fun userService(userRepository: UserRepository): UserService {
         return UserService(userRepository)
     }
+
+    @Bean
+    open fun twoFactorAuthenticationService(
+        readAccountUseCase: ReadAccountUseCase,
+        startTwoFactorEnrollmentUseCase: StartTwoFactorEnrollmentUseCase,
+        confirmTwoFactorEnrollmentUseCase: ConfirmTwoFactorEnrollmentUseCase,
+        disableTwoFactorAuthenticationUseCase: DisableTwoFactorAuthenticationUseCase
+    ) = TwoFactorAuthenticationService(
+        readAccountUseCase, startTwoFactorEnrollmentUseCase, confirmTwoFactorEnrollmentUseCase,
+        disableTwoFactorAuthenticationUseCase
+    )
 }

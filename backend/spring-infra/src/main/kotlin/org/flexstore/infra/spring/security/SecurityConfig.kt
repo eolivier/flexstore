@@ -80,6 +80,8 @@ open class SecurityConfig(@Value("\${flexstore.security.jwt-secret:}") private v
                     .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()
                     // The refresh token in the body is the credential: the access token has expired
                     .requestMatchers(HttpMethod.POST, "/api/users/refresh", "/api/users/logout").permitAll()
+                    // The password is already checked: completing the challenge needs no token yet
+                    .requestMatchers(HttpMethod.POST, "/api/users/login/two-factor-authentication").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/accounts").permitAll()
                     // Stripe calls it: the signature of the notification authenticates it
                     .requestMatchers(HttpMethod.POST, "/api/payments/stripe/webhook").permitAll()
@@ -88,6 +90,14 @@ open class SecurityConfig(@Value("\${flexstore.security.jwt-secret:}") private v
                     .requestMatchers(HttpMethod.POST, "/api/password-reset-requests", "/api/password-resets")
                     .permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/users/{id}/password").access(isUserFromPath())
+                    // Two-factor authentication is managed by the administrator it belongs to (checked again by
+                    // its own precondition in the domain, restricting it to an ADMIN account)
+                    .requestMatchers(HttpMethod.POST, "/api/users/{id}/two-factor-authentication/enrollment")
+                    .access(isUserFromPath())
+                    .requestMatchers(HttpMethod.POST, "/api/users/{id}/two-factor-authentication/confirmation")
+                    .access(isUserFromPath())
+                    .requestMatchers(HttpMethod.DELETE, "/api/users/{id}/two-factor-authentication")
+                    .access(isUserFromPath())
                     .requestMatchers("/api/users/**").hasRole("ADMIN")
                     .requestMatchers("/api/admin/**").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.POST, "/api/products").hasRole("ADMIN")

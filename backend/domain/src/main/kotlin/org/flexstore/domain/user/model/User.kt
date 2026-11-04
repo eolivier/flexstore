@@ -1,6 +1,8 @@
 package org.flexstore.domain.user.model
 
 import org.flexstore.domain.sharedkernel.*
+import org.flexstore.domain.twofactor.model.TwoFactorAuthentication
+import org.flexstore.domain.twofactor.model.TwoFactorSecret
 import org.ucop.domain.NominalException
 import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.entity.Actor
@@ -20,7 +22,9 @@ sealed class User(open val id: UserId) {
         val phoneNumber: PhoneNumber? = null,
         val postalAddresses: PostalAddresses = PostalAddresses.none(),
         // Given by a customer who creates their own account for their company
-        val customerType: CustomerType = CustomerType.Individual
+        val customerType: CustomerType = CustomerType.Individual,
+        // Restricted to an ADMIN account in this iteration
+        val twoFactorAuthentication: TwoFactorAuthentication = TwoFactorAuthentication.Disabled
     ) : User(id) {
         override fun user(userId: UserId) = copy(id = userId)
 
@@ -30,7 +34,10 @@ sealed class User(open val id: UserId) {
 
         fun withPostalAddresses(postalAddresses: PostalAddresses) = copy(postalAddresses = postalAddresses)
 
-        fun account() = Account(id, fullName, email, role, status, phoneNumber, postalAddresses, customerType)
+        fun account() = Account(
+            id, fullName, email, role, status, phoneNumber, postalAddresses,
+            customerType, twoFactorAuthentication
+        )
 
         // Too many failed sign-ins: an administrator reactivates the account
         fun locked() = copy(status = AccountStatus.LOCKED)
@@ -38,6 +45,16 @@ sealed class User(open val id: UserId) {
         fun isAdministrator() = role == Role.ADMIN
 
         fun isNotAdministrator() = role != Role.ADMIN
+
+        // A new enrollment is generated, kept pending until the first code confirms it
+        fun withTwoFactorAuthenticationPending(secret: TwoFactorSecret) =
+            copy(twoFactorAuthentication = TwoFactorAuthentication.PendingConfirmation(secret))
+
+        fun withTwoFactorAuthenticationEnabled(secret: TwoFactorSecret) =
+            copy(twoFactorAuthentication = TwoFactorAuthentication.Enabled(secret))
+
+        fun withTwoFactorAuthenticationDisabled() =
+            copy(twoFactorAuthentication = TwoFactorAuthentication.Disabled)
     }
 
     // A user to create: the administrator who creates it chooses its role

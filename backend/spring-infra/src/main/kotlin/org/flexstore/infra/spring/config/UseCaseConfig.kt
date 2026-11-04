@@ -30,6 +30,8 @@ import org.flexstore.domain.seller.usecase.*
 import org.flexstore.domain.stock.*
 import org.flexstore.domain.stock.usecase.*
 import org.flexstore.domain.sharedkernel.ShopUrl
+import org.flexstore.domain.twofactor.TwoFactorChallengeRepository
+import org.flexstore.domain.twofactor.usecase.*
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.usecase.*
@@ -563,4 +565,16 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     @Bean
     open fun readSalesDashboardUseCase(orderRepository: OrderRepository, userRepository: UserRepository) =
         ReadSalesDashboardUseCase(orderRepository, userRepository)
+
+    @Bean
+    open fun startTwoFactorEnrollmentUseCase(userRepository: UserRepository) =
+        StartTwoFactorEnrollmentUseCase(userRepository)
+
+    @Bean
+    open fun confirmTwoFactorEnrollmentUseCase(userRepository: UserRepository) =
+        ConfirmTwoFactorEnrollmentUseCase(userRepository)
+
+    @Bean
+    open fun disableTwoFactorAuthenticationUseCase(userRepository: UserRepository) =
+        DisableTwoFactorAuthenticationUseCase(userRepository)
 }

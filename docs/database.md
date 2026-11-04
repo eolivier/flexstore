@@ -1,6 +1,6 @@
 # Physical data model
 
-The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V44**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
+The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V47**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
 
 ![Physical data model](database.png)
 
@@ -20,6 +20,8 @@ erDiagram
         role text "USER or ADMIN"
         status varchar(30) "PENDING_VERIFICATION, ACTIVE, SUSPENDED, LOCKED or DISABLED"
         phone_number varchar(30) "nullable"
+        two_factor_secret varchar(64) "nullable: TOTP secret, set once an enrollment starts"
+        two_factor_status varchar(20) "nullable: PENDING or ENABLED, null with two_factor_secret"
         created_at timestamp
         updated_at timestamp
     }
