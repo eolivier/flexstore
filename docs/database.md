@@ -305,6 +305,14 @@ erDiagram
         updated_at timestamp
     }
 
+    wishlist_item {
+        id varchar(50) PK
+        user_id varchar(50) FK,UK "unique with product_id: a product saved once per customer"
+        product_id varchar(50) FK,UK
+        created_at timestamp
+        updated_at timestamp
+    }
+
     shop_settings {
         id int PK "a single row (id = 1)"
         order_confirmation_email varchar(10) "ENABLED or DISABLED"
@@ -341,6 +349,8 @@ erDiagram
     product_translation }o--|| product : "product_id (cascade)"
     product_review }o--|| product : "product_id (cascade)"
     product_review }o--|| user : "user_id (cascade)"
+    wishlist_item }o--|| product : "product_id (cascade)"
+    wishlist_item }o--|| user : "user_id (cascade)"
 ```
 
 ## Notes
@@ -356,3 +366,4 @@ erDiagram
 - A `refresh_session` is a session of a signed-in user: its refresh token renews their access token (15 minutes) once, then the session is revoked (`revoked_at`) and replaced by a new row. A revoked token that comes back revokes every open session of its user. Only the hash of the token is stored; deleting a user deletes their sessions.
 - `user` is quoted in SQL (`"user"`), a reserved word; the orders are stored in `customer_order` for the same reason.
 - The name and the description of a `product` are in `product_translation`, one row per language: always one in the default language (`en`), which the application requires, and one per other language the product is translated into. A product without a translation in the language of the customer is shown in `en`.
+- A `wishlist_item` is a product a customer saved to buy it back later: at most one row per customer and product (saving it again changes nothing). Removing it from the wishlist only deletes this row, not the product or the orders already placed for it.

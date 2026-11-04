@@ -1,0 +1,33 @@
+package org.flexstore.domain.wishlist
+
+import org.flexstore.domain.product.ProductId
+import org.flexstore.domain.sharedkernel.*
+import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.NominalException
+import java.time.Instant
+
+data class WishlistItemId(val value: String) {
+    companion object {
+        fun nextId() = WishlistItemId(Identity.nextId().value)
+    }
+}
+
+// The moment a product was saved to a wishlist
+data class SavedAt(val value: Instant) {
+    companion object {
+        fun now() = SavedAt(InstantProvider.now())
+    }
+}
+
+// A product a customer saved to their wishlist, to buy it back later, and when
+data class WishlistItem(
+    val wishlistItemId: WishlistItemId,
+    val customer: UserId.ValidUserId,
+    val productId: ProductId,
+    val savedAt: SavedAt
+)
+
+// A product a customer wants to save to, or remove from, their wishlist
+data class WishlistEntry(val customer: UserId.ValidUserId, val productId: ProductId)
+
+data class WishlistUpdateFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
