@@ -1,10 +1,12 @@
 <script setup lang="ts">
-  import { onMounted, ref } from 'vue';
+  import { computed, onMounted, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import type { PostalAddress } from '@/models/account';
+  import { formatAddress } from '@/utils/address';
   import { useAddressBookStore } from '@/stores/addressBook.store';
   import AddressCard from './AddressCard.vue';
   import AddressEditDialog from './AddressEditDialog.vue';
+  import ConfirmDialog from '@/components/ConfirmDialog.vue';
 
   // The addresses of the signed-in user: they see, edit and remove them. The orders keep their own addresses
   const addressBookStore = useAddressBookStore();
@@ -15,6 +17,13 @@
   const saving = ref(false);
   const editionError = ref<string | null>(null);
   const removalError = ref(false);
+  // The position of the address the user is about to remove, once confirmed
+  const positionToRemove = ref<number | null>(null);
+  const removalMessage = computed(() => {
+    if (positionToRemove.value === null) return '';
+    const address = formatAddress(addressBookStore.addresses[positionToRemove.value]);
+    return t('addressBook.deleteMessage', { address });
+  });
 
   onMounted(() => {
     addressBookStore.fetchAddresses();
@@ -37,8 +46,10 @@
     }
   }
 
-  async function remove(position: number) {
-    removalError.value = !(await addressBookStore.removeAddress(position));
+  async function confirmRemoval() {
+    if (positionToRemove.value === null) return;
+    removalError.value = !(await addressBookStore.removeAddress(positionToRemove.value));
+    positionToRemove.value = null;
   }
 </script>
 
@@ -61,7 +72,7 @@
     </v-card>
     <v-row v-else>
       <v-col v-for="(address, position) in addressBookStore.addresses" :key="position" cols="12" md="6">
-        <AddressCard :address="address" @edit="edit(position)" @remove="remove(position)" />
+        <AddressCard :address="address" @edit="edit(position)" @remove="positionToRemove = position" />
       </v-col>
     </v-row>
 
@@ -72,6 +83,14 @@
       :saving="saving"
       :error="editionError"
       @save="save"
+    />
+
+    <ConfirmDialog
+      :model-value="positionToRemove !== null"
+      :title="t('addressBook.deleteTitle')"
+      :message="removalMessage"
+      @update:model-value="(open: boolean) => !open && (positionToRemove = null)"
+      @confirm="confirmRemoval"
     />
   </v-container>
 </template>

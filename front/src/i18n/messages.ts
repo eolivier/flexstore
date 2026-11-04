@@ -168,6 +168,8 @@ export default {
       replace: 'Replace the image',
       remove: 'Remove the image',
       hint: 'JPEG, PNG or WebP, 2 MB at most: it is resized for the catalog.',
+      deleteTitle: 'Remove the image?',
+      deleteMessage: 'The product will show its category icon instead.',
       errors: {
         tooLarge: 'The image is larger than 2 MB.',
         unsupported: 'The file is not a JPEG, PNG or WebP image.',
@@ -348,6 +350,8 @@ export default {
       editTitle: 'Edit the address',
       save: 'Save',
       cancel: 'Cancel',
+      deleteTitle: 'Remove this address?',
+      deleteMessage: '{address} will no longer be available when you order.',
       errors: {
         incomplete: 'The address is incomplete.',
         error: 'The address could not be saved.',
@@ -917,6 +921,8 @@ export default {
       replace: "Remplacer l'image",
       remove: "Supprimer l'image",
       hint: 'JPEG, PNG ou WebP, 2 Mo au plus : elle est redimensionnée pour le catalogue.',
+      deleteTitle: "Supprimer l'image ?",
+      deleteMessage: "Le produit affichera l'icône de sa catégorie à la place.",
       errors: {
         tooLarge: "L'image dépasse 2 Mo.",
         unsupported: "Le fichier n'est pas une image JPEG, PNG ou WebP.",
@@ -1102,6 +1108,8 @@ export default {
       editTitle: "Modifier l'adresse",
       save: 'Enregistrer',
       cancel: 'Annuler',
+      deleteTitle: 'Supprimer cette adresse ?',
+      deleteMessage: '{address} ne sera plus disponible pour vos prochaines commandes.',
       errors: {
         incomplete: "L'adresse est incomplète.",
         error: "L'adresse n'a pas pu être enregistrée.",
