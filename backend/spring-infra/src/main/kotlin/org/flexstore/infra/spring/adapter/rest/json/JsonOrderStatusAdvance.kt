@@ -3,8 +3,8 @@ package org.flexstore.infra.spring.adapter.rest.json
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.flexstore.domain.order.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.ErrorMessage
 
 // The status of the order when the administrator asks to move it to the next one; moving it to shipped may give
 // the carrier and the tracking number of the parcel, together or not at all
