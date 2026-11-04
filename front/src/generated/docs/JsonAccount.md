@@ -14,6 +14,7 @@ Name | Type | Description | Notes
 **phoneNumber** | **string** |  | [optional] [default to undefined]
 **postalAddresses** | [**Array&lt;JsonPostalAddress&gt;**](JsonPostalAddress.md) |  | [default to undefined]
 **company** | [**JsonCustomerCompany**](JsonCustomerCompany.md) |  | [optional] [default to undefined]
+**twoFactorEnabled** | **boolean** | Whether two-factor authentication is enabled (restricted to an ADMIN account) | [default to undefined]
 
 ## Example
 
@@ -30,6 +31,7 @@ const instance: JsonAccount = {
     phoneNumber,
     postalAddresses,
     company,
+    twoFactorEnabled,
 };
 ```
 

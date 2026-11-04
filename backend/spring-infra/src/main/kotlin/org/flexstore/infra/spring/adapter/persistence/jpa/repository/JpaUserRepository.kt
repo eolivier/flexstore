@@ -6,6 +6,8 @@ import org.flexstore.infra.spring.adapter.persistence.jpa.entity.UserEntity
 import org.flexstore.infra.spring.adapter.persistence.jpa.toDomain
 import org.flexstore.infra.spring.adapter.persistence.jpa.toEntity
 import org.flexstore.domain.sharedkernel.*
+import org.flexstore.domain.twofactor.model.TwoFactorAuthentication
+import org.flexstore.domain.twofactor.model.TwoFactorSecret
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.infra.spring.config.USERS_CACHE
@@ -66,6 +68,8 @@ class PostgresUserRepositoryAdapter(
                     role = user.role.name,
                     status = user.status.name,
                     phoneNumber = user.phoneNumber?.value,
+                    twoFactorSecret = twoFactorSecretColumnOf(user.twoFactorAuthentication),
+                    twoFactorStatus = twoFactorStatusColumnOf(user.twoFactorAuthentication),
                     addresses = addressEntities(user),
                     companies = companyEntities(user)
                 )
@@ -80,6 +84,20 @@ class PostgresUserRepositoryAdapter(
     private fun generateNewUserId(): String {
         return Identity.nextId().value
     }
+
+    private fun twoFactorSecretColumnOf(twoFactorAuthentication: TwoFactorAuthentication): String? =
+        when (twoFactorAuthentication) {
+            is TwoFactorAuthentication.Disabled -> null
+            is TwoFactorAuthentication.PendingConfirmation -> twoFactorAuthentication.secret.value
+            is TwoFactorAuthentication.Enabled -> twoFactorAuthentication.secret.value
+        }
+
+    private fun twoFactorStatusColumnOf(twoFactorAuthentication: TwoFactorAuthentication): String? =
+        when (twoFactorAuthentication) {
+            is TwoFactorAuthentication.Disabled -> null
+            is TwoFactorAuthentication.PendingConfirmation -> "PENDING"
+            is TwoFactorAuthentication.Enabled -> "ENABLED"
+        }
 
     private fun hashPasswordIfNeeded(password: Password): String {
         return when (password) {
@@ -173,8 +191,22 @@ class PostgresUserRepositoryAdapter(
         status = AccountStatus.valueOf(this.status),
         phoneNumber = phoneNumber?.let { PhoneNumber(it) },
         postalAddresses = PostalAddresses(addresses.map { it.address.toDomain() }),
-        customerType = companies.firstOrNull()?.toDomain() ?: CustomerType.Individual
+        customerType = companies.firstOrNull()?.toDomain() ?: CustomerType.Individual,
+        twoFactorAuthentication = twoFactorAuthenticationOf(twoFactorSecret, twoFactorStatus)
     )
+
+    private fun twoFactorAuthenticationOf(
+        secretColumn: String?,
+        statusColumn: String?
+    ): TwoFactorAuthentication {
+        if (secretColumn == null) return TwoFactorAuthentication.Disabled
+        val secret = TwoFactorSecret(secretColumn)
+        return if (statusColumn == "ENABLED") {
+            TwoFactorAuthentication.Enabled(secret)
+        } else {
+            TwoFactorAuthentication.PendingConfirmation(secret)
+        }
+    }
 
     private fun CustomerCompanyEntity.toDomain(): CustomerType {
         val company = Company(CompanyName(companyName), VatNumber(vatNumber.orEmpty()))

@@ -11,6 +11,7 @@ Name | Type | Description | Notes
 **email** | **string** |  | [optional] [default to undefined]
 **role** | **string** |  | [optional] [default to undefined]
 **status** | **string** |  | [optional] [default to undefined]
+**twoFactorEnabled** | **boolean** | Whether two-factor authentication is enabled (restricted to an ADMIN account) | [optional] [default to undefined]
 
 ## Example
 
@@ -24,6 +25,7 @@ const instance: JsonUser = {
     email,
     role,
     status,
+    twoFactorEnabled,
 };
 ```
 

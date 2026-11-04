@@ -1,5 +1,7 @@
 package org.flexstore.domain.user.model
 
+import org.flexstore.domain.twofactor.model.TwoFactorAuthentication
+
 // The account of a user, as they and the administrators see it: everything but the password
 data class Account(
     val id: UserId,
@@ -9,5 +11,6 @@ data class Account(
     val status: AccountStatus,
     val phoneNumber: PhoneNumber?,
     val postalAddresses: PostalAddresses,
-    val customerType: CustomerType
+    val customerType: CustomerType,
+    val twoFactorAuthentication: TwoFactorAuthentication
 )

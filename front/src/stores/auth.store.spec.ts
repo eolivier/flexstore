@@ -1,19 +1,21 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
+import type { User } from '@/models/user';
 import { useAuthStore } from './auth.store';
 
 const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
-const createMockUser = () => ({
+const createMockUser = (): User => ({
   id: '1',
   firstName: 'John',
   lastName: 'Doe',
   email: 'john@example.com',
-  role: 'USER' as 'USER' | 'ADMIN',
+  role: 'USER',
 });
 // Body of a successful login: the token, the refresh token that renews it, and the user
 const loginResponse = (user = createMockUser()) => ({
+  status: 'SIGNED_IN',
   token: 'jwt-token',
   expiresAt: '2030-01-01T00:00:00Z',
   refreshToken: 'refresh-token',
@@ -31,6 +33,11 @@ const renewedSession = {
 };
 const loginSucceeds = (user = createMockUser()) =>
   mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(loginResponse(user)) });
+const twoFactorChallengeRequired = (challengeId = 'challenge-1') =>
+  mockFetch.mockResolvedValueOnce({
+    ok: true,
+    json: () => Promise.resolve({ status: 'TWO_FACTOR_REQUIRED', challengeId }),
+  });
 
 // A store with a signed-in user
 async function signedIn(user = createMockUser()) {
@@ -55,6 +62,7 @@ describe('auth.store', () => {
       expect(store.currentUser).toBeNull();
       expect(store.isAuthenticated).toBe(false);
       expect(store.loginError).toBeNull();
+      expect(store.pendingChallengeId).toBeNull();
     });
   });
 
@@ -65,9 +73,9 @@ describe('auth.store', () => {
       loginSucceeds(mockUser);
       const store = useAuthStore();
       // Act
-      const loggedIn = await store.login('john@example.com', 'secret');
+      const outcome = await store.login('john@example.com', 'secret');
       // Assert
-      expect(loggedIn).toBe(true);
+      expect(outcome).toBe('signedIn');
       expect(store.currentUser).toEqual(mockUser);
       expect(store.token).toBe('jwt-token');
       expect(store.isAuthenticated).toBe(true);
@@ -80,9 +88,9 @@ describe('auth.store', () => {
       mockFetch.mockResolvedValueOnce({ ok: false, status: 401 });
       const store = useAuthStore();
       // Act
-      const loggedIn = await store.login('john@example.com', 'wrongpassword');
+      const outcome = await store.login('john@example.com', 'wrongpassword');
       // Assert
-      expect(loggedIn).toBe(false);
+      expect(outcome).toBe('invalidCredentials');
       expect(store.isAuthenticated).toBe(false);
       expect(store.loginError).toBe('Invalid email or password');
     });
@@ -92,9 +100,9 @@ describe('auth.store', () => {
       mockFetch.mockRejectedValueOnce(new Error('Network error'));
       const store = useAuthStore();
       // Act
-      const loggedIn = await store.login('john@example.com', 'secret');
+      const outcome = await store.login('john@example.com', 'secret');
       // Assert
-      expect(loggedIn).toBe(false);
+      expect(outcome).toBe('error');
       expect(store.isAuthenticated).toBe(false);
       expect(store.loginError).toBe('An error occurred during login');
     });
@@ -123,6 +131,73 @@ describe('auth.store', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: 'john@example.com', password: 'secret' }),
       });
+    });
+
+    it('should keep a challenge reference, without opening a session, when a second factor is required', async () => {
+      // Arrange
+      twoFactorChallengeRequired('challenge-1');
+      const store = useAuthStore();
+      // Act
+      const outcome = await store.login('admin@example.com', 'secret');
+      // Assert
+      expect(outcome).toBe('twoFactorRequired');
+      expect(store.pendingChallengeId).toBe('challenge-1');
+      expect(store.isAuthenticated).toBe(false);
+    });
+  });
+
+  describe('verifyTwoFactorCode', () => {
+    it('should open the session when the code is right', async () => {
+      // Arrange
+      twoFactorChallengeRequired('challenge-1');
+      const store = useAuthStore();
+      await store.login('admin@example.com', 'secret');
+      loginSucceeds();
+      // Act
+      const outcome = await store.verifyTwoFactorCode('123456');
+      // Assert
+      expect(outcome).toBe('signedIn');
+      expect(store.isAuthenticated).toBe(true);
+      expect(store.pendingChallengeId).toBeNull();
+      const [url, init] = mockFetch.mock.lastCall!;
+      expect(url).toBe('http://localhost:8080/api/users/login/two-factor-authentication');
+      expect(JSON.parse(init.body)).toEqual({ challengeId: 'challenge-1', code: '123456' });
+    });
+
+    it('should report a wrong code, without opening a session', async () => {
+      // Arrange
+      twoFactorChallengeRequired('challenge-1');
+      const store = useAuthStore();
+      await store.login('admin@example.com', 'secret');
+      mockFetch.mockResolvedValueOnce({ ok: false, status: 401 });
+      // Act
+      const outcome = await store.verifyTwoFactorCode('000000');
+      // Assert
+      expect(outcome).toBe('invalidCode');
+      expect(store.isAuthenticated).toBe(false);
+    });
+
+    it('should report an error without a pending challenge', async () => {
+      // Arrange
+      const store = useAuthStore();
+      // Act
+      const outcome = await store.verifyTwoFactorCode('123456');
+      // Assert
+      expect(outcome).toBe('error');
+      expect(mockFetch).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('cancelTwoFactorChallenge', () => {
+    it('should drop the pending challenge', async () => {
+      // Arrange
+      twoFactorChallengeRequired('challenge-1');
+      const store = useAuthStore();
+      await store.login('admin@example.com', 'secret');
+      // Act
+      store.cancelTwoFactorChallenge();
+      // Assert
+      expect(store.pendingChallengeId).toBeNull();
     });
   });
 
@@ -220,6 +295,68 @@ describe('auth.store', () => {
       // Assert
       expect(passwordChange).toBe('error');
       expect(mockFetch).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('two-factor authentication of the signed-in administrator', () => {
+    it('should start an enrollment and read its secret and provisioning URI', async () => {
+      // Arrange
+      const store = await signedIn({ ...createMockUser(), role: 'ADMIN' });
+      const enrollment = { secret: 'ABCDEFGH', provisioningUri: 'otpauth://totp/Flexstore:john' };
+      mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(enrollment) });
+      // Act
+      const result = await store.startTwoFactorEnrollment();
+      // Assert
+      expect(result).toEqual(enrollment);
+      const [url, init] = mockFetch.mock.lastCall!;
+      expect(url).toBe('http://localhost:8080/api/users/1/two-factor-authentication/enrollment');
+      expect(init.method).toBe('POST');
+    });
+
+    it('should confirm the enrollment and mark two-factor authentication enabled', async () => {
+      // Arrange
+      const store = await signedIn({ ...createMockUser(), role: 'ADMIN' });
+      mockFetch.mockResolvedValueOnce({ ok: true, status: 204 });
+      // Act
+      const outcome = await store.confirmTwoFactorEnrollment('123456');
+      // Assert
+      expect(outcome).toBe('confirmed');
+      expect(store.currentUser?.twoFactorEnabled).toBe(true);
+    });
+
+    it('should report a wrong confirmation code', async () => {
+      // Arrange
+      const store = await signedIn({ ...createMockUser(), role: 'ADMIN' });
+      mockFetch.mockResolvedValueOnce({ ok: false, status: 401 });
+      // Act
+      const outcome = await store.confirmTwoFactorEnrollment('000000');
+      // Assert
+      expect(outcome).toBe('invalidCode');
+      expect(store.currentUser?.twoFactorEnabled).toBeFalsy();
+    });
+
+    it('should disable two-factor authentication with the current password', async () => {
+      // Arrange
+      const store = await signedIn({ ...createMockUser(), role: 'ADMIN', twoFactorEnabled: true });
+      mockFetch.mockResolvedValueOnce({ ok: true, status: 204 });
+      // Act
+      const outcome = await store.disableTwoFactorAuthentication('secret');
+      // Assert
+      expect(outcome).toBe('disabled');
+      expect(store.currentUser?.twoFactorEnabled).toBe(false);
+      const [, init] = mockFetch.mock.lastCall!;
+      expect(init.method).toBe('DELETE');
+    });
+
+    it('should report a wrong current password when disabling', async () => {
+      // Arrange
+      const store = await signedIn({ ...createMockUser(), role: 'ADMIN', twoFactorEnabled: true });
+      mockFetch.mockResolvedValueOnce({ ok: false, status: 400 });
+      // Act
+      const outcome = await store.disableTwoFactorAuthentication('wrong');
+      // Assert
+      expect(outcome).toBe('wrongPassword');
+      expect(store.currentUser?.twoFactorEnabled).toBe(true);
     });
   });
 

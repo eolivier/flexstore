@@ -30,6 +30,13 @@ data class UserEntity(
     @Column(name = "phone_number")
     val phoneNumber: String? = null,
 
+    // Null while disabled; set once an enrollment starts (status PENDING), kept once confirmed (status ENABLED)
+    @Column(name = "two_factor_secret")
+    val twoFactorSecret: String? = null,
+
+    @Column(name = "two_factor_status")
+    val twoFactorStatus: String? = null,
+
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     @OrderBy("position")

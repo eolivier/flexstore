@@ -17,5 +17,6 @@ fun User.toJsonUser(): JsonUser = when (this) {
 fun Account.toJsonUser(): JsonUser {
     val (firstName, lastName) = fullName
     val jsonUser = DefinedJsonUser(id.value, firstName.value, lastName.value, email.value)
-    return jsonUser.copy(role = role.name, status = status.name)
+    val twoFactorEnabled = twoFactorAuthentication.isEnabled()
+    return jsonUser.copy(role = role.name, status = status.name, twoFactorEnabled = twoFactorEnabled)
 }

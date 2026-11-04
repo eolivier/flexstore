@@ -5,6 +5,7 @@
   import { useAuthStore } from '@/stores/auth.store';
   import ChangePasswordForm from '@/components/account/ChangePasswordForm.vue';
   import EmailVerificationBanner from '@/components/account/EmailVerificationBanner.vue';
+  import TwoFactorAuthSection from '@/components/account/TwoFactorAuthSection.vue';
   import CookieSettings from '@/components/cookies/CookieSettings.vue';
   import { FullName } from '@/models/user';
 
@@ -60,6 +61,7 @@
       </v-card>
 
       <ChangePasswordForm class="mb-6" />
+      <TwoFactorAuthSection v-if="authStore.isAdmin" class="mb-6" />
       <CookieSettings class="mb-6" />
 
       <h2 class="text-h6 font-weight-bold mb-4">{{ t('profile.shortcuts') }}</h2>

@@ -14,7 +14,9 @@ data class JsonAccount(
     @JsonProperty("phoneNumber") val phoneNumber: String?,
     @JsonProperty("postalAddresses") val postalAddresses: List<JsonPostalAddress>,
     // The company of a customer who buys for it, none for the others
-    @JsonProperty("company") val company: JsonCustomerCompany?
+    @JsonProperty("company") val company: JsonCustomerCompany?,
+    // Restricted to an ADMIN account in this iteration
+    @JsonProperty("twoFactorEnabled") val twoFactorEnabled: Boolean
 ) {
     constructor(account: Account) : this(
         account.id.value,
@@ -25,6 +27,7 @@ data class JsonAccount(
         account.status.name,
         account.phoneNumber?.value,
         account.postalAddresses.asList().map { JsonPostalAddress.of(it) },
-        JsonCustomerCompany.of(account.customerType)
+        JsonCustomerCompany.of(account.customerType),
+        account.twoFactorAuthentication.isEnabled()
     )
 }

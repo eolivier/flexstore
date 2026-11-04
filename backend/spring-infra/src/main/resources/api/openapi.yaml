@@ -189,6 +189,94 @@ paths:
           description: Not the password of the signed-in user
         "422":
           description: New password too short
+  /api/users/{id}/two-factor-authentication/enrollment:
+    post:
+      tags:
+      - Users
+      summary: Start the enrollment of two-factor authentication (administrator only)
+      description: >
+        Generates a new secret and keeps it pending: it is not active until confirmed with the first code
+        (POST /api/users/{id}/two-factor-authentication/confirmation).
+      operationId: startTwoFactorEnrollment
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: The secret and the link of the QR code
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonTwoFactorEnrollment"
+        "401":
+          description: Missing or invalid token
+        "403":
+          description: Not an administrator, or not the signed-in user
+        "409":
+          description: Two-factor authentication is already enabled
+  /api/users/{id}/two-factor-authentication/confirmation:
+    post:
+      tags:
+      - Users
+      summary: Confirm the enrollment with the first code of the authenticator app
+      operationId: confirmTwoFactorEnrollment
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonTwoFactorCode"
+        required: true
+      responses:
+        "204":
+          description: Two-factor authentication is now enabled
+        "401":
+          description: Wrong code
+        "403":
+          description: Not an administrator, or not the signed-in user
+        "409":
+          description: No enrollment is pending
+  /api/users/{id}/two-factor-authentication:
+    delete:
+      tags:
+      - Users
+      summary: Disable two-factor authentication, confirmed with the current password
+      operationId: disableTwoFactorAuthentication
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonTwoFactorDisableRequest"
+        required: true
+      responses:
+        "204":
+          description: Two-factor authentication is now disabled
+        "400":
+          description: Wrong current password
+        "403":
+          description: Not an administrator, or not the signed-in user
+        "409":
+          description: Two-factor authentication is not enabled
   /api/accounts:
     post:
       tags:
@@ -402,7 +490,10 @@ paths:
         required: true
       responses:
         "200":
-          description: Successfully authenticated
+          description: >
+            SIGNED_IN: the token is returned with the user.
+            TWO_FACTOR_REQUIRED: the code of the authenticator app is still needed, see
+            POST /api/users/login/two-factor-authentication.
           content:
             application/json:
               schema:
@@ -453,6 +544,29 @@ paths:
       responses:
         "204":
           description: The session is ended
+  /api/users/login/two-factor-authentication:
+    post:
+      tags:
+      - Users
+      summary: Complete a challenged sign-in with the code of the authenticator app
+      description: Public. The password was already checked by POST /api/users/login.
+      operationId: verifyTwoFactorCode
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonTwoFactorChallengeVerification"
+        required: true
+      responses:
+        "200":
+          description: "Successfully authenticated: the token is returned with the user"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonLoginResponse"
+        "401":
+          description: Wrong code, or unknown or expired challenge
   /api/products:
     post:
       tags:
@@ -1805,29 +1919,43 @@ components:
         status:
           type: string
           enum: [PENDING_VERIFICATION, ACTIVE, SUSPENDED, LOCKED, DISABLED]
+        twoFactorEnabled:
+          type: boolean
+          description: Whether two-factor authentication is enabled (restricted to an ADMIN account)
     JsonLoginResponse:
       type: object
+      description: >
+        SIGNED_IN: token, expiresAt and user are filled.
+        TWO_FACTOR_REQUIRED: the password was right, but the code of the authenticator app is still needed;
+        only challengeId is filled. POST it with the code to /api/users/login/two-factor-authentication.
       required:
-        - token
-        - expiresAt
-        - refreshToken
-        - refreshExpiresAt
-        - user
+        - status
       properties:
+        status:
+          type: string
+          enum: [SIGNED_IN, TWO_FACTOR_REQUIRED]
         token:
           type: string
+          nullable: true
           description: "JWT to send in the Authorization header: Bearer <token>"
         expiresAt:
           type: string
           format: date-time
+          nullable: true
         refreshToken:
           type: string
+          nullable: true
           description: Opaque secret that renews the token once it expired (POST /api/users/refresh); it works once
         refreshExpiresAt:
           type: string
           format: date-time
+          nullable: true
         user:
           $ref: "#/components/schemas/JsonUser"
+        challengeId:
+          type: string
+          nullable: true
+          description: Present when status is TWO_FACTOR_REQUIRED
     JsonRefreshRequest:
       type: object
       required:
@@ -2016,6 +2144,40 @@ components:
         password:
           type: string
           description: User's password (plain text)
+    JsonTwoFactorEnrollment:
+      type: object
+      description: What an administrator reads once an enrollment started, to set up their authenticator app
+      required: [secret, provisioningUri]
+      properties:
+        secret:
+          type: string
+          description: The secret, to type manually in the authenticator app
+        provisioningUri:
+          type: string
+          description: An otpauth:// link, to render as a QR code
+    JsonTwoFactorCode:
+      type: object
+      required: [code]
+      properties:
+        code:
+          type: string
+          description: The 6-digit code of the authenticator app
+    JsonTwoFactorDisableRequest:
+      type: object
+      required: [currentPassword]
+      properties:
+        currentPassword:
+          type: string
+    JsonTwoFactorChallengeVerification:
+      type: object
+      required: [challengeId, code]
+      properties:
+        challengeId:
+          type: string
+          description: The challengeId returned by POST /api/users/login when status is TWO_FACTOR_REQUIRED
+        code:
+          type: string
+          description: The 6-digit code of the authenticator app
     DraftJsonProduct:
       type: object
       required: [sku, category, price, currency, translations]
@@ -2531,7 +2693,7 @@ components:
           description: For the items of the cart; 0 when free
     JsonAccount:
       type: object
-      required: [id, firstName, lastName, email, role, status, postalAddresses]
+      required: [id, firstName, lastName, email, role, status, postalAddresses, twoFactorEnabled]
       properties:
         id:
           type: string
@@ -2556,6 +2718,9 @@ components:
             $ref: "#/components/schemas/JsonPostalAddress"
         company:
           $ref: "#/components/schemas/JsonCustomerCompany"
+        twoFactorEnabled:
+          type: boolean
+          description: Whether two-factor authentication is enabled (restricted to an ADMIN account)
     JsonOrderLine:
       type: object
       required: [productId, productName, unitPrice, quantity, linePrice]
