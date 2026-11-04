@@ -1,7 +1,7 @@
 package org.flexstore.domain.discount.usecase
 
 import org.flexstore.domain.discount.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // An order is placed with a discount code: the code counts one more use (its usage limit is checked before)

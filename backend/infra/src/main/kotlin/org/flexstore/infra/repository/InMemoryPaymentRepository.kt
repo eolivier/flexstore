@@ -2,7 +2,7 @@ package org.flexstore.infra.repository
 
 import org.flexstore.domain.order.*
 import org.flexstore.domain.payment.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
+import org.ucop.domain.ErrorMessage
 
 // A payment provider in memory: its sessions are paid at once, or confirmed later, as given
 class InMemoryPaymentRepository(private val outcome: PaymentOutcome) : PaymentRepository {

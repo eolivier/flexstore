@@ -3,11 +3,11 @@ package org.flexstore.domain.order.usecase
 import org.flexstore.domain.legal.LegalPageKind
 import org.flexstore.domain.legal.LegalPageRepository
 import org.flexstore.domain.order.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.stock.*
 import org.flexstore.domain.user.UserRepository
 import org.flexstore.domain.user.model.AccountRefusedException
 import org.flexstore.domain.user.model.UserNotFoundException
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // An order to place, and what it is placed from: the cart of the customer and the threshold of free shipping,

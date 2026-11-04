@@ -1,11 +1,11 @@
 package org.flexstore.domain.user.usecase
 
+import java.time.Instant
 import org.flexstore.domain.email.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
-import java.time.Instant
 
 // The new password a customer chooses on the page of the link they received
 data class ChosenPassword(val token: VerificationToken, val password: PlainPassword)

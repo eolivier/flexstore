@@ -1,11 +1,11 @@
 package org.flexstore.domain.legal
 
-import org.flexstore.domain.sharedkernel.ErrorMessage
+import java.time.Instant
 import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.sharedkernel.InstantProvider
 import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
-import java.time.Instant
 
 // The legal pages of the shop, written by the administrators: its legal notice and its terms of sale
 enum class LegalPageKind { LEGAL_NOTICE, TERMS_OF_SALE }

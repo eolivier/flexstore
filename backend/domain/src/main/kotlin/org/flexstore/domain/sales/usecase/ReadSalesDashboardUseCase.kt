@@ -2,9 +2,9 @@ package org.flexstore.domain.sales.usecase
 
 import org.flexstore.domain.order.OrderRepository
 import org.flexstore.domain.sales.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
-import org.ucop.domain.entity.*
 import org.flexstore.domain.user.UserRepository
+import org.ucop.domain.ErrorMessage
+import org.ucop.domain.entity.*
 
 // An administrator reads the sales of the shop over the last 7, 30 or 90 days: revenue, orders per day and best
 // sellers

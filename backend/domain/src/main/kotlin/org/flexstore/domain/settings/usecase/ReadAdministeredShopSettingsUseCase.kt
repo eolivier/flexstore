@@ -1,8 +1,8 @@
 package org.flexstore.domain.settings.usecase
 
 import org.flexstore.domain.settings.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.UserRepository
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // An administrator reads the settings of the shop, to change them. The journeys of the shop read them with

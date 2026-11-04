@@ -1,12 +1,12 @@
 package org.flexstore.domain.product.usecase
 
-import org.flexstore.domain.product.*
-import org.ucop.domain.NominalException
-import org.flexstore.domain.sharedkernel.ErrorMessage
-import org.ucop.domain.entity.*
 import kotlin.reflect.KClass
+import org.flexstore.domain.product.*
 import org.flexstore.domain.user.UserRepository
 import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.ErrorMessage
+import org.ucop.domain.NominalException
+import org.ucop.domain.entity.*
 
 // An administrator creates a product. The id of the new product is chosen by the caller, which can then read the
 // created product

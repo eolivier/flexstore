@@ -1,9 +1,9 @@
 package org.flexstore.domain.cookie.usecase
 
 import org.flexstore.domain.cookie.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.UserRepository
 import org.flexstore.domain.user.model.UserNotFoundException
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // A signed-in customer reads their cookie consent: undecided once their choice is 6 months old

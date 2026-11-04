@@ -2,10 +2,10 @@ package org.flexstore.domain.cart.usecase
 
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.sharedkernel.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.UserRepository
 import org.flexstore.domain.user.model.AccountRefusedException
 import org.flexstore.domain.user.model.UserNotFoundException
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // A quantity of zero or less removes the item; an item of another cart is unknown to the owner's cart, hence

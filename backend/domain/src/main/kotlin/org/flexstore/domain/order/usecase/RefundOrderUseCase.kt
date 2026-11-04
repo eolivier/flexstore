@@ -2,10 +2,10 @@ package org.flexstore.domain.order.usecase
 
 import org.flexstore.domain.order.*
 import org.flexstore.domain.payment.PaymentRepository
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.stock.StockRepository
-import org.ucop.domain.entity.*
 import org.flexstore.domain.user.UserRepository
+import org.ucop.domain.ErrorMessage
+import org.ucop.domain.entity.*
 
 // An administrator cancels a paid order before it is shipped: its payment is given back to the customer, and its
 // units go back to the stock.

@@ -1,8 +1,8 @@
 package org.flexstore.domain.seller
 
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
 
 // One version of the seller: each edit gives a new one, so that an invoice keeps the seller of its issue

@@ -1,8 +1,8 @@
 package org.flexstore.domain.order.usecase
 
 import org.flexstore.domain.order.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.UserRepository
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // An order, with the customer who placed it, read by an administrator (any order) or by its customer (to

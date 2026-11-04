@@ -1,11 +1,11 @@
 package org.flexstore.domain.user.usecase
 
+import kotlin.reflect.KClass
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.entity.*
-import kotlin.reflect.KClass
 
 // A user is created by an administrator: the creator is the authenticated user who asks for it
 data class CreateUserRequest(val creator: UserId, val user: User)

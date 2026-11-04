@@ -1,6 +1,5 @@
 package org.flexstore.domain.twofactor.usecase
 
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.sharedkernel.InstantProvider
 import org.flexstore.domain.twofactor.TwoFactorAuthenticationForbiddenException
 import org.flexstore.domain.twofactor.TwoFactorCodeInvalidException
@@ -10,6 +9,7 @@ import org.flexstore.domain.twofactor.model.TwoFactorCode
 import org.flexstore.domain.user.UserRepository
 import org.flexstore.domain.user.model.User
 import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 data class TwoFactorEnrollmentConfirmation(val admin: UserId, val code: TwoFactorCode)

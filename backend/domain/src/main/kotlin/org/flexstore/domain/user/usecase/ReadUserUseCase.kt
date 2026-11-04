@@ -1,12 +1,12 @@
 package org.flexstore.domain.user.usecase
 
+import kotlin.reflect.KClass
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.model.User.DefinedUser
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.entity.*
-import kotlin.reflect.KClass
 
 // An administrator who reads a user
 data class UserReading(val reader: UserId, val userId: UserId)

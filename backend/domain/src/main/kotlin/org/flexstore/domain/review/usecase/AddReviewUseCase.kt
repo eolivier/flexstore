@@ -3,9 +3,9 @@ package org.flexstore.domain.review.usecase
 import org.flexstore.domain.order.OrderRepository
 import org.flexstore.domain.product.*
 import org.flexstore.domain.review.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.UserRepository
 import org.flexstore.domain.user.model.*
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // A customer reviews a product they bought: a mark from 1 to 5 and a comment, written once per product

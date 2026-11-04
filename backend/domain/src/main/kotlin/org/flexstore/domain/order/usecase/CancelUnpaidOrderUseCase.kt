@@ -2,8 +2,8 @@ package org.flexstore.domain.order.usecase
 
 import org.flexstore.domain.order.*
 import org.flexstore.domain.payment.PaymentRepository
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.stock.StockRepository
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // An order not paid within the payment delay is cancelled: its payment can no longer complete, and its reserved

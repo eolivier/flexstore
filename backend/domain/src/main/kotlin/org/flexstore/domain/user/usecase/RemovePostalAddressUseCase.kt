@@ -1,8 +1,8 @@
 package org.flexstore.domain.user.usecase
 
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // A user removes one of their addresses. The orders keep the address they were delivered and billed to

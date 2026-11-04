@@ -1,7 +1,7 @@
 package org.flexstore.domain.order.usecase
 
 import org.flexstore.domain.order.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // Any order, whoever its customer (the payment provider confirms it)

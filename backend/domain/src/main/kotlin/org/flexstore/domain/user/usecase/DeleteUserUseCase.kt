@@ -1,11 +1,11 @@
 package org.flexstore.domain.user.usecase
 
+import kotlin.reflect.KClass
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.entity.*
-import kotlin.reflect.KClass
 
 // An administrator who deletes a user
 data class UserDeletion(val editor: UserId, val userId: UserId)

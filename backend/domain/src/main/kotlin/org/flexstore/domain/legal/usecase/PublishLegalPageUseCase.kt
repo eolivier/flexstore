@@ -1,8 +1,8 @@
 package org.flexstore.domain.legal.usecase
 
 import org.flexstore.domain.legal.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.UserRepository
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // An administrator publishes a new version of a legal page: its text is written, 50 000 characters at most. It

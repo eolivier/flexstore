@@ -1,10 +1,10 @@
 package org.flexstore.domain.user.usecase
 
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.sharedkernel.Page
 import org.flexstore.domain.sharedkernel.PageRequest
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // An administrator who reads a page of the users

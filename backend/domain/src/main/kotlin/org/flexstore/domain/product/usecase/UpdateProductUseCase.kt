@@ -1,10 +1,10 @@
 package org.flexstore.domain.product.usecase
 
 import org.flexstore.domain.product.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
-import org.ucop.domain.entity.*
 import org.flexstore.domain.user.UserRepository
 import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.ErrorMessage
+import org.ucop.domain.entity.*
 
 // An administrator edits a product of the catalog: its SKU, its translations, its category and its price
 data class UpdateProductRequest(val editor: UserId, val product: DefinedProduct)

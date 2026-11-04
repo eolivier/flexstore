@@ -1,13 +1,13 @@
 package org.flexstore.domain.sales
 
-import org.flexstore.domain.order.*
-import org.flexstore.domain.sharedkernel.Price
-import org.ucop.domain.NominalException
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
+import org.flexstore.domain.order.*
+import org.flexstore.domain.sharedkernel.Price
 import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.ErrorMessage
+import org.ucop.domain.NominalException
 
 // The shop counts its days in its own time zone
 private val SHOP_ZONE: ZoneId = ZoneId.of("Europe/Paris")

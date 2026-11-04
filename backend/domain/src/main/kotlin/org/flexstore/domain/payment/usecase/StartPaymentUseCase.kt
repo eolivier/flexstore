@@ -2,11 +2,11 @@ package org.flexstore.domain.payment.usecase
 
 import org.flexstore.domain.order.*
 import org.flexstore.domain.payment.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.UserRepository
-import org.flexstore.domain.user.model.User
 import org.flexstore.domain.user.model.AccountRefusedException
+import org.flexstore.domain.user.model.User
 import org.flexstore.domain.user.model.UserNotFoundException
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // A customer starts the payment of one of their orders, awaiting its payment, on the payment provider

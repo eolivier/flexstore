@@ -1,9 +1,9 @@
 package org.flexstore.domain.product.usecase
 
 import org.flexstore.domain.product.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
-import org.ucop.domain.entity.*
 import org.flexstore.domain.user.UserRepository
+import org.ucop.domain.ErrorMessage
+import org.ucop.domain.entity.*
 
 // Proposes a SKU to an administrator for a product: the first SKU proposed for it (see SkuBasis.proposals) that
 // no product of the catalog has. The answer is checked after: a well-formed SKU, free in the catalog

@@ -1,8 +1,8 @@
 package org.flexstore.domain.user.usecase
 
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.RefreshSessionRepository
 import org.flexstore.domain.user.model.*
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // Every session of a user is ended: a refresh token that was already used came back, so it was stolen or

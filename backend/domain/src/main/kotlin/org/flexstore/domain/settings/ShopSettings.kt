@@ -4,7 +4,7 @@ import org.flexstore.domain.sharedkernel.*
 import java.math.BigDecimal
 
 import org.ucop.domain.NominalException
-import org.flexstore.domain.sharedkernel.ErrorMessage
+import org.ucop.domain.ErrorMessage
 import java.time.Duration
 import org.flexstore.domain.user.model.UserId
 

@@ -1,8 +1,8 @@
 package org.flexstore.domain.discount.usecase
 
 import org.flexstore.domain.discount.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.UserRepository
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // An administrator deletes a discount code: the orders that used it keep their discount

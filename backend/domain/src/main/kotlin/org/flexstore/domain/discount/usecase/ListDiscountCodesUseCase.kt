@@ -1,8 +1,8 @@
 package org.flexstore.domain.discount.usecase
 
 import org.flexstore.domain.discount.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.UserRepository
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // An administrator reads the discount codes given by the administrators, newest first

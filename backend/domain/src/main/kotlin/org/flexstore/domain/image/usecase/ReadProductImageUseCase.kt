@@ -2,7 +2,7 @@ package org.flexstore.domain.image.usecase
 
 import org.flexstore.domain.image.*
 import org.flexstore.domain.product.ProductId
-import org.flexstore.domain.sharedkernel.ErrorMessage
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // The image of a product looked for, in one of its formats

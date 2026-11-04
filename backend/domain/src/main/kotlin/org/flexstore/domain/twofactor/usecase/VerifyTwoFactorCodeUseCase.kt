@@ -1,6 +1,5 @@
 package org.flexstore.domain.twofactor.usecase
 
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.sharedkernel.InstantProvider
 import org.flexstore.domain.twofactor.TwoFactorChallengeNotFoundException
 import org.flexstore.domain.twofactor.TwoFactorChallengeRepository
@@ -12,6 +11,7 @@ import org.flexstore.domain.twofactor.model.TwoFactorChallengeLookup
 import org.flexstore.domain.twofactor.model.TwoFactorCode
 import org.flexstore.domain.user.UserRepository
 import org.flexstore.domain.user.model.User
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 data class TwoFactorCodeVerification(val challengeId: TwoFactorChallengeId, val code: TwoFactorCode)

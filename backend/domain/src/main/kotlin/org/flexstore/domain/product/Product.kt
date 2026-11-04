@@ -1,9 +1,9 @@
 package org.flexstore.domain.product
 
 import org.flexstore.domain.sharedkernel.*
-import org.ucop.domain.NominalException
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.ErrorMessage
+import org.ucop.domain.NominalException
 
 private val NO_DESCRIPTION = Description("No description")
 

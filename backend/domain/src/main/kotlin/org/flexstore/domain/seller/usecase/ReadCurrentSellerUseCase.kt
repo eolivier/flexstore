@@ -1,8 +1,8 @@
 package org.flexstore.domain.seller.usecase
 
 import org.flexstore.domain.seller.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.UserRepository
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // An administrator reads the current seller: the one the next invoices will be issued with

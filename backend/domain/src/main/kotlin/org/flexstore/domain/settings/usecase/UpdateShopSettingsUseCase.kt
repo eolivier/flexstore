@@ -1,8 +1,8 @@
 package org.flexstore.domain.settings.usecase
 
 import org.flexstore.domain.settings.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.UserRepository
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // An administrator changes the settings of the shop: a payment delay from 1 minute to a day, a threshold of free

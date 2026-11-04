@@ -2,7 +2,7 @@ package org.flexstore.domain.payment.usecase
 
 import org.flexstore.domain.order.OrderId
 import org.flexstore.domain.payment.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // The payment started for an order

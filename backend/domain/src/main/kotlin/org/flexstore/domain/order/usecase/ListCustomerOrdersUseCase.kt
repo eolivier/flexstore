@@ -1,11 +1,11 @@
 package org.flexstore.domain.order.usecase
 
 import org.flexstore.domain.order.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.sharedkernel.Page
 import org.flexstore.domain.sharedkernel.PageRequest
 import org.flexstore.domain.user.UserRepository
 import org.flexstore.domain.user.model.*
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // A customer reads a page of their orders

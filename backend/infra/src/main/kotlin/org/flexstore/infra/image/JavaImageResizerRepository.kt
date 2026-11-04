@@ -1,7 +1,5 @@
 package org.flexstore.infra.image
 
-import org.flexstore.domain.image.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import java.awt.Color
 import java.awt.RenderingHints
 import java.awt.image.BufferedImage
@@ -10,6 +8,8 @@ import java.io.ByteArrayOutputStream
 import javax.imageio.IIOImage
 import javax.imageio.ImageIO
 import javax.imageio.ImageWriteParam
+import org.flexstore.domain.image.*
+import org.ucop.domain.ErrorMessage
 
 private const val HIGHEST_QUALITY = 0.9f
 private const val LOWEST_QUALITY = 0.4f
