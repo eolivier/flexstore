@@ -5,6 +5,7 @@
   import QuantityStepper from './QuantityStepper.vue';
   import { categoryInfo } from '@/components/products/categories';
   import ProductVisual from '@/components/products/ProductVisual.vue';
+  import CartItemUnitPrice from './CartItemUnitPrice.vue';
   import { formatPrice } from '@/utils/price';
 
   const props = defineProps<{ item: Item }>();
@@ -13,9 +14,6 @@
   const { t, locale } = useI18n();
 
   const category = computed(() => categoryInfo(props.item.productCategory));
-  const unitPrice = computed(() =>
-    formatPrice(props.item.productPrice, props.item.productCurrency, locale.value)
-  );
   const detailLink = computed(() => `/products/${props.item.productId}`);
   const linePrice = computed(() => formatPrice(props.item.itemPrice, props.item.productCurrency, locale.value));
 </script>
@@ -41,7 +39,7 @@
       <router-link :to="detailLink" class="line-link text-subtitle-1 font-weight-bold">{{
         item.productName
       }}</router-link>
-      <div class="text-body-2 text-medium-emphasis">{{ t('cart.unitPrice', { price: unitPrice }) }}</div>
+      <CartItemUnitPrice :item="item" />
     </div>
 
     <div class="line-actions d-flex align-center ga-4">

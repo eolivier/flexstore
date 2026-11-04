@@ -25,6 +25,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.math.BigDecimal
 
 private const val TEST_PRODUCT_NAME = "Persistence IT product"
+private const val RUNNING_PROMOTION = """{"percentage": 25, "startsAt": "2020-01-01T00:00:00Z",
+    "endsAt": "2999-01-01T00:00:00Z"}"""
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -114,6 +116,34 @@ class ProductAndCartPersistenceIT {
     }
 
     @Test
+    fun `a product on promotion should be in the cart at its price to pay, with its regular price`() {
+        // Arrange
+        val productId = createdProductId(draftProduct(price = "20", promotion = RUNNING_PROMOTION))
+        // Act
+        saveItem(item(productId = productId, quantity = 2))
+        // Assert
+        getCart()
+            .andExpect(jsonPath("$.items[0].productPrice").value(15))
+            .andExpect(jsonPath("$.items[0].regularPrice").value(20))
+            .andExpect(jsonPath("$.items[0].promotionPercentage").value(25))
+            .andExpect(jsonPath("$.items[0].itemPrice").value(30))
+            .andExpect(jsonPath("$.totalItemsPrice").value(30))
+    }
+
+    @Test
+    fun `a product without promotion should be in the cart without percentage off`() {
+        // Arrange
+        val productId = createdProductId(draftProduct(price = "20"))
+        // Act
+        saveItem(item(productId = productId, quantity = 1))
+        // Assert
+        getCart()
+            .andExpect(jsonPath("$.items[0].productPrice").value(20))
+            .andExpect(jsonPath("$.items[0].regularPrice").value(20))
+            .andExpect(jsonPath("$.items[0].promotionPercentage").doesNotExist())
+    }
+
+    @Test
     fun `adding a product already in the cart should change the quantity of its item`() {
         // Arrange
         saveItem(item(productId = "7", quantity = 1))
@@ -151,10 +181,16 @@ class ProductAndCartPersistenceIT {
         response.andExpect(status().isNotFound)
     }
 
-    private fun draftProduct(price: String) =
+    private fun draftProduct(price: String, promotion: String = "null") =
         """{"sku": "PERSISTENCE-IT", "category": "HOME", "price": $price, "currency": "EUR",
         "translations": [
-        {"language": "en", "name": "$TEST_PRODUCT_NAME", "description": "Stored in PostgreSQL"}]}"""
+        {"language": "en", "name": "$TEST_PRODUCT_NAME", "description": "Stored in PostgreSQL"}],
+        "promotion": $promotion}"""
+
+    private fun createdProductId(draft: String): String {
+        val body = createProduct(draft).andExpect(status().isCreated).andReturn().response.contentAsString
+        return objectMapper.readTree(body)["id"].asText()
+    }
 
     private fun createProduct(draft: String) =
         mockMvc.perform(post("/api/products").with(asAdmin()).contentType(MediaType.APPLICATION_JSON).content(draft))

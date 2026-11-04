@@ -2540,6 +2540,7 @@ components:
           type: string
         productPrice:
           type: number
+          description: The price to pay for one product, the promotion included
         productCurrency:
           type: string
         productQuantity:
@@ -2547,6 +2548,13 @@ components:
           format: int32
         itemPrice:
           type: number
+        regularPrice:
+          type: number
+          description: The price of one product without the promotion. Shown struck through when the product is on promotion
+        promotionPercentage:
+          type: number
+          nullable: true
+          description: The percentage off the regular price while a promotion is running, null otherwise
     JsonOrderRefund:
       type: object
       required: [currentStatus]

@@ -3,6 +3,7 @@ package org.flexstore.infra.spring.adapter.rest.json
 import org.flexstore.domain.cart.*
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
+import org.flexstore.infra.spring.adapter.mapping.runningPercentage
 import java.math.BigDecimal
 
 // Only the item id, the product id and the quantity are used: the product is read from the catalog
@@ -17,6 +18,8 @@ data class JsonItem @JsonCreator constructor(
     @JsonProperty("productQuantity") val productQuantity: Int
 )
 
+// productPrice: the price to pay for one product, the promotion included. regularPrice: the price without the
+// promotion. promotionPercentage: the percentage off while a promotion is running, null otherwise
 data class JsonCartItem @JsonCreator constructor(
     @JsonProperty("itemId") val itemId: String,
     @JsonProperty("productId") val productId: String,
@@ -26,7 +29,9 @@ data class JsonCartItem @JsonCreator constructor(
     @JsonProperty("productPrice") val productPrice: BigDecimal,
     @JsonProperty("productCurrency") val productCurrency: String,
     @JsonProperty("productQuantity") val productQuantity: Int,
-    @JsonProperty("itemPrice") val itemPrice: BigDecimal
+    @JsonProperty("itemPrice") val itemPrice: BigDecimal,
+    @JsonProperty("regularPrice") val regularPrice: BigDecimal,
+    @JsonProperty("promotionPercentage") val promotionPercentage: BigDecimal?
 ) {
     constructor(cartItem: CartItem) : this(
         cartItem.itemId.id.value,
@@ -37,7 +42,9 @@ data class JsonCartItem @JsonCreator constructor(
         cartItem.product.currentPrice.amount.value,
         cartItem.product.currentPrice.currency.symbol,
         cartItem.quantity.value,
-        cartItem.itemPrice().amount.value
+        cartItem.itemPrice().amount.value,
+        cartItem.product.price.amount.value,
+        cartItem.product.promotion.runningPercentage()
     )
 }
 
