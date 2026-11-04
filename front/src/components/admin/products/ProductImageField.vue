@@ -2,6 +2,7 @@
   import { computed, onMounted, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useProductImagesStore, type ImageUpload } from '@/stores/productImages.store';
+  import ConfirmDialog from '@/components/ConfirmDialog.vue';
 
   // The image of the product: given at once (2 MB at most, resized by the back end), replaced or removed
   const props = defineProps<{ productId: string }>();
@@ -12,6 +13,8 @@
   const fileInput = ref<HTMLInputElement | null>(null);
   const uploading = ref(false);
   const feedback = ref<ImageUpload | 'removed' | 'removalError' | null>(null);
+  // Whether the administrator is about to remove the image, once confirmed
+  const removing = ref(false);
 
   const hasImage = computed(() => productImagesStore.hasImage(props.productId));
   const imageUrl = computed(() => productImagesStore.imageUrl(props.productId, 'large'));
@@ -27,9 +30,10 @@
     if (fileInput.value) fileInput.value.value = '';
   }
 
-  async function remove() {
+  async function confirmRemoval() {
     const removed = await productImagesStore.removeImage(props.productId);
     feedback.value = removed ? 'removed' : 'removalError';
+    removing.value = false;
   }
 </script>
 
@@ -59,7 +63,13 @@
         >
           {{ hasImage ? t('productImage.replace') : t('productImage.add') }}
         </v-btn>
-        <v-btn v-if="hasImage" variant="text" color="error" prepend-icon="mdi-delete-outline" @click="remove">
+        <v-btn
+          v-if="hasImage"
+          variant="text"
+          color="error"
+          prepend-icon="mdi-delete-outline"
+          @click="removing = true"
+        >
           {{ t('productImage.remove') }}
         </v-btn>
         <span class="text-caption text-medium-emphasis">{{ t('productImage.hint') }}</span>
@@ -74,6 +84,13 @@
     >
       {{ t(`productImage.errors.${feedback}`) }}
     </v-alert>
+
+    <ConfirmDialog
+      v-model="removing"
+      :title="t('productImage.deleteTitle')"
+      :message="t('productImage.deleteMessage')"
+      @confirm="confirmRemoval"
+    />
   </div>
 </template>
 

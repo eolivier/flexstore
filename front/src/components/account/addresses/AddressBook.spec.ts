@@ -66,12 +66,26 @@ describe('AddressBook.vue', () => {
     expect(wrapper.text()).toContain('No address yet');
   });
 
-  it('removes an address', async () => {
+  it('asks for confirmation before removing an address', async () => {
+    // Arrange
+    respondWith([home, office]);
+    await mountAddressBook();
+    // Act
+    buttonNamed('Remove')[0].click();
+    await flushPromises();
+    // Assert
+    expect(document.body.textContent).toContain('Remove this address?');
+    expect(mockFetch.mock.calls.some(([, init]) => init?.method === 'DELETE')).toBe(false);
+  });
+
+  it('removes an address once confirmed', async () => {
     // Arrange
     respondWith([home, office], [office]);
     const wrapper = await mountAddressBook();
-    // Act
     buttonNamed('Remove')[0].click();
+    await flushPromises();
+    // Act
+    buttonNamed('Confirm')[0].click();
     await flushPromises();
     // Assert
     const [url, init] = mockFetch.mock.calls[mockFetch.mock.calls.length - 1];

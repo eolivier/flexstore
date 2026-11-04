@@ -13,10 +13,17 @@ const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
 async function mountField(productId: string) {
-  const wrapper = mount(ProductImageField, { props: { productId }, global: { plugins: [vuetify, i18n] } });
+  const wrapper = mount(ProductImageField, {
+    props: { productId },
+    global: { plugins: [vuetify, i18n] },
+    attachTo: document.body,
+  });
   await flushPromises();
   return wrapper;
 }
+
+const buttonNamed = (name: string) =>
+  [...document.querySelectorAll('button')].find((button) => button.textContent?.trim() === name);
 
 async function choose(wrapper: Awaited<ReturnType<typeof mountField>>, file: File) {
   const input = wrapper.find('[data-test="image-input"]');
@@ -29,6 +36,7 @@ describe('ProductImageField.vue', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     mockFetch.mockReset();
+    document.body.innerHTML = '';
   });
 
   it.each([
@@ -61,5 +69,33 @@ describe('ProductImageField.vue', () => {
     await choose(wrapper, new File([new Uint8Array(2 * 1024 * 1024 + 1)], 'big.png', { type: 'image/png' }));
     // Assert
     expect(wrapper.text()).toContain('The image is larger than 2 MB.');
+  });
+
+  it('asks for confirmation before removing the image', async () => {
+    // Arrange
+    const wrapper = await mountField('with-image');
+    // Act
+    buttonNamed('Remove the image')!.click();
+    await flushPromises();
+    // Assert
+    expect(document.body.textContent).toContain('Remove the image?');
+    expect(mockFetch).not.toHaveBeenCalled();
+    expect(wrapper.text()).toContain('Remove the image');
+  });
+
+  it('removes the image once confirmed', async () => {
+    // Arrange
+    mockFetch.mockResolvedValue({ ok: true, status: 204 });
+    const wrapper = await mountField('with-image');
+    buttonNamed('Remove the image')!.click();
+    await flushPromises();
+    // Act
+    buttonNamed('Confirm')!.click();
+    await flushPromises();
+    // Assert
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toMatch(/\/api\/admin\/products\/with-image\/image$/);
+    expect(init.method).toBe('DELETE');
+    expect(wrapper.text()).toContain('Add an image');
   });
 });
