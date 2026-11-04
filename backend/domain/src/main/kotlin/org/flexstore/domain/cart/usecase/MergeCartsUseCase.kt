@@ -2,8 +2,6 @@ package org.flexstore.domain.cart.usecase
 
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.user.UserRepository
-import org.flexstore.domain.user.model.AccountRefusedException
-import org.flexstore.domain.user.model.UserNotFoundException
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
@@ -34,15 +32,7 @@ class MergeCartsUseCase(
     // The customer must be an existing user whose account is not suspended, locked or disabled (read
     // from the users, not from the request)
     private fun customerCanActCondition() = PreCondition<MergeCartsRequest> { request ->
-        val customerId = request.customer.userId
-        if (userRepository.notExists(customerId)) {
-            throw UserNotFoundException(ErrorMessage("User ${customerId.value} not found."))
-        }
-        val status = userRepository.statusOf(customerId)
-        if (status.refusesSignIn()) {
-            val message = ErrorMessage("The account ${customerId.value} is $status: it cannot act.")
-            throw AccountRefusedException(status, message)
-        }
+        userRepository.verifyCustomerCanAct(request.customer.userId)
     }
 
     private fun visitorCartIsDeletedCondition() = PostCondition<MergeCartsRequest> { request ->

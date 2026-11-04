@@ -5,8 +5,6 @@ import org.flexstore.domain.legal.LegalPageRepository
 import org.flexstore.domain.order.*
 import org.flexstore.domain.stock.*
 import org.flexstore.domain.user.UserRepository
-import org.flexstore.domain.user.model.AccountRefusedException
-import org.flexstore.domain.user.model.UserNotFoundException
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
@@ -47,15 +45,7 @@ class PlaceOrderUseCase(
     // The customer must be an existing user whose account is not suspended, locked or disabled (read
     // from the users, not from the request)
     private fun customerCanActCondition() = PreCondition<OrderToPlace> { orderToPlace ->
-        val customerId = orderToPlace.placement.customer.userId
-        if (userRepository.notExists(customerId)) {
-            throw UserNotFoundException(ErrorMessage("User ${customerId.value} not found."))
-        }
-        val status = userRepository.statusOf(customerId)
-        if (status.refusesSignIn()) {
-            val message = ErrorMessage("The account ${customerId.value} is $status: it cannot act.")
-            throw AccountRefusedException(status, message)
-        }
+        userRepository.verifyCustomerCanAct(orderToPlace.placement.customer.userId)
     }
 
     private fun cartHasItemsCondition() = PreCondition<OrderToPlace> { orderToPlace ->

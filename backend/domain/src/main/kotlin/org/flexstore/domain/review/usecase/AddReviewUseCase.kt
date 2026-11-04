@@ -42,15 +42,7 @@ class AddReviewUseCase(
     // The customer must be an existing user whose account is not suspended, locked or disabled (read
     // from the users, not from the request)
     private fun customerCanActCondition() = PreCondition<ReviewSubmission> { submission ->
-        val customer = submission.draft.customer
-        if (userRepository.notExists(customer)) {
-            throw UserNotFoundException(ErrorMessage("User ${customer.value} not found."))
-        }
-        val status = userRepository.statusOf(customer)
-        if (status.refusesSignIn()) {
-            val message = ErrorMessage("The account ${customer.value} is $status: it cannot act.")
-            throw AccountRefusedException(status, message)
-        }
+        userRepository.verifyCustomerCanAct(submission.draft.customer)
     }
 
     private fun opinionIsValidCondition() = PreCondition<ReviewSubmission> { submission ->
