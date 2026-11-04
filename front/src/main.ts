@@ -29,6 +29,8 @@ import Wishlist from './components/account/wishlist/Wishlist.vue';
 import ShopSettings from './components/admin/settings/ShopSettings.vue';
 import SalesDashboard from './components/admin/sales/SalesDashboard.vue';
 import SellerSettings from './components/admin/seller/SellerSettings.vue';
+import SellerSetupWizard from './components/admin/seller/setup/SellerSetupWizard.vue';
+import { SELLER_SETUP_PATH, sellerSetupIsPendingFor } from './utils/sellerSetupRedirect';
 import AdminLegalPages from './components/admin/legal/AdminLegalPages.vue';
 import LegalPage from './components/legal/LegalPage.vue';
 import AdminDiscountCodes from './components/admin/discounts/AdminDiscountCodes.vue';
@@ -123,6 +125,11 @@ const routes = [
     meta: { requiresAuth: true, requiresAdmin: true },
   },
   {
+    path: SELLER_SETUP_PATH,
+    component: SellerSetupWizard,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  {
     path: '/admin/legal-pages',
     component: AdminLegalPages,
     meta: { requiresAuth: true, requiresAdmin: true },
@@ -148,15 +155,18 @@ app.use(vuetify);
 app.use(router);
 app.use(i18n);
 
-router.beforeEach((to, _from, next) => {
+router.beforeEach(async (to) => {
   const authStore = useAuthStore();
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    next({ path: '/login', query: { redirect: to.fullPath } });
-  } else if (to.meta.requiresAdmin && !authStore.isAdmin) {
-    next({ path: '/user-profile' });
-  } else {
-    next();
+    return { path: '/login', query: { redirect: to.fullPath } };
   }
+  if (to.meta.requiresAdmin && !authStore.isAdmin) {
+    return { path: '/user-profile' };
+  }
+  if (to.meta.requiresAdmin && (await sellerSetupIsPendingFor(to.path))) {
+    return { path: SELLER_SETUP_PATH };
+  }
+  return true;
 });
 
 // Signed out (e.g. expired token) while on a protected page: back to the login

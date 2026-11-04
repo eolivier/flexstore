@@ -52,16 +52,31 @@ data class OrderRules(val paymentDelay: PaymentDelay, val freeShippingThreshold:
     }
 }
 
-// The settings of the shop, chosen by the administrators
-data class ShopSettings(val orderConfirmationEmail: Activation, val orderRules: OrderRules) {
+// The settings of the shop, chosen by the administrators, except the seller setup: it is turned on by the setup
+// assistant of the seller once finished, and never changed by the administrators
+data class ShopSettings(
+    val orderConfirmationEmail: Activation,
+    val orderRules: OrderRules,
+    val sellerSetup: Activation
+) {
 
-    constructor(orderConfirmationEmail: Activation) : this(orderConfirmationEmail, OrderRules.byDefault())
+    constructor(orderConfirmationEmail: Activation) :
+        this(orderConfirmationEmail, OrderRules.byDefault(), Activation.DISABLED)
+
+    constructor(orderConfirmationEmail: Activation, orderRules: OrderRules) :
+        this(orderConfirmationEmail, orderRules, Activation.DISABLED)
 
     val paymentDelay get() = orderRules.paymentDelay
 
     val freeShippingThreshold get() = orderRules.freeShippingThreshold
 
     fun sendsOrderConfirmationEmail() = orderConfirmationEmail == Activation.ENABLED
+
+    fun isSellerSetUp() = sellerSetup == Activation.ENABLED
+
+    fun isSellerNotSetUp() = !isSellerSetUp()
+
+    fun withSellerSetUp() = copy(sellerSetup = Activation.ENABLED)
 
     fun withOrderConfirmationEmailEnabled() = copy(orderConfirmationEmail = Activation.ENABLED)
 

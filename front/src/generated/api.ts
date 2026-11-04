@@ -1777,6 +1777,46 @@ export const AdministrationApiAxiosParamCreator = function (configuration?: Conf
             };
         },
         /**
+         * 
+         * @summary Finish the setup assistant of the shop - save the seller, then turn the seller setup of the settings on (ADMIN role)
+         * @param {JsonSeller} jsonSeller 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        completeSellerSetup: async (jsonSeller: JsonSeller, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'jsonSeller' is not null or undefined
+            assertParamExists('completeSellerSetup', 'jsonSeller', jsonSeller)
+            const localVarPath = `/api/admin/seller/setup`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonSeller, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * The customer is not told again: they read the correction on their order.
          * @summary Correct the carrier and the tracking number of an order that is shipped or delivered (ADMIN role)
          * @param {string} id 
@@ -2357,6 +2397,19 @@ export const AdministrationApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * 
+         * @summary Finish the setup assistant of the shop - save the seller, then turn the seller setup of the settings on (ADMIN role)
+         * @param {JsonSeller} jsonSeller 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async completeSellerSetup(jsonSeller: JsonSeller, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonSeller>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.completeSellerSetup(jsonSeller, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdministrationApi.completeSellerSetup']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * The customer is not told again: they read the correction on their order.
          * @summary Correct the carrier and the tracking number of an order that is shipped or delivered (ADMIN role)
          * @param {string} id 
@@ -2562,6 +2615,16 @@ export const AdministrationApiFactory = function (configuration?: Configuration,
             return localVarFp.advanceOrderStatus(id, jsonOrderStatusAdvance, options).then((request) => request(axios, basePath));
         },
         /**
+         * 
+         * @summary Finish the setup assistant of the shop - save the seller, then turn the seller setup of the settings on (ADMIN role)
+         * @param {JsonSeller} jsonSeller 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        completeSellerSetup(jsonSeller: JsonSeller, options?: RawAxiosRequestConfig): AxiosPromise<JsonSeller> {
+            return localVarFp.completeSellerSetup(jsonSeller, options).then((request) => request(axios, basePath));
+        },
+        /**
          * The customer is not told again: they read the correction on their order.
          * @summary Correct the carrier and the tracking number of an order that is shipped or delivered (ADMIN role)
          * @param {string} id 
@@ -2721,6 +2784,17 @@ export class AdministrationApi extends BaseAPI {
      */
     public advanceOrderStatus(id: string, jsonOrderStatusAdvance: JsonOrderStatusAdvance, options?: RawAxiosRequestConfig) {
         return AdministrationApiFp(this.configuration).advanceOrderStatus(id, jsonOrderStatusAdvance, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Finish the setup assistant of the shop - save the seller, then turn the seller setup of the settings on (ADMIN role)
+     * @param {JsonSeller} jsonSeller 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public completeSellerSetup(jsonSeller: JsonSeller, options?: RawAxiosRequestConfig) {
+        return AdministrationApiFp(this.configuration).completeSellerSetup(jsonSeller, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

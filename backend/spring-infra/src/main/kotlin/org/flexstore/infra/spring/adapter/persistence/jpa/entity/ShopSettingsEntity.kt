@@ -19,5 +19,8 @@ data class ShopSettingsEntity(
 
     // In euros
     @Column(name = "free_shipping_threshold", nullable = false)
-    val freeShippingThreshold: BigDecimal
-) : TimestampedEntity()
+    val freeShippingThreshold: BigDecimal,
+
+    @Column(name = "seller_setup", nullable = false)
+    val sellerSetup: String
+) :TimestampedEntity()

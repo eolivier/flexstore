@@ -10,7 +10,12 @@ vi.stubGlobal('fetch', mockFetch);
 
 function mountSetting(activation: 'ENABLED' | 'DISABLED') {
   const store = useSettingsStore();
-  store.settings = { orderConfirmationEmail: activation, paymentDelayMinutes: 10, freeShippingThreshold: 50 };
+  store.settings = {
+    orderConfirmationEmail: activation,
+    paymentDelayMinutes: 10,
+    freeShippingThreshold: 50,
+    sellerSetup: 'ENABLED',
+  };
   return mount(OrderConfirmationEmailSetting, { global: { plugins: [vuetify, i18n] } });
 }
 

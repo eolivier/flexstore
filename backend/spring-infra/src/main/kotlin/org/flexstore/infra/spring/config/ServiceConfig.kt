@@ -12,6 +12,8 @@ import org.flexstore.domain.order.*
 import org.flexstore.domain.order.service.*
 import org.flexstore.domain.order.usecase.*
 import org.flexstore.domain.product.*
+import org.flexstore.domain.seller.SellerSetupService
+import org.flexstore.domain.seller.usecase.SellerUseCases
 import org.flexstore.domain.settings.*
 import org.flexstore.domain.settings.usecase.*
 import org.flexstore.domain.twofactor.TwoFactorAuthenticationService
@@ -43,6 +45,12 @@ open class ServiceConfig {
         readAdministeredShopSettingsUseCase: ReadAdministeredShopSettingsUseCase,
         updateShopSettingsUseCase: UpdateShopSettingsUseCase
     ) = ShopSettingsAdministrationService(readAdministeredShopSettingsUseCase, updateShopSettingsUseCase)
+
+    @Bean
+    open fun sellerSetupService(
+        sellerUseCases: SellerUseCases,
+        shopSettingsAdministrationService: ShopSettingsAdministrationService
+    ) = SellerSetupService(sellerUseCases, shopSettingsAdministrationService)
 
     @Bean
     open fun orderCheckoutService(orderPlacementUseCases: OrderPlacementUseCases,

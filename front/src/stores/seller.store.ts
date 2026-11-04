@@ -39,9 +39,14 @@ export const useSellerStore = defineStore('seller', () => {
     }
   }
 
-  async function updateSeller(editedSeller: Seller): Promise<SellerUpdate> {
+  const updateSeller = (editedSeller: Seller) => saveSeller('/api/admin/seller', editedSeller);
+
+  // Finishes the setup assistant: the seller is saved, then the seller setup of the settings is turned on
+  const completeSetup = (givenSeller: Seller) => saveSeller('/api/admin/seller/setup', givenSeller);
+
+  async function saveSeller(path: string, editedSeller: Seller): Promise<SellerUpdate> {
     const response = await authStore
-      .authFetch('/api/admin/seller', {
+      .authFetch(path, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editedSeller),
@@ -53,5 +58,5 @@ export const useSellerStore = defineStore('seller', () => {
     return 'saved';
   }
 
-  return { seller, loadError, fetchSeller, updateSeller };
+  return { seller, loadError, fetchSeller, updateSeller, completeSetup };
 });
