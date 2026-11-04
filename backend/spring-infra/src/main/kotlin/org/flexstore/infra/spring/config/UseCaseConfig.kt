@@ -590,6 +590,10 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         DisableTwoFactorAuthenticationUseCase(userRepository)
 
     @Bean
+    open fun adminDisableTwoFactorAuthenticationUseCase(userRepository: UserRepository) =
+        AdminDisableTwoFactorAuthenticationUseCase(userRepository)
+
+    @Bean
     open fun addProductToWishlistUseCase(
         wishlistRepository: WishlistRepository,
         productRepository: ProductRepository,

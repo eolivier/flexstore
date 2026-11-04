@@ -5775,6 +5775,44 @@ export class StocksApi extends BaseAPI {
 export const UsersApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
+         * Reserved to an administrator, on another account than their own. No current password is asked, unlike the self-service operation (DELETE /api/users/{id}/two-factor-authentication).
+         * @summary Disable the two-factor authentication of another user (administrator only)
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminDisableTwoFactorAuthentication: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('adminDisableTwoFactorAuthentication', 'id', id)
+            const localVarPath = `/api/users/{id}/two-factor-authentication`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Reserved to an administrator, on another account than their own. ACTIVE, SUSPENDED, LOCKED or DISABLED; a suspended, locked or disabled account can neither sign in nor order.
          * @summary Change the status of an account
          * @param {string} id 
@@ -6346,6 +6384,19 @@ export const UsersApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = UsersApiAxiosParamCreator(configuration)
     return {
         /**
+         * Reserved to an administrator, on another account than their own. No current password is asked, unlike the self-service operation (DELETE /api/users/{id}/two-factor-authentication).
+         * @summary Disable the two-factor authentication of another user (administrator only)
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminDisableTwoFactorAuthentication(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonUser>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminDisableTwoFactorAuthentication(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UsersApi.adminDisableTwoFactorAuthentication']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Reserved to an administrator, on another account than their own. ACTIVE, SUSPENDED, LOCKED or DISABLED; a suspended, locked or disabled account can neither sign in nor order.
          * @summary Change the status of an account
          * @param {string} id 
@@ -6543,6 +6594,16 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
     const localVarFp = UsersApiFp(configuration)
     return {
         /**
+         * Reserved to an administrator, on another account than their own. No current password is asked, unlike the self-service operation (DELETE /api/users/{id}/two-factor-authentication).
+         * @summary Disable the two-factor authentication of another user (administrator only)
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminDisableTwoFactorAuthentication(id: string, options?: RawAxiosRequestConfig): AxiosPromise<JsonUser> {
+            return localVarFp.adminDisableTwoFactorAuthentication(id, options).then((request) => request(axios, basePath));
+        },
+        /**
          * Reserved to an administrator, on another account than their own. ACTIVE, SUSPENDED, LOCKED or DISABLED; a suspended, locked or disabled account can neither sign in nor order.
          * @summary Change the status of an account
          * @param {string} id 
@@ -6695,6 +6756,17 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
  * UsersApi - object-oriented interface
  */
 export class UsersApi extends BaseAPI {
+    /**
+     * Reserved to an administrator, on another account than their own. No current password is asked, unlike the self-service operation (DELETE /api/users/{id}/two-factor-authentication).
+     * @summary Disable the two-factor authentication of another user (administrator only)
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminDisableTwoFactorAuthentication(id: string, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).adminDisableTwoFactorAuthentication(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
     /**
      * Reserved to an administrator, on another account than their own. ACTIVE, SUSPENDED, LOCKED or DISABLED; a suspended, locked or disabled account can neither sign in nor order.
      * @summary Change the status of an account

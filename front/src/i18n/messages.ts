@@ -516,6 +516,15 @@ export default {
       status: 'Account status',
       statusHint: 'A suspended, locked or disabled account can neither sign in nor order.',
       ownStatus: 'You cannot change the status of your own account.',
+      twoFactorEnabledText: 'Two-factor authentication is enabled on this account.',
+      twoFactorOwnAccountHint: 'You cannot disable the two-factor authentication of your own account this way.',
+      twoFactorDisable: 'Disable',
+      twoFactorDisableTitle: 'Disable two-factor authentication',
+      twoFactorDisableText:
+        'The user will then sign in with their password only. This does not require their current password.',
+      twoFactorDisableConfirm: 'Disable',
+      twoFactorDisabled: 'Two-factor authentication has been disabled.',
+      twoFactorDisableError: 'Two-factor authentication could not be disabled.',
     },
     seller: {
       title: 'Seller',
@@ -1313,6 +1322,17 @@ export default {
       status: 'Statut du compte',
       statusHint: 'Un compte suspendu, verrouillé ou désactivé ne peut ni se connecter ni commander.',
       ownStatus: 'Vous ne pouvez pas changer le statut de votre propre compte.',
+      twoFactorEnabledText: "L'authentification à deux facteurs est activée sur ce compte.",
+      twoFactorOwnAccountHint:
+        "Vous ne pouvez pas désactiver ainsi l'authentification à deux facteurs de votre propre compte.",
+      twoFactorDisable: 'Désactiver',
+      twoFactorDisableTitle: "Désactiver l'authentification à deux facteurs",
+      twoFactorDisableText:
+        "L'utilisateur se connectera alors avec son mot de passe uniquement. Cela ne nécessite pas son mot de " +
+        'passe actuel.',
+      twoFactorDisableConfirm: 'Désactiver',
+      twoFactorDisabled: "L'authentification à deux facteurs a été désactivée.",
+      twoFactorDisableError: "L'authentification à deux facteurs n'a pas pu être désactivée.",
     },
     seller: {
       title: 'Vendeur',
