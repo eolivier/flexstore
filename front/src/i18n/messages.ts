@@ -87,6 +87,59 @@ export default {
       projectTitle: 'The project',
       projectText:
         'The back end is written in Kotlin with a hexagonal architecture: a pure domain with no framework, and Spring Boot adapters for the REST API and the database. It is meant to be a learning resource and a base that can be reused for real projects.',
+      featuresTitle: 'What you can do',
+      features: {
+        shopping: {
+          title: 'Shopping',
+          subtitle: 'Open to every visitor: no account is needed to browse.',
+          catalog: {
+            title: 'Browse the catalog',
+            text: 'Explore products by category and open a product page with its photos and description.',
+          },
+          cart: {
+            title: 'Fill your cart',
+            text: 'Add products, change quantities and keep your cart while you keep shopping.',
+          },
+          checkout: {
+            title: 'Check out',
+            text: 'Choose a delivery address, apply a discount code and place your order.',
+          },
+          reviews: {
+            title: 'Read and write reviews',
+            text: 'See what other customers think and share your own opinion.',
+          },
+        },
+        account: {
+          title: 'My account',
+          subtitle: 'Available once signed in.',
+          profile: { title: 'Profile', text: 'Update your name, your email and your password.' },
+          orders: { title: 'Orders', text: 'Follow the status of your orders and review their details.' },
+          addresses: { title: 'Address book', text: 'Save your delivery addresses to check out faster.' },
+          wishlist: { title: 'Wishlist', text: 'Keep the products you love for later.' },
+          security: {
+            title: 'Security',
+            text: 'Verify your email and protect your account with two-factor authentication.',
+          },
+        },
+        admin: {
+          title: 'Administration',
+          subtitle: 'Reserved to administrators, from the admin menu.',
+          sales: { title: 'Sales dashboard', text: 'Follow the revenue and the orders at a glance.' },
+          users: {
+            title: 'Users',
+            text: 'Create and edit accounts, and disable the two-factor authentication of a user.',
+          },
+          products: {
+            title: 'Products',
+            text: 'Create and edit products, with their translations and their images.',
+          },
+          orders: { title: 'Orders', text: 'Track every customer order and update its status.' },
+          discountCodes: { title: 'Discount codes', text: 'Create promotional codes for your customers.' },
+          seller: { title: 'Seller information', text: 'Set the identity of the shop shown on invoices.' },
+          legalPages: { title: 'Legal pages', text: 'Edit the legal notice and the terms of sale.' },
+          settings: { title: 'Settings', text: 'Adjust the settings of the shop.' },
+        },
+      },
       stackTitle: 'Built with',
       stack: {
         backend: 'Kotlin and Spring Boot',
@@ -887,6 +940,71 @@ export default {
       projectTitle: 'Le projet',
       projectText:
         "Le backend est écrit en Kotlin avec une architecture hexagonale : un domaine pur, sans framework, et des adaptateurs Spring Boot pour l'API REST et la base de données. Il se veut à la fois un support d'apprentissage et une base réutilisable pour de vrais projets.",
+      featuresTitle: 'Ce que vous pouvez faire',
+      features: {
+        shopping: {
+          title: 'Achats',
+          subtitle: 'Ouvert à tous les visiteurs : aucun compte n’est nécessaire pour parcourir la boutique.',
+          catalog: {
+            title: 'Parcourir le catalogue',
+            text: 'Explorez les produits par catégorie et ouvrez une fiche produit avec ses photos et sa description.',
+          },
+          cart: {
+            title: 'Remplir son panier',
+            text: 'Ajoutez des produits, modifiez les quantités et gardez votre panier pendant vos achats.',
+          },
+          checkout: {
+            title: 'Passer commande',
+            text: 'Choisissez une adresse de livraison, appliquez un code de réduction et validez votre commande.',
+          },
+          reviews: {
+            title: 'Lire et écrire des avis',
+            text: 'Découvrez l’avis des autres clients et partagez le vôtre.',
+          },
+        },
+        account: {
+          title: 'Mon compte',
+          subtitle: 'Disponible une fois connecté.',
+          profile: { title: 'Profil', text: 'Modifiez votre nom, votre email et votre mot de passe.' },
+          orders: { title: 'Commandes', text: 'Suivez le statut de vos commandes et consultez leur détail.' },
+          addresses: {
+            title: 'Carnet d’adresses',
+            text: 'Enregistrez vos adresses de livraison pour commander plus vite.',
+          },
+          wishlist: { title: 'Liste d’envies', text: 'Gardez de côté les produits que vous aimez.' },
+          security: {
+            title: 'Sécurité',
+            text: 'Vérifiez votre email et protégez votre compte avec l’authentification à deux facteurs.',
+          },
+        },
+        admin: {
+          title: 'Administration',
+          subtitle: 'Réservée aux administrateurs, depuis le menu d’administration.',
+          sales: {
+            title: 'Tableau de bord des ventes',
+            text: 'Suivez le chiffre d’affaires et les commandes en un coup d’œil.',
+          },
+          users: {
+            title: 'Utilisateurs',
+            text: 'Créez et modifiez les comptes, et désactivez l’authentification à deux facteurs d’un utilisateur.',
+          },
+          products: {
+            title: 'Produits',
+            text: 'Créez et modifiez les produits, avec leurs traductions et leurs images.',
+          },
+          orders: {
+            title: 'Commandes',
+            text: 'Suivez toutes les commandes des clients et mettez à jour leur statut.',
+          },
+          discountCodes: { title: 'Codes de réduction', text: 'Créez des codes promotionnels pour vos clients.' },
+          seller: {
+            title: 'Informations vendeur',
+            text: 'Renseignez l’identité de la boutique affichée sur les factures.',
+          },
+          legalPages: { title: 'Pages légales', text: 'Modifiez les mentions légales et les conditions de vente.' },
+          settings: { title: 'Paramètres', text: 'Ajustez les paramètres de la boutique.' },
+        },
+      },
       stackTitle: 'Technologies',
       stack: {
         backend: 'Kotlin et Spring Boot',
