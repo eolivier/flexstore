@@ -25,6 +25,10 @@ class ShopSettingsAdministrationService(
     fun changeFreeShippingThreshold(editor: UserId, freeShippingThreshold: FreeShippingThreshold) =
         update(editor, getSettings(editor).withFreeShippingThreshold(freeShippingThreshold))
 
+    // The seller setup is turned on by the setup assistant only, once finished: it is not a choice of the
+    // administrators
+    fun completeSellerSetup(editor: UserId) = update(editor, getSettings(editor).withSellerSetUp())
+
     private fun update(editor: UserId, settings: ShopSettings): ShopSettings {
         updateShopSettingsUseCase.unfold(ShopSettingsUpdate(editor, settings))
         return getSettings(editor)

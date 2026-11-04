@@ -7,16 +7,19 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 
 // orderConfirmationEmail: ENABLED or DISABLED; paymentDelayMinutes: the time to pay an order once placed;
-// freeShippingThreshold: the price of the items (in euros) from which the standard shipping is free
+// freeShippingThreshold: the price of the items (in euros) from which the standard shipping is free;
+// sellerSetup: ENABLED once the setup assistant of the seller is finished (read only)
 data class JsonShopSettings(
     @JsonProperty("orderConfirmationEmail") val orderConfirmationEmail: String,
     @JsonProperty("paymentDelayMinutes") val paymentDelayMinutes: Int,
-    @JsonProperty("freeShippingThreshold") val freeShippingThreshold: BigDecimal
+    @JsonProperty("freeShippingThreshold") val freeShippingThreshold: BigDecimal,
+    @JsonProperty("sellerSetup") val sellerSetup: String
 ) {
     constructor(settings: ShopSettings) : this(
         settings.orderConfirmationEmail.name,
         settings.paymentDelay.minutes,
-        settings.freeShippingThreshold.price.amount.value
+        settings.freeShippingThreshold.price.amount.value,
+        settings.sellerSetup.name
     )
 }
 

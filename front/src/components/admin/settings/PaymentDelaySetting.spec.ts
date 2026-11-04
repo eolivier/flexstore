@@ -13,6 +13,7 @@ function mountSetting() {
     orderConfirmationEmail: 'ENABLED',
     paymentDelayMinutes: 10,
     freeShippingThreshold: 50,
+    sellerSetup: 'ENABLED',
   };
   return mount(PaymentDelaySetting, { global: { plugins: [vuetify, i18n] } });
 }

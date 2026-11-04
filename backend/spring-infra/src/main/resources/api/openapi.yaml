@@ -1191,6 +1191,31 @@ paths:
           description: A name or an address missing, a SIRET or a VAT number malformed
         "403":
           description: Not an administrator
+  /api/admin/seller/setup:
+    put:
+      tags:
+      - Administration
+      summary: Finish the setup assistant of the shop - save the seller, then turn the seller setup of the settings on (ADMIN role)
+      operationId: completeSellerSetup
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonSeller"
+      responses:
+        "200":
+          description: The seller, now current; the seller setup of the shop settings is on
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonSeller"
+        "400":
+          description: A name or an address missing, a SIRET or a VAT number malformed; the setup stays to be done
+        "403":
+          description: Not an administrator
   /api/legal-pages/{kind}:
     get:
       tags:

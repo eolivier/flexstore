@@ -3,6 +3,7 @@
   import { onMounted } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useSettingsStore } from '@/stores/settings.store';
+  import SellerSetupSetting from './SellerSetupSetting.vue';
   import OrderConfirmationEmailSetting from './OrderConfirmationEmailSetting.vue';
   import PaymentDelaySetting from './PaymentDelaySetting.vue';
   import FreeShippingThresholdSetting from './FreeShippingThresholdSetting.vue';
@@ -26,6 +27,8 @@
     <v-skeleton-loader v-else-if="!settingsStore.settings" type="list-item-avatar-two-line" class="rounded-xl" />
 
     <v-card v-else class="pa-6">
+      <SellerSetupSetting />
+      <v-divider class="my-6" />
       <OrderConfirmationEmailSetting />
       <v-divider class="my-6" />
       <PaymentDelaySetting />

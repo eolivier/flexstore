@@ -5,6 +5,7 @@ All URIs are relative to *http://localhost:8080*
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
 |[**advanceOrderStatus**](#advanceorderstatus) | **POST** /api/admin/orders/{id}/status/advance | Move an order to the next status of its life cycle, PROCESSING then SHIPPED then DELIVERED (ADMIN role)|
+|[**completeSellerSetup**](#completesellersetup) | **PUT** /api/admin/seller/setup | Finish the setup assistant of the shop - save the seller, then turn the seller setup of the settings on (ADMIN role)|
 |[**correctOrderTracking**](#correctordertracking) | **PUT** /api/admin/orders/{id}/tracking | Correct the carrier and the tracking number of an order that is shipped or delivered (ADMIN role)|
 |[**createDiscountCode**](#creatediscountcode) | **POST** /api/admin/discount-codes | Give a discount code (ADMIN role)|
 |[**deleteDiscountCode**](#deletediscountcode) | **DELETE** /api/admin/discount-codes/{code} | Delete a discount code; the orders that used it keep their discount (ADMIN role)|
@@ -76,6 +77,59 @@ const { status, data } = await apiInstance.advanceOrderStatus(
 |**403** | The signed-in user is not an administrator |  -  |
 |**404** | No order with this id |  -  |
 |**409** | The order no longer has the given status, or it is delivered (no next status) |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **completeSellerSetup**
+> JsonSeller completeSellerSetup(jsonSeller)
+
+
+### Example
+
+```typescript
+import {
+    AdministrationApi,
+    Configuration,
+    JsonSeller
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdministrationApi(configuration);
+
+let jsonSeller: JsonSeller; //
+
+const { status, data } = await apiInstance.completeSellerSetup(
+    jsonSeller
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **jsonSeller** | **JsonSeller**|  | |
+
+
+### Return type
+
+**JsonSeller**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The seller, now current; the seller setup of the shop settings is on |  -  |
+|**400** | A name or an address missing, a SIRET or a VAT number malformed; the setup stays to be done |  -  |
+|**403** | Not an administrator |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

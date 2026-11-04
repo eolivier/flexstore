@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.adapter.rest
 
+import org.flexstore.domain.seller.SellerSetupService
 import org.flexstore.domain.seller.usecase.SellerUseCases
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -15,7 +16,18 @@ import org.springframework.security.oauth2.jwt.Jwt
 @Tag(name = "Administration")
 @RestController
 @RequestMapping("/api/admin/seller")
-class SellerController(private val sellerUseCases: SellerUseCases) {
+class SellerController(
+    private val sellerUseCases: SellerUseCases,
+    private val sellerSetupService: SellerSetupService
+) {
+
+    @Operation(summary = "Finish the setup assistant: save the seller, then turn the seller setup of the settings on")
+    @PutMapping("/setup")
+    fun completeSetup(@AuthenticationPrincipal editor: Jwt, @RequestBody seller: JsonSeller): JsonSeller {
+        val completedSeller = sellerSetupService.complete(UserId.of(editor.subject), seller.toSellerDetail())
+        return JsonSeller(completedSeller)
+    }
+
 
     @Operation(summary = "Retrieve the seller written on the next invoices")
     @GetMapping

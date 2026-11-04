@@ -53,6 +53,10 @@ export default {
       save: 'Save',
       saved: 'Saved.',
       loadError: 'The settings could not be loaded.',
+      sellerSetup: 'Seller setup',
+      sellerSetupText:
+        'Turned on by the setup assistant once the seller of the invoices is given. It cannot be changed here.',
+      sellerSetupOpen: 'Open the setup assistant',
     },
     sku: {
       label: 'SKU',
@@ -614,6 +618,23 @@ export default {
       loadError: 'The seller could not be loaded.',
       issuedInvoicesNote: 'The invoices already issued keep the seller they were issued with.',
     },
+    sellerSetup: {
+      title: 'Welcome to your shop',
+      subtitle: 'Before opening the shop, tell us who sells: this is what the invoices will show.',
+      steps: {
+        identity: 'Company',
+        registration: 'Registration',
+        contact: 'Contact',
+        summary: 'Summary',
+      },
+      identityText: 'Who the seller is: its name, its address and how it is incorporated.',
+      registrationText: 'How the seller is registered, as written on the invoices.',
+      contactText: 'How the customers reach the seller.',
+      summaryText: 'Check what the invoices will show, then finish the setup.',
+      previous: 'Previous',
+      next: 'Next',
+      finish: 'Finish the setup',
+    },
     stockAlerts: {
       title: 'Low stocks',
       none: 'No product runs low.',
@@ -906,6 +927,10 @@ export default {
       save: 'Enregistrer',
       saved: 'Enregistré.',
       loadError: "Les paramètres n'ont pas pu être chargés.",
+      sellerSetup: 'Configuration du vendeur',
+      sellerSetupText:
+        "Activé par l'assistant de configuration une fois le vendeur des factures renseigné. Il ne peut pas être modifié ici.",
+      sellerSetupOpen: "Ouvrir l'assistant de configuration",
     },
     sku: {
       label: 'SKU (référence)',
@@ -1486,6 +1511,23 @@ export default {
       saveError: 'Le vendeur n’a pas pu être enregistré.',
       loadError: 'Le vendeur n’a pas pu être chargé.',
       issuedInvoicesNote: 'Les factures déjà émises gardent le vendeur avec lequel elles ont été émises.',
+    },
+    sellerSetup: {
+      title: 'Bienvenue dans votre boutique',
+      subtitle: 'Avant d’ouvrir la boutique, indiquez qui vend : c’est ce que les factures afficheront.',
+      steps: {
+        identity: 'Société',
+        registration: 'Immatriculation',
+        contact: 'Contact',
+        summary: 'Récapitulatif',
+      },
+      identityText: 'Qui est le vendeur : sa raison sociale, son adresse et sa forme juridique.',
+      registrationText: 'Comment le vendeur est immatriculé, tel qu’écrit sur les factures.',
+      contactText: 'Comment les clients joignent le vendeur.',
+      summaryText: 'Vérifiez ce que les factures afficheront, puis terminez la configuration.',
+      previous: 'Précédent',
+      next: 'Suivant',
+      finish: 'Terminer la configuration',
     },
     stockAlerts: {
       title: 'Stocks bas',

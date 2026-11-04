@@ -25,7 +25,8 @@ class PostgresShopSettingsRepositoryAdapter(private val jpaRepo: JpaShopSettings
         val settingsEntity = ShopSettingsEntity(
             orderConfirmationEmail = settings.orderConfirmationEmail.name,
             paymentDelayMinutes = settings.paymentDelay.minutes,
-            freeShippingThreshold = settings.freeShippingThreshold.price.amount.value
+            freeShippingThreshold = settings.freeShippingThreshold.price.amount.value,
+            sellerSetup = settings.sellerSetup.name
         )
         return jpaRepo.save(settingsEntity).toDomain()
     }
@@ -33,6 +34,7 @@ class PostgresShopSettingsRepositoryAdapter(private val jpaRepo: JpaShopSettings
     private fun ShopSettingsEntity.toDomain(): ShopSettings {
         val threshold = FreeShippingThreshold(Price(Amount(freeShippingThreshold), Currency.EUR))
         val orderRules = OrderRules(PaymentDelay(paymentDelayMinutes), threshold)
-        return ShopSettings(Activation.valueOf(orderConfirmationEmail), orderRules)
+        val sellerSetupActivation = Activation.valueOf(sellerSetup)
+        return ShopSettings(Activation.valueOf(orderConfirmationEmail), orderRules, sellerSetupActivation)
     }
 }

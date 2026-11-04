@@ -8,6 +8,8 @@ export interface ShopSettings {
   paymentDelayMinutes: number;
   // The price of the items, in euros, from which the standard shipping is free (0: always free)
   freeShippingThreshold: number;
+  // ENABLED once the setup assistant of the seller is finished; never changed by the administrators
+  sellerSetup: 'ENABLED' | 'DISABLED';
 }
 
 // From 1 minute to 1 day
