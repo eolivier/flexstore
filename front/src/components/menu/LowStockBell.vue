@@ -28,10 +28,10 @@
 </script>
 
 <template>
-  <v-menu location="bottom end">
+  <v-menu v-if="count > 0" location="bottom end">
     <template #activator="{ props }">
       <v-btn v-bind="props" icon variant="text" :aria-label="t('stockAlerts.title')">
-        <v-badge :content="count" :model-value="count > 0" color="error">
+        <v-badge :content="count" color="error">
           <v-icon icon="mdi-bell-outline" />
         </v-badge>
       </v-btn>
@@ -46,7 +46,6 @@
         :title="nameOf(lowStock.productId)"
         :subtitle="t('stockAlerts.unitsLeft', { quantity: lowStock.quantity, threshold: lowStock.threshold })"
       />
-      <v-list-item v-if="count === 0" :title="t('stockAlerts.none')" />
     </v-list>
   </v-menu>
 </template>

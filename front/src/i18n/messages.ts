@@ -638,7 +638,6 @@ export default {
     },
     stockAlerts: {
       title: 'Low stocks',
-      none: 'No product runs low.',
       unitsLeft: '{quantity} left (alert at {threshold})',
       threshold: 'Low stock alert',
       thresholdHint: 'You are warned when the stock is at or under this number of units',
@@ -1549,7 +1548,6 @@ export default {
     },
     stockAlerts: {
       title: 'Stocks bas',
-      none: 'Aucun produit en stock bas.',
       unitsLeft: '{quantity} restant(s) (alerte à {threshold})',
       threshold: 'Alerte de stock bas',
       thresholdHint: 'Vous êtes prévenu quand le stock atteint ce nombre d’unités ou moins',
