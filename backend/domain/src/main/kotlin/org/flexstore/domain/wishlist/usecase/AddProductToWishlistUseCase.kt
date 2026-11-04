@@ -2,9 +2,9 @@ package org.flexstore.domain.wishlist.usecase
 
 import org.flexstore.domain.product.ProductNotFoundException
 import org.flexstore.domain.product.ProductRepository
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.UserRepository
 import org.flexstore.domain.wishlist.*
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // A customer saves a product to their wishlist, to buy it back later: a product already saved stays as it is
