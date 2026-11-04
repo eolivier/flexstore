@@ -1,6 +1,6 @@
 ---
 name: pull-request-convention
-description: How a pull request is made and kept - a branch from main targeting main (a dependent pull request included), every pull request rebased on main so that its diff only shows its own changes, pushed as soon as the unit tests are green, its title and description (written in English), independent pull requests and migration numbers, switching branches cleanly. Use before creating a branch, committing, pushing, opening or updating a pull request, and after each merge on main.
+description: How a pull request is made and kept - a branch from main targeting main (a dependent pull request included), every pull request rebased on main so that its diff only shows its own changes, pushed as soon as the unit tests are green, opened ready for review (never as a draft), its title and description (written in English), independent pull requests and migration numbers, switching branches cleanly. Use before creating a branch, committing, pushing, opening or updating a pull request, and after each merge on main.
 ---
 
 # Pull request convention
@@ -15,6 +15,7 @@ How to apply:
 - **A pull request that depends on another one** (e.g. a feature that needs a refactoring first): the dependency is its own pull request; the dependent branch is built on it, but the dependent pull request is opened with `main` as its base. Its description says which pull request to merge first. Once the dependency is merged, the dependent pull request is rebased on `main` (section 2).
 - **Before pushing to an existing branch**, check that its pull request is still open (`gh pr view <number> --json state`): commits pushed to a merged branch never reach `main`; a follow-up is a new branch from `main`.
 - **The title and the description** say what the pull request is (feature, refactoring, skill update, fix) and, for a refactoring, that the behaviour does not change; the choices made without the user are under a "Choices to validate" heading (see the `prompt-convention` skill).
+- **Opened ready for review**: a pull request is opened as ready for review, never as a draft (no `--draft` flag with `gh pr create`), so that the reviewer can start right away. Section 3 says when to open it; its test plan tells what is still running.
 - **Written in English**: the title, the description (summary, choices to validate, test plan) and its later updates are written in English, whatever the language of the request or of the conversation; only the texts quoted from the product (labels, messages, invoice mentions) keep their own language.
 
 ## 2. A pull request is rebased on `main`: its diff only shows its own changes
