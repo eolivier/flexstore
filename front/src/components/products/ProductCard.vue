@@ -8,6 +8,7 @@
   import ProductVisual from './ProductVisual.vue';
   import ProductRating from '@/components/reviews/ProductRating.vue';
   import type { Rating } from '@/stores/reviews.store';
+  import WishlistToggleButton from './WishlistToggleButton.vue';
 
   // stock: the units of the product, null while unknown
   // rating: what the customers think of the product, null when nobody reviewed it
@@ -62,14 +63,22 @@
         </v-btn>
       </div>
     </v-card-text>
+
+    <WishlistToggleButton :product="product" class="wishlist-overlay" />
   </v-card>
 </template>
 
 <style scoped>
   .product-card {
+    position: relative;
     transition:
       transform 0.15s ease,
       box-shadow 0.15s ease;
+  }
+  .wishlist-overlay {
+    position: absolute;
+    top: 10px;
+    right: 10px;
   }
   .product-card:hover {
     transform: translateY(-2px);

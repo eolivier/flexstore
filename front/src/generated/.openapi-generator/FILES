@@ -78,5 +78,6 @@ docs/ProductsApi.md
 docs/ReviewsApi.md
 docs/StocksApi.md
 docs/UsersApi.md
+docs/WishlistApi.md
 git_push.sh
 index.ts

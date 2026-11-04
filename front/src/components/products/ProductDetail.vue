@@ -18,6 +18,9 @@
   import { useReviewsStore } from '@/stores/reviews.store';
   import ProductRating from '@/components/reviews/ProductRating.vue';
   import ProductReviews from '@/components/reviews/ProductReviews.vue';
+  import WishlistToggleButton from './WishlistToggleButton.vue';
+  import { useWishlistStore } from '@/stores/wishlist.store';
+  import { useAuthStore } from '@/stores/auth.store';
 
   const props = defineProps<{ id: string }>();
 
@@ -26,8 +29,10 @@
   const cartStore = useCartStore();
   const stocksStore = useStocksStore();
   const reviewsStore = useReviewsStore();
+  const authStore = useAuthStore();
   stocksStore.fetchStocks();
   useProductImagesStore().fetchProductsWithImage();
+  if (authStore.isAuthenticated) useWishlistStore().fetchWishlist();
   const { addingProductId, feedback, addToCart } = useAddToCart();
 
   const product = ref<Product | null>(null);
@@ -138,7 +143,10 @@
           >
             {{ t(category.label) }}
           </router-link>
-          <h1 class="text-h4 font-weight-bold mb-3">{{ product.name }}</h1>
+          <div class="d-flex align-center ga-3 mb-3">
+            <h1 class="text-h4 font-weight-bold">{{ product.name }}</h1>
+            <WishlistToggleButton :product="product" />
+          </div>
           <ProductRating v-if="rating" :rating="rating" class="mb-3" />
           <div class="d-flex align-center flex-wrap ga-3 mb-5">
             <span class="text-h4 font-weight-bold text-primary">{{ price }}</span>
