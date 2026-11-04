@@ -390,6 +390,7 @@ export default {
     },
     orders: {
       title: 'Orders',
+      detail: 'Order details',
       number: 'Order {number}',
       placedOn: 'Placed on {date}',
       thanks: 'Thank you for your order!',
@@ -1148,6 +1149,7 @@ export default {
     },
     orders: {
       title: 'Commandes',
+      detail: 'Détail de la commande',
       number: 'Commande {number}',
       placedOn: 'Passée le {date}',
       thanks: 'Merci pour votre commande !',

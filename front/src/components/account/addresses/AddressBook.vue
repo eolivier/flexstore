@@ -7,6 +7,7 @@
   import AddressCard from './AddressCard.vue';
   import AddressEditDialog from './AddressEditDialog.vue';
   import ConfirmDialog from '@/components/ConfirmDialog.vue';
+  import AccountBreadcrumbs from '@/components/account/AccountBreadcrumbs.vue';
 
   // The addresses of the signed-in user: they see, edit and remove them. The orders keep their own addresses
   const addressBookStore = useAddressBookStore();
@@ -55,6 +56,7 @@
 
 <template>
   <v-container class="py-10">
+    <AccountBreadcrumbs />
     <h1 class="text-h4 font-weight-bold">{{ t('addressBook.title') }}</h1>
     <p class="text-body-2 text-medium-emphasis mt-1 mb-6">{{ t('addressBook.subtitle') }}</p>
 

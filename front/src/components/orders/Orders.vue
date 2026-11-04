@@ -4,6 +4,7 @@
   import { useOrdersStore } from '@/stores/orders.store';
   import ListPager from '@/components/layout/ListPager.vue';
   import OrderSummaryCard from './OrderSummaryCard.vue';
+  import AccountBreadcrumbs from '@/components/account/AccountBreadcrumbs.vue';
 
   const { t } = useI18n();
   const ordersStore = useOrdersStore();
@@ -15,6 +16,7 @@
 
 <template>
   <v-container class="page py-10">
+    <AccountBreadcrumbs />
     <h1 class="text-h4 font-weight-bold mb-6">{{ t('orders.title') }}</h1>
 
     <v-alert v-if="ordersStore.loadError" type="error" variant="tonal" class="mb-6">

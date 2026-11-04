@@ -1,11 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
+import { createMemoryHistory, createRouter } from 'vue-router';
 import AddressBook from './AddressBook.vue';
 import { vuetify, i18n } from '@/test/setup';
 
 const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
+
+const router = createRouter({
+  history: createMemoryHistory(),
+  routes: [{ path: '/:any(.*)', component: { template: '<div />' } }],
+});
 
 const home = {
   recipientType: 'PRIVATE_INDIVIDUAL',
@@ -30,7 +36,7 @@ function respondWith(addresses: object[], afterEdition: object[] = addresses, ed
 
 async function mountAddressBook() {
   const wrapper = mount(AddressBook, {
-    global: { plugins: [vuetify, i18n] },
+    global: { plugins: [vuetify, i18n, router] },
     attachTo: document.body,
   });
   await flushPromises();

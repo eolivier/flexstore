@@ -4,6 +4,7 @@
   import { useOrdersStore, type OrderLookup } from '@/stores/orders.store';
   import { formatPrice } from '@/utils/price';
   import { orderItemsCount, orderNumber, placedOn } from '@/utils/order';
+  import AccountBreadcrumbs from '@/components/account/AccountBreadcrumbs.vue';
 
   // The page the customer comes back to after paying:
   // the payment provider may confirm the payment a little later
@@ -37,6 +38,7 @@
 
 <template>
   <v-container class="page py-12">
+    <AccountBreadcrumbs />
     <v-skeleton-loader v-if="!orderLookup" type="article" class="rounded-xl" />
 
     <v-card v-else-if="order" class="pa-8 pa-sm-10 text-center">

@@ -9,6 +9,7 @@
   import PayOrderButton from './PayOrderButton.vue';
   import BillingDocumentButton from './BillingDocumentButton.vue';
   import PaymentCountdown from './PaymentCountdown.vue';
+  import AccountBreadcrumbs from '@/components/account/AccountBreadcrumbs.vue';
 
   const props = defineProps<{ id: string }>();
 
@@ -29,6 +30,7 @@
 
 <template>
   <v-container class="page py-10">
+    <AccountBreadcrumbs />
     <v-btn to="/orders" variant="text" prepend-icon="mdi-arrow-left" class="mb-4 px-2">
       {{ t('orders.backToOrders') }}
     </v-btn>

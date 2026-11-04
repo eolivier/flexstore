@@ -28,10 +28,7 @@ const order = {
 
 const router = createRouter({
   history: createMemoryHistory(),
-  routes: [
-    { path: '/orders/:id', component: { template: '<div>Detail</div>' } },
-    { path: '/products/', component: { template: '<div>Shop</div>' } },
-  ],
+  routes: [{ path: '/:any(.*)', component: { template: '<div />' } }],
 });
 
 async function mountConfirmation() {
