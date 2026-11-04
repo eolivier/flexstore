@@ -3,6 +3,7 @@ package org.flexstore.domain.wishlist
 import org.flexstore.domain.product.ProductId
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
 import java.time.Instant
 

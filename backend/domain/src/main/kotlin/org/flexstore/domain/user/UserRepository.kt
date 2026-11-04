@@ -1,9 +1,9 @@
 package org.flexstore.domain.user
 
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.sharedkernel.Page
 import org.flexstore.domain.sharedkernel.PageRequest
 import org.flexstore.domain.user.model.*
+import org.ucop.domain.ErrorMessage
 
 interface UserRepository {
     fun exists(userId: UserId): Boolean
