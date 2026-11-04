@@ -22,7 +22,9 @@ data class JsonOrder(
     @JsonProperty("deliveryAddress") val deliveryAddress: JsonPostalAddress,
     @JsonProperty("billingAddress") val billingAddress: JsonPostalAddress,
     // Only while the order awaits its payment
-    @JsonProperty("paymentDeadline") val paymentDeadline: String?
+    @JsonProperty("paymentDeadline") val paymentDeadline: String?,
+    // Only once the order is shipped with the carrier and the tracking number of its parcel
+    @JsonProperty("tracking") val tracking: JsonOrderTracking?
 ) {
     constructor(order: Order) : this(
         order.orderId.value,
@@ -38,7 +40,8 @@ data class JsonOrder(
         order.totalPrice().currency.symbol,
         JsonPostalAddress.of(order.addresses.delivery),
         JsonPostalAddress.of(order.addresses.billing),
-        null
+        null,
+        JsonOrderTracking.of(order.tracking)
     )
 
     // The order seen by its customer, who is told by when to pay it
@@ -56,8 +59,28 @@ data class JsonOrder(
         order.totalPrice().currency.symbol,
         JsonPostalAddress.of(order.addresses.delivery),
         JsonPostalAddress.of(order.addresses.billing),
-        paymentDeadlineOf(order, paymentDelay)
+        paymentDeadlineOf(order, paymentDelay),
+        JsonOrderTracking.of(order.tracking)
     )
+}
+
+// Where the parcel of a shipped order is followed: its carrier (see Carrier), its tracking number, and the
+// tracking page of the carrier when it has one
+data class JsonOrderTracking(
+    @JsonProperty("carrier") val carrier: String,
+    @JsonProperty("trackingNumber") val trackingNumber: String,
+    @JsonProperty("trackingUrl") val trackingUrl: String?
+) {
+    companion object {
+        fun of(tracking: OrderTracking): JsonOrderTracking? = when (tracking) {
+            is OrderTracking.Given -> JsonOrderTracking(
+                tracking.carrier.name,
+                tracking.trackingNumber.value,
+                if (tracking.hasTrackingPage()) tracking.trackingPage().value else null
+            )
+            OrderTracking.None -> null
+        }
+    }
 }
 
 private fun paymentDeadlineOf(order: Order, paymentDelay: PaymentDelay): String? =

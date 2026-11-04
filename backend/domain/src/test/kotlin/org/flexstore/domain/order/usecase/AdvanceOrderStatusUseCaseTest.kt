@@ -113,4 +113,56 @@ class AdvanceOrderStatusUseCaseTest : WithAssertions {
         // Assert
         assertThat(thrown).isInstanceOf(OrderAdministrationForbiddenException::class.java)
     }
+
+    @Test
+    fun `an order moved to shipped should keep the carrier and the tracking number given`() {
+        // Arrange
+        storeOrder(OrderStatus.PROCESSING)
+        val tracking = OrderTracking.Given(Carrier.COLISSIMO, TrackingNumber("6A12345678901"))
+        // Act
+        useCase.unfold(OrderStatusAdvance(administrator, orderId, OrderStatus.PROCESSING, tracking))
+        // Assert
+        val shippedOrder = orderRepository.findById(orderId)!!
+        assertThat(shippedOrder.status).isEqualTo(OrderStatus.SHIPPED)
+        assertThat(shippedOrder.tracking).isEqualTo(tracking)
+    }
+
+    @Test
+    fun `an order moved to shipped without tracking should have none`() {
+        // Arrange
+        storeOrder(OrderStatus.PROCESSING)
+        // Act
+        useCase.unfold(OrderStatusAdvance(administrator, orderId, OrderStatus.PROCESSING))
+        // Assert
+        assertThat(orderRepository.findById(orderId)!!.tracking).isEqualTo(OrderTracking.None)
+    }
+
+    @ParameterizedTest(name = "an order {0} should not be given a tracking")
+    @CsvSource("PAID", "SHIPPED")
+    fun `a tracking should only be given when the order is shipped`(status: OrderStatus) {
+        // Arrange
+        storeOrder(status)
+        val tracking = OrderTracking.Given(Carrier.UPS, TrackingNumber("1Z999"))
+        // Act
+        val thrown = catchThrowable {
+            useCase.unfold(OrderStatusAdvance(administrator, orderId, status, tracking))
+        }
+        // Assert
+        assertThat(thrown).isInstanceOf(InvalidOrderTrackingException::class.java)
+        assertThat(storedStatus()).isEqualTo(status)
+    }
+
+    @Test
+    fun `an invalid tracking number should stop the order from being shipped`() {
+        // Arrange
+        storeOrder(OrderStatus.PROCESSING)
+        val tracking = OrderTracking.Given(Carrier.UPS, TrackingNumber("1Z 999"))
+        // Act
+        val thrown = catchThrowable {
+            useCase.unfold(OrderStatusAdvance(administrator, orderId, OrderStatus.PROCESSING, tracking))
+        }
+        // Assert
+        assertThat(thrown).isInstanceOf(InvalidOrderTrackingException::class.java)
+        assertThat(storedStatus()).isEqualTo(OrderStatus.PROCESSING)
+    }
 }

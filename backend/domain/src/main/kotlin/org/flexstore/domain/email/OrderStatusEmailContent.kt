@@ -24,11 +24,22 @@ class OrderStatusEmailContent(email: OrderStatusEmail, shopUrl: ShopUrl) : Email
 
     override val subject = EmailSubject("Flexstore - Votre commande ${order.number()} $news")
 
+    // Only a shipped order that was given a carrier and a tracking number, with the tracking page of the carrier
+    // when it has one
+    private fun StringBuilder.appendTrackingOf(tracking: OrderTracking) {
+        if (order.status != OrderStatus.SHIPPED || tracking !is OrderTracking.Given) return
+        appendLine("Transporteur : ${tracking.carrier.displayName().value}")
+        appendLine("Numéro de suivi : ${tracking.trackingNumber.value}")
+        if (tracking.hasTrackingPage()) appendLine("Suivre le colis : ${tracking.trackingPage().value}")
+        appendLine()
+    }
+
     override val body = EmailBody(buildString {
         appendLine("Bonjour ${email.customerName.value},")
         appendLine()
         appendLine("Votre commande ${order.number()} $news. $nextStep")
         appendLine()
+        appendTrackingOf(order.tracking)
         appendLine("Suivez votre commande depuis votre compte : ${OrderPage.of(shopUrl, order.orderId).url}")
         appendLine()
         append("L'équipe Flexstore")

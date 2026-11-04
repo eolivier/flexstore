@@ -13,6 +13,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.flexstore.infra.spring.security.asAdmin
 import org.flexstore.infra.spring.security.asUser
 import org.hamcrest.Matchers.contains
+import org.hamcrest.Matchers.containsString
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -29,6 +30,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.header
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -256,6 +258,88 @@ class AdminOrderIT {
         response.andExpect(status().isNotFound)
     }
 
+    @Test
+    fun `an order shipped with its tracking should show it to the customer and in the email`() {
+        // Arrange
+        val orderId = placeOrder()
+        advance(orderId, "PAID").andExpect(status().isOk)
+        // Act
+        val response = ship(orderId, "COLISSIMO", "6A12345678901")
+        // Assert
+        response.andExpect(status().isOk).andExpect(jsonPath("$.status").value("SHIPPED"))
+            .andExpect(jsonPath("$.tracking.carrier").value("COLISSIMO"))
+            .andExpect(jsonPath("$.tracking.trackingNumber").value("6A12345678901"))
+            .andExpect(jsonPath("$.tracking.trackingUrl").value(containsString("6A12345678901")))
+        mockMvc.perform(get("/api/orders/$orderId").with(asUser(CUSTOMER_ID)))
+            .andExpect(jsonPath("$.tracking.carrier").value("COLISSIMO"))
+        val shippedEmail = emailSender.sentOrderStatusEmails().single()
+        assertThat(shippedEmail.order.tracking.isGiven()).isTrue()
+    }
+
+    @Test
+    fun `an order shipped without tracking should have none`() {
+        // Arrange
+        val orderId = placeOrder()
+        listOf("PAID", "PROCESSING").forEach { advance(orderId, it).andExpect(status().isOk) }
+        // Act
+        val response = mockMvc.perform(get("/api/orders/$orderId").with(asUser(CUSTOMER_ID)))
+        // Assert
+        response.andExpect(jsonPath("$.tracking").doesNotExist())
+    }
+
+    @Test
+    fun `a carrier without a tracking number should be refused`() {
+        // Arrange
+        val orderId = placeOrder()
+        advance(orderId, "PAID").andExpect(status().isOk)
+        // Act
+        val response = mockMvc.perform(
+            post("/api/admin/orders/$orderId/status/advance").with(asAdmin())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"currentStatus": "PROCESSING", "carrier": "UPS"}""")
+        )
+        // Assert
+        response.andExpect(status().isBadRequest)
+    }
+
+    @Test
+    fun `an administrator should correct the tracking of a shipped order`() {
+        // Arrange
+        val orderId = placeOrder()
+        advance(orderId, "PAID").andExpect(status().isOk)
+        ship(orderId, "COLISSIMO", "6A111").andExpect(status().isOk)
+        // Act
+        val response = correctTracking(orderId, "UPS", "1Z222")
+        // Assert
+        response.andExpect(status().isOk)
+            .andExpect(jsonPath("$.tracking.carrier").value("UPS"))
+            .andExpect(jsonPath("$.tracking.trackingNumber").value("1Z222"))
+    }
+
+    @Test
+    fun `the tracking of an order not shipped yet should not be corrected`() {
+        // Arrange
+        val orderId = placeOrder()
+        // Act
+        val response = correctTracking(orderId, "UPS", "1Z222")
+        // Assert
+        response.andExpect(status().isConflict)
+    }
+
+    @Test
+    fun `only an administrator should correct a tracking`() {
+        // Arrange
+        val orderId = placeOrder()
+        // Act
+        val response = mockMvc.perform(
+            put("/api/admin/orders/$orderId/tracking").with(asUser(CUSTOMER_ID))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"carrier": "UPS", "trackingNumber": "1Z222"}""")
+        )
+        // Assert
+        response.andExpect(status().isForbidden)
+    }
+
     private fun refund(orderId: String, currentStatus: String) = mockMvc.perform(
         post("/api/admin/orders/$orderId/refund").with(asAdmin())
             .contentType(MediaType.APPLICATION_JSON).content("""{"currentStatus": "$currentStatus"}""")
@@ -270,6 +354,20 @@ class AdminOrderIT {
     private fun advance(orderId: String, currentStatus: String) = mockMvc.perform(
         post("/api/admin/orders/$orderId/status/advance").with(asAdmin())
             .contentType(MediaType.APPLICATION_JSON).content("""{"currentStatus": "$currentStatus"}""")
+    )
+
+    private fun ship(orderId: String, carrier: String, trackingNumber: String) = mockMvc.perform(
+        post("/api/admin/orders/$orderId/status/advance").with(asAdmin())
+            .contentType(MediaType.APPLICATION_JSON).content(
+                """{"currentStatus": "PROCESSING", "carrier": "$carrier",
+                    "trackingNumber": "$trackingNumber"}"""
+            )
+    )
+
+    private fun correctTracking(orderId: String, carrier: String, trackingNumber: String) = mockMvc.perform(
+        put("/api/admin/orders/$orderId/tracking").with(asAdmin())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("""{"carrier": "$carrier", "trackingNumber": "$trackingNumber"}""")
     )
 
     // A paid order, unless said otherwise

@@ -6,6 +6,7 @@
   import { useAdminOrdersStore } from '@/stores/adminOrders.store';
   import { orderNumber, placedOn } from '@/utils/order';
   import { recipientName } from '@/utils/address';
+  import type { TrackingInput } from '@/utils/tracking';
   import { formatPrice } from '@/utils/price';
   import AdvanceOrderStatusButton from './AdvanceOrderStatusButton.vue';
   import AdminOrderFilters from './AdminOrderFilters.vue';
@@ -42,10 +43,10 @@
     return `${order.customer.firstName} ${order.customer.lastName}`.trim();
   }
 
-  async function advance(order: JsonOrder) {
+  async function advance(order: JsonOrder, tracking: TrackingInput) {
     advancingOrderId.value = order.id;
     feedback.value = null;
-    const statusAdvance = await adminOrdersStore.advanceStatus(order);
+    const statusAdvance = await adminOrdersStore.advanceStatus(order, tracking);
     advancingOrderId.value = null;
     if (statusAdvance !== 'advanced') feedback.value = t(`adminOrders.${statusAdvance}`);
   }

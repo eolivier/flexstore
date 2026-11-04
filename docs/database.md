@@ -94,6 +94,8 @@ erDiagram
         billing_address_id varchar(50) FK
         payment_id varchar(50) FK "nullable: last payment started"
         legal_page_id varchar(50) FK "terms of sale accepted; nullable: placed before"
+        tracking_carrier varchar(20) "nullable: COLISSIMO, CHRONOPOST, UPS, DHL, FEDEX or OTHER, given with the number"
+        tracking_number varchar(40) "nullable: the parcel of a shipped order; given together with the carrier"
         created_at timestamp
         updated_at timestamp
     }
@@ -364,6 +366,7 @@ erDiagram
 - A signed-in customer's choice about the preference cookies is one `cookie_consent` row, replaced by each new choice and valid until `expires_at` (6 months after the choice). A visitor who is not signed in keeps theirs in their browser; at sign-in it is recorded here and removed from the browser.
 - A wrong password for an existing account adds one to its `failed_sign_in` row (created by the first failure). At the 5th failure in a row, the account becomes `LOCKED` and the row is deleted, so that the count starts again when an administrator reactivates the account; a successful sign-in deletes the row too. An email that belongs to no account, and an account that cannot sign in already, are not counted.
 - A `refresh_session` is a session of a signed-in user: its refresh token renews their access token (15 minutes) once, then the session is revoked (`revoked_at`) and replaced by a new row. A revoked token that comes back revokes every open session of its user. Only the hash of the token is stored; deleting a user deletes their sessions.
+- The carrier and the tracking number of the parcel of an order are given together by an administrator when the order is shipped, or corrected afterwards (`tracking_carrier` and `tracking_number`, a check forbids one without the other); the orders shipped before V45, or shipped without them, have none.
 - `user` is quoted in SQL (`"user"`), a reserved word; the orders are stored in `customer_order` for the same reason.
 - The name and the description of a `product` are in `product_translation`, one row per language: always one in the default language (`en`), which the application requires, and one per other language the product is translated into. A product without a translation in the language of the customer is shown in `en`.
 - A `wishlist_item` is a product a customer saved to buy it back later: at most one row per customer and product (saving it again changes nothing). Removing it from the wishlist only deletes this row, not the product or the orders already placed for it.

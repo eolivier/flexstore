@@ -24,8 +24,10 @@ class OrderStatusEmailContentTest : WithAssertions {
     private val janeDoe = FullName(FirstName("Jane"), LastName("Doe"))
     private val shopUrl = ShopUrl("https://flexstore.example")
 
-    private fun contentFor(status: OrderStatus): OrderStatusEmailContent {
-        val email = OrderStatusEmail(Email("jane@example.com"), janeDoe, placedOrder.withStatus(status))
+    private fun contentFor(status: OrderStatus, tracking: OrderTracking = OrderTracking.None):
+        OrderStatusEmailContent {
+        val order = placedOrder.withStatus(status).withTracking(tracking)
+        val email = OrderStatusEmail(Email("jane@example.com"), janeDoe, order)
         return OrderStatusEmailContent(email, shopUrl)
     }
 
@@ -53,5 +55,48 @@ class OrderStatusEmailContentTest : WithAssertions {
         // Assert
         assertThat(content.body.value).startsWith("Bonjour Jane Doe,")
         assertThat(content.body.value).contains("https://flexstore.example/orders/46555c9f-4e92")
+    }
+
+    @Test
+    fun `the email of a shipped order should give the carrier, the number and the tracking page`() {
+        // Arrange
+        val tracking = OrderTracking.Given(Carrier.COLISSIMO, TrackingNumber("6A12345678901"))
+        // Act
+        val content = contentFor(OrderStatus.SHIPPED, tracking)
+        // Assert
+        assertThat(content.body.value).contains("Transporteur : Colissimo")
+        assertThat(content.body.value).contains("Numéro de suivi : 6A12345678901")
+        assertThat(content.body.value)
+            .contains("Suivre le colis : https://www.laposte.fr/outils/suivre-vos-envois?code=6A12345678901")
+    }
+
+    @Test
+    fun `the email should give the number without a tracking page for another carrier`() {
+        // Arrange
+        val tracking = OrderTracking.Given(Carrier.OTHER, TrackingNumber("ABC-123"))
+        // Act
+        val content = contentFor(OrderStatus.SHIPPED, tracking)
+        // Assert
+        assertThat(content.body.value).contains("Transporteur : Autre transporteur")
+        assertThat(content.body.value).contains("Numéro de suivi : ABC-123")
+        assertThat(content.body.value).doesNotContain("Suivre le colis")
+    }
+
+    @Test
+    fun `the email of a shipped order without tracking should not mention a carrier`() {
+        // Act
+        val content = contentFor(OrderStatus.SHIPPED)
+        // Assert
+        assertThat(content.body.value).doesNotContain("Transporteur").doesNotContain("Numéro de suivi")
+    }
+
+    @Test
+    fun `the email of a delivered order should not repeat the tracking`() {
+        // Arrange
+        val tracking = OrderTracking.Given(Carrier.UPS, TrackingNumber("1Z999"))
+        // Act
+        val content = contentFor(OrderStatus.DELIVERED, tracking)
+        // Assert
+        assertThat(content.body.value).doesNotContain("Numéro de suivi")
     }
 }

@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.infra.spring.adapter.rest.json.JsonAdminOrder
 import org.flexstore.infra.spring.adapter.rest.json.JsonOrderRefund
 import org.flexstore.infra.spring.adapter.rest.json.JsonOrderStatusAdvance
+import org.flexstore.infra.spring.adapter.rest.json.JsonOrderTrackingCorrection
 import org.springframework.transaction.annotation.Transactional
 import org.flexstore.domain.sharedkernel.PageNumber
 import org.flexstore.domain.sharedkernel.PageRequest
@@ -51,7 +52,10 @@ class AdminOrderController(
     fun getOrder(@AuthenticationPrincipal reader: Jwt, @PathVariable orderId: String): JsonAdminOrder =
         JsonAdminOrder(orderAdministrationService.getOrder(UserId.of(reader.subject), OrderId(orderId)))
 
-    @Operation(summary = "Move an order to the next status of its life cycle: PROCESSING, SHIPPED, then DELIVERED")
+    @Operation(
+        summary = "Move an order to the next status of its life cycle: PROCESSING, SHIPPED, then DELIVERED; " +
+            "moving it to SHIPPED may give the carrier and the tracking number of its parcel"
+    )
     @PostMapping("/{orderId}/status/advance")
     fun advanceStatus(
         @AuthenticationPrincipal editor: Jwt,
@@ -61,6 +65,20 @@ class AdminOrderController(
         val orderStatusAdvance = statusAdvance.toOrderStatusAdvance(UserId.of(editor.subject), OrderId(orderId))
         val advancedOrder = orderAdministrationService.advance(orderStatusAdvance)
         return JsonAdminOrder(advancedOrder)
+    }
+
+    @Operation(summary = "Correct the carrier and the tracking number of an order that is shipped or delivered")
+    @PutMapping("/{orderId}/tracking")
+    fun correctTracking(
+        @AuthenticationPrincipal editor: Jwt,
+        @PathVariable orderId: String,
+        @RequestBody trackingCorrection: JsonOrderTrackingCorrection
+    ): JsonAdminOrder {
+        val correction = trackingCorrection.toOrderTrackingCorrection(
+            UserId.of(editor.subject), OrderId(orderId)
+        )
+        val correctedOrder = orderAdministrationService.correctTracking(correction)
+        return JsonAdminOrder(correctedOrder)
     }
 
     @Operation(

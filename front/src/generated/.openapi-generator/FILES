@@ -44,6 +44,8 @@ docs/JsonOrderLine.md
 docs/JsonOrderRefund.md
 docs/JsonOrderStatusAdvance.md
 docs/JsonOrderStatusChange.md
+docs/JsonOrderTracking.md
+docs/JsonOrderTrackingCorrection.md
 docs/JsonPasswordResetRequest.md
 docs/JsonPaymentSession.md
 docs/JsonPostalAddress.md

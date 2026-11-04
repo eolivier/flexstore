@@ -24,8 +24,13 @@ private const val ORDER_NUMBER_LENGTH = 8
  *   both addresses of the customer
  * - it keeps the statuses it went through, with the moment it reached each one: its status is the last one
  * - it keeps the version of the terms of sale its customer accepted to place it
+ * - once shipped, it may carry the carrier and the tracking number of its parcel
  */
-data class Order(val detail: OrderDetail, val history: OrderStatusHistory) {
+data class Order(
+    val detail: OrderDetail,
+    val history: OrderStatusHistory,
+    val tracking: OrderTracking = OrderTracking.None
+) {
 
     val status get() = history.currentStatus()
 
@@ -70,6 +75,12 @@ data class Order(val detail: OrderDetail, val history: OrderStatusHistory) {
 
     // Cancelled by the shop after its payment, which is given back to the customer
     fun refundedAt(changedAt: StatusChangedAt) = movedTo(OrderStatus.REFUNDED, changedAt)
+
+    // The parcel of the order is followed with this carrier and this number; nothing given changes nothing
+    fun withTracking(tracking: OrderTracking) = when (tracking) {
+        is OrderTracking.Given -> copy(tracking = tracking)
+        OrderTracking.None -> this
+    }
 
     private fun movedTo(status: OrderStatus, changedAt: StatusChangedAt) =
         copy(history = history.with(OrderStatusChange(status, changedAt)))
@@ -212,6 +223,14 @@ enum class OrderStatus {
     // The customer is told by email when their order is shipped, then delivered, or refunded
     fun isAnnouncedToTheCustomer() = this == SHIPPED || this == DELIVERED || this == REFUNDED
 
+    // The next status of a processed order is the one that gives its carrier and its tracking number
+    fun isShippedNext() = this == PROCESSING
+
+    // Shipped, or delivered: an administrator may still correct the tracking of its parcel
+    fun allowsTrackingCorrection() = this == SHIPPED || this == DELIVERED
+
+    fun refusesTrackingCorrection() = !allowsTrackingCorrection()
+
     // Paid, and not shipped yet: an administrator may cancel it and refund it
     fun isRefundable() = this == PAID || this == PROCESSING
 
@@ -255,8 +274,14 @@ data class OrderStatusHistory(private val changes: List<OrderStatusChange>) {
     fun asList(): List<OrderStatusChange> = changes.toList()
 }
 
-// An order to move to the next status of its life cycle, from the status it has when the administrator sees it
-data class OrderStatusAdvance(val editor: UserId, val orderId: OrderId, val currentStatus: OrderStatus)
+// An order to move to the next status of its life cycle, from the status it has when the administrator sees
+// it; moving a processed order to shipped may give the tracking of its parcel
+data class OrderStatusAdvance(
+    val editor: UserId,
+    val orderId: OrderId,
+    val currentStatus: OrderStatus,
+    val tracking: OrderTracking = OrderTracking.None
+)
 
 // An order that an administrator cancels and refunds, from the status it has when the administrator sees it
 data class OrderRefund(val editor: UserId, val orderId: OrderId, val currentStatus: OrderStatus)

@@ -36,8 +36,8 @@ class PostgresOrderRepositoryAdapter(
     private val jpaUserRepository: JpaUserRepository
 ) : OrderRepository {
 
-    // An order is placed once, then only its status changes: the stored rows of its lines are kept, and the
-    // statuses it reaches are added to its stored history
+    // An order is placed once, then only its status and its tracking change: the stored rows of its lines are
+    // kept, and the statuses it reaches are added to its stored history
     override fun save(order: Order): Order {
         val storedOrder = jpaRepo.findById(order.orderId.value).orElse(null)
         val orderEntity = storedOrder?.withStatusOf(order) ?: order.toEntity()
@@ -49,7 +49,13 @@ class PostgresOrderRepositoryAdapter(
         val storedCount = statusChanges.size
         val newChanges = order.history.asList().drop(storedCount)
         val newChangeEntities = newChanges.mapIndexed { index, change -> change.toEntity(storedCount + index) }
-        val orderEntity = copy(status = order.status.name, statusChanges = statusChanges + newChangeEntities)
+        val tracking = order.tracking as? OrderTracking.Given
+        val orderEntity = copy(
+            status = order.status.name,
+            trackingCarrier = tracking?.carrier?.name,
+            trackingNumber = tracking?.trackingNumber?.value,
+            statusChanges = statusChanges + newChangeEntities
+        )
         return orderEntity.also { it.createdAt = storedCreatedAt }
     }
 
@@ -135,7 +141,14 @@ class PostgresOrderRepositoryAdapter(
         val orderBill = OrderBill(orderLines, OrderAdjustments(orderShipping, orderDiscount))
         val orderDetail = OrderDetail(OrderPlacement(orderStamp, checkout), orderBill)
         val history = OrderStatusHistory(statusChanges.map { it.toDomain() })
-        return Order(orderDetail, history)
+        return Order(orderDetail, history, orderTracking())
+    }
+
+    // The carrier and the number are given together, or none (a check of the table)
+    private fun OrderEntity.orderTracking(): OrderTracking {
+        val carrier = trackingCarrier ?: return OrderTracking.None
+        val number = trackingNumber ?: return OrderTracking.None
+        return OrderTracking.Given(Carrier.valueOf(carrier), TrackingNumber(number))
     }
 
     private fun OrderStatusChange.toEntity(position: Int) =

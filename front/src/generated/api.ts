@@ -176,6 +176,7 @@ export interface JsonAdminOrder {
      * When the order must be paid by, or it is cancelled. Only for the customer, while the order awaits its payment
      */
     'paymentDeadline'?: string | null;
+    'tracking'?: JsonOrderTracking | null;
     'customer': JsonOrderCustomer;
     /**
      * The statuses the order went through, oldest first (the first one, when it was placed)
@@ -497,6 +498,7 @@ export interface JsonOrder {
      * When the order must be paid by, or it is cancelled. Only for the customer, while the order awaits its payment
      */
     'paymentDeadline'?: string | null;
+    'tracking'?: JsonOrderTracking | null;
 }
 
 export const JsonOrderStatusEnum = {
@@ -563,10 +565,15 @@ export interface JsonOrderRefund {
     'currentStatus': string;
 }
 /**
- * The status of the order when the administrator asks to move it to the next one
+ * The status of the order when the administrator asks to move it to the next one; moving a processed order to shipped may give the carrier and the tracking number, together or not at all
  */
 export interface JsonOrderStatusAdvance {
     'currentStatus': JsonOrderStatusAdvanceCurrentStatusEnum;
+    'carrier'?: JsonOrderStatusAdvanceCarrierEnum;
+    /**
+     * Letters, digits and hyphens, 40 at most
+     */
+    'trackingNumber'?: string;
 }
 
 export const JsonOrderStatusAdvanceCurrentStatusEnum = {
@@ -580,6 +587,16 @@ export const JsonOrderStatusAdvanceCurrentStatusEnum = {
 } as const;
 
 export type JsonOrderStatusAdvanceCurrentStatusEnum = typeof JsonOrderStatusAdvanceCurrentStatusEnum[keyof typeof JsonOrderStatusAdvanceCurrentStatusEnum];
+export const JsonOrderStatusAdvanceCarrierEnum = {
+    Colissimo: 'COLISSIMO',
+    Chronopost: 'CHRONOPOST',
+    Ups: 'UPS',
+    Dhl: 'DHL',
+    Fedex: 'FEDEX',
+    Other: 'OTHER'
+} as const;
+
+export type JsonOrderStatusAdvanceCarrierEnum = typeof JsonOrderStatusAdvanceCarrierEnum[keyof typeof JsonOrderStatusAdvanceCarrierEnum];
 
 export interface JsonOrderStatusChange {
     'status': JsonOrderStatusChangeStatusEnum;
@@ -597,6 +614,51 @@ export const JsonOrderStatusChangeStatusEnum = {
 } as const;
 
 export type JsonOrderStatusChangeStatusEnum = typeof JsonOrderStatusChangeStatusEnum[keyof typeof JsonOrderStatusChangeStatusEnum];
+
+/**
+ * Where the parcel of a shipped order is followed. Absent before the order is shipped, and when it was shipped without tracking
+ */
+export interface JsonOrderTracking {
+    'carrier': JsonOrderTrackingCarrierEnum;
+    /**
+     * Letters, digits and hyphens, 40 at most
+     */
+    'trackingNumber': string;
+    /**
+     * The tracking page of the carrier for this parcel; none for the carrier OTHER
+     */
+    'trackingUrl'?: string | null;
+}
+
+export const JsonOrderTrackingCarrierEnum = {
+    Colissimo: 'COLISSIMO',
+    Chronopost: 'CHRONOPOST',
+    Ups: 'UPS',
+    Dhl: 'DHL',
+    Fedex: 'FEDEX',
+    Other: 'OTHER'
+} as const;
+
+export type JsonOrderTrackingCarrierEnum = typeof JsonOrderTrackingCarrierEnum[keyof typeof JsonOrderTrackingCarrierEnum];
+
+export interface JsonOrderTrackingCorrection {
+    'carrier': JsonOrderTrackingCorrectionCarrierEnum;
+    /**
+     * Letters, digits and hyphens, 40 at most
+     */
+    'trackingNumber': string;
+}
+
+export const JsonOrderTrackingCorrectionCarrierEnum = {
+    Colissimo: 'COLISSIMO',
+    Chronopost: 'CHRONOPOST',
+    Ups: 'UPS',
+    Dhl: 'DHL',
+    Fedex: 'FEDEX',
+    Other: 'OTHER'
+} as const;
+
+export type JsonOrderTrackingCorrectionCarrierEnum = typeof JsonOrderTrackingCorrectionCarrierEnum[keyof typeof JsonOrderTrackingCorrectionCarrierEnum];
 
 export interface JsonPasswordResetRequest {
     /**
@@ -1671,7 +1733,7 @@ export class AccountsApi extends BaseAPI {
 export const AdministrationApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * 
+         * Moving a processed order to SHIPPED may give the carrier and the tracking number of its parcel, together or not at all; its customer sees them on the order and in the email that tells them it is shipped.
          * @summary Move an order to the next status of its life cycle, PROCESSING then SHIPPED then DELIVERED (ADMIN role)
          * @param {string} id 
          * @param {JsonOrderStatusAdvance} jsonOrderStatusAdvance 
@@ -1708,6 +1770,50 @@ export const AdministrationApiAxiosParamCreator = function (configuration?: Conf
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(jsonOrderStatusAdvance, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * The customer is not told again: they read the correction on their order.
+         * @summary Correct the carrier and the tracking number of an order that is shipped or delivered (ADMIN role)
+         * @param {string} id 
+         * @param {JsonOrderTrackingCorrection} jsonOrderTrackingCorrection 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        correctOrderTracking: async (id: string, jsonOrderTrackingCorrection: JsonOrderTrackingCorrection, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('correctOrderTracking', 'id', id)
+            // verify required parameter 'jsonOrderTrackingCorrection' is not null or undefined
+            assertParamExists('correctOrderTracking', 'jsonOrderTrackingCorrection', jsonOrderTrackingCorrection)
+            const localVarPath = `/api/admin/orders/{id}/tracking`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonOrderTrackingCorrection, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -2237,7 +2343,7 @@ export const AdministrationApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = AdministrationApiAxiosParamCreator(configuration)
     return {
         /**
-         * 
+         * Moving a processed order to SHIPPED may give the carrier and the tracking number of its parcel, together or not at all; its customer sees them on the order and in the email that tells them it is shipped.
          * @summary Move an order to the next status of its life cycle, PROCESSING then SHIPPED then DELIVERED (ADMIN role)
          * @param {string} id 
          * @param {JsonOrderStatusAdvance} jsonOrderStatusAdvance 
@@ -2248,6 +2354,20 @@ export const AdministrationApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.advanceOrderStatus(id, jsonOrderStatusAdvance, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdministrationApi.advanceOrderStatus']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * The customer is not told again: they read the correction on their order.
+         * @summary Correct the carrier and the tracking number of an order that is shipped or delivered (ADMIN role)
+         * @param {string} id 
+         * @param {JsonOrderTrackingCorrection} jsonOrderTrackingCorrection 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async correctOrderTracking(id: string, jsonOrderTrackingCorrection: JsonOrderTrackingCorrection, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonAdminOrder>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.correctOrderTracking(id, jsonOrderTrackingCorrection, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdministrationApi.correctOrderTracking']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -2431,7 +2551,7 @@ export const AdministrationApiFactory = function (configuration?: Configuration,
     const localVarFp = AdministrationApiFp(configuration)
     return {
         /**
-         * 
+         * Moving a processed order to SHIPPED may give the carrier and the tracking number of its parcel, together or not at all; its customer sees them on the order and in the email that tells them it is shipped.
          * @summary Move an order to the next status of its life cycle, PROCESSING then SHIPPED then DELIVERED (ADMIN role)
          * @param {string} id 
          * @param {JsonOrderStatusAdvance} jsonOrderStatusAdvance 
@@ -2440,6 +2560,17 @@ export const AdministrationApiFactory = function (configuration?: Configuration,
          */
         advanceOrderStatus(id: string, jsonOrderStatusAdvance: JsonOrderStatusAdvance, options?: RawAxiosRequestConfig): AxiosPromise<JsonAdminOrder> {
             return localVarFp.advanceOrderStatus(id, jsonOrderStatusAdvance, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * The customer is not told again: they read the correction on their order.
+         * @summary Correct the carrier and the tracking number of an order that is shipped or delivered (ADMIN role)
+         * @param {string} id 
+         * @param {JsonOrderTrackingCorrection} jsonOrderTrackingCorrection 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        correctOrderTracking(id: string, jsonOrderTrackingCorrection: JsonOrderTrackingCorrection, options?: RawAxiosRequestConfig): AxiosPromise<JsonAdminOrder> {
+            return localVarFp.correctOrderTracking(id, jsonOrderTrackingCorrection, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -2581,7 +2712,7 @@ export const AdministrationApiFactory = function (configuration?: Configuration,
  */
 export class AdministrationApi extends BaseAPI {
     /**
-     * 
+     * Moving a processed order to SHIPPED may give the carrier and the tracking number of its parcel, together or not at all; its customer sees them on the order and in the email that tells them it is shipped.
      * @summary Move an order to the next status of its life cycle, PROCESSING then SHIPPED then DELIVERED (ADMIN role)
      * @param {string} id 
      * @param {JsonOrderStatusAdvance} jsonOrderStatusAdvance 
@@ -2590,6 +2721,18 @@ export class AdministrationApi extends BaseAPI {
      */
     public advanceOrderStatus(id: string, jsonOrderStatusAdvance: JsonOrderStatusAdvance, options?: RawAxiosRequestConfig) {
         return AdministrationApiFp(this.configuration).advanceOrderStatus(id, jsonOrderStatusAdvance, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * The customer is not told again: they read the correction on their order.
+     * @summary Correct the carrier and the tracking number of an order that is shipped or delivered (ADMIN role)
+     * @param {string} id 
+     * @param {JsonOrderTrackingCorrection} jsonOrderTrackingCorrection 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public correctOrderTracking(id: string, jsonOrderTrackingCorrection: JsonOrderTrackingCorrection, options?: RawAxiosRequestConfig) {
+        return AdministrationApiFp(this.configuration).correctOrderTracking(id, jsonOrderTrackingCorrection, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

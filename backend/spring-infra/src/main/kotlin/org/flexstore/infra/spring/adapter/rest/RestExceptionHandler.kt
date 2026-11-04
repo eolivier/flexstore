@@ -114,6 +114,13 @@ class RestExceptionHandler {
             is OrderNotRefundableException -> ResponseEntity
                 .status(409)
                 .body(mapOf("error" to (ex.message ?: "The status of the order cannot advance")))
+            is InvalidOrderTrackingException -> ResponseEntity
+                .status(400)
+                .body(mapOf("error" to (ex.message ?: "Invalid tracking")))
+            // The order is not shipped yet, or is cancelled or refunded
+            is OrderTrackingCannotBeCorrectedException -> ResponseEntity
+                .status(409)
+                .body(mapOf("error" to (ex.message ?: "The tracking of the order cannot be corrected")))
             is InvalidSkuException -> ResponseEntity
                 .status(400)
                 .body(mapOf("error" to (ex.message ?: "Invalid SKU")))

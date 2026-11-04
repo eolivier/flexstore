@@ -53,6 +53,14 @@ data class OrderEntity(
     @Column(name = "payment_id")
     val paymentId: String? = null,
 
+    // The carrier (see Carrier) and the tracking number of the parcel, given together once the order is shipped;
+    // none (null) before, and for the orders shipped without them
+    @Column(name = "tracking_carrier")
+    val trackingCarrier: String? = null,
+
+    @Column(name = "tracking_number")
+    val trackingNumber: String? = null,
+
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "customer_order_id", nullable = false)
     @OrderBy("position")

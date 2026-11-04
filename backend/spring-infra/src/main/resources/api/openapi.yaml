@@ -1837,6 +1837,8 @@ paths:
       tags:
       - Administration
       summary: Move an order to the next status of its life cycle, PROCESSING then SHIPPED then DELIVERED (ADMIN role)
+      description: "Moving a processed order to SHIPPED may give the carrier and the tracking number of its parcel,
+        together or not at all; its customer sees them on the order and in the email that tells them it is shipped."
       operationId: advanceOrderStatus
       security:
       - bearerAuth: []
@@ -1859,12 +1861,51 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/JsonAdminOrder"
+        "400":
+          description: A carrier without a tracking number (or the opposite), an unknown carrier, an invalid tracking
+            number, or a tracking given while the order is not moved to shipped
         "403":
           description: The signed-in user is not an administrator
         "404":
           description: No order with this id
         "409":
           description: The order no longer has the given status, or it is delivered (no next status)
+  /api/admin/orders/{id}/tracking:
+    put:
+      tags:
+      - Administration
+      summary: Correct the carrier and the tracking number of an order that is shipped or delivered (ADMIN role)
+      description: "The customer is not told again: they read the correction on their order."
+      operationId: correctOrderTracking
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonOrderTrackingCorrection"
+      responses:
+        "200":
+          description: The order, with its new tracking
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonAdminOrder"
+        "400":
+          description: A missing or unknown carrier, or a tracking number that is missing or invalid
+        "403":
+          description: The signed-in user is not an administrator
+        "404":
+          description: No order with this id
+        "409":
+          description: The order is not shipped or delivered
 components:
   headers:
     TotalCount:
@@ -2511,6 +2552,25 @@ components:
           format: date-time
           nullable: true
           description: When the order must be paid by, or it is cancelled. Only for the customer, while the order awaits its payment
+        tracking:
+          $ref: "#/components/schemas/JsonOrderTracking"
+    JsonOrderTracking:
+      type: object
+      nullable: true
+      description: Where the parcel of a shipped order is followed. Absent before the order is shipped, and when it
+        was shipped without tracking
+      required: [carrier, trackingNumber]
+      properties:
+        carrier:
+          type: string
+          enum: [COLISSIMO, CHRONOPOST, UPS, DHL, FEDEX, OTHER]
+        trackingNumber:
+          type: string
+          description: Letters, digits and hyphens, 40 at most
+        trackingUrl:
+          type: string
+          nullable: true
+          description: The tracking page of the carrier for this parcel; none for the carrier OTHER
     JsonPaymentSession:
       type: object
       required: [checkoutUrl, outcome]
@@ -2586,12 +2646,29 @@ components:
           minimum: 0
     JsonOrderStatusAdvance:
       type: object
-      description: The status of the order when the administrator asks to move it to the next one
+      description: The status of the order when the administrator asks to move it to the next one; moving a
+        processed order to shipped may give the carrier and the tracking number, together or not at all
       required: [currentStatus]
       properties:
         currentStatus:
           type: string
           enum: [AWAITING_PAYMENT, PAID, PROCESSING, SHIPPED, DELIVERED, CANCELLED, REFUNDED]
+        carrier:
+          type: string
+          enum: [COLISSIMO, CHRONOPOST, UPS, DHL, FEDEX, OTHER]
+        trackingNumber:
+          type: string
+          description: Letters, digits and hyphens, 40 at most
+    JsonOrderTrackingCorrection:
+      type: object
+      required: [carrier, trackingNumber]
+      properties:
+        carrier:
+          type: string
+          enum: [COLISSIMO, CHRONOPOST, UPS, DHL, FEDEX, OTHER]
+        trackingNumber:
+          type: string
+          description: Letters, digits and hyphens, 40 at most
     JsonOrderAddresses:
       type: object
       required: [deliveryAddress, termsOfSaleId]

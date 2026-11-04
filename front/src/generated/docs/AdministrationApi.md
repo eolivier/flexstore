@@ -5,6 +5,7 @@ All URIs are relative to *http://localhost:8080*
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
 |[**advanceOrderStatus**](#advanceorderstatus) | **POST** /api/admin/orders/{id}/status/advance | Move an order to the next status of its life cycle, PROCESSING then SHIPPED then DELIVERED (ADMIN role)|
+|[**correctOrderTracking**](#correctordertracking) | **PUT** /api/admin/orders/{id}/tracking | Correct the carrier and the tracking number of an order that is shipped or delivered (ADMIN role)|
 |[**createDiscountCode**](#creatediscountcode) | **POST** /api/admin/discount-codes | Give a discount code (ADMIN role)|
 |[**deleteDiscountCode**](#deletediscountcode) | **DELETE** /api/admin/discount-codes/{code} | Delete a discount code; the orders that used it keep their discount (ADMIN role)|
 |[**deleteReview**](#deletereview) | **DELETE** /api/admin/reviews/{id} | Delete a review; the rating of its product no longer counts it (ADMIN role)|
@@ -22,6 +23,7 @@ All URIs are relative to *http://localhost:8080*
 # **advanceOrderStatus**
 > JsonAdminOrder advanceOrderStatus(jsonOrderStatusAdvance)
 
+Moving a processed order to SHIPPED may give the carrier and the tracking number of its parcel, together or not at all; its customer sees them on the order and in the email that tells them it is shipped.
 
 ### Example
 
@@ -70,9 +72,69 @@ const { status, data } = await apiInstance.advanceOrderStatus(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | The order at its next status |  -  |
+|**400** | A carrier without a tracking number (or the opposite), an unknown carrier, an invalid tracking number, or a tracking given while the order is not moved to shipped |  -  |
 |**403** | The signed-in user is not an administrator |  -  |
 |**404** | No order with this id |  -  |
 |**409** | The order no longer has the given status, or it is delivered (no next status) |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **correctOrderTracking**
+> JsonAdminOrder correctOrderTracking(jsonOrderTrackingCorrection)
+
+The customer is not told again: they read the correction on their order.
+
+### Example
+
+```typescript
+import {
+    AdministrationApi,
+    Configuration,
+    JsonOrderTrackingCorrection
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdministrationApi(configuration);
+
+let id: string; // (default to undefined)
+let jsonOrderTrackingCorrection: JsonOrderTrackingCorrection; //
+
+const { status, data } = await apiInstance.correctOrderTracking(
+    id,
+    jsonOrderTrackingCorrection
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **jsonOrderTrackingCorrection** | **JsonOrderTrackingCorrection**|  | |
+| **id** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**JsonAdminOrder**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The order, with its new tracking |  -  |
+|**400** | A missing or unknown carrier, or a tracking number that is missing or invalid |  -  |
+|**403** | The signed-in user is not an administrator |  -  |
+|**404** | No order with this id |  -  |
+|**409** | The order is not shipped or delivered |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
