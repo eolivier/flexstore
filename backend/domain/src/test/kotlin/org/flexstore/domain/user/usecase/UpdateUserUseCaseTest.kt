@@ -1,6 +1,8 @@
 package org.flexstore.domain.user.usecase
 
 import org.flexstore.domain.sharedkernel.*
+import org.flexstore.domain.twofactor.model.TwoFactorAuthentication
+import org.flexstore.domain.twofactor.model.TwoFactorSecret
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.model.User.DefinedUser
 import org.flexstore.domain.user.model.UserId.InvalidUserId
@@ -108,5 +110,23 @@ class UpdateUserUseCaseTest {
         assertThat(storedCustomer.status).isEqualTo(AccountStatus.PENDING_VERIFICATION)
         assertThat(storedCustomer.phoneNumber).isEqualTo(registration.phoneNumber)
         assertThat(storedCustomer.postalAddresses).isEqualTo(PostalAddresses(registration.postalAddress))
+    }
+
+    @Test
+    fun `an edit should keep the two-factor authentication of a user`() {
+        // Arrange
+        val secret = TwoFactorSecret.next()
+        val adminWithTwoFactor = administrator.copy(
+            id = ValidUserId("admin-2"), email = Email("admin2@example.com"),
+            twoFactorAuthentication = TwoFactorAuthentication.Enabled(secret)
+        )
+        userRepository.save(adminWithTwoFactor)
+        val editedAdmin = adminWithTwoFactor.copy(fullName = FullName(FirstName("Renamed"), LastName("Admin")))
+        // Act
+        updateUserUseCase.unfold(UpdateUserRequest(administrator.id, editedAdmin))
+        // Assert
+        assertThat(stored(adminWithTwoFactor.id).twoFactorAuthentication).isEqualTo(
+            TwoFactorAuthentication.Enabled(secret)
+        )
     }
 }
