@@ -39,6 +39,7 @@ export interface DraftJsonProduct {
      * The rate of VAT included in the price: 20, 10, 5.5 or 2.1 %. STANDARD when not given
      */
     'vatRate'?: DraftJsonProductVatRateEnum;
+    'promotion'?: JsonPromotion;
 }
 
 export const DraftJsonProductVatRateEnum = {
@@ -72,6 +73,7 @@ export interface EditedJsonProduct {
      * The rate of VAT included in the price: 20, 10, 5.5 or 2.1 %. STANDARD when not given
      */
     'vatRate'?: EditedJsonProductVatRateEnum;
+    'promotion'?: JsonPromotion;
 }
 
 export const EditedJsonProductVatRateEnum = {
@@ -222,6 +224,7 @@ export interface JsonAdminProduct {
      * The rate of VAT included in the price: 20, 10, 5.5 or 2.1 %
      */
     'vatRate': JsonAdminProductVatRateEnum;
+    'promotion'?: JsonPromotion;
 }
 
 export const JsonAdminProductVatRateEnum = {
@@ -728,8 +731,19 @@ export interface JsonProduct {
      */
     'description': string;
     'category': string;
+    /**
+     * The regular price. Shown struck through when the product is on promotion
+     */
     'price': number;
     'currency': string;
+    /**
+     * The percentage off the regular price while a promotion is running, null otherwise
+     */
+    'promotionPercentage'?: number | null;
+    /**
+     * The price to pay, the promotion included (the regular price when there is none)
+     */
+    'currentPrice': number;
 }
 export interface JsonProductTranslation {
     /**
@@ -738,6 +752,23 @@ export interface JsonProductTranslation {
     'language': string;
     'name': string;
     'description': string;
+}
+/**
+ * The percentage off the price of a product, from a moment (included) to a later one (excluded)
+ */
+export interface JsonPromotion {
+    /**
+     * From more than 0 to 100
+     */
+    'percentage': number;
+    /**
+     * ISO-8601 instant, to the minute
+     */
+    'startsAt': string;
+    /**
+     * ISO-8601 instant, to the minute, after startsAt
+     */
+    'endsAt': string;
 }
 export interface JsonRatingSummary {
     'productId': string;

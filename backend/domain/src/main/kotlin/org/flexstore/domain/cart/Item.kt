@@ -105,7 +105,7 @@ data class CartItem(
     override fun increase() = copy(quantity = quantity.increase())
     override fun decrease() = copy(quantity = quantity.decrease())
     override fun changeQuantity(newQuantity: Quantity) = copy(quantity = newQuantity)
-    fun itemPrice() = product.price.multiply(quantity)
+    fun itemPrice() = product.currentPrice.multiply(quantity)
 }
 data class DraftItem(
     val product: DefinedProduct,
@@ -114,7 +114,7 @@ data class DraftItem(
     override fun increase() = copy(quantity = quantity.increase())
     override fun decrease() = copy(quantity = quantity.decrease())
     override fun changeQuantity(newQuantity: Quantity) = copy(quantity = newQuantity)
-    fun itemPrice() = product.price.multiply(quantity)
+    fun itemPrice() = product.currentPrice.multiply(quantity)
 }
 
 data object NoItem : Item

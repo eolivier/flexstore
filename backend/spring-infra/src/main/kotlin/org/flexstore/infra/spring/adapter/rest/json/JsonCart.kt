@@ -34,8 +34,8 @@ data class JsonCartItem @JsonCreator constructor(
         cartItem.product.name.value,
         cartItem.product.description.value,
         cartItem.product.category.name,
-        cartItem.product.price.amount.value,
-        cartItem.product.price.currency.symbol,
+        cartItem.product.currentPrice.amount.value,
+        cartItem.product.currentPrice.currency.symbol,
         cartItem.quantity.value,
         cartItem.itemPrice().amount.value
     )

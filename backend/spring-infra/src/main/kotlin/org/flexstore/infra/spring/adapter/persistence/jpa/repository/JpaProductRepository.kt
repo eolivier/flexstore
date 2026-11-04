@@ -5,6 +5,10 @@ import org.flexstore.infra.spring.adapter.persistence.jpa.entity.ProductTranslat
 import org.flexstore.infra.spring.adapter.persistence.jpa.toDomain
 import org.flexstore.infra.spring.adapter.persistence.jpa.toEntity
 import org.flexstore.domain.product.*
+import org.flexstore.infra.spring.adapter.mapping.endsAt
+import org.flexstore.infra.spring.adapter.mapping.percentage
+import org.flexstore.infra.spring.adapter.mapping.promotionOf
+import org.flexstore.infra.spring.adapter.mapping.startsAt
 import org.flexstore.domain.sharedkernel.*
 import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.repository.JpaRepository
@@ -98,6 +102,9 @@ class PostgresProductRepositoryAdapter(
         price = price.amount.value,
         currency = price.currency.name,
         vatRate = pricing.vatRate.name,
+        promotionPercentage = pricing.promotion.percentage(),
+        promotionStartsAt = pricing.promotion.startsAt(),
+        promotionEndsAt = pricing.promotion.endsAt(),
         translations = translations.asList().map { it.toNewEntity() }
     )
 
@@ -108,6 +115,9 @@ class PostgresProductRepositoryAdapter(
         price = price.amount.value,
         currency = price.currency.name,
         vatRate = vatRate.name,
+        promotionPercentage = promotion.percentage(),
+        promotionStartsAt = promotion.startsAt(),
+        promotionEndsAt = promotion.endsAt(),
         translations = translationEntities(this)
     )
 
@@ -139,7 +149,9 @@ fun ProductEntity.toDomain(): DefinedProduct {
     // In the default language first, so that a product reads its translations in the same order as it gave them
     val storedTranslations = translations.map { it.toDomain() }.sortedByDescending { it.isIn(Language.DEFAULT) }
     val productTranslations = ProductTranslations(storedTranslations)
-    val pricing = ProductPricing(Price(Amount(price), Currency.valueOf(currency)), VatRate.valueOf(vatRate))
+    val regularPrice = Price(Amount(price), Currency.valueOf(currency))
+    val promotion = promotionOf(promotionPercentage, promotionStartsAt, promotionEndsAt)
+    val pricing = ProductPricing(regularPrice, VatRate.valueOf(vatRate), promotion)
     val productId = ProductId(Identity(id))
     return DefinedProduct(productId, Sku(sku), productTranslations, Category.valueOf(category), pricing)
 }

@@ -29,7 +29,8 @@ class CreateProductUseCase(
         creatorIsAdministratorCondition(),
         productDoesNotExistCondition(),
         skuIsWellFormedCondition(),
-        skuIsFreeCondition()
+        skuIsFreeCondition(),
+        promotionIsValidCondition()
     )
 
     override fun getNominalScenario(): NominalScenario<CreateProductRequest> {
@@ -60,6 +61,10 @@ class CreateProductUseCase(
 
     private fun skuIsFreeCondition() = PreCondition<CreateProductRequest> { request ->
         throwIfUsedByAnotherProduct(request.definedProduct(), productRepository)
+    }
+
+    private fun promotionIsValidCondition() = PreCondition<CreateProductRequest> { request ->
+        throwIfInvalid(request.draftProduct.pricing.promotion)
     }
 
     private fun productDoesNotExistCondition() = PreCondition<CreateProductRequest> { request ->

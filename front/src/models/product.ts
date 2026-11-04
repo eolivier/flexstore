@@ -11,6 +11,9 @@ export interface Product {
   category: string;
   price?: number;
   currency: string;
+  // The percentage off the price while a promotion is running; currentPrice: the price to pay then
+  promotionPercentage?: number | null;
+  currentPrice?: number;
 }
 
 // The languages of the shop, the default one first
@@ -27,6 +30,14 @@ export interface ProductTranslation {
 export const VAT_RATES = ['STANDARD', 'INTERMEDIATE', 'REDUCED', 'SUPER_REDUCED'] as const;
 export type VatRate = (typeof VAT_RATES)[number];
 
+// The percentage off the price of a product, from a moment (included) to a later one (excluded), as ISO
+// instants
+export interface Promotion {
+  percentage: number;
+  startsAt: string;
+  endsAt: string;
+}
+
 // A product as the administrator edits it: its translations in every language, the default one included.
 // vatRate: the rate of VAT its price includes
 export interface AdminProduct {
@@ -37,6 +48,7 @@ export interface AdminProduct {
   currency: string;
   translations: ProductTranslation[];
   vatRate: VatRate;
+  promotion?: Promotion | null;
 }
 
 // A product as the administrator gives it, to create or edit it

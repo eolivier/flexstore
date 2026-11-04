@@ -12,6 +12,7 @@ Name | Type | Description | Notes
 **currency** | **string** | Currency code (EUR) | [default to undefined]
 **translations** | [**Array&lt;JsonProductTranslation&gt;**](JsonProductTranslation.md) | Every translation of the product, the default one (en) required; a translation not given is removed | [default to undefined]
 **vatRate** | **string** | The rate of VAT included in the price: 20, 10, 5.5 or 2.1 %. STANDARD when not given | [optional] [default to undefined]
+**promotion** | [**JsonPromotion**](JsonPromotion.md) |  | [optional] [default to undefined]
 
 ## Example
 
@@ -25,6 +26,7 @@ const instance: EditedJsonProduct = {
     currency,
     translations,
     vatRate,
+    promotion,
 };
 ```
 

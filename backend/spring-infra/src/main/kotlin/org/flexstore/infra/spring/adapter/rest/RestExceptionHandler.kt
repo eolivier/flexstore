@@ -124,6 +124,9 @@ class RestExceptionHandler {
             is InvalidSkuException -> ResponseEntity
                 .status(400)
                 .body(mapOf("error" to (ex.message ?: "Invalid SKU")))
+            is InvalidPromotionException -> ResponseEntity
+                .status(400)
+                .body(mapOf("error" to (ex.message ?: "Invalid promotion")))
             // The administrator chooses another SKU
             is SkuAlreadyUsedException -> ResponseEntity
                 .status(409)

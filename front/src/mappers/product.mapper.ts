@@ -11,5 +11,7 @@ export function fromApi(jsonProduct: JsonProduct): Product {
     category: jsonProduct.category ?? '',
     price: jsonProduct.price,
     currency: jsonProduct.currency ?? 'EUR',
+    promotionPercentage: jsonProduct.promotionPercentage,
+    currentPrice: jsonProduct.currentPrice,
   };
 }

@@ -14,14 +14,18 @@ import java.util.Locale
 class ProductMapper {
     fun toDomain(draftJsonProduct: DraftJsonProduct): DraftProduct {
         val price = Price(Amount(draftJsonProduct.price), Currency.valueOf(draftJsonProduct.currency))
-        val pricing = ProductPricing(price, vatRateOf(draftJsonProduct.vatRate))
+        val vatRate = vatRateOf(draftJsonProduct.vatRate)
+        val promotion = draftJsonProduct.promotion.toDomain()
+        val pricing = ProductPricing(price, vatRate, promotion)
         val translations = draftJsonProduct.translations.toDomain()
         val sku = Sku.from(draftJsonProduct.sku)
         return DraftProduct(sku, translations, Category.valueOf(draftJsonProduct.category), pricing)
     }
     fun toDomain(productId: ProductId, editedJsonProduct: EditedJsonProduct): DefinedProduct {
         val price = Price(Amount(editedJsonProduct.price), Currency.valueOf(editedJsonProduct.currency))
-        val pricing = ProductPricing(price, vatRateOf(editedJsonProduct.vatRate))
+        val vatRate = vatRateOf(editedJsonProduct.vatRate)
+        val promotion = editedJsonProduct.promotion.toDomain()
+        val pricing = ProductPricing(price, vatRate, promotion)
         val translations = editedJsonProduct.translations.toDomain()
         val sku = Sku.from(editedJsonProduct.sku)
         val category = Category.valueOf(editedJsonProduct.category)
@@ -42,7 +46,8 @@ class ProductMapper {
         product.price.amount.value,
         product.price.currency.symbol,
         product.translations.asList().map { it.toJson() },
-        product.vatRate.name
+        product.vatRate.name,
+        product.promotion.toJson()
     )
 }
 
@@ -66,7 +71,9 @@ private fun DefinedProduct.toJson(language: Language): JsonProduct {
         translation.description.value,
         category.name,
         price.amount.value,
-        price.currency.symbol
+        price.currency.symbol,
+        promotion.runningPercentage(),
+        currentPrice.amount.value
     )
 }
 

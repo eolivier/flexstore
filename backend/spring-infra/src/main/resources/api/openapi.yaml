@@ -2386,6 +2386,8 @@ components:
           type: string
           enum: [STANDARD, INTERMEDIATE, REDUCED, SUPER_REDUCED]
           description: "The rate of VAT included in the price: 20, 10, 5.5 or 2.1 %. STANDARD when not given"
+        promotion:
+          $ref: "#/components/schemas/JsonPromotion"
     EditedJsonProduct:
       type: object
       description: The fields an administrator edits; the id is given by the path
@@ -2412,9 +2414,11 @@ components:
           type: string
           enum: [STANDARD, INTERMEDIATE, REDUCED, SUPER_REDUCED]
           description: "The rate of VAT included in the price: 20, 10, 5.5 or 2.1 %. STANDARD when not given"
+        promotion:
+          $ref: "#/components/schemas/JsonPromotion"
     JsonProduct:
       type: object
-      required: [id, sku, name, description, category, price, currency]
+      required: [id, sku, name, description, category, price, currency, currentPrice]
       properties:
         id:
           type: string
@@ -2431,8 +2435,16 @@ components:
           type: string
         price:
           type: number
+          description: The regular price. Shown struck through when the product is on promotion
         currency:
           type: string
+        promotionPercentage:
+          type: number
+          nullable: true
+          description: The percentage off the regular price while a promotion is running, null otherwise
+        currentPrice:
+          type: number
+          description: The price to pay, the promotion included (the regular price when there is none)
     JsonAdminProduct:
       type: object
       description: A product as the administrator edits it, with its translations in every language
@@ -2458,6 +2470,24 @@ components:
           type: string
           enum: [STANDARD, INTERMEDIATE, REDUCED, SUPER_REDUCED]
           description: "The rate of VAT included in the price: 20, 10, 5.5 or 2.1 %"
+        promotion:
+          $ref: "#/components/schemas/JsonPromotion"
+    JsonPromotion:
+      type: object
+      description: The percentage off the price of a product, from a moment (included) to a later one (excluded)
+      required: [percentage, startsAt, endsAt]
+      properties:
+        percentage:
+          type: number
+          description: From more than 0 to 100
+        startsAt:
+          type: string
+          format: date-time
+          description: ISO-8601 instant, to the minute
+        endsAt:
+          type: string
+          format: date-time
+          description: ISO-8601 instant, to the minute, after startsAt
     JsonSkuProposal:
       type: object
       required: [sku]

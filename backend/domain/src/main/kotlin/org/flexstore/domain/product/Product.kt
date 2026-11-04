@@ -10,10 +10,17 @@ private val NO_DESCRIPTION = Description("No description")
 private fun inDefaultLanguageOnly(name: Name, description: Description) =
     ProductTranslations.inDefaultLanguage(ProductText(name, description))
 
-// The price of a product, VAT included, and the rate of VAT it includes
-data class ProductPricing(val price: Price, val vatRate: VatRate) {
-    // At the standard rate, the one of most products
+// The regular price of a product, VAT included, the rate of VAT it includes, and its promotion (which lowers the
+// price to pay only while it is running)
+data class ProductPricing(val price: Price, val vatRate: VatRate, val promotion: Promotion) {
+    // Without promotion
+    constructor(price: Price, vatRate: VatRate) : this(price, vatRate, NoPromotion)
+
+    // At the standard rate, the one of most products, without promotion
     constructor(price: Price) : this(price, VatRate.STANDARD)
+
+    // What the customer pays for one product now: the regular price, less the promotion when it is running
+    val currentPrice: Price get() = promotion.priceAfter(price)
 }
 
 sealed interface Product
@@ -71,6 +78,11 @@ data class DefinedProduct(
 
     val vatRate: VatRate get() = pricing.vatRate
 
+    val promotion: Promotion get() = pricing.promotion
+
+    // The price the customer pays now: the price less the promotion when it is running
+    val currentPrice: Price get() = pricing.currentPrice
+
     // The name and the description in the default language
     val name: Name get() = translations.defaultTranslation().name
     val description: Description get() = translations.defaultTranslation().description
@@ -100,6 +112,7 @@ data class SkuProposalRequest(val requester: UserId, val skuBasis: SkuBasis)
 
 data class ProductAdministrationForbiddenException(override val errorMessage: ErrorMessage) :
     NominalException(errorMessage)
+data class InvalidPromotionException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class ProductAlreadyExists(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class ProductCreationFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class InvalidSkuException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

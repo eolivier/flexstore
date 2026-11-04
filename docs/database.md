@@ -1,6 +1,6 @@
 # Physical data model
 
-The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V49**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
+The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V50**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
 
 ![Physical data model](database.png)
 
@@ -292,6 +292,9 @@ erDiagram
         price numeric
         currency varchar(3)
         vat_rate varchar(20) "STANDARD, INTERMEDIATE, REDUCED or SUPER_REDUCED: 20, 10, 5.5 or 2.1 %"
+        promotion_percentage numeric "nullable: percentage off the price, from more than 0 to 100"
+        promotion_starts_at timestamptz "nullable: the promotion starts (included); the three promotion columns are all filled or all empty"
+        promotion_ends_at timestamptz "nullable: the promotion ends (excluded), after its start"
         created_at timestamp
         updated_at timestamp
     }

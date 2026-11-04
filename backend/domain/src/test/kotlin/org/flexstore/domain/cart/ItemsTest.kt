@@ -1,10 +1,12 @@
 package org.flexstore.domain.cart
 
+import org.flexstore.domain.discount.Percentage
 import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
 import org.assertj.core.api.WithAssertions
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
+import java.time.Instant
 
 class ItemsTest : WithAssertions {
 
@@ -41,5 +43,18 @@ class ItemsTest : WithAssertions {
         val totalPrice = items.totalPrice()
         // Assert
         assertThat(totalPrice.amount.value).isEqualByComparingTo("82")
+    }
+
+    @Test
+    fun `the total price should be the price of the products on promotion`() {
+        // Arrange
+        val period = PromotionPeriod(PromotionStart(Instant.EPOCH), PromotionEnd(Instant.MAX))
+        val halfPrice = PercentageOffPromotion(Percentage(BigDecimal(50)), period)
+        val lampOnPromotion = lamp.copy(pricing = ProductPricing(lamp.price, VatRate.STANDARD, halfPrice))
+        val items = Items(DraftItem(lampOnPromotion, Quantity(2)), DraftItem(mug, Quantity(1)))
+        // Act
+        val totalPrice = items.totalPrice()
+        // Assert
+        assertThat(totalPrice.amount.value).isEqualByComparingTo("47")
     }
 }

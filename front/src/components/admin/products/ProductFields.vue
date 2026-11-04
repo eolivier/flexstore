@@ -6,6 +6,8 @@
   import ProductTranslationFields from './ProductTranslationFields.vue';
   import SkuField from './SkuField.vue';
   import VatRateField from './VatRateField.vue';
+  import PromotionField from './PromotionField.vue';
+  import type { PromotionForm } from '@/utils/promotion';
 
   // The fields of a product, shared by its creation and its edition. skuAlreadyUsed: the API refused the SKU,
   // given to another product
@@ -15,6 +17,7 @@
   const category = defineModel<string>('category', { required: true });
   const price = defineModel<string | null>('price', { required: true });
   const vatRate = defineModel<VatRate>('vatRate', { required: true });
+  const promotion = defineModel<PromotionForm>('promotion', { required: true });
 
   const { t } = useI18n();
 
@@ -56,5 +59,6 @@
       />
     </v-col>
   </v-row>
+  <PromotionField v-model="promotion" class="mb-4" />
   <VatRateField v-model="vatRate" class="mb-4" />
 </template>

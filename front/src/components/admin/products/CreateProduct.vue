@@ -10,6 +10,7 @@
   import { useProductCreation } from '@/composables/useProductCreation';
   import { emptyTexts, translationsOf } from '@/utils/productTranslations';
   import { normalizedSku } from '@/utils/sku';
+  import { emptyPromotion, promotionOf } from '@/utils/promotion';
 
   const sku = ref('');
   const skuAlreadyUsed = ref(false);
@@ -18,6 +19,7 @@
   const price = ref<string | null>(null);
   // Most products are sold at the standard rate
   const vatRate = ref<VatRate>('STANDARD');
+  const promotion = ref(emptyPromotion());
   const image = ref<File | null>(null);
   const stock = ref('0');
   const valid = ref(false);
@@ -39,6 +41,7 @@
       currency: 'EUR',
       translations: translationsOf(texts.value),
       vatRate: vatRate.value,
+      promotion: promotionOf(promotion.value),
     };
     const creation = await createProduct(product, image.value, parseInt(stock.value, 10));
     saving.value = false;
@@ -63,6 +66,7 @@
     texts.value = emptyTexts();
     price.value = null;
     vatRate.value = 'STANDARD';
+    promotion.value = emptyPromotion();
     image.value = null;
     stock.value = '0';
     valid.value = false;
@@ -84,6 +88,7 @@
           v-model:category="category"
           v-model:price="price"
           v-model:vat-rate="vatRate"
+          v-model:promotion="promotion"
           :sku-already-used="skuAlreadyUsed"
         />
         <StockField v-model="stock" />

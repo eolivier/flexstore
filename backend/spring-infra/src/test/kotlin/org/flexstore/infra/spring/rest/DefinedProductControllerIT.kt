@@ -247,6 +247,94 @@ class DefinedProductControllerIT {
             .andExpect(jsonPath("$.vatRate").value("REDUCED"))
     }
 
+    private fun promotionBody(productId: String, promotion: String): String {
+        val translations = englishTranslation("Cook book", "Recipes")
+        return """{"sku": "${freeSku()}", "category": "BOOKS", "price": 20, "currency": "EUR",
+            "translations": [$translations], "promotion": $promotion}"""
+    }
+
+    private fun edit(productId: String, body: String) =
+        put("/api/products/$productId").with(asAdmin()).contentType(MediaType.APPLICATION_JSON).content(body)
+
+    @Test
+    fun `a product with a running promotion should show its regular price and its price to pay`() {
+        // Arrange
+        val productId = createProduct("Cook book")
+        val runningPromotion = """{"percentage": 25, "startsAt": "2020-01-01T00:00:00Z",
+            "endsAt": "2999-01-01T00:00:00Z"}"""
+        mockMvc.perform(edit(productId, promotionBody(productId, runningPromotion))).andExpect(status().isOk)
+        // Act
+        val response = mockMvc.perform(get("/api/products/$productId"))
+        // Assert
+        response.andExpect(status().isOk)
+            .andExpect(jsonPath("$.price").value(20))
+            .andExpect(jsonPath("$.promotionPercentage").value(25))
+            .andExpect(jsonPath("$.currentPrice").value(15))
+    }
+
+    @Test
+    fun `a product with a promotion that is over should be at its regular price`() {
+        // Arrange
+        val productId = createProduct("Cook book")
+        val pastPromotion = """{"percentage": 25, "startsAt": "2020-01-01T00:00:00Z",
+            "endsAt": "2020-02-01T00:00:00Z"}"""
+        mockMvc.perform(edit(productId, promotionBody(productId, pastPromotion))).andExpect(status().isOk)
+        // Act
+        val response = mockMvc.perform(get("/api/products/$productId"))
+        // Assert
+        response.andExpect(jsonPath("$.promotionPercentage").doesNotExist())
+            .andExpect(jsonPath("$.currentPrice").value(20))
+    }
+
+    @Test
+    fun `an administrator should read back the period of the promotion of a product`() {
+        // Arrange
+        val productId = createProduct("Cook book")
+        val promotion = """{"percentage": 25, "startsAt": "2999-01-01T09:30:00Z", "endsAt": "2999-01-08T18:00:00Z"}"""
+        mockMvc.perform(edit(productId, promotionBody(productId, promotion))).andExpect(status().isOk)
+        // Act
+        val response = mockMvc.perform(get("/api/admin/products/$productId").with(asAdmin()))
+        // Assert
+        response.andExpect(jsonPath("$.promotion.percentage").value(25))
+            .andExpect(jsonPath("$.promotion.startsAt").value("2999-01-01T09:30:00Z"))
+            .andExpect(jsonPath("$.promotion.endsAt").value("2999-01-08T18:00:00Z"))
+    }
+
+    @Test
+    fun `a product without promotion should have no promotion percentage`() {
+        // Arrange
+        val productId = createProduct("Desk lamp")
+        // Act
+        val response = mockMvc.perform(get("/api/products/$productId"))
+        // Assert
+        response.andExpect(jsonPath("$.promotionPercentage").doesNotExist())
+            .andExpect(jsonPath("$.currentPrice").exists())
+    }
+
+    @Test
+    fun `a promotion above 100 percent should be refused`() {
+        // Arrange
+        val productId = createProduct("Cook book")
+        val invalidPromotion = """{"percentage": 120, "startsAt": "2020-01-01T00:00:00Z",
+            "endsAt": "2999-01-01T00:00:00Z"}"""
+        // Act
+        val response = mockMvc.perform(edit(productId, promotionBody(productId, invalidPromotion)))
+        // Assert
+        response.andExpect(status().isBadRequest)
+    }
+
+    @Test
+    fun `a promotion that ends before it starts should be refused`() {
+        // Arrange
+        val productId = createProduct("Cook book")
+        val backwardsPromotion = """{"percentage": 20, "startsAt": "2999-01-01T00:00:00Z",
+            "endsAt": "2020-01-01T00:00:00Z"}"""
+        // Act
+        val response = mockMvc.perform(edit(productId, promotionBody(productId, backwardsPromotion)))
+        // Assert
+        response.andExpect(status().isBadRequest)
+    }
+
     @Test
     fun `an administrator should be proposed a SKU from the category and the name`() {
         // Act
