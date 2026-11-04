@@ -72,13 +72,13 @@ describe('LowStockBell.vue', () => {
     expect(document.body.textContent).toContain('2 left (alert at 5)');
   });
 
-  it('shows no count when no product runs low', async () => {
+  it('shows no bell when no product runs low', async () => {
     // Arrange
     lowStocksAre([]);
     // Act
     const wrapper = await mountBell();
     // Assert
-    expect(wrapper.find('.v-badge__badge').isVisible()).toBe(false);
+    expect(wrapper.find('button').exists()).toBe(false);
   });
 
   it('reads the low stocks again at each page opened', async () => {
