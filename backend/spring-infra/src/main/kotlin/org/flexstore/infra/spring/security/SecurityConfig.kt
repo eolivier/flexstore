@@ -90,8 +90,8 @@ open class SecurityConfig(@Value("\${flexstore.security.jwt-secret:}") private v
                     .requestMatchers(HttpMethod.POST, "/api/password-reset-requests", "/api/password-resets")
                     .permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/users/{id}/password").access(isUserFromPath())
-                    // Two-factor authentication is managed by the administrator it belongs to (checked again by
-                    // its own precondition in the domain, restricting it to an ADMIN account)
+                    // Two-factor authentication is managed by the customer or administrator it belongs to
+                    // (checked again by its own precondition in the domain)
                     .requestMatchers(HttpMethod.POST, "/api/users/{id}/two-factor-authentication/enrollment")
                     .access(isUserFromPath())
                     .requestMatchers(HttpMethod.POST, "/api/users/{id}/two-factor-authentication/confirmation")

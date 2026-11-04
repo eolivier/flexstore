@@ -15,7 +15,7 @@ All URIs are relative to *http://localhost:8080*
 |[**loginUser**](#loginuser) | **POST** /api/users/login | Authenticate a user|
 |[**logoutUser**](#logoutuser) | **POST** /api/users/logout | Sign out, ending the session of a refresh token|
 |[**refreshSession**](#refreshsession) | **POST** /api/users/refresh | Renew the access of a signed-in user with their refresh token|
-|[**startTwoFactorEnrollment**](#starttwofactorenrollment) | **POST** /api/users/{id}/two-factor-authentication/enrollment | Start the enrollment of two-factor authentication (administrator only)|
+|[**startTwoFactorEnrollment**](#starttwofactorenrollment) | **POST** /api/users/{id}/two-factor-authentication/enrollment | Start the enrollment of two-factor authentication|
 |[**updateUser**](#updateuser) | **PUT** /api/users/{id} | Edit a user by ID (first name, last name, email, role; not the password)|
 |[**verifyTwoFactorCode**](#verifytwofactorcode) | **POST** /api/users/login/two-factor-authentication | Complete a challenged sign-in with the code of the authenticator app|
 
@@ -186,7 +186,7 @@ void (empty response body)
 |-------------|-------------|------------------|
 |**204** | Two-factor authentication is now enabled |  -  |
 |**401** | Wrong code |  -  |
-|**403** | Not an administrator, or not the signed-in user |  -  |
+|**403** | Not the signed-in user |  -  |
 |**409** | No enrollment is pending |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -344,7 +344,7 @@ void (empty response body)
 |-------------|-------------|------------------|
 |**204** | Two-factor authentication is now disabled |  -  |
 |**400** | Wrong current password |  -  |
-|**403** | Not an administrator, or not the signed-in user |  -  |
+|**403** | Not the signed-in user |  -  |
 |**409** | Two-factor authentication is not enabled |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -662,7 +662,7 @@ const { status, data } = await apiInstance.startTwoFactorEnrollment(
 |-------------|-------------|------------------|
 |**200** | The secret and the link of the QR code |  -  |
 |**401** | Missing or invalid token |  -  |
-|**403** | Not an administrator, or not the signed-in user |  -  |
+|**403** | Not the signed-in user |  -  |
 |**409** | Two-factor authentication is already enabled |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

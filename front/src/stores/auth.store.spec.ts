@@ -298,10 +298,10 @@ describe('auth.store', () => {
     });
   });
 
-  describe('two-factor authentication of the signed-in administrator', () => {
+  describe('two-factor authentication of the signed-in customer', () => {
     it('should start an enrollment and read its secret and provisioning URI', async () => {
       // Arrange
-      const store = await signedIn({ ...createMockUser(), role: 'ADMIN' });
+      const store = await signedIn(createMockUser());
       const enrollment = { secret: 'ABCDEFGH', provisioningUri: 'otpauth://totp/Flexstore:john' };
       mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(enrollment) });
       // Act
@@ -315,7 +315,7 @@ describe('auth.store', () => {
 
     it('should confirm the enrollment and mark two-factor authentication enabled', async () => {
       // Arrange
-      const store = await signedIn({ ...createMockUser(), role: 'ADMIN' });
+      const store = await signedIn(createMockUser());
       mockFetch.mockResolvedValueOnce({ ok: true, status: 204 });
       // Act
       const outcome = await store.confirmTwoFactorEnrollment('123456');
@@ -326,7 +326,7 @@ describe('auth.store', () => {
 
     it('should report a wrong confirmation code', async () => {
       // Arrange
-      const store = await signedIn({ ...createMockUser(), role: 'ADMIN' });
+      const store = await signedIn(createMockUser());
       mockFetch.mockResolvedValueOnce({ ok: false, status: 401 });
       // Act
       const outcome = await store.confirmTwoFactorEnrollment('000000');
@@ -337,7 +337,7 @@ describe('auth.store', () => {
 
     it('should disable two-factor authentication with the current password', async () => {
       // Arrange
-      const store = await signedIn({ ...createMockUser(), role: 'ADMIN', twoFactorEnabled: true });
+      const store = await signedIn({ ...createMockUser(), twoFactorEnabled: true });
       mockFetch.mockResolvedValueOnce({ ok: true, status: 204 });
       // Act
       const outcome = await store.disableTwoFactorAuthentication('secret');
@@ -350,7 +350,7 @@ describe('auth.store', () => {
 
     it('should report a wrong current password when disabling', async () => {
       // Arrange
-      const store = await signedIn({ ...createMockUser(), role: 'ADMIN', twoFactorEnabled: true });
+      const store = await signedIn({ ...createMockUser(), twoFactorEnabled: true });
       mockFetch.mockResolvedValueOnce({ ok: false, status: 400 });
       // Act
       const outcome = await store.disableTwoFactorAuthentication('wrong');

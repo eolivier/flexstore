@@ -233,10 +233,10 @@ class UserRestController(
         return sessionOf(user)
     }
 
-    @Operation(summary = "Start the enrollment of two-factor authentication (administrator only)",
+    @Operation(summary = "Start the enrollment of two-factor authentication",
         responses = [
             ApiResponse(responseCode = "200", description = "The secret and the link of the QR code"),
-            ApiResponse(responseCode = "403", description = "Not an administrator, or not the signed-in user")
+            ApiResponse(responseCode = "403", description = "Not the signed-in user")
         ]
     )
     @PostMapping("/{id}/two-factor-authentication/enrollment")
@@ -247,7 +247,7 @@ class UserRestController(
         responses = [
             ApiResponse(responseCode = "204", description = "Two-factor authentication is now enabled"),
             ApiResponse(responseCode = "401", description = "Wrong code"),
-            ApiResponse(responseCode = "403", description = "Not an administrator, or not the signed-in user"),
+            ApiResponse(responseCode = "403", description = "Not the signed-in user"),
             ApiResponse(responseCode = "409", description = "No enrollment is pending")
         ]
     )
@@ -261,7 +261,7 @@ class UserRestController(
         responses = [
             ApiResponse(responseCode = "204", description = "Two-factor authentication is now disabled"),
             ApiResponse(responseCode = "400", description = "Wrong current password"),
-            ApiResponse(responseCode = "403", description = "Not an administrator, or not the signed-in user"),
+            ApiResponse(responseCode = "403", description = "Not the signed-in user"),
             ApiResponse(responseCode = "409", description = "Two-factor authentication is not enabled")
         ]
     )

@@ -41,11 +41,11 @@ class SignInServiceTest : WithAssertions {
 
     private fun janeWithTwoFactorEnabled() {
         val janeDoe = FullName(FirstName("Jane"), LastName("Doe"))
-        val admin = User.DefinedUser(
-            janeId, janeDoe, janeEmail, rightPassword, role = Role.ADMIN,
+        val jane = User.DefinedUser(
+            janeId, janeDoe, janeEmail, rightPassword,
             twoFactorAuthentication = TwoFactorAuthentication.Enabled(secret)
         )
-        userRepository.save(admin)
+        userRepository.save(jane)
     }
 
     private fun signedInOutcome() = signInService.signIn(LoginRequest(janeEmail, rightPassword))
@@ -151,7 +151,7 @@ class SignInServiceTest : WithAssertions {
     }
 
     @Test
-    fun `an administrator with two-factor authentication enabled should be given a challenge, not a session`() {
+    fun `a user with two-factor authentication enabled should be given a challenge, not a session`() {
         // Arrange
         janeWithTwoFactorEnabled()
         // Act

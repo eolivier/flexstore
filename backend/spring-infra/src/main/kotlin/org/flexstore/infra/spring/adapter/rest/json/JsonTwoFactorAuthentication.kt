@@ -8,8 +8,8 @@ import org.flexstore.domain.user.model.PlainPassword
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 
-// What an administrator reads once an enrollment started: the secret to type manually, and the link a QR code
-// is generated from, on the front end
+// What a customer or administrator reads once an enrollment started: the secret to type manually, and the
+// link a QR code is generated from, on the front end
 data class JsonTwoFactorEnrollment(
     @JsonProperty("secret") val secret: String,
     @JsonProperty("provisioningUri") val provisioningUri: String

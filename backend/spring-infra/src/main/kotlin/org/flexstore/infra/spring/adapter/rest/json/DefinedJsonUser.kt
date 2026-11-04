@@ -16,7 +16,7 @@ data class DefinedJsonUser @JsonCreator constructor(
     @JsonProperty("role") val role: String? = null,
     // Only sent in responses: the status of the account
     @JsonProperty("status") val status: String? = null,
-    // Only sent in responses: whether two-factor authentication is enabled (restricted to an ADMIN account)
+    // Only sent in responses: whether two-factor authentication is enabled
     @JsonProperty("twoFactorEnabled") val twoFactorEnabled: Boolean = false
 ): JsonUser {
     fun toUser() = User.of(

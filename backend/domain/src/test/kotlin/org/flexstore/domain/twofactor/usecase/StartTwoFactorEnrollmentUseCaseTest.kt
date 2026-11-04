@@ -2,12 +2,16 @@ package org.flexstore.domain.twofactor.usecase
 
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.twofactor.TwoFactorAuthenticationAlreadyEnabledException
-import org.flexstore.domain.twofactor.TwoFactorAuthenticationForbiddenException
 import org.flexstore.domain.twofactor.model.TwoFactorAuthentication
 import org.flexstore.domain.twofactor.model.TwoFactorSecret
+import org.flexstore.domain.user.blockedCustomerId
+import org.flexstore.domain.user.customerWithStatus
 import org.flexstore.domain.user.model.*
+import org.flexstore.domain.user.unknownCustomerId
 import org.flexstore.infra.repository.InMemoryUserRepository
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 
 class StartTwoFactorEnrollmentUseCaseTest : WithAssertions {
 
@@ -40,12 +44,31 @@ class StartTwoFactorEnrollmentUseCaseTest : WithAssertions {
     }
 
     @Test
-    fun `a customer should not start an enrollment`() {
+    fun `a customer should start an enrollment kept pending until it is confirmed`() {
         // Act
-        val thrown = catchThrowable { useCase.unfold(TwoFactorEnrollmentStart(jane.id, secret)) }
+        useCase.unfold(TwoFactorEnrollmentStart(jane.id, secret))
         // Assert
-        assertThat(thrown).isInstanceOf(TwoFactorAuthenticationForbiddenException::class.java)
-        assertThat(storedTwoFactorAuthenticationOf(jane.id)).isEqualTo(TwoFactorAuthentication.Disabled)
+        val expected = TwoFactorAuthentication.PendingConfirmation(secret)
+        assertThat(storedTwoFactorAuthenticationOf(jane.id)).isEqualTo(expected)
+    }
+
+    @Test
+    fun `an unknown user should not start an enrollment`() {
+        // Act
+        val thrown = catchThrowable { useCase.unfold(TwoFactorEnrollmentStart(unknownCustomerId, secret)) }
+        // Assert
+        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
+    }
+
+    @ParameterizedTest
+    @EnumSource(AccountStatus::class, names = ["SUSPENDED", "LOCKED", "DISABLED"])
+    fun `a user whose account is refused should not start an enrollment`(status: AccountStatus) {
+        // Arrange
+        userRepository.save(customerWithStatus(status))
+        // Act
+        val thrown = catchThrowable { useCase.unfold(TwoFactorEnrollmentStart(blockedCustomerId, secret)) }
+        // Assert
+        assertThat(thrown).isInstanceOf(AccountRefusedException::class.java)
     }
 
     @Test

@@ -1,7 +1,7 @@
 package org.flexstore.domain.twofactor.model
 
-// Whether the two-factor authentication (TOTP) of an administrator is set up: disabled, waiting for the first
-// code of an enrollment that is not active yet, or enabled and checked at every sign-in
+// Whether the two-factor authentication (TOTP) of a user is set up: disabled, waiting for the first code of
+// an enrollment that is not active yet, or enabled and checked at every sign-in
 sealed interface TwoFactorAuthentication {
 
     fun isEnabled(): Boolean

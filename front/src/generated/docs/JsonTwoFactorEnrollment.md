@@ -1,6 +1,6 @@
 # JsonTwoFactorEnrollment
 
-What an administrator reads once an enrollment started, to set up their authenticator app
+What a customer or administrator reads once an enrollment started, to set up their authenticator app
 
 ## Properties
 

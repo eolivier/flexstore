@@ -64,8 +64,7 @@ class RestExceptionHandler {
             is DiscountCodeAdministrationForbiddenException, is ProductAdministrationForbiddenException,
             is ProductImageForbiddenException, is StockChangeForbiddenException,
             is ReviewModerationForbiddenException, is OrderAdministrationForbiddenException,
-            is CreditNoteForbiddenException, is SalesDashboardForbiddenException,
-            is TwoFactorAuthenticationForbiddenException -> ResponseEntity
+            is CreditNoteForbiddenException, is SalesDashboardForbiddenException -> ResponseEntity
                 .status(403)
                 .body(mapOf("error" to (ex.message ?: "Forbidden")))
             // The code is wrong, or the sign-in challenge is unknown or older than its validity
