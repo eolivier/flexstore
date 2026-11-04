@@ -9,10 +9,15 @@ describe('navigation', () => {
     expect(links).toEqual([]);
   });
 
-  it('a signed-in customer has the links to their profile, orders and addresses', () => {
+  it('a signed-in customer has the links to their profile, orders, addresses and wishlist', () => {
     // Act
     const links = accountLinksOf(true);
     // Assert
-    expect(links.map((link) => link.label)).toEqual(['nav.profile', 'nav.orders', 'nav.addresses']);
+    expect(links.map((link) => link.label)).toEqual([
+      'nav.profile',
+      'nav.orders',
+      'nav.addresses',
+      'nav.wishlist',
+    ]);
   });
 });

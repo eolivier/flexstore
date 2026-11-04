@@ -6641,3 +6641,252 @@ export class UsersApi extends BaseAPI {
 
 
 
+/**
+ * WishlistApi - axios parameter creator
+ */
+export const WishlistApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Retrieve the products the signed-in customer saved to their wishlist, newest first
+         * @param {string} [acceptLanguage] The language of the customer (en, fr); the products not translated into it are in en
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getWishlist: async (acceptLanguage?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/wishlist`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            if (acceptLanguage != null) {
+                localVarHeaderParameter['Accept-Language'] = String(acceptLanguage);
+            }
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Remove a product from the wishlist of the signed-in customer
+         * @param {string} productId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        removeProductFromWishlist: async (productId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'productId' is not null or undefined
+            assertParamExists('removeProductFromWishlist', 'productId', productId)
+            const localVarPath = `/api/wishlist/{productId}`
+                .replace(`{${"productId"}}`, encodeURIComponent(String(productId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Save a product to the wishlist of the signed-in customer, once per product
+         * @param {string} productId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        saveProductToWishlist: async (productId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'productId' is not null or undefined
+            assertParamExists('saveProductToWishlist', 'productId', productId)
+            const localVarPath = `/api/wishlist/{productId}`
+                .replace(`{${"productId"}}`, encodeURIComponent(String(productId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * WishlistApi - functional programming interface
+ */
+export const WishlistApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = WishlistApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Retrieve the products the signed-in customer saved to their wishlist, newest first
+         * @param {string} [acceptLanguage] The language of the customer (en, fr); the products not translated into it are in en
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getWishlist(acceptLanguage?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<JsonProduct>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getWishlist(acceptLanguage, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['WishlistApi.getWishlist']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Remove a product from the wishlist of the signed-in customer
+         * @param {string} productId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async removeProductFromWishlist(productId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.removeProductFromWishlist(productId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['WishlistApi.removeProductFromWishlist']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Save a product to the wishlist of the signed-in customer, once per product
+         * @param {string} productId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async saveProductToWishlist(productId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.saveProductToWishlist(productId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['WishlistApi.saveProductToWishlist']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * WishlistApi - factory interface
+ */
+export const WishlistApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = WishlistApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Retrieve the products the signed-in customer saved to their wishlist, newest first
+         * @param {string} [acceptLanguage] The language of the customer (en, fr); the products not translated into it are in en
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getWishlist(acceptLanguage?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<JsonProduct>> {
+            return localVarFp.getWishlist(acceptLanguage, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Remove a product from the wishlist of the signed-in customer
+         * @param {string} productId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        removeProductFromWishlist(productId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.removeProductFromWishlist(productId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Save a product to the wishlist of the signed-in customer, once per product
+         * @param {string} productId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        saveProductToWishlist(productId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.saveProductToWishlist(productId, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * WishlistApi - object-oriented interface
+ */
+export class WishlistApi extends BaseAPI {
+    /**
+     * 
+     * @summary Retrieve the products the signed-in customer saved to their wishlist, newest first
+     * @param {string} [acceptLanguage] The language of the customer (en, fr); the products not translated into it are in en
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getWishlist(acceptLanguage?: string, options?: RawAxiosRequestConfig) {
+        return WishlistApiFp(this.configuration).getWishlist(acceptLanguage, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Remove a product from the wishlist of the signed-in customer
+     * @param {string} productId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public removeProductFromWishlist(productId: string, options?: RawAxiosRequestConfig) {
+        return WishlistApiFp(this.configuration).removeProductFromWishlist(productId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Save a product to the wishlist of the signed-in customer, once per product
+     * @param {string} productId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public saveProductToWishlist(productId: string, options?: RawAxiosRequestConfig) {
+        return WishlistApiFp(this.configuration).saveProductToWishlist(productId, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+

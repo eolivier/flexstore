@@ -35,6 +35,8 @@ import org.flexstore.domain.twofactor.usecase.*
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.usecase.*
+import org.flexstore.domain.wishlist.*
+import org.flexstore.domain.wishlist.usecase.*
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -577,4 +579,28 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     @Bean
     open fun disableTwoFactorAuthenticationUseCase(userRepository: UserRepository) =
         DisableTwoFactorAuthenticationUseCase(userRepository)
+
+    @Bean
+    open fun addProductToWishlistUseCase(
+        wishlistRepository: WishlistRepository,
+        productRepository: ProductRepository,
+        userRepository: UserRepository
+    ) = AddProductToWishlistUseCase(wishlistRepository, productRepository, userRepository)
+
+    @Bean
+    open fun removeProductFromWishlistUseCase(
+        wishlistRepository: WishlistRepository,
+        userRepository: UserRepository
+    ) = RemoveProductFromWishlistUseCase(wishlistRepository, userRepository)
+
+    @Bean
+    open fun listWishlistUseCase(wishlistRepository: WishlistRepository, userRepository: UserRepository) =
+        ListWishlistUseCase(wishlistRepository, userRepository)
+
+    @Bean
+    open fun wishlistUseCases(
+        addProductToWishlistUseCase: AddProductToWishlistUseCase,
+        removeProductFromWishlistUseCase: RemoveProductFromWishlistUseCase,
+        listWishlistUseCase: ListWishlistUseCase
+    ) = WishlistUseCases(addProductToWishlistUseCase, removeProductFromWishlistUseCase, listWishlistUseCase)
 }

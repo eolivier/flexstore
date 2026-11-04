@@ -25,6 +25,7 @@ import EditProduct from './components/admin/products/EditProduct.vue';
 import AdminOrders from './components/admin/orders/AdminOrders.vue';
 import AdminOrderDetail from './components/admin/orders/AdminOrderDetail.vue';
 import AddressBook from './components/account/addresses/AddressBook.vue';
+import Wishlist from './components/account/wishlist/Wishlist.vue';
 import ShopSettings from './components/admin/settings/ShopSettings.vue';
 import SalesDashboard from './components/admin/sales/SalesDashboard.vue';
 import SellerSettings from './components/admin/seller/SellerSettings.vue';
@@ -47,6 +48,7 @@ const routes = [
   { path: '/checkout', component: Checkout, meta: { requiresAuth: true } },
   { path: '/orders', component: Orders, meta: { requiresAuth: true } },
   { path: '/account/addresses', component: AddressBook, meta: { requiresAuth: true } },
+  { path: '/account/wishlist', component: Wishlist, meta: { requiresAuth: true } },
   { path: '/orders/:id', component: OrderDetail, props: true, meta: { requiresAuth: true } },
   {
     path: '/orders/:id/confirmation',

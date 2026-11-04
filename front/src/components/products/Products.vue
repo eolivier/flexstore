@@ -7,6 +7,8 @@
   import { useProductsStore } from '@/stores/products.store.ts';
   import ProductCard from './ProductCard.vue';
   import { useReviewsStore } from '@/stores/reviews.store';
+  import { useWishlistStore } from '@/stores/wishlist.store';
+  import { useAuthStore } from '@/stores/auth.store';
   import CartSnackbar from '@/components/cart/CartSnackbar.vue';
   import { useAddToCart } from '@/composables/useAddToCart';
   import { categoryInfo, isKnownCategory } from './categories';
@@ -36,6 +38,8 @@
   const productsStore = useProductsStore();
   const stocksStore = useStocksStore();
   const reviewsStore = useReviewsStore();
+  const wishlistStore = useWishlistStore();
+  const authStore = useAuthStore();
   const { addingProductId, feedback, addToCart } = useAddToCart();
 
   const title = computed(() => t(props.category ? categoryInfo(props.category).label : 'nav.allProducts'));
@@ -65,6 +69,7 @@
     stocksStore.fetchStocks();
     reviewsStore.fetchRatings();
     useProductImagesStore().fetchProductsWithImage();
+    if (authStore.isAuthenticated) wishlistStore.fetchWishlist();
   });
 </script>
 

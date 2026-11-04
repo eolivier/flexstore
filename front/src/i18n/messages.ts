@@ -232,6 +232,8 @@ export default {
       notFoundText: 'This product does not exist or is no longer available.',
       backToShop: 'Back to the shop',
       similar: 'In the same category',
+      addToWishlist: 'Save to your wishlist',
+      removeFromWishlist: 'Remove from your wishlist',
     },
     cart: {
       title: 'My cart',
@@ -357,6 +359,12 @@ export default {
         error: 'The address could not be saved.',
         removal: 'The address could not be removed.',
       },
+    },
+    wishlist: {
+      title: 'My wishlist',
+      subtitle: 'The products you saved, to buy them back later.',
+      empty: 'Your wishlist is empty: save a product from the shop to see it here.',
+      loadError: 'Your wishlist could not be loaded.',
     },
     adminOrders: {
       title: 'Orders',
@@ -547,6 +555,7 @@ export default {
       cart: 'Cart',
       orders: 'My orders',
       addresses: 'My addresses',
+      wishlist: 'My wishlist',
       profile: 'My profile',
       account: 'My account',
       admin: 'Administration',
@@ -984,6 +993,8 @@ export default {
       notFoundText: "Ce produit n'existe pas ou n'est plus disponible.",
       backToShop: 'Retour à la boutique',
       similar: 'Dans la même catégorie',
+      addToWishlist: 'Ajouter à votre liste de souhaits',
+      removeFromWishlist: 'Retirer de votre liste de souhaits',
     },
     cart: {
       title: 'Mon panier',
@@ -1115,6 +1126,12 @@ export default {
         error: "L'adresse n'a pas pu être enregistrée.",
         removal: "L'adresse n'a pas pu être supprimée.",
       },
+    },
+    wishlist: {
+      title: 'Ma liste de souhaits',
+      subtitle: 'Les produits que vous avez enregistrés, pour les acheter plus tard.',
+      empty: 'Votre liste de souhaits est vide : enregistrez un produit depuis la boutique pour le voir ici.',
+      loadError: "Votre liste de souhaits n'a pas pu être chargée.",
     },
     adminOrders: {
       title: 'Commandes',
@@ -1306,6 +1323,7 @@ export default {
       cart: 'Panier',
       orders: 'Mes commandes',
       addresses: 'Mes adresses',
+      wishlist: 'Ma liste de souhaits',
       profile: 'Mon profil',
       account: 'Mon compte',
       admin: 'Administration',
