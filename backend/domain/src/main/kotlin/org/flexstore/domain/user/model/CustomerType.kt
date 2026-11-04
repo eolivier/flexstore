@@ -1,6 +1,6 @@
 package org.flexstore.domain.user.model
 
-import org.flexstore.domain.sharedkernel.ErrorMessage
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
 
 // The SIREN of a company, its French identifier: 9 digits

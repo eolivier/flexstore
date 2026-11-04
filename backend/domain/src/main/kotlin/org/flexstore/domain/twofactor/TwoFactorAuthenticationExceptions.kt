@@ -1,6 +1,6 @@
 package org.flexstore.domain.twofactor
 
-import org.flexstore.domain.sharedkernel.ErrorMessage
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
 
 data class TwoFactorAuthenticationForbiddenException(override val errorMessage: ErrorMessage) :

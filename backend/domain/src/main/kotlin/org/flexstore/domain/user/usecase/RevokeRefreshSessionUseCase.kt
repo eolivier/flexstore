@@ -1,8 +1,8 @@
 package org.flexstore.domain.user.usecase
 
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.RefreshSessionRepository
 import org.flexstore.domain.user.model.*
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // A user signs out: their session is ended, and its refresh token cannot be used again. Ending a session that is

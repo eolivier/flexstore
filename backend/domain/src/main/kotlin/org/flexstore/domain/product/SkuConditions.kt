@@ -1,6 +1,6 @@
 package org.flexstore.domain.product
 
-import org.flexstore.domain.sharedkernel.ErrorMessage
+import org.ucop.domain.ErrorMessage
 
 // The SKU of a created or edited product: well formed, and not used by another product of the catalog
 

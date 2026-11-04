@@ -1,12 +1,12 @@
 package org.flexstore.domain.invoice
 
+import java.time.Instant
 import org.flexstore.domain.order.OrderId
 import org.flexstore.domain.seller.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
-import org.ucop.domain.NominalException
 import org.flexstore.domain.sharedkernel.InstantProvider
-import java.time.Instant
 import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.ErrorMessage
+import org.ucop.domain.NominalException
 
 // The number of an invoice, in a sequence without gaps: the year of issue, then its rank (2026-000042)
 data class InvoiceNumber(val value: String)

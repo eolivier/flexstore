@@ -1,9 +1,9 @@
 package org.flexstore.domain.cookie.usecase
 
 import org.flexstore.domain.cookie.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.UserRepository
 import org.flexstore.domain.user.model.UserNotFoundException
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // A signed-in customer accepts or refuses the preference cookies: their choice is kept for 6 months

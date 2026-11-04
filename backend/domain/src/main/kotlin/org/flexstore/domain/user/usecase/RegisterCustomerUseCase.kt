@@ -2,7 +2,7 @@ package org.flexstore.domain.user.usecase
 
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // A customer creates their own account, which waits for the verification of their email

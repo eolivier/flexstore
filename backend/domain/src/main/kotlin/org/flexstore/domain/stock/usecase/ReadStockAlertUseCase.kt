@@ -1,8 +1,8 @@
 package org.flexstore.domain.stock.usecase
 
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.stock.*
 import org.flexstore.domain.user.UserRepository
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // An administrator reads the threshold of the stock of a product: the default one when it was never given

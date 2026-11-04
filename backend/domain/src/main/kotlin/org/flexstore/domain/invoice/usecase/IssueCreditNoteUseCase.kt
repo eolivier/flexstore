@@ -2,9 +2,9 @@ package org.flexstore.domain.invoice.usecase
 
 import org.flexstore.domain.invoice.*
 import org.flexstore.domain.order.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
-import org.ucop.domain.entity.*
 import org.flexstore.domain.user.UserRepository
+import org.ucop.domain.ErrorMessage
+import org.ucop.domain.entity.*
 
 // An administrator who refunded an order issues its credit note: a refunded order gets a credit note once,
 // which cancels its invoice, with the next number of the sequence of the credit notes

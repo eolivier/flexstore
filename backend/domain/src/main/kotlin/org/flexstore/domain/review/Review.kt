@@ -4,6 +4,7 @@ import org.flexstore.domain.product.ProductId
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.FullName
 import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
 import java.math.BigDecimal
 import java.math.RoundingMode

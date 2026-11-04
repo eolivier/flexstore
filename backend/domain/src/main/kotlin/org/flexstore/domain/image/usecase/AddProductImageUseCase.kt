@@ -2,9 +2,9 @@ package org.flexstore.domain.image.usecase
 
 import org.flexstore.domain.image.*
 import org.flexstore.domain.product.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
-import org.ucop.domain.entity.*
 import org.flexstore.domain.user.UserRepository
+import org.ucop.domain.ErrorMessage
+import org.ucop.domain.entity.*
 
 // An administrator gives the image of a product (2 MB at most): it is kept resized in each format,
 // replacing the previous one

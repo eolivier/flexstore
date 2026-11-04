@@ -1,9 +1,9 @@
 package org.flexstore.domain.order.usecase
 
 import org.flexstore.domain.order.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // The addresses of an order are kept among the addresses of the customer (an address entered when ordering is

@@ -1,6 +1,5 @@
 package org.flexstore.domain.twofactor.usecase
 
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.twofactor.TwoFactorAuthenticationForbiddenException
 import org.flexstore.domain.twofactor.TwoFactorAuthenticationNotEnabledException
 import org.flexstore.domain.twofactor.model.TwoFactorAuthentication
@@ -9,6 +8,7 @@ import org.flexstore.domain.user.model.PlainPassword
 import org.flexstore.domain.user.model.User
 import org.flexstore.domain.user.model.UserId
 import org.flexstore.domain.user.usecase.InvalidCurrentPasswordException
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 data class TwoFactorDisabling(val admin: UserId, val currentPassword: PlainPassword)

@@ -1,6 +1,6 @@
 package org.flexstore.domain.user.model
 
-import org.flexstore.domain.sharedkernel.ErrorMessage
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
 
 // The status of the account of a user. A customer who creates their account waits for the verification of their

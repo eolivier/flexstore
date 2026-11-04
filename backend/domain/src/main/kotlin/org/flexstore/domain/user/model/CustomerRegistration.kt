@@ -1,6 +1,6 @@
 package org.flexstore.domain.user.model
 
-import org.flexstore.domain.sharedkernel.ErrorMessage
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
 
 // A customer creates their own account. The id is chosen by the caller, which can then read the created account

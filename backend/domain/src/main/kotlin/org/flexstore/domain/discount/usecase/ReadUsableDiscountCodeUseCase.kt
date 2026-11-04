@@ -1,7 +1,7 @@
 package org.flexstore.domain.discount.usecase
 
 import org.flexstore.domain.discount.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // A discount code entered by a customer, usable at that moment: it exists, has not expired, and is not used up

@@ -2,10 +2,10 @@ package org.flexstore.domain.review.usecase
 
 import org.flexstore.domain.order.OrderRepository
 import org.flexstore.domain.review.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.UserRepository
 import org.flexstore.domain.user.model.AccountRefusedException
 import org.flexstore.domain.user.model.UserNotFoundException
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // Whether a signed-in customer may review a product, so that the form is only offered to the customers who can

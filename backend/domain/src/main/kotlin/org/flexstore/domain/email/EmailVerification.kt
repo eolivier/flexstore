@@ -1,13 +1,13 @@
 package org.flexstore.domain.email
 
-import org.flexstore.domain.sharedkernel.ShopUrl
-import org.flexstore.domain.sharedkernel.ErrorMessage
-import org.flexstore.domain.user.model.*
-import org.ucop.domain.NominalException
 import java.security.SecureRandom
 import java.time.Duration
 import java.time.Instant
 import java.util.Base64
+import org.flexstore.domain.sharedkernel.ShopUrl
+import org.flexstore.domain.user.model.*
+import org.ucop.domain.ErrorMessage
+import org.ucop.domain.NominalException
 
 // The secret of a verification link: random, it cannot be guessed
 data class VerificationToken(val value: String) {

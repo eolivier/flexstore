@@ -1,10 +1,10 @@
 package org.flexstore.domain.cart.usecase
 
 import org.flexstore.domain.cart.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.UserRepository
 import org.flexstore.domain.user.model.AccountRefusedException
 import org.flexstore.domain.user.model.UserNotFoundException
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // When a visitor signs in, the cart filled before signing in is merged into the cart of the customer

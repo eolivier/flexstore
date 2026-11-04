@@ -1,9 +1,9 @@
 package org.flexstore.domain.stock
 
 import org.flexstore.domain.product.ProductId
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.sharedkernel.Quantity
 import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
 
 // The number of units of a product that the shop has: never negative

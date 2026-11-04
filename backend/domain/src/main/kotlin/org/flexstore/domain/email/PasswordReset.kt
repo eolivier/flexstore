@@ -1,11 +1,11 @@
 package org.flexstore.domain.email
 
-import org.flexstore.domain.sharedkernel.ErrorMessage
-import org.flexstore.domain.sharedkernel.ShopUrl
-import org.flexstore.domain.user.model.*
-import org.ucop.domain.NominalException
 import java.time.Duration
 import java.time.Instant
+import org.flexstore.domain.sharedkernel.ShopUrl
+import org.flexstore.domain.user.model.*
+import org.ucop.domain.ErrorMessage
+import org.ucop.domain.NominalException
 
 // The secret of a link and the moment from which it does not work any more
 data class ExpiringToken(val token: VerificationToken, val expiresAt: ExpirationDate) {

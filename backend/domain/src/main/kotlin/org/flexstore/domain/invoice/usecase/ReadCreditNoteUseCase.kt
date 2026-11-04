@@ -2,7 +2,7 @@ package org.flexstore.domain.invoice.usecase
 
 import org.flexstore.domain.invoice.*
 import org.flexstore.domain.order.OrderId
-import org.flexstore.domain.sharedkernel.ErrorMessage
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // The credit note of an order, issued when it was refunded

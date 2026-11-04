@@ -1,7 +1,7 @@
 package org.flexstore.domain.seller.usecase
 
 import org.flexstore.domain.seller.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // A version of the seller, as written on the invoices issued with it

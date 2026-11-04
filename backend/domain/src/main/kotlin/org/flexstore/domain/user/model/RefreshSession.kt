@@ -1,12 +1,12 @@
 package org.flexstore.domain.user.model
 
-import org.flexstore.domain.sharedkernel.ErrorMessage
-import org.flexstore.domain.sharedkernel.InstantProvider
-import org.ucop.domain.NominalException
 import java.security.SecureRandom
 import java.time.Duration
 import java.time.Instant
 import java.util.Base64
+import org.flexstore.domain.sharedkernel.InstantProvider
+import org.ucop.domain.ErrorMessage
+import org.ucop.domain.NominalException
 
 // The secret that renews the access of a signed-in user once their access token expired: random, it cannot be
 // guessed. The database only keeps its hash

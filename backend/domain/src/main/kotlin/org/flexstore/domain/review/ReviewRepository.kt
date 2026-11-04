@@ -1,8 +1,8 @@
 package org.flexstore.domain.review
 
 import org.flexstore.domain.product.ProductId
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.ErrorMessage
 
 // The reviews written by the customers
 interface ReviewRepository {

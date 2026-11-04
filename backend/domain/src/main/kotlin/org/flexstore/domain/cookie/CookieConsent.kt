@@ -1,11 +1,11 @@
 package org.flexstore.domain.cookie
 
-import org.flexstore.domain.sharedkernel.ErrorMessage
-import org.flexstore.domain.sharedkernel.InstantProvider
-import org.flexstore.domain.user.model.UserId
-import org.ucop.domain.NominalException
 import java.time.Instant
 import java.time.ZoneOffset
+import org.flexstore.domain.sharedkernel.InstantProvider
+import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.ErrorMessage
+import org.ucop.domain.NominalException
 
 // The choice of a customer about the preference cookies (the essential ones need no consent)
 enum class CookieChoice { ACCEPTED, REFUSED }

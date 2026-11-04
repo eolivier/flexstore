@@ -5,19 +5,19 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.domain.image.*
 import org.flexstore.domain.image.usecase.ProductImageUseCases
 import org.flexstore.domain.product.ProductId
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.sharedkernel.Identity
+import org.flexstore.domain.user.model.UserId
+import org.flexstore.domain.user.model.of
 import org.springframework.http.CacheControl
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.multipart.MultipartFile
-import org.flexstore.domain.user.model.UserId
-import org.flexstore.domain.user.model.of
-import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.security.oauth2.jwt.Jwt
+import org.ucop.domain.ErrorMessage
 
 // The images of the products: read by everyone, given by the administrators (ADMIN role, see SecurityConfig)
 @Tag(name = "Product images")

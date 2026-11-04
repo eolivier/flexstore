@@ -3,11 +3,11 @@ package org.flexstore.domain.cart.usecase
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
-import org.ucop.domain.NominalException
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.UserRepository
 import org.flexstore.domain.user.model.AccountRefusedException
 import org.flexstore.domain.user.model.UserNotFoundException
+import org.ucop.domain.ErrorMessage
+import org.ucop.domain.NominalException
 import org.ucop.domain.entity.*
 
 data class AddItemToCartRequest(val owner: CartOwner, val productId: ProductId, val quantity: Quantity)

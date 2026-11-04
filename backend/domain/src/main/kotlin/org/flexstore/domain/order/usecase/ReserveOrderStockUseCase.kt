@@ -1,8 +1,8 @@
 package org.flexstore.domain.order.usecase
 
 import org.flexstore.domain.order.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.stock.*
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // The units of a placed order are reserved until it is paid, or cancelled for lack of payment. Another order may

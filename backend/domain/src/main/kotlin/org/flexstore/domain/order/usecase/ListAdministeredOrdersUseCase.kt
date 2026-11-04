@@ -3,8 +3,8 @@ package org.flexstore.domain.order.usecase
 import org.flexstore.domain.order.*
 import org.flexstore.domain.sharedkernel.Page
 import org.flexstore.domain.user.UserRepository
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
 
 // An administrator reads a page of the orders of all the customers, newest first, each one with the customer
 // who placed it; the users are read once for all the orders of the page

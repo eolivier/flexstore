@@ -2,7 +2,7 @@ package org.flexstore.domain.payment
 
 import org.flexstore.domain.cart.CartOwner
 import org.flexstore.domain.order.OrderId
-import org.flexstore.domain.sharedkernel.ErrorMessage
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
 
 // The page of the payment provider where the customer pays an order

@@ -3,8 +3,8 @@ package org.flexstore.domain.payment.usecase
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.payment.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.stock.StockRepository
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // The payment provider confirms the payment of an order: the order is paid (its units were reserved when it

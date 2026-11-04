@@ -1,8 +1,5 @@
 package org.flexstore.infra.spring.adapter.payment
 
-import org.flexstore.domain.order.OrderPage
-import org.flexstore.domain.order.OrderConfirmationPage
-import org.flexstore.domain.sharedkernel.ShopUrl
 import com.stripe.exception.StripeException
 import com.stripe.model.Coupon
 import com.stripe.model.Customer
@@ -15,16 +12,19 @@ import com.stripe.param.CustomerListParams
 import com.stripe.param.CustomerUpdateParams
 import com.stripe.param.RefundCreateParams
 import com.stripe.param.checkout.SessionCreateParams
-import com.stripe.param.checkout.SessionExpireParams
 import com.stripe.param.checkout.SessionCreateParams.LineItem
 import com.stripe.param.checkout.SessionCreateParams.LineItem.PriceData
+import com.stripe.param.checkout.SessionExpireParams
+import java.math.BigDecimal
 import org.flexstore.domain.order.AppliedOrderDiscount
 import org.flexstore.domain.order.Order
+import org.flexstore.domain.order.OrderConfirmationPage
 import org.flexstore.domain.order.OrderLine
-import org.flexstore.domain.sharedkernel.Price
+import org.flexstore.domain.order.OrderPage
 import org.flexstore.domain.payment.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
-import java.math.BigDecimal
+import org.flexstore.domain.sharedkernel.Price
+import org.flexstore.domain.sharedkernel.ShopUrl
+import org.ucop.domain.ErrorMessage
 
 // Stripe amounts are in cents
 private val CENTS_PER_EURO = BigDecimal(100)

@@ -1,6 +1,6 @@
 package org.flexstore.domain.user.model
 
-import org.flexstore.domain.sharedkernel.ErrorMessage
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
 
 // The place of an address among the addresses of a user (0 for the first one)

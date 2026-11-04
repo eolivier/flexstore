@@ -1,10 +1,10 @@
 package org.flexstore.domain.stock.usecase
 
 import org.flexstore.domain.product.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.stock.*
-import org.ucop.domain.entity.*
 import org.flexstore.domain.user.UserRepository
+import org.ucop.domain.ErrorMessage
+import org.ucop.domain.entity.*
 
 // An administrator gives the number of units of a product that the shop has
 class ChangeStockUseCase(

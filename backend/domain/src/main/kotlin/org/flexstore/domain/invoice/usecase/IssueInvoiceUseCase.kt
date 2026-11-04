@@ -3,7 +3,7 @@ package org.flexstore.domain.invoice.usecase
 import org.flexstore.domain.invoice.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.seller.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // A paid order is invoiced once, with the next number of the sequence of the invoices, sold by the current

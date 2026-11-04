@@ -3,8 +3,8 @@ package org.flexstore.domain.user.model
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.twofactor.model.TwoFactorAuthentication
 import org.flexstore.domain.twofactor.model.TwoFactorSecret
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.ucop.domain.entity.Actor
 
 sealed class User(open val id: UserId) {

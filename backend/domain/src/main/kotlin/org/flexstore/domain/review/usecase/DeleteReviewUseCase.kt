@@ -1,9 +1,9 @@
 package org.flexstore.domain.review.usecase
 
 import org.flexstore.domain.review.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
-import org.ucop.domain.entity.*
 import org.flexstore.domain.user.UserRepository
+import org.ucop.domain.ErrorMessage
+import org.ucop.domain.entity.*
 
 // An administrator deletes a review (a comment that has no place in the shop): the rating of the product no
 // longer counts it, and the customer may review the product again

@@ -1,8 +1,8 @@
 package org.flexstore.domain.seller.usecase
 
 import org.flexstore.domain.seller.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.UserRepository
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // An administrator gives a new version of the seller written on the invoices: its name and address are given,

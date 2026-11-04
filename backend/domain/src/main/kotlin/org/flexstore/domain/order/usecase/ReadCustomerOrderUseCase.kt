@@ -1,9 +1,9 @@
 package org.flexstore.domain.order.usecase
 
 import org.flexstore.domain.order.*
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.UserRepository
 import org.flexstore.domain.user.model.*
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // An order looked for by a customer
