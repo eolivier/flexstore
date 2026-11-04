@@ -1,5 +1,7 @@
 <script setup lang="ts">
   import { useI18n } from 'vue-i18n';
+  import AboutFeatureGroup from '@/components/about/AboutFeatureGroup.vue';
+  import { aboutFeatureGroups } from '@/components/about/aboutFeatures';
 
   const { t } = useI18n();
 
@@ -17,6 +19,9 @@
 
     <h2 class="text-h6 font-weight-bold mb-2">{{ t('about.projectTitle') }}</h2>
     <p class="text-body-1 text-medium-emphasis mb-10">{{ t('about.projectText') }}</p>
+
+    <h2 class="text-h5 font-weight-bold mb-6">{{ t('about.featuresTitle') }}</h2>
+    <AboutFeatureGroup v-for="group in aboutFeatureGroups" :key="group.key" :group="group" />
 
     <h2 class="text-h6 font-weight-bold mb-4">{{ t('about.stackTitle') }}</h2>
     <div class="d-flex flex-wrap ga-2 mb-10">
@@ -46,6 +51,6 @@
 
 <style scoped>
   .about {
-    max-width: 760px;
+    max-width: 900px;
   }
 </style>
