@@ -38,7 +38,7 @@ async function fillProduct(wrapper: VueWrapper) {
   await wrapper.find('.sku input').setValue('LAMP-DESK');
   await wrapper.find('.v-text-field:not(.sku) input[type="text"]').setValue('Desk lamp');
   await wrapper.find('textarea:not(.v-textarea__sizer)').setValue('Warm light');
-  const [price, stock] = wrapper.findAll('input[type="number"]');
+  const [price, , stock] = wrapper.findAll('input[type="number"]');
   await price.setValue('35');
   await stock.setValue('7');
   const imageInput = wrapper.find('[data-test="image-input"]');

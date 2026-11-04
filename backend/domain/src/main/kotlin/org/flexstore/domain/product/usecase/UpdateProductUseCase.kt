@@ -6,7 +6,8 @@ import org.flexstore.domain.user.model.UserId
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
-// An administrator edits a product of the catalog: its SKU, its translations, its category and its price
+// An administrator edits a product of the catalog: its SKU, its translations, its category, its price and its
+// promotion
 data class UpdateProductRequest(val editor: UserId, val product: DefinedProduct)
 
 class UpdateProductUseCase(
@@ -18,7 +19,8 @@ class UpdateProductUseCase(
         editorIsAdministratorCondition(),
         productExistsCondition(),
         skuIsWellFormedCondition(),
-        skuIsFreeCondition()
+        skuIsFreeCondition(),
+        promotionIsValidCondition()
     )
 
     // The administrator gives every translation of the product: a translation not given is removed
@@ -39,6 +41,10 @@ class UpdateProductUseCase(
             val message = ErrorMessage("Product with ID ${request.product.productId.id.value} does not exist.")
             throw ProductNotFoundException(message)
         }
+    }
+
+    private fun promotionIsValidCondition() = PreCondition<UpdateProductRequest> { request ->
+        throwIfInvalid(request.product.promotion)
     }
 
     private fun skuIsWellFormedCondition() = PreCondition<UpdateProductRequest> { request ->

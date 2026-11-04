@@ -102,7 +102,7 @@ describe('EditProduct.vue', () => {
     // Assert
     expect((wrapper.find(NAME_INPUTS).element as HTMLInputElement).value).toBe('Organic T-shirt');
     expect((wrapper.find('textarea').element as HTMLTextAreaElement).value).toBe('Eco-friendly');
-    const [price, stock] = wrapper.findAll('input[type="number"]');
+    const [price, , stock] = wrapper.findAll('input[type="number"]');
     expect((price.element as HTMLInputElement).value).toBe('25');
     expect((stock.element as HTMLInputElement).value).toBe('12');
   });
@@ -130,6 +130,64 @@ describe('EditProduct.vue', () => {
       ],
       vatRate: 'REDUCED',
     });
+  });
+
+  it('shows the promotion of the product with its period and saves its change', async () => {
+    // Arrange
+    const promotion = {
+      percentage: 15,
+      startsAt: new Date('2026-11-10T09:30').toISOString(),
+      endsAt: new Date('2026-11-17T18:00').toISOString(),
+    };
+    mockFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({ ...tShirt, promotion }),
+    });
+    const wrapper = await mountEditProduct();
+    const [, percentage] = wrapper.findAll('input[type="number"]');
+    expect((percentage.element as HTMLInputElement).value).toBe('15');
+    expect((wrapper.find('[data-test="promotion-start"] input').element as HTMLInputElement).value).toBe(
+      '2026-11-10T09:30'
+    );
+    expect((wrapper.find('[data-test="promotion-end"] input').element as HTMLInputElement).value).toBe(
+      '2026-11-17T18:00'
+    );
+    await percentage.setValue('30');
+    await wrapper.find('[data-test="promotion-end"] input').setValue('2026-11-18T08:15');
+    await flushPromises();
+    // Act
+    await wrapper.find('form').trigger('submit.prevent');
+    await flushPromises();
+    // Assert
+    expect(savedProduct().promotion).toEqual({
+      percentage: 30,
+      startsAt: promotion.startsAt,
+      endsAt: new Date('2026-11-18T08:15').toISOString(),
+    });
+  });
+
+  it('saves a product without promotion when its percentage is emptied', async () => {
+    // Arrange
+    const promotion = {
+      percentage: 15,
+      startsAt: new Date('2026-11-10T09:30').toISOString(),
+      endsAt: new Date('2026-11-17T18:00').toISOString(),
+    };
+    mockFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({ ...tShirt, promotion }),
+    });
+    const wrapper = await mountEditProduct();
+    const [, percentage] = wrapper.findAll('input[type="number"]');
+    await percentage.setValue('');
+    await flushPromises();
+    // Act
+    await wrapper.find('form').trigger('submit.prevent');
+    await flushPromises();
+    // Assert
+    expect(savedProduct().promotion).toBeUndefined();
   });
 
   it('reports a product that could not be saved', async () => {
@@ -206,7 +264,7 @@ describe('EditProduct.vue', () => {
   it('saves the stock of the product with it', async () => {
     // Arrange
     const wrapper = await mountEditProduct();
-    const [, stock] = wrapper.findAll('input[type="number"]');
+    const [, , stock] = wrapper.findAll('input[type="number"]');
     await stock.setValue('7');
     await flushPromises();
     // Act
@@ -220,7 +278,7 @@ describe('EditProduct.vue', () => {
   it('saves the alert threshold of the product with it', async () => {
     // Arrange
     const wrapper = await mountEditProduct();
-    const [, , threshold] = wrapper.findAll('input[type="number"]');
+    const [, , , threshold] = wrapper.findAll('input[type="number"]');
     await threshold.setValue('12');
     await flushPromises();
     // Act

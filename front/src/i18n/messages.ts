@@ -266,6 +266,7 @@ export default {
       invalid: 'Give a number of units, 0 or more.',
     },
     products: {
+      promotionBadge: '-{percentage} %',
       addToCart: 'Add to cart',
       count: 'No products | 1 product | {n} products',
       sort: 'Sort by',
@@ -643,6 +644,15 @@ export default {
       thresholdHint: 'You are warned when the stock is at or under this number of units',
       invalidThreshold: 'A whole number, 0 or more',
     },
+    promotion: {
+      title: 'Promotion (% off)',
+      hint: 'The percentage taken off the price, between two moments: the regular price is shown struck through. Empty: no promotion',
+      invalidPercentage: 'A percentage of more than 0 and 100 at most',
+      startsAt: 'Starts on',
+      endsAt: 'Ends on',
+      mandatoryMoment: 'Give the date and the time',
+      invalidPeriod: 'The end must come after the start',
+    },
     vatRate: {
       title: 'VAT rate',
       hint: 'The rate of VAT included in the price, written on the invoices',
@@ -810,7 +820,8 @@ export default {
       enabledText: 'Two-factor authentication is enabled on your account.',
       enable: 'Enable',
       disable: 'Disable',
-      scanQrCode: 'Scan this QR code with your authenticator app (Google Authenticator, Microsoft Authenticator...).',
+      scanQrCode:
+        'Scan this QR code with your authenticator app (Google Authenticator, Microsoft Authenticator...).',
       manualSecret: 'Or type this secret manually:',
       confirmTitle: 'Confirm the enrollment',
       confirmText: 'Enter the first 6-digit code shown by your authenticator app.',
@@ -1021,12 +1032,18 @@ export default {
             title: 'Commandes',
             text: 'Suivez toutes les commandes des clients et mettez à jour leur statut.',
           },
-          discountCodes: { title: 'Codes de réduction', text: 'Créez des codes promotionnels pour vos clients.' },
+          discountCodes: {
+            title: 'Codes de réduction',
+            text: 'Créez des codes promotionnels pour vos clients.',
+          },
           seller: {
             title: 'Informations vendeur',
             text: 'Renseignez l’identité de la boutique affichée sur les factures.',
           },
-          legalPages: { title: 'Pages légales', text: 'Modifiez les mentions légales et les conditions de vente.' },
+          legalPages: {
+            title: 'Pages légales',
+            text: 'Modifiez les mentions légales et les conditions de vente.',
+          },
           settings: { title: 'Paramètres', text: 'Ajustez les paramètres de la boutique.' },
         },
       },
@@ -1151,6 +1168,7 @@ export default {
       invalid: "Indiquez un nombre d'unités, 0 ou plus.",
     },
     products: {
+      promotionBadge: '-{percentage} %',
       addToCart: 'Ajouter au panier',
       count: 'Aucun produit | 1 produit | {n} produits',
       sort: 'Trier par',
@@ -1537,6 +1555,15 @@ export default {
       thresholdHint: 'Vous êtes prévenu quand le stock atteint ce nombre d’unités ou moins',
       invalidThreshold: 'Un nombre entier, 0 ou plus',
     },
+    promotion: {
+      title: 'Promotion (% de remise)',
+      hint: "Le pourcentage retiré du prix entre deux dates : l'ancien prix est affiché barré. Vide : pas de promotion",
+      invalidPercentage: 'Un pourcentage de plus de 0 et de 100 au plus',
+      startsAt: 'Début le',
+      endsAt: 'Fin le',
+      mandatoryMoment: "Indiquez la date et l'heure",
+      invalidPeriod: 'La fin doit être après le début',
+    },
     vatRate: {
       title: 'Taux de TVA',
       hint: 'Le taux de TVA compris dans le prix, inscrit sur les factures',
@@ -1707,7 +1734,8 @@ export default {
       enabledText: 'L’authentification à deux facteurs est activée sur votre compte.',
       enable: 'Activer',
       disable: 'Désactiver',
-      scanQrCode: 'Scannez ce QR code avec votre application d’authentification (Google Authenticator, Microsoft Authenticator...).',
+      scanQrCode:
+        'Scannez ce QR code avec votre application d’authentification (Google Authenticator, Microsoft Authenticator...).',
       manualSecret: 'Ou saisissez cette clé manuellement :',
       confirmTitle: 'Confirmer l’activation',
       confirmText: 'Saisissez le premier code à 6 chiffres affiché par votre application d’authentification.',

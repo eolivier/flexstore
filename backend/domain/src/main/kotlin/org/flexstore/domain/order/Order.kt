@@ -320,10 +320,12 @@ data class OrderLine(val product: PricedProduct, val quantity: Quantity) {
     fun linePrice() = unitPrice.multiply(quantity)
 
     companion object {
-        // The line of a product of the catalog, with its name, its price and its rate of VAT at this time
+        // The line of a product of the catalog, with its name, its price (promotion included) and its rate
+        // of VAT at this time
         fun of(definedProduct: DefinedProduct, quantity: Quantity): OrderLine {
             val orderedProduct = OrderedProduct(definedProduct.productId, definedProduct.name)
-            return OrderLine(PricedProduct(orderedProduct, definedProduct.pricing), quantity)
+            val pricing = ProductPricing(definedProduct.currentPrice, definedProduct.vatRate)
+            return OrderLine(PricedProduct(orderedProduct, pricing), quantity)
         }
     }
 }

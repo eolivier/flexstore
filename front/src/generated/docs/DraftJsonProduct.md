@@ -11,6 +11,7 @@ Name | Type | Description | Notes
 **currency** | **string** |  | [default to undefined]
 **translations** | [**Array&lt;JsonProductTranslation&gt;**](JsonProductTranslation.md) | The name and the description in each language of the product, the default one (en) required | [default to undefined]
 **vatRate** | **string** | The rate of VAT included in the price: 20, 10, 5.5 or 2.1 %. STANDARD when not given | [optional] [default to undefined]
+**promotion** | [**JsonPromotion**](JsonPromotion.md) |  | [optional] [default to undefined]
 
 ## Example
 
@@ -24,6 +25,7 @@ const instance: DraftJsonProduct = {
     currency,
     translations,
     vatRate,
+    promotion,
 };
 ```
 

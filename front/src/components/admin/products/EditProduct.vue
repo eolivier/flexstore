@@ -12,6 +12,7 @@
   import StockField from './StockField.vue';
   import AlertThresholdField from './AlertThresholdField.vue';
   import { normalizedSku } from '@/utils/sku';
+  import { promotionFormOf, promotionOf, type PromotionForm } from '@/utils/promotion';
 
   interface EditedProduct {
     sku: string;
@@ -19,6 +20,7 @@
     category: string;
     price: string | null;
     vatRate: VatRate;
+    promotion: PromotionForm;
     stock: string;
     alertThreshold: string;
   }
@@ -53,6 +55,7 @@
           category: product.category,
           price: String(product.price ?? ''),
           vatRate: product.vatRate ?? 'STANDARD',
+          promotion: promotionFormOf(product.promotion),
           stock: String(stocksStore.quantityOf(props.id) ?? 0),
           alertThreshold: String(threshold ?? DEFAULT_ALERT_THRESHOLD),
         }
@@ -62,7 +65,7 @@
   async function save() {
     if (!valid.value || !editedProduct.value || editedProduct.value.price === null) return;
     saving.value = true;
-    const { stock, alertThreshold, sku, texts, category, price, vatRate } = editedProduct.value;
+    const { stock, alertThreshold, sku, texts, category, price, vatRate, promotion } = editedProduct.value;
     const productSave = await productsStore.updateProduct(props.id, {
       sku: normalizedSku(sku),
       category,
@@ -70,6 +73,7 @@
       currency: 'EUR',
       translations: translationsOf(texts),
       vatRate,
+      promotion: promotionOf(promotion),
     });
     skuAlreadyUsed.value = productSave === 'skuAlreadyUsed';
     const productSaved = productSave === 'saved';
@@ -106,6 +110,7 @@
           v-model:category="editedProduct.category"
           v-model:price="editedProduct.price"
           v-model:vat-rate="editedProduct.vatRate"
+          v-model:promotion="editedProduct.promotion"
           :sku-already-used="skuAlreadyUsed"
         />
         <StockField v-model="editedProduct.stock" />

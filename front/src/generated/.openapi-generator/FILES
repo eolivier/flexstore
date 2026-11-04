@@ -51,6 +51,7 @@ docs/JsonPaymentSession.md
 docs/JsonPostalAddress.md
 docs/JsonProduct.md
 docs/JsonProductTranslation.md
+docs/JsonPromotion.md
 docs/JsonRatingSummary.md
 docs/JsonRefreshRequest.md
 docs/JsonRefreshResponse.md

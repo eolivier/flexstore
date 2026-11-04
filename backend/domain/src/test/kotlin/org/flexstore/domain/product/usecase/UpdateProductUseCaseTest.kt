@@ -1,5 +1,6 @@
 package org.flexstore.domain.product.usecase
 
+import org.flexstore.domain.discount.Percentage
 import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
 import org.assertj.core.api.WithAssertions
@@ -9,7 +10,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
+import org.junit.jupiter.params.provider.ValueSource
 import java.math.BigDecimal
+import java.time.Instant
 import org.flexstore.domain.user.*
 
 class UpdateProductUseCaseTest : WithAssertions {
@@ -32,6 +35,8 @@ class UpdateProductUseCaseTest : WithAssertions {
 
     companion object {
         private val tShirt = clothes.first()
+        private val ongoing = PromotionPeriod(PromotionStart(Instant.EPOCH), PromotionEnd(Instant.MAX))
+        private val tenPercentOff = PercentageOffPromotion(Percentage(BigDecimal(10)), ongoing)
 
         @JvmStatic
         fun editions() = listOf(
@@ -39,6 +44,7 @@ class UpdateProductUseCaseTest : WithAssertions {
             Arguments.of("name", tShirt.renamed(Name("Linen T-shirt"))),
             Arguments.of("description", tShirt.describedAs(Description("Light and breathable"))),
             Arguments.of("category", tShirt.copy(category = Category.SPORTS)),
+            Arguments.of("promotion", tShirt.copy(pricing = ProductPricing(tShirt.price, tShirt.vatRate, tenPercentOff))),
             Arguments.of("price", tShirt.copy(pricing = ProductPricing(Price(Amount(BigDecimal(29)), Currency.EUR)))),
         )
     }
@@ -112,6 +118,34 @@ class UpdateProductUseCaseTest : WithAssertions {
         // Assert
         assertThat(thrown).isInstanceOf(InvalidSkuException::class.java)
         assertThat(productRepository.findById(tShirt.productId)?.sku).isEqualTo(tShirt.sku)
+    }
+
+    @ParameterizedTest(name = "should not put a product on promotion at {0} %")
+    @ValueSource(ints = [0, -10, 101])
+    fun `should not put a product on promotion at an invalid percentage`(percentage: Int) {
+        // Arrange
+        val invalidPromotion = PercentageOffPromotion(Percentage(BigDecimal(percentage)), ongoing)
+        val pricing = ProductPricing(tShirt.price, tShirt.vatRate, invalidPromotion)
+        val request = UpdateProductRequest(administrator, tShirt.copy(pricing = pricing))
+        // Act
+        val thrown = catchThrowable { useCase.unfold(request) }
+        // Assert
+        assertThat(thrown).isInstanceOf(InvalidPromotionException::class.java)
+        assertThat(productRepository.findById(tShirt.productId)).isEqualTo(tShirt)
+    }
+
+    @Test
+    fun `should not put a product on promotion for a period that ends before it starts`() {
+        // Arrange
+        val backwards = PromotionPeriod(PromotionStart(Instant.MAX), PromotionEnd(Instant.EPOCH))
+        val invalidPromotion = PercentageOffPromotion(Percentage(BigDecimal(10)), backwards)
+        val pricing = ProductPricing(tShirt.price, tShirt.vatRate, invalidPromotion)
+        val request = UpdateProductRequest(administrator, tShirt.copy(pricing = pricing))
+        // Act
+        val thrown = catchThrowable { useCase.unfold(request) }
+        // Assert
+        assertThat(thrown).isInstanceOf(InvalidPromotionException::class.java)
+        assertThat(productRepository.findById(tShirt.productId)).isEqualTo(tShirt)
     }
 
     @Test

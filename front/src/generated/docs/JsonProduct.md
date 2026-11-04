@@ -10,8 +10,10 @@ Name | Type | Description | Notes
 **name** | **string** | In the language asked (Accept-Language), or in en when the product is not translated into it | [default to undefined]
 **description** | **string** | In the language asked (Accept-Language), or in en when the product is not translated into it | [default to undefined]
 **category** | **string** |  | [default to undefined]
-**price** | **number** |  | [default to undefined]
+**price** | **number** | The regular price. Shown struck through when the product is on promotion | [default to undefined]
 **currency** | **string** |  | [default to undefined]
+**promotionPercentage** | **number** | The percentage off the regular price while a promotion is running, null otherwise | [optional] [default to undefined]
+**currentPrice** | **number** | The price to pay, the promotion included (the regular price when there is none) | [default to undefined]
 
 ## Example
 
@@ -26,6 +28,8 @@ const instance: JsonProduct = {
     category,
     price,
     currency,
+    promotionPercentage,
+    currentPrice,
 };
 ```
 

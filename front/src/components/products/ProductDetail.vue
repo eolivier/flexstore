@@ -10,7 +10,7 @@
   import QuantityStepper from '@/components/cart/QuantityStepper.vue';
   import CartSnackbar from '@/components/cart/CartSnackbar.vue';
   import { categoryInfo, shopCategories } from './categories';
-  import { formatPrice } from '@/utils/price';
+  import ProductPrice from './ProductPrice.vue';
   import { useStocksStore } from '@/stores/stocks.store';
   import StockBadge from './StockBadge.vue';
   import ProductVisual from './ProductVisual.vue';
@@ -68,7 +68,6 @@
   );
   const rating = computed(() => reviewsStore.ratingOf(product.value?.id));
   const stock = computed(() => (product.value ? stocksStore.quantityOf(product.value.id) : null));
-  const price = computed(() => formatPrice(product.value?.price, product.value?.currency, locale.value));
   const quantityInCart = computed(
     () => cartStore.cartItems?.items.find((item) => item.productId === product.value?.id)?.productQuantity ?? 0
   );
@@ -149,7 +148,7 @@
           </div>
           <ProductRating v-if="rating" :rating="rating" class="mb-3" />
           <div class="d-flex align-center flex-wrap ga-3 mb-5">
-            <span class="text-h4 font-weight-bold text-primary">{{ price }}</span>
+            <ProductPrice :product="product" price-class="text-h4" />
             <StockBadge v-if="stock !== null" :quantity="stock" />
           </div>
           <p class="text-body-1 text-medium-emphasis mb-8">{{ product.description }}</p>

@@ -3,9 +3,9 @@
   import { useI18n } from 'vue-i18n';
   import type { Product } from '@/models/product';
   import { categoryInfo } from './categories';
-  import { formatPrice } from '@/utils/price';
   import StockBadge from './StockBadge.vue';
   import ProductVisual from './ProductVisual.vue';
+  import ProductPrice from './ProductPrice.vue';
   import ProductRating from '@/components/reviews/ProductRating.vue';
   import type { Rating } from '@/stores/reviews.store';
   import WishlistToggleButton from './WishlistToggleButton.vue';
@@ -20,10 +20,9 @@
   }>();
   defineEmits<{ (e: 'add', product: Product): void }>();
 
-  const { t, locale } = useI18n();
+  const { t } = useI18n();
 
   const category = computed(() => categoryInfo(props.product.category));
-  const price = computed(() => formatPrice(props.product.price, props.product.currency, locale.value));
   const detailLink = computed(() => `/products/${props.product.id}`);
 </script>
 
@@ -48,7 +47,7 @@
 
       <div class="mt-auto">
         <div class="d-flex align-center justify-space-between flex-wrap ga-2 mb-3">
-          <span class="text-h6 font-weight-bold">{{ price }}</span>
+          <ProductPrice :product="product" />
           <StockBadge v-if="stock !== null && stock !== undefined" :quantity="stock" />
         </div>
         <v-btn
