@@ -93,6 +93,10 @@ export interface JsonAccount {
     'phoneNumber'?: string | null;
     'postalAddresses': Array<JsonPostalAddress>;
     'company'?: JsonCustomerCompany;
+    /**
+     * Whether two-factor authentication is enabled (restricted to an ADMIN account)
+     */
+    'twoFactorEnabled': boolean;
 }
 
 export const JsonAccountRoleEnum = {
@@ -395,19 +399,35 @@ export interface JsonLoginRequest {
      */
     'password': string;
 }
+/**
+ * SIGNED_IN: token, expiresAt and user are filled. TWO_FACTOR_REQUIRED: the password was right, but the code of the authenticator app is still needed; only challengeId is filled. POST it with the code to /api/users/login/two-factor-authentication. 
+ */
 export interface JsonLoginResponse {
+    'status': JsonLoginResponseStatusEnum;
     /**
      * JWT to send in the Authorization header: Bearer <token>
      */
-    'token': string;
-    'expiresAt': string;
+    'token'?: string | null;
+    'expiresAt'?: string | null;
     /**
      * Opaque secret that renews the token once it expired (POST /api/users/refresh); it works once
      */
-    'refreshToken': string;
-    'refreshExpiresAt': string;
-    'user': JsonUser;
+    'refreshToken'?: string | null;
+    'refreshExpiresAt'?: string | null;
+    'user'?: JsonUser;
+    /**
+     * Present when status is TWO_FACTOR_REQUIRED
+     */
+    'challengeId'?: string | null;
 }
+
+export const JsonLoginResponseStatusEnum = {
+    SignedIn: 'SIGNED_IN',
+    TwoFactorRequired: 'TWO_FACTOR_REQUIRED'
+} as const;
+
+export type JsonLoginResponseStatusEnum = typeof JsonLoginResponseStatusEnum[keyof typeof JsonLoginResponseStatusEnum];
+
 export interface JsonLowStock {
     'productId': string;
     /**
@@ -807,6 +827,38 @@ export interface JsonStockAlert {
 export interface JsonStockQuantity {
     'quantity': number;
 }
+export interface JsonTwoFactorChallengeVerification {
+    /**
+     * The challengeId returned by POST /api/users/login when status is TWO_FACTOR_REQUIRED
+     */
+    'challengeId': string;
+    /**
+     * The 6-digit code of the authenticator app
+     */
+    'code': string;
+}
+export interface JsonTwoFactorCode {
+    /**
+     * The 6-digit code of the authenticator app
+     */
+    'code': string;
+}
+export interface JsonTwoFactorDisableRequest {
+    'currentPassword': string;
+}
+/**
+ * What an administrator reads once an enrollment started, to set up their authenticator app
+ */
+export interface JsonTwoFactorEnrollment {
+    /**
+     * The secret, to type manually in the authenticator app
+     */
+    'secret': string;
+    /**
+     * An otpauth:// link, to render as a QR code
+     */
+    'provisioningUri': string;
+}
 export interface JsonUser {
     'id'?: string;
     'firstName'?: string;
@@ -814,6 +866,10 @@ export interface JsonUser {
     'email'?: string;
     'role'?: JsonUserRoleEnum;
     'status'?: JsonUserStatusEnum;
+    /**
+     * Whether two-factor authentication is enabled (restricted to an ADMIN account)
+     */
+    'twoFactorEnabled'?: boolean;
 }
 
 export const JsonUserRoleEnum = {
@@ -5591,6 +5647,50 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
         },
         /**
          * 
+         * @summary Confirm the enrollment with the first code of the authenticator app
+         * @param {string} id 
+         * @param {JsonTwoFactorCode} jsonTwoFactorCode 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        confirmTwoFactorEnrollment: async (id: string, jsonTwoFactorCode: JsonTwoFactorCode, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('confirmTwoFactorEnrollment', 'id', id)
+            // verify required parameter 'jsonTwoFactorCode' is not null or undefined
+            assertParamExists('confirmTwoFactorEnrollment', 'jsonTwoFactorCode', jsonTwoFactorCode)
+            const localVarPath = `/api/users/{id}/two-factor-authentication/confirmation`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonTwoFactorCode, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Create a user
          * @param {JsonUserCreate} jsonUserCreate 
          * @param {*} [options] Override http request option.
@@ -5661,6 +5761,50 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Disable two-factor authentication, confirmed with the current password
+         * @param {string} id 
+         * @param {JsonTwoFactorDisableRequest} jsonTwoFactorDisableRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        disableTwoFactorAuthentication: async (id: string, jsonTwoFactorDisableRequest: JsonTwoFactorDisableRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('disableTwoFactorAuthentication', 'id', id)
+            // verify required parameter 'jsonTwoFactorDisableRequest' is not null or undefined
+            assertParamExists('disableTwoFactorAuthentication', 'jsonTwoFactorDisableRequest', jsonTwoFactorDisableRequest)
+            const localVarPath = `/api/users/{id}/two-factor-authentication`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonTwoFactorDisableRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -5858,6 +6002,44 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
             };
         },
         /**
+         * Generates a new secret and keeps it pending: it is not active until confirmed with the first code (POST /api/users/{id}/two-factor-authentication/confirmation). 
+         * @summary Start the enrollment of two-factor authentication (administrator only)
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        startTwoFactorEnrollment: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('startTwoFactorEnrollment', 'id', id)
+            const localVarPath = `/api/users/{id}/two-factor-authentication/enrollment`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Reserved to an administrator, checked by the domain (403 otherwise)
          * @summary Edit a user by ID (first name, last name, email, role; not the password)
          * @param {string} id 
@@ -5895,6 +6077,42 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(jsonUserUpdate, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Public. The password was already checked by POST /api/users/login.
+         * @summary Complete a challenged sign-in with the code of the authenticator app
+         * @param {JsonTwoFactorChallengeVerification} jsonTwoFactorChallengeVerification 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        verifyTwoFactorCode: async (jsonTwoFactorChallengeVerification: JsonTwoFactorChallengeVerification, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'jsonTwoFactorChallengeVerification' is not null or undefined
+            assertParamExists('verifyTwoFactorCode', 'jsonTwoFactorChallengeVerification', jsonTwoFactorChallengeVerification)
+            const localVarPath = `/api/users/login/two-factor-authentication`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonTwoFactorChallengeVerification, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -5940,6 +6158,20 @@ export const UsersApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Confirm the enrollment with the first code of the authenticator app
+         * @param {string} id 
+         * @param {JsonTwoFactorCode} jsonTwoFactorCode 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async confirmTwoFactorEnrollment(id: string, jsonTwoFactorCode: JsonTwoFactorCode, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.confirmTwoFactorEnrollment(id, jsonTwoFactorCode, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UsersApi.confirmTwoFactorEnrollment']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Create a user
          * @param {JsonUserCreate} jsonUserCreate 
          * @param {*} [options] Override http request option.
@@ -5962,6 +6194,20 @@ export const UsersApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.deleteUser(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['UsersApi.deleteUser']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Disable two-factor authentication, confirmed with the current password
+         * @param {string} id 
+         * @param {JsonTwoFactorDisableRequest} jsonTwoFactorDisableRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async disableTwoFactorAuthentication(id: string, jsonTwoFactorDisableRequest: JsonTwoFactorDisableRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.disableTwoFactorAuthentication(id, jsonTwoFactorDisableRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UsersApi.disableTwoFactorAuthentication']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -6031,6 +6277,19 @@ export const UsersApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Generates a new secret and keeps it pending: it is not active until confirmed with the first code (POST /api/users/{id}/two-factor-authentication/confirmation). 
+         * @summary Start the enrollment of two-factor authentication (administrator only)
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async startTwoFactorEnrollment(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonTwoFactorEnrollment>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.startTwoFactorEnrollment(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UsersApi.startTwoFactorEnrollment']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Reserved to an administrator, checked by the domain (403 otherwise)
          * @summary Edit a user by ID (first name, last name, email, role; not the password)
          * @param {string} id 
@@ -6042,6 +6301,19 @@ export const UsersApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.updateUser(id, jsonUserUpdate, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['UsersApi.updateUser']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Public. The password was already checked by POST /api/users/login.
+         * @summary Complete a challenged sign-in with the code of the authenticator app
+         * @param {JsonTwoFactorChallengeVerification} jsonTwoFactorChallengeVerification 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async verifyTwoFactorCode(jsonTwoFactorChallengeVerification: JsonTwoFactorChallengeVerification, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonLoginResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.verifyTwoFactorCode(jsonTwoFactorChallengeVerification, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UsersApi.verifyTwoFactorCode']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -6077,6 +6349,17 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
         },
         /**
          * 
+         * @summary Confirm the enrollment with the first code of the authenticator app
+         * @param {string} id 
+         * @param {JsonTwoFactorCode} jsonTwoFactorCode 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        confirmTwoFactorEnrollment(id: string, jsonTwoFactorCode: JsonTwoFactorCode, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.confirmTwoFactorEnrollment(id, jsonTwoFactorCode, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Create a user
          * @param {JsonUserCreate} jsonUserCreate 
          * @param {*} [options] Override http request option.
@@ -6094,6 +6377,17 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
          */
         deleteUser(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.deleteUser(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Disable two-factor authentication, confirmed with the current password
+         * @param {string} id 
+         * @param {JsonTwoFactorDisableRequest} jsonTwoFactorDisableRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        disableTwoFactorAuthentication(id: string, jsonTwoFactorDisableRequest: JsonTwoFactorDisableRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.disableTwoFactorAuthentication(id, jsonTwoFactorDisableRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * The total number of users is in the header X-Total-Count; a size above 100 is brought back to 100
@@ -6147,6 +6441,16 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
             return localVarFp.refreshSession(jsonRefreshRequest, options).then((request) => request(axios, basePath));
         },
         /**
+         * Generates a new secret and keeps it pending: it is not active until confirmed with the first code (POST /api/users/{id}/two-factor-authentication/confirmation). 
+         * @summary Start the enrollment of two-factor authentication (administrator only)
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        startTwoFactorEnrollment(id: string, options?: RawAxiosRequestConfig): AxiosPromise<JsonTwoFactorEnrollment> {
+            return localVarFp.startTwoFactorEnrollment(id, options).then((request) => request(axios, basePath));
+        },
+        /**
          * Reserved to an administrator, checked by the domain (403 otherwise)
          * @summary Edit a user by ID (first name, last name, email, role; not the password)
          * @param {string} id 
@@ -6156,6 +6460,16 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
          */
         updateUser(id: string, jsonUserUpdate: JsonUserUpdate, options?: RawAxiosRequestConfig): AxiosPromise<JsonUser> {
             return localVarFp.updateUser(id, jsonUserUpdate, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Public. The password was already checked by POST /api/users/login.
+         * @summary Complete a challenged sign-in with the code of the authenticator app
+         * @param {JsonTwoFactorChallengeVerification} jsonTwoFactorChallengeVerification 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        verifyTwoFactorCode(jsonTwoFactorChallengeVerification: JsonTwoFactorChallengeVerification, options?: RawAxiosRequestConfig): AxiosPromise<JsonLoginResponse> {
+            return localVarFp.verifyTwoFactorCode(jsonTwoFactorChallengeVerification, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -6190,6 +6504,18 @@ export class UsersApi extends BaseAPI {
 
     /**
      * 
+     * @summary Confirm the enrollment with the first code of the authenticator app
+     * @param {string} id 
+     * @param {JsonTwoFactorCode} jsonTwoFactorCode 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public confirmTwoFactorEnrollment(id: string, jsonTwoFactorCode: JsonTwoFactorCode, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).confirmTwoFactorEnrollment(id, jsonTwoFactorCode, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Create a user
      * @param {JsonUserCreate} jsonUserCreate 
      * @param {*} [options] Override http request option.
@@ -6208,6 +6534,18 @@ export class UsersApi extends BaseAPI {
      */
     public deleteUser(id: string, options?: RawAxiosRequestConfig) {
         return UsersApiFp(this.configuration).deleteUser(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Disable two-factor authentication, confirmed with the current password
+     * @param {string} id 
+     * @param {JsonTwoFactorDisableRequest} jsonTwoFactorDisableRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public disableTwoFactorAuthentication(id: string, jsonTwoFactorDisableRequest: JsonTwoFactorDisableRequest, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).disableTwoFactorAuthentication(id, jsonTwoFactorDisableRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -6267,6 +6605,17 @@ export class UsersApi extends BaseAPI {
     }
 
     /**
+     * Generates a new secret and keeps it pending: it is not active until confirmed with the first code (POST /api/users/{id}/two-factor-authentication/confirmation). 
+     * @summary Start the enrollment of two-factor authentication (administrator only)
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public startTwoFactorEnrollment(id: string, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).startTwoFactorEnrollment(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * Reserved to an administrator, checked by the domain (403 otherwise)
      * @summary Edit a user by ID (first name, last name, email, role; not the password)
      * @param {string} id 
@@ -6276,6 +6625,17 @@ export class UsersApi extends BaseAPI {
      */
     public updateUser(id: string, jsonUserUpdate: JsonUserUpdate, options?: RawAxiosRequestConfig) {
         return UsersApiFp(this.configuration).updateUser(id, jsonUserUpdate, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Public. The password was already checked by POST /api/users/login.
+     * @summary Complete a challenged sign-in with the code of the authenticator app
+     * @param {JsonTwoFactorChallengeVerification} jsonTwoFactorChallengeVerification 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public verifyTwoFactorCode(jsonTwoFactorChallengeVerification: JsonTwoFactorChallengeVerification, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).verifyTwoFactorCode(jsonTwoFactorChallengeVerification, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

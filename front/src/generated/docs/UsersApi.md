@@ -6,14 +6,18 @@ All URIs are relative to *http://localhost:8080*
 |------------- | ------------- | -------------|
 |[**changeAccountStatus**](#changeaccountstatus) | **PUT** /api/users/{id}/status | Change the status of an account|
 |[**changePassword**](#changepassword) | **POST** /api/users/{id}/password | Change the password of a user|
+|[**confirmTwoFactorEnrollment**](#confirmtwofactorenrollment) | **POST** /api/users/{id}/two-factor-authentication/confirmation | Confirm the enrollment with the first code of the authenticator app|
 |[**createUser**](#createuser) | **POST** /api/users | Create a user|
 |[**deleteUser**](#deleteuser) | **DELETE** /api/users/{id} | Delete a user by ID|
+|[**disableTwoFactorAuthentication**](#disabletwofactorauthentication) | **DELETE** /api/users/{id}/two-factor-authentication | Disable two-factor authentication, confirmed with the current password|
 |[**getAllUsers**](#getallusers) | **GET** /api/users | Retrieve a page of the users, the first created first (ADMIN role)|
 |[**getUser**](#getuser) | **GET** /api/users/{id} | Retrieve a user by ID|
 |[**loginUser**](#loginuser) | **POST** /api/users/login | Authenticate a user|
 |[**logoutUser**](#logoutuser) | **POST** /api/users/logout | Sign out, ending the session of a refresh token|
 |[**refreshSession**](#refreshsession) | **POST** /api/users/refresh | Renew the access of a signed-in user with their refresh token|
+|[**startTwoFactorEnrollment**](#starttwofactorenrollment) | **POST** /api/users/{id}/two-factor-authentication/enrollment | Start the enrollment of two-factor authentication (administrator only)|
 |[**updateUser**](#updateuser) | **PUT** /api/users/{id} | Edit a user by ID (first name, last name, email, role; not the password)|
+|[**verifyTwoFactorCode**](#verifytwofactorcode) | **POST** /api/users/login/two-factor-authentication | Complete a challenged sign-in with the code of the authenticator app|
 
 # **changeAccountStatus**
 > JsonUser changeAccountStatus(jsonAccountStatus)
@@ -130,6 +134,63 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **confirmTwoFactorEnrollment**
+> confirmTwoFactorEnrollment(jsonTwoFactorCode)
+
+
+### Example
+
+```typescript
+import {
+    UsersApi,
+    Configuration,
+    JsonTwoFactorCode
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new UsersApi(configuration);
+
+let id: string; // (default to undefined)
+let jsonTwoFactorCode: JsonTwoFactorCode; //
+
+const { status, data } = await apiInstance.confirmTwoFactorEnrollment(
+    id,
+    jsonTwoFactorCode
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **jsonTwoFactorCode** | **JsonTwoFactorCode**|  | |
+| **id** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: Not defined
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**204** | Two-factor authentication is now enabled |  -  |
+|**401** | Wrong code |  -  |
+|**403** | Not an administrator, or not the signed-in user |  -  |
+|**409** | No enrollment is pending |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **createUser**
 > JsonUser createUser(jsonUserCreate)
 
@@ -228,6 +289,63 @@ void (empty response body)
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**204** | Successfully deleted the user |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **disableTwoFactorAuthentication**
+> disableTwoFactorAuthentication(jsonTwoFactorDisableRequest)
+
+
+### Example
+
+```typescript
+import {
+    UsersApi,
+    Configuration,
+    JsonTwoFactorDisableRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new UsersApi(configuration);
+
+let id: string; // (default to undefined)
+let jsonTwoFactorDisableRequest: JsonTwoFactorDisableRequest; //
+
+const { status, data } = await apiInstance.disableTwoFactorAuthentication(
+    id,
+    jsonTwoFactorDisableRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **jsonTwoFactorDisableRequest** | **JsonTwoFactorDisableRequest**|  | |
+| **id** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: Not defined
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**204** | Two-factor authentication is now disabled |  -  |
+|**400** | Wrong current password |  -  |
+|**403** | Not an administrator, or not the signed-in user |  -  |
+|**409** | Two-factor authentication is not enabled |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -383,7 +501,7 @@ No authorization required
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | Successfully authenticated |  -  |
+|**200** | SIGNED_IN: the token is returned with the user. TWO_FACTOR_REQUIRED: the code of the authenticator app is still needed, see POST /api/users/login/two-factor-authentication.  |  -  |
 |**401** | Invalid credentials |  -  |
 |**403** | The account is SUSPENDED, LOCKED or DISABLED: { error, status } |  -  |
 
@@ -495,6 +613,60 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **startTwoFactorEnrollment**
+> JsonTwoFactorEnrollment startTwoFactorEnrollment()
+
+Generates a new secret and keeps it pending: it is not active until confirmed with the first code (POST /api/users/{id}/two-factor-authentication/confirmation). 
+
+### Example
+
+```typescript
+import {
+    UsersApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new UsersApi(configuration);
+
+let id: string; // (default to undefined)
+
+const { status, data } = await apiInstance.startTwoFactorEnrollment(
+    id
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **id** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**JsonTwoFactorEnrollment**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The secret and the link of the QR code |  -  |
+|**401** | Missing or invalid token |  -  |
+|**403** | Not an administrator, or not the signed-in user |  -  |
+|**409** | Two-factor authentication is already enabled |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **updateUser**
 > JsonUser updateUser(jsonUserUpdate)
 
@@ -550,6 +722,59 @@ const { status, data } = await apiInstance.updateUser(
 |**403** | The editor is not an administrator |  -  |
 |**404** | Unknown user |  -  |
 |**409** | The email is used by another user |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **verifyTwoFactorCode**
+> JsonLoginResponse verifyTwoFactorCode(jsonTwoFactorChallengeVerification)
+
+Public. The password was already checked by POST /api/users/login.
+
+### Example
+
+```typescript
+import {
+    UsersApi,
+    Configuration,
+    JsonTwoFactorChallengeVerification
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new UsersApi(configuration);
+
+let jsonTwoFactorChallengeVerification: JsonTwoFactorChallengeVerification; //
+
+const { status, data } = await apiInstance.verifyTwoFactorCode(
+    jsonTwoFactorChallengeVerification
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **jsonTwoFactorChallengeVerification** | **JsonTwoFactorChallengeVerification**|  | |
+
+
+### Return type
+
+**JsonLoginResponse**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Successfully authenticated: the token is returned with the user |  -  |
+|**401** | Wrong code, or unknown or expired challenge |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
