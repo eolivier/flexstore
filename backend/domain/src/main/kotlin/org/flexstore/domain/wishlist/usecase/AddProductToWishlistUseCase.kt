@@ -4,8 +4,6 @@ import org.flexstore.domain.product.ProductNotFoundException
 import org.flexstore.domain.product.ProductRepository
 import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.UserRepository
-import org.flexstore.domain.user.model.AccountRefusedException
-import org.flexstore.domain.user.model.UserNotFoundException
 import org.flexstore.domain.wishlist.*
 import org.ucop.domain.entity.*
 
@@ -32,18 +30,8 @@ class AddProductToWishlistUseCase(
 
     override fun getPostConditions(): PostConditions<WishlistEntry> = PostConditions(productIsSavedCondition())
 
-    // The customer must be an existing user whose account is not suspended, locked or disabled (read
-    // from the users, not from the request)
     private fun customerCanActCondition() = PreCondition<WishlistEntry> { entry ->
-        val customer = entry.customer
-        if (userRepository.notExists(customer)) {
-            throw UserNotFoundException(ErrorMessage("User ${customer.value} not found."))
-        }
-        val status = userRepository.statusOf(customer)
-        if (status.refusesSignIn()) {
-            val message = ErrorMessage("The account ${customer.value} is $status: it cannot act.")
-            throw AccountRefusedException(status, message)
-        }
+        userRepository.verifyCustomerCanAct(entry.customer)
     }
 
     private fun productExistsCondition() = PreCondition<WishlistEntry> { entry ->

@@ -1,5 +1,6 @@
 package org.flexstore.domain.user
 
+import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.sharedkernel.Page
 import org.flexstore.domain.sharedkernel.PageRequest
 import org.flexstore.domain.user.model.*
@@ -31,5 +32,17 @@ interface UserRepository {
         if (notExists(userId)) return true
         val user = findById(userId)
         return user !is User.DefinedUser || user.isNotAdministrator()
+    }
+
+    // A customer must be an existing user whose account is not suspended, locked or disabled to act
+    fun verifyCustomerCanAct(customerId: UserId) {
+        if (notExists(customerId)) {
+            throw UserNotFoundException(ErrorMessage("User ${customerId.value} not found."))
+        }
+        val status = statusOf(customerId)
+        if (status.refusesSignIn()) {
+            val message = ErrorMessage("The account ${customerId.value} is $status: it cannot act.")
+            throw AccountRefusedException(status, message)
+        }
     }
 }
