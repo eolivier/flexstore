@@ -1,7 +1,7 @@
 package org.flexstore.domain.order
 
-import org.flexstore.domain.sharedkernel.ErrorMessage
 import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
 
 // The name of a carrier, as told to the customer
