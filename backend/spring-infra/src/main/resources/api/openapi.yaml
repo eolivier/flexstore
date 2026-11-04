@@ -844,6 +844,71 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/JsonRatingSummary"
+  /api/wishlist:
+    get:
+      tags:
+      - Wishlist
+      summary: Retrieve the products the signed-in customer saved to their wishlist, newest first
+      operationId: getWishlist
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: Accept-Language
+        in: header
+        required: false
+        description: The language of the customer (en, fr); the products not translated into it are in en
+        schema:
+          type: string
+      responses:
+        "200":
+          description: The products saved to the wishlist
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/JsonProduct"
+        "401":
+          description: Not signed in
+  /api/wishlist/{productId}:
+    put:
+      tags:
+      - Wishlist
+      summary: Save a product to the wishlist of the signed-in customer, once per product
+      operationId: saveProductToWishlist
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: Saved (already there, or saved now)
+        "401":
+          description: Not signed in
+        "404":
+          description: Unknown product
+    delete:
+      tags:
+      - Wishlist
+      summary: Remove a product from the wishlist of the signed-in customer
+      operationId: removeProductFromWishlist
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: Removed (or already absent)
+        "401":
+          description: Not signed in
   /api/products/{id}:
     get:
       tags:
