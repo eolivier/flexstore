@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.rest
 
+import org.flexstore.infra.spring.config.USERS_CACHE
 import org.flexstore.infra.spring.security.asUser
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -8,6 +9,7 @@ import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.cache.CacheManager
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
@@ -28,8 +30,14 @@ class AccountAuthorizationIT {
     @Autowired
     private lateinit var jdbcTemplate: JdbcTemplate
 
+    @Autowired
+    private lateinit var cacheManager: CacheManager
+
+    // Written directly in the database, so the cache of the reads of the user table (see CacheConfig) is
+    // evicted by hand
     private fun giveStatus(status: String) {
         jdbcTemplate.update("""UPDATE "user" SET status = ? WHERE id = ?""", status, EXISTING_CUSTOMER_ID)
+        cacheManager.getCache(USERS_CACHE)?.evict(EXISTING_CUSTOMER_ID)
     }
 
     @ParameterizedTest
@@ -68,7 +76,7 @@ class AccountAuthorizationIT {
         // Arrange
         giveStatus(status)
         // Act
-        val response = mockMvc.perform(get("/api/products").with(asUser(EXISTING_CUSTOMER_ID)))
+        val response = mockMvc.perform(get("/api/products/").with(asUser(EXISTING_CUSTOMER_ID)))
         // Assert
         response.andExpect(status().isOk)
     }
