@@ -28,15 +28,7 @@ class ReadCustomerOrderUseCase(
     // The customer must be an existing user whose account is not suspended, locked or disabled (read
     // from the users, not from the request)
     private fun customerCanActCondition() = PreCondition<CustomerOrderLookup> { lookup ->
-        val customerId = lookup.customer
-        if (userRepository.notExists(customerId)) {
-            throw UserNotFoundException(ErrorMessage("User ${customerId.value} not found."))
-        }
-        val status = userRepository.statusOf(customerId)
-        if (status.refusesSignIn()) {
-            val message = ErrorMessage("The account ${customerId.value} is $status: it cannot act.")
-            throw AccountRefusedException(status, message)
-        }
+        userRepository.verifyCustomerCanAct(lookup.customer)
     }
 
     // Unknown, or an order of another customer

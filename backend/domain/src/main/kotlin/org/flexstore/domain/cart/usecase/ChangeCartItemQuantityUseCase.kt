@@ -3,8 +3,6 @@ package org.flexstore.domain.cart.usecase
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.UserRepository
-import org.flexstore.domain.user.model.AccountRefusedException
-import org.flexstore.domain.user.model.UserNotFoundException
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
@@ -36,15 +34,7 @@ class ChangeCartItemQuantityUseCase(
     private fun ownerCanActCondition() = PreCondition<ChangeCartItemQuantityRequest> { request ->
         val owner = request.owner
         if (owner is CartOwner.Customer) {
-            val customerId = owner.userId
-            if (userRepository.notExists(customerId)) {
-                throw UserNotFoundException(ErrorMessage("User ${customerId.value} not found."))
-            }
-            val status = userRepository.statusOf(customerId)
-            if (status.refusesSignIn()) {
-                val message = ErrorMessage("The account ${customerId.value} is $status: it cannot act.")
-                throw AccountRefusedException(status, message)
-            }
+            userRepository.verifyCustomerCanAct(owner.userId)
         }
     }
 
