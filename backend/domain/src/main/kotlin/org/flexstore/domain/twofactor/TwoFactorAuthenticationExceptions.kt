@@ -3,9 +3,6 @@ package org.flexstore.domain.twofactor
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
 
-data class TwoFactorAuthenticationForbiddenException(override val errorMessage: ErrorMessage) :
-    NominalException(errorMessage)
-
 data class TwoFactorAuthenticationAlreadyEnabledException(override val errorMessage: ErrorMessage) :
     NominalException(errorMessage)
 
@@ -15,7 +12,7 @@ data class TwoFactorAuthenticationNotEnabledException(override val errorMessage:
 data class TwoFactorEnrollmentNotPendingException(override val errorMessage: ErrorMessage) :
     NominalException(errorMessage)
 
-// The code typed by the administrator, at enrollment or at sign-in, does not match the current or adjacent one
+// The code typed by the user, at enrollment or at sign-in, does not match the current or adjacent one
 data class TwoFactorCodeInvalidException(override val errorMessage: ErrorMessage) :
     NominalException(errorMessage)
 

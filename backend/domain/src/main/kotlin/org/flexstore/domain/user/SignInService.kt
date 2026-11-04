@@ -22,7 +22,7 @@ class SignInService(
     private val twoFactorChallengeRepository: TwoFactorChallengeRepository
 ) {
 
-    // An administrator who enabled two-factor authentication is given a challenge instead of a session
+    // A user who enabled two-factor authentication is given a challenge instead of a session
     fun signIn(loginRequest: LoginRequest): SignInOutcome {
         val loginUseCase = LoginUseCase(userRepository)
         try {

@@ -193,7 +193,7 @@ paths:
     post:
       tags:
       - Users
-      summary: Start the enrollment of two-factor authentication (administrator only)
+      summary: Start the enrollment of two-factor authentication
       description: >
         Generates a new secret and keeps it pending: it is not active until confirmed with the first code
         (POST /api/users/{id}/two-factor-authentication/confirmation).
@@ -216,7 +216,7 @@ paths:
         "401":
           description: Missing or invalid token
         "403":
-          description: Not an administrator, or not the signed-in user
+          description: Not the signed-in user
         "409":
           description: Two-factor authentication is already enabled
   /api/users/{id}/two-factor-authentication/confirmation:
@@ -245,7 +245,7 @@ paths:
         "401":
           description: Wrong code
         "403":
-          description: Not an administrator, or not the signed-in user
+          description: Not the signed-in user
         "409":
           description: No enrollment is pending
   /api/users/{id}/two-factor-authentication:
@@ -274,7 +274,7 @@ paths:
         "400":
           description: Wrong current password
         "403":
-          description: Not an administrator, or not the signed-in user
+          description: Not the signed-in user
         "409":
           description: Two-factor authentication is not enabled
   /api/accounts:
@@ -2051,7 +2051,7 @@ components:
           enum: [PENDING_VERIFICATION, ACTIVE, SUSPENDED, LOCKED, DISABLED]
         twoFactorEnabled:
           type: boolean
-          description: Whether two-factor authentication is enabled (restricted to an ADMIN account)
+          description: Whether two-factor authentication is enabled
     JsonLoginResponse:
       type: object
       description: >
@@ -2276,7 +2276,8 @@ components:
           description: User's password (plain text)
     JsonTwoFactorEnrollment:
       type: object
-      description: What an administrator reads once an enrollment started, to set up their authenticator app
+      description: What a customer or administrator reads once an enrollment started, to set up their
+        authenticator app
       required: [secret, provisioningUri]
       properties:
         secret:
@@ -2886,7 +2887,7 @@ components:
           $ref: "#/components/schemas/JsonCustomerCompany"
         twoFactorEnabled:
           type: boolean
-          description: Whether two-factor authentication is enabled (restricted to an ADMIN account)
+          description: Whether two-factor authentication is enabled
     JsonOrderLine:
       type: object
       required: [productId, productName, unitPrice, quantity, linePrice]

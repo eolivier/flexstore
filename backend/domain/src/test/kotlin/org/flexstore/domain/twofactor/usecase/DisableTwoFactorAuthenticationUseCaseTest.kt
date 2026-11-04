@@ -1,11 +1,11 @@
 package org.flexstore.domain.twofactor.usecase
 
 import org.assertj.core.api.WithAssertions
-import org.flexstore.domain.twofactor.TwoFactorAuthenticationForbiddenException
 import org.flexstore.domain.twofactor.TwoFactorAuthenticationNotEnabledException
 import org.flexstore.domain.twofactor.model.TwoFactorAuthentication
 import org.flexstore.domain.twofactor.model.TwoFactorSecret
 import org.flexstore.domain.user.model.*
+import org.flexstore.domain.user.unknownCustomerId
 import org.flexstore.domain.user.usecase.InvalidCurrentPasswordException
 import org.flexstore.infra.repository.InMemoryUserRepository
 import org.junit.jupiter.api.Test
@@ -66,19 +66,28 @@ class DisableTwoFactorAuthenticationUseCaseTest : WithAssertions {
     }
 
     @Test
-    fun `a customer should not disable two-factor authentication`() {
+    fun `a customer should disable their own two-factor authentication`() {
         // Arrange
+        val janePassword = PlainPassword("password123")
         val jane = User.DefinedUser(
             UserId.ValidUserId("jane-1"), FullName(FirstName("Jane"), LastName("Doe")),
-            Email("jane@example.com"), PlainPassword("password123"),
+            Email("jane@example.com"), janePassword,
             twoFactorAuthentication = TwoFactorAuthentication.Enabled(TwoFactorSecret.next())
         )
         userRepository.save(jane)
         // Act
+        useCase.unfold(TwoFactorDisabling(jane.id, janePassword))
+        // Assert
+        assertThat(storedTwoFactorAuthenticationOf(jane.id)).isEqualTo(TwoFactorAuthentication.Disabled)
+    }
+
+    @Test
+    fun `an unknown user should not disable two-factor authentication`() {
+        // Act
         val thrown = catchThrowable {
-            useCase.unfold(TwoFactorDisabling(jane.id, PlainPassword("password123")))
+            useCase.unfold(TwoFactorDisabling(unknownCustomerId, PlainPassword("password123")))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(TwoFactorAuthenticationForbiddenException::class.java)
+        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
     }
 }

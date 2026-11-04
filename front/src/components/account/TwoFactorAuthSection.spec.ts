@@ -12,7 +12,7 @@ vi.mock('qrcode', () => ({ default: { toDataURL: vi.fn().mockResolvedValue('data
 const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
-async function signedInAdmin(twoFactorEnabled = false) {
+async function signedInCustomer(twoFactorEnabled = false) {
   mockFetch.mockResolvedValueOnce({
     ok: true,
     json: () =>
@@ -21,11 +21,11 @@ async function signedInAdmin(twoFactorEnabled = false) {
         token: 'jwt-token',
         expiresAt: '2030-01-01T00:00:00Z',
         user: {
-          id: 'admin-1',
+          id: 'customer-1',
           firstName: 'Jane',
           lastName: 'Doe',
           email: 'jane@example.com',
-          role: 'ADMIN',
+          role: 'USER',
           twoFactorEnabled,
         },
       }),
@@ -58,7 +58,7 @@ describe('TwoFactorAuthSection.vue', () => {
 
   it('offers to enable two-factor authentication when it is disabled', async () => {
     // Arrange
-    await signedInAdmin(false);
+    await signedInCustomer(false);
     // Act
     const wrapper = await mountSection();
     // Assert
@@ -68,7 +68,7 @@ describe('TwoFactorAuthSection.vue', () => {
 
   it('tells that two-factor authentication is enabled, with a way to disable it', async () => {
     // Arrange
-    await signedInAdmin(true);
+    await signedInCustomer(true);
     // Act
     const wrapper = await mountSection();
     // Assert
@@ -78,7 +78,7 @@ describe('TwoFactorAuthSection.vue', () => {
 
   it('enrolls, then enables two-factor authentication once the first code is confirmed', async () => {
     // Arrange
-    await signedInAdmin(false);
+    await signedInCustomer(false);
     await mountSection();
     mockFetch.mockResolvedValueOnce({
       ok: true,
@@ -104,7 +104,7 @@ describe('TwoFactorAuthSection.vue', () => {
 
   it('disables two-factor authentication with the current password', async () => {
     // Arrange
-    await signedInAdmin(true);
+    await signedInCustomer(true);
     await mountSection();
     buttonNamed('Disable')!.click();
     await flushPromises();

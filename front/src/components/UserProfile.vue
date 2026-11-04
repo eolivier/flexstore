@@ -61,7 +61,7 @@
       </v-card>
 
       <ChangePasswordForm class="mb-6" />
-      <TwoFactorAuthSection v-if="authStore.isAdmin" class="mb-6" />
+      <TwoFactorAuthSection class="mb-6" />
       <CookieSettings class="mb-6" />
 
       <h2 class="text-h6 font-weight-bold mb-4">{{ t('profile.shortcuts') }}</h2>

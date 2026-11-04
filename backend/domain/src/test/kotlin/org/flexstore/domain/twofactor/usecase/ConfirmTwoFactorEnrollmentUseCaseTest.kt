@@ -1,13 +1,13 @@
 package org.flexstore.domain.twofactor.usecase
 
 import org.assertj.core.api.WithAssertions
-import org.flexstore.domain.twofactor.TwoFactorAuthenticationForbiddenException
 import org.flexstore.domain.twofactor.TwoFactorCodeInvalidException
 import org.flexstore.domain.twofactor.TwoFactorEnrollmentNotPendingException
 import org.flexstore.domain.twofactor.model.TwoFactorAuthentication
 import org.flexstore.domain.twofactor.model.TwoFactorCode
 import org.flexstore.domain.twofactor.model.TwoFactorSecret
 import org.flexstore.domain.user.model.*
+import org.flexstore.domain.user.unknownCustomerId
 import org.flexstore.infra.repository.InMemoryUserRepository
 import org.junit.jupiter.api.Test
 import java.time.Instant
@@ -70,7 +70,7 @@ class ConfirmTwoFactorEnrollmentUseCaseTest : WithAssertions {
     }
 
     @Test
-    fun `a customer should not confirm an enrollment`() {
+    fun `a customer should confirm their pending enrollment`() {
         // Arrange
         val jane = User.DefinedUser(
             UserId.ValidUserId("jane-1"), FullName(FirstName("Jane"), LastName("Doe")),
@@ -78,10 +78,18 @@ class ConfirmTwoFactorEnrollmentUseCaseTest : WithAssertions {
         )
         userRepository.save(jane.withTwoFactorAuthenticationPending(secret))
         // Act
+        useCase.unfold(TwoFactorEnrollmentConfirmation(jane.id, secret.codeAt(Instant.now())))
+        // Assert
+        assertThat(storedTwoFactorAuthenticationOf(jane.id)).isEqualTo(TwoFactorAuthentication.Enabled(secret))
+    }
+
+    @Test
+    fun `an unknown user should not confirm an enrollment`() {
+        // Act
         val thrown = catchThrowable {
-            useCase.unfold(TwoFactorEnrollmentConfirmation(jane.id, secret.codeAt(Instant.now())))
+            useCase.unfold(TwoFactorEnrollmentConfirmation(unknownCustomerId, secret.codeAt(Instant.now())))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(TwoFactorAuthenticationForbiddenException::class.java)
+        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
     }
 }

@@ -94,7 +94,7 @@ export interface JsonAccount {
     'postalAddresses': Array<JsonPostalAddress>;
     'company'?: JsonCustomerCompany;
     /**
-     * Whether two-factor authentication is enabled (restricted to an ADMIN account)
+     * Whether two-factor authentication is enabled
      */
     'twoFactorEnabled': boolean;
 }
@@ -909,7 +909,7 @@ export interface JsonTwoFactorDisableRequest {
     'currentPassword': string;
 }
 /**
- * What an administrator reads once an enrollment started, to set up their authenticator app
+ * What a customer or administrator reads once an enrollment started, to set up their authenticator app
  */
 export interface JsonTwoFactorEnrollment {
     /**
@@ -929,7 +929,7 @@ export interface JsonUser {
     'role'?: JsonUserRoleEnum;
     'status'?: JsonUserStatusEnum;
     /**
-     * Whether two-factor authentication is enabled (restricted to an ADMIN account)
+     * Whether two-factor authentication is enabled
      */
     'twoFactorEnabled'?: boolean;
 }
@@ -6220,7 +6220,7 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
         },
         /**
          * Generates a new secret and keeps it pending: it is not active until confirmed with the first code (POST /api/users/{id}/two-factor-authentication/confirmation). 
-         * @summary Start the enrollment of two-factor authentication (administrator only)
+         * @summary Start the enrollment of two-factor authentication
          * @param {string} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6495,7 +6495,7 @@ export const UsersApiFp = function(configuration?: Configuration) {
         },
         /**
          * Generates a new secret and keeps it pending: it is not active until confirmed with the first code (POST /api/users/{id}/two-factor-authentication/confirmation). 
-         * @summary Start the enrollment of two-factor authentication (administrator only)
+         * @summary Start the enrollment of two-factor authentication
          * @param {string} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6659,7 +6659,7 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
         },
         /**
          * Generates a new secret and keeps it pending: it is not active until confirmed with the first code (POST /api/users/{id}/two-factor-authentication/confirmation). 
-         * @summary Start the enrollment of two-factor authentication (administrator only)
+         * @summary Start the enrollment of two-factor authentication
          * @param {string} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6823,7 +6823,7 @@ export class UsersApi extends BaseAPI {
 
     /**
      * Generates a new secret and keeps it pending: it is not active until confirmed with the first code (POST /api/users/{id}/two-factor-authentication/confirmation). 
-     * @summary Start the enrollment of two-factor authentication (administrator only)
+     * @summary Start the enrollment of two-factor authentication
      * @param {string} id 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
