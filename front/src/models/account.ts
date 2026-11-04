@@ -22,6 +22,22 @@ export interface Location {
 // A postal address: its recipient and where it is
 export interface PostalAddress extends Recipient, Location {}
 
+// An address to fill in from scratch, for a customer who adds a new one
+export function blankPostalAddress(): PostalAddress {
+  return {
+    recipientType: 'PRIVATE_INDIVIDUAL',
+    firstName: '',
+    lastName: '',
+    companyName: '',
+    vatNumber: '',
+    street: '',
+    complement: '',
+    postalCode: '',
+    city: '',
+    country: '',
+  };
+}
+
 // The company a customer buys for: the VAT number is optional (empty)
 export interface CustomerCompany {
   companyName: string;

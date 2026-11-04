@@ -4,6 +4,7 @@ All URIs are relative to *http://localhost:8080*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
+|[**addAddress**](#addaddress) | **POST** /api/accounts/me/addresses | Add a new address to the signed-in user, at the end of their addresses|
 |[**changeAddress**](#changeaddress) | **PUT** /api/accounts/me/addresses/{position} | Change an address of the signed-in user (0 for the first one); the orders keep theirs|
 |[**getAccount**](#getaccount) | **GET** /api/accounts/me | Retrieve the account of the signed-in user, with their phone number and postal addresses|
 |[**getAddresses**](#getaddresses) | **GET** /api/accounts/me/addresses | Retrieve the postal addresses of the signed-in user, in their order|
@@ -13,6 +14,58 @@ All URIs are relative to *http://localhost:8080*
 |[**resetPassword**](#resetpassword) | **POST** /api/password-resets | Choose a new password with the token of the link sent by email|
 |[**sendVerificationEmail**](#sendverificationemail) | **POST** /api/accounts/me/verification-email | Send a new verification link (valid for 1 hour) to the signed-in customer|
 |[**verifyEmail**](#verifyemail) | **POST** /api/accounts/email-verification | Verify the email of an account with the token of the link sent by email|
+
+# **addAddress**
+> Array<JsonPostalAddress> addAddress(jsonPostalAddress)
+
+
+### Example
+
+```typescript
+import {
+    AccountsApi,
+    Configuration,
+    JsonPostalAddress
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AccountsApi(configuration);
+
+let jsonPostalAddress: JsonPostalAddress; //
+
+const { status, data } = await apiInstance.addAddress(
+    jsonPostalAddress
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **jsonPostalAddress** | **JsonPostalAddress**|  | |
+
+
+### Return type
+
+**Array<JsonPostalAddress>**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**201** | The addresses, with the new one at the end |  -  |
+|**400** | Incomplete address |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **changeAddress**
 > Array<JsonPostalAddress> changeAddress(jsonPostalAddress)

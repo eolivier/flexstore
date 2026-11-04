@@ -937,6 +937,46 @@ export const AccountsApiAxiosParamCreator = function (configuration?: Configurat
     return {
         /**
          * 
+         * @summary Add a new address to the signed-in user, at the end of their addresses
+         * @param {JsonPostalAddress} jsonPostalAddress 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        addAddress: async (jsonPostalAddress: JsonPostalAddress, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'jsonPostalAddress' is not null or undefined
+            assertParamExists('addAddress', 'jsonPostalAddress', jsonPostalAddress)
+            const localVarPath = `/api/accounts/me/addresses`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonPostalAddress, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Change an address of the signed-in user (0 for the first one); the orders keep theirs
          * @param {number} position 
          * @param {JsonPostalAddress} jsonPostalAddress 
@@ -1274,6 +1314,19 @@ export const AccountsApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
+         * @summary Add a new address to the signed-in user, at the end of their addresses
+         * @param {JsonPostalAddress} jsonPostalAddress 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async addAddress(jsonPostalAddress: JsonPostalAddress, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<JsonPostalAddress>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.addAddress(jsonPostalAddress, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AccountsApi.addAddress']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Change an address of the signed-in user (0 for the first one); the orders keep theirs
          * @param {number} position 
          * @param {JsonPostalAddress} jsonPostalAddress 
@@ -1398,6 +1451,16 @@ export const AccountsApiFactory = function (configuration?: Configuration, baseP
     return {
         /**
          * 
+         * @summary Add a new address to the signed-in user, at the end of their addresses
+         * @param {JsonPostalAddress} jsonPostalAddress 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        addAddress(jsonPostalAddress: JsonPostalAddress, options?: RawAxiosRequestConfig): AxiosPromise<Array<JsonPostalAddress>> {
+            return localVarFp.addAddress(jsonPostalAddress, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Change an address of the signed-in user (0 for the first one); the orders keep theirs
          * @param {number} position 
          * @param {JsonPostalAddress} jsonPostalAddress 
@@ -1491,6 +1554,17 @@ export const AccountsApiFactory = function (configuration?: Configuration, baseP
  * AccountsApi - object-oriented interface
  */
 export class AccountsApi extends BaseAPI {
+    /**
+     * 
+     * @summary Add a new address to the signed-in user, at the end of their addresses
+     * @param {JsonPostalAddress} jsonPostalAddress 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public addAddress(jsonPostalAddress: JsonPostalAddress, options?: RawAxiosRequestConfig) {
+        return AccountsApiFp(this.configuration).addAddress(jsonPostalAddress, options).then((request) => request(this.axios, this.basePath));
+    }
+
     /**
      * 
      * @summary Change an address of the signed-in user (0 for the first one); the orders keep theirs

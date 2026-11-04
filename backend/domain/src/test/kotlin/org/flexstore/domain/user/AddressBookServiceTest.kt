@@ -24,12 +24,36 @@ class AddressBookServiceTest : WithAssertions {
         save(definedUser.withPostalAddresses(PostalAddresses(home, office)))
     }
     private val addressUseCases = AddressUseCases(
+        AddPostalAddressUseCase(userRepository),
         ChangePostalAddressUseCase(userRepository),
         RemovePostalAddressUseCase(userRepository)
     )
     private val addressBookService = AddressBookService(ReadAccountUseCase(userRepository), addressUseCases)
 
     private val first = UserAddress(userId, AddressPosition(0))
+
+    @Test
+    fun `a user should add a new address, at the end of their addresses`() {
+        // Arrange
+        val workshopLocation = Location(StreetAddress(Street("5 rue de l'Atelier")), Locality(homeTown, france))
+        val workshop = PostalAddress(janeDoe, workshopLocation)
+        // Act
+        val addresses = addressBookService.add(AddressAddition(userId, workshop))
+        // Assert
+        assertThat(addresses).isEqualTo(PostalAddresses(home, office, workshop))
+    }
+
+    @Test
+    fun `an incomplete address should not be added`() {
+        // Arrange
+        val nobody = PrivateIndividual(FullName(FirstName(""), LastName("")))
+        val incompleteAddress = PostalAddress(nobody, homeLocation)
+        // Act
+        val thrown = catchThrowable { addressBookService.add(AddressAddition(userId, incompleteAddress)) }
+        // Assert
+        assertThat(thrown).isInstanceOf(IncompleteAddressException::class.java)
+        assertThat(addressBookService.getAddresses(userId)).isEqualTo(PostalAddresses(home, office))
+    }
 
     @Test
     fun `a user should change one of their addresses, at the same place`() {

@@ -43,6 +43,20 @@ export const useAddressBookStore = defineStore('addressBook', () => {
     loading.value = false;
   }
 
+  async function addAddress(address: PostalAddress): Promise<AddressEdition> {
+    const response = await authStore
+      .authFetch('/api/accounts/me/addresses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(address),
+      })
+      .catch(() => null);
+    if (response?.status === 400) return 'incomplete';
+    if (!response?.ok) return 'error';
+    await keep(response);
+    return 'saved';
+  }
+
   async function changeAddress(position: number, address: PostalAddress): Promise<AddressEdition> {
     const response = await authStore
       .authFetch(`/api/accounts/me/addresses/${position}`, {
@@ -67,5 +81,5 @@ export const useAddressBookStore = defineStore('addressBook', () => {
     return true;
   }
 
-  return { addresses, loading, loadError, fetchAddresses, changeAddress, removeAddress };
+  return { addresses, loading, loadError, fetchAddresses, addAddress, changeAddress, removeAddress };
 });

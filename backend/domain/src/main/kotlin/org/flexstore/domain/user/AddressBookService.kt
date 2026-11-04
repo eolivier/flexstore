@@ -10,6 +10,11 @@ class AddressBookService(
 ) {
     fun getAddresses(userId: UserId): PostalAddresses = readAccountUseCase.unfold(userId).postalAddresses
 
+    fun add(addressAddition: AddressAddition): PostalAddresses {
+        addressUseCases.addPostalAddressUseCase.unfold(addressAddition)
+        return getAddresses(addressAddition.userId)
+    }
+
     fun change(addressChange: AddressChange): PostalAddresses {
         addressUseCases.changePostalAddressUseCase.unfold(addressChange)
         return getAddresses(addressChange.userAddress.userId)
@@ -24,6 +29,7 @@ class AddressBookService(
 
 // The use cases of the addresses of a user
 data class AddressUseCases(
+    val addPostalAddressUseCase: AddPostalAddressUseCase,
     val changePostalAddressUseCase: ChangePostalAddressUseCase,
     val removePostalAddressUseCase: RemovePostalAddressUseCase
 )

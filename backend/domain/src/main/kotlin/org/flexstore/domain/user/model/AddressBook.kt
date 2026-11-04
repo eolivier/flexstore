@@ -9,6 +9,9 @@ data class AddressPosition(val value: Int)
 // An address of a user, by its place among their addresses
 data class UserAddress(val userId: UserId, val position: AddressPosition)
 
+// A user adds a new address to their address book
+data class AddressAddition(val userId: UserId, val newAddress: PostalAddress)
+
 // A user gives a new version of one of their addresses
 data class AddressChange(val userAddress: UserAddress, val newAddress: PostalAddress)
 

@@ -41,6 +41,17 @@ class AccountController(
     fun getAddresses(@AuthenticationPrincipal user: Jwt): List<JsonPostalAddress> =
         addressBookService.getAddresses(UserId.of(user.subject)).toJson()
 
+    @Operation(summary = "Add a new address to the signed-in user, at the end of their addresses")
+    @PostMapping("/me/addresses")
+    @ResponseStatus(HttpStatus.CREATED)
+    fun addAddress(
+        @AuthenticationPrincipal user: Jwt,
+        @RequestBody address: JsonPostalAddress
+    ): List<JsonPostalAddress> {
+        val addressAddition = AddressAddition(UserId.of(user.subject), address.toPostalAddress())
+        return addressBookService.add(addressAddition).toJson()
+    }
+
     @Operation(summary = "Change an address of the signed-in user (0 for the first one); the orders keep theirs")
     @PutMapping("/me/addresses/{position}")
     fun changeAddress(

@@ -23,11 +23,12 @@ const home = {
   country: 'France',
 };
 const office = { ...home, street: '3 place du Marché', postalCode: '69001', city: 'Lyon' };
+const workshop = { ...home, street: "5 rue de l'Atelier", postalCode: '13001', city: 'Marseille' };
 
-// Answers the addresses, and the addresses after a change or a removal
+// Answers the addresses, and the addresses after an addition, a change or a removal
 function respondWith(addresses: object[], afterEdition: object[] = addresses, editionStatus = 200) {
   mockFetch.mockImplementation((_url: string, init?: RequestInit) => {
-    const edited = init?.method === 'PUT' || init?.method === 'DELETE';
+    const edited = init?.method === 'POST' || init?.method === 'PUT' || init?.method === 'DELETE';
     const status = edited ? editionStatus : 200;
     const body = edited ? afterEdition : addresses;
     return Promise.resolve({ ok: status < 300, status, json: () => Promise.resolve(body) });
@@ -70,6 +71,40 @@ describe('AddressBook.vue', () => {
     const wrapper = await mountAddressBook();
     // Assert
     expect(wrapper.text()).toContain('No address yet');
+  });
+
+  it('offers to add an address next to the title, and from the empty state', async () => {
+    // Arrange
+    respondWith([]);
+    // Act
+    await mountAddressBook();
+    // Assert
+    expect(buttonNamed('Add an address')).toHaveLength(2);
+  });
+
+  it('offers to add an address next to the title when there are already some', async () => {
+    // Arrange
+    respondWith([home, office]);
+    // Act
+    await mountAddressBook();
+    // Assert
+    expect(buttonNamed('Add an address')).toHaveLength(1);
+  });
+
+  it('adds a new address, at the end of the addresses', async () => {
+    // Arrange
+    respondWith([home, office], [home, office, workshop], 201);
+    const wrapper = await mountAddressBook();
+    // Act
+    buttonNamed('Add an address')[0].click();
+    await flushPromises();
+    buttonNamed('Save')[0].click();
+    await flushPromises();
+    // Assert
+    const [url, init] = mockFetch.mock.calls[mockFetch.mock.calls.length - 1];
+    expect(url).toMatch(/\/api\/accounts\/me\/addresses$/);
+    expect(init.method).toBe('POST');
+    expect(wrapper.text()).toContain('Marseille');
   });
 
   it('asks for confirmation before removing an address', async () => {
