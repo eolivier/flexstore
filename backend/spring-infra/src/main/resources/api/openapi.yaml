@@ -339,6 +339,30 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/JsonPostalAddress"
+    post:
+      tags:
+      - Accounts
+      summary: Add a new address to the signed-in user, at the end of their addresses
+      operationId: addAddress
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonPostalAddress"
+      responses:
+        "201":
+          description: The addresses, with the new one at the end
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/JsonPostalAddress"
+        "400":
+          description: Incomplete address
   /api/accounts/me/addresses/{position}:
     put:
       tags:

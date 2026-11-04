@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { computed, onMounted, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
-  import type { PostalAddress } from '@/models/account';
+  import { blankPostalAddress, type PostalAddress } from '@/models/account';
   import { formatAddress } from '@/utils/address';
   import { useAddressBookStore } from '@/stores/addressBook.store';
   import AddressCard from './AddressCard.vue';
@@ -9,11 +9,13 @@
   import ConfirmDialog from '@/components/ConfirmDialog.vue';
   import AccountBreadcrumbs from '@/components/account/AccountBreadcrumbs.vue';
 
-  // The addresses of the signed-in user: they see, edit and remove them. The orders keep their own addresses
+  // The addresses of the signed-in user: they add, edit and remove them. The orders keep their own addresses
   const addressBookStore = useAddressBookStore();
   const { t } = useI18n();
 
+  // The address being edited, or null while adding a new one
   const editedPosition = ref<number | null>(null);
+  const mode = ref<'add' | 'edit'>('add');
   const editing = ref(false);
   const saving = ref(false);
   const editionError = ref<string | null>(null);
@@ -26,11 +28,23 @@
     return t('addressBook.deleteMessage', { address });
   });
 
+  const editedAddress = computed(() =>
+    mode.value === 'add' ? blankPostalAddress() : addressBookStore.addresses[editedPosition.value!]
+  );
+
   onMounted(() => {
     addressBookStore.fetchAddresses();
   });
 
+  function startAdding() {
+    mode.value = 'add';
+    editedPosition.value = null;
+    editionError.value = null;
+    editing.value = true;
+  }
+
   function edit(position: number) {
+    mode.value = 'edit';
     editedPosition.value = position;
     editionError.value = null;
     editing.value = true;
@@ -38,7 +52,10 @@
 
   async function save(address: PostalAddress) {
     saving.value = true;
-    const edition = await addressBookStore.changeAddress(editedPosition.value!, address);
+    const edition =
+      mode.value === 'add'
+        ? await addressBookStore.addAddress(address)
+        : await addressBookStore.changeAddress(editedPosition.value!, address);
     saving.value = false;
     if (edition === 'saved') {
       editing.value = false;
@@ -57,31 +74,41 @@
 <template>
   <v-container class="py-10">
     <AccountBreadcrumbs />
-    <h1 class="text-h4 font-weight-bold">{{ t('addressBook.title') }}</h1>
-    <p class="text-body-2 text-medium-emphasis mt-1 mb-6">{{ t('addressBook.subtitle') }}</p>
+    <div class="d-flex flex-wrap align-center justify-space-between ga-3">
+      <div>
+        <h1 class="text-h4 font-weight-bold">{{ t('addressBook.title') }}</h1>
+        <p class="text-body-2 text-medium-emphasis mt-1">{{ t('addressBook.subtitle') }}</p>
+      </div>
+      <v-btn color="primary" variant="tonal" prepend-icon="mdi-plus" @click="startAdding">
+        {{ t('addressBook.add') }}
+      </v-btn>
+    </div>
 
-    <v-alert v-if="addressBookStore.loadError" type="error" variant="tonal" class="mb-4">
+    <v-alert v-if="addressBookStore.loadError" type="error" variant="tonal" class="mt-6">
       {{ t('addressBook.loadError') }}
     </v-alert>
-    <v-alert v-if="removalError" type="error" variant="tonal" class="mb-4">
+    <v-alert v-if="removalError" type="error" variant="tonal" class="mt-6">
       {{ t('addressBook.errors.removal') }}
     </v-alert>
 
-    <v-skeleton-loader v-if="addressBookStore.loading" type="card" class="rounded-xl" />
-    <v-card v-else-if="addressBookStore.addresses.length === 0" class="pa-10 text-center">
+    <v-skeleton-loader v-if="addressBookStore.loading" type="card" class="rounded-xl mt-6" />
+    <v-card v-else-if="addressBookStore.addresses.length === 0" class="pa-10 text-center mt-6">
       <v-icon icon="mdi-map-marker-off-outline" size="48" class="text-medium-emphasis mb-3" />
-      <p class="text-body-1">{{ t('addressBook.empty') }}</p>
+      <p class="text-body-1 mb-4">{{ t('addressBook.empty') }}</p>
+      <v-btn color="primary" prepend-icon="mdi-plus" @click="startAdding">
+        {{ t('addressBook.add') }}
+      </v-btn>
     </v-card>
-    <v-row v-else>
+    <v-row v-else class="mt-1">
       <v-col v-for="(address, position) in addressBookStore.addresses" :key="position" cols="12" md="6">
         <AddressCard :address="address" @edit="edit(position)" @remove="positionToRemove = position" />
       </v-col>
     </v-row>
 
     <AddressEditDialog
-      v-if="editedPosition !== null"
       v-model="editing"
-      :address="addressBookStore.addresses[editedPosition]"
+      :address="editedAddress"
+      :mode="mode"
       :saving="saving"
       :error="editionError"
       @save="save"

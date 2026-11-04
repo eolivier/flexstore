@@ -103,6 +103,29 @@ class AddressBookIT {
     }
 
     @Test
+    fun `a customer should add a new address, at the end of their addresses`() {
+        // Act
+        val response = addAddress(acmeAddress)
+        // Assert
+        response.andExpect(status().isCreated)
+            .andExpect(jsonPath("$.length()").value(3))
+            .andExpect(jsonPath("$[0].city").value("Paris"))
+            .andExpect(jsonPath("$[1].city").value("Lyon"))
+            .andExpect(jsonPath("$[2].companyName").value("Acme"))
+    }
+
+    @Test
+    fun `an incomplete address should not be added`() {
+        // Arrange
+        val withoutCity = """{"recipientType": "PRIVATE_INDIVIDUAL", "firstName": "Jane", "lastName": "Doe",
+            "street": "8 avenue Foch", "postalCode": "13001", "city": "", "country": "France"}"""
+        // Act
+        val response = addAddress(withoutCity)
+        // Assert
+        response.andExpect(status().isBadRequest)
+    }
+
+    @Test
     fun `a customer should change one of their addresses, at the same place`() {
         // Act
         val response = changeFirstAddress(acmeAddress)
@@ -165,6 +188,11 @@ class AddressBookIT {
         mockMvc.perform(get("/api/orders/$orderId").with(asUser(CUSTOMER_ID)))
             .andExpect(jsonPath("$.deliveryAddress.city").value("Paris"))
     }
+
+    private fun addAddress(address: String) = mockMvc.perform(
+        post("/api/accounts/me/addresses").with(asUser(CUSTOMER_ID))
+            .contentType(MediaType.APPLICATION_JSON).content(address)
+    )
 
     private fun removeAddress(position: Int) =
         mockMvc.perform(delete("/api/accounts/me/addresses/$position").with(asUser(CUSTOMER_ID)))

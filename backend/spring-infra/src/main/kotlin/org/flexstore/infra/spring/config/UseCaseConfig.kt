@@ -210,6 +210,10 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         AdvanceOrderStatusUseCase(orderRepository, userRepository)
 
     @Bean
+    open fun addPostalAddressUseCase(userRepository: UserRepository) =
+        AddPostalAddressUseCase(userRepository)
+
+    @Bean
     open fun changePostalAddressUseCase(userRepository: UserRepository) =
         ChangePostalAddressUseCase(userRepository)
 
@@ -218,9 +222,10 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         RemovePostalAddressUseCase(userRepository)
 
     @Bean
-    open fun addressUseCases(changePostalAddressUseCase: ChangePostalAddressUseCase,
+    open fun addressUseCases(addPostalAddressUseCase: AddPostalAddressUseCase,
+                             changePostalAddressUseCase: ChangePostalAddressUseCase,
                              removePostalAddressUseCase: RemovePostalAddressUseCase) =
-        AddressUseCases(changePostalAddressUseCase, removePostalAddressUseCase)
+        AddressUseCases(addPostalAddressUseCase, changePostalAddressUseCase, removePostalAddressUseCase)
 
     @Bean
     open fun registerCustomerUseCase(userRepository: UserRepository): RegisterCustomerUseCase {

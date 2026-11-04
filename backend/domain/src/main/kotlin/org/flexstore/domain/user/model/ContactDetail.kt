@@ -115,6 +115,8 @@ data class PostalAddresses(private val addresses: List<PostalAddress>) {
 
     fun hasNo(position: AddressPosition) = !has(position)
 
+    fun includes(address: PostalAddress) = address in addresses
+
     fun at(position: AddressPosition) = addresses[position.value]
 
     // The addresses with a new version of the one at the given position, at the same place
