@@ -63,6 +63,10 @@ docs/JsonSkuProposal.md
 docs/JsonStock.md
 docs/JsonStockAlert.md
 docs/JsonStockQuantity.md
+docs/JsonTwoFactorChallengeVerification.md
+docs/JsonTwoFactorCode.md
+docs/JsonTwoFactorDisableRequest.md
+docs/JsonTwoFactorEnrollment.md
 docs/JsonUser.md
 docs/JsonUserCreate.md
 docs/JsonUserUpdate.md

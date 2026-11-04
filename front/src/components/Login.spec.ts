@@ -24,10 +24,17 @@ const loginSuccess = (role: 'ADMIN' | 'USER') => ({
   ok: true,
   json: () =>
     Promise.resolve({
+      status: 'SIGNED_IN',
       token: 'jwt-token',
       expiresAt: '2030-01-01T00:00:00Z',
       user: { id: '1', firstName: 'John', lastName: 'Doe', email: 'john@example.com', role },
     }),
+});
+
+// Body of a login whose password is right, but still waits for the code of the authenticator app
+const twoFactorChallengeRequired = (challengeId = 'challenge-1') => ({
+  ok: true,
+  json: () => Promise.resolve({ status: 'TWO_FACTOR_REQUIRED', challengeId }),
 });
 
 describe('Login.vue', () => {
@@ -165,5 +172,66 @@ describe('Login.vue', () => {
     // Assert
     const signUp = wrapper.findAll('a').find((link) => link.text() === 'Create an account')!;
     expect(signUp.attributes('href')).toBe('/sign-up?redirect=/cart');
+  });
+
+  describe('two-factor challenge', () => {
+    it('shows the code step instead of redirecting when a second factor is required', async () => {
+      // Arrange
+      mockFetch.mockResolvedValueOnce(twoFactorChallengeRequired());
+      const wrapper = await mountComponent();
+      await fillForm(wrapper, 'admin@example.com', 'password123');
+      // Act
+      await submit(wrapper);
+      // Assert
+      expect(wrapper.text()).toContain('Two-factor authentication');
+      expect(wrapper.find('input[type="email"]').exists()).toBe(false);
+      expect(router.currentRoute.value.path).toBe('/login');
+    });
+
+    it('redirects once the right code is verified', async () => {
+      // Arrange
+      mockFetch.mockResolvedValueOnce(twoFactorChallengeRequired());
+      const wrapper = await mountComponent();
+      await fillForm(wrapper, 'admin@example.com', 'password123');
+      await submit(wrapper);
+      mockFetch.mockResolvedValueOnce(loginSuccess('ADMIN'));
+      // Act
+      await wrapper.find('input').setValue('123456');
+      await wrapper.find('form').trigger('submit.prevent');
+      await flushPromises();
+      // Assert
+      expect(useAuthStore().isAuthenticated).toBe(true);
+      expect(router.currentRoute.value.path).toBe('/admin');
+    });
+
+    it('reports a wrong code, without redirecting', async () => {
+      // Arrange
+      mockFetch.mockResolvedValueOnce(twoFactorChallengeRequired());
+      const wrapper = await mountComponent();
+      await fillForm(wrapper, 'admin@example.com', 'password123');
+      await submit(wrapper);
+      mockFetch.mockResolvedValueOnce({ ok: false, status: 401 });
+      // Act
+      await wrapper.find('input').setValue('000000');
+      await wrapper.find('form').trigger('submit.prevent');
+      await flushPromises();
+      // Assert
+      expect(wrapper.text()).toContain('This code is wrong or has expired.');
+      expect(useAuthStore().isAuthenticated).toBe(false);
+    });
+
+    it('goes back to the credentials step', async () => {
+      // Arrange
+      mockFetch.mockResolvedValueOnce(twoFactorChallengeRequired());
+      const wrapper = await mountComponent();
+      await fillForm(wrapper, 'admin@example.com', 'password123');
+      await submit(wrapper);
+      // Act
+      await wrapper.findAll('button').find((button) => button.text() === 'Back to sign in')!.trigger('click');
+      await flushPromises();
+      // Assert
+      expect(wrapper.find('input[type="email"]').exists()).toBe(true);
+      expect(useAuthStore().pendingChallengeId).toBeNull();
+    });
   });
 });

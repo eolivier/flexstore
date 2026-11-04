@@ -6,6 +6,8 @@ export interface User {
   password?: string;
   role?: 'USER' | 'ADMIN';
   status?: AccountStatus;
+  // Restricted to an ADMIN account in this iteration
+  twoFactorEnabled?: boolean;
 }
 
 // PENDING_VERIFICATION: the account waits for the verification of the email (the customer can already order)

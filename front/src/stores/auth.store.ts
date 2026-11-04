@@ -8,6 +8,16 @@ import { shareWhilePending } from '@/utils/shareWhilePending';
 export type PasswordChange = 'changed' | 'wrongPassword' | 'error';
 // signedIn: the account is created and the customer is signed in; invalidCompany: the company was refused (400)
 export type Registration = 'signedIn' | 'emailUsed' | 'invalidCompany' | 'error';
+// twoFactorRequired: the password is right, the code of the authenticator app is still needed
+export type LoginOutcome = 'signedIn' | 'twoFactorRequired' | 'refused' | 'invalidCredentials' | 'error';
+export type TwoFactorVerification = 'signedIn' | 'invalidCode' | 'error';
+export type TwoFactorConfirmation = 'confirmed' | 'invalidCode' | 'error';
+export type TwoFactorDisabling = 'disabled' | 'wrongPassword' | 'error';
+
+export interface TwoFactorEnrollment {
+  secret: string;
+  provisioningUri: string;
+}
 
 // The token expires after a few minutes; the refresh token, valid longer, renews it once (see refreshSession)
 interface RefreshedSession {
@@ -19,6 +29,16 @@ interface RefreshedSession {
 
 interface LoginResponse extends RefreshedSession {
   user: User;
+}
+
+interface JsonLoginResponse {
+  status: 'SIGNED_IN' | 'TWO_FACTOR_REQUIRED';
+  token?: string;
+  expiresAt?: string;
+  refreshToken?: string;
+  refreshExpiresAt?: string;
+  user?: User;
+  challengeId?: string;
 }
 
 // The session is kept in the tab (sessionStorage): it survives a reload and ends when the tab is closed
@@ -59,14 +79,24 @@ export const useAuthStore = defineStore('auth', () => {
   const loginError = ref<string | null>(null);
   // The status of an account that cannot sign in (SUSPENDED, LOCKED, DISABLED), after a refused sign-in
   const refusedStatus = ref<AccountStatus | null>(null);
+  // Set while a sign-in waits for the code of the authenticator app; no session exists yet
+  const pendingChallengeId = ref<string | null>(null);
   const loadingStore = useLoadingStore();
 
   const isAuthenticated = computed(() => currentUser.value !== null && token.value !== null);
   const isAdmin = computed(() => isAuthenticated.value && currentUser.value?.role === 'ADMIN');
 
-  async function login(email: string, password: string): Promise<boolean> {
+  function openSession(session: LoginResponse) {
+    token.value = session.token;
+    refreshToken.value = session.refreshToken;
+    currentUser.value = session.user;
+    writeSession(session);
+  }
+
+  async function login(email: string, password: string): Promise<LoginOutcome> {
     loginError.value = null;
     refusedStatus.value = null;
+    pendingChallengeId.value = null;
     try {
       const response = await loadingStore.track(
         fetch(`${apiUrl}/api/users/login`, {
@@ -77,26 +107,60 @@ export const useAuthStore = defineStore('auth', () => {
       );
 
       if (response.ok) {
-        const session: LoginResponse = await response.json();
-        token.value = session.token;
-        refreshToken.value = session.refreshToken;
-        currentUser.value = session.user;
-        writeSession(session);
-        return true;
+        const result: JsonLoginResponse = await response.json();
+        if (result.status === 'TWO_FACTOR_REQUIRED') {
+          pendingChallengeId.value = result.challengeId ?? null;
+          return 'twoFactorRequired';
+        }
+        openSession({
+          token: result.token!,
+          expiresAt: result.expiresAt!,
+          refreshToken: result.refreshToken!,
+          refreshExpiresAt: result.refreshExpiresAt!,
+          user: result.user!,
+        });
+        return 'signedIn';
       } else if (response.status === 403) {
         // Right password, but a suspended, locked or disabled account: the user is told why
         refusedStatus.value = (await response.json()).status ?? null;
         loginError.value = 'Account refused';
-        return false;
+        return 'refused';
       } else {
         loginError.value = 'Invalid email or password';
-        return false;
+        return 'invalidCredentials';
       }
     } catch (error) {
       loginError.value = 'An error occurred during login';
       console.error('Login error:', error);
-      return false;
+      return 'error';
     }
+  }
+
+  // Completes a challenged sign-in with the 6-digit code of the authenticator app
+  async function verifyTwoFactorCode(code: string): Promise<TwoFactorVerification> {
+    if (!pendingChallengeId.value) return 'error';
+    try {
+      const response = await loadingStore.track(
+        fetch(`${apiUrl}/api/users/login/two-factor-authentication`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ challengeId: pendingChallengeId.value, code }),
+        })
+      );
+      if (!response.ok) return response.status === 401 ? 'invalidCode' : 'error';
+      const session: LoginResponse = await response.json();
+      openSession(session);
+      pendingChallengeId.value = null;
+      return 'signedIn';
+    } catch (error) {
+      console.error('Two-factor verification error:', error);
+      return 'error';
+    }
+  }
+
+  // Abandons the challenge and goes back to the credentials step
+  function cancelTwoFactorChallenge() {
+    pendingChallengeId.value = null;
   }
 
   // Creates the account of a customer, then signs them in
@@ -112,7 +176,8 @@ export const useAuthStore = defineStore('auth', () => {
       if (response.status === 409) return 'emailUsed';
       if (response.status === 400) return 'invalidCompany';
       if (!response.ok) return 'error';
-      return (await login(registration.email, registration.password)) ? 'signedIn' : 'error';
+      const outcome = await login(registration.email, registration.password);
+      return outcome === 'signedIn' ? 'signedIn' : 'error';
     } catch (error) {
       console.error('Registration error:', error);
       return 'error';
@@ -186,6 +251,59 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  // Starts the enrollment of two-factor authentication: the secret stays pending until confirmed
+  async function startTwoFactorEnrollment(): Promise<TwoFactorEnrollment | null> {
+    if (!currentUser.value) return null;
+    try {
+      const response = await authFetch(`/api/users/${currentUser.value.id}/two-factor-authentication/enrollment`, {
+        method: 'POST',
+      });
+      return response.ok ? await response.json() : null;
+    } catch (error) {
+      console.error('Two-factor enrollment error:', error);
+      return null;
+    }
+  }
+
+  // Confirms the enrollment with the first code of the authenticator app
+  async function confirmTwoFactorEnrollment(code: string): Promise<TwoFactorConfirmation> {
+    if (!currentUser.value) return 'error';
+    try {
+      const response = await authFetch(
+        `/api/users/${currentUser.value.id}/two-factor-authentication/confirmation`,
+        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code }) }
+      );
+      if (response.ok) {
+        currentUser.value = { ...currentUser.value, twoFactorEnabled: true };
+        return 'confirmed';
+      }
+      return response.status === 401 ? 'invalidCode' : 'error';
+    } catch (error) {
+      console.error('Two-factor confirmation error:', error);
+      return 'error';
+    }
+  }
+
+  // Disables two-factor authentication, confirmed with the current password
+  async function disableTwoFactorAuthentication(currentPassword: string): Promise<TwoFactorDisabling> {
+    if (!currentUser.value) return 'error';
+    try {
+      const response = await authFetch(`/api/users/${currentUser.value.id}/two-factor-authentication`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword }),
+      });
+      if (response.ok) {
+        currentUser.value = { ...currentUser.value, twoFactorEnabled: false };
+        return 'disabled';
+      }
+      return response.status === 400 ? 'wrongPassword' : 'error';
+    } catch (error) {
+      console.error('Two-factor disabling error:', error);
+      return 'error';
+    }
+  }
+
   // The email of the signed-in customer is verified: their account is active, in the tab session too
   function markEmailVerified() {
     if (!currentUser.value) return;
@@ -199,6 +317,7 @@ export const useAuthStore = defineStore('auth', () => {
     token.value = null;
     refreshToken.value = null;
     loginError.value = null;
+    pendingChallengeId.value = null;
     writeSession(null);
   }
 
@@ -226,13 +345,19 @@ export const useAuthStore = defineStore('auth', () => {
     token,
     loginError,
     refusedStatus,
+    pendingChallengeId,
     isAuthenticated,
     isAdmin,
     login,
+    verifyTwoFactorCode,
+    cancelTwoFactorChallenge,
     register,
     markEmailVerified,
     logout,
     authFetch,
     changePassword,
+    startTwoFactorEnrollment,
+    confirmTwoFactorEnrollment,
+    disableTwoFactorAuthentication,
   };
 });
