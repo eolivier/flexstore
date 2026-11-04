@@ -4,6 +4,8 @@ import org.flexstore.domain.twofactor.model.ProvisioningUri
 import org.flexstore.domain.twofactor.model.TwoFactorCode
 import org.flexstore.domain.twofactor.model.TwoFactorIssuer
 import org.flexstore.domain.twofactor.model.TwoFactorSecret
+import org.flexstore.domain.twofactor.usecase.AdminDisableTwoFactorAuthenticationUseCase
+import org.flexstore.domain.twofactor.usecase.AdminTwoFactorDisabling
 import org.flexstore.domain.twofactor.usecase.ConfirmTwoFactorEnrollmentUseCase
 import org.flexstore.domain.twofactor.usecase.DisableTwoFactorAuthenticationUseCase
 import org.flexstore.domain.twofactor.usecase.StartTwoFactorEnrollmentUseCase
@@ -19,12 +21,14 @@ import org.flexstore.domain.user.usecase.ReadAccountUseCase
 data class TwoFactorEnrollment(val secret: TwoFactorSecret, val provisioningUri: ProvisioningUri)
 
 // Domain service: a signed-in customer or administrator sets up or removes the two-factor authentication of
-// their own account
+// their own account; an administrator also removes it from another user's account, from the user
+// administration screen
 class TwoFactorAuthenticationService(
     private val readAccountUseCase: ReadAccountUseCase,
     private val startTwoFactorEnrollmentUseCase: StartTwoFactorEnrollmentUseCase,
     private val confirmTwoFactorEnrollmentUseCase: ConfirmTwoFactorEnrollmentUseCase,
-    private val disableTwoFactorAuthenticationUseCase: DisableTwoFactorAuthenticationUseCase
+    private val disableTwoFactorAuthenticationUseCase: DisableTwoFactorAuthenticationUseCase,
+    private val adminDisableTwoFactorAuthenticationUseCase: AdminDisableTwoFactorAuthenticationUseCase
 ) {
     fun startEnrollment(userId: UserId): TwoFactorEnrollment {
         val secret = TwoFactorSecret.next()
@@ -38,4 +42,7 @@ class TwoFactorAuthenticationService(
 
     fun disable(userId: UserId, currentPassword: PlainPassword) =
         disableTwoFactorAuthenticationUseCase.unfold(TwoFactorDisabling(userId, currentPassword))
+
+    fun disableForUser(editor: UserId, userId: UserId) =
+        adminDisableTwoFactorAuthenticationUseCase.unfold(AdminTwoFactorDisabling(editor, userId))
 }

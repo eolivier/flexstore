@@ -5,6 +5,7 @@
   import { useUsersStore, type EditedUser, type UserEdition } from '@/stores/users.store';
   import UserRoleField from './UserRoleField.vue';
   import AccountStatusField from './AccountStatusField.vue';
+  import AdminTwoFactorAuthenticationField from './AdminTwoFactorAuthenticationField.vue';
   import { useAuthStore } from '@/stores/auth.store';
   import type { AccountStatus } from '@/models/user';
   import UserNameFields from '@/components/account/UserNameFields.vue';
@@ -31,6 +32,9 @@
   const storedStatus = ref<AccountStatus | null>(null);
   // An administrator cannot change the status of their own account
   const ownAccount = computed(() => authStore.currentUser?.id === props.id);
+  // The two-factor authentication is disabled by its own request, from its own field
+  const twoFactorEnabled = ref(false);
+  const twoFactorJustDisabled = ref(false);
 
   const formRef = ref<{ validate: () => Promise<unknown> } | null>(null);
 
@@ -40,12 +44,18 @@
       ? { firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role ?? 'USER' }
       : false;
     status.value = storedStatus.value = user?.status ?? null;
+    twoFactorEnabled.value = user?.twoFactorEnabled ?? false;
     // A field that the stored user leaves empty
     // (e.g. the last name of a one-word name split by the migration) is
     // shown in error at once: otherwise the save button would stay disabled without telling why
     await nextTick();
     await formRef.value?.validate();
   });
+
+  function onTwoFactorDisabled() {
+    twoFactorEnabled.value = false;
+    twoFactorJustDisabled.value = true;
+  }
 
   async function save() {
     if (!valid.value || !editedUser.value) return;
@@ -81,6 +91,12 @@
         />
         <UserRoleField v-model="editedUser.role" />
         <AccountStatusField v-if="status" v-model="status" :disabled="ownAccount" />
+        <AdminTwoFactorAuthenticationField
+          v-if="twoFactorEnabled"
+          :user-id="props.id"
+          :own-account="ownAccount"
+          @disabled="onTwoFactorDisabled"
+        />
         <p class="text-caption text-medium-emphasis mb-4">{{ t('editUser.passwordNote') }}</p>
         <v-alert
           v-if="edition === 'emailUsed' || edition === 'error'"
@@ -118,6 +134,14 @@
       <template #actions>
         <v-btn to="/admin/users" variant="text" color="secondary">{{ t('nav.users') }}</v-btn>
       </template>
+    </v-snackbar>
+    <v-snackbar
+      v-model="twoFactorJustDisabled"
+      color="primary"
+      timeout="3000"
+      location="bottom right"
+    >
+      {{ t('editUser.twoFactorDisabled') }}
     </v-snackbar>
   </v-container>
 </template>

@@ -249,6 +249,34 @@ paths:
         "409":
           description: No enrollment is pending
   /api/users/{id}/two-factor-authentication:
+    put:
+      tags:
+      - Users
+      summary: Disable the two-factor authentication of another user (administrator only)
+      description: "Reserved to an administrator, on another account than their own. No current password is
+        asked, unlike the self-service operation (DELETE /api/users/{id}/two-factor-authentication)."
+      operationId: adminDisableTwoFactorAuthentication
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: The user with two-factor authentication disabled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonUser"
+        "403":
+          description: Not an administrator
+        "409":
+          description: Two-factor authentication is not enabled
+        "422":
+          description: Own account, or unknown user
     delete:
       tags:
       - Users

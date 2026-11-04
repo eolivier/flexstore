@@ -4,6 +4,7 @@ All URIs are relative to *http://localhost:8080*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
+|[**adminDisableTwoFactorAuthentication**](#admindisabletwofactorauthentication) | **PUT** /api/users/{id}/two-factor-authentication | Disable the two-factor authentication of another user (administrator only)|
 |[**changeAccountStatus**](#changeaccountstatus) | **PUT** /api/users/{id}/status | Change the status of an account|
 |[**changePassword**](#changepassword) | **POST** /api/users/{id}/password | Change the password of a user|
 |[**confirmTwoFactorEnrollment**](#confirmtwofactorenrollment) | **POST** /api/users/{id}/two-factor-authentication/confirmation | Confirm the enrollment with the first code of the authenticator app|
@@ -18,6 +19,60 @@ All URIs are relative to *http://localhost:8080*
 |[**startTwoFactorEnrollment**](#starttwofactorenrollment) | **POST** /api/users/{id}/two-factor-authentication/enrollment | Start the enrollment of two-factor authentication|
 |[**updateUser**](#updateuser) | **PUT** /api/users/{id} | Edit a user by ID (first name, last name, email, role; not the password)|
 |[**verifyTwoFactorCode**](#verifytwofactorcode) | **POST** /api/users/login/two-factor-authentication | Complete a challenged sign-in with the code of the authenticator app|
+
+# **adminDisableTwoFactorAuthentication**
+> JsonUser adminDisableTwoFactorAuthentication()
+
+Reserved to an administrator, on another account than their own. No current password is asked, unlike the self-service operation (DELETE /api/users/{id}/two-factor-authentication).
+
+### Example
+
+```typescript
+import {
+    UsersApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new UsersApi(configuration);
+
+let id: string; // (default to undefined)
+
+const { status, data } = await apiInstance.adminDisableTwoFactorAuthentication(
+    id
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **id** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**JsonUser**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The user with two-factor authentication disabled |  -  |
+|**403** | Not an administrator |  -  |
+|**409** | Two-factor authentication is not enabled |  -  |
+|**422** | Own account, or unknown user |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **changeAccountStatus**
 > JsonUser changeAccountStatus(jsonAccountStatus)

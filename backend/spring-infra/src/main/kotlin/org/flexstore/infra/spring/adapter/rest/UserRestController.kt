@@ -274,6 +274,28 @@ class UserRestController(
         twoFactorAuthenticationService.disable(UserId.of(id), request.toPlainPassword())
     }
 
+    @Operation(
+        summary = "Disable the two-factor authentication of another user (administrator only)",
+        description = "Reserved to an administrator, on another account than their own. No current password is " +
+            "asked, unlike the self-service operation.",
+        responses = [
+            ApiResponse(responseCode = "200", description = "The user with two-factor authentication disabled"),
+            ApiResponse(responseCode = "403", description = "Not an administrator"),
+            ApiResponse(responseCode = "409", description = "Two-factor authentication is not enabled"),
+            ApiResponse(responseCode = "422", description = "Own account, or unknown user")
+        ]
+    )
+    @PutMapping("/{id}/two-factor-authentication")
+    @ResponseStatus(HttpStatus.OK)
+    fun adminDisableTwoFactorAuthentication(
+        @AuthenticationPrincipal editor: Jwt,
+        @PathVariable id: String
+    ): JsonUser {
+        val editorId = UserId.of(editor.subject)
+        twoFactorAuthenticationService.disableForUser(editorId, UserId.of(id))
+        return userService.readUser(editorId, UserId.of(id)).toJsonUser()
+    }
+
     private fun sessionOf(user: User.DefinedUser): JsonLoginResponse {
         val refreshSession = userSessionService.open(user.id)
         val token = jwtTokenService.issue(user.account())

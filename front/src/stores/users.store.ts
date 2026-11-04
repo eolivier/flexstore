@@ -103,5 +103,26 @@ export const useUsersStore = defineStore('users', () => {
     return true;
   }
 
-  return { users, page, total, loading, fetchUsers, fetchUser, addUser, updateUser, changeStatus, deleteUser };
+  // An administrator disables the two-factor authentication of another user, without their current password.
+  // Returns whether it was disabled
+  async function disableTwoFactor(id: string): Promise<boolean> {
+    const response = await authStore
+      .authFetch(`/api/users/${encodeURIComponent(id)}/two-factor-authentication`, { method: 'PUT' })
+      .catch(() => null);
+    return !!response?.ok;
+  }
+
+  return {
+    users,
+    page,
+    total,
+    loading,
+    fetchUsers,
+    fetchUser,
+    addUser,
+    updateUser,
+    changeStatus,
+    disableTwoFactor,
+    deleteUser,
+  };
 });

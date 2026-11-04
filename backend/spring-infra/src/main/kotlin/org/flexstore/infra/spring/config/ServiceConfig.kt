@@ -127,9 +127,10 @@ open class ServiceConfig {
         readAccountUseCase: ReadAccountUseCase,
         startTwoFactorEnrollmentUseCase: StartTwoFactorEnrollmentUseCase,
         confirmTwoFactorEnrollmentUseCase: ConfirmTwoFactorEnrollmentUseCase,
-        disableTwoFactorAuthenticationUseCase: DisableTwoFactorAuthenticationUseCase
+        disableTwoFactorAuthenticationUseCase: DisableTwoFactorAuthenticationUseCase,
+        adminDisableTwoFactorAuthenticationUseCase: AdminDisableTwoFactorAuthenticationUseCase
     ) = TwoFactorAuthenticationService(
         readAccountUseCase, startTwoFactorEnrollmentUseCase, confirmTwoFactorEnrollmentUseCase,
-        disableTwoFactorAuthenticationUseCase
+        disableTwoFactorAuthenticationUseCase, adminDisableTwoFactorAuthenticationUseCase
     )
 }
