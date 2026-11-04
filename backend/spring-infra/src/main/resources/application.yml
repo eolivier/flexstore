@@ -37,7 +37,7 @@ flexstore:
   security:
     # Secret used to sign the JWT (at least 32 characters); a random one is used when missing
     jwt-secret: ${FLEXSTORE_JWT_SECRET:}
-    jwt-ttl: 1h
+    jwt-ttl: 15m
 management:
   endpoints:
     web:

@@ -39,7 +39,7 @@ This repo is meant to be a learning vehicle and a ready-to-fork base for real pr
 **Account and administration** (sign-in required)
 - Create an account (first name, last name, email, password, phone number, postal address; a customer who buys for their company ticks *I am a company* and gives its name, its SIREN and, optionally, its intra-community VAT number, which must match the SIREN for a French company: the address is then sent to the company, for their attention, and the invoices carry its name and VAT number): the account waits for the verification of the email (`PENDING_VERIFICATION`), the customer is signed in at once and can order
 - Verify the email with the link received by email (valid for 1 hour): the account becomes `ACTIVE`; a new link can be asked for from the profile
-- Sign in, profile, change password; brute-force protection: after 5 failed sign-ins in a row (a wrong password for an existing account), the account is locked (`LOCKED`) until an administrator reactivates it; a successful sign-in starts the count again; a wrong password and an unknown email still get the same answer
+- Sign in, sign out, profile, change password; the session is renewed with a refresh token (see Authentication); brute-force protection: after 5 failed sign-ins in a row (a wrong password for an existing account), the account is locked (`LOCKED`) until an administrator reactivates it; a successful sign-in starts the count again; a wrong password and an unknown email still get the same answer
 - Cookies: a banner asks the visitor at their first visit to accept or refuse the preference cookies (the light or dark mode kept for the next visits); the essential cookies (sign-in, cart) need no consent; the customer changes their choice in their account (profile page), and refusing forgets the stored preferences. A visitor keeps their choice in the browser (`localStorage`); a signed-in customer has it in the database (`cookie_consent`, `GET` and `PUT /api/cookie-consent`) for 6 months, after which they are asked again; at sign-in, the choice of the browser is recorded in their account and removed from the browser
 - My addresses: see, edit and remove the postal addresses of the account; the orders keep the address they were sent to
 - Sales dashboard (`ADMIN` role): revenue, number of orders and average basket, orders per day (bars) and the 5 best sellers, over the last 7, 30 or 90 days; only the paid orders count (not the awaiting, cancelled or refunded ones), on the day they were placed in Paris time
@@ -201,7 +201,9 @@ npm run gen:api
 | `DELETE` | `/api/accounts/me/addresses/{position}` | signed in | Remove an address; the orders keep theirs (`404` no address there) |
 | `POST` | `/api/accounts/email-verification` | public | Verify the email with the token of the link: the account becomes `ACTIVE` (`404` unknown or used link, `410` link older than 1 hour) |
 | `POST` | `/api/accounts/me/verification-email` | signed in | Send a new verification link; the previous ones stop working (`409` if already verified) |
-| `POST` | `/api/users/login` | public | Sign in: returns a token and the user (`401` on wrong credentials) |
+| `POST` | `/api/users/login` | public | Sign in: returns a token (15 minutes), a refresh token (7 days) and the user (`401` on wrong credentials) |
+| `POST` | `/api/users/refresh` | public | Renew the session with a refresh token: returns a new token and a new refresh token (`401` unknown, expired or already used refresh token, `403` suspended, locked or disabled account) |
+| `POST` | `/api/users/logout` | public | Sign out: ends the session of a refresh token (`204`, also when it is unknown or already ended) |
 | `PUT` | `/api/users/{id}/status` | `ADMIN` | Change the status of another account: `ACTIVE`, `SUSPENDED`, `LOCKED` or `DISABLED`; a suspended, locked or disabled account can neither sign in nor order (`403` with its `status`) |
 | `POST` | `/api/users/{id}/password` | the user `{id}` | Change one's own password (`400` if the current one is wrong) |
 | `GET` | `/api/users` | `ADMIN` | All users |
@@ -214,11 +216,13 @@ Passwords are hashed with bcrypt and never returned by the API.
 
 ### Authentication
 
-The API is stateless and uses **JWT bearer tokens** (Spring Security, OAuth2 resource server):
+The API uses **JWT bearer tokens** (Spring Security, OAuth2 resource server): the access tokens are stateless, the
+sessions that renew them are kept by the back end (refresh tokens):
 
-1. `POST /api/users/login` returns `{ token, expiresAt, user }`; the token is signed with HMAC-SHA256 (`FLEXSTORE_JWT_SECRET`), contains the user id (`sub`) and roles (`roles`) and is valid for 1 hour (`flexstore.security.jwt-ttl`)
+1. `POST /api/users/login` returns `{ token, expiresAt, refreshToken, refreshExpiresAt, user }`; the token is signed with HMAC-SHA256 (`FLEXSTORE_JWT_SECRET`), contains the user id (`sub`) and roles (`roles`) and is valid for 15 minutes (`flexstore.security.jwt-ttl`)
 2. Protected endpoints require the header `Authorization: Bearer <token>`: `401` without a valid token, `403` without the required role
-3. The front end keeps the session (token, user, expiry) in the `sessionStorage` of the tab: reloading the page keeps the user signed in, closing the tab or the expiry of the token (1 hour) signs out. When the API rejects the token, the user is signed out and sent back to the login page
+3. The front end keeps the session (token, refresh token, user, expiry) in the `sessionStorage` of the tab: reloading the page keeps the user signed in, closing the tab or the expiry of the refresh token (7 days) signs out. When the API rejects the token (`401`), the front end renews it once with the refresh token and sends the request again (the requests rejected together renew it once); when the session cannot be renewed, the user is signed out and sent back to the login page. Signing out also ends the session on the back end (`POST /api/users/logout`)
+4. **Refresh tokens** are random opaque secrets, one per session (`refresh_session` table, only their SHA-256 hash is stored). A refresh token works once: `POST /api/users/refresh` revokes it and returns the next one. When a refresh token that was already used (or whose session was ended) comes back, it was replayed or stolen: **all the sessions of its user are ended**. A refresh is refused when the account is suspended, locked or disabled (`403`) or deleted (`401`); the sessions of a deleted user are deleted with them. A token already issued still works until it expires (15 minutes)
 
 Users have a role, `USER` (default) or `ADMIN`, chosen by the administrator who creates or edits them; it is stored in the database. Creating and editing users is checked by the domain: the creator or editor must be an existing administrator (`403` otherwise).
 

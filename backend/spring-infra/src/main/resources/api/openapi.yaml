@@ -391,7 +391,8 @@ paths:
       tags:
       - Users
       summary: Authenticate a user
-      description: Validates user credentials and returns user information on success
+      description: "Validates user credentials and returns the token (valid for 15 minutes), the refresh token
+        (valid for 7 days, it works once) and the user"
       operationId: loginUser
       requestBody:
         content:
@@ -410,6 +411,48 @@ paths:
           description: Invalid credentials
         "403":
           description: "The account is SUSPENDED, LOCKED or DISABLED: { error, status }"
+  /api/users/refresh:
+    post:
+      tags:
+      - Users
+      summary: Renew the access of a signed-in user with their refresh token
+      description: "The refresh token works once: the response holds a new token and a new refresh token that
+        replaces it. A refresh token that was already used (or whose session was ended) ends all the sessions of
+        its user. Public route: the refresh token is the credential."
+      operationId: refreshSession
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonRefreshRequest"
+        required: true
+      responses:
+        "200":
+          description: A new token and the refresh token that replaces the one presented
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonRefreshResponse"
+        "401":
+          description: Unknown, expired or already used refresh token
+        "403":
+          description: "The account is SUSPENDED, LOCKED or DISABLED: { error, status }"
+  /api/users/logout:
+    post:
+      tags:
+      - Users
+      summary: Sign out, ending the session of a refresh token
+      description: Signing out twice, or with an unknown refresh token, is no error
+      operationId: logoutUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonRefreshRequest"
+        required: true
+      responses:
+        "204":
+          description: The session is ended
   /api/products:
     post:
       tags:
@@ -1767,6 +1810,8 @@ components:
       required:
         - token
         - expiresAt
+        - refreshToken
+        - refreshExpiresAt
         - user
       properties:
         token:
@@ -1775,8 +1820,41 @@ components:
         expiresAt:
           type: string
           format: date-time
+        refreshToken:
+          type: string
+          description: Opaque secret that renews the token once it expired (POST /api/users/refresh); it works once
+        refreshExpiresAt:
+          type: string
+          format: date-time
         user:
           $ref: "#/components/schemas/JsonUser"
+    JsonRefreshRequest:
+      type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+    JsonRefreshResponse:
+      type: object
+      required:
+        - token
+        - expiresAt
+        - refreshToken
+        - refreshExpiresAt
+      properties:
+        token:
+          type: string
+          description: "JWT to send in the Authorization header: Bearer <token>"
+        expiresAt:
+          type: string
+          format: date-time
+        refreshToken:
+          type: string
+          description: The refresh token that replaces the one presented
+        refreshExpiresAt:
+          type: string
+          format: date-time
     JsonUserUpdate:
       type: object
       description: The fields an administrator can edit; the password is changed by a separate operation

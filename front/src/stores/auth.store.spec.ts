@@ -12,12 +12,23 @@ const createMockUser = () => ({
   email: 'john@example.com',
   role: 'USER' as 'USER' | 'ADMIN',
 });
-// Body of a successful login: the token and the user
+// Body of a successful login: the token, the refresh token that renews it, and the user
 const loginResponse = (user = createMockUser()) => ({
   token: 'jwt-token',
   expiresAt: '2030-01-01T00:00:00Z',
+  refreshToken: 'refresh-token',
+  refreshExpiresAt: '2030-01-08T00:00:00Z',
   user,
 });
+const answer = (status: number, body?: unknown) =>
+  mockFetch.mockResolvedValueOnce({ ok: status < 300, status, json: () => Promise.resolve(body) });
+// Body of a successful renewal of the session
+const renewedSession = {
+  token: 'renewed-jwt-token',
+  expiresAt: '2030-01-01T00:15:00Z',
+  refreshToken: 'renewed-refresh-token',
+  refreshExpiresAt: '2030-01-08T00:00:00Z',
+};
 const loginSucceeds = (user = createMockUser()) =>
   mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(loginResponse(user)) });
 
@@ -142,10 +153,11 @@ describe('auth.store', () => {
       expect(new Headers(init.headers).get('Authorization')).toBe('Bearer jwt-token');
     });
 
-    it('should sign out when the token is rejected', async () => {
+    it('should sign out when the token is rejected and the session cannot be renewed', async () => {
       // Arrange
       const store = await signedIn();
-      mockFetch.mockResolvedValueOnce({ ok: false, status: 401 });
+      answer(401);
+      answer(401);
       // Act
       await store.authFetch('/api/users');
       // Assert
@@ -234,7 +246,8 @@ describe('auth.store', () => {
       {
         what: 'a rejected token',
         end: async (store: ReturnType<typeof useAuthStore>) => {
-          mockFetch.mockResolvedValueOnce({ ok: false, status: 401 });
+          answer(401);
+          answer(401);
           await store.authFetch('/api/users');
         },
       },
@@ -248,7 +261,23 @@ describe('auth.store', () => {
       expect(reloaded.isAuthenticated).toBe(false);
     });
 
-    it('should not restore an expired session', () => {
+    it('should not restore a session whose refresh token expired', () => {
+      // Arrange
+      sessionStorage.setItem(
+        'flexstore.session',
+        JSON.stringify({
+          ...loginResponse(),
+          expiresAt: '2020-01-01T00:00:00Z',
+          refreshExpiresAt: '2020-01-08T00:00:00Z',
+        })
+      );
+      // Act
+      const store = reloadedStore();
+      // Assert
+      expect(store.isAuthenticated).toBe(false);
+    });
+
+    it('should restore a session whose token expired but whose refresh token did not', () => {
       // Arrange
       sessionStorage.setItem(
         'flexstore.session',
@@ -257,7 +286,141 @@ describe('auth.store', () => {
       // Act
       const store = reloadedStore();
       // Assert
+      expect(store.isAuthenticated).toBe(true);
+    });
+  });
+
+  describe('session renewal', () => {
+    const sentRequests = () => mockFetch.mock.calls.map(([url, init]) => ({ url, init }));
+
+    it('should renew the token with the refresh token and send the request again with the new token', async () => {
+      // Arrange
+      const store = await signedIn();
+      answer(401);
+      answer(200, renewedSession);
+      answer(200, []);
+      // Act
+      const response = await store.authFetch('/api/orders');
+      // Assert
+      const [, , refresh, retry] = sentRequests();
+      expect(refresh.url).toBe('http://localhost:8080/api/users/refresh');
+      expect(JSON.parse(refresh.init.body)).toEqual({ refreshToken: 'refresh-token' });
+      expect(new Headers(retry.init.headers).get('Authorization')).toBe('Bearer renewed-jwt-token');
+      expect(response.status).toBe(200);
+      expect(store.isAuthenticated).toBe(true);
+    });
+
+    it('should use the new refresh token for the next renewal', async () => {
+      // Arrange
+      const store = await signedIn();
+      answer(401);
+      answer(200, renewedSession);
+      answer(200, []);
+      await store.authFetch('/api/orders');
+      answer(401);
+      answer(200, { ...renewedSession, refreshToken: 'second-refresh-token' });
+      answer(200, []);
+      // Act
+      await store.authFetch('/api/orders');
+      // Assert
+      const refreshes = sentRequests().filter(({ url }) => String(url).endsWith('/api/users/refresh'));
+      expect(JSON.parse(refreshes[1].init.body)).toEqual({ refreshToken: 'renewed-refresh-token' });
+    });
+
+    it('should keep the renewed session after a reload', async () => {
+      // Arrange
+      const store = await signedIn();
+      answer(401);
+      answer(200, renewedSession);
+      answer(200, []);
+      await store.authFetch('/api/orders');
+      // Act
+      setActivePinia(createPinia());
+      const reloaded = useAuthStore();
+      // Assert
+      expect(reloaded.token).toBe('renewed-jwt-token');
+      expect(reloaded.currentUser).toEqual(createMockUser());
+    });
+
+    it('should renew the session once for requests rejected together', async () => {
+      // Arrange
+      const store = await signedIn();
+      mockFetch.mockImplementation(async (url: string, init: RequestInit) => {
+        if (url.endsWith('/api/users/refresh'))
+          return { ok: true, status: 200, json: async () => renewedSession };
+        const renewed = new Headers(init.headers).get('Authorization') === 'Bearer renewed-jwt-token';
+        return { ok: renewed, status: renewed ? 200 : 401 };
+      });
+      // Act
+      const responses = await Promise.all([store.authFetch('/api/orders'), store.authFetch('/api/cart')]);
+      // Assert
+      const refreshes = sentRequests().filter(({ url }) => String(url).endsWith('/api/users/refresh'));
+      expect(refreshes).toHaveLength(1);
+      expect(responses.map((response) => response.status)).toEqual([200, 200]);
+    });
+
+    it('should sign out when the request is still rejected with the renewed token', async () => {
+      // Arrange
+      const store = await signedIn();
+      answer(401);
+      answer(200, renewedSession);
+      answer(401);
+      // Act
+      await store.authFetch('/api/orders');
+      // Assert
       expect(store.isAuthenticated).toBe(false);
+    });
+
+    it('should not try to renew a session that has no refresh token', async () => {
+      // Arrange
+      const store = await signedIn();
+      store.logout();
+      sessionStorage.setItem(
+        'flexstore.session',
+        JSON.stringify({ ...loginResponse(), refreshToken: undefined })
+      );
+      setActivePinia(createPinia());
+      const restored = useAuthStore();
+      mockFetch.mockReset();
+      answer(401);
+      // Act
+      await restored.authFetch('/api/orders');
+      // Assert
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+      expect(restored.isAuthenticated).toBe(false);
+    });
+  });
+
+  describe('logout on the server', () => {
+    it('should end the session of the refresh token', async () => {
+      // Arrange
+      const store = await signedIn();
+      answer(204);
+      // Act
+      store.logout();
+      // Assert
+      const [url, init] = mockFetch.mock.lastCall!;
+      expect(url).toBe('http://localhost:8080/api/users/logout');
+      expect(JSON.parse(init.body)).toEqual({ refreshToken: 'refresh-token' });
+    });
+
+    it('should sign out here even when the server cannot be reached', async () => {
+      // Arrange
+      const store = await signedIn();
+      mockFetch.mockRejectedValueOnce(new Error('Network error'));
+      // Act
+      store.logout();
+      // Assert
+      expect(store.isAuthenticated).toBe(false);
+    });
+
+    it('should not call the server when nobody is signed in', () => {
+      // Arrange
+      const store = useAuthStore();
+      // Act
+      store.logout();
+      // Assert
+      expect(mockFetch).not.toHaveBeenCalled();
     });
   });
 

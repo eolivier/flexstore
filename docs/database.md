@@ -1,6 +1,6 @@
 # Physical data model
 
-The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V43**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
+The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V44**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
 
 ![Physical data model](database.png)
 
@@ -56,6 +56,16 @@ erDiagram
         token_hash varchar(64) UK "SHA-256 of the token of the link"
         user_id varchar(50) FK,UK "only the last link asked"
         expires_at timestamptz
+        created_at timestamp
+        updated_at timestamp
+    }
+
+    refresh_session {
+        id varchar(50) PK
+        token_hash varchar(64) UK "SHA-256 of the refresh token"
+        user_id varchar(50) FK "a user may have several sessions"
+        expires_at timestamptz "7 days after the session is opened"
+        revoked_at timestamptz "nullable: set when the refresh token is used or the user signs out"
         created_at timestamp
         updated_at timestamp
     }
@@ -307,6 +317,7 @@ erDiagram
     user ||--o| password_reset : "user_id (cascade)"
     user ||--o| cookie_consent : "user_id (cascade)"
     user ||--o| failed_sign_in : "user_id (cascade)"
+    user ||--o{ refresh_session : "user_id (cascade)"
     user ||--o{ user_address : "user_id (cascade)"
     user_address }o--|| address : "address_id"
     user ||--o{ customer_order : "user_id (cascade)"
@@ -340,5 +351,6 @@ erDiagram
 - A customer who creates their account for their company gives it once: its `customer_company` row (name, SIREN, VAT number). The address they give is then addressed to the company, for their attention (`address.recipient_type` `LEGAL_ENTITY`, with the company name and the VAT number).
 - A signed-in customer's choice about the preference cookies is one `cookie_consent` row, replaced by each new choice and valid until `expires_at` (6 months after the choice). A visitor who is not signed in keeps theirs in their browser; at sign-in it is recorded here and removed from the browser.
 - A wrong password for an existing account adds one to its `failed_sign_in` row (created by the first failure). At the 5th failure in a row, the account becomes `LOCKED` and the row is deleted, so that the count starts again when an administrator reactivates the account; a successful sign-in deletes the row too. An email that belongs to no account, and an account that cannot sign in already, are not counted.
+- A `refresh_session` is a session of a signed-in user: its refresh token renews their access token (15 minutes) once, then the session is revoked (`revoked_at`) and replaced by a new row. A revoked token that comes back revokes every open session of its user. Only the hash of the token is stored; deleting a user deletes their sessions.
 - `user` is quoted in SQL (`"user"`), a reserved word; the orders are stored in `customer_order` for the same reason.
 - The name and the description of a `product` are in `product_translation`, one row per language: always one in the default language (`en`), which the application requires, and one per other language the product is translated into. A product without a translation in the language of the customer is shown in `en`.

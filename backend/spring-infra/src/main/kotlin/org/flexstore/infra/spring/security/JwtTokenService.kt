@@ -1,6 +1,6 @@
 package org.flexstore.infra.spring.security
 
-import org.flexstore.domain.user.model.*
+import org.flexstore.domain.user.model.Account
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm
 import org.springframework.security.oauth2.jwt.JwsHeader
@@ -16,19 +16,19 @@ data class IssuedToken(val value: String, val expiresAt: Instant)
 @Service
 class JwtTokenService(
     private val jwtEncoder: JwtEncoder,
-    @Value("\${flexstore.security.jwt-ttl:1h}") private val ttl: Duration
+    @Value("\${flexstore.security.jwt-ttl:15m}") private val ttl: Duration
 ) {
 
-    fun issue(user: User.DefinedUser): IssuedToken {
+    fun issue(account: Account): IssuedToken {
         val now = Instant.now()
         val expiresAt = now.plus(ttl)
         val claims = JwtClaimsSet.builder()
             .issuer("flexstore")
-            .subject(user.id.value)
+            .subject(account.id.value)
             .issuedAt(now)
             .expiresAt(expiresAt)
-            .claim("email", user.email.value)
-            .claim(ROLES_CLAIM, listOf(user.role.name))
+            .claim("email", account.email.value)
+            .claim(ROLES_CLAIM, listOf(account.role.name))
             .build()
         val header = JwsHeader.with(MacAlgorithm.HS256).build()
         return IssuedToken(jwtEncoder.encode(JwtEncoderParameters.from(header, claims)).tokenValue, expiresAt)

@@ -50,6 +50,8 @@ docs/JsonPostalAddress.md
 docs/JsonProduct.md
 docs/JsonProductTranslation.md
 docs/JsonRatingSummary.md
+docs/JsonRefreshRequest.md
+docs/JsonRefreshResponse.md
 docs/JsonReview.md
 docs/JsonReviewEligibility.md
 docs/JsonSalesDashboard.md

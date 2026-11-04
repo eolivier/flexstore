@@ -11,6 +11,8 @@ All URIs are relative to *http://localhost:8080*
 |[**getAllUsers**](#getallusers) | **GET** /api/users | Retrieve a page of the users, the first created first (ADMIN role)|
 |[**getUser**](#getuser) | **GET** /api/users/{id} | Retrieve a user by ID|
 |[**loginUser**](#loginuser) | **POST** /api/users/login | Authenticate a user|
+|[**logoutUser**](#logoutuser) | **POST** /api/users/logout | Sign out, ending the session of a refresh token|
+|[**refreshSession**](#refreshsession) | **POST** /api/users/refresh | Renew the access of a signed-in user with their refresh token|
 |[**updateUser**](#updateuser) | **PUT** /api/users/{id} | Edit a user by ID (first name, last name, email, role; not the password)|
 
 # **changeAccountStatus**
@@ -336,7 +338,7 @@ const { status, data } = await apiInstance.getUser(
 # **loginUser**
 > JsonLoginResponse loginUser(jsonLoginRequest)
 
-Validates user credentials and returns user information on success
+Validates user credentials and returns the token (valid for 15 minutes), the refresh token (valid for 7 days, it works once) and the user
 
 ### Example
 
@@ -383,6 +385,112 @@ No authorization required
 |-------------|-------------|------------------|
 |**200** | Successfully authenticated |  -  |
 |**401** | Invalid credentials |  -  |
+|**403** | The account is SUSPENDED, LOCKED or DISABLED: { error, status } |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **logoutUser**
+> logoutUser(jsonRefreshRequest)
+
+Signing out twice, or with an unknown refresh token, is no error
+
+### Example
+
+```typescript
+import {
+    UsersApi,
+    Configuration,
+    JsonRefreshRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new UsersApi(configuration);
+
+let jsonRefreshRequest: JsonRefreshRequest; //
+
+const { status, data } = await apiInstance.logoutUser(
+    jsonRefreshRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **jsonRefreshRequest** | **JsonRefreshRequest**|  | |
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: Not defined
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**204** | The session is ended |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **refreshSession**
+> JsonRefreshResponse refreshSession(jsonRefreshRequest)
+
+The refresh token works once: the response holds a new token and a new refresh token that replaces it. A refresh token that was already used (or whose session was ended) ends all the sessions of its user. Public route: the refresh token is the credential.
+
+### Example
+
+```typescript
+import {
+    UsersApi,
+    Configuration,
+    JsonRefreshRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new UsersApi(configuration);
+
+let jsonRefreshRequest: JsonRefreshRequest; //
+
+const { status, data } = await apiInstance.refreshSession(
+    jsonRefreshRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **jsonRefreshRequest** | **JsonRefreshRequest**|  | |
+
+
+### Return type
+
+**JsonRefreshResponse**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | A new token and the refresh token that replaces the one presented |  -  |
+|**401** | Unknown, expired or already used refresh token |  -  |
 |**403** | The account is SUSPENDED, LOCKED or DISABLED: { error, status } |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

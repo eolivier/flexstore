@@ -78,6 +78,8 @@ open class SecurityConfig(@Value("\${flexstore.security.jwt-secret:}") private v
                     .requestMatchers(HttpMethod.POST, "/api/cart/merge").authenticated()
                     .requestMatchers("/api/cart/**").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()
+                    // The refresh token in the body is the credential: the access token has expired
+                    .requestMatchers(HttpMethod.POST, "/api/users/refresh", "/api/users/logout").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/accounts").permitAll()
                     // Stripe calls it: the signature of the notification authenticates it
                     .requestMatchers(HttpMethod.POST, "/api/payments/stripe/webhook").permitAll()
