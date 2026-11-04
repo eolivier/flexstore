@@ -23,3 +23,9 @@ body,
 .v-btn.v-btn {
   letter-spacing: 0;
 }
+
+/* A disabled button shows the "not allowed" cursor: Vuetify disables its pointer events, which hides the cursor */
+.v-btn.v-btn--disabled {
+  pointer-events: auto;
+  cursor: not-allowed;
+}
