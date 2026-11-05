@@ -1,6 +1,7 @@
 package org.flexstore.domain.invoice
 
 import org.assertj.core.api.WithAssertions
+import org.flexstore.domain.invoice.model.VatBreakdown
 import org.flexstore.domain.sharedkernel.*
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource

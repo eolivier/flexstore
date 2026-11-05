@@ -1,7 +1,7 @@
 package org.flexstore.infra.spring.adapter.persistence.jpa.repository
 
 import org.flexstore.domain.sharedkernel.Identity
-import org.flexstore.domain.user.RefreshSessionRepository
+import org.flexstore.domain.user.repository.RefreshSessionRepository
 import org.flexstore.domain.user.model.*
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.RefreshSessionEntity
 import org.flexstore.infra.spring.adapter.persistence.jpa.hash

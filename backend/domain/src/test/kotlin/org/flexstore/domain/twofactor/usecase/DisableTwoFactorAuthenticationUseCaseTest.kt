@@ -1,7 +1,7 @@
 package org.flexstore.domain.twofactor.usecase
 
 import org.assertj.core.api.WithAssertions
-import org.flexstore.domain.twofactor.TwoFactorAuthenticationNotEnabledException
+import org.flexstore.domain.twofactor.model.TwoFactorAuthenticationNotEnabledException
 import org.flexstore.domain.twofactor.model.TwoFactorAuthentication
 import org.flexstore.domain.twofactor.model.TwoFactorSecret
 import org.flexstore.domain.user.model.*

@@ -1,6 +1,7 @@
 package org.flexstore.domain.product.usecase
 
 import org.flexstore.domain.product.*
+import org.flexstore.domain.product.model.*
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 

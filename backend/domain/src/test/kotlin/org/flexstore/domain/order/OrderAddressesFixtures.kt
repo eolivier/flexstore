@@ -1,5 +1,6 @@
 package org.flexstore.domain.order
 
+import org.flexstore.domain.order.model.OrderAddresses
 import org.flexstore.domain.user.model.*
 
 // The customer of the tests, who receives the orders

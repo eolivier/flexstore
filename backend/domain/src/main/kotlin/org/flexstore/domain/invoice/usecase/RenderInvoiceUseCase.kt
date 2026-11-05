@@ -1,6 +1,7 @@
 package org.flexstore.domain.invoice.usecase
 
 import org.flexstore.domain.invoice.*
+import org.flexstore.domain.invoice.model.*
 import org.ucop.domain.entity.*
 
 // The document of an invoice or of a credit note, to download (a PDF)

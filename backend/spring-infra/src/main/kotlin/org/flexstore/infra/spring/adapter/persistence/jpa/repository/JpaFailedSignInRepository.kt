@@ -1,7 +1,7 @@
 package org.flexstore.infra.spring.adapter.persistence.jpa.repository
 
 import org.flexstore.domain.sharedkernel.Identity
-import org.flexstore.domain.user.FailedSignInRepository
+import org.flexstore.domain.user.repository.FailedSignInRepository
 import org.flexstore.domain.user.model.FailedSignInCount
 import org.flexstore.domain.user.model.UserId
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.FailedSignInEntity

@@ -1,5 +1,11 @@
 package org.flexstore.domain.product
 
+import org.flexstore.domain.product.model.Category
+import org.flexstore.domain.product.model.DefinedProduct
+import org.flexstore.domain.product.model.Product
+import org.flexstore.domain.product.model.ProductId
+import org.flexstore.domain.product.model.Sku
+
 interface ProductRepository {
 
     fun save(product: Product): Product

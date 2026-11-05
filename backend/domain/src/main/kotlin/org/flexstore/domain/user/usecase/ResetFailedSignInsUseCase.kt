@@ -1,6 +1,6 @@
 package org.flexstore.domain.user.usecase
 
-import org.flexstore.domain.user.FailedSignInRepository
+import org.flexstore.domain.user.repository.FailedSignInRepository
 import org.flexstore.domain.user.model.FailedSignInCount
 import org.flexstore.domain.user.model.UserId
 import org.ucop.domain.ErrorMessage

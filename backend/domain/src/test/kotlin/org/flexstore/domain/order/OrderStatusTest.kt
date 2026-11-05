@@ -1,6 +1,8 @@
 package org.flexstore.domain.order
 
 import org.assertj.core.api.WithAssertions
+import org.flexstore.domain.order.model.OrderStatus
+import org.flexstore.domain.order.model.OrderStatusCannotAdvanceException
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource

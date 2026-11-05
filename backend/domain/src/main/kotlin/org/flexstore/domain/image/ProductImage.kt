@@ -1,6 +1,6 @@
 package org.flexstore.domain.image
 
-import org.flexstore.domain.product.ProductId
+import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.user.model.UserId
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException

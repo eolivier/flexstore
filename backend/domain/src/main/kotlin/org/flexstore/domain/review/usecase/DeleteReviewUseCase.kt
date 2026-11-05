@@ -1,7 +1,7 @@
 package org.flexstore.domain.review.usecase
 
 import org.flexstore.domain.review.*
-import org.flexstore.domain.user.UserRepository
+import org.flexstore.domain.user.repository.UserRepository
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 

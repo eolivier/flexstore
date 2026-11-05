@@ -4,6 +4,7 @@ import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
 import at.favre.lib.crypto.bcrypt.BCrypt
+import org.flexstore.domain.user.repository.*
 
 private const val BCRYPT_COST = 12
 

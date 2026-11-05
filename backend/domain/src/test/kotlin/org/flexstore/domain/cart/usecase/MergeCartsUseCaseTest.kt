@@ -1,5 +1,6 @@
 package org.flexstore.domain.cart.usecase
 
+import org.flexstore.domain.product.model.*
 import org.flexstore.domain.user.blockedCustomerId
 import org.flexstore.domain.user.customerWithStatus
 import org.junit.jupiter.params.ParameterizedTest

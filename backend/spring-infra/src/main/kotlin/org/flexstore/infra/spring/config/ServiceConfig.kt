@@ -21,6 +21,8 @@ import org.flexstore.domain.twofactor.TwoFactorChallengeRepository
 import org.flexstore.domain.twofactor.usecase.*
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
+import org.flexstore.domain.user.repository.*
+import org.flexstore.domain.user.service.*
 import org.flexstore.domain.user.usecase.*
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

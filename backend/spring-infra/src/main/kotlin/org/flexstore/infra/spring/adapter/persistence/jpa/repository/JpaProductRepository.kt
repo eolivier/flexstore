@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.adapter.persistence.jpa.repository
 
+import org.flexstore.domain.product.model.*
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.ProductEntity
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.ProductTranslationEntity
 import org.flexstore.infra.spring.adapter.persistence.jpa.toDomain

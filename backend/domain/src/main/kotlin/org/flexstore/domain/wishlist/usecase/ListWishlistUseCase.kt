@@ -1,7 +1,7 @@
 package org.flexstore.domain.wishlist.usecase
 
-import org.flexstore.domain.product.Products
-import org.flexstore.domain.user.UserRepository
+import org.flexstore.domain.product.model.Products
+import org.flexstore.domain.user.repository.UserRepository
 import org.flexstore.domain.user.model.UserId
 import org.flexstore.domain.wishlist.WishlistRepository
 import org.ucop.domain.entity.*

@@ -1,6 +1,6 @@
 package org.flexstore.infra.spring.adapter.payment
 
-import org.flexstore.domain.order.OrderConfirmationPage
+import org.flexstore.domain.order.model.OrderConfirmationPage
 import org.flexstore.domain.sharedkernel.ShopUrl
 import org.flexstore.domain.payment.CheckoutPage
 import org.flexstore.domain.payment.PaymentOutcome

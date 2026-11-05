@@ -1,0 +1,469 @@
+package org.flexstore.domain.order.model
+
+import java.math.BigDecimal
+import java.time.Instant
+import org.flexstore.domain.cart.*
+import org.flexstore.domain.legal.LegalPageId
+import org.flexstore.domain.product.*
+import org.flexstore.domain.product.model.*
+import org.flexstore.domain.settings.FreeShippingThreshold
+import org.flexstore.domain.settings.PaymentDelay
+import org.flexstore.domain.sharedkernel.*
+import org.flexstore.domain.user.model.*
+import org.ucop.domain.ErrorMessage
+import org.ucop.domain.NominalException
+
+// Number of characters of the order id shown to the customer as the order number
+private const val ORDER_NUMBER_LENGTH = 8
+
+/**
+ * Order aggregate: placed by a customer from their cart.
+ * - an order is placed from a cart that has items
+ * - its lines keep the name and the price of the products when the order is placed
+ * - a new order awaits its payment, which reserves its units; unpaid in time, it is cancelled
+ * - it is always delivered to a delivery address and billed to a billing address (often the same),
+ *   both addresses of the customer
+ * - it keeps the statuses it went through, with the moment it reached each one: its status is the last one
+ * - it keeps the version of the terms of sale its customer accepted to place it
+ * - once shipped, it may carry the carrier and the tracking number of its parcel
+ */
+data class Order(
+    val detail: OrderDetail,
+    val history: OrderStatusHistory,
+    val tracking: OrderTracking = OrderTracking.None
+) {
+
+    val status get() = history.currentStatus()
+
+    val orderId get() = detail.placement.orderId
+
+    val customer get() = detail.placement.customer.userId
+
+    val placedAt get() = detail.placement.placedAt
+
+    val addresses get() = detail.placement.addresses
+
+    val termsOfSale get() = detail.placement.checkout.termsOfSale
+
+    val lines get() = detail.bill.lines
+
+    val shipping get() = detail.bill.shipping
+
+    val discount get() = detail.bill.discount
+
+    fun discountAmount() = detail.bill.discountAmount()
+
+    // The price of the items, without the shipping
+    fun itemsPrice() = detail.bill.itemsPrice()
+
+    fun totalPrice() = detail.bill.totalPrice()
+
+    // The number shown to the customer: the beginning of the order id
+    fun number() = orderId.value.take(ORDER_NUMBER_LENGTH).uppercase()
+
+    fun belongsTo(customer: UserId) = this.customer == customer
+
+    fun doesNotBelongTo(customer: UserId) = !belongsTo(customer)
+
+    // The order at the next status of its life cycle
+    fun advancedAt(changedAt: StatusChangedAt) = movedTo(status.next(), changedAt)
+
+    // Not paid in time: its units go back to the stock
+    fun cancelledAt(changedAt: StatusChangedAt) = movedTo(OrderStatus.CANCELLED, changedAt)
+
+    // Paid, even after it was cancelled for lack of payment (the customer paid just before)
+    fun paidAt(changedAt: StatusChangedAt) = movedTo(OrderStatus.PAID, changedAt)
+
+    // Cancelled by the shop after its payment, which is given back to the customer
+    fun refundedAt(changedAt: StatusChangedAt) = movedTo(OrderStatus.REFUNDED, changedAt)
+
+    // The parcel of the order is followed with this carrier and this number; nothing given changes nothing
+    fun withTracking(tracking: OrderTracking) = when (tracking) {
+        is OrderTracking.Given -> copy(tracking = tracking)
+        OrderTracking.None -> this
+    }
+
+    private fun movedTo(status: OrderStatus, changedAt: StatusChangedAt) =
+        copy(history = history.with(OrderStatusChange(status, changedAt)))
+
+    fun isRefunded() = status == OrderStatus.REFUNDED
+
+    fun isAwaitingPayment() = status == OrderStatus.AWAITING_PAYMENT
+
+    fun isCancelled() = status == OrderStatus.CANCELLED
+
+    fun isPaid() = status.isPaid()
+
+    fun isNotPaid() = !isPaid()
+
+    // The order has a line of the product
+    fun includes(productId: ProductId) = lines.includes(productId)
+
+    // The moment the order must be paid by, or it is cancelled
+    fun paymentDeadline(paymentDelay: PaymentDelay) = PaymentDeadline(placedAt + paymentDelay.asDuration())
+
+    companion object {
+        // An order of a shop whose settings are the default ones
+        fun place(orderPlacement: OrderPlacement, cart: Cart) =
+            place(orderPlacement, OrderContent(cart, FreeShippingThreshold.byDefault()))
+
+        fun place(orderPlacement: OrderPlacement, orderContent: OrderContent): Order {
+            val cart = orderContent.cart
+            if (cart.isEmpty()) {
+                throw EmptyCartException(ErrorMessage("An order cannot be placed from an empty cart."))
+            }
+            if (orderPlacement.addresses.isIncomplete()) {
+                val message = ErrorMessage("An order needs a complete delivery address and billing address.")
+                throw IncompleteOrderAddressException(message)
+            }
+            val orderLines = OrderLines.from(cart)
+            val shippingMethod = orderPlacement.checkout.delivery.method
+            val freeShippingThreshold = orderContent.freeShippingThreshold
+            val shippingCost = shippingMethod.costFor(orderLines.totalPrice(), freeShippingThreshold)
+            val orderDiscount = orderContent.discountOn(orderLines.totalPrice())
+            val orderAdjustments = OrderAdjustments(OrderShipping(shippingMethod, shippingCost), orderDiscount)
+            val orderBill = OrderBill(orderLines, orderAdjustments)
+            val orderDetail = OrderDetail(orderPlacement, orderBill)
+            val placedAt = StatusChangedAt(orderPlacement.placedAt)
+            val placedStatus = OrderStatusChange(OrderStatus.AWAITING_PAYMENT, placedAt)
+            return Order(orderDetail, OrderStatusHistory(placedStatus))
+        }
+    }
+}
+
+// What was ordered, fixed once the order is placed: how it was placed, and what it costs (its lines and its
+// shipping); the status changes afterwards
+data class OrderDetail(val placement: OrderPlacement, val bill: OrderBill)
+
+// An order to place: its stamp (id and date) and its checkout (customer and addresses)
+data class OrderPlacement(val stamp: OrderStamp, val checkout: Checkout) {
+
+    val orderId get() = stamp.orderId
+
+    val placedAt get() = stamp.placedAt
+
+    val customer get() = checkout.customer
+
+    val addresses get() = checkout.addresses
+}
+
+// The id of a new order (chosen by the caller, which can then read the order) and the date it is placed
+data class OrderStamp(val orderId: OrderId, val placedAt: Instant)
+
+// What the customer chooses when checking out: who orders, where the order is delivered and billed, how it is
+// shipped, and the terms of sale they accept
+data class Checkout(
+    val customer: CartOwner.Customer,
+    val delivery: OrderDelivery,
+    val termsOfSale: TermsOfSaleAcceptance
+) {
+
+    // Shipped the standard way
+    constructor(customer: CartOwner.Customer, addresses: OrderAddresses, termsOfSale: TermsOfSaleAcceptance) :
+        this(customer, OrderDelivery(addresses, ShippingMethod.STANDARD), termsOfSale)
+
+    val addresses get() = delivery.addresses
+}
+
+// Where the order is delivered and to which address it is billed (often the same)
+data class OrderAddresses(val delivery: PostalAddress, val billing: PostalAddress) {
+
+    fun isComplete() = delivery.isComplete() && billing.isComplete()
+
+    fun isIncomplete() = !isComplete()
+
+    fun isBilledToTheDeliveryAddress() = delivery == billing
+
+    companion object {
+        fun sameFor(address: PostalAddress) = OrderAddresses(address, address)
+    }
+}
+
+// The terms of sale the customer accepted to place an order: the version they read. The orders placed before
+// the customers accepted the terms of sale have none
+sealed interface TermsOfSaleAcceptance {
+
+    // The version accepted is no longer the current one of the shop
+    fun isOutdatedComparedTo(currentTermsOfSale: LegalPageId): Boolean
+}
+
+data class AcceptedTermsOfSale(val termsOfSaleId: LegalPageId) : TermsOfSaleAcceptance {
+
+    override fun isOutdatedComparedTo(currentTermsOfSale: LegalPageId) = termsOfSaleId != currentTermsOfSale
+}
+
+data object NoTermsOfSaleAccepted : TermsOfSaleAcceptance {
+
+    // Nothing accepted: nothing is outdated, the order is refused for lack of acceptance
+    override fun isOutdatedComparedTo(currentTermsOfSale: LegalPageId) = false
+}
+
+data class OrderId(val value: String) {
+    companion object {
+        fun nextId() = OrderId(Identity.nextId().value)
+    }
+}
+
+// The life cycle of an order: awaiting its payment, paid, being processed, then shipped, then delivered (the
+// last status). The payment moves it from AWAITING_PAYMENT to PAID, the administrators along the next statuses.
+// An order not paid in time is CANCELLED; a paid order cancelled by an administrator before it is shipped is
+// REFUNDED. Neither has a next status
+enum class OrderStatus {
+    AWAITING_PAYMENT, PAID, PROCESSING, SHIPPED, DELIVERED, CANCELLED, REFUNDED;
+
+    fun hasNext() = this != DELIVERED && this != CANCELLED && this != REFUNDED
+
+    fun isPaid() = this in listOf(PAID, PROCESSING, SHIPPED, DELIVERED)
+
+    fun isLast() = this == DELIVERED
+
+    fun isMovedByAnAdministrator() = this != AWAITING_PAYMENT && hasNext()
+
+    fun isNotMovedByAnAdministrator() = !isMovedByAnAdministrator()
+
+    // The customer is told by email when their order is shipped, then delivered, or refunded
+    fun isAnnouncedToTheCustomer() = this == SHIPPED || this == DELIVERED || this == REFUNDED
+
+    // The next status of a processed order is the one that gives its carrier and its tracking number
+    fun isShippedNext() = this == PROCESSING
+
+    // Shipped, or delivered: an administrator may still correct the tracking of its parcel
+    fun allowsTrackingCorrection() = this == SHIPPED || this == DELIVERED
+
+    fun refusesTrackingCorrection() = !allowsTrackingCorrection()
+
+    // Paid, and not shipped yet: an administrator may cancel it and refund it
+    fun isRefundable() = this == PAID || this == PROCESSING
+
+    fun isNotRefundable() = !isRefundable()
+
+    fun next(): OrderStatus = when (this) {
+        AWAITING_PAYMENT -> PAID
+        PAID -> PROCESSING
+        PROCESSING -> SHIPPED
+        SHIPPED -> DELIVERED
+        DELIVERED -> throw OrderStatusCannotAdvanceException(ErrorMessage("A delivered order has no next status"))
+        CANCELLED -> throw OrderStatusCannotAdvanceException(ErrorMessage("A cancelled order has no next status"))
+        REFUNDED -> throw OrderStatusCannotAdvanceException(ErrorMessage("A refunded order has no next status"))
+    }
+}
+
+// The moment an order reached a status
+data class StatusChangedAt(val value: Instant) {
+    companion object {
+        fun now() = StatusChangedAt(InstantProvider.now())
+    }
+}
+
+// An order reached a status at a given moment
+data class OrderStatusChange(val status: OrderStatus, val changedAt: StatusChangedAt)
+
+// The statuses an order went through, oldest first; never empty: an order is placed awaiting its payment
+data class OrderStatusHistory(private val changes: List<OrderStatusChange>) {
+
+    init {
+        require(changes.isNotEmpty()) { "An order has at least the status it was placed with" }
+    }
+
+    constructor(vararg changes: OrderStatusChange) : this(changes.toList())
+
+    fun currentStatus() = changes.last().status
+
+    fun with(change: OrderStatusChange) = OrderStatusHistory(changes + change)
+
+    // Read-only view for the adapters (JSON, persistence)
+    fun asList(): List<OrderStatusChange> = changes.toList()
+}
+
+// An order to move to the next status of its life cycle, from the status it has when the administrator sees
+// it; moving a processed order to shipped may give the tracking of its parcel
+data class OrderStatusAdvance(
+    val editor: UserId,
+    val orderId: OrderId,
+    val currentStatus: OrderStatus,
+    val tracking: OrderTracking = OrderTracking.None
+)
+
+// An order that an administrator cancels and refunds, from the status it has when the administrator sees it
+data class OrderRefund(val editor: UserId, val orderId: OrderId, val currentStatus: OrderStatus)
+
+// An administrator who reads the orders of all the customers
+data class AdministeredOrdersReading(val reader: UserId, val pageRequest: PageRequest)
+
+// A user who reads an order with its customer: an administrator, or the customer of the order
+data class AdministeredOrderReading(val reader: UserId, val orderId: OrderId)
+
+// A product as ordered: its id and its name when the order was placed
+data class OrderedProduct(val productId: ProductId, val productName: Name)
+
+// A product as ordered, with its unit price and its rate of VAT when the order was placed
+data class PricedProduct(val product: OrderedProduct, val pricing: ProductPricing) {
+
+    // At the standard rate of VAT
+    constructor(product: OrderedProduct, unitPrice: Price) : this(product, ProductPricing(unitPrice))
+
+    val unitPrice get() = pricing.price
+
+    val vatRate get() = pricing.vatRate
+}
+
+// A line of an order: a product, at its price when the order was placed, and its quantity
+data class OrderLine(val product: PricedProduct, val quantity: Quantity) {
+
+    val productId get() = product.product.productId
+
+    val productName get() = product.product.productName
+
+    val unitPrice get() = product.unitPrice
+
+    val vatRate get() = product.vatRate
+
+    fun linePrice() = unitPrice.multiply(quantity)
+
+    companion object {
+        // The line of a product of the catalog, with its name, its price (promotion included) and its rate
+        // of VAT at this time
+        fun of(definedProduct: DefinedProduct, quantity: Quantity): OrderLine {
+            val orderedProduct = OrderedProduct(definedProduct.productId, definedProduct.name)
+            val pricing = ProductPricing(definedProduct.currentPrice, definedProduct.vatRate)
+            return OrderLine(PricedProduct(orderedProduct, pricing), quantity)
+        }
+    }
+}
+
+data class OrderLines(private val lines: List<OrderLine>) {
+
+    constructor(vararg lines: OrderLine) : this(lines.toList())
+
+    fun totalPrice(): Price {
+        val currency = lines.firstOrNull()?.unitPrice?.currency ?: Currency.EUR
+        val total = lines.fold(BigDecimal.ZERO) { sum, line -> sum.add(line.linePrice().amount.value) }
+        return Price(Amount(total), currency)
+    }
+
+    // The lines of the products sold at the given rate of VAT
+    fun soldAt(vatRate: VatRate) = OrderLines(lines.filter { line -> line.vatRate == vatRate })
+
+    fun isEmpty() = lines.isEmpty()
+
+    fun includes(productId: ProductId) = lines.any { line -> line.productId == productId }
+
+    // The products sold the most, by units: the first ones, then by revenue
+    fun bestSellers(limit: BestSellerCount): BestSellers {
+        val sales = lines.groupBy { line -> line.productId }.map { (_, productLines) ->
+            val units = productLines.sumOf { line -> line.quantity.value }
+            val revenue = OrderLines(productLines).totalPrice()
+            BestSeller(productLines.last().let { line -> OrderedProduct(line.productId, line.productName) },
+                Quantity(units), revenue)
+        }
+        val ranked = sales.sortedWith(
+            compareByDescending<BestSeller> { it.unitsSold.value }.thenByDescending { it.revenue.amount.value }
+        )
+        return BestSellers(ranked.take(limit.value))
+    }
+
+    // Read-only view for the adapters (JSON, persistence)
+    fun asList(): List<OrderLine> = lines.toList()
+
+    companion object {
+        fun from(cart: Cart) = OrderLines(cart.items.fold(emptyList()) { lines, product, quantity ->
+            lines + OrderLine.of(product, quantity)
+        })
+    }
+}
+
+data class Orders(private val orders: List<Order>) {
+
+    constructor(vararg orders: Order) : this(orders.toList())
+
+    fun newestFirst() = Orders(orders.sortedByDescending { it.placedAt })
+
+    // One of the orders is paid and has a line of the product: the customer bought it
+    fun hasPaidFor(productId: ProductId) = orders.any { order -> order.isPaid() && order.includes(productId) }
+
+    // The orders that were paid, and not cancelled or refunded since: the sales of the shop
+    fun paid() = Orders(orders.filter { order -> order.isPaid() })
+
+    fun placedDuring(interval: OrderInterval) =
+        Orders(orders.filter { order -> interval.contains(order.placedAt) })
+
+    fun count() = OrderCount(orders.size)
+
+    // What the orders cost their customers: the items, minus the discounts, plus the shipping
+    fun revenue(): Price {
+        val currency = orders.firstOrNull()?.totalPrice()?.currency ?: Currency.EUR
+        val total = orders.fold(BigDecimal.ZERO) { sum, order -> sum.add(order.totalPrice().amount.value) }
+        return Price(Amount(total), currency)
+    }
+
+    // The lines of all the orders
+    fun lines() = OrderLines(orders.flatMap { order -> order.lines.asList() })
+
+    // The orders still awaiting their payment once the time limit is exceeded
+    fun latePaymentsAt(timeLimit: PaymentTimeLimit) = Orders(orders.filter { timeLimit.isExceededFor(it) })
+
+    fun asList(): List<Order> = orders.toList()
+}
+
+data class OrderCount(val value: Int) {
+    fun isZero() = value == 0
+}
+
+// From a moment included to another excluded
+data class OrderInterval(val start: Instant, val end: Instant) {
+    fun contains(instant: Instant) = instant >= start && instant < end
+}
+
+data class BestSellerCount(val value: Int)
+
+// A product sold: the units of it sold, and what they brought
+data class BestSeller(val product: OrderedProduct, val unitsSold: Quantity, val revenue: Price)
+
+// The products sold the most, the best first
+data class BestSellers(private val bestSellers: List<BestSeller>) {
+
+    // Read-only view for the adapters (JSON)
+    fun asList(): List<BestSeller> = bestSellers.toList()
+}
+
+// The time a customer has to pay, checked at a given moment
+data class PaymentTimeLimit(val paymentDelay: PaymentDelay, val checkedAt: Instant) {
+
+    // The order still awaits its payment, and its payment deadline is reached
+    fun isExceededFor(order: Order) =
+        order.isAwaitingPayment() && order.paymentDeadline(paymentDelay).isReachedAt(checkedAt)
+}
+
+// The moment an order must be paid by: its placement plus the payment delay
+data class PaymentDeadline(val value: Instant) {
+
+    fun isReachedAt(instant: Instant) = instant >= value
+}
+
+// An order to cancel because it was not paid in time
+data class UnpaidOrderCancellation(val orderId: OrderId, val timeLimit: PaymentTimeLimit)
+
+data class OrderNotAwaitingPaymentException(override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
+data class PaymentTimeLimitNotExceededException(override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
+data class OrderCancelledException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class OrderCancellationFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class EmptyCartException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class IncompleteOrderAddressException(override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
+data class OrderRefusedException(val status: AccountStatus, override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
+data class OrderStatusCannotAdvanceException(override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
+data class OrderStatusChangedException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class OrderStatusAdvanceFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class OrderNotRefundableException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class OrderRefundFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class OrderAdministrationForbiddenException(override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
+data class OrderNotFoundException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class TermsOfSaleNotAcceptedException(override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
+data class OutdatedTermsOfSaleException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class OrderPlacementFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

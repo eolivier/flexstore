@@ -2,6 +2,7 @@ package org.flexstore.infra.spring.adapter.persistence.jpa
 
 import org.assertj.core.api.Assertions.assertThat
 import org.flexstore.domain.product.*
+import org.flexstore.domain.product.model.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.ProductTranslationEntity
 import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaProductRepository

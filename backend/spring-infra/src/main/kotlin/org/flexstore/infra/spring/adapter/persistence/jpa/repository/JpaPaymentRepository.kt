@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.adapter.persistence.jpa.repository
 
+import org.flexstore.domain.order.model.*
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.PaymentEntity
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.PaymentRefundEntity
 import org.flexstore.domain.order.*

@@ -2,8 +2,8 @@ package org.flexstore.domain.twofactor.usecase
 
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.sharedkernel.InstantProvider
-import org.flexstore.domain.twofactor.TwoFactorChallengeNotFoundException
-import org.flexstore.domain.twofactor.TwoFactorCodeInvalidException
+import org.flexstore.domain.twofactor.model.TwoFactorChallengeNotFoundException
+import org.flexstore.domain.twofactor.model.TwoFactorCodeInvalidException
 import org.flexstore.domain.twofactor.model.TwoFactorAuthentication
 import org.flexstore.domain.twofactor.model.TwoFactorChallenge
 import org.flexstore.domain.twofactor.model.TwoFactorChallengeId

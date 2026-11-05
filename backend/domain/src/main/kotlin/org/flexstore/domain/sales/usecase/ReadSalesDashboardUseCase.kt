@@ -2,7 +2,7 @@ package org.flexstore.domain.sales.usecase
 
 import org.flexstore.domain.order.OrderRepository
 import org.flexstore.domain.sales.*
-import org.flexstore.domain.user.UserRepository
+import org.flexstore.domain.user.repository.UserRepository
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 

@@ -1,6 +1,7 @@
 package org.flexstore.domain.order.usecase
 
 import org.flexstore.domain.order.*
+import org.flexstore.domain.order.model.*
 import org.ucop.domain.entity.*
 
 // The orders of all the customers, newest first

@@ -2,6 +2,7 @@ package org.flexstore.domain.stock.usecase
 
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.product.*
+import org.flexstore.domain.product.model.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.stock.*
 import org.flexstore.domain.user.model.*

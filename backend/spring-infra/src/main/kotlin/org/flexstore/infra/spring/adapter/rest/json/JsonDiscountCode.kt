@@ -3,7 +3,7 @@ package org.flexstore.infra.spring.adapter.rest.json
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.flexstore.domain.discount.*
-import org.flexstore.domain.order.DiscountPreview
+import org.flexstore.domain.order.model.DiscountPreview
 import org.flexstore.domain.sharedkernel.*
 import java.math.BigDecimal
 import java.time.Instant

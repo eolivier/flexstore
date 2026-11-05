@@ -2,6 +2,7 @@ package org.flexstore.domain.product.usecase
 
 import org.flexstore.domain.product.*
 import org.assertj.core.api.WithAssertions
+import org.flexstore.domain.product.model.*
 import org.flexstore.infra.repository.InMemoryProductRepository
 import org.flexstore.infra.repository.accessories
 import org.flexstore.infra.repository.clothes

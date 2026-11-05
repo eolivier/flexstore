@@ -1,7 +1,7 @@
 package org.flexstore.infra.spring.adapter.rest
 
 import org.flexstore.domain.cart.CartOwner
-import org.flexstore.domain.order.OrderId
+import org.flexstore.domain.order.model.OrderId
 import org.flexstore.domain.payment.OrderPayment
 import org.flexstore.domain.payment.PaymentService
 import io.swagger.v3.oas.annotations.Operation

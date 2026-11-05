@@ -1,11 +1,13 @@
 package org.flexstore.domain.order.service
 
+import org.flexstore.domain.order.model.*
 import org.flexstore.domain.order.usecase.*
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.payment.PaymentOutcome
 import org.flexstore.domain.product.*
+import org.flexstore.domain.product.model.*
 import org.flexstore.domain.settings.*
 import org.flexstore.domain.settings.usecase.*
 import org.flexstore.domain.sharedkernel.*

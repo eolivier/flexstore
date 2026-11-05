@@ -3,8 +3,9 @@ package org.flexstore.domain.order.usecase
 import org.flexstore.domain.legal.LegalPageKind
 import org.flexstore.domain.legal.LegalPageRepository
 import org.flexstore.domain.order.*
+import org.flexstore.domain.order.model.*
 import org.flexstore.domain.stock.*
-import org.flexstore.domain.user.UserRepository
+import org.flexstore.domain.user.repository.UserRepository
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 

@@ -2,6 +2,7 @@ package org.flexstore.domain.cart
 
 import org.flexstore.domain.discount.Percentage
 import org.flexstore.domain.product.*
+import org.flexstore.domain.product.model.*
 import org.flexstore.domain.sharedkernel.*
 import org.assertj.core.api.WithAssertions
 import org.junit.jupiter.api.Test

@@ -3,7 +3,7 @@ package org.flexstore.infra.spring.adapter.persistence.jpa.repository
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.ProductImageEntity
 import org.flexstore.infra.spring.adapter.persistence.jpa.toDomain
 import org.flexstore.domain.image.*
-import org.flexstore.domain.product.ProductId
+import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.sharedkernel.Identity
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying

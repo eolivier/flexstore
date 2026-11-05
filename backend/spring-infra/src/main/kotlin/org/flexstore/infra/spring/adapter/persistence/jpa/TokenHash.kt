@@ -1,6 +1,6 @@
 package org.flexstore.infra.spring.adapter.persistence.jpa
 
-import org.flexstore.domain.email.VerificationToken
+import org.flexstore.domain.email.model.VerificationToken
 import org.flexstore.domain.user.model.RefreshToken
 import java.security.MessageDigest
 import java.util.HexFormat

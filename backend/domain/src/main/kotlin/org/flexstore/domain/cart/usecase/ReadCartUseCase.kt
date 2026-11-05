@@ -1,7 +1,7 @@
 package org.flexstore.domain.cart.usecase
 
 import org.flexstore.domain.cart.*
-import org.flexstore.domain.user.UserRepository
+import org.flexstore.domain.user.repository.UserRepository
 import org.ucop.domain.entity.*
 
 // The cart of a customer or of a visitor, empty when they have none yet

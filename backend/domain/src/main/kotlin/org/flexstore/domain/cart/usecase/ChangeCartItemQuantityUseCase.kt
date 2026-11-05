@@ -2,7 +2,7 @@ package org.flexstore.domain.cart.usecase
 
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.sharedkernel.*
-import org.flexstore.domain.user.UserRepository
+import org.flexstore.domain.user.repository.UserRepository
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 

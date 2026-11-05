@@ -1,5 +1,7 @@
 package org.flexstore.domain.review.usecase
 
+import org.flexstore.domain.order.model.*
+import org.flexstore.domain.product.model.*
 import org.flexstore.domain.user.blockedCustomerId
 import org.flexstore.domain.user.customerWithStatus
 import org.flexstore.domain.user.model.AccountRefusedException

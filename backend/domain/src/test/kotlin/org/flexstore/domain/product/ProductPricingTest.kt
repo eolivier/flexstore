@@ -2,6 +2,12 @@ package org.flexstore.domain.product
 
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.discount.Percentage
+import org.flexstore.domain.product.model.PercentageOffPromotion
+import org.flexstore.domain.product.model.ProductPricing
+import org.flexstore.domain.product.model.Promotion
+import org.flexstore.domain.product.model.PromotionEnd
+import org.flexstore.domain.product.model.PromotionPeriod
+import org.flexstore.domain.product.model.PromotionStart
 import org.flexstore.domain.sharedkernel.*
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach

@@ -2,6 +2,7 @@ package org.flexstore.domain.user.usecase
 
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.email.*
+import org.flexstore.domain.email.model.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.infra.repository.InMemoryPasswordResetRepository
 import org.flexstore.infra.repository.InMemoryUserRepository

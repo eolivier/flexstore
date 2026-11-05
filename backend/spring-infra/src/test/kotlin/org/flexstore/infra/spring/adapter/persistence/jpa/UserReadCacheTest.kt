@@ -1,6 +1,6 @@
 package org.flexstore.infra.spring.adapter.persistence.jpa
 
-import org.flexstore.domain.user.UserRepository
+import org.flexstore.domain.user.repository.UserRepository
 import org.flexstore.domain.user.model.*
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.UserEntity
 import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaUserRepository

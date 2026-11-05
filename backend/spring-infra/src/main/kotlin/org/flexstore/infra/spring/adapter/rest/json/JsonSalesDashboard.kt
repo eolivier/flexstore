@@ -1,7 +1,7 @@
 package org.flexstore.infra.spring.adapter.rest.json
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import org.flexstore.domain.order.BestSeller
+import org.flexstore.domain.order.model.BestSeller
 import org.flexstore.domain.sales.DailySales
 import org.flexstore.domain.sales.SalesDashboard
 import java.math.BigDecimal

@@ -2,8 +2,9 @@ package org.flexstore.domain.review.usecase
 
 import org.flexstore.domain.order.OrderRepository
 import org.flexstore.domain.product.*
+import org.flexstore.domain.product.model.*
 import org.flexstore.domain.review.*
-import org.flexstore.domain.user.UserRepository
+import org.flexstore.domain.user.repository.UserRepository
 import org.flexstore.domain.user.model.*
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*

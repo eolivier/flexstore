@@ -1,7 +1,7 @@
 package org.flexstore.domain.image.usecase
 
 import org.flexstore.domain.image.*
-import org.flexstore.domain.product.ProductId
+import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.user.model.UserId
 
 // The use cases of the images of the products

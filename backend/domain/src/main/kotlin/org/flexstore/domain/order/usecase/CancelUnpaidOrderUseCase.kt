@@ -1,6 +1,7 @@
 package org.flexstore.domain.order.usecase
 
 import org.flexstore.domain.order.*
+import org.flexstore.domain.order.model.*
 import org.flexstore.domain.payment.PaymentRepository
 import org.flexstore.domain.stock.StockRepository
 import org.ucop.domain.ErrorMessage

@@ -11,6 +11,7 @@ import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.catchThrowable
 import kotlin.test.Test
+import org.flexstore.domain.user.repository.*
 
 class CreateUserUseCaseTest {
 

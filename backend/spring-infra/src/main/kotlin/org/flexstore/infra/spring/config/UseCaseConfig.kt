@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.config
 
+import org.flexstore.domain.email.model.*
 import org.flexstore.domain.payment.*
 import org.flexstore.domain.payment.usecase.*
 import org.flexstore.domain.cart.*
@@ -34,6 +35,8 @@ import org.flexstore.domain.twofactor.TwoFactorChallengeRepository
 import org.flexstore.domain.twofactor.usecase.*
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
+import org.flexstore.domain.user.repository.*
+import org.flexstore.domain.user.service.*
 import org.flexstore.domain.user.usecase.*
 import org.flexstore.domain.wishlist.*
 import org.flexstore.domain.wishlist.usecase.*

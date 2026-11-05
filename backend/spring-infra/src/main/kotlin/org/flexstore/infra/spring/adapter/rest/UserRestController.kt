@@ -4,6 +4,7 @@ import org.flexstore.domain.twofactor.TwoFactorAuthenticationService
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.model.UserId.ValidUserId
+import org.flexstore.domain.user.service.*
 import org.flexstore.domain.user.usecase.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content

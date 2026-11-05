@@ -1,9 +1,9 @@
 package org.flexstore.domain.twofactor.usecase
 
-import org.flexstore.domain.twofactor.TwoFactorAuthenticationAlreadyEnabledException
+import org.flexstore.domain.twofactor.model.TwoFactorAuthenticationAlreadyEnabledException
 import org.flexstore.domain.twofactor.model.TwoFactorAuthentication
 import org.flexstore.domain.twofactor.model.TwoFactorSecret
-import org.flexstore.domain.user.UserRepository
+import org.flexstore.domain.user.repository.UserRepository
 import org.flexstore.domain.user.model.User
 import org.flexstore.domain.user.model.UserId
 import org.ucop.domain.ErrorMessage

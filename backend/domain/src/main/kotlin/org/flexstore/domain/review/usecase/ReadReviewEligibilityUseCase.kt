@@ -2,7 +2,7 @@ package org.flexstore.domain.review.usecase
 
 import org.flexstore.domain.order.OrderRepository
 import org.flexstore.domain.review.*
-import org.flexstore.domain.user.UserRepository
+import org.flexstore.domain.user.repository.UserRepository
 import org.ucop.domain.entity.*
 
 // Whether a signed-in customer may review a product, so that the form is only offered to the customers who can

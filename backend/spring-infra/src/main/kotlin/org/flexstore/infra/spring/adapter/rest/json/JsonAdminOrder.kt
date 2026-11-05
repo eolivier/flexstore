@@ -3,6 +3,7 @@ package org.flexstore.infra.spring.adapter.rest.json
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonUnwrapped
 import org.flexstore.domain.order.*
+import org.flexstore.domain.order.model.*
 
 // An order as the administrators see it: the fields of the order, the customer who placed it, and the statuses
 // it went through, oldest first

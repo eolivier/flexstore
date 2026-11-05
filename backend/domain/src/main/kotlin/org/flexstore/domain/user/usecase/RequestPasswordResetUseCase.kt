@@ -1,8 +1,10 @@
 package org.flexstore.domain.user.usecase
 
 import org.flexstore.domain.email.*
+import org.flexstore.domain.email.model.*
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
+import org.flexstore.domain.user.repository.*
 import org.ucop.domain.entity.*
 import java.time.Instant
 

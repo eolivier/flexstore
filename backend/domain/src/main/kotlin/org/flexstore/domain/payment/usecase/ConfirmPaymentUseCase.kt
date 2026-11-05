@@ -2,6 +2,7 @@ package org.flexstore.domain.payment.usecase
 
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.order.*
+import org.flexstore.domain.order.model.*
 import org.flexstore.domain.payment.*
 import org.flexstore.domain.stock.StockRepository
 import org.ucop.domain.ErrorMessage

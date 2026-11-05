@@ -2,18 +2,23 @@ package org.flexstore.infra.spring.adapter.rest
 
 import org.flexstore.domain.discount.*
 import org.flexstore.domain.email.*
+import org.flexstore.domain.email.model.*
 import org.flexstore.domain.invoice.*
+import org.flexstore.domain.invoice.model.*
 import org.flexstore.domain.order.*
+import org.flexstore.domain.order.model.*
 import org.flexstore.domain.payment.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.image.*
 import org.flexstore.domain.legal.*
+import org.flexstore.domain.product.model.*
 import org.flexstore.domain.review.*
 import org.flexstore.domain.sales.*
 import org.flexstore.domain.seller.*
 import org.flexstore.domain.settings.*
 import org.flexstore.domain.stock.*
 import org.flexstore.domain.twofactor.*
+import org.flexstore.domain.twofactor.model.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.usecase.*
 import com.fasterxml.jackson.databind.JsonMappingException

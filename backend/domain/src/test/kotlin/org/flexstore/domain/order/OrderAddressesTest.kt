@@ -2,7 +2,15 @@ package org.flexstore.domain.order
 
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.cart.*
+import org.flexstore.domain.order.model.Checkout
+import org.flexstore.domain.order.model.IncompleteOrderAddressException
+import org.flexstore.domain.order.model.Order
+import org.flexstore.domain.order.model.OrderAddresses
+import org.flexstore.domain.order.model.OrderId
+import org.flexstore.domain.order.model.OrderPlacement
+import org.flexstore.domain.order.model.OrderStamp
 import org.flexstore.domain.product.*
+import org.flexstore.domain.product.model.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.*
 import org.junit.jupiter.api.Test

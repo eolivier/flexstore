@@ -1,6 +1,7 @@
 package org.flexstore.domain.order
 
 import org.assertj.core.api.WithAssertions
+import org.flexstore.domain.order.model.ShippingMethod
 import org.flexstore.domain.settings.FreeShippingThreshold
 import org.flexstore.domain.sharedkernel.*
 import org.junit.jupiter.params.ParameterizedTest

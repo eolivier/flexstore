@@ -2,6 +2,7 @@ package org.flexstore.domain.order.usecase
 
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.order.*
+import org.flexstore.domain.order.model.*
 import org.flexstore.domain.settings.usecase.ReadShopSettingsUseCase
 import org.flexstore.domain.sharedkernel.PageRequest
 import org.flexstore.domain.user.model.*
