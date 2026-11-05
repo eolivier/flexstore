@@ -5,6 +5,10 @@ import org.flexstore.domain.settings.usecase.*
 import org.flexstore.domain.user.*
 import org.flexstore.infra.repository.InMemoryShopSettingsRepository
 import org.junit.jupiter.api.Test
+import org.flexstore.domain.user.administration.testAdministrator
+import org.flexstore.domain.user.administration.testCustomer
+import org.flexstore.domain.user.administration.unknownUser
+import org.flexstore.domain.user.administration.usersOfTheAdministration
 
 class ShopSettingsAdministrationServiceTest : WithAssertions {
 

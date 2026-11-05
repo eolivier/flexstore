@@ -10,6 +10,8 @@ import io.mockk.verify
 import org.flexstore.infra.repository.InMemoryUserRepository
 import org.junit.jupiter.api.Test
 import org.ucop.domain.entity.*
+import org.flexstore.domain.user.administration.usecase.ReadUserUseCase
+import org.flexstore.domain.user.administration.usecase.UserReading
 
 // A use case chained after the reading of a user, on the same request: it deletes the user read
 private class ForgetReadUserUseCase(private val userRepository: InMemoryUserRepository) : UseCase<UserReading> {

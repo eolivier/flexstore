@@ -24,6 +24,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.request.RequestPostProcessor
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.Instant
+import org.flexstore.domain.user.administration.UserService
+import org.flexstore.domain.user.administration.usecase.CreateUserRequest
 
 private const val ADMIN_EMAIL = "it-two-factor-admin@example.com"
 private const val ADMIN_PASSWORD = "admin-password"

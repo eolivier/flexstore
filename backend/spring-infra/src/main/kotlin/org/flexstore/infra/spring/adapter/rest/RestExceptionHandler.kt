@@ -29,6 +29,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.multipart.MaxUploadSizeExceededException
 import org.ucop.domain.NominalException
+import org.flexstore.domain.user.address.AddressNotFoundException
+import org.flexstore.domain.user.address.IncompleteAddressException
 
 @RestControllerAdvice
 class RestExceptionHandler {

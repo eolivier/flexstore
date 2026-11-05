@@ -16,6 +16,9 @@ import org.flexstore.domain.user.*
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.time.Instant
+import org.flexstore.domain.user.administration.testAdministrator
+import org.flexstore.domain.user.administration.testCustomer
+import org.flexstore.domain.user.administration.usersOfTheAdministration
 
 class IssueCreditNoteUseCaseTest : WithAssertions {
 

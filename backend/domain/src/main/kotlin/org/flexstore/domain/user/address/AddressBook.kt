@@ -1,5 +1,6 @@
-package org.flexstore.domain.user.model
+package org.flexstore.domain.user.address
 
+import org.flexstore.domain.user.model.*
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
 

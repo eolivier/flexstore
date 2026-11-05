@@ -15,6 +15,10 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import java.math.BigDecimal
 import java.time.Instant
+import org.flexstore.domain.user.administration.testAdministrator
+import org.flexstore.domain.user.administration.testCustomer
+import org.flexstore.domain.user.administration.unknownUser
+import org.flexstore.domain.user.administration.usersOfTheAdministration
 
 class CorrectOrderTrackingUseCaseTest : WithAssertions {
 

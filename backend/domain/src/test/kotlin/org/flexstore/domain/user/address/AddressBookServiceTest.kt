@@ -1,10 +1,13 @@
-package org.flexstore.domain.user.service
+package org.flexstore.domain.user.address
 
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.usecase.*
 import org.flexstore.infra.repository.InMemoryUserRepository
 import org.junit.jupiter.api.Test
+import org.flexstore.domain.user.address.usecase.AddPostalAddressUseCase
+import org.flexstore.domain.user.address.usecase.ChangePostalAddressUseCase
+import org.flexstore.domain.user.address.usecase.RemovePostalAddressUseCase
 
 class AddressBookServiceTest : WithAssertions {
 

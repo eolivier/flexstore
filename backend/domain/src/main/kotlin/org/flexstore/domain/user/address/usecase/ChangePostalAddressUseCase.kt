@@ -1,10 +1,15 @@
-package org.flexstore.domain.user.usecase
+package org.flexstore.domain.user.address.usecase
 
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.repository.*
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
+import org.flexstore.domain.user.address.AddressChange
+import org.flexstore.domain.user.address.AddressChangeFailed
+import org.flexstore.domain.user.address.AddressNotFoundException
+import org.flexstore.domain.user.address.IncompleteAddressException
+import org.flexstore.domain.user.address.UserAddress
 
 // A user edits one of their addresses. The orders keep the version they were delivered and billed to
 class ChangePostalAddressUseCase(private val userRepository: UserRepository) : UseCase<AddressChange> {

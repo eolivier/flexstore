@@ -8,6 +8,10 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.ValueSource
 import org.junit.jupiter.api.Test
+import org.flexstore.domain.user.administration.testAdministrator
+import org.flexstore.domain.user.administration.testCustomer
+import org.flexstore.domain.user.administration.unknownUser
+import org.flexstore.domain.user.administration.usersOfTheAdministration
 
 class SellerUseCasesTest : WithAssertions {
 

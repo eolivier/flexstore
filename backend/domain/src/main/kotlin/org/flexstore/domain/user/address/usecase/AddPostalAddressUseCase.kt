@@ -1,10 +1,13 @@
-package org.flexstore.domain.user.usecase
+package org.flexstore.domain.user.address.usecase
 
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.repository.*
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
+import org.flexstore.domain.user.address.AddressAddition
+import org.flexstore.domain.user.address.AddressChangeFailed
+import org.flexstore.domain.user.address.IncompleteAddressException
 
 // A user adds a new address to their address book
 class AddPostalAddressUseCase(private val userRepository: UserRepository) : UseCase<AddressAddition> {

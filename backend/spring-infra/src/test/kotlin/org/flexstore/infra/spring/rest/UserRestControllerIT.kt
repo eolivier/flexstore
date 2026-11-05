@@ -29,6 +29,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import kotlin.test.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
+import org.flexstore.domain.user.administration.UserService
+import org.flexstore.domain.user.administration.usecase.CreateUserRequest
 
 private const val USER_ID = "1"
 private const val DRAFT_USER_EMAIL = "draft.user@example.com"

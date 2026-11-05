@@ -1,7 +1,10 @@
-package org.flexstore.domain.user.service
+package org.flexstore.domain.user.address
 
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.usecase.*
+import org.flexstore.domain.user.address.usecase.AddPostalAddressUseCase
+import org.flexstore.domain.user.address.usecase.ChangePostalAddressUseCase
+import org.flexstore.domain.user.address.usecase.RemovePostalAddressUseCase
 
 // Domain service: a user sees, edits and removes their addresses, which are read back, all through the use cases
 class AddressBookService(
