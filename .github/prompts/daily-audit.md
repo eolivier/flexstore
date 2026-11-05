@@ -18,6 +18,10 @@ Do not read `front/src/generated/` (generated from `backend/spring-infra/src/mai
    next).
 4. **Missing features**: what a "Use-Case First" e-commerce shop would expect and does not have yet, ordered by value.
 5. **Quality**: untested use cases, dead code, duplicated code, TODOs, flaky or slow tests.
+6. **Dependencies**: libraries, plugins, Docker images, GitHub Actions and runtime versions (Gradle files, `front/package.json`,
+   `Dockerfile`, `docker-compose.yml`, `.github/workflows/`) that should be updated: for each one, the current version, the
+   latest stable version (check it, with `npm outdated`, `npm audit` or the registry, never from memory), whether the
+   update is major, and the known vulnerabilities it fixes.
 
 ## How to report
 
