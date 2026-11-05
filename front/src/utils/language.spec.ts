@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { isTranslatedPath, languageOfPath, localizedPath, withoutLanguage } from './language';
+import { hasLanguagePrefix, isTranslatedPath, languageOfPath, localizedPath, withoutLanguage } from './language';
 
 describe('languageOfPath', () => {
   it.each([
-    ['/', 'fr'],
-    ['/products/clothing', 'fr'],
+    ['/fr', 'fr'],
+    ['/fr/products/clothing', 'fr'],
     ['/en', 'en'],
     ['/en/products/clothing', 'en'],
+    ['/about', 'fr'],
     ['/entrance', 'fr'],
   ])('%s is in %s', (path, language) => {
     // Act
@@ -16,10 +17,28 @@ describe('languageOfPath', () => {
   });
 });
 
+describe('hasLanguagePrefix', () => {
+  it.each(['/fr', '/en', '/fr/about', '/en/products/1/jeans'])('%s says its language', (path) => {
+    // Act
+    const prefixed = hasLanguagePrefix(path);
+    // Assert
+    expect(prefixed).toBe(true);
+  });
+
+  it.each(['/', '/about', '/products/1', '/entrance', '/french'])('%s does not say its language', (path) => {
+    // Act
+    const prefixed = hasLanguagePrefix(path);
+    // Assert
+    expect(prefixed).toBe(false);
+  });
+});
+
 describe('withoutLanguage', () => {
   it.each([
     ['/en', '/'],
+    ['/fr', '/'],
     ['/en/about', '/about'],
+    ['/fr/products/clothing', '/products/clothing'],
     ['/about', '/about'],
   ])('%s becomes %s', (path, unprefixed) => {
     // Act
@@ -30,7 +49,7 @@ describe('withoutLanguage', () => {
 });
 
 describe('isTranslatedPath', () => {
-  it.each(['/', '/en', '/products', '/products', '/products/1/jeans', '/en/about', '/legal-notice'])(
+  it.each(['/', '/fr', '/en', '/products', '/products/1/jeans', '/fr/about', '/en/legal-notice'])(
     '%s exists in each language',
     (path) => {
       // Act
@@ -53,12 +72,13 @@ describe('isTranslatedPath', () => {
 
 describe('localizedPath', () => {
   it.each([
+    ['/', 'fr', '/fr'],
     ['/', 'en', '/en'],
+    ['/products/clothing', 'fr', '/fr/products/clothing'],
     ['/products/clothing', 'en', '/en/products/clothing'],
-    ['/en/products/clothing', 'en', '/en/products/clothing'],
-    ['/en/products/clothing', 'fr', '/products/clothing'],
-    ['/en', 'fr', '/'],
-    ['/about', 'fr', '/about'],
+    ['/en/products/clothing', 'fr', '/fr/products/clothing'],
+    ['/fr/about', 'en', '/en/about'],
+    ['/en', 'fr', '/fr'],
   ] as const)('%s in %s is %s', (path, language, localized) => {
     // Act
     const found = localizedPath(path, language);

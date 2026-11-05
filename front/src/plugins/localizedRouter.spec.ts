@@ -9,7 +9,7 @@ function routerSpeaking(language: ShopLanguage) {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
-      { path: '/about', component: Page },
+      { path: '/fr/about', component: Page },
       { path: '/en/about', component: Page },
       { path: '/cart', component: Page },
     ],

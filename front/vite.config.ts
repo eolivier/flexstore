@@ -28,7 +28,7 @@ async function productPages(): Promise<SitemapPage[]> {
       const englishProduct = englishProducts.find((product) => product.id === frenchProduct.id);
       return {
         paths: {
-          fr: productPath(frenchProduct),
+          fr: localizedPath(productPath(frenchProduct), 'fr'),
           en: localizedPath(productPath(englishProduct ?? frenchProduct), 'en'),
         },
       };
@@ -69,6 +69,8 @@ export default defineConfig({
   // vite-ssg pre-renders the public pages (the routes that say indexed) when the app is built
   ssgOptions: {
     script: 'async',
+    // One page at a time: the language of the application is shared, the page being rendered sets it
+    concurrency: 1,
     formatting: 'none',
     async includedRoutes(_paths, routes) {
       const staticPages = routes

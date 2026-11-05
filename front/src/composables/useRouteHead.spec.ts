@@ -57,9 +57,9 @@ describe('useRouteHead', () => {
       link.getAttribute('href'),
     ]);
     expect(alternates).toEqual([
-      ['fr', `${window.location.origin}/about`],
+      ['fr', `${window.location.origin}/fr/about`],
       ['en', `${window.location.origin}/en/about`],
-      ['x-default', `${window.location.origin}/about`],
+      ['x-default', `${window.location.origin}/fr/about`],
     ]);
   });
 

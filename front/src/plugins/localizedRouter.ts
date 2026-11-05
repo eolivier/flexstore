@@ -1,9 +1,9 @@
 import type { RouteLocationRaw, Router } from 'vue-router';
-import { languageOfPath, localizedPath, MAIN_LANGUAGE, type ShopLanguage } from '@/utils/language';
+import { hasLanguagePrefix, localizedPath, type ShopLanguage } from '@/utils/language';
 
-// An address that already says its language (/en/about) is the one asked for: only the others are prefixed
+// An address that already says its language (/en/about) is the one asked for: only the others get a prefix
 function localizedUnlessPrefixed(path: string, language: ShopLanguage): string {
-  return languageOfPath(path) === MAIN_LANGUAGE ? localizedPath(path, language) : path;
+  return hasLanguagePrefix(path) ? path : localizedPath(path, language);
 }
 
 // An address given as a path (a string, or an object with a path): the translated pages get the prefix of the
