@@ -28,7 +28,7 @@ class PostgresSellerRepositoryAdapter(private val jpaRepo: JpaSellerRepository) 
 
     override fun save(seller: Seller) {
         val nextVersion = jpaRepo.findFirstByOrderByVersionDesc().version + 1
-        val (contact, identifier, reach, incorporation) = seller.detail
+        val (contact, identifier, reach, incorporation, socialNetworks) = seller.detail
         val sellerEntity = SellerEntity(
             seller.id.value.value,
             nextVersion,
@@ -41,7 +41,13 @@ class PostgresSellerRepositoryAdapter(private val jpaRepo: JpaSellerRepository) 
             reach.website.value.ifEmpty { null },
             incorporation.legalForm.value.ifEmpty { null },
             incorporation.shareCapital.value.ifEmpty { null },
-            incorporation.registryCity.value.ifEmpty { null }
+            incorporation.registryCity.value.ifEmpty { null },
+            socialNetworks.urlOf(SocialNetwork.FACEBOOK).value.ifEmpty { null },
+            socialNetworks.urlOf(SocialNetwork.INSTAGRAM).value.ifEmpty { null },
+            socialNetworks.urlOf(SocialNetwork.X).value.ifEmpty { null },
+            socialNetworks.urlOf(SocialNetwork.TIKTOK).value.ifEmpty { null },
+            socialNetworks.urlOf(SocialNetwork.YOUTUBE).value.ifEmpty { null },
+            socialNetworks.urlOf(SocialNetwork.TWITCH).value.ifEmpty { null }
         )
         jpaRepo.save(sellerEntity)
     }
@@ -57,6 +63,17 @@ class PostgresSellerRepositoryAdapter(private val jpaRepo: JpaSellerRepository) 
             ShareCapital(shareCapital.orEmpty()),
             RegistryCity(registryCity.orEmpty())
         )
-        return Seller(SellerId(Identity(id)), SellerDetail(contact, identifier, reach, incorporation))
+        val socialNetworks = SocialNetworks.of(
+            mapOf(
+                SocialNetwork.FACEBOOK to SocialNetworkUrl(facebookUrl.orEmpty()),
+                SocialNetwork.INSTAGRAM to SocialNetworkUrl(instagramUrl.orEmpty()),
+                SocialNetwork.X to SocialNetworkUrl(xUrl.orEmpty()),
+                SocialNetwork.TIKTOK to SocialNetworkUrl(tiktokUrl.orEmpty()),
+                SocialNetwork.YOUTUBE to SocialNetworkUrl(youtubeUrl.orEmpty()),
+                SocialNetwork.TWITCH to SocialNetworkUrl(twitchUrl.orEmpty())
+            )
+        )
+        val sellerDetail = SellerDetail(contact, identifier, reach, incorporation, socialNetworks)
+        return Seller(SellerId(Identity(id)), sellerDetail)
     }
 }

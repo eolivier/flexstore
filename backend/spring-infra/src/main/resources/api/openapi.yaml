@@ -1216,6 +1216,19 @@ paths:
           description: A name or an address missing, a SIRET or a VAT number malformed; the setup stays to be done
         "403":
           description: Not an administrator
+  /api/social-networks:
+    get:
+      tags:
+      - Seller
+      summary: Retrieve the accounts of the shop on the social networks; empty where it has none (public)
+      operationId: getSocialNetworks
+      responses:
+        "200":
+          description: The accounts of the shop on the social networks
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonSocialNetworks"
   /api/legal-pages/{kind}:
     get:
       tags:
@@ -2085,6 +2098,38 @@ components:
           type: string
           description: The city of the trade and companies register (RCS); empty in the versions written before it was asked
           example: Paris
+        socialNetworks:
+          $ref: "#/components/schemas/JsonSocialNetworks"
+          description: Always given when read; when written, omitted or missing networks stay empty
+    JsonSocialNetworks:
+      type: object
+      description: The accounts of the shop on the social networks, as web addresses with or without their scheme; empty where the shop has none
+      required:
+        - facebook
+        - instagram
+        - x
+        - tiktok
+        - youtube
+        - twitch
+      properties:
+        facebook:
+          type: string
+          example: https://www.facebook.com/flexstore
+        instagram:
+          type: string
+          example: https://www.instagram.com/flexstore
+        x:
+          type: string
+          example: https://x.com/flexstore
+        tiktok:
+          type: string
+          example: https://www.tiktok.com/@flexstore
+        youtube:
+          type: string
+          example: https://www.youtube.com/@flexstore
+        twitch:
+          type: string
+          example: https://www.twitch.tv/flexstore
     JsonUser:
       type: object
       properties:

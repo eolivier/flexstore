@@ -20,6 +20,14 @@ const flexstore = {
   legalForm: 'SAS',
   shareCapital: '10 000',
   registryCity: 'Paris',
+  socialNetworks: {
+    facebook: 'https://www.facebook.com/flexstore',
+    instagram: '',
+    x: '',
+    tiktok: '',
+    youtube: '',
+    twitch: 'twitch.tv/flexstore',
+  },
 };
 const enabledSettings = {
   orderConfirmationEmail: 'ENABLED',
@@ -37,6 +45,11 @@ async function mountWizard() {
 
 const buttonLabelled = (wrapper: Awaited<ReturnType<typeof mountWizard>>, label: string) =>
   wrapper.findAll('button').find((button) => button.text() === label);
+
+// The steps already visited stay in the page: the inputs of the social networks are the last ones
+const SOCIAL_NETWORK_COUNT = 6;
+const socialNetworkInputs = (wrapper: Awaited<ReturnType<typeof mountWizard>>) =>
+  wrapper.findAll('input').slice(-SOCIAL_NETWORK_COUNT);
 
 describe('SellerSetupWizard.vue', () => {
   beforeEach(() => {
@@ -62,9 +75,34 @@ describe('SellerSetupWizard.vue', () => {
     expect(buttonLabelled(wrapper, 'Next')?.attributes('disabled')).toBeDefined();
   });
 
+  it('asks the social networks on the step after the contact, filled with the current ones', async () => {
+    // Arrange
+    const wrapper = await mountWizard();
+    // Act
+    await buttonLabelled(wrapper, 'Next')?.trigger('click');
+    await buttonLabelled(wrapper, 'Next')?.trigger('click');
+    await buttonLabelled(wrapper, 'Next')?.trigger('click');
+    // Assert
+    const values = socialNetworkInputs(wrapper).map((input) => (input.element as HTMLInputElement).value);
+    expect(values).toEqual(Object.values(flexstore.socialNetworks));
+  });
+
+  it('cannot go past the social networks while an address is not a web address', async () => {
+    // Arrange
+    const wrapper = await mountWizard();
+    await buttonLabelled(wrapper, 'Next')?.trigger('click');
+    await buttonLabelled(wrapper, 'Next')?.trigger('click');
+    await buttonLabelled(wrapper, 'Next')?.trigger('click');
+    // Act
+    await socialNetworkInputs(wrapper)[0].setValue('facebook');
+    // Assert
+    expect(buttonLabelled(wrapper, 'Next')?.attributes('disabled')).toBeDefined();
+  });
+
   it('finishing the setup saves the seller through the setup assistant, then opens the administration', async () => {
     // Arrange
     const wrapper = await mountWizard();
+    await buttonLabelled(wrapper, 'Next')?.trigger('click');
     await buttonLabelled(wrapper, 'Next')?.trigger('click');
     await buttonLabelled(wrapper, 'Next')?.trigger('click');
     await buttonLabelled(wrapper, 'Next')?.trigger('click');
@@ -81,6 +119,7 @@ describe('SellerSetupWizard.vue', () => {
   it('stays on the assistant when the shop refuses the seller', async () => {
     // Arrange
     const wrapper = await mountWizard();
+    await buttonLabelled(wrapper, 'Next')?.trigger('click');
     await buttonLabelled(wrapper, 'Next')?.trigger('click');
     await buttonLabelled(wrapper, 'Next')?.trigger('click');
     await buttonLabelled(wrapper, 'Next')?.trigger('click');

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { isStepComplete, type SellerSetupStep } from './sellerSetupSteps';
 import type { Seller } from '@/stores/seller.store';
+import { noSocialNetworkUrls } from '@/utils/socialNetworks';
 
 const flexstore: Seller = {
   name: 'Flexstore SAS',
@@ -13,10 +14,18 @@ const flexstore: Seller = {
   legalForm: 'SAS',
   shareCapital: '10 000',
   registryCity: 'Paris',
+  socialNetworks: {
+    facebook: 'https://www.facebook.com/flexstore',
+    instagram: '',
+    x: '',
+    tiktok: '',
+    youtube: '',
+    twitch: 'twitch.tv/flexstore',
+  },
 };
 
 describe('isStepComplete', () => {
-  it.each(['identity', 'registration', 'contact', 'summary'] as SellerSetupStep[])(
+  it.each(['identity', 'registration', 'contact', 'socialNetworks', 'summary'] as SellerSetupStep[])(
     'the %s step is complete for a well written seller',
     (step) => {
       // Act
@@ -44,6 +53,27 @@ describe('isStepComplete', () => {
       const seller = { ...flexstore, [field]: value };
       // Act
       const complete = isStepComplete(step, seller);
+      // Assert
+      expect(complete).toBe(false);
+    }
+  );
+
+  it('the social networks step is complete when none is given', () => {
+    // Arrange
+    const seller = { ...flexstore, socialNetworks: noSocialNetworkUrls() };
+    // Act
+    const complete = isStepComplete('socialNetworks', seller);
+    // Assert
+    expect(complete).toBe(true);
+  });
+
+  it.each(['facebook', 'https://', 'face book.com'])(
+    'the social networks step is incomplete with the address "%s"',
+    (address) => {
+      // Arrange
+      const seller = { ...flexstore, socialNetworks: { ...flexstore.socialNetworks, tiktok: address } };
+      // Act
+      const complete = isStepComplete('socialNetworks', seller);
       // Assert
       expect(complete).toBe(false);
     }

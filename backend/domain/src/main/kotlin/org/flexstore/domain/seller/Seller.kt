@@ -106,6 +106,40 @@ data class SellerIncorporation(
     }
 }
 
+// The social networks where the shop has an account
+enum class SocialNetwork { FACEBOOK, INSTAGRAM, X, TIKTOK, YOUTUBE, TWITCH }
+
+// The web address of the account of the shop on a social network, with or without its scheme; empty when the
+// shop has no account there
+data class SocialNetworkUrl(val value: String) {
+    fun isGiven() = value.isNotBlank()
+
+    fun isNotGiven() = value.isBlank()
+
+    fun isValid() = isNotGiven() || WEBSITE.matches(value)
+}
+
+// The accounts of the shop on the social networks: each one is given or not. The versions of the seller written
+// before they were asked have none
+data class SocialNetworks private constructor(private val urls: Map<SocialNetwork, SocialNetworkUrl>) {
+    fun urlOf(socialNetwork: SocialNetwork) = urls.getValue(socialNetwork)
+
+    fun isValid() = SocialNetwork.entries.all { socialNetwork -> urlOf(socialNetwork).isValid() }
+
+    fun isInvalid() = !isValid()
+
+    companion object {
+        // A network missing from the given addresses has none
+        fun of(givenUrls: Map<SocialNetwork, SocialNetworkUrl>) = SocialNetworks(
+            SocialNetwork.entries.associateWith { socialNetwork ->
+                givenUrls[socialNetwork] ?: SocialNetworkUrl("")
+            }
+        )
+
+        fun none() = of(emptyMap())
+    }
+}
+
 // Who the seller is and where it is
 data class SellerContact(val name: SellerName, val address: SellerAddress) {
     fun isComplete() = name.isGiven() && address.isGiven()
@@ -120,20 +154,32 @@ data class SellerIdentifier(val siret: Siret, val vatNumber: SellerVatNumber) {
     fun isInvalid() = !isValid()
 }
 
-// What the administrators write about the seller: who it is, how it is registered, how to reach it, and how it
-// is incorporated
+// What the administrators write about the seller: who it is, how it is registered, how to reach it, how it is
+// incorporated, and where its social networks are
 data class SellerDetail(
     val contact: SellerContact,
     val identifier: SellerIdentifier,
     val reach: SellerReach,
-    val incorporation: SellerIncorporation
-)
+    val incorporation: SellerIncorporation,
+    val socialNetworks: SocialNetworks
+) {
+    // A seller without social networks
+    constructor(
+        contact: SellerContact,
+        identifier: SellerIdentifier,
+        reach: SellerReach,
+        incorporation: SellerIncorporation
+    ) : this(contact, identifier, reach, incorporation, SocialNetworks.none())
+}
 
 // The shop that sells, as written on its invoices, in one of its versions
 data class Seller(val id: SellerId, val detail: SellerDetail)
 
 // An administrator who gives a new version of the seller
 data class SellerUpdate(val editor: UserId, val seller: Seller)
+
+// Anyone who reads the social networks of the current seller
+data object SocialNetworksReading
 
 // An administrator who reads the current seller
 data class SellerReading(val reader: UserId)

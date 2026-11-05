@@ -63,6 +63,7 @@ docs/JsonSeller.md
 docs/JsonShippingOption.md
 docs/JsonShippingOptions.md
 docs/JsonSkuProposal.md
+docs/JsonSocialNetworks.md
 docs/JsonStock.md
 docs/JsonStockAlert.md
 docs/JsonStockQuantity.md
@@ -79,6 +80,7 @@ docs/PaymentsApi.md
 docs/ProductImagesApi.md
 docs/ProductsApi.md
 docs/ReviewsApi.md
+docs/SellerApi.md
 docs/StocksApi.md
 docs/UsersApi.md
 docs/WishlistApi.md

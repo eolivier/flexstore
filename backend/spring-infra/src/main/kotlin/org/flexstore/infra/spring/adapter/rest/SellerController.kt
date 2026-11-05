@@ -5,11 +5,23 @@ import org.flexstore.domain.seller.usecase.SellerUseCases
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.infra.spring.adapter.rest.json.JsonSeller
+import org.flexstore.infra.spring.adapter.rest.json.JsonSocialNetworks
 import org.springframework.web.bind.annotation.*
 import org.flexstore.domain.user.model.UserId
 import org.flexstore.domain.user.model.of
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
+
+// The accounts of the shop on the social networks, read by everyone (its footer shows them)
+@Tag(name = "Seller")
+@RestController
+@RequestMapping("/api/social-networks")
+class SocialNetworksController(private val sellerUseCases: SellerUseCases) {
+
+    @Operation(summary = "Retrieve the accounts of the shop on the social networks; empty where it has none")
+    @GetMapping
+    fun getSocialNetworks() = JsonSocialNetworks(sellerUseCases.socialNetworks())
+}
 
 // The seller written on the invoices, for the administrators (ADMIN role, see SecurityConfig, checked again by
 // the use cases)

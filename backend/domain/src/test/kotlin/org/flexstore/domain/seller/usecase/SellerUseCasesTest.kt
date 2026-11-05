@@ -15,7 +15,9 @@ class SellerUseCasesTest : WithAssertions {
     private val userRepository = usersOfTheAdministration()
     private val readCurrentSellerUseCase = ReadCurrentSellerUseCase(sellerRepository, userRepository)
     private val updateSellerUseCase = UpdateSellerUseCase(sellerRepository, userRepository)
-    private val sellerUseCases = SellerUseCases(readCurrentSellerUseCase, updateSellerUseCase)
+    private val readSocialNetworksUseCase = ReadSocialNetworksUseCase(sellerRepository)
+    private val sellerUseCases =
+        SellerUseCases(readCurrentSellerUseCase, updateSellerUseCase, readSocialNetworksUseCase)
     private val administrator = testAdministrator.id
     private val contact = testSellerDetail.contact
     private val identifier = testSellerDetail.identifier
@@ -158,6 +160,45 @@ class SellerUseCasesTest : WithAssertions {
         }
         // Assert
         assertThat(thrown).isInstanceOf(InvalidSellerException::class.java)
+    }
+
+    @ParameterizedTest(name = "the address \"{0}\" of a social network is refused")
+    @ValueSource(strings = ["facebook", "https://", "face book.com/flexstore", "www."])
+    fun `a social network that is not a web address should be refused`(address: String) {
+        // Arrange
+        val socialNetworks = SocialNetworks.of(mapOf(SocialNetwork.FACEBOOK to SocialNetworkUrl(address)))
+        // Act
+        val thrown = catchThrowable {
+            sellerUseCases.update(administrator, testSellerDetail.copy(socialNetworks = socialNetworks))
+        }
+        // Assert
+        assertThat(thrown).isInstanceOf(InvalidSellerException::class.java)
+        assertThat(sellerRepository.current()).isEqualTo(testSeller)
+    }
+
+    @ParameterizedTest(name = "the address \"{0}\" of a social network is accepted")
+    @ValueSource(strings = ["https://www.facebook.com/flexstore", "www.facebook.com/flexstore", ""])
+    fun `a social network given as a web address, or not given, should be saved`(address: String) {
+        // Arrange
+        val socialNetworks = SocialNetworks.of(mapOf(SocialNetwork.FACEBOOK to SocialNetworkUrl(address)))
+        // Act
+        val updatedSeller =
+            sellerUseCases.update(administrator, testSellerDetail.copy(socialNetworks = socialNetworks))
+        // Assert
+        assertThat(updatedSeller.detail.socialNetworks).isEqualTo(socialNetworks)
+    }
+
+    @Test
+    fun `everyone should read the social networks of the current seller`() {
+        // Arrange
+        val instagramUrl = SocialNetworkUrl("https://www.instagram.com/flexstore")
+        val socialNetworks = SocialNetworks.of(mapOf(SocialNetwork.INSTAGRAM to instagramUrl))
+        sellerUseCases.update(administrator, testSellerDetail.copy(socialNetworks = socialNetworks))
+        // Act
+        val readSocialNetworks = sellerUseCases.socialNetworks()
+        // Assert
+        assertThat(readSocialNetworks.urlOf(SocialNetwork.INSTAGRAM)).isEqualTo(instagramUrl)
+        assertThat(readSocialNetworks.urlOf(SocialNetwork.TWITCH).isNotGiven()).isTrue()
     }
 
     @Test
