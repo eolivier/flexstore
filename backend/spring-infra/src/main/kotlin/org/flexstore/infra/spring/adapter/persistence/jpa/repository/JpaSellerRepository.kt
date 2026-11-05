@@ -3,6 +3,9 @@ package org.flexstore.infra.spring.adapter.persistence.jpa.repository
 import org.flexstore.domain.seller.*
 import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.SellerEntity
+import org.flexstore.infra.spring.config.SELLERS_CACHE
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
@@ -14,18 +17,22 @@ interface JpaSellerRepository : JpaRepository<SellerEntity, String> {
 }
 
 // The versions of the seller, kept in PostgreSQL: the first one is created by the migrations, each saved seller
-// takes the next version number
+// takes the next version number. The reads are cached; a save evicts every entry, since it changes the current
+// seller
 @Repository
 @Transactional
 class PostgresSellerRepositoryAdapter(private val jpaRepo: JpaSellerRepository) : SellerRepository {
 
+    @Cacheable(SELLERS_CACHE, key = "'current'")
     @Transactional(readOnly = true)
     override fun current(): Seller = jpaRepo.findFirstByOrderByVersionDesc().toDomain()
 
+    @Cacheable(SELLERS_CACHE, key = "#p0.value.value")
     @Transactional(readOnly = true)
     override fun findBy(sellerId: SellerId): Seller? =
         jpaRepo.findById(sellerId.value.value).orElse(null)?.toDomain()
 
+    @CacheEvict(SELLERS_CACHE, allEntries = true)
     override fun save(seller: Seller) {
         val nextVersion = jpaRepo.findFirstByOrderByVersionDesc().version + 1
         val (contact, identifier, reach, incorporation, socialNetworks) = seller.detail
