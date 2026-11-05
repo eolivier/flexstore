@@ -13,7 +13,7 @@ describe('routes', () => {
 
   it('has each public page in French and in English, under the prefix of its language', () => {
     expect(indexedPaths()).toEqual(
-      expect.arrayContaining(['/fr', '/en', '/fr/products', '/en/products/:id/:slug?', '/fr/about'])
+      expect.arrayContaining(['/fr', '/en', '/fr/produits', '/en/products/:id/:slug?', '/fr/a-propos', '/fr/produits/:id/:slug?'])
     );
   });
 

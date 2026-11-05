@@ -126,7 +126,7 @@ describe('ProductDetail.vue', () => {
     await flushPromises();
     // Assert
     await vi.waitFor(() =>
-      expect(productRouter.currentRoute.value.path).toBe('/fr/products/t-shirt/organic-t-shirt')
+      expect(productRouter.currentRoute.value.path).toBe('/fr/produits/t-shirt/organic-t-shirt')
     );
   });
 });

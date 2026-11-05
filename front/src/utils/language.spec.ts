@@ -38,7 +38,9 @@ describe('withoutLanguage', () => {
     ['/en', '/'],
     ['/fr', '/'],
     ['/en/about', '/about'],
-    ['/fr/products/clothing', '/products/clothing'],
+    ['/fr/produits/vetements', '/products/clothing'],
+    ['/fr/produits/12/t-shirt-vetements', '/products/12/t-shirt-vetements'],
+    ['/fr/a-propos', '/about'],
     ['/about', '/about'],
   ])('%s becomes %s', (path, unprefixed) => {
     // Act
@@ -74,10 +76,16 @@ describe('localizedPath', () => {
   it.each([
     ['/', 'fr', '/fr'],
     ['/', 'en', '/en'],
-    ['/products/clothing', 'fr', '/fr/products/clothing'],
+    ['/products/clothing', 'fr', '/fr/produits/vetements'],
+    ['/products/electronics', 'fr', '/fr/produits/electronique'],
+    ['/products/accessories', 'fr', '/fr/produits/accessoires'],
     ['/products/clothing', 'en', '/en/products/clothing'],
-    ['/en/products/clothing', 'fr', '/fr/products/clothing'],
-    ['/fr/about', 'en', '/en/about'],
+    ['/products/12/jeans-slim', 'fr', '/fr/produits/12/jeans-slim'],
+    ['/en/products/clothing', 'fr', '/fr/produits/vetements'],
+    ['/fr/a-propos', 'en', '/en/about'],
+    ['/about', 'fr', '/fr/a-propos'],
+    ['/legal-notice', 'fr', '/fr/mentions-legales'],
+    ['/terms-of-sale', 'fr', '/fr/conditions-generales-de-vente'],
     ['/en', 'fr', '/fr'],
   ] as const)('%s in %s is %s', (path, language, localized) => {
     // Act
