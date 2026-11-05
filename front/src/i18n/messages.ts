@@ -142,6 +142,10 @@ export default {
             text: 'Create and edit products, with their translations and their images.',
           },
           orders: { title: 'Orders', text: 'Track every customer order and update its status.' },
+          productPromotions: {
+            title: 'Product promotions',
+            text: 'Put a product on sale with a percentage off between two dates: the regular price is shown struck through.',
+          },
           discountCodes: { title: 'Discount codes', text: 'Create promotional codes for your customers.' },
           seller: { title: 'Seller information', text: 'Set the identity of the shop shown on invoices.' },
           legalPages: { title: 'Legal pages', text: 'Edit the legal notice and the terms of sale.' },
@@ -1065,6 +1069,10 @@ export default {
           orders: {
             title: 'Commandes',
             text: 'Suivez toutes les commandes des clients et mettez à jour leur statut.',
+          },
+          productPromotions: {
+            title: 'Promotions par produit',
+            text: 'Mettez un produit en promotion avec un pourcentage de remise entre deux dates : l’ancien prix est affiché barré.',
           },
           discountCodes: {
             title: 'Codes de réduction',
