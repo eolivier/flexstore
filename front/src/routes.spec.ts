@@ -12,6 +12,6 @@ describe('routes', () => {
   it('lists the home page, the catalog and the product pages', () => {
     const indexedPaths = routes.filter((route) => route.meta?.indexed).map((route) => route.path);
 
-    expect(indexedPaths).toEqual(expect.arrayContaining(['/', '/products/', '/products/:id']));
+    expect(indexedPaths).toEqual(expect.arrayContaining(['/', '/products/', '/products/:id/:slug?']));
   });
 });

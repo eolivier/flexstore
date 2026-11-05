@@ -70,7 +70,12 @@ export const routes: RouteRecordRaw[] = [
     props: { category: 'ELECTRONICS' },
     meta: { indexed: true },
   },
-  { path: '/products/:id', component: ProductDetail, props: true, meta: { indexed: true } },
+  {
+    path: '/products/:id/:slug?',
+    component: ProductDetail,
+    props: (route) => ({ id: route.params.id }),
+    meta: { indexed: true },
+  },
   { path: '/login', component: Login },
   { path: '/sign-up', component: SignUp },
   { path: '/verify-email', component: VerifyEmail },

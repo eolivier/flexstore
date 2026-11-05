@@ -3,16 +3,23 @@ import { defineConfig } from 'vitest/config';
 import vue from '@vitejs/plugin-vue';
 import vuetify from 'vite-plugin-vuetify';
 import { resolve } from 'path';
+import { productPath } from './src/utils/productSlug';
+
+// The language of the pre-rendered pages: the default one of the shop, the one of the slugs of the products
+const PRERENDER_LANGUAGE = 'fr';
 
 // The addresses of the products, to pre-render their pages: read from the API at build time. The build goes on
 // with the other pages when the API does not answer (the product pages are then rendered by the browser only)
 async function productPaths(): Promise<string[]> {
   const apiUrl = process.env.VITE_API_URL || 'http://localhost:8080';
   try {
-    const response = await fetch(`${apiUrl}/api/products/`, { signal: AbortSignal.timeout(60_000) });
+    const response = await fetch(`${apiUrl}/api/products/`, {
+      headers: { 'Accept-Language': PRERENDER_LANGUAGE },
+      signal: AbortSignal.timeout(60_000),
+    });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const products = (await response.json()) as { id: string }[];
-    return products.map((product) => `/products/${encodeURIComponent(product.id)}`);
+    const products = (await response.json()) as { id: string; name: string }[];
+    return products.map((product) => productPath(product));
   } catch (error) {
     console.warn(`[prerender] products not read from ${apiUrl}, their pages are not pre-rendered:`, error);
     return [];

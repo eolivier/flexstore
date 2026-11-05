@@ -2,6 +2,7 @@
   import { useI18n } from 'vue-i18n';
   import type { JsonOrder } from '@/generated';
   import { formatPrice } from '@/utils/price';
+  import { productPath } from '@/utils/productSlug';
 
   defineProps<{ order: JsonOrder }>();
 
@@ -23,7 +24,7 @@
         <tr v-for="line in order.lines" :key="line.productId">
           <td>
             <router-link
-              :to="`/products/${line.productId}`"
+              :to="productPath({ id: line.productId, name: line.productName })"
               class="product-link text-high-emphasis font-weight-medium"
             >
               {{ line.productName }}
