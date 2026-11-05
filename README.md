@@ -258,6 +258,10 @@ public like the catalog: it only gives the products).
 
 It is on by default; `FLEXSTORE_MCP_ENABLED=false` (property `flexstore.mcp.enabled`) turns it off.
 
+Current limits: the server is read-only, the products are public, there is no session and no server stream, and it
+does not use the MCP SDK. Moving to the SDK would first require upgrading Spring Boot: the transport of the Java SDK
+needs Spring 6.2, and the application runs on Spring 6.1.
+
 ```bash
 claude mcp add --transport http flexstore http://localhost:8080/mcp
 ```
