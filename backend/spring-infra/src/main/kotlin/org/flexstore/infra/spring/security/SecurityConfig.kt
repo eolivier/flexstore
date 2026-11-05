@@ -68,6 +68,8 @@ open class SecurityConfig(@Value("\${flexstore.security.jwt-secret:}") private v
             .authorizeHttpRequests {
                 it
                     .requestMatchers("/error", "/actuator/**").permitAll()
+                    // The MCP server only gives the public products, like GET /api/products
+                    .requestMatchers("/mcp").permitAll()
                     // Whether the signed-in customer may review a product, before the public reading
                     .requestMatchers(HttpMethod.GET, "/api/products/{id}/review-eligibility").authenticated()
                     .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
