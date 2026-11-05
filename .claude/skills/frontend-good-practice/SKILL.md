@@ -1,6 +1,6 @@
 ---
 name: frontend-good-practice
-description: Good practices for the front end (Vue components, pages, stores, composables) - composition and fine-grained components to keep each component short. Use before creating, changing or reviewing a front-end component or page.
+description: Good practices for the front end (Vue components, pages, stores, composables) - composition and fine-grained components to keep each component short, homogeneous UX choices across the application (same pattern for the same interaction). Use before creating, changing or reviewing a front-end component or page.
 ---
 
 # Front-end good practices
@@ -41,3 +41,20 @@ Details:
 - **Group components by feature** (`components/orders/`, `components/cart/`, `components/products/`), next to the components they compose.
 - Scoped styles follow the component that uses them: extracting a component also moves its styles, which keeps each style block short.
 - Test the extracted components on their own (props in, rendered output and events out), and the logic of the utility modules with plain unit tests.
+
+## 2. Keep the UX choices homogeneous
+
+The same interaction is built the same way everywhere in the application. A user who has learned how one screen works must find the same behaviour on the others.
+
+Rules:
+- **Same container for the same action**: if a user is edited in a modal dialog, a product is edited in a modal dialog too (not in a page, a drawer or inline). The same goes for creation, deletion confirmation, details, and so on.
+- **Same buttons, same order, same wording**: if a form has a "Save" and a "Cancel" button, every form has them, in the same place and the same order, with the same labels (through the shared i18n keys), the same colours and the same variants.
+- **Same behaviour after an action**: if the modal closes when the form is saved, it closes everywhere; if the list is refreshed, a success message is displayed or the error is shown in the form after a save, it is done the same way everywhere. Cancel, the close icon and the Escape key behave the same way too.
+- **Same feedback**: loading states, validation errors, empty states, success and error messages follow one pattern.
+
+How to apply:
+- **Before building a screen**, look at how the existing screens handle the same interaction (an edit, a creation, a deletion, a list, a filter) and reproduce it. Do not invent a new pattern.
+- **Share rather than copy**: when two screens do the same thing, extract the shared piece (a generic `EditDialog`, a `FormActions` component with Save and Cancel, a composable for the save-then-close flow) so that the homogeneity is guaranteed by the code, not by discipline.
+- **When a screen differs from the others**, point it out in the review and align it (in its own refactoring pull request when you are not already changing it).
+
+Exceptions: an exception is allowed when following the common pattern would harm the user experience (e.g. a long form of many fields that does not fit in a modal, a multi-step editing flow, an action that must stay visible while the user scrolls, an inline edit of a single value). The exception stays rare, is deliberate and consistent with the other screens of the same kind, and is written in the description of the pull request under "Choices to validate" with the reason.
