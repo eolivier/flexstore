@@ -35,4 +35,7 @@ Do not read `front/src/generated/` (generated from
   **new**, which are **still open**, and which are **fixed** since then.
 - Create the issue with `gh issue create --label daily-audit --title "Daily audit <YYYY-MM-DD>"`, then close
   the previous open `daily-audit` issues with a comment linking to the new one.
+- Never create more than 5 issues per day, the report included: one issue is the norm (the report with all the
+  findings), never one issue per finding. Run `gh issue list --label daily-audit --state all` first and count
+  the ones created today.
 - Write in English. Never put a secret value in the report: name where it is, not what it is.
