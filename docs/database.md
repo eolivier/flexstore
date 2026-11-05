@@ -1,6 +1,6 @@
 # Physical data model
 
-The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V51**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
+The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V52**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
 
 ![Physical data model](database.png)
 
@@ -36,15 +36,6 @@ erDiagram
         updated_at timestamp
     }
 
-    email_verification {
-        id varchar(50) PK
-        token_hash varchar(64) UK "SHA-256 of the token of the link"
-        user_id varchar(50) FK "a user may have several links over time"
-        expires_at timestamptz
-        created_at timestamp
-        updated_at timestamp
-    }
-
     failed_sign_in {
         id varchar(50) PK
         user_id varchar(50) FK,UK "at most one row per account, only while the count is above 0"
@@ -53,10 +44,11 @@ erDiagram
         updated_at timestamp
     }
 
-    password_reset {
+    user_token {
         id varchar(50) PK
+        type varchar(30) "EMAIL_VERIFICATION or PASSWORD_RESET"
         token_hash varchar(64) UK "SHA-256 of the token of the link"
-        user_id varchar(50) FK,UK "only the last link asked"
+        user_id varchar(50) FK "several verification links over time, only the last password reset link"
         expires_at timestamptz
         created_at timestamp
         updated_at timestamp
@@ -334,9 +326,8 @@ erDiagram
         updated_at timestamp
     }
 
-    user ||--o{ email_verification : "user_id (cascade)"
+    user ||--o{ user_token : "user_id (cascade)"
     user ||--o| customer_company : "user_id (cascade)"
-    user ||--o| password_reset : "user_id (cascade)"
     user ||--o| cookie_consent : "user_id (cascade)"
     user ||--o| failed_sign_in : "user_id (cascade)"
     user ||--o{ refresh_session : "user_id (cascade)"

@@ -107,7 +107,7 @@ class PasswordResetIT {
         // Arrange
         requestReset(CUSTOMER_EMAIL).andExpect(status().isNoContent)
         val customerId = userRepository.findByEmail(CUSTOMER_EMAIL)!!.id
-        val expireLink = "UPDATE password_reset SET expires_at = now() - interval '1 second' WHERE user_id = ?"
+        val expireLink = "UPDATE user_token SET expires_at = now() - interval '1 second' WHERE user_id = ? AND type = 'PASSWORD_RESET'"
         jdbcTemplate.update(expireLink, customerId)
         // Act
         val response = reset(lastToken(), "new-password")
@@ -132,7 +132,7 @@ class PasswordResetIT {
         requestReset(CUSTOMER_EMAIL).andExpect(status().isNoContent)
         // Assert
         val customerId = userRepository.findByEmail(CUSTOMER_EMAIL)!!.id
-        val selectHashes = "SELECT token_hash FROM password_reset WHERE user_id = ?"
+        val selectHashes = "SELECT token_hash FROM user_token WHERE user_id = ? AND type = 'PASSWORD_RESET'"
         val storedHashes = jdbcTemplate.queryForList(selectHashes, String::class.java, customerId)
         assertThat(storedHashes).hasSize(1).doesNotContain(lastToken())
     }
