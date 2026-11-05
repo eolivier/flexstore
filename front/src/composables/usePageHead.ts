@@ -1,4 +1,5 @@
 import { useHead } from '@unhead/vue';
+import { useI18n } from 'vue-i18n';
 import { canonicalUrl, pageTitle, SITE_NAME } from '@/utils/seo';
 
 // What a page tells the search engines and the social networks about itself
@@ -13,11 +14,13 @@ export interface PageHead {
 
 // The head of the page follows the values the getter reads; the page that registers it last wins
 export function usePageHead(page: () => PageHead) {
+  const { locale } = useI18n();
   useHead(() => {
     const { title, description, path, indexed, imageUrl, structuredData } = page();
     const fullTitle = title === SITE_NAME ? title : pageTitle(title);
     const url = canonicalUrl(path);
     return {
+      htmlAttrs: { lang: locale.value },
       title: fullTitle,
       link: [{ rel: 'canonical', href: url }],
       meta: [

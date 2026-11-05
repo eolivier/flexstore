@@ -11,6 +11,8 @@ import 'vuetify/styles';
 import '@mdi/font/css/materialdesignicons.css';
 
 export default createVuetify({
+  // Rendered by Node when the pages are pre-rendered: no window to measure
+  ssr: import.meta.env.SSR,
   components,
   directives,
   locale: {

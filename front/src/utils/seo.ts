@@ -3,9 +3,11 @@ export const SITE_NAME = 'Flexstore';
 // The longest description that the search engines show in full
 const MAX_DESCRIPTION_LENGTH = 160;
 
-// The address of the shop, without the final slash: VITE_SITE_URL, or the one of the current page
+// The address of the shop, without the final slash: VITE_SITE_URL, or the one of the current page. Without
+// either (a build with no VITE_SITE_URL), the addresses stay relative to the page, which search engines accept
 export function siteUrl(): string {
-  const configured: string = import.meta.env.VITE_SITE_URL || window.location.origin;
+  const currentOrigin = typeof window === 'undefined' ? '' : window.location.origin;
+  const configured: string = import.meta.env.VITE_SITE_URL || currentOrigin;
   return configured.replace(/\/+$/, '');
 }
 

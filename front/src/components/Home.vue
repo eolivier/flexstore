@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { onMounted } from 'vue';
+  import { onMounted, onServerPrefetch } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useProductsStore } from '@/stores/products.store';
   import FeaturedProducts from '@/components/home/FeaturedProducts.vue';
@@ -7,6 +7,9 @@
 
   const { t } = useI18n();
   const productsStore = useProductsStore();
+
+  // Pre-rendering waits for the products: the page is then listed with them
+  onServerPrefetch(() => productsStore.fetchProducts());
 
   onMounted(() => {
     productsStore.fetchProducts();

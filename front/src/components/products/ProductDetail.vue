@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { computed, ref, watch } from 'vue';
+  import { computed, onServerPrefetch, ref, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useRoute } from 'vue-router';
   import type { Product } from '@/models/product';
@@ -64,7 +64,10 @@
 
   // Reload when navigating from one product to another (e.g. a similar product), or when the customer changes
   // the language: the product is loaded in it only
-  watch([() => props.id, locale], loadProduct, { immediate: true });
+  const firstLoad = loadProduct();
+  watch([() => props.id, locale], loadProduct);
+  // Pre-rendering waits for the product: the page is then listed with it
+  onServerPrefetch(() => firstLoad);
 
   if (productsStore.products.length === 0) {
     productsStore.fetchProducts();

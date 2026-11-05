@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { useProductImagesStore } from '@/stores/productImages.store';
   import { useStocksStore } from '@/stores/stocks.store';
-  import { computed, onMounted, ref } from 'vue';
+  import { computed, onMounted, onServerPrefetch, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useRoute, useRouter } from 'vue-router';
   import { useProductsStore } from '@/stores/products.store.ts';
@@ -74,6 +74,9 @@
       return (a.name ?? '').localeCompare(b.name ?? '');
     });
   });
+
+  // Pre-rendering waits for the products: the page is then listed with them
+  onServerPrefetch(() => productsStore.fetchProducts());
 
   onMounted(() => {
     productsStore.fetchProducts();
