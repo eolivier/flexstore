@@ -1,6 +1,6 @@
 ---
 name: domain-driven-design
-description: Domain-Driven Design and hexagonal architecture principles to follow when writing or reviewing back-end code - where business rules live, what entities, value objects and aggregates may reference (value objects rather than primitive types), the role of use cases, domain services, repositories and adapters, groups of use cases named after their sub-domain (OrderUseCases, not a facade), every use case implementing the UseCase interface of ucop (or QueryUseCase when it answers), methods of the domain model that expose neither a primitive type nor a raw collection, the current moment read from InstantProvider (never a clock member), every administration use case checking in its own precondition that its actor is an administrator, one use case (not two) for a journey that the customer concerned or an administrator may run. Use before creating or changing an entity, aggregate, value object, use case, domain service, port (repository interface) or infrastructure adapter, and when reviewing domain code.
+description: Domain-Driven Design and hexagonal architecture principles to follow when writing or reviewing back-end code - where business rules live, what entities, value objects and aggregates may reference (value objects rather than primitive types), the role of use cases, domain services, repositories and adapters, groups of use cases named after their sub-domain (OrderUseCases, not a facade), every use case implementing the UseCase interface of ucop (or QueryUseCase when it answers), methods of the domain model that expose neither a primitive type nor a raw collection, the current moment read from InstantProvider (never a clock member), every administration use case checking in its own precondition that its actor is an administrator, one use case (not two) for a journey that the customer concerned or an administrator may run, a precondition or postcondition taken out of its use case staying in the usecase package (in a sub-package from more than 3). Use before creating or changing an entity, aggregate, value object, use case, domain service, port (repository interface) or infrastructure adapter, and when reviewing domain code.
 ---
 
 # Domain-Driven Design
@@ -604,3 +604,26 @@ Details:
 - **The domain service or the group of use cases** offers one method for both (`invoiceService.invoice(reader, orderId)`), which the customer's and the administration's endpoints both call.
 - **A journey reserved to the administrators** (section 13) stays checked by its own administrator precondition; this section is for the journeys open to the customer concerned as well.
 - **The tests** check that an administrator and the customer concerned run it, and that another customer and an unknown user are refused.
+
+## 15. A precondition or postcondition taken out of its use case stays in the `usecase` package
+
+A precondition or a postcondition is first written as a private method of its use case (sections 10 and 13). When it is taken out into a class or a file of its own (because several use cases share it, or because it is too long), it stays in the `usecase` package of its functional package: it is part of the use case's scenario, so it never goes to `model`, `service`, `repository` nor a shared package outside `usecase`.
+
+From **more than 3** externalized conditions in the functional package, group them in a sub-package of `usecase` (`usecase/precondition` for the preconditions, `usecase/postcondition` for the postconditions) instead of leaving them next to the use cases. With 3 or fewer, they stay at the root of `usecase`; move them back up if the count falls to 3.
+
+Avoid:
+
+```
+domain/order/model/OrderIsPlaceableCondition.kt        (a condition in the model)
+domain/order/usecase/ (use cases + 5 externalized conditions mixed together)
+```
+
+Prefer:
+
+```
+domain/order/usecase/PlaceOrderUseCase.kt, ReadOrdersUseCase.kt...
+domain/order/usecase/precondition/CartIsNotEmptyPreCondition.kt, ...    (more than 3)
+domain/order/usecase/postcondition/OrderIsSavedPostCondition.kt, ...
+```
+
+Why: the conditions are read with the use cases that run them, and the dependency direction of section 4 is kept (`model` knows nothing of the use cases); a sub-package keeps the folder of the use cases readable once the conditions outnumber them.
