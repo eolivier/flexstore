@@ -1,6 +1,6 @@
 ---
 name: pull-request-convention
-description: How a pull request is made and kept - a branch from main targeting main (a dependent pull request included), every pull request rebased on main so that its diff only shows its own changes, pushed as soon as the unit tests are green, opened ready for review (never as a draft), its title (Conventional Commits: feat, fix, refactor, chore...) and description (written in English), independent pull requests and migration numbers, switching branches cleanly. Use before creating a branch, committing, pushing, opening or updating a pull request, and after each merge on main.
+description: How a pull request is made and kept - a branch from main targeting main (a dependent pull request included), every pull request rebased on main so that its diff only shows its own changes, pushed as soon as the unit tests are green, opened ready for review (never as a draft), its title (Conventional Commits: feat, fix, refactor, chore...) and description (written in English), independent pull requests and migration numbers, switching branches cleanly, comments handled right away with the oldest pull request first, every open pull request rebased after each merge. Use before creating a branch, committing, pushing, opening or updating a pull request, when a comment is added to a pull request, and after each merge on main.
 ---
 
 # Pull request convention
@@ -38,7 +38,7 @@ Why: the reviewer reads only what the pull request changes; a merge of `main`, o
 
 How to apply:
 - **Before opening a pull request**: start the branch from the current `main` (update it first), and rebase it again if `main` moved before the push.
-- **After each merge on `main`**: rebase every open pull request on the new `main`, adapt it to what changed (a renamed type, a new API), run all the tests again (unit, integration, lint, build), then push it: a pull request that was green alone can break `main` once another one is merged before it. Check the CI of `main` after the merge.
+- **After each merge on `main`**: rebase every open pull request on the new `main` (section 5 gives the order), adapt it to what changed (a renamed type, a new API), run all the tests again (unit, integration, lint, build), then push it: a pull request that was green alone can break `main` once another one is merged before it. Check the CI of `main` after the merge.
 - **A pull request that needs another one** (still open): it cannot show only its own changes until the other one is merged. Say in its description which pull request to merge first; as soon as that one is merged, rebase it on `main`, so that its diff only shows its own changes again.
 - **One commit or a few clear commits**: the "work in progress" commits and the fixes of the review may be squashed into the commit they complete when rebasing.
 - **Check the content**: after the rebase, the tree of the branch is the one expected (same files as before, plus `main`); when the branch already contained `main`, `git diff <old head>` must be empty for the files of `main`.
@@ -75,3 +75,16 @@ When several pull requests are open at the same time (see the `prompt-convention
 - **Migrations**: each pull request takes the next version number free among `main` and the other open pull requests (V25, V26...); if another one is merged first with the same number, renumber the migration and update the physical data model.
 - **Switch branches cleanly**: commit the work of a branch before leaving it, never carry uncommitted changes from one pull request to another (a git worktree per branch is an option).
 
+## 5. Comments first, oldest pull request first, rebase after each merge
+
+The goal is to merge the pull requests as fast as possible, the oldest first.
+
+- **A comment is handled first**: as soon as a comment is added to a pull request (review comment, general comment, requested change), it takes priority over any other work, a new request included: stop what is in progress (commit it first, section 4), answer or fix, push, and reply on the comment.
+- **The older the pull request, the higher the priority**: when comments are waiting on several pull requests, handle them in the order of creation of the pull requests, the oldest first, so that the oldest one can be merged first. A comment on a recent pull request waits until the older comments are handled.
+- **After each merge on `main`, rebase the other open pull requests** on the new `main`, so that they include what the merge changed on `main`: do it right away, oldest pull request first, following section 2 (adapt, run all the tests, push with a lease, check the CI). The merged pull request is never touched again.
+
+Example, after a merge on `main`, listing the open pull requests from the oldest to the newest:
+
+```bash
+gh pr list --state open --json number,headRefName,createdAt --jq 'sort_by(.createdAt)[] | "\(.number) \(.headRefName)"'
+```
