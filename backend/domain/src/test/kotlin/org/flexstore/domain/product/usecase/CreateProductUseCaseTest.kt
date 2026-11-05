@@ -10,6 +10,10 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import java.math.BigDecimal
 import org.flexstore.domain.user.*
+import org.flexstore.domain.user.administration.testAdministrator
+import org.flexstore.domain.user.administration.testCustomer
+import org.flexstore.domain.user.administration.unknownUser
+import org.flexstore.domain.user.administration.usersOfTheAdministration
 
 // 33 characters, one more than a SKU may have
 private const val TOO_LONG_SKU = "A23456789-123456789-123456789-123"

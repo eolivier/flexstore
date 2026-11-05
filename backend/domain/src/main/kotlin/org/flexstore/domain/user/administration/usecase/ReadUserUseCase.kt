@@ -1,4 +1,4 @@
-package org.flexstore.domain.user.usecase
+package org.flexstore.domain.user.administration.usecase
 
 import kotlin.reflect.KClass
 import org.flexstore.domain.user.*

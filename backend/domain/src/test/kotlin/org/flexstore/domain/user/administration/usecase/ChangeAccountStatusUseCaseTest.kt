@@ -1,4 +1,4 @@
-package org.flexstore.domain.user.usecase
+package org.flexstore.domain.user.administration.usecase
 
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.user.model.*

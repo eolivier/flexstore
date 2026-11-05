@@ -2,11 +2,13 @@ package org.flexstore.domain.settings
 
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.settings.usecase.*
-import org.flexstore.domain.user.testAdministrator
-import org.flexstore.domain.user.usersOfTheAdministration
+import org.flexstore.domain.user.administration.testAdministrator
+import org.flexstore.domain.user.administration.usersOfTheAdministration
 import org.flexstore.infra.repository.InMemoryShopSettingsRepository
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
+import org.flexstore.domain.user.administration.testAdministrator
+import org.flexstore.domain.user.administration.usersOfTheAdministration
 
 class PaymentDelayTest : WithAssertions {
 

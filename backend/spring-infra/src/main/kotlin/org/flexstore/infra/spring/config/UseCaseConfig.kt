@@ -42,6 +42,10 @@ import org.flexstore.domain.wishlist.*
 import org.flexstore.domain.wishlist.usecase.*
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.flexstore.domain.user.address.AddressUseCases
+import org.flexstore.domain.user.address.usecase.AddPostalAddressUseCase
+import org.flexstore.domain.user.address.usecase.ChangePostalAddressUseCase
+import org.flexstore.domain.user.address.usecase.RemovePostalAddressUseCase
 
 // The use cases, each one a bean that receives its repositories (the adapters of the ports, @Repository)
 @Configuration

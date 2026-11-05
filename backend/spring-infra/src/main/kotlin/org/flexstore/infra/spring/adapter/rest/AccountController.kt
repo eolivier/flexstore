@@ -16,6 +16,11 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.*
+import org.flexstore.domain.user.address.AddressAddition
+import org.flexstore.domain.user.address.AddressBookService
+import org.flexstore.domain.user.address.AddressChange
+import org.flexstore.domain.user.address.AddressPosition
+import org.flexstore.domain.user.address.UserAddress
 
 // The accounts the customers create for themselves (see SecurityConfig: public, except the new link)
 @Tag(name = "Accounts")

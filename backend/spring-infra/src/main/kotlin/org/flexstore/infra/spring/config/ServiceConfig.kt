@@ -26,6 +26,9 @@ import org.flexstore.domain.user.service.*
 import org.flexstore.domain.user.usecase.*
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.flexstore.domain.user.address.AddressBookService
+import org.flexstore.domain.user.address.AddressUseCases
+import org.flexstore.domain.user.administration.UserService
 
 // The domain services, each one a bean that receives its use cases or groups of use cases (see UseCaseConfig)
 @Configuration

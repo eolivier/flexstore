@@ -1,10 +1,22 @@
-package org.flexstore.domain.user.service
+package org.flexstore.domain.user.administration
 
 import org.flexstore.domain.sharedkernel.Page
 import org.flexstore.domain.sharedkernel.PageRequest
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.repository.UserRepository
 import org.flexstore.domain.user.usecase.*
+import org.flexstore.domain.user.administration.usecase.AccountStatusChange
+import org.flexstore.domain.user.administration.usecase.ChangeAccountStatusUseCase
+import org.flexstore.domain.user.administration.usecase.CreateUserRequest
+import org.flexstore.domain.user.administration.usecase.CreateUserUseCase
+import org.flexstore.domain.user.administration.usecase.DeleteUserUseCase
+import org.flexstore.domain.user.administration.usecase.ListUsersUseCase
+import org.flexstore.domain.user.administration.usecase.ReadUserUseCase
+import org.flexstore.domain.user.administration.usecase.UpdateUserRequest
+import org.flexstore.domain.user.administration.usecase.UpdateUserUseCase
+import org.flexstore.domain.user.administration.usecase.UserDeletion
+import org.flexstore.domain.user.administration.usecase.UserReading
+import org.flexstore.domain.user.administration.usecase.UsersReading
 
 class UserService(
     private val userRepository: UserRepository

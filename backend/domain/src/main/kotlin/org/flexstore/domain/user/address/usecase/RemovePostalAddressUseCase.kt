@@ -1,10 +1,13 @@
-package org.flexstore.domain.user.usecase
+package org.flexstore.domain.user.address.usecase
 
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.repository.*
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
+import org.flexstore.domain.user.address.AddressChangeFailed
+import org.flexstore.domain.user.address.AddressNotFoundException
+import org.flexstore.domain.user.address.AddressRemoval
 
 // A user removes one of their addresses. The orders keep the address they were delivered and billed to
 class RemovePostalAddressUseCase(private val userRepository: UserRepository) : UseCase<AddressRemoval> {

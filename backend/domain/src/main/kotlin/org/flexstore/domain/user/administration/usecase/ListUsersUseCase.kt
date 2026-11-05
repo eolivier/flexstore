@@ -1,4 +1,4 @@
-package org.flexstore.domain.user.usecase
+package org.flexstore.domain.user.administration.usecase
 
 import org.flexstore.domain.sharedkernel.Page
 import org.flexstore.domain.sharedkernel.PageRequest

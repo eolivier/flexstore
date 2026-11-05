@@ -1,4 +1,5 @@
 package org.flexstore.domain.user.model
+import org.flexstore.domain.user.address.AddressPosition
 
 data class PhoneNumber(val value: String) {
     fun isGiven() = value.isNotBlank()

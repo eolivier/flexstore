@@ -7,6 +7,10 @@ import org.flexstore.infra.repository.InMemoryDiscountCodeRepository
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.time.Instant
+import org.flexstore.domain.user.administration.testAdministrator
+import org.flexstore.domain.user.administration.testCustomer
+import org.flexstore.domain.user.administration.unknownUser
+import org.flexstore.domain.user.administration.usersOfTheAdministration
 
 class DiscountCodeUseCasesTest : WithAssertions {
 

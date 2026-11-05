@@ -1,4 +1,4 @@
-package org.flexstore.domain.user.usecase
+package org.flexstore.domain.user.administration.usecase
 
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.twofactor.model.TwoFactorAuthentication
@@ -13,6 +13,9 @@ import org.flexstore.infra.repository.InMemoryUserRepository
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import kotlin.test.Test
+import org.flexstore.domain.user.administration.unknownUser
+import org.flexstore.domain.user.usecase.RegisterCustomerUseCase
+import org.flexstore.domain.user.usecase.RegisterCustomerUseCaseTest
 
 class UpdateUserUseCaseTest {
 

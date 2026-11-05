@@ -8,6 +8,9 @@ import org.flexstore.infra.repository.InMemoryProductRepository
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import org.flexstore.domain.user.*
+import org.flexstore.domain.user.administration.testAdministrator
+import org.flexstore.domain.user.administration.testCustomer
+import org.flexstore.domain.user.administration.usersOfTheAdministration
 
 class ProposeSkuUseCaseTest : WithAssertions {
 
