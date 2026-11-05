@@ -6,6 +6,7 @@
   import SellerSetupIdentityStep from './SellerSetupIdentityStep.vue';
   import SellerSetupRegistrationStep from './SellerSetupRegistrationStep.vue';
   import SellerSetupContactStep from './SellerSetupContactStep.vue';
+  import SellerSetupSocialNetworksStep from './SellerSetupSocialNetworksStep.vue';
   import SellerSetupSummary from './SellerSetupSummary.vue';
 
   const props = defineProps<{ seller: Seller; saving: boolean; refusal: SellerUpdate | null }>();
@@ -13,7 +14,7 @@
 
   const { t } = useI18n();
 
-  const givenSeller = reactive<Seller>({ ...props.seller });
+  const givenSeller = reactive<Seller>({ ...props.seller, socialNetworks: { ...props.seller.socialNetworks } });
   // The step shown, from 1
   const position = ref(1);
 
@@ -48,6 +49,9 @@
       />
     </template>
     <template #item.4>
+      <SellerSetupSocialNetworksStep v-model:social-networks="givenSeller.socialNetworks" />
+    </template>
+    <template #item.5>
       <SellerSetupSummary :seller="givenSeller" />
       <p v-if="refusal === 'invalid'" class="text-body-2 text-error mt-2">{{ t('seller.invalid') }}</p>
       <p v-else-if="refusal === 'failed'" class="text-body-2 text-error mt-2">{{ t('seller.saveError') }}</p>
@@ -63,7 +67,7 @@
           color="secondary"
           :loading="saving"
           :disabled="!currentStepIsComplete"
-          @click="emit('finish', { ...givenSeller })"
+          @click="emit('finish', { ...givenSeller, socialNetworks: { ...givenSeller.socialNetworks } })"
           >{{ t('sellerSetup.finish') }}</v-btn
         >
         <v-btn v-else color="secondary" :disabled="!currentStepIsComplete" @click="position++">{{

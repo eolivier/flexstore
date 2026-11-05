@@ -2,10 +2,19 @@
   import { computed } from 'vue';
   import { useI18n } from 'vue-i18n';
   import type { Seller } from '@/stores/seller.store';
+  import { givenSocialNetworks } from '@/utils/socialNetworks';
 
   const props = defineProps<{ seller: Seller }>();
 
   const { t } = useI18n();
+
+  // The social networks the shop gave: the ones it did not give are not listed
+  const socialNetworkLines = computed(() =>
+    givenSocialNetworks(props.seller.socialNetworks).map((socialNetwork) => ({
+      label: `socialNetworks.${socialNetwork}`,
+      value: props.seller.socialNetworks[socialNetwork],
+    }))
+  );
 
   const lines = computed(() => [
     { label: 'seller.name', value: props.seller.name },
@@ -18,6 +27,7 @@
     { label: 'seller.phone', value: props.seller.phone },
     { label: 'seller.email', value: props.seller.email },
     { label: 'seller.website', value: props.seller.website },
+    ...socialNetworkLines.value,
   ]);
 </script>
 

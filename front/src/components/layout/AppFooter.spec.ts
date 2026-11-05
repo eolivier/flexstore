@@ -7,6 +7,14 @@ import { vuetify, i18n } from '@/test/setup';
 
 const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
+vi.mock('@/api', () => ({
+  sellerApi: {
+    getSocialNetworks: () =>
+      Promise.resolve({
+        data: { facebook: 'https://www.facebook.com/flexstore', instagram: '', x: '', tiktok: '', youtube: '', twitch: '' },
+      }),
+  },
+}));
 
 function mountFooter() {
   return mount(AppFooter, { global: { plugins: [vuetify, i18n], stubs: { RouterLink: RouterLinkStub } } });

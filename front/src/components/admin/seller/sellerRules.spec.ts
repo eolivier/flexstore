@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { isEmail, isPhone, isShareCapital, isSiret, isVatNumber, isWebsite } from './sellerRules';
+import {
+  isEmail,
+  isPhone,
+  isShareCapital,
+  isSiret,
+  isSocialNetworkUrl,
+  isVatNumber,
+  isWebsite,
+} from './sellerRules';
 
 describe('sellerRules', () => {
   it.each(['12345678900012', '123 456 789 00012'])('the SIRET "%s" is accepted', (siret) => {
@@ -67,4 +75,26 @@ describe('sellerRules', () => {
     // Assert
     expect(accepted).toBe(false);
   });
+});
+
+describe('isSocialNetworkUrl', () => {
+  it.each(['', '  ', 'https://www.facebook.com/flexstore', 'www.facebook.com/flexstore', 'x.com/flexstore'])(
+    'the address "%s" of a social network is accepted',
+    (url) => {
+      // Act
+      const accepted = isSocialNetworkUrl(url);
+      // Assert
+      expect(accepted).toBe(true);
+    }
+  );
+
+  it.each(['facebook', 'https://', 'face book.com/flexstore', 'www.'])(
+    'the address "%s" of a social network is refused',
+    (url) => {
+      // Act
+      const accepted = isSocialNetworkUrl(url);
+      // Assert
+      expect(accepted).toBe(false);
+    }
+  );
 });

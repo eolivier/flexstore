@@ -42,5 +42,25 @@ data class SellerEntity(
     val shareCapital: String?,
 
     @Column(name = "registry_city", updatable = false)
-    val registryCity: String?
+    val registryCity: String?,
+
+    // The accounts of the shop on the social networks: null when there is none, and in the versions written
+    // before they were asked
+    @Column(name = "facebook_url", updatable = false)
+    val facebookUrl: String?,
+
+    @Column(name = "instagram_url", updatable = false)
+    val instagramUrl: String?,
+
+    @Column(name = "x_url", updatable = false)
+    val xUrl: String?,
+
+    @Column(name = "tiktok_url", updatable = false)
+    val tiktokUrl: String?,
+
+    @Column(name = "youtube_url", updatable = false)
+    val youtubeUrl: String?,
+
+    @Column(name = "twitch_url", updatable = false)
+    val twitchUrl: String?
 ) : TimestampedEntity()

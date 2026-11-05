@@ -117,6 +117,41 @@ class SellerIT {
     }
 
     @Test
+    fun `the social networks of the seller should be read by everyone, empty where there is none`() {
+        // Arrange
+        val sellerJson = """{"name": "Flexstore", "address": "1 rue de la Démo, 75001 Paris, France",
+            "siret": "12345678900012", "vatNumber": "FR12345678901", "phone": "01 23 45 67 89",
+            "email": "contact@flexstore.fr", "website": "www.flexstore.fr",
+            "legalForm": "SAS", "shareCapital": "10 000", "registryCity": "Paris",
+            "socialNetworks": {"facebook": "https://www.facebook.com/flexstore", "twitch": "twitch.tv/flexstore"}}"""
+        updateSeller(sellerJson).andExpect(status().isOk)
+        // Act
+        val response = mockMvc.perform(get("/api/social-networks"))
+        // Assert
+        response.andExpect(status().isOk)
+            .andExpect(jsonPath("$.facebook").value("https://www.facebook.com/flexstore"))
+            .andExpect(jsonPath("$.twitch").value("twitch.tv/flexstore"))
+            .andExpect(jsonPath("$.instagram").value(""))
+            .andExpect(jsonPath("$.x").value(""))
+            .andExpect(jsonPath("$.tiktok").value(""))
+            .andExpect(jsonPath("$.youtube").value(""))
+    }
+
+    @Test
+    fun `a seller with a social network that is not a web address should be refused`() {
+        // Arrange
+        val sellerJson = """{"name": "Flexstore", "address": "1 rue de la Démo, 75001 Paris, France",
+            "siret": "12345678900012", "vatNumber": "FR12345678901", "phone": "01 23 45 67 89",
+            "email": "contact@flexstore.fr", "website": "www.flexstore.fr",
+            "legalForm": "SAS", "shareCapital": "10 000", "registryCity": "Paris",
+            "socialNetworks": {"facebook": "not an address"}}"""
+        // Act
+        val response = updateSeller(sellerJson)
+        // Assert
+        response.andExpect(status().isBadRequest)
+    }
+
+    @Test
     fun `a customer should not read the seller of the administration`() {
         // Act
         val response = mockMvc.perform(get("/api/admin/seller").with(asUser(EXISTING_CUSTOMER_ID)))

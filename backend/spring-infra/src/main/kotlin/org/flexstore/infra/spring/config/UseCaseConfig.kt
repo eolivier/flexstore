@@ -433,9 +433,14 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         UpdateSellerUseCase(sellerRepository, userRepository)
 
     @Bean
+    open fun readSocialNetworksUseCase(sellerRepository: SellerRepository) =
+        ReadSocialNetworksUseCase(sellerRepository)
+
+    @Bean
     open fun sellerUseCases(readCurrentSellerUseCase: ReadCurrentSellerUseCase,
-                            updateSellerUseCase: UpdateSellerUseCase) =
-        SellerUseCases(readCurrentSellerUseCase, updateSellerUseCase)
+                            updateSellerUseCase: UpdateSellerUseCase,
+                            readSocialNetworksUseCase: ReadSocialNetworksUseCase) =
+        SellerUseCases(readCurrentSellerUseCase, updateSellerUseCase, readSocialNetworksUseCase)
 
     @Bean
     open fun readLegalPageUseCase(legalPageRepository: LegalPageRepository) =

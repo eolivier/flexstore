@@ -887,6 +887,7 @@ export interface JsonSeller {
      * The city of the trade and companies register (RCS); empty in the versions written before it was asked
      */
     'registryCity': string;
+    'socialNetworks'?: JsonSocialNetworks;
 }
 export interface JsonShippingOption {
     'method': JsonShippingOptionMethodEnum;
@@ -913,6 +914,17 @@ export interface JsonShippingOptions {
 }
 export interface JsonSkuProposal {
     'sku': string;
+}
+/**
+ * The accounts of the shop on the social networks, as web addresses with or without their scheme; empty where the shop has none
+ */
+export interface JsonSocialNetworks {
+    'facebook': string;
+    'instagram': string;
+    'x': string;
+    'tiktok': string;
+    'youtube': string;
+    'twitch': string;
 }
 export interface JsonStock {
     'productId': string;
@@ -5419,6 +5431,100 @@ export class ReviewsApi extends BaseAPI {
      */
     public getReviews(id: string, options?: RawAxiosRequestConfig) {
         return ReviewsApiFp(this.configuration).getReviews(id, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * SellerApi - axios parameter creator
+ */
+export const SellerApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Retrieve the accounts of the shop on the social networks; empty where it has none (public)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getSocialNetworks: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/social-networks`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * SellerApi - functional programming interface
+ */
+export const SellerApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = SellerApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Retrieve the accounts of the shop on the social networks; empty where it has none (public)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getSocialNetworks(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonSocialNetworks>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getSocialNetworks(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SellerApi.getSocialNetworks']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * SellerApi - factory interface
+ */
+export const SellerApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = SellerApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Retrieve the accounts of the shop on the social networks; empty where it has none (public)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getSocialNetworks(options?: RawAxiosRequestConfig): AxiosPromise<JsonSocialNetworks> {
+            return localVarFp.getSocialNetworks(options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * SellerApi - object-oriented interface
+ */
+export class SellerApi extends BaseAPI {
+    /**
+     * 
+     * @summary Retrieve the accounts of the shop on the social networks; empty where it has none (public)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getSocialNetworks(options?: RawAxiosRequestConfig) {
+        return SellerApiFp(this.configuration).getSocialNetworks(options).then((request) => request(this.axios, this.basePath));
     }
 }
 

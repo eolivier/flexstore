@@ -1,10 +1,12 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { useAuthStore } from '@/stores/auth.store';
+import type { SocialNetworkUrls } from '@/utils/socialNetworks';
 
 // The seller written on the invoices: the address on one line, the SIRET (14 digits), the intra-community VAT
 // number of the shop, how the customers reach it, and how it is incorporated: its legal form, its share capital
-// in euros and the city of its trade register (empty in the versions written before they were asked)
+// in euros and the city of its trade register (empty in the versions written before they were asked), and its
+// accounts on the social networks (empty where it has none)
 export interface Seller {
   name: string;
   address: string;
@@ -16,6 +18,7 @@ export interface Seller {
   legalForm: string;
   shareCapital: string;
   registryCity: string;
+  socialNetworks: SocialNetworkUrls;
 }
 
 // saved; invalid: refused by the shop (a malformed SIRET, VAT number, phone, email, website or share capital);

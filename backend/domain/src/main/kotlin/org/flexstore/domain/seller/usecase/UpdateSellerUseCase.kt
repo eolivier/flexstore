@@ -7,7 +7,8 @@ import org.ucop.domain.entity.*
 
 // An administrator gives a new version of the seller written on the invoices: its name and address are given,
 // its SIRET and VAT number are well formed, and so are its phone number, its email and its website; its legal
-// form, its share capital and the city of its register are given. It becomes the current one
+// form, its share capital and the city of its register are given; each social network is given as a web
+// address, or not at all. It becomes the current one
 class UpdateSellerUseCase(
     private val sellerRepository: SellerRepository,
     private val userRepository: UserRepository
@@ -19,7 +20,8 @@ class UpdateSellerUseCase(
             contactIsCompleteCondition(),
             identifiersAreValidCondition(),
             reachIsValidCondition(),
-            incorporationIsValidCondition()
+            incorporationIsValidCondition(),
+            socialNetworksAreValidCondition()
         )
 
     override fun getNominalScenario(): NominalScenario<SellerUpdate> =
@@ -59,6 +61,13 @@ class UpdateSellerUseCase(
     private fun incorporationIsValidCondition() = PreCondition<SellerUpdate> { (_, seller) ->
         if (seller.detail.incorporation.isInvalid()) {
             val rule = "a legal form, a share capital in euros (10 000) and the city of its trade register"
+            throw InvalidSellerException(ErrorMessage("The seller needs $rule."))
+        }
+    }
+
+    private fun socialNetworksAreValidCondition() = PreCondition<SellerUpdate> { (_, seller) ->
+        if (seller.detail.socialNetworks.isInvalid()) {
+            val rule = "web addresses (https://www.facebook.com/flexstore) for its social networks, or none"
             throw InvalidSellerException(ErrorMessage("The seller needs $rule."))
         }
     }

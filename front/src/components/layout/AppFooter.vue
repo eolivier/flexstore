@@ -2,6 +2,7 @@
   import { useI18n } from 'vue-i18n';
   import { legalLinks, shopLinks } from '../menu/navigation';
   import { useAuthStore } from '@/stores/auth.store';
+  import FooterSocialNetworks from './FooterSocialNetworks.vue';
 
   const { t } = useI18n();
   const year = new Date().getFullYear();
@@ -20,6 +21,7 @@
             <span class="text-h6 font-weight-bold">Flexstore</span>
           </div>
           <p class="text-body-2 footer-muted">{{ t('footer.tagline') }}</p>
+          <FooterSocialNetworks />
         </v-col>
         <v-col cols="6" md="4">
           <div class="text-overline footer-muted mb-2">{{ t('nav.shop') }}</div>

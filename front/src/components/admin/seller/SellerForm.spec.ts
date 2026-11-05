@@ -18,6 +18,14 @@ const flexstore = {
   legalForm: 'SAS',
   shareCapital: '10 000',
   registryCity: 'Paris',
+  socialNetworks: {
+    facebook: 'https://www.facebook.com/flexstore',
+    instagram: '',
+    x: '',
+    tiktok: '',
+    youtube: '',
+    twitch: 'twitch.tv/flexstore',
+  },
 };
 
 function mountForm() {
@@ -48,6 +56,12 @@ describe('SellerForm.vue', () => {
       flexstore.phone,
       flexstore.email,
       flexstore.website,
+      flexstore.socialNetworks.facebook,
+      '',
+      '',
+      '',
+      '',
+      flexstore.socialNetworks.twitch,
     ]);
   });
 
@@ -86,7 +100,7 @@ describe('SellerForm.vue', () => {
     await flushPromises();
     // Assert
     expect(wrapper.text()).toContain(
-      'The shop refused the seller: check its SIRET, its VAT number, its phone, its email, its website and its incorporation.'
+      'The shop refused the seller: check its SIRET, its VAT number, its phone, its email, its website, its incorporation and its social networks.'
     );
   });
 
@@ -96,6 +110,7 @@ describe('SellerForm.vue', () => {
     { field: 7, value: 'abc', expected: 'Invalid phone number' },
     { field: 8, value: 'contact.flexstore.fr', expected: 'Invalid email' },
     { field: 9, value: 'flexstore', expected: 'Invalid website' },
+    { field: 10, value: 'facebook', expected: 'Invalid web address' },
   ])('refuses "$value" ($expected)', async ({ field, value, expected }) => {
     // Arrange
     const wrapper = mountForm();

@@ -28,3 +28,8 @@ export function isWebsite(website: string) {
 export function isShareCapital(shareCapital: string) {
   return /^[0-9][0-9 ]*$/.test(shareCapital.trim());
 }
+
+// The address of an account on a social network: empty when the shop has none, else a web address
+export function isSocialNetworkUrl(url: string) {
+  return url.trim().length === 0 || isWebsite(url);
+}

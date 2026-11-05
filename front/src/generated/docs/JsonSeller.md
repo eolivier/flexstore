@@ -15,6 +15,7 @@ Name | Type | Description | Notes
 **legalForm** | **string** | SAS, SARL, EURL...; empty in the versions written before it was asked | [default to undefined]
 **shareCapital** | **string** | In euros, digits maybe grouped by spaces; empty in the versions written before it was asked | [default to undefined]
 **registryCity** | **string** | The city of the trade and companies register (RCS); empty in the versions written before it was asked | [default to undefined]
+**socialNetworks** | [**JsonSocialNetworks**](JsonSocialNetworks.md) |  | [optional] [default to undefined]
 
 ## Example
 
@@ -32,6 +33,7 @@ const instance: JsonSeller = {
     legalForm,
     shareCapital,
     registryCity,
+    socialNetworks,
 };
 ```
 

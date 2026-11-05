@@ -2,6 +2,7 @@
   import { reactive, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useSellerStore, type Seller, type SellerUpdate } from '@/stores/seller.store';
+  import SellerSocialNetworksFields from './SellerSocialNetworksFields.vue';
   import { isEmail, isPhone, isShareCapital, isSiret, isVatNumber, isWebsite } from './sellerRules';
 
   const props = defineProps<{ seller: Seller }>();
@@ -9,7 +10,7 @@
   const { t } = useI18n();
   const sellerStore = useSellerStore();
 
-  const editedSeller = reactive<Seller>({ ...props.seller });
+  const editedSeller = reactive<Seller>({ ...props.seller, socialNetworks: { ...props.seller.socialNetworks } });
   // null until every field is checked
   const valid = ref<boolean | null>(true);
   const saving = ref(false);
@@ -29,7 +30,10 @@
   async function save() {
     if (valid.value === false) return;
     saving.value = true;
-    update.value = await sellerStore.updateSeller({ ...editedSeller });
+    update.value = await sellerStore.updateSeller({
+      ...editedSeller,
+      socialNetworks: { ...editedSeller.socialNetworks },
+    });
     saving.value = false;
   }
 </script>
@@ -103,6 +107,8 @@
       prepend-inner-icon="mdi-web"
       class="mb-2"
     />
+    <h2 class="text-subtitle-1 font-weight-bold mt-4 mb-2">{{ t('socialNetworks.title') }}</h2>
+    <SellerSocialNetworksFields v-model="editedSeller.socialNetworks" />
     <div class="d-flex align-center ga-4 mt-2">
       <v-btn type="submit" color="secondary" :loading="saving" :disabled="valid === false">{{
         t('seller.save')

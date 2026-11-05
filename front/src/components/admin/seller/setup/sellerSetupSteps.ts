@@ -1,8 +1,17 @@
 import type { Seller } from '@/stores/seller.store';
-import { isEmail, isPhone, isShareCapital, isSiret, isVatNumber, isWebsite } from '../sellerRules';
+import {
+  isEmail,
+  isPhone,
+  isShareCapital,
+  isSiret,
+  isSocialNetworkUrl,
+  isVatNumber,
+  isWebsite,
+} from '../sellerRules';
+import { SOCIAL_NETWORKS } from '@/utils/socialNetworks';
 
 // The steps of the setup assistant of the seller, in the order they are asked
-export const SELLER_SETUP_STEPS = ['identity', 'registration', 'contact', 'summary'] as const;
+export const SELLER_SETUP_STEPS = ['identity', 'registration', 'contact', 'socialNetworks', 'summary'] as const;
 
 export type SellerSetupStep = (typeof SELLER_SETUP_STEPS)[number];
 
@@ -24,10 +33,18 @@ function isContactComplete(seller: Seller) {
   return isPhone(seller.phone) && isEmail(seller.email) && isWebsite(seller.website);
 }
 
+// Where the customers find the shop on the social networks: each address is optional, but a given one must be
+// a web address
+function isSocialNetworksComplete(seller: Seller) {
+  return SOCIAL_NETWORKS.every((socialNetwork) => isSocialNetworkUrl(seller.socialNetworks[socialNetwork]));
+}
+
 // A step is complete when the seller satisfies its rules: the next one can be opened
 export function isStepComplete(step: SellerSetupStep, seller: Seller) {
   if (step === 'identity') return isIdentityComplete(seller);
   if (step === 'registration') return isRegistrationComplete(seller);
   if (step === 'contact') return isContactComplete(seller);
-  return isIdentityComplete(seller) && isRegistrationComplete(seller) && isContactComplete(seller);
+  if (step === 'socialNetworks') return isSocialNetworksComplete(seller);
+  const isSellerComplete = isIdentityComplete(seller) && isRegistrationComplete(seller);
+  return isSellerComplete && isContactComplete(seller) && isSocialNetworksComplete(seller);
 }

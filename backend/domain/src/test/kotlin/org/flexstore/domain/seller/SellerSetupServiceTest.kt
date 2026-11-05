@@ -17,7 +17,8 @@ class SellerSetupServiceTest : WithAssertions {
     private val userRepository = usersOfTheAdministration()
     private val sellerUseCases = SellerUseCases(
         ReadCurrentSellerUseCase(sellerRepository, userRepository),
-        UpdateSellerUseCase(sellerRepository, userRepository)
+        UpdateSellerUseCase(sellerRepository, userRepository),
+        ReadSocialNetworksUseCase(sellerRepository)
     )
     private val shopSettingsAdministrationService = ShopSettingsAdministrationService(
         ReadAdministeredShopSettingsUseCase(shopSettingsRepository, userRepository),
