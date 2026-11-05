@@ -124,6 +124,10 @@ export default {
             title: 'Security',
             text: 'Verify your email and protect your account with two-factor authentication.',
           },
+          twoFactorAuthentication: {
+            title: 'Two-factor authentication',
+            text: 'Add a second verification step at sign-in to keep your account safe.',
+          },
         },
         admin: {
           title: 'Administration',
@@ -1037,6 +1041,10 @@ export default {
           security: {
             title: 'Sécurité',
             text: 'Vérifiez votre email et protégez votre compte avec l’authentification à deux facteurs.',
+          },
+          twoFactorAuthentication: {
+            title: 'Authentification à deux facteurs',
+            text: 'Ajoutez une seconde étape de vérification à la connexion pour protéger votre compte.',
           },
         },
         admin: {
