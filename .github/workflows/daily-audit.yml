@@ -1,0 +1,44 @@
+name: daily-audit
+
+# Every day, Claude analyzes the repository and publishes its report as a GitHub issue (label: daily-audit).
+# Needs the repository secret ANTHROPIC_API_KEY (Settings > Secrets and variables > Actions).
+# The prompt is in .github/prompts/daily-audit.md: change the audit there, not here.
+
+on:
+  schedule:
+    - cron: "17 5 * * *" # every day at 05:17 UTC
+  workflow_dispatch:
+
+concurrency:
+  group: daily-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      issues: write
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Create the label
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh label create daily-audit --color 5319e7 --description "Daily repository audit" --force
+
+      - name: Audit the repository
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ github.token }}
+          prompt: "Follow the instructions of the file .github/prompts/daily-audit.md."
+          claude_args: >-
+            --max-turns 60
+            --allowedTools "Read,Grep,Glob,Bash(git log:*),Bash(gh issue list:*),Bash(gh issue view:*),Bash(gh issue create:*),Bash(gh issue comment:*),Bash(gh issue close:*)"
