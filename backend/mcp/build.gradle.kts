@@ -14,11 +14,15 @@ configurations.all {
     exclude(group = "org.springdoc")
 }
 
+val mcpSdkVersion: String by project
+
 dependencies {
     // The tools call the use cases of the domain
     implementation(project(":domain"))
-    // The messages of the Model Context Protocol are JSON-RPC (the version is the one of Spring Boot in spring-infra)
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.18.5")
+    // The Model Context Protocol is served by its Java SDK, the tools are described with its types
+    implementation("io.modelcontextprotocol.sdk:mcp-core:$mcpSdkVersion")
+    // The tools answer with their products in JSON (the version is the one the SDK needs)
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.20.1")
 
     testImplementation(project(":infra"))
     testImplementation("io.mockk:mockk:1.13.2")
