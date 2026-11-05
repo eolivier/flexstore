@@ -151,7 +151,7 @@ VITE_SITE_URL=http://localhost:5173
 
 `npm run build` pre-renders the public pages (the routes that say `indexed` in `front/src/routes.ts`: home, catalog, products, about, legal pages) as static HTML, so that search engines read them without running JavaScript. It reads the products from `VITE_API_URL` at build time; when the API does not answer, the product pages are left out and the build goes on.
 
-`VITE_SITE_URL` is the public address of the shop: the search engines are given it in the canonical address of each page (the address of the page is used when it is missing).
+`VITE_SITE_URL` is the public address of the shop: the search engines are given it in the canonical address of each page (the address of the page is used when it is missing), and `npm run build` writes `sitemap.xml` (the pre-rendered pages) and adds its address to `robots.txt` only when it is set.
 
 Then:
 
