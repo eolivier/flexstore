@@ -43,9 +43,11 @@ function productToCartItem(product: Product, quantity: number): Item {
     productName: product.name,
     productDescription: product.description,
     productCategory: product.category,
-    productPrice: product.price,
+    productPrice: product.currentPrice ?? product.price,
+    regularPrice: product.price,
+    promotionPercentage: product.promotionPercentage,
     productCurrency: product.currency,
     productQuantity: quantity,
-    itemPrice: (product.price ?? 0) * quantity,
+    itemPrice: (product.currentPrice ?? product.price ?? 0) * quantity,
   };
 }

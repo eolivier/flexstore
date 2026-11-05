@@ -254,10 +254,21 @@ export interface JsonCartItem {
     'productName'?: string;
     'productDescription'?: string;
     'productCategory'?: string;
+    /**
+     * The price to pay for one product, the promotion included
+     */
     'productPrice'?: number;
     'productCurrency'?: string;
     'productQuantity'?: number;
     'itemPrice'?: number;
+    /**
+     * The price of one product without the promotion. Shown struck through when the product is on promotion
+     */
+    'regularPrice'?: number;
+    /**
+     * The percentage off the regular price while a promotion is running, null otherwise
+     */
+    'promotionPercentage'?: number | null;
 }
 export interface JsonCartItems {
     'items'?: Array<JsonCartItem>;

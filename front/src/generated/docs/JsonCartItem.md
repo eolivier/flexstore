@@ -10,10 +10,12 @@ Name | Type | Description | Notes
 **productName** | **string** |  | [optional] [default to undefined]
 **productDescription** | **string** |  | [optional] [default to undefined]
 **productCategory** | **string** |  | [optional] [default to undefined]
-**productPrice** | **number** |  | [optional] [default to undefined]
+**productPrice** | **number** | The price to pay for one product, the promotion included | [optional] [default to undefined]
 **productCurrency** | **string** |  | [optional] [default to undefined]
 **productQuantity** | **number** |  | [optional] [default to undefined]
 **itemPrice** | **number** |  | [optional] [default to undefined]
+**regularPrice** | **number** | The price of one product without the promotion. Shown struck through when the product is on promotion | [optional] [default to undefined]
+**promotionPercentage** | **number** | The percentage off the regular price while a promotion is running, null otherwise | [optional] [default to undefined]
 
 ## Example
 
@@ -30,6 +32,8 @@ const instance: JsonCartItem = {
     productCurrency,
     productQuantity,
     itemPrice,
+    regularPrice,
+    promotionPercentage,
 };
 ```
 
