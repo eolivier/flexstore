@@ -5,10 +5,23 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 
+// The versions of the protocol the server agrees on, the latest first
 private const val LATEST_PROTOCOL_VERSION = "2025-06-18"
-private val SUPPORTED_PROTOCOL_VERSIONS = listOf(LATEST_PROTOCOL_VERSION, "2025-03-26", "2024-11-05")
+private const val PROTOCOL_VERSION_OF_MARCH_2025 = "2025-03-26"
+private const val PROTOCOL_VERSION_OF_NOVEMBER_2024 = "2024-11-05"
+private val SUPPORTED_PROTOCOL_VERSIONS =
+    listOf(LATEST_PROTOCOL_VERSION, PROTOCOL_VERSION_OF_MARCH_2025, PROTOCOL_VERSION_OF_NOVEMBER_2024)
+
 private const val SERVER_NAME = "flexstore"
 private const val SERVER_VERSION = "1.0.0"
+
+private const val JSON_RPC_VERSION = "2.0"
+
+// The methods of the protocol the server serves
+private const val INITIALIZE = "initialize"
+private const val PING = "ping"
+private const val LIST_TOOLS = "tools/list"
+private const val CALL_TOOL = "tools/call"
 
 // The codes of the errors of JSON-RPC
 private const val PARSE_ERROR = -32700
@@ -43,10 +56,10 @@ class McpServer(private val productTools: ProductTools) {
 
     private fun resultOrError(method: String, params: JsonNode): ObjectNode =
         when (method) {
-            "initialize" -> resultOf(initialization(params))
-            "ping" -> resultOf(json.createObjectNode())
-            "tools/list" -> resultOf(toolList())
-            "tools/call" -> toolCall(params)
+            INITIALIZE -> resultOf(initialization(params))
+            PING -> resultOf(json.createObjectNode())
+            LIST_TOOLS -> resultOf(toolList())
+            CALL_TOOL -> toolCall(params)
             else -> errorOf(METHOD_NOT_FOUND, "The method $method is not supported.")
         }
 
@@ -92,7 +105,7 @@ class McpServer(private val productTools: ProductTools) {
 
     private fun reply(id: JsonNode?, resultOrError: ObjectNode): McpAnswer {
         val reply = json.createObjectNode()
-        reply.put("jsonrpc", "2.0")
+        reply.put("jsonrpc", JSON_RPC_VERSION)
         reply.set<JsonNode>("id", id ?: json.nullNode())
         reply.setAll<ObjectNode>(resultOrError)
         return McpAnswer.Reply(json.writeValueAsString(reply))
