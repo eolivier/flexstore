@@ -72,6 +72,7 @@ backend/
   infra/          # Infrastructure not linked to a framework (in-memory repositories, not used by the app)
   spring-infra/   # Spring adapters (REST controllers, JPA), OpenAPI spec
   migrations/     # Flyway SQL migrations
+  mcp/            # MCP server that exposes the products to AI assistants (reads the REST API)
 front/            # Vue 3 + Vuetify + Pinia + vue-i18n shop
 docs/
   database.md     # Physical data model of the database (Mermaid diagram)
@@ -239,6 +240,30 @@ TOKEN=$(curl -s -X POST localhost:8080/api/users/login -H 'Content-Type: applica
   -d '{"email": "admin@flexstore.com", "password": "admin"}' | jq -r .token)
 curl localhost:8080/api/users -H "Authorization: Bearer $TOKEN"
 ```
+
+---
+
+## 🤖 MCP server (products)
+
+The `mcp` module is a [Model Context Protocol](https://modelcontextprotocol.io) server, so that an AI assistant
+(Claude Desktop, Claude Code...) can read the products of the shop. It speaks MCP on its standard input and output
+and reads the public products of the REST API (no sign-in needed), so the back end must be running.
+
+| Tool | Arguments | Answers |
+|---|---|---|
+| `list_products` | `language` (optional: `en` or `fr`, default `en`) | All the products: id, SKU, name, description, category, price, currency, promotion percentage and current price |
+| `get_product` | `id`, `language` (optional) | One product, or an error when it does not exist |
+
+The address of the API comes from `FLEXSTORE_API_URL` (default `http://localhost:8080`).
+
+```bash
+cd backend
+./gradlew :mcp:installDist
+claude mcp add flexstore -- mcp/build/install/mcp/bin/mcp
+```
+
+For Claude Desktop, declare it in `claude_desktop_config.json`: `{"mcpServers": {"flexstore": {"command":
+"/path/to/flexstore/backend/mcp/build/install/mcp/bin/mcp", "env": {"FLEXSTORE_API_URL": "http://localhost:8080"}}}}`.
 
 ---
 

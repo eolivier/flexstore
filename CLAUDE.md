@@ -11,6 +11,7 @@ backend/
   infra/         # Framework-free infrastructure (in-memory repositories, not used by the app)
   spring-infra/  # Spring adapters (REST controllers, JPA), OpenAPI spec
   migrations/    # Flyway SQL migrations
+  mcp/           # MCP server (stdio) that exposes the products, reads the REST API
 front/           # Vue 3 + Vuetify + Pinia + vue-i18n
 docs/database.md # Physical data model, updated with every migration
 ```
