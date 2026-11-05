@@ -29,7 +29,7 @@
       <v-icon icon="mdi-package-variant" size="56" class="text-medium-emphasis mb-3" />
       <h2 class="text-h6 font-weight-bold mb-1">{{ t('orders.empty') }}</h2>
       <p class="text-body-2 text-medium-emphasis mb-6">{{ t('orders.emptyText') }}</p>
-      <v-btn to="/products/" color="secondary" size="large" append-icon="mdi-arrow-right">
+      <v-btn to="/products" color="secondary" size="large" append-icon="mdi-arrow-right">
         {{ t('home.heroButton') }}
       </v-btn>
     </v-card>

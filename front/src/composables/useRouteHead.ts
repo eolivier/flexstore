@@ -14,6 +14,7 @@ export function useRouteHead() {
     description: t(route.meta.description ?? 'seo.siteDescription'),
     path: route.path,
     indexed: route.meta.indexed === true,
+    translated: route.meta.indexed === true,
     imageUrl: null,
     structuredData: null,
   }));

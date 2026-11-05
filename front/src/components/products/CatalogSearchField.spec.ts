@@ -23,7 +23,7 @@ describe('CatalogSearchField.vue', () => {
     await wrapper.find('input').trigger('keydown', { key: 'Enter' });
     await flushPromises();
     // Assert
-    expect(router.currentRoute.value.fullPath).toBe('/products/?q=jacket');
+    expect(router.currentRoute.value.fullPath).toBe('/products?q=jacket');
   });
 
   it('the field shows the text searched on the catalog', async () => {

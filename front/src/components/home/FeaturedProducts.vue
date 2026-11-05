@@ -45,7 +45,7 @@
     <div class="d-flex align-center mb-6">
       <h2 class="text-h5 font-weight-bold">{{ t('home.featuredTitle') }}</h2>
       <v-spacer />
-      <v-btn to="/products/" variant="text" append-icon="mdi-arrow-right">{{ t('home.seeAll') }}</v-btn>
+      <v-btn to="/products" variant="text" append-icon="mdi-arrow-right">{{ t('home.seeAll') }}</v-btn>
     </div>
     <v-row>
       <template v-if="productsStore.loading">

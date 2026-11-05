@@ -1,6 +1,6 @@
 // Shared navigation entries for the header, the mobile drawer and the footer
 export const shopLinks = [
-  { to: '/products/', icon: 'mdi-view-grid-outline', label: 'nav.allProducts' },
+  { to: '/products', icon: 'mdi-view-grid-outline', label: 'nav.allProducts' },
   { to: '/products/clothing', icon: 'mdi-tshirt-crew-outline', label: 'nav.clothing' },
   { to: '/products/electronics', icon: 'mdi-cellphone', label: 'nav.electronics' },
   { to: '/products/accessories', icon: 'mdi-watch', label: 'nav.accessories' },

@@ -1,4 +1,5 @@
 import type { RouteRecordRaw } from 'vue-router';
+import { localizedPath } from './utils/language';
 
 import Home from './components/Home.vue';
 import Users from './components/admin/Users.vue';
@@ -37,7 +38,7 @@ import Checkout from './components/checkout/Checkout.vue';
 
 // The pages of the shop. indexed: the public pages, which are pre-rendered at build time and listed by the
 // search engines
-export const routes: RouteRecordRaw[] = [
+const shopRoutes: RouteRecordRaw[] = [
   {
     path: '/',
     component: Home,
@@ -56,7 +57,7 @@ export const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true },
   },
   { path: '/user-profile', component: UserProfile },
-  { path: '/products/', component: Products, meta: { indexed: true } },
+  { path: '/products', component: Products, meta: { indexed: true } },
   { path: '/products/clothing', component: Products, props: { category: 'CLOTHING' }, meta: { indexed: true } },
   {
     path: '/products/accessories',
@@ -169,3 +170,10 @@ export const routes: RouteRecordRaw[] = [
     meta: { title: 'nav.termsOfSale', description: 'seo.termsOfSale', indexed: true },
   },
 ];
+
+// The public pages exist in English too, under /en
+const englishRoutes = shopRoutes
+  .filter((route) => route.meta?.indexed)
+  .map((route) => ({ ...route, path: localizedPath(route.path, 'en') }));
+
+export const routes: RouteRecordRaw[] = [...shopRoutes, ...englishRoutes];

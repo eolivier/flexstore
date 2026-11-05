@@ -5,31 +5,42 @@ import vuetify from 'vite-plugin-vuetify';
 import { resolve } from 'path';
 import { readFileSync, writeFileSync } from 'fs';
 import { productPath } from './src/utils/productSlug';
-import { robotsTxtWithSitemap, sitemapXml } from './src/utils/sitemap';
+import { robotsTxtWithSitemap, sitemapXml, type SitemapPage } from './src/utils/sitemap';
+import { languageOfPath, localizedPath, type ShopLanguage } from './src/utils/language';
 
-// The language of the pre-rendered pages: the default one of the shop, the one of the slugs of the products
-const PRERENDER_LANGUAGE = 'fr';
-
-// The addresses of the products, to pre-render their pages: read from the API at build time. The build goes on
-// with the other pages when the API does not answer (the product pages are then rendered by the browser only)
-async function productPaths(): Promise<string[]> {
+// The products in a language, read from the API at build time
+async function productsIn(language: ShopLanguage): Promise<{ id: string; name: string }[]> {
   const apiUrl = process.env.VITE_API_URL || 'http://localhost:8080';
+  const response = await fetch(`${apiUrl}/api/products/`, {
+    headers: { 'Accept-Language': language },
+    signal: AbortSignal.timeout(60_000),
+  });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return (await response.json()) as { id: string; name: string }[];
+}
+
+// The pages of the products, in each language (the slug is made from the name, which is translated). The build
+// goes on with the other pages when the API does not answer (the product pages are then rendered by the browser)
+async function productPages(): Promise<SitemapPage[]> {
   try {
-    const response = await fetch(`${apiUrl}/api/products/`, {
-      headers: { 'Accept-Language': PRERENDER_LANGUAGE },
-      signal: AbortSignal.timeout(60_000),
+    const [frenchProducts, englishProducts] = await Promise.all([productsIn('fr'), productsIn('en')]);
+    return frenchProducts.map((frenchProduct) => {
+      const englishProduct = englishProducts.find((product) => product.id === frenchProduct.id);
+      return {
+        paths: {
+          fr: productPath(frenchProduct),
+          en: localizedPath(productPath(englishProduct ?? frenchProduct), 'en'),
+        },
+      };
     });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const products = (await response.json()) as { id: string; name: string }[];
-    return products.map((product) => productPath(product));
   } catch (error) {
-    console.warn(`[prerender] products not read from ${apiUrl}, their pages are not pre-rendered:`, error);
+    console.warn('[prerender] products not read from the API, their pages are not pre-rendered:', error);
     return [];
   }
 }
 
 // The pages that are pre-rendered: the sitemap lists them
-let prerenderedPaths: string[] = [];
+let prerenderedPages: SitemapPage[] = [];
 
 // The sitemap and robots.txt need the absolute address of the shop (VITE_SITE_URL): without it, no sitemap
 function writeSitemap() {
@@ -39,7 +50,7 @@ function writeSitemap() {
     return;
   }
   const outputDirectory = resolve(__dirname, 'dist');
-  writeFileSync(resolve(outputDirectory, 'sitemap.xml'), sitemapXml(shopUrl, prerenderedPaths));
+  writeFileSync(resolve(outputDirectory, 'sitemap.xml'), sitemapXml(shopUrl, prerenderedPages));
   const robotsTxt = readFileSync(resolve(outputDirectory, 'robots.txt'), 'utf-8');
   writeFileSync(resolve(outputDirectory, 'robots.txt'), robotsTxtWithSitemap(robotsTxt, shopUrl));
 }
@@ -60,9 +71,12 @@ export default defineConfig({
     script: 'async',
     formatting: 'none',
     async includedRoutes(_paths, routes) {
-      const publicPaths = routes.filter((route) => route.meta?.indexed && !route.path.includes(':'));
-      prerenderedPaths = [...publicPaths.map((route) => route.path), ...(await productPaths())];
-      return prerenderedPaths;
+      const staticPages = routes
+        .filter((route) => route.meta?.indexed && !route.path.includes(':'))
+        .filter((route) => languageOfPath(route.path) === 'fr')
+        .map((route) => ({ paths: { fr: route.path, en: localizedPath(route.path, 'en') } }));
+      prerenderedPages = [...staticPages, ...(await productPages())];
+      return prerenderedPages.flatMap((page) => [page.paths.fr, page.paths.en]);
     },
     onFinished: writeSitemap,
   },

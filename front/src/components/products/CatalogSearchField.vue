@@ -19,7 +19,7 @@
 
   function submit() {
     const q = search.value.trim();
-    router.push({ path: '/products/', query: q ? { q } : {} });
+    router.push({ path: '/products', query: q ? { q } : {} });
   }
 </script>
 
