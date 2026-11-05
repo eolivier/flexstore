@@ -1,8 +1,8 @@
 package org.flexstore.domain.twofactor.usecase
 
 import org.assertj.core.api.WithAssertions
-import org.flexstore.domain.twofactor.TwoFactorCodeInvalidException
-import org.flexstore.domain.twofactor.TwoFactorEnrollmentNotPendingException
+import org.flexstore.domain.twofactor.model.TwoFactorCodeInvalidException
+import org.flexstore.domain.twofactor.model.TwoFactorEnrollmentNotPendingException
 import org.flexstore.domain.twofactor.model.TwoFactorAuthentication
 import org.flexstore.domain.twofactor.model.TwoFactorCode
 import org.flexstore.domain.twofactor.model.TwoFactorSecret

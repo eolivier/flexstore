@@ -1,7 +1,7 @@
 package org.flexstore.domain.cookie.usecase
 
 import org.flexstore.domain.cookie.*
-import org.flexstore.domain.user.UserRepository
+import org.flexstore.domain.user.repository.UserRepository
 import org.flexstore.domain.user.model.UserNotFoundException
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*

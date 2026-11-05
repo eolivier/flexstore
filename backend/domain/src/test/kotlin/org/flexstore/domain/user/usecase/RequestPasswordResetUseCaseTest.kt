@@ -1,7 +1,7 @@
 package org.flexstore.domain.user.usecase
 
 import org.assertj.core.api.WithAssertions
-import org.flexstore.domain.email.PasswordReset
+import org.flexstore.domain.email.model.PasswordReset
 import org.flexstore.domain.user.model.*
 import org.flexstore.infra.repository.InMemoryEmailRepository
 import org.flexstore.infra.repository.InMemoryPasswordResetRepository

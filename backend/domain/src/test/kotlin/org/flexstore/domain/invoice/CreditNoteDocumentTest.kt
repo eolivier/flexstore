@@ -2,8 +2,23 @@ package org.flexstore.domain.invoice
 
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.cart.*
+import org.flexstore.domain.invoice.model.CreditNote
+import org.flexstore.domain.invoice.model.CreditNoteDate
+import org.flexstore.domain.invoice.model.CreditNoteDocument
+import org.flexstore.domain.invoice.model.CreditNoteIssue
+import org.flexstore.domain.invoice.model.CreditNoteNumber
+import org.flexstore.domain.invoice.model.Invoice
+import org.flexstore.domain.invoice.model.InvoiceDate
+import org.flexstore.domain.invoice.model.InvoiceDocument
+import org.flexstore.domain.invoice.model.InvoiceIssue
+import org.flexstore.domain.invoice.model.InvoiceLines
+import org.flexstore.domain.invoice.model.InvoiceNumber
+import org.flexstore.domain.invoice.model.InvoiceText
+import org.flexstore.domain.invoice.model.InvoicedSale
 import org.flexstore.domain.order.*
+import org.flexstore.domain.order.model.*
 import org.flexstore.domain.product.*
+import org.flexstore.domain.product.model.*
 import org.flexstore.domain.seller.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.*

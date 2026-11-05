@@ -2,7 +2,7 @@ package org.flexstore.infra.spring.adapter.rest
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.flexstore.domain.product.ProductId
+import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.review.*
 import org.flexstore.domain.review.usecase.ReviewUseCases
 import org.flexstore.domain.sharedkernel.Identity

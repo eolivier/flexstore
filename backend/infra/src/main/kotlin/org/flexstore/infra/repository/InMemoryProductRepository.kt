@@ -1,6 +1,7 @@
 package org.flexstore.infra.repository
 
 import org.flexstore.domain.product.*
+import org.flexstore.domain.product.model.*
 import org.flexstore.domain.sharedkernel.*
 import java.math.BigDecimal
 import java.util.concurrent.atomic.AtomicInteger

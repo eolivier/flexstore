@@ -3,6 +3,7 @@ package org.flexstore.domain.image.usecase
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.image.*
 import org.flexstore.domain.product.*
+import org.flexstore.domain.product.model.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.infra.repository.InMemoryProductImageRepository
 import org.flexstore.infra.repository.InMemoryProductRepository

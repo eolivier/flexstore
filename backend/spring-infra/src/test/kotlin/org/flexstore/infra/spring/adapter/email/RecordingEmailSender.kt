@@ -1,9 +1,9 @@
 package org.flexstore.infra.spring.adapter.email
 
-import org.flexstore.domain.email.EmailVerificationLink
-import org.flexstore.domain.email.OrderConfirmationEmail
-import org.flexstore.domain.email.OrderStatusEmail
-import org.flexstore.domain.email.PasswordResetEmail
+import org.flexstore.domain.email.model.EmailVerificationLink
+import org.flexstore.domain.email.model.OrderConfirmationEmail
+import org.flexstore.domain.email.model.OrderStatusEmail
+import org.flexstore.domain.email.model.PasswordResetEmail
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Primary

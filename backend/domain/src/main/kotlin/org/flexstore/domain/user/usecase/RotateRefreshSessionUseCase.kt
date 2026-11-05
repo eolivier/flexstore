@@ -1,7 +1,7 @@
 package org.flexstore.domain.user.usecase
 
-import org.flexstore.domain.user.RefreshSessionRepository
-import org.flexstore.domain.user.UserRepository
+import org.flexstore.domain.user.repository.RefreshSessionRepository
+import org.flexstore.domain.user.repository.UserRepository
 import org.flexstore.domain.user.model.*
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*

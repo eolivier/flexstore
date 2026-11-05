@@ -1,6 +1,6 @@
 package org.flexstore.domain.wishlist.usecase
 
-import org.flexstore.domain.product.ProductId
+import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.user.model.UserId
 import org.flexstore.domain.wishlist.WishlistEntry
 

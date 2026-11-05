@@ -1,6 +1,6 @@
 package org.flexstore.infra.spring.adapter.persistence.jpa.repository
 
-import org.flexstore.domain.product.ProductId
+import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.review.*
 import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.user.model.*

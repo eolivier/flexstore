@@ -1,6 +1,12 @@
 package org.flexstore.domain.invoice
 
-import org.flexstore.domain.order.OrderId
+import org.flexstore.domain.invoice.model.BillingDocument
+import org.flexstore.domain.invoice.model.CreditNote
+import org.flexstore.domain.invoice.model.CreditNoteIssue
+import org.flexstore.domain.invoice.model.Invoice
+import org.flexstore.domain.invoice.model.InvoiceIssue
+import org.flexstore.domain.invoice.model.InvoicePdf
+import org.flexstore.domain.order.model.OrderId
 import org.flexstore.domain.seller.*
 
 // The invoices issued, numbered in a sequence without gaps

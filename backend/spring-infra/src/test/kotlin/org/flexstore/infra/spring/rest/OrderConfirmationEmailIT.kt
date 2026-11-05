@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.flexstore.infra.spring.adapter.email.RecordingEmailConfig
 import org.flexstore.infra.spring.adapter.email.RecordingEmailSender
-import org.flexstore.domain.email.OrderConfirmationEmailContent
+import org.flexstore.domain.email.model.OrderConfirmationEmailContent
 import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaCartItemRepository
 import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaCartRepository
 import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaOrderRepository

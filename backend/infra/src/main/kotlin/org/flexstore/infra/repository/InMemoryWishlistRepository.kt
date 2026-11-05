@@ -1,8 +1,8 @@
 package org.flexstore.infra.repository
 
-import org.flexstore.domain.product.ProductId
+import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.product.ProductRepository
-import org.flexstore.domain.product.Products
+import org.flexstore.domain.product.model.Products
 import org.flexstore.domain.user.model.UserId
 import org.flexstore.domain.wishlist.WishlistItem
 import org.flexstore.domain.wishlist.WishlistRepository

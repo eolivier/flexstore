@@ -3,6 +3,7 @@ package org.flexstore.infra.spring.adapter.rest.json
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.flexstore.domain.order.*
 import java.math.BigDecimal
+import org.flexstore.domain.order.model.*
 
 // The shipping methods, with their cost for the cart, and the price of the items from which the standard
 // shipping is free

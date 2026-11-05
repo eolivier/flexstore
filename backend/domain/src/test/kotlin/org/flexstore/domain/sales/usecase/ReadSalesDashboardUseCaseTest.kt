@@ -2,6 +2,7 @@ package org.flexstore.domain.sales.usecase
 
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.order.*
+import org.flexstore.domain.order.model.*
 import org.flexstore.domain.sales.*
 import org.flexstore.infra.repository.InMemoryOrderRepository
 import org.flexstore.domain.user.*

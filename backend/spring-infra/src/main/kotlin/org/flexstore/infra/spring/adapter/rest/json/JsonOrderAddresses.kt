@@ -4,15 +4,15 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.flexstore.domain.discount.PromoCode
 import org.flexstore.domain.legal.LegalPageId
-import org.flexstore.domain.order.AcceptedTermsOfSale
-import org.flexstore.domain.order.DiscountCodeEntered
-import org.flexstore.domain.order.EnteredDiscountCode
-import org.flexstore.domain.order.NoDiscountCodeEntered
-import org.flexstore.domain.order.NoTermsOfSaleAccepted
-import org.flexstore.domain.order.OrderAddresses
-import org.flexstore.domain.order.OrderDelivery
-import org.flexstore.domain.order.ShippingMethod
-import org.flexstore.domain.order.TermsOfSaleAcceptance
+import org.flexstore.domain.order.model.AcceptedTermsOfSale
+import org.flexstore.domain.order.model.DiscountCodeEntered
+import org.flexstore.domain.order.model.EnteredDiscountCode
+import org.flexstore.domain.order.model.NoDiscountCodeEntered
+import org.flexstore.domain.order.model.NoTermsOfSaleAccepted
+import org.flexstore.domain.order.model.OrderAddresses
+import org.flexstore.domain.order.model.OrderDelivery
+import org.flexstore.domain.order.model.ShippingMethod
+import org.flexstore.domain.order.model.TermsOfSaleAcceptance
 import org.flexstore.domain.sharedkernel.Identity
 
 // The addresses of an order to place: without billing address, the order is billed to the delivery address.

@@ -2,7 +2,7 @@ package org.flexstore.infra.spring.adapter.rest
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.flexstore.domain.user.PasswordResetService
+import org.flexstore.domain.user.service.PasswordResetService
 import org.flexstore.domain.user.model.Email
 import org.flexstore.infra.spring.adapter.rest.json.JsonChosenPassword
 import org.flexstore.infra.spring.adapter.rest.json.JsonPasswordResetRequest

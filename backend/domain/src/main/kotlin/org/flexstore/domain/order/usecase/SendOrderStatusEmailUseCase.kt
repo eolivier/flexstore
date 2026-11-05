@@ -1,9 +1,12 @@
 package org.flexstore.domain.order.usecase
 
 import org.flexstore.domain.email.*
+import org.flexstore.domain.email.model.*
 import org.flexstore.domain.order.*
+import org.flexstore.domain.order.model.*
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
+import org.flexstore.domain.user.repository.*
 import org.ucop.domain.entity.*
 
 // Tells the customer that their order reached a status announced to them (shipped, delivered); the other

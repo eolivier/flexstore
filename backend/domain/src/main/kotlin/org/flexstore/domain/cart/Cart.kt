@@ -2,6 +2,7 @@ package org.flexstore.domain.cart
 
 import java.util.UUID
 import org.flexstore.domain.product.*
+import org.flexstore.domain.product.model.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.*
 import org.ucop.domain.ErrorMessage

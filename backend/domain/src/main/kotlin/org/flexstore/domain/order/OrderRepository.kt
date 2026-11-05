@@ -1,5 +1,8 @@
 package org.flexstore.domain.order
 
+import org.flexstore.domain.order.model.Order
+import org.flexstore.domain.order.model.OrderId
+import org.flexstore.domain.order.model.Orders
 import org.flexstore.domain.sharedkernel.Page
 import org.flexstore.domain.sharedkernel.PageRequest
 import org.flexstore.domain.user.model.*

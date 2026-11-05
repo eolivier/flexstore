@@ -1,5 +1,7 @@
 package org.flexstore.infra.spring.adapter.persistence.jpa.repository
 
+import org.flexstore.domain.order.model.*
+import org.flexstore.domain.product.model.*
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.AddressEntity
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.OrderEntity
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.OrderLineEntity

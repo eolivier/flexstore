@@ -1,7 +1,7 @@
 package org.flexstore.domain.stock
 
 import org.assertj.core.api.WithAssertions
-import org.flexstore.domain.product.ProductId
+import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.sharedkernel.Quantity
 import org.junit.jupiter.params.ParameterizedTest

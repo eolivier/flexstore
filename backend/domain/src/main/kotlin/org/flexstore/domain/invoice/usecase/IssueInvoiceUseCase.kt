@@ -1,7 +1,9 @@
 package org.flexstore.domain.invoice.usecase
 
 import org.flexstore.domain.invoice.*
+import org.flexstore.domain.invoice.model.*
 import org.flexstore.domain.order.*
+import org.flexstore.domain.order.model.*
 import org.flexstore.domain.seller.*
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*

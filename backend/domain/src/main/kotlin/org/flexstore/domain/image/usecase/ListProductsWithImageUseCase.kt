@@ -1,7 +1,7 @@
 package org.flexstore.domain.image.usecase
 
 import org.flexstore.domain.image.*
-import org.flexstore.domain.product.ProductIds
+import org.flexstore.domain.product.model.ProductIds
 import org.ucop.domain.entity.*
 
 // The products that have an image

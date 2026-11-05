@@ -2,7 +2,7 @@ package org.flexstore.infra.spring.adapter.payment
 
 import com.stripe.net.Webhook
 import org.assertj.core.api.WithAssertions
-import org.flexstore.domain.order.OrderId
+import org.flexstore.domain.order.model.OrderId
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource

@@ -1,10 +1,11 @@
 package org.flexstore.domain.payment
 
+import org.flexstore.domain.order.model.*
 import org.flexstore.domain.payment.usecase.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.order.usecase.*
-import org.flexstore.domain.invoice.InvoiceDate
-import org.flexstore.domain.invoice.InvoiceIssue
+import org.flexstore.domain.invoice.model.InvoiceDate
+import org.flexstore.domain.invoice.model.InvoiceIssue
 import org.flexstore.domain.invoice.usecase.IssueInvoiceUseCase
 import org.flexstore.domain.payment.*
 

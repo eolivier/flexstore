@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.adapter.persistence.jpa.repository
 
+import org.flexstore.domain.email.model.*
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.PasswordResetEntity
 import org.flexstore.infra.spring.adapter.persistence.jpa.hash
 import org.flexstore.domain.email.*

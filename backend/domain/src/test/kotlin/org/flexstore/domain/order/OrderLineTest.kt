@@ -2,7 +2,9 @@ package org.flexstore.domain.order
 
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.discount.Percentage
+import org.flexstore.domain.order.model.OrderLine
 import org.flexstore.domain.product.*
+import org.flexstore.domain.product.model.*
 import org.flexstore.domain.sharedkernel.*
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal

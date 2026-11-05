@@ -3,6 +3,7 @@ package org.flexstore.domain.user.usecase
 import kotlin.reflect.KClass
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
+import org.flexstore.domain.user.repository.*
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
 import org.ucop.domain.entity.*

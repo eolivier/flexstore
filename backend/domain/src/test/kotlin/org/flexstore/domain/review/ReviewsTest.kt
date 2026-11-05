@@ -1,7 +1,7 @@
 package org.flexstore.domain.review
 
 import org.assertj.core.api.WithAssertions
-import org.flexstore.domain.product.ProductId
+import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.user.model.*
 import org.junit.jupiter.api.Test

@@ -3,7 +3,7 @@ package org.flexstore.infra.spring.adapter.payment
 import com.stripe.exception.SignatureVerificationException
 import com.stripe.model.checkout.Session
 import com.stripe.net.Webhook
-import org.flexstore.domain.order.OrderId
+import org.flexstore.domain.order.model.OrderId
 
 // The notifications of Stripe: only those signed with the secret of the webhook are trusted
 class StripeWebhook(private val webhookSecret: String) {

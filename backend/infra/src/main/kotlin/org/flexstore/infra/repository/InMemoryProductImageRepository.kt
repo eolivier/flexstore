@@ -1,7 +1,7 @@
 package org.flexstore.infra.repository
 
 import org.flexstore.domain.image.*
-import org.flexstore.domain.product.ProductId
+import org.flexstore.domain.product.model.ProductId
 
 class InMemoryProductImageRepository : ProductImageRepository {
 

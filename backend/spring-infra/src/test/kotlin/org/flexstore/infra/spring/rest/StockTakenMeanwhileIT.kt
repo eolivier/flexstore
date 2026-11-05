@@ -1,7 +1,7 @@
 package org.flexstore.infra.spring.rest
 
 import org.assertj.core.api.Assertions.assertThat
-import org.flexstore.domain.product.ProductId
+import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.sharedkernel.Quantity
 import org.flexstore.domain.stock.StockRepository

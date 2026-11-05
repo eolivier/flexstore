@@ -1,11 +1,11 @@
 package org.flexstore.domain.twofactor.usecase
 
 import org.flexstore.domain.sharedkernel.InstantProvider
-import org.flexstore.domain.twofactor.TwoFactorCodeInvalidException
-import org.flexstore.domain.twofactor.TwoFactorEnrollmentNotPendingException
+import org.flexstore.domain.twofactor.model.TwoFactorCodeInvalidException
+import org.flexstore.domain.twofactor.model.TwoFactorEnrollmentNotPendingException
 import org.flexstore.domain.twofactor.model.TwoFactorAuthentication
 import org.flexstore.domain.twofactor.model.TwoFactorCode
-import org.flexstore.domain.user.UserRepository
+import org.flexstore.domain.user.repository.UserRepository
 import org.flexstore.domain.user.model.User
 import org.flexstore.domain.user.model.UserId
 import org.ucop.domain.ErrorMessage

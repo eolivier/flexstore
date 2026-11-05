@@ -3,7 +3,7 @@ package org.flexstore.infra.spring.adapter.persistence.jpa.repository
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.StockEntity
 import org.flexstore.infra.spring.adapter.persistence.jpa.toDomain
 import org.flexstore.infra.spring.adapter.persistence.jpa.toEntity
-import org.flexstore.domain.product.ProductId
+import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.sharedkernel.Quantity
 import org.flexstore.domain.stock.*

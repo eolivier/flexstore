@@ -1,5 +1,7 @@
 package org.flexstore.domain.email
 
+import org.flexstore.domain.email.model.PasswordReset
+import org.flexstore.domain.email.model.VerificationToken
 import org.flexstore.domain.user.model.UserId
 
 // The password resets whose link still works: the last one asked by each customer

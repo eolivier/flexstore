@@ -1,6 +1,6 @@
 package org.flexstore.domain.stock.usecase
 
-import org.flexstore.domain.product.ProductId
+import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.stock.*
 import org.flexstore.domain.user.model.UserId
 

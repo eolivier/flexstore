@@ -1,7 +1,7 @@
 package org.flexstore.domain.payment
 
 import org.flexstore.domain.cart.CartOwner
-import org.flexstore.domain.order.OrderId
+import org.flexstore.domain.order.model.OrderId
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
 

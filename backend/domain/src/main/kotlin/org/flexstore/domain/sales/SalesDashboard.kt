@@ -4,6 +4,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import org.flexstore.domain.order.*
+import org.flexstore.domain.order.model.*
 import org.flexstore.domain.sharedkernel.Price
 import org.flexstore.domain.user.model.UserId
 import org.ucop.domain.ErrorMessage

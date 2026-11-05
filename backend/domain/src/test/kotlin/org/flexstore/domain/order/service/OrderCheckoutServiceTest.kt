@@ -1,6 +1,8 @@
 package org.flexstore.domain.order.service
 
+import org.flexstore.domain.order.model.*
 import org.flexstore.domain.order.usecase.*
+import org.flexstore.domain.product.model.*
 import org.flexstore.infra.repository.InMemoryStockRepository
 import org.flexstore.domain.stock.*
 import org.flexstore.domain.cart.*

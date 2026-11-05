@@ -1,13 +1,22 @@
 package org.flexstore.domain.invoice
 
+import org.flexstore.domain.invoice.model.*
+import org.flexstore.domain.invoice.model.CreditNote
+import org.flexstore.domain.invoice.model.CreditNoteDate
+import org.flexstore.domain.invoice.model.CreditNoteIssue
+import org.flexstore.domain.invoice.model.CreditNoteNumber
+import org.flexstore.domain.invoice.model.InvoiceDate
+import org.flexstore.domain.invoice.model.InvoiceIssue
 import org.flexstore.domain.invoice.usecase.*
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.invoice.*
 import org.flexstore.domain.order.*
+import org.flexstore.domain.order.model.*
 import org.flexstore.domain.order.usecase.*
 import org.flexstore.domain.payment.PaymentOutcome
 import org.flexstore.domain.product.*
+import org.flexstore.domain.product.model.*
 import org.flexstore.domain.seller.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.stock.*

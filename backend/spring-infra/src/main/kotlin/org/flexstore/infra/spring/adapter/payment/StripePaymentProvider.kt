@@ -16,11 +16,11 @@ import com.stripe.param.checkout.SessionCreateParams.LineItem
 import com.stripe.param.checkout.SessionCreateParams.LineItem.PriceData
 import com.stripe.param.checkout.SessionExpireParams
 import java.math.BigDecimal
-import org.flexstore.domain.order.AppliedOrderDiscount
-import org.flexstore.domain.order.Order
-import org.flexstore.domain.order.OrderConfirmationPage
-import org.flexstore.domain.order.OrderLine
-import org.flexstore.domain.order.OrderPage
+import org.flexstore.domain.order.model.AppliedOrderDiscount
+import org.flexstore.domain.order.model.Order
+import org.flexstore.domain.order.model.OrderConfirmationPage
+import org.flexstore.domain.order.model.OrderLine
+import org.flexstore.domain.order.model.OrderPage
 import org.flexstore.domain.payment.*
 import org.flexstore.domain.sharedkernel.Price
 import org.flexstore.domain.sharedkernel.ShopUrl

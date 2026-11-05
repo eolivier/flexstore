@@ -1,10 +1,10 @@
 package org.flexstore.domain.twofactor.usecase
 
-import org.flexstore.domain.twofactor.InvalidTwoFactorAuthenticationChangeException
-import org.flexstore.domain.twofactor.TwoFactorAuthenticationForbiddenException
-import org.flexstore.domain.twofactor.TwoFactorAuthenticationNotEnabledException
+import org.flexstore.domain.twofactor.model.InvalidTwoFactorAuthenticationChangeException
+import org.flexstore.domain.twofactor.model.TwoFactorAuthenticationForbiddenException
+import org.flexstore.domain.twofactor.model.TwoFactorAuthenticationNotEnabledException
 import org.flexstore.domain.twofactor.model.TwoFactorAuthentication
-import org.flexstore.domain.user.UserRepository
+import org.flexstore.domain.user.repository.UserRepository
 import org.flexstore.domain.user.model.User
 import org.flexstore.domain.user.model.UserId
 import org.flexstore.domain.user.model.UserNotFoundException

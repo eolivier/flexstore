@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.adapter.persistence.jpa
 
+import org.flexstore.domain.product.model.*
 import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaProductRepository
 import jakarta.persistence.EntityManager
 import org.assertj.core.api.Assertions.assertThat

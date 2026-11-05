@@ -1,6 +1,6 @@
 package org.flexstore.infra.repository
 
-import org.flexstore.domain.user.FailedSignInRepository
+import org.flexstore.domain.user.repository.FailedSignInRepository
 import org.flexstore.domain.user.model.FailedSignInCount
 import org.flexstore.domain.user.model.UserId
 

@@ -2,7 +2,8 @@ package org.flexstore.domain.image.usecase
 
 import org.flexstore.domain.image.*
 import org.flexstore.domain.product.*
-import org.flexstore.domain.user.UserRepository
+import org.flexstore.domain.product.model.*
+import org.flexstore.domain.user.repository.UserRepository
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 

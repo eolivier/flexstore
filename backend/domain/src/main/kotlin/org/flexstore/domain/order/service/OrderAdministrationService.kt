@@ -1,5 +1,6 @@
 package org.flexstore.domain.order.service
 
+import org.flexstore.domain.order.model.*
 import org.flexstore.domain.order.usecase.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.sharedkernel.Page

@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.adapter.persistence.jpa
 
+import org.flexstore.domain.user.repository.*
 import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaUserRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.flexstore.domain.user.*

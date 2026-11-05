@@ -1,5 +1,8 @@
 package org.flexstore.infra.spring.adapter.email
 
+import org.flexstore.domain.email.model.*
+import org.flexstore.domain.order.model.*
+import org.flexstore.domain.product.model.*
 import org.flexstore.domain.sharedkernel.ShopUrl
 import org.assertj.core.api.Assertions.assertThat
 import org.flexstore.domain.cart.*

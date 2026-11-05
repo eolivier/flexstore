@@ -1,6 +1,7 @@
 package org.flexstore.infra.repository
 
 import org.flexstore.domain.email.*
+import org.flexstore.domain.email.model.*
 import org.flexstore.domain.user.model.UserId
 
 // Keeps the password resets in memory: for the tests

@@ -1,6 +1,7 @@
 package org.flexstore.infra.repository
 
 import org.flexstore.domain.order.*
+import org.flexstore.domain.order.model.*
 import org.flexstore.domain.sharedkernel.Page
 import org.flexstore.domain.sharedkernel.PageRequest
 import org.flexstore.domain.sharedkernel.TotalCount

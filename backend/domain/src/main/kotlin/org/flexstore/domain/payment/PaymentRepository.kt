@@ -1,6 +1,6 @@
 package org.flexstore.domain.payment
 
-import org.flexstore.domain.order.OrderId
+import org.flexstore.domain.order.model.OrderId
 
 // The payment provider (Stripe, or a simulated one): the domain does not know which one
 interface PaymentRepository {

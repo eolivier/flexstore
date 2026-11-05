@@ -1,8 +1,13 @@
 package org.flexstore.domain.invoice
 
+import org.flexstore.domain.invoice.model.*
+import org.flexstore.domain.invoice.model.CreditNoteDate
+import org.flexstore.domain.invoice.model.CreditNoteIssuance
+import org.flexstore.domain.invoice.model.CreditNoteIssue
 import org.flexstore.domain.invoice.usecase.*
 import org.flexstore.domain.invoice.*
 import org.flexstore.domain.order.*
+import org.flexstore.domain.order.model.*
 import org.flexstore.domain.order.usecase.*
 
 // The use cases that refund an order and tell its customer: reading it back, then sending them an email

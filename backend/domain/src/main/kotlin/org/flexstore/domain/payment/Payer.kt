@@ -1,6 +1,6 @@
 package org.flexstore.domain.payment
 
-import org.flexstore.domain.order.Order
+import org.flexstore.domain.order.model.Order
 import org.flexstore.domain.user.model.*
 
 // The holder of the card, when known: the payment page is prefilled with their name

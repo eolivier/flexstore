@@ -1,8 +1,15 @@
 package org.flexstore.domain.invoice
 
+import org.flexstore.domain.invoice.model.*
+import org.flexstore.domain.invoice.model.BillingDocument
+import org.flexstore.domain.invoice.model.CreditNoteDocument
+import org.flexstore.domain.invoice.model.InvoiceDocument
+import org.flexstore.domain.invoice.model.InvoicePdf
+import org.flexstore.domain.invoice.model.InvoicedSale
 import org.flexstore.domain.invoice.usecase.*
 import org.flexstore.domain.invoice.*
 import org.flexstore.domain.order.*
+import org.flexstore.domain.order.model.*
 import org.flexstore.domain.order.usecase.ReadAdministeredOrderUseCase
 import org.flexstore.domain.seller.usecase.*
 import org.flexstore.domain.user.model.UserId

@@ -2,7 +2,7 @@ package org.flexstore.infra.spring.rest
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
-import org.flexstore.domain.user.UserRepository
+import org.flexstore.domain.user.repository.UserRepository
 import org.flexstore.domain.user.model.*
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach

@@ -1,6 +1,6 @@
 package org.flexstore.infra.repository
 
-import org.flexstore.domain.user.RefreshSessionRepository
+import org.flexstore.domain.user.repository.RefreshSessionRepository
 import org.flexstore.domain.user.model.*
 
 // Keeps the sessions in memory: for the tests

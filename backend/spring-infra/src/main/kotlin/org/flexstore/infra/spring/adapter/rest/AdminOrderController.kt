@@ -2,6 +2,7 @@ package org.flexstore.infra.spring.adapter.rest
 
 import org.flexstore.domain.invoice.OrderRefundService
 import org.flexstore.domain.order.*
+import org.flexstore.domain.order.model.*
 import org.flexstore.domain.order.service.*
 import org.flexstore.domain.order.usecase.*
 import io.swagger.v3.oas.annotations.Operation

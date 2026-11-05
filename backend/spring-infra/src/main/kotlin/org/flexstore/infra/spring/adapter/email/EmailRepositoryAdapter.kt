@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.adapter.email
 
+import org.flexstore.domain.email.model.*
 import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.email.*
 import org.flexstore.domain.user.model.UserId

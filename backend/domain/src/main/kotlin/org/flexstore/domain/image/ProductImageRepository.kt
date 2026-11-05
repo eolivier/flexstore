@@ -1,6 +1,6 @@
 package org.flexstore.domain.image
 
-import org.flexstore.domain.product.ProductId
+import org.flexstore.domain.product.model.ProductId
 
 interface ProductImageRepository {
 

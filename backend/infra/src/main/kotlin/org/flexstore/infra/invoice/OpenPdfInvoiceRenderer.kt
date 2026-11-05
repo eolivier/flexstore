@@ -14,6 +14,7 @@ import com.lowagie.text.pdf.PdfWriter
 import org.flexstore.domain.invoice.*
 import java.awt.Color
 import java.io.ByteArrayOutputStream
+import org.flexstore.domain.invoice.model.*
 
 // Lays out the content of an invoice or of a credit note on an A4 page, with OpenPDF: the title and the dates,
 // the seller and the customer side by side, the table of the lines, the totals, then the footer

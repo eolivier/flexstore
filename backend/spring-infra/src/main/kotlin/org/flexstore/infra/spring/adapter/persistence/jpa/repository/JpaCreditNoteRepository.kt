@@ -1,7 +1,8 @@
 package org.flexstore.infra.spring.adapter.persistence.jpa.repository
 
 import org.flexstore.domain.invoice.*
-import org.flexstore.domain.order.OrderId
+import org.flexstore.domain.invoice.model.*
+import org.flexstore.domain.order.model.OrderId
 import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.CreditNoteEntity
 import org.springframework.data.jpa.repository.JpaRepository

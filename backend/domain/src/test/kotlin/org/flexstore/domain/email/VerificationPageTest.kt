@@ -1,6 +1,7 @@
 package org.flexstore.domain.email
 
 import org.assertj.core.api.WithAssertions
+import org.flexstore.domain.email.model.VerificationPage
 import org.flexstore.domain.sharedkernel.ShopUrl
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource

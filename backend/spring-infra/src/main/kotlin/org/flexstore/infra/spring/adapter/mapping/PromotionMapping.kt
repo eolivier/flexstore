@@ -1,12 +1,12 @@
 package org.flexstore.infra.spring.adapter.mapping
 
 import org.flexstore.domain.discount.Percentage
-import org.flexstore.domain.product.NoPromotion
-import org.flexstore.domain.product.PercentageOffPromotion
-import org.flexstore.domain.product.Promotion
-import org.flexstore.domain.product.PromotionEnd
-import org.flexstore.domain.product.PromotionPeriod
-import org.flexstore.domain.product.PromotionStart
+import org.flexstore.domain.product.model.NoPromotion
+import org.flexstore.domain.product.model.PercentageOffPromotion
+import org.flexstore.domain.product.model.Promotion
+import org.flexstore.domain.product.model.PromotionEnd
+import org.flexstore.domain.product.model.PromotionPeriod
+import org.flexstore.domain.product.model.PromotionStart
 import org.flexstore.infra.spring.adapter.rest.json.JsonPromotion
 import java.math.BigDecimal
 import java.time.Instant
