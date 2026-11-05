@@ -152,7 +152,7 @@ class AccountIT {
         // Arrange
         register(registration()).andExpect(status().isCreated)
         val customerId = userRepository.findByEmail(CUSTOMER_EMAIL)!!.id
-        jdbcTemplate.update("UPDATE email_verification SET expires_at = now() - interval '1 second' WHERE user_id = ?", customerId)
+        jdbcTemplate.update("UPDATE user_token SET expires_at = now() - interval '1 second' WHERE user_id = ? AND type = 'EMAIL_VERIFICATION'", customerId)
         // Act
         val response = verify(lastToken())
         // Assert
@@ -166,7 +166,7 @@ class AccountIT {
         register(registration()).andExpect(status().isCreated)
         // Assert
         val customerId = userRepository.findByEmail(CUSTOMER_EMAIL)!!.id
-        val storedHashes = jdbcTemplate.queryForList("SELECT token_hash FROM email_verification WHERE user_id = ?", String::class.java, customerId)
+        val storedHashes = jdbcTemplate.queryForList("SELECT token_hash FROM user_token WHERE user_id = ? AND type = 'EMAIL_VERIFICATION'", String::class.java, customerId)
         assertThat(storedHashes).hasSize(1).doesNotContain(lastToken())
     }
 
