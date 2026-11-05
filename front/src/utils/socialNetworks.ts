@@ -23,6 +23,18 @@ const ICONS: Record<SocialNetwork, string> = {
 
 export const socialNetworkIcon = (socialNetwork: SocialNetwork) => ICONS[socialNetwork];
 
+// An example of the address of an account on each network, shown as a hint under its field
+const EXAMPLE_ADDRESSES: Record<SocialNetwork, string> = {
+  facebook: 'https://www.facebook.com/flexstore',
+  instagram: 'https://www.instagram.com/flexstore',
+  x: 'https://x.com/flexstore',
+  tiktok: 'https://www.tiktok.com/@flexstore',
+  youtube: 'https://www.youtube.com/@flexstore',
+  twitch: 'https://www.twitch.tv/flexstore',
+};
+
+export const socialNetworkExampleAddress = (socialNetwork: SocialNetwork) => EXAMPLE_ADDRESSES[socialNetwork];
+
 // No account anywhere: the shop has not given any network
 export function noSocialNetworkUrls(): SocialNetworkUrls {
   return { facebook: '', instagram: '', x: '', tiktok: '', youtube: '', twitch: '' };

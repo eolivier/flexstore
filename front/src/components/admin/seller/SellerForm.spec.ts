@@ -105,6 +105,23 @@ describe('SellerForm.vue', () => {
   });
 
   it.each([
+    { field: 10, example: 'https://www.facebook.com/flexstore' },
+    { field: 11, example: 'https://www.instagram.com/flexstore' },
+    { field: 12, example: 'https://x.com/flexstore' },
+    { field: 13, example: 'https://www.tiktok.com/@flexstore' },
+    { field: 14, example: 'https://www.youtube.com/@flexstore' },
+    { field: 15, example: 'https://www.twitch.tv/flexstore' },
+  ])('hints the address of the network of field $field with $example', async ({ field, example }) => {
+    // Arrange
+    const wrapper = mountForm();
+    // Act
+    await inputs(wrapper)[field].trigger('focus');
+    await flushPromises();
+    // Assert
+    expect(wrapper.text()).toContain(`The address of the account, e.g. ${example}`);
+  });
+
+  it.each([
     { field: 3, value: 'dix mille', expected: 'An amount in euros, in digits' },
     { field: 5, value: ' ', expected: 'Required' },
     { field: 7, value: 'abc', expected: 'Invalid phone number' },
