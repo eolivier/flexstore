@@ -45,7 +45,7 @@ export const aboutFeatureGroups: AboutFeatureGroup[] = [
       { key: 'users', icon: 'mdi-account-multiple-outline' },
       { key: 'products', icon: 'mdi-package-variant-closed' },
       { key: 'orders', icon: 'mdi-truck-delivery-outline' },
-      { key: 'productPromotions', icon: 'mdi-tag-percent-outline' },
+      { key: 'productPromotions', icon: 'mdi-label-percent-outline' },
       { key: 'discountCodes', icon: 'mdi-ticket-percent-outline' },
       { key: 'seller', icon: 'mdi-store-outline' },
       { key: 'legalPages', icon: 'mdi-scale-balance' },
