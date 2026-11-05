@@ -18,7 +18,7 @@ dependencies {
     // The tools call the use cases of the domain
     implementation(project(":domain"))
     // The messages of the Model Context Protocol are JSON-RPC (the version is the one of Spring Boot in spring-infra)
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.17.2")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.18.5")
 
     testImplementation(project(":infra"))
     testImplementation("io.mockk:mockk:1.13.2")
