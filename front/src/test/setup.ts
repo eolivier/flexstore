@@ -4,6 +4,7 @@ import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import { beforeEach, vi } from 'vitest';
 import { createI18n } from 'vue-i18n';
+import { createHead } from '@unhead/vue/client';
 import messages from '@/i18n/messages';
 
 // Create vuetify instance for tests
@@ -19,8 +20,11 @@ export const i18n = createI18n({
   legacy: false,
 });
 
+// The head of the pages (title, description, canonical address) is written in the document of the tests
+export const head = createHead();
+
 // Global plugins for all tests
-config.global.plugins = [vuetify, i18n];
+config.global.plugins = [vuetify, i18n, head];
 
 // Mock import.meta.env
 vi.stubEnv('VITE_API_URL', 'http://localhost:8080');

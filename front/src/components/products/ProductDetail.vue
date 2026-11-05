@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import { computed, ref, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
+  import { useRoute } from 'vue-router';
   import type { Product } from '@/models/product';
   import { getProduct } from '@/services/product.service';
   import { useProductsStore } from '@/stores/products.store';
@@ -21,10 +22,12 @@
   import WishlistToggleButton from './WishlistToggleButton.vue';
   import { useWishlistStore } from '@/stores/wishlist.store';
   import { useAuthStore } from '@/stores/auth.store';
+  import { useProductHead } from '@/composables/useProductHead';
 
   const props = defineProps<{ id: string }>();
 
   const { t, locale } = useI18n();
+  const route = useRoute();
   const productsStore = useProductsStore();
   const cartStore = useCartStore();
   const stocksStore = useStocksStore();
@@ -53,6 +56,11 @@
       loading.value = false;
     }
   }
+
+  useProductHead(
+    product,
+    computed(() => route.path)
+  );
 
   // Reload when navigating from one product to another (e.g. a similar product), or when the customer changes
   // the language: the product is loaded in it only

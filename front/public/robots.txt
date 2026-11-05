@@ -1,0 +1,5 @@
+# Every page can be crawled. The pages that must not be listed (account, cart, sign in, administration, search
+# results) say noindex in their head, which a crawler can only read when it is allowed to fetch the page.
+# What protects the private areas is the authentication, not this file.
+User-agent: *
+Disallow:

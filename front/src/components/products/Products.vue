@@ -14,6 +14,7 @@
   import { categoryInfo, isKnownCategory } from './categories';
   import { shopLinks } from '@/components/menu/navigation';
   import { matchesCatalogSearch, type CatalogSearch } from '@/utils/productSearch';
+  import { usePageHead } from '@/composables/usePageHead';
 
   const props = defineProps<{ category?: string }>();
 
@@ -43,6 +44,16 @@
   const { addingProductId, feedback, addToCart } = useAddToCart();
 
   const title = computed(() => t(props.category ? categoryInfo(props.category).label : 'nav.allProducts'));
+
+  // A search result is not a page to list: the catalog page it comes from is
+  usePageHead(() => ({
+    title: title.value,
+    description: t(categoryInfo(props.category).description),
+    path: route.path,
+    indexed: search.value === '',
+    imageUrl: null,
+    structuredData: null,
+  }));
 
   type SortKey = 'name' | 'priceAsc' | 'priceDesc';
   const sort = ref<SortKey>('name');

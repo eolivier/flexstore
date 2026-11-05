@@ -101,4 +101,16 @@ describe('ProductDetail.vue', () => {
     expect(wrapper.text()).toContain('Marie D.');
     expect(wrapper.text()).toContain('4.5 (2 reviews)');
   });
+
+  it('tells the search engines the name, the price and the rating of the product', async () => {
+    // Act
+    await mountProductDetail();
+    // Assert
+    expect(document.title).toBe('Organic T-shirt | Flexstore');
+    const structuredData = JSON.parse(
+      document.head.querySelector('script[type="application/ld+json"]')!.innerHTML
+    );
+    expect(structuredData.name).toBe('Organic T-shirt');
+    expect(structuredData.offers.price).toBe(25);
+  });
 });

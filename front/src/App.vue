@@ -2,6 +2,9 @@
   import NavigationMenu from './components/menu/NavigationMenu.vue';
   import AppFooter from './components/layout/AppFooter.vue';
   import CookieBanner from './components/cookies/CookieBanner.vue';
+  import { useRouteHead } from './composables/useRouteHead';
+
+  useRouteHead();
 </script>
 
 <template>

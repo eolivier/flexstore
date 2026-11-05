@@ -146,7 +146,10 @@ Add a `front/.env` file:
 
 ```bash
 VITE_API_URL=http://localhost:8080
+VITE_SITE_URL=http://localhost:5173
 ```
+
+`VITE_SITE_URL` is the public address of the shop: the search engines are given it in the canonical address of each page (the address of the page is used when it is missing).
 
 Then:
 
