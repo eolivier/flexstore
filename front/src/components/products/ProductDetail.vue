@@ -24,6 +24,7 @@
   import { useAuthStore } from '@/stores/auth.store';
   import { useProductHead } from '@/composables/useProductHead';
   import { productPath } from '@/utils/productSlug';
+  import { languageOfPath, localizedPath } from '@/utils/language';
 
   const props = defineProps<{ id: string }>();
 
@@ -70,7 +71,9 @@
   }
 
   // The one address of the page: the one of the product once it is known
-  const canonicalPath = computed(() => (product.value ? productPath(product.value) : route.path));
+  const canonicalPath = computed(() =>
+    product.value ? localizedPath(productPath(product.value), languageOfPath(route.path)) : route.path
+  );
   useProductHead(product, canonicalPath);
 
   // Reload when navigating from one product to another (e.g. a similar product), or when the customer changes
@@ -86,7 +89,7 @@
 
   const category = computed(() => categoryInfo(product.value?.category));
   const categoryLink = computed(
-    () => shopCategories.find((c) => c.code === product.value?.category)?.to ?? '/products/'
+    () => shopCategories.find((c) => c.code === product.value?.category)?.to ?? '/products'
   );
   const rating = computed(() => reviewsStore.ratingOf(product.value?.id));
   const stock = computed(() => (product.value ? stocksStore.quantityOf(product.value.id) : null));
@@ -127,7 +130,7 @@
         <v-btn v-if="failed" variant="outlined" color="primary" @click="loadProduct">{{
           t('products.retry')
         }}</v-btn>
-        <v-btn to="/products/" color="secondary" prepend-icon="mdi-arrow-left">{{
+        <v-btn to="/products" color="secondary" prepend-icon="mdi-arrow-left">{{
           t('products.backToShop')
         }}</v-btn>
       </div>
@@ -136,7 +139,7 @@
     <template v-else>
       <v-breadcrumbs
         :items="[
-          { title: t('products.shop'), to: '/products/' },
+          { title: t('products.shop'), to: '/products' },
           { title: t(category.label), to: categoryLink },
           { title: product.name ?? '', disabled: true },
         ]"

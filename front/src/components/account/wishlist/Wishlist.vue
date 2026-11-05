@@ -41,7 +41,7 @@
     <v-card v-else-if="wishlistStore.products.length === 0" class="pa-10 text-center">
       <v-icon icon="mdi-heart-outline" size="48" class="text-medium-emphasis mb-3" />
       <p class="text-body-1 mb-4">{{ t('wishlist.empty') }}</p>
-      <v-btn to="/products/" color="primary">{{ t('products.backToShop') }}</v-btn>
+      <v-btn to="/products" color="primary">{{ t('products.backToShop') }}</v-btn>
     </v-card>
 
     <v-row v-else>

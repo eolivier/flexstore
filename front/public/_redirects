@@ -1,0 +1,10 @@
+# Cloudflare Pages redirects (https://developers.cloudflare.com/pages/configuration/redirects/)
+#
+# The public pages have the prefix of their language (/fr/about, /en/about). The root and the addresses
+# without prefix (the ones of the shop before the languages) lead to the French pages.
+/              /fr                      302
+/about         /fr/about                301
+/legal-notice  /fr/legal-notice         301
+/terms-of-sale /fr/terms-of-sale        301
+/products      /fr/products             301
+/products/*    /fr/products/:splat      301

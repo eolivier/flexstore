@@ -42,7 +42,7 @@
         />
         <h1 class="text-h5 font-weight-bold mb-2">{{ t(`emailVerification.${verification}.title`) }}</h1>
         <p class="text-body-2 text-medium-emphasis mb-6">{{ t(`emailVerification.${verification}.text`) }}</p>
-        <v-btn v-if="verification === 'verified'" to="/products/" color="primary">{{
+        <v-btn v-if="verification === 'verified'" to="/products" color="primary">{{
           t('emailVerification.continueShopping')
         }}</v-btn>
         <ResendVerificationEmailButton v-else-if="authStore.isAuthenticated" />

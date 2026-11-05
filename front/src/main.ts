@@ -8,6 +8,8 @@ import { routes } from './routes';
 import { SELLER_SETUP_PATH, sellerSetupIsPendingFor } from './utils/sellerSetupRedirect';
 import { useAuthStore } from './stores/auth.store';
 import { watch } from 'vue';
+import { localizeRouter } from './plugins/localizedRouter';
+import { isShopLanguage, languageOfPath, MAIN_LANGUAGE } from './utils/language';
 
 // Pre-rendered at build time (npm run build): the pages are then shown again by the browser, not hydrated, so
 // that a page served for another address (the shop answers every unknown address with its home page) is right
@@ -18,6 +20,15 @@ export const createApp = ViteSSG(
     app.use(createPinia());
     app.use(vuetify);
     app.use(i18n);
+
+    // The pages that exist in each language are in the language of their address; the others keep the one chosen
+    router.beforeEach((to) => {
+      if (to.meta.indexed) i18n.global.locale.value = languageOfPath(to.path);
+    });
+    localizeRouter(router, () => {
+      const language = i18n.global.locale.value;
+      return isShopLanguage(language) ? language : MAIN_LANGUAGE;
+    });
 
     router.beforeEach(async (to) => {
       const authStore = useAuthStore();

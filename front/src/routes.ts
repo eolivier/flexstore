@@ -1,4 +1,5 @@
 import type { RouteRecordRaw } from 'vue-router';
+import { localizedPath, MAIN_LANGUAGE, PAGE_LANGUAGES } from './utils/language';
 
 import Home from './components/Home.vue';
 import Users from './components/admin/Users.vue';
@@ -37,7 +38,7 @@ import Checkout from './components/checkout/Checkout.vue';
 
 // The pages of the shop. indexed: the public pages, which are pre-rendered at build time and listed by the
 // search engines
-export const routes: RouteRecordRaw[] = [
+const shopRoutes: RouteRecordRaw[] = [
   {
     path: '/',
     component: Home,
@@ -56,7 +57,7 @@ export const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true },
   },
   { path: '/user-profile', component: UserProfile },
-  { path: '/products/', component: Products, meta: { indexed: true } },
+  { path: '/products', component: Products, meta: { indexed: true } },
   { path: '/products/clothing', component: Products, props: { category: 'CLOTHING' }, meta: { indexed: true } },
   {
     path: '/products/accessories',
@@ -169,3 +170,19 @@ export const routes: RouteRecordRaw[] = [
     meta: { title: 'nav.termsOfSale', description: 'seo.termsOfSale', indexed: true },
   },
 ];
+
+const publicRoutes = shopRoutes.filter((route) => route.meta?.indexed);
+const otherRoutes = shopRoutes.filter((route) => !route.meta?.indexed);
+
+// A public page exists in each language, under the prefix of its language (/fr/about, /en/about)
+const translatedRoutes = PAGE_LANGUAGES.flatMap((language) =>
+  publicRoutes.map((route) => ({ ...route, path: localizedPath(route.path, language) }))
+);
+
+// The addresses without prefix (/about, the ones of the shop before the languages) lead to the main language
+const unprefixedRoutes: RouteRecordRaw[] = publicRoutes.map((route) => ({
+  path: route.path,
+  redirect: (to) => ({ path: localizedPath(to.path, MAIN_LANGUAGE), query: to.query, hash: to.hash }),
+}));
+
+export const routes: RouteRecordRaw[] = [...otherRoutes, ...translatedRoutes, ...unprefixedRoutes];

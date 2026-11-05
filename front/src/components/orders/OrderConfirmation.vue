@@ -70,7 +70,7 @@
         <v-btn :to="orderPath" color="secondary" size="large" prepend-icon="mdi-receipt-text-outline">
           {{ t('orders.seeDetail') }}
         </v-btn>
-        <v-btn to="/products/" variant="outlined" color="primary" size="large">
+        <v-btn to="/products" variant="outlined" color="primary" size="large">
           {{ t('cart.continue') }}
         </v-btn>
       </div>

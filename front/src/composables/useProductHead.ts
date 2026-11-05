@@ -29,6 +29,7 @@ export function useProductHead(product: Ref<Product | null>, path: Ref<string>) 
         description: t('seo.siteDescription'),
         path: path.value,
         indexed: false,
+        translated: false,
         imageUrl: null,
         structuredData: null,
       };
@@ -39,6 +40,8 @@ export function useProductHead(product: Ref<Product | null>, path: Ref<string>) 
       description: shortDescription(found.description),
       path: path.value,
       indexed: true,
+      // The slug of the product is in each language its own: the sitemap gives the two addresses
+      translated: false,
       imageUrl: imageUrl.value,
       structuredData: productStructuredData({
         product: found,

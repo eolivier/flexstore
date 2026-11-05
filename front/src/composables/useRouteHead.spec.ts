@@ -48,6 +48,21 @@ describe('useRouteHead', () => {
     );
   });
 
+  it('links an indexed page to its address in each language', async () => {
+    await openPage('/about');
+    await flushPromises();
+
+    const alternates = [...document.head.querySelectorAll('link[rel="alternate"]')].map((link) => [
+      link.getAttribute('hreflang'),
+      link.getAttribute('href'),
+    ]);
+    expect(alternates).toEqual([
+      ['fr', `${window.location.origin}/fr/about`],
+      ['en', `${window.location.origin}/en/about`],
+      ['x-default', `${window.location.origin}/fr/about`],
+    ]);
+  });
+
   it('keeps a page that does not say it is public out of the search engines', async () => {
     await openPage('/cart');
     await flushPromises();

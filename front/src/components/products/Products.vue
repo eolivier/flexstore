@@ -15,8 +15,14 @@
   import { shopLinks } from '@/components/menu/navigation';
   import { matchesCatalogSearch, type CatalogSearch } from '@/utils/productSearch';
   import { usePageHead } from '@/composables/usePageHead';
+  import { withoutLanguage } from '@/utils/language';
 
   const props = defineProps<{ category?: string }>();
+
+  // The catalog page of a link: its address is the one of the page, whatever its language or final slash
+  function isShown(linkPath: string): boolean {
+    return withoutLanguage(route.path).replace(/\/+$/, '') === linkPath;
+  }
 
   const { t } = useI18n();
   const route = useRoute();
@@ -51,6 +57,7 @@
     description: t(categoryInfo(props.category).description),
     path: route.path,
     indexed: search.value === '',
+    translated: true,
     imageUrl: null,
     structuredData: null,
   }));
@@ -114,7 +121,7 @@
         :key="link.to"
         :to="link.to"
         :prepend-icon="link.icon"
-        :variant="route.path === link.to ? 'flat' : 'outlined'"
+        :variant="isShown(link.to) ? 'flat' : 'outlined'"
         color="primary"
       >
         {{ t(link.label) }}

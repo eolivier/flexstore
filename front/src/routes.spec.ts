@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { routes } from './routes';
 
+const indexedPaths = () => routes.filter((route) => route.meta?.indexed).map((route) => route.path);
+
 describe('routes', () => {
   it('never lists, nor pre-renders, a page that needs a signed-in customer', () => {
     const privateRoutes = routes.filter((route) => route.meta?.requiresAuth || route.meta?.requiresAdmin);
@@ -9,9 +11,16 @@ describe('routes', () => {
     expect(privateRoutes.filter((route) => route.meta?.indexed)).toEqual([]);
   });
 
-  it('lists the home page, the catalog and the product pages', () => {
-    const indexedPaths = routes.filter((route) => route.meta?.indexed).map((route) => route.path);
+  it('has each public page in French and in English, under the prefix of its language', () => {
+    expect(indexedPaths()).toEqual(
+      expect.arrayContaining(['/fr', '/en', '/fr/products', '/en/products/:id/:slug?', '/fr/about'])
+    );
+  });
 
-    expect(indexedPaths).toEqual(expect.arrayContaining(['/', '/products/', '/products/:id/:slug?']));
+  it('has no public page without a prefix: the addresses without prefix lead to the French pages', () => {
+    const unprefixedPaths = routes.map((route) => route.path).filter((path) => !path.startsWith('/fr'));
+
+    expect(indexedPaths().filter((path) => !/^\/(fr|en)/.test(path))).toEqual([]);
+    expect(unprefixedPaths).toEqual(expect.arrayContaining(['/', '/about', '/products/:id/:slug?']));
   });
 });

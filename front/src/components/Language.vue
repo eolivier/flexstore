@@ -21,14 +21,20 @@
 
 <script setup>
   import { useI18n } from 'vue-i18n';
+  import { useRoute, useRouter } from 'vue-router';
+  import { isTranslatedPath, localizedPath } from '@/utils/language';
 
   const { locale, t } = useI18n();
+  const route = useRoute();
+  const router = useRouter();
   const languages = [
     { title: 'Français', value: 'fr' },
     { title: 'English', value: 'en' },
   ];
 
+  // A page that exists in each language moves to the address of the new one
   function changeLocale(val) {
     locale.value = val;
+    if (isTranslatedPath(route.path)) router.push({ path: localizedPath(route.path, val), query: route.query });
   }
 </script>

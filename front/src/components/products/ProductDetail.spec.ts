@@ -114,11 +114,11 @@ describe('ProductDetail.vue', () => {
     expect(structuredData.offers.price).toBe(25);
   });
 
-  it('shows the address of the product with the slug of its name when it is opened by its id', async () => {
+  it('shows the address of the product, with its language and the slug of its name, when opened by its id', async () => {
     // Arrange
     const productRouter = createRouter({
       history: createMemoryHistory(),
-      routes: [{ path: '/products/:id/:slug?', component: { template: '<div />' } }],
+      routes: [{ path: '/:language(fr|en)?/products/:id/:slug?', component: { template: '<div />' } }],
     });
     await productRouter.push('/products/t-shirt');
     // Act
@@ -126,7 +126,7 @@ describe('ProductDetail.vue', () => {
     await flushPromises();
     // Assert
     await vi.waitFor(() =>
-      expect(productRouter.currentRoute.value.path).toBe('/products/t-shirt/organic-t-shirt')
+      expect(productRouter.currentRoute.value.path).toBe('/fr/products/t-shirt/organic-t-shirt')
     );
   });
 });

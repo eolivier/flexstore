@@ -35,7 +35,7 @@
       <div class="text-overline text-secondary font-weight-bold mb-2">{{ t('home.eyebrow') }}</div>
       <h1 class="text-h4 text-md-h3 font-weight-bold mb-5">{{ t('home.title') }}</h1>
       <p class="text-body-1 text-medium-emphasis mb-8">{{ t('home.intro') }}</p>
-      <v-btn to="/products/" color="secondary" size="large" append-icon="mdi-arrow-right">
+      <v-btn to="/products" color="secondary" size="large" append-icon="mdi-arrow-right">
         {{ t('home.heroButton') }}
       </v-btn>
     </section>
@@ -105,7 +105,7 @@
         <p class="text-body-1 cta-text">{{ t('home.ctaText') }}</p>
       </div>
       <v-spacer />
-      <v-btn to="/products/" color="secondary" size="large" append-icon="mdi-arrow-right">
+      <v-btn to="/products" color="secondary" size="large" append-icon="mdi-arrow-right">
         {{ t('home.ctaButton') }}
       </v-btn>
     </v-sheet>
