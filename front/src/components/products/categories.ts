@@ -1,6 +1,8 @@
 // Display information for the product categories returned by the API
 export interface CategoryInfo {
   label: string;
+  // The message key of the description of its catalog page, for the search engines
+  description: string;
   icon: string;
   tint: string;
 }
@@ -11,13 +13,29 @@ function themeColor(name: string): string {
 }
 
 const categories: Record<string, CategoryInfo> = {
-  CLOTHING: { label: 'nav.clothing', icon: 'mdi-tshirt-crew-outline', tint: themeColor('tint-clothing') },
-  ELECTRONICS: { label: 'nav.electronics', icon: 'mdi-cellphone', tint: themeColor('tint-electronics') },
-  ACCESSORIES: { label: 'nav.accessories', icon: 'mdi-watch', tint: themeColor('tint-accessories') },
+  CLOTHING: {
+    label: 'nav.clothing',
+    description: 'seo.clothing',
+    icon: 'mdi-tshirt-crew-outline',
+    tint: themeColor('tint-clothing'),
+  },
+  ELECTRONICS: {
+    label: 'nav.electronics',
+    description: 'seo.electronics',
+    icon: 'mdi-cellphone',
+    tint: themeColor('tint-electronics'),
+  },
+  ACCESSORIES: {
+    label: 'nav.accessories',
+    description: 'seo.accessories',
+    icon: 'mdi-watch',
+    tint: themeColor('tint-accessories'),
+  },
 };
 
 const unknownCategory: CategoryInfo = {
   label: 'nav.allProducts',
+  description: 'seo.allProducts',
   icon: 'mdi-package-variant',
   tint: themeColor('tint-other'),
 };

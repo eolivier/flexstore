@@ -681,6 +681,18 @@ export default {
         examples: 'Medicines refunded by the social security, the press',
       },
     },
+    seo: {
+      siteDescription:
+        'Flexstore is a demo online shop: clothing, electronics and accessories, with a simple and transparent checkout.',
+      homeTitle: 'Online shop for clothing, electronics and accessories',
+      allProducts: 'Browse every product of Flexstore: clothing, electronics and accessories.',
+      clothing: 'Discover the clothing of Flexstore: organic cotton, denim and everyday essentials.',
+      electronics: 'Discover the electronics of Flexstore: gadgets and everyday devices at a fair price.',
+      accessories: 'Discover the accessories of Flexstore: watches, bags and small everyday items.',
+      about: 'What Flexstore is, the features of the shop and the technologies it is built with.',
+      legalNotice: 'The legal notice of Flexstore: who publishes the shop and how to reach them.',
+      termsOfSale: 'The terms of sale of Flexstore: prices, payment, delivery and returns.',
+    },
     nav: {
       home: 'Home',
       shop: 'Shop',
@@ -1605,6 +1617,18 @@ export default {
         label: '2,1 % (particulier)',
         examples: 'Médicaments remboursés par la sécurité sociale, presse',
       },
+    },
+    seo: {
+      siteDescription:
+        'Flexstore est une boutique en ligne de démonstration : vêtements, électronique et accessoires, avec un paiement simple et transparent.',
+      homeTitle: 'Boutique en ligne de vêtements, électronique et accessoires',
+      allProducts: 'Parcourez tous les produits de Flexstore : vêtements, électronique et accessoires.',
+      clothing: 'Découvrez les vêtements de Flexstore : coton bio, denim et indispensables du quotidien.',
+      electronics: "Découvrez l'électronique de Flexstore : gadgets et appareils du quotidien à prix juste.",
+      accessories: 'Découvrez les accessoires de Flexstore : montres, sacs et petits objets du quotidien.',
+      about: "Ce qu'est Flexstore, les fonctionnalités de la boutique et les technologies utilisées.",
+      legalNotice: 'Les mentions légales de Flexstore : qui édite la boutique et comment le contacter.',
+      termsOfSale: 'Les conditions générales de vente de Flexstore : prix, paiement, livraison et retours.',
     },
     nav: {
       home: 'Accueil',

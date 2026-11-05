@@ -1,0 +1,8 @@
+# The public pages (home, catalog, products, about, legal pages) can be crawled.
+# The private areas are not worth crawling; the pages that stay reachable (sign in, cart...) say noindex.
+User-agent: *
+Disallow: /admin
+Disallow: /account
+Disallow: /checkout
+Disallow: /orders
+Disallow: /user-profile

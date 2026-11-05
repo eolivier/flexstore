@@ -5,6 +5,7 @@ import vuetify from './plugins/vuetify';
 import i18n from './plugins/i18n';
 import App from './App.vue';
 import { createRouter, createWebHistory } from 'vue-router';
+import { createHead } from '@unhead/vue/client';
 
 import Home from './components/Home.vue';
 import Users from './components/admin/Users.vue';
@@ -45,7 +46,11 @@ import { useAuthStore } from './stores/auth.store';
 const pinia = createPinia();
 
 const routes = [
-  { path: '/', component: Home },
+  {
+    path: '/',
+    component: Home,
+    meta: { title: 'seo.homeTitle', description: 'seo.siteDescription', indexed: true },
+  },
   { path: '/cart', component: Cart },
   { path: '/checkout', component: Checkout, meta: { requiresAuth: true } },
   { path: '/orders', component: Orders, meta: { requiresAuth: true } },
@@ -139,9 +144,23 @@ const routes = [
     component: ShopSettings,
     meta: { requiresAuth: true, requiresAdmin: true },
   },
-  { path: '/about', component: About },
-  { path: '/legal-notice', component: LegalPage, props: { kind: 'legal-notice' } },
-  { path: '/terms-of-sale', component: LegalPage, props: { kind: 'terms-of-sale' } },
+  {
+    path: '/about',
+    component: About,
+    meta: { title: 'nav.about', description: 'seo.about', indexed: true },
+  },
+  {
+    path: '/legal-notice',
+    component: LegalPage,
+    props: { kind: 'legal-notice' },
+    meta: { title: 'nav.legalNotice', description: 'seo.legalNotice', indexed: true },
+  },
+  {
+    path: '/terms-of-sale',
+    component: LegalPage,
+    props: { kind: 'terms-of-sale' },
+    meta: { title: 'nav.termsOfSale', description: 'seo.termsOfSale', indexed: true },
+  },
 ];
 const router = createRouter({
   history: createWebHistory(),
@@ -153,6 +172,7 @@ const app = createApp(App);
 app.use(pinia);
 app.use(vuetify);
 app.use(router);
+app.use(createHead());
 app.use(i18n);
 
 router.beforeEach(async (to) => {
