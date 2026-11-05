@@ -20,7 +20,7 @@ describe('OrderLinesTable.vue', () => {
     // Assert
     const rows = wrapper.findAll('tbody tr');
     expect(rows).toHaveLength(2);
-    expect(rows[0].find('a').attributes('href')).toBe('/products/4');
+    expect(rows[0].find('a').attributes('href')).toBe('/products/4/5g-smartphone');
     expect(rows[0].text()).toContain('798.00 €');
     expect(wrapper.text()).toContain('857.00 €');
   });

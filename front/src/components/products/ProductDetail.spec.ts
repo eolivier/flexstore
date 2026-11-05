@@ -113,4 +113,20 @@ describe('ProductDetail.vue', () => {
     expect(structuredData.name).toBe('Organic T-shirt');
     expect(structuredData.offers.price).toBe(25);
   });
+
+  it('shows the address of the product with the slug of its name when it is opened by its id', async () => {
+    // Arrange
+    const productRouter = createRouter({
+      history: createMemoryHistory(),
+      routes: [{ path: '/products/:id/:slug?', component: { template: '<div />' } }],
+    });
+    await productRouter.push('/products/t-shirt');
+    // Act
+    mount(ProductDetail, { props: { id: 't-shirt' }, global: { plugins: [vuetify, i18n, productRouter] } });
+    await flushPromises();
+    // Assert
+    await vi.waitFor(() =>
+      expect(productRouter.currentRoute.value.path).toBe('/products/t-shirt/organic-t-shirt')
+    );
+  });
 });

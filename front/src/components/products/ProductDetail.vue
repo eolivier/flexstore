@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { computed, onServerPrefetch, ref, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
-  import { useRoute } from 'vue-router';
+  import { useRoute, useRouter } from 'vue-router';
   import type { Product } from '@/models/product';
   import { getProduct } from '@/services/product.service';
   import { useProductsStore } from '@/stores/products.store';
@@ -23,11 +23,13 @@
   import { useWishlistStore } from '@/stores/wishlist.store';
   import { useAuthStore } from '@/stores/auth.store';
   import { useProductHead } from '@/composables/useProductHead';
+  import { productPath } from '@/utils/productSlug';
 
   const props = defineProps<{ id: string }>();
 
   const { t, locale } = useI18n();
   const route = useRoute();
+  const router = useRouter();
   const productsStore = useProductsStore();
   const cartStore = useCartStore();
   const stocksStore = useStocksStore();
@@ -43,12 +45,22 @@
   const failed = ref(false);
   const quantity = ref(1);
 
+  // The address without the slug, or with another one (an old name, another language), becomes the canonical one
+  function showCanonicalAddress() {
+    const isShown = product.value?.id === route.params.id;
+    const isInBrowser = typeof window !== 'undefined';
+    if (isInBrowser && isShown && route.path !== canonicalPath.value) {
+      router.replace({ path: canonicalPath.value, query: route.query });
+    }
+  }
+
   async function loadProduct() {
     loading.value = true;
     failed.value = false;
     quantity.value = 1;
     try {
       product.value = await getProduct(props.id, locale.value);
+      showCanonicalAddress();
     } catch {
       product.value = null;
       failed.value = true;
@@ -57,10 +69,9 @@
     }
   }
 
-  useProductHead(
-    product,
-    computed(() => route.path)
-  );
+  // The one address of the page: the one of the product once it is known
+  const canonicalPath = computed(() => (product.value ? productPath(product.value) : route.path));
+  useProductHead(product, canonicalPath);
 
   // Reload when navigating from one product to another (e.g. a similar product), or when the customer changes
   // the language: the product is loaded in it only

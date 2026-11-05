@@ -9,6 +9,7 @@
   import ProductRating from '@/components/reviews/ProductRating.vue';
   import type { Rating } from '@/stores/reviews.store';
   import WishlistToggleButton from './WishlistToggleButton.vue';
+  import { productPath } from '@/utils/productSlug';
 
   // stock: the units of the product, null while unknown
   // rating: what the customers think of the product, null when nobody reviewed it
@@ -23,7 +24,7 @@
   const { t } = useI18n();
 
   const category = computed(() => categoryInfo(props.product.category));
-  const detailLink = computed(() => `/products/${props.product.id}`);
+  const detailLink = computed(() => productPath(props.product));
 </script>
 
 <template>

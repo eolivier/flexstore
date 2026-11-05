@@ -7,6 +7,7 @@
   import ProductVisual from '@/components/products/ProductVisual.vue';
   import CartItemUnitPrice from './CartItemUnitPrice.vue';
   import { formatPrice } from '@/utils/price';
+  import { productPath } from '@/utils/productSlug';
 
   const props = defineProps<{ item: Item }>();
   defineEmits<{ (e: 'update:quantity', quantity: number): void }>();
@@ -14,7 +15,7 @@
   const { t, locale } = useI18n();
 
   const category = computed(() => categoryInfo(props.item.productCategory));
-  const detailLink = computed(() => `/products/${props.item.productId}`);
+  const detailLink = computed(() => productPath({ id: props.item.productId, name: props.item.productName }));
   const linePrice = computed(() => formatPrice(props.item.itemPrice, props.item.productCurrency, locale.value));
 </script>
 
