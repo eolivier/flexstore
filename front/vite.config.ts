@@ -3,7 +3,9 @@ import { defineConfig } from 'vitest/config';
 import vue from '@vitejs/plugin-vue';
 import vuetify from 'vite-plugin-vuetify';
 import { resolve } from 'path';
+import { readFileSync, writeFileSync } from 'fs';
 import { productPath } from './src/utils/productSlug';
+import { robotsTxtWithSitemap, sitemapXml } from './src/utils/sitemap';
 
 // The language of the pre-rendered pages: the default one of the shop, the one of the slugs of the products
 const PRERENDER_LANGUAGE = 'fr';
@@ -26,6 +28,22 @@ async function productPaths(): Promise<string[]> {
   }
 }
 
+// The pages that are pre-rendered: the sitemap lists them
+let prerenderedPaths: string[] = [];
+
+// The sitemap and robots.txt need the absolute address of the shop (VITE_SITE_URL): without it, no sitemap
+function writeSitemap() {
+  const shopUrl = (process.env.VITE_SITE_URL ?? '').replace(/\/+$/, '');
+  if (!shopUrl) {
+    console.warn('[sitemap] VITE_SITE_URL is not set: sitemap.xml is not written');
+    return;
+  }
+  const outputDirectory = resolve(__dirname, 'dist');
+  writeFileSync(resolve(outputDirectory, 'sitemap.xml'), sitemapXml(shopUrl, prerenderedPaths));
+  const robotsTxt = readFileSync(resolve(outputDirectory, 'robots.txt'), 'utf-8');
+  writeFileSync(resolve(outputDirectory, 'robots.txt'), robotsTxtWithSitemap(robotsTxt, shopUrl));
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [vue(), vuetify()],
@@ -43,8 +61,10 @@ export default defineConfig({
     formatting: 'none',
     async includedRoutes(_paths, routes) {
       const publicPaths = routes.filter((route) => route.meta?.indexed && !route.path.includes(':'));
-      return [...publicPaths.map((route) => route.path), ...(await productPaths())];
+      prerenderedPaths = [...publicPaths.map((route) => route.path), ...(await productPaths())];
+      return prerenderedPaths;
     },
+    onFinished: writeSitemap,
   },
   test: {
     environment: 'happy-dom',

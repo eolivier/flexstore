@@ -1,3 +1,5 @@
+import { absoluteUrl } from './pageAddress';
+
 export const SITE_NAME = 'Flexstore';
 
 // The longest description that the search engines show in full
@@ -11,12 +13,9 @@ export function siteUrl(): string {
   return configured.replace(/\/+$/, '');
 }
 
-// The one address of a page for the search engines: no query, no fragment, no final slash
-// (/products/?q=jeans -> https://shop.example/products)
+// The one address of a page for the search engines
 export function canonicalUrl(path: string): string {
-  const withoutQuery = path.split(/[?#]/)[0];
-  const withoutFinalSlash = withoutQuery.replace(/\/+$/, '');
-  return siteUrl() + (withoutFinalSlash || '/');
+  return absoluteUrl(siteUrl(), path);
 }
 
 export function pageTitle(title: string): string {
