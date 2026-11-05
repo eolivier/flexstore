@@ -1,7 +1,11 @@
 package org.flexstore.mcp
 
+import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.modelcontextprotocol.common.McpTransportContext
+import io.modelcontextprotocol.spec.McpSchema.CallToolRequest
+import io.modelcontextprotocol.spec.McpSchema.TextContent
 import kotlin.test.Test
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.params.ParameterizedTest
@@ -11,7 +15,8 @@ class ProductToolsTest {
     private val json = ObjectMapper()
     private val productTools = ProductTools(productUseCasesOf(deskLamp, readingLamp))
 
-    private fun arguments(text: String): JsonNode = json.readTree(text)
+    private fun arguments(text: String): Map<String, Any> =
+        json.convertValue(json.readTree(text), object : TypeReference<Map<String, Any>>() {})
 
     private fun ToolOutcome.answer(): JsonNode = json.readTree((this as ToolOutcome.Answered).text)
 
@@ -85,11 +90,35 @@ class ProductToolsTest {
     @Test
     fun `the tools should be described with their arguments`() {
         // Act
-        val descriptions = productTools.descriptions()
+        val tools = productTools.specifications().map { it.tool() }
         // Assert
-        assertThat(descriptions.map { it["name"].asText() }).containsExactly("list_products", "get_product")
-        val getProduct = descriptions[1]["inputSchema"]
-        assertThat(getProduct["required"].map { it.asText() }).containsExactly("id")
-        assertThat(getProduct["properties"].fieldNames().asSequence().toList()).containsExactly("language", "id")
+        assertThat(tools.map { it.name() }).containsExactly("list_products", "get_product")
+        val getProduct = tools[1].inputSchema()
+        assertThat(getProduct.required()).containsExactly("id")
+        assertThat(getProduct.properties().keys).containsExactly("language", "id")
+    }
+
+    @Test
+    fun `a tool call through the SDK should give the products of the domain as a text`() {
+        // Arrange
+        val listProducts = productTools.specifications().first()
+        val request = CallToolRequest.builder().name("list_products").arguments(emptyMap<String, Any>()).build()
+        // Act
+        val result = listProducts.callHandler().apply(McpTransportContext.EMPTY, request)
+        // Assert
+        assertThat(result.isError()).isFalse()
+        assertThat((result.content().single() as TextContent).text()).contains("\"id\" : \"desk-lamp\"")
+    }
+
+    @Test
+    fun `a tool call refused by the domain should be an error of the tool, not of the protocol`() {
+        // Arrange
+        val getProduct = productTools.specifications().last()
+        val request = CallToolRequest.builder().name("get_product").arguments(emptyMap<String, Any>()).build()
+        // Act
+        val result = getProduct.callHandler().apply(McpTransportContext.EMPTY, request)
+        // Assert
+        assertThat(result.isError()).isTrue()
+        assertThat((result.content().single() as TextContent).text()).isEqualTo("The id of the product is required.")
     }
 }

@@ -1,9 +1,11 @@
 package org.flexstore.mcp
 
-import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.ObjectNode
+import io.modelcontextprotocol.server.McpStatelessServerFeatures.SyncToolSpecification
+import io.modelcontextprotocol.spec.McpSchema.CallToolResult
+import io.modelcontextprotocol.spec.McpSchema.JsonSchema
+import io.modelcontextprotocol.spec.McpSchema.Tool
 import org.flexstore.domain.product.model.DefinedProduct
 import org.flexstore.domain.product.model.Language
 import org.flexstore.domain.product.model.PercentageOffPromotion
@@ -14,30 +16,56 @@ import org.ucop.domain.NominalException
 
 private const val LIST_PRODUCTS = "list_products"
 private const val GET_PRODUCT = "get_product"
+private const val LANGUAGE = "language"
+private const val ID = "id"
 
-// The tools that expose the products of the catalog to an MCP client. They call the use cases of the domain: the
-// answer of a tool is a text, the product in JSON, or the reason why the domain refuses to give it
+// The tools that expose the products of the catalog to an MCP client, in the types of the MCP Java SDK that
+// serves the protocol. They call the use cases of the domain: the answer of a tool is a text, the product in
+// JSON, or the reason why the domain refuses to give it
 class ProductTools(private val productUseCases: ProductUseCases) {
     private val json = ObjectMapper()
 
-    fun descriptions(): ArrayNode {
-        val descriptions = json.createArrayNode()
-        descriptions.add(listProductsDescription())
-        descriptions.add(getProductDescription())
-        return descriptions
-    }
+    fun specifications(): List<SyncToolSpecification> =
+        listOf(listProductsSpecification(), getProductSpecification())
 
-    fun offers(toolName: String) = toolName == LIST_PRODUCTS || toolName == GET_PRODUCT
-
-    fun call(toolName: String, arguments: JsonNode): ToolOutcome {
-        val languageCode = arguments.path("language").asText(Language.DEFAULT.name)
+    fun call(toolName: String, arguments: Map<String, Any>): ToolOutcome {
+        val languageCode = arguments.getOrDefault(LANGUAGE, Language.DEFAULT.name).toString()
         val languages = Language.entries.filter { it.name.equals(languageCode, ignoreCase = true) }
         if (languages.isEmpty()) {
             return ToolOutcome.Refused("The language $languageCode is not supported: use one of ${languageCodes()}.")
         } else if (toolName == LIST_PRODUCTS) {
             return answering { listProducts(languages.single()) }
         } else {
-            return answering { getProduct(arguments.path("id").asText(), languages.single()) }
+            return answering { getProduct(arguments.getOrDefault(ID, "").toString(), languages.single()) }
+        }
+    }
+
+    private fun listProductsSpecification(): SyncToolSpecification {
+        val description = "Lists the products of the Flexstore shop: id, SKU, name, description, category, " +
+            "price, currency, promotion percentage (while a promotion is running) and current price"
+        return specificationOf(LIST_PRODUCTS, description, inputSchemaOf(languageProperty()))
+    }
+
+    private fun getProductSpecification(): SyncToolSpecification {
+        val properties = languageProperty() + (ID to textProperty("The id of the product, as given by $LIST_PRODUCTS"))
+        val inputSchema = inputSchemaOf(properties, listOf(ID))
+        return specificationOf(GET_PRODUCT, "Gives a product of the Flexstore shop from its id", inputSchema)
+    }
+
+    private fun specificationOf(
+        name: String,
+        description: String,
+        inputSchema: JsonSchema
+    ): SyncToolSpecification {
+        val tool = Tool.builder().name(name).description(description).inputSchema(inputSchema).build()
+        return SyncToolSpecification(tool) { _, request -> resultOf(call(name, request.arguments().orEmpty())) }
+    }
+
+    private fun resultOf(outcome: ToolOutcome): CallToolResult {
+        val result = CallToolResult.builder()
+        return when (outcome) {
+            is ToolOutcome.Answered -> result.addTextContent(outcome.text).isError(false).build()
+            is ToolOutcome.Refused -> result.addTextContent(outcome.reason).isError(true).build()
         }
     }
 
@@ -86,49 +114,20 @@ class ProductTools(private val productUseCases: ProductUseCases) {
         return productJson
     }
 
-    private fun listProductsDescription(): ObjectNode {
-        val description = toolDescription(
-            LIST_PRODUCTS,
-            "Lists the products of the Flexstore shop: id, SKU, name, description, category, price, currency, " +
-                "promotion percentage (while a promotion is running) and current price"
-        )
-        inputSchemaOf(description).set<ObjectNode>("properties", languageProperty())
-        return description
-    }
+    // The input of a tool is an object, whose properties are given by name; the SDK leaves the other parts
+    // of the JSON schema (additional properties, definitions) to its defaults
+    private fun inputSchemaOf(properties: Map<String, Any>, required: List<String>) =
+        JsonSchema("object", properties, required, null, null, null)
 
-    private fun getProductDescription(): ObjectNode {
-        val description = toolDescription(GET_PRODUCT, "Gives a product of the Flexstore shop from its id")
-        val inputSchema = inputSchemaOf(description)
-        val properties = languageProperty()
-        properties.set<ObjectNode>("id", textProperty("The id of the product, as given by $LIST_PRODUCTS"))
-        inputSchema.set<ObjectNode>("properties", properties)
-        inputSchema.putArray("required").add("id")
-        return description
-    }
+    private fun inputSchemaOf(properties: Map<String, Any>) = inputSchemaOf(properties, emptyList())
 
-    private fun toolDescription(name: String, text: String): ObjectNode {
-        val description = json.createObjectNode()
-        description.put("name", name)
-        description.put("description", text)
-        description.putObject("inputSchema").put("type", "object")
-        return description
-    }
-
-    private fun inputSchemaOf(description: ObjectNode) = description.get("inputSchema") as ObjectNode
-
-    private fun languageProperty(): ObjectNode {
-        val properties = json.createObjectNode()
+    private fun languageProperty(): Map<String, Any> {
         val text = "The language of the name and the description: ${languageCodes()} (default: ${Language.DEFAULT.name})"
-        properties.set<ObjectNode>("language", textProperty(text))
-        return properties
+        return mapOf(LANGUAGE to textProperty(text))
     }
 
-    private fun textProperty(description: String): ObjectNode {
-        val property = json.createObjectNode()
-        property.put("type", "string")
-        property.put("description", description)
-        return property
-    }
+    private fun textProperty(description: String): Map<String, Any> =
+        mapOf("type" to "string", "description" to description)
 
     private fun languageCodes() = Language.entries.joinToString(", ") { it.name }
 }

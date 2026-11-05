@@ -14,12 +14,20 @@ repositories {
     mavenCentral()
 }
 
+// The MCP Java SDK needs Jackson 2.20, newer than the one Spring Boot 3.4 manages
+extra["jackson-bom.version"] = "2.20.1"
+
+val mcpSdkVersion: String by project
+
 dependencies {
     implementation(kotlin("reflect"))
     implementation(project(":domain"))
     implementation(project(":infra"))
     // The MCP server that exposes the products to AI assistants, served by this application
     implementation(project(":mcp"))
+    // The MCP Java SDK serves the protocol over HTTP (Streamable HTTP transport, stateless)
+    implementation("io.modelcontextprotocol.sdk:mcp-spring-webmvc:$mcpSdkVersion")
+    implementation("io.modelcontextprotocol.sdk:mcp-json-jackson2:$mcpSdkVersion")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-mail")
 

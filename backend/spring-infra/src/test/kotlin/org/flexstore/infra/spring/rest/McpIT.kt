@@ -24,7 +24,12 @@ class McpIT {
     private lateinit var mockMvc: MockMvc
 
     private fun postMessage(message: String) =
-        mockMvc.perform(post("/mcp").contentType(MediaType.APPLICATION_JSON).content(message))
+        mockMvc.perform(
+            post("/mcp")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON, MediaType.TEXT_EVENT_STREAM)
+                .content(message)
+        )
 
     @Test
     fun `an assistant should initialize the server without signing in`() {

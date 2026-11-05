@@ -248,8 +248,9 @@ curl localhost:8080/api/users -H "Authorization: Bearer $TOKEN"
 
 The `mcp` module is a [Model Context Protocol](https://modelcontextprotocol.io) server, so that an AI assistant
 (Claude Desktop, Claude Code...) can read the products of the shop. It runs inside the back end: the tools call the
-use cases of the domain (`ProductUseCases`), and `spring-infra` serves it at `POST /mcp` (Streamable HTTP transport,
-public like the catalog: it only gives the products).
+use cases of the domain (`ProductUseCases`) and are described with the types of the
+[MCP Java SDK](https://github.com/modelcontextprotocol/java-sdk), and `spring-infra` serves them at `POST /mcp` with
+the stateless Streamable HTTP transport of the SDK (public like the catalog: it only gives the products).
 
 | Tool | Arguments | Answers |
 |---|---|---|
