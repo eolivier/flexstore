@@ -1,6 +1,11 @@
 <script setup lang="ts">
   import { useI18n } from 'vue-i18n';
-  import { SOCIAL_NETWORKS, socialNetworkIcon, type SocialNetworkUrls } from '@/utils/socialNetworks';
+  import {
+    SOCIAL_NETWORKS,
+    socialNetworkExampleAddress,
+    socialNetworkIcon,
+    type SocialNetworkUrls,
+  } from '@/utils/socialNetworks';
   import { isSocialNetworkUrl } from './sellerRules';
 
   // The address of the account of the shop on each social network, each one optional
@@ -18,7 +23,7 @@
       :key="socialNetwork"
       v-model="socialNetworkUrls[socialNetwork]"
       :label="t(`socialNetworks.${socialNetwork}`)"
-      :hint="t('socialNetworks.hint')"
+      :hint="t('socialNetworks.hint', { address: socialNetworkExampleAddress(socialNetwork) })"
       :rules="[isWebAddress]"
       :prepend-inner-icon="socialNetworkIcon(socialNetwork)"
       class="mb-2"
