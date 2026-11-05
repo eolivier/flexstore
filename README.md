@@ -149,6 +149,8 @@ VITE_API_URL=http://localhost:8080
 VITE_SITE_URL=http://localhost:5173
 ```
 
+`npm run build` pre-renders the public pages (the routes that say `indexed` in `front/src/routes.ts`: home, catalog, products, about, legal pages) as static HTML, so that search engines read them without running JavaScript. It reads the products from `VITE_API_URL` at build time; when the API does not answer, the product pages are left out and the build goes on.
+
 `VITE_SITE_URL` is the public address of the shop: the search engines are given it in the canonical address of each page (the address of the page is used when it is missing).
 
 Then:
@@ -254,7 +256,7 @@ Integration tests use the PostgreSQL database on `localhost:5432` (`flexstore` /
 ```bash
 npm test        # Vitest
 npm run lint    # ESLint (generated client excluded)
-npm run build   # type check (vue-tsc) + production build
+npm run build   # type check (vue-tsc) + production build, with the public pages pre-rendered (vite-ssg)
 ```
 
 ---

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { computed, watch } from 'vue';
+  import { computed, onServerPrefetch, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useLegalPagesStore, type LegalPageKind } from '@/stores/legalPages.store';
 
@@ -16,11 +16,13 @@
       : ''
   );
 
+  const firstLoad = legalPagesStore.fetchLegalPage(props.kind);
   watch(
     () => props.kind,
-    (kind) => legalPagesStore.fetchLegalPage(kind),
-    { immediate: true }
+    (kind) => legalPagesStore.fetchLegalPage(kind)
   );
+  // Pre-rendering waits for the text: the page is then listed with it
+  onServerPrefetch(() => firstLoad);
 </script>
 
 <template>
