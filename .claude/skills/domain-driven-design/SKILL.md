@@ -113,7 +113,9 @@ A domain service is not a use case: it never goes in `usecase`. It stays at the 
 
 The same goes for the use cases: as soon as a functional package contains **at least 3 use cases**, create its `usecase` sub-package and move them there (with their requests and the groups of use cases such as `OrderUseCases`), whatever the size of the package. With fewer than 3 use cases, they stay at the root of the package.
 
-A technical sub-package holds **at least 3 files**. Do not create a `model`, `usecase` or `repository` sub-package to move one or two files into it: keep them at the level of their functional package, next to the sub-packages that do exist. Create the sub-package once a third file of that kind arrives, and move the files back up if one of them goes away and fewer than 3 remain.
+The model follows its own threshold: as soon as a functional package contains **more than 3 model files** (entities, value objects, aggregates, their business exceptions: 4 or more), create its `model` sub-package and move them there. With 3 or fewer, they stay at the root of the package.
+
+A `usecase`, `service` or `repository` sub-package holds **at least 3 files**. Do not create one of them to move one or two files into it: keep them at the level of their functional package, next to the sub-packages that do exist. Create the sub-package once a third file of that kind arrives, and move the files back up if one of them goes away and fewer than 3 remain (for the `model`, when 3 or fewer remain).
 
 The elements common to several functions (shared value objects such as `Identity`, `Price`, `Quantity`, `Name`) go in a **shared kernel**: `org.flexstore.domain.sharedkernel`. Keep it small: an element used by a single function belongs to that function.
 
@@ -149,6 +151,7 @@ domain/order/usecase/PlaceOrderUseCase.kt, ReadOrdersUseCase.kt...
 domain/order/service/OrderCheckoutService.kt, OrderAdministrationService.kt, UnpaidOrderService.kt
                                        (from 3 services; with fewer, they stay at the root: domain/order/OrderCheckoutService.kt)
 domain/order/OrderRepository.kt        (fewer than 3 ports: no repository/ sub-package)
+domain/address/Address.kt, Street.kt, City.kt   (3 model files or fewer: no model/ sub-package; the 4th moves them all to domain/address/model/)
 ```
 
 Why: the package tree tells what the application does (orders, carts, catalog) before how it is built; the dependencies between functions become visible, which shows where the bounded contexts are.
