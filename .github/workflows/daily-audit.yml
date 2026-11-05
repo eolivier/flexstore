@@ -1,7 +1,8 @@
 name: daily-audit
 
 # Every day, Claude analyzes the repository and publishes its report as a GitHub issue (label: daily-audit).
-# Needs the repository secret ANTHROPIC_API_KEY (Settings > Secrets and variables > Actions).
+# Needs one repository secret (Settings > Secrets and variables > Actions):
+# CLAUDE_CODE_OAUTH_TOKEN (Claude subscription, generated with `claude setup-token`) or ANTHROPIC_API_KEY.
 # The prompt is in .github/prompts/daily-audit.md: change the audit there, not here.
 
 on:
@@ -36,6 +37,7 @@ jobs:
       - name: Audit the repository
         uses: anthropics/claude-code-action@v1
         with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ github.token }}
           prompt: "Follow the instructions of the file .github/prompts/daily-audit.md."
