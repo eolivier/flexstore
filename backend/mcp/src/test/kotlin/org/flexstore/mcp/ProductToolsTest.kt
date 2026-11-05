@@ -1,110 +1,95 @@
 package org.flexstore.mcp
 
-import io.modelcontextprotocol.kotlin.sdk.types.CallToolResult
-import io.modelcontextprotocol.kotlin.sdk.types.TextContent
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
 import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
-import org.junit.jupiter.api.assertDoesNotThrow
-
-private class InMemoryProductCatalog(private val productsByLanguage: Map<Language, Products>) : ProductCatalog {
-    override fun products(language: Language) = productsByLanguage.getValue(language)
-
-    override fun product(productId: ProductId, language: Language): Product =
-        productsByLanguage.getValue(language).asList().firstOrNull { it.id == productId.value }
-            ?: throw ProductNotFoundException(productId)
-}
-
-private class UnreachableProductCatalog : ProductCatalog {
-    override fun products(language: Language): Products = throw CatalogUnavailableException("The shop is down")
-
-    override fun product(productId: ProductId, language: Language): Product =
-        throw CatalogUnavailableException("The shop is down")
-}
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 
 class ProductToolsTest {
-    private val productCatalog = InMemoryProductCatalog(
-        mapOf(
-            Language.EN to Products(deskLamp, deskLampOnPromotion.copy(id = "reading-lamp")),
-            Language.FR to Products(lampeDeBureau)
-        )
-    )
-    private val productTools = ProductTools(productCatalog)
+    private val json = ObjectMapper()
+    private val productTools = ProductTools(productUseCasesOf(deskLamp, readingLamp))
 
-    private fun CallToolResult.text() = content.filterIsInstance<TextContent>().joinToString("") { it.text }
+    private fun arguments(text: String): JsonNode = json.readTree(text)
 
-    private fun arguments(vararg pairs: Pair<String, String>): JsonObject =
-        buildJsonObject { pairs.forEach { (name, value) -> put(name, value) } }
+    private fun ToolOutcome.answer(): JsonNode = json.readTree((this as ToolOutcome.Answered).text)
 
     @Test
-    fun `listing the products should give them all, in English by default`() {
+    fun `listing the products should give them in English by default`() {
         // Act
-        val answer = productTools.listProducts(arguments())
+        val outcome = productTools.call("list_products", arguments("{}"))
         // Assert
-        val listedProducts = Json.decodeFromString<Products>(answer.text())
-        assertFalse(answer.isError == true)
-        assertEquals(listOf("desk-lamp", "reading-lamp"), listedProducts.asList().map { it.id })
+        val listedProducts = outcome.answer()
+        assertThat(listedProducts.map { it["id"].asText() }).containsExactly("desk-lamp", "reading-lamp")
+        assertThat(listedProducts.map { it["name"].asText() }).containsExactly("Desk lamp", "Reading lamp")
     }
 
     @Test
-    fun `listing the products in French should give the French names`() {
+    fun `listing the products in French should give the French texts, and English for what is not translated`() {
         // Act
-        val answer = productTools.listProducts(arguments("language" to "fr"))
+        val outcome = productTools.call("list_products", arguments("""{"language": "fr"}"""))
         // Assert
-        val listedProducts = Json.decodeFromString<Products>(answer.text())
-        assertEquals(listOf("Lampe de bureau"), listedProducts.asList().map { it.name })
+        val listedProducts = outcome.answer()
+        assertThat(listedProducts.map { it["name"].asText() }).containsExactly("Lampe de bureau", "Reading lamp")
     }
 
     @Test
-    fun `getting a product should give it with its promotion`() {
+    fun `a product should give its price, without promotion percentage when it has no promotion`() {
         // Act
-        val answer = productTools.getProduct(arguments("id" to "reading-lamp"))
+        val outcome = productTools.call("get_product", arguments("""{"id": "desk-lamp"}"""))
         // Assert
-        val product = Json.decodeFromString<Product>(answer.text())
-        assertEquals(20.0, product.promotionPercentage)
-        assertEquals(28.0, product.currentPrice)
+        val product = outcome.answer()
+        assertThat(product["sku"].asText()).isEqualTo("HOM-1")
+        assertThat(product["category"].asText()).isEqualTo("HOME")
+        assertThat(product["price"].decimalValue()).isEqualByComparingTo("35")
+        assertThat(product["currentPrice"].decimalValue()).isEqualByComparingTo("35")
+        assertThat(product.has("promotionPercentage")).isFalse()
     }
 
     @Test
-    fun `getting a product that does not exist should fail with the reason`() {
+    fun `a product on promotion should give the percentage and the price to pay`() {
         // Act
-        val answer = productTools.getProduct(arguments("id" to "unknown"))
+        val outcome = productTools.call("get_product", arguments("""{"id": "reading-lamp"}"""))
         // Assert
-        assertTrue(answer.isError == true)
-        assertEquals("Product with ID unknown does not exist.", answer.text())
+        val product = outcome.answer()
+        assertThat(product["promotionPercentage"].decimalValue()).isEqualByComparingTo("20")
+        assertThat(product["currentPrice"].decimalValue()).isEqualByComparingTo("28")
     }
 
     @Test
-    fun `getting a product without its id should fail with the reason`() {
+    fun `a product the domain does not know should be refused with the reason of the domain`() {
         // Act
-        val answer = productTools.getProduct(arguments("language" to "fr"))
+        val outcome = productTools.call("get_product", arguments("""{"id": "unknown"}"""))
         // Assert
-        assertTrue(answer.isError == true)
-        assertEquals("The id of the product is required.", answer.text())
+        assertThat(outcome).isEqualTo(ToolOutcome.Refused("Product with ID unknown does not exist."))
+    }
+
+    @ParameterizedTest(name = "the arguments {0} are refused")
+    @ValueSource(strings = ["{}", """{"id": ""}""", """{"id": "  "}"""])
+    fun `a product asked without its id should be refused`(text: String) {
+        // Act
+        val outcome = productTools.call("get_product", arguments(text))
+        // Assert
+        assertThat(outcome).isEqualTo(ToolOutcome.Refused("The id of the product is required."))
     }
 
     @Test
-    fun `asking for a language the shop does not have should fail with the languages it has`() {
+    fun `a language the shop does not have should be refused with the languages it has`() {
         // Act
-        val answer = productTools.listProducts(arguments("language" to "de"))
+        val outcome = productTools.call("list_products", arguments("""{"language": "de"}"""))
         // Assert
-        assertTrue(answer.isError == true)
-        assertEquals("The language de is not supported: use one of en, fr.", answer.text())
+        assertThat(outcome).isEqualTo(ToolOutcome.Refused("The language de is not supported: use one of EN, FR."))
     }
 
     @Test
-    fun `a shop that cannot be reached should be reported, not thrown`() {
-        // Arrange
-        val productTools = ProductTools(UnreachableProductCatalog())
+    fun `the tools should be described with their arguments`() {
         // Act
-        val answer = assertDoesNotThrow { productTools.listProducts(arguments()) }
+        val descriptions = productTools.descriptions()
         // Assert
-        assertTrue(answer.isError == true)
-        assertEquals("The shop is down", answer.text())
+        assertThat(descriptions.map { it["name"].asText() }).containsExactly("list_products", "get_product")
+        val getProduct = descriptions[1]["inputSchema"]
+        assertThat(getProduct["required"].map { it.asText() }).containsExactly("id")
+        assertThat(getProduct["properties"].fieldNames().asSequence().toList()).containsExactly("language", "id")
     }
 }

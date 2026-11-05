@@ -72,7 +72,7 @@ backend/
   infra/          # Infrastructure not linked to a framework (in-memory repositories, not used by the app)
   spring-infra/   # Spring adapters (REST controllers, JPA), OpenAPI spec
   migrations/     # Flyway SQL migrations
-  mcp/            # MCP server that exposes the products to AI assistants (reads the REST API)
+  mcp/            # MCP server that exposes the products to AI assistants (calls the use cases of the domain)
 front/            # Vue 3 + Vuetify + Pinia + vue-i18n shop
 docs/
   database.md     # Physical data model of the database (Mermaid diagram)
@@ -120,6 +120,7 @@ The server starts on [http://localhost:8080](http://localhost:8080) (health chec
 | `FLEXSTORE_MAIL_SMTP_AUTH` / `FLEXSTORE_MAIL_SMTP_STARTTLS` | `true` / `true` | `false` / `false` for a local server such as Mailpit |
 | `FLEXSTORE_MAIL_FROM` | `Flexstore <no-reply@flexstore.com>` | sender (often to be validated at the provider) |
 | `FLEXSTORE_FRONT_URL` | `http://localhost:5173` | address of the shop, for the link to the order and the return from the payment |
+| `FLEXSTORE_MCP_ENABLED` | `true` | `false` turns the MCP server (`POST /mcp`) off |
 | `FLEXSTORE_STRIPE_SECRET_KEY` | empty | secret key of Stripe (`sk_test_...`); empty: simulated payments, confirmed at once |
 | `FLEXSTORE_STRIPE_WEBHOOK_SECRET` | empty | secret of the webhook endpoint (`whsec_...`), to verify the notifications of Stripe |
 
@@ -246,24 +247,20 @@ curl localhost:8080/api/users -H "Authorization: Bearer $TOKEN"
 ## 🤖 MCP server (products)
 
 The `mcp` module is a [Model Context Protocol](https://modelcontextprotocol.io) server, so that an AI assistant
-(Claude Desktop, Claude Code...) can read the products of the shop. It speaks MCP on its standard input and output
-and reads the public products of the REST API (no sign-in needed), so the back end must be running.
+(Claude Desktop, Claude Code...) can read the products of the shop. It runs inside the back end: the tools call the
+use cases of the domain (`ProductUseCases`), and `spring-infra` serves it at `POST /mcp` (Streamable HTTP transport,
+public like the catalog: it only gives the products).
 
 | Tool | Arguments | Answers |
 |---|---|---|
-| `list_products` | `language` (optional: `en` or `fr`, default `en`) | All the products: id, SKU, name, description, category, price, currency, promotion percentage and current price |
+| `list_products` | `language` (optional: `EN` or `FR`, default `EN`) | All the products: id, SKU, name, description, category, price, currency, promotion percentage (while it runs) and current price |
 | `get_product` | `id`, `language` (optional) | One product, or an error when it does not exist |
 
-The address of the API comes from `FLEXSTORE_API_URL` (default `http://localhost:8080`).
+It is on by default; `FLEXSTORE_MCP_ENABLED=false` (property `flexstore.mcp.enabled`) turns it off.
 
 ```bash
-cd backend
-./gradlew :mcp:installDist
-claude mcp add flexstore -- mcp/build/install/mcp/bin/mcp
+claude mcp add --transport http flexstore http://localhost:8080/mcp
 ```
-
-For Claude Desktop, declare it in `claude_desktop_config.json`: `{"mcpServers": {"flexstore": {"command":
-"/path/to/flexstore/backend/mcp/build/install/mcp/bin/mcp", "env": {"FLEXSTORE_API_URL": "http://localhost:8080"}}}}`.
 
 ---
 

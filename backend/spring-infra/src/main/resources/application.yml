@@ -34,6 +34,9 @@ flexstore:
       secret-key: ${FLEXSTORE_STRIPE_SECRET_KEY:}
       # Secret of the webhook endpoint /api/payments/stripe/webhook (whsec_...), to verify the notifications
       webhook-secret: ${FLEXSTORE_STRIPE_WEBHOOK_SECRET:}
+  mcp:
+    # The MCP server that exposes the products to AI assistants (POST /mcp); false turns it off
+    enabled: ${FLEXSTORE_MCP_ENABLED:true}
   security:
     # Secret used to sign the JWT (at least 32 characters); a random one is used when missing
     jwt-secret: ${FLEXSTORE_JWT_SECRET:}

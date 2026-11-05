@@ -18,6 +18,8 @@ dependencies {
     implementation(kotlin("reflect"))
     implementation(project(":domain"))
     implementation(project(":infra"))
+    // The MCP server that exposes the products to AI assistants, served by this application
+    implementation(project(":mcp"))
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-mail")
 
