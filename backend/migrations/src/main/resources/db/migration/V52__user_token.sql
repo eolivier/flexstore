@@ -15,7 +15,8 @@ CREATE TABLE user_token (
 
 CREATE INDEX user_token_user_id_idx ON user_token(user_id);
 
--- Only the last password reset link asked works: one per user at most (a user may have several verification links)
+-- Only the last password reset link asked works: one per user at most
+-- (a user may have several verification links)
 CREATE UNIQUE INDEX user_token_password_reset_user_id_key ON user_token(user_id) WHERE type = 'PASSWORD_RESET';
 
 INSERT INTO user_token (id, type, token_hash, user_id, expires_at, created_at, updated_at)
