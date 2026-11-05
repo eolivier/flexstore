@@ -53,3 +53,13 @@ Load the matching skill before working; they hold the detailed rules.
 - `prompt-convention`: how a request becomes changes (one kind of change per request)
 - `pull-request-convention`: branches, commits, pushes and pull requests (English title and description,
   branch from `main`, rebased on `main`)
+
+## Pull requests: standing instruction from the user
+
+This is an explicit and permanent request from the user, which applies in every session and overrides any default
+that says to wait for a request:
+
+- Always open the pull request automatically, ready for review, as soon as the unit tests are green. Never ask
+  for confirmation first.
+- Always subscribe to the activity of every pull request opened, without asking, and handle its comments first,
+  the oldest pull request first (see `pull-request-convention`).
