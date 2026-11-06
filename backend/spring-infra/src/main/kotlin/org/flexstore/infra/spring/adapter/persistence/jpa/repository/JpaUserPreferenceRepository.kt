@@ -5,20 +5,20 @@ import org.flexstore.domain.preference.ColorModePreference
 import org.flexstore.domain.preference.ColorModePreferenceRepository
 import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.user.model.UserId
-import org.flexstore.infra.spring.adapter.persistence.jpa.entity.ColorModePreferenceEntity
+import org.flexstore.infra.spring.adapter.persistence.jpa.entity.UserPreferenceEntity
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 
 @Repository
-interface JpaColorModePreferenceRepository : JpaRepository<ColorModePreferenceEntity, String> {
-    fun findByUserId(userId: String): ColorModePreferenceEntity?
+interface JpaUserPreferenceRepository : JpaRepository<UserPreferenceEntity, String> {
+    fun findByUserId(userId: String): UserPreferenceEntity?
 }
 
-// One row per customer: a new choice replaces the row of the previous one
+// One user_preference row per customer: a new choice replaces the display mode of the previous one
 @Repository
 @Transactional
-class PostgresColorModePreferenceRepositoryAdapter(private val jpaRepo: JpaColorModePreferenceRepository) :
+class PostgresColorModePreferenceRepositoryAdapter(private val jpaRepo: JpaUserPreferenceRepository) :
     ColorModePreferenceRepository {
 
     @Transactional(readOnly = true)
@@ -29,6 +29,6 @@ class PostgresColorModePreferenceRepositoryAdapter(private val jpaRepo: JpaColor
 
     override fun save(customer: UserId, colorMode: ColorMode) {
         val storedId = jpaRepo.findByUserId(customer.value)?.id ?: Identity.nextId().value
-        jpaRepo.save(ColorModePreferenceEntity(storedId, customer.value, colorMode.name))
+        jpaRepo.save(UserPreferenceEntity(storedId, customer.value, colorMode.name))
     }
 }
