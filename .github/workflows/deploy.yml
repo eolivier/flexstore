@@ -138,6 +138,7 @@ jobs:
           FLEXSTORE_MAIL_HOST: ${{ vars.FLEXSTORE_MAIL_HOST }}
           FLEXSTORE_MAIL_PORT: ${{ vars.FLEXSTORE_MAIL_PORT }}
           FLEXSTORE_MAIL_FROM: ${{ vars.FLEXSTORE_MAIL_FROM }}
+          FLEXSTORE_GOOGLE_CLIENT_ID: ${{ vars.FLEXSTORE_GOOGLE_CLIENT_ID }}
         run: |
           [ -n "$POSTGRES_PASSWORD" ] || { echo "::error::The secret POSTGRES_PASSWORD is missing"; exit 1; }
           [ "${#FLEXSTORE_JWT_SECRET}" -ge 32 ] \
@@ -146,7 +147,8 @@ jobs:
           [[ "$POSTGRES_PASSWORD" =~ ^[A-Za-z0-9]+$ ]] \
             || { echo "::error::The secret POSTGRES_PASSWORD must hold letters and digits only"; exit 1; }
           names="FLEXSTORE_JWT_SECRET FLEXSTORE_MAIL_HOST FLEXSTORE_MAIL_PORT FLEXSTORE_MAIL_USERNAME \
-          FLEXSTORE_MAIL_PASSWORD FLEXSTORE_MAIL_FROM FLEXSTORE_STRIPE_SECRET_KEY FLEXSTORE_STRIPE_WEBHOOK_SECRET"
+          FLEXSTORE_MAIL_PASSWORD FLEXSTORE_MAIL_FROM FLEXSTORE_STRIPE_SECRET_KEY FLEXSTORE_STRIPE_WEBHOOK_SECRET \
+          FLEXSTORE_GOOGLE_CLIENT_ID"
           # The values are written between single quotes: none of them may hold a quote nor a line break
           for name in $names; do
             case "${!name}" in
@@ -192,12 +194,14 @@ jobs:
         working-directory: front
         run: npm ci
 
-      # The front end and the API share one address: the API is called on the address of the shop
+      # The front end and the API share one address: the API is called on the address of the shop.
+      # The Google client id is the one of the back end (a variable, not a secret): the button shows when it is set
       - name: Build the front end
         working-directory: front
         env:
           VITE_API_URL: ${{ env.SHOP_URL }}
           VITE_SITE_URL: ${{ env.SHOP_URL }}
+          VITE_GOOGLE_CLIENT_ID: ${{ vars.FLEXSTORE_GOOGLE_CLIENT_ID }}
         run: npm run build
 
       # In place (no swap of the folder): Caddy serves the bind mount of this folder

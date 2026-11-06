@@ -142,6 +142,7 @@ readable by `deploy` only), so the configuration lives in GitHub and nowhere els
 | `FLEXSTORE_MAIL_HOST` | e.g. `smtp-relay.brevo.com` (without it the emails are written to the logs) |
 | `FLEXSTORE_MAIL_PORT` | `587` by default |
 | `FLEXSTORE_MAIL_FROM` | e.g. `Flexstore <no-reply@flexstore.tech>` |
+| `FLEXSTORE_GOOGLE_CLIENT_ID` | the OAuth client id of Google (see README, *Sign in with Google*): given to the back end and, as `VITE_GOOGLE_CLIENT_ID`, to the build of the front end. Without it the button is not shown |
 
 `POSTGRES_PASSWORD` and `FLEXSTORE_JWT_SECRET` are required: the deployment stops with an error when one is missing.
 The values hold no quote and no line break. The name and the user of the database (`flexstore`, `flex`) and
