@@ -20,6 +20,9 @@ const val SHOP_SETTINGS_CACHE = "shopSettings"
 // seller evicts the whole cache, because it changes which version is the current one. The entries also expire
 const val SELLERS_CACHE = "sellers"
 
+// The cache of the reads of the product table (the catalog, a product by id, a category): every save evicts it
+const val PRODUCTS_CACHE = "products"
+
 private const val MAXIMUM_CACHED_ENTRIES = 1_000L
 private const val ENTRY_LIFETIME_MINUTES = 10L
 
@@ -29,7 +32,7 @@ open class CacheConfig {
 
     @Bean
     open fun cacheManager(): CacheManager {
-        val cacheManager = CaffeineCacheManager(USERS_CACHE, SHOP_SETTINGS_CACHE, SELLERS_CACHE)
+        val cacheManager = CaffeineCacheManager(USERS_CACHE, SHOP_SETTINGS_CACHE, SELLERS_CACHE, PRODUCTS_CACHE)
         val entryLifetime = Duration.ofMinutes(ENTRY_LIFETIME_MINUTES)
         val caffeine = Caffeine.newBuilder().maximumSize(MAXIMUM_CACHED_ENTRIES).expireAfterWrite(entryLifetime)
         cacheManager.setCaffeine(caffeine)

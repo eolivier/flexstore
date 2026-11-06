@@ -2,6 +2,8 @@ package org.flexstore.infra.spring.adapter.persistence.jpa
 
 import org.flexstore.domain.product.model.*
 import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaProductRepository
+import org.flexstore.infra.spring.clearProductCache
+import org.springframework.cache.CacheManager
 import jakarta.persistence.EntityManager
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.within
@@ -28,6 +30,9 @@ class EntityTimestampsIT {
     @Autowired
     private lateinit var jpaProductRepository: JpaProductRepository
 
+    @Autowired
+    private lateinit var cacheManager: CacheManager
+
     private val lampPrice = Price(Amount(BigDecimal(30)), Currency.EUR)
     private val lampText = ProductText(Name("Timestamped lamp"), Description("Warm light"))
     private val lampTranslations = ProductTranslations.inDefaultLanguage(lampText)
@@ -37,6 +42,7 @@ class EntityTimestampsIT {
     @AfterEach
     fun deleteLamp() {
         jpaProductRepository.deleteById(lamp.productId.id.value)
+        cacheManager.clearProductCache()
     }
 
     @Test
