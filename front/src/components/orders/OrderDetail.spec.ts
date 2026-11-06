@@ -20,7 +20,7 @@ function answerWith(...orders: object[]) {
   orders.forEach((order) =>
     mockFetch.mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve(order) })
   );
-  mockFetch.mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve(orders.at(-1)) });
+  mockFetch.mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve(orders[orders.length - 1]) });
 }
 
 async function mountDetail(path: string) {
