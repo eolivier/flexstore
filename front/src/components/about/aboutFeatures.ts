@@ -1,4 +1,5 @@
-// The features presented on the About page, grouped by audience; the texts are in `about.features.<group>.<key>`
+// The features presented on the About page, grouped by audience or by trigger;
+// the texts are in `about.features.<group>.<key>`
 export interface AboutFeature {
   key: string;
   icon: string;
@@ -50,6 +51,17 @@ export const aboutFeatureGroups: AboutFeatureGroup[] = [
       { key: 'seller', icon: 'mdi-store-outline' },
       { key: 'legalPages', icon: 'mdi-scale-balance' },
       { key: 'settings', icon: 'mdi-cog-outline' },
+      { key: 'environment', icon: 'mdi-console' },
+      { key: 'sellerSetup', icon: 'mdi-auto-fix' },
+    ],
+  },
+  {
+    key: 'automatic',
+    icon: 'mdi-robot-outline',
+    color: 'info',
+    features: [
+      { key: 'unpaidOrders', icon: 'mdi-timer-sand' },
+      { key: 'abandonedCart', icon: 'mdi-cart-arrow-right' },
     ],
   },
 ];
