@@ -26,7 +26,7 @@
 </script>
 
 <template>
-  <v-container class="py-12">
+  <v-container class="py-10">
     <h1 class="text-h4 font-weight-bold mb-2">{{ t(`legalPages.${kind}.title`) }}</h1>
 
     <v-alert v-if="legalPagesStore.loadErrors[kind]" type="error" variant="tonal">{{
