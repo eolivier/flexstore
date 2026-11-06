@@ -15,6 +15,21 @@ body,
   font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
+.text-h4 {
+  font-size: 1.75rem;
+  line-height: 1.25;
+}
+
+.text-h5 {
+  font-size: 1.5rem;
+  line-height: 1.35;
+}
+
+.text-h6 {
+  font-size: 1.25rem;
+  line-height: 1.6;
+}
+
 .v-application [class*='text-h'] {
   font-family: inherit !important;
   letter-spacing: -0.01em !important;
