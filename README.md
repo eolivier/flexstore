@@ -143,7 +143,7 @@ docker compose up -d --build app
 
 ### 3. Front end
 
-**Prerequisites**: Node 22, given in `front/.nvmrc` (`nvm use` in `front/`) and used by the CI and the deployment. Vite 7 needs Node 20.19 or later: `npm install` refuses an older version, and with Node 18 the tests fail with `crypto.hash is not a function`.
+**Prerequisites**: Node 22, given in `front/.nvmrc` (`nvm use` in `front/`) and used by the CI and the deployment. Vite 7 needs Node 20.19 or later: `npm install` refuses an older version, and with Node 18 the tests fail with `crypto.hash is not a function`. The CI and the deployment use npm 12.2.2 (`npm install -g npm@12.2.2`), which needs Node 22.22.2 or later.
 
 Add a `front/.env` file:
 
