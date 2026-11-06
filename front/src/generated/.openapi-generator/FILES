@@ -22,6 +22,8 @@ docs/JsonCartItem.md
 docs/JsonCartItems.md
 docs/JsonChangePasswordRequest.md
 docs/JsonChosenPassword.md
+docs/JsonColorModeChoice.md
+docs/JsonColorModePreference.md
 docs/JsonCookieChoice.md
 docs/JsonCookieConsent.md
 docs/JsonCustomerCompany.md
@@ -78,6 +80,7 @@ docs/JsonUserUpdate.md
 docs/LegalPagesApi.md
 docs/OrdersApi.md
 docs/PaymentsApi.md
+docs/PreferencesApi.md
 docs/ProductImagesApi.md
 docs/ProductsApi.md
 docs/ReviewsApi.md

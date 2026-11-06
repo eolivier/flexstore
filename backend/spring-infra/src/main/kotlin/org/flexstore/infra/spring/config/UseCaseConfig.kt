@@ -7,6 +7,8 @@ import org.flexstore.domain.cart.*
 import org.flexstore.domain.cart.usecase.*
 import org.flexstore.domain.cookie.CookieConsentRepository
 import org.flexstore.domain.cookie.usecase.*
+import org.flexstore.domain.preference.ColorModePreferenceRepository
+import org.flexstore.domain.preference.usecase.*
 import org.flexstore.domain.email.*
 import org.flexstore.domain.invoice.*
 import org.flexstore.domain.invoice.usecase.*
@@ -571,6 +573,24 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         readCookieConsentUseCase: ReadCookieConsentUseCase,
         recordCookieConsentUseCase: RecordCookieConsentUseCase
     ) = CookieConsentUseCases(readCookieConsentUseCase, recordCookieConsentUseCase)
+
+    @Bean
+    open fun readColorModePreferenceUseCase(
+        colorModePreferenceRepository: ColorModePreferenceRepository,
+        userRepository: UserRepository
+    ) = ReadColorModePreferenceUseCase(colorModePreferenceRepository, userRepository)
+
+    @Bean
+    open fun recordColorModePreferenceUseCase(
+        colorModePreferenceRepository: ColorModePreferenceRepository,
+        userRepository: UserRepository
+    ) = RecordColorModePreferenceUseCase(colorModePreferenceRepository, userRepository)
+
+    @Bean
+    open fun colorModePreferenceUseCases(
+        readColorModePreferenceUseCase: ReadColorModePreferenceUseCase,
+        recordColorModePreferenceUseCase: RecordColorModePreferenceUseCase
+    ) = ColorModePreferenceUseCases(readColorModePreferenceUseCase, recordColorModePreferenceUseCase)
 
     @Bean
     open fun openSessionUseCase(

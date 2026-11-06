@@ -1,0 +1,106 @@
+# PreferencesApi
+
+All URIs are relative to *http://localhost:8080*
+
+|Method | HTTP request | Description|
+|------------- | ------------- | -------------|
+|[**getColorModePreference**](#getcolormodepreference) | **GET** /api/color-mode | Retrieve the display mode of the signed-in customer|
+|[**recordColorModePreference**](#recordcolormodepreference) | **PUT** /api/color-mode | Record the display mode chosen by the signed-in customer|
+
+# **getColorModePreference**
+> JsonColorModePreference getColorModePreference()
+
+NONE when the customer never chose.
+
+### Example
+
+```typescript
+import {
+    PreferencesApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new PreferencesApi(configuration);
+
+const { status, data } = await apiInstance.getColorModePreference();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**JsonColorModePreference**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The display mode |  -  |
+|**401** | Not signed in |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **recordColorModePreference**
+> JsonColorModePreference recordColorModePreference(jsonColorModeChoice)
+
+
+### Example
+
+```typescript
+import {
+    PreferencesApi,
+    Configuration,
+    JsonColorModeChoice
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new PreferencesApi(configuration);
+
+let jsonColorModeChoice: JsonColorModeChoice; //
+
+const { status, data } = await apiInstance.recordColorModePreference(
+    jsonColorModeChoice
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **jsonColorModeChoice** | **JsonColorModeChoice**|  | |
+
+
+### Return type
+
+**JsonColorModePreference**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The recorded display mode |  -  |
+|**401** | Not signed in |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+

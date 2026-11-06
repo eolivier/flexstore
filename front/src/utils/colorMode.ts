@@ -26,6 +26,15 @@ export function initialColorMode(): ColorMode {
   }
 }
 
+// Whether the customer chose a mode in this browser (and kept the preference cookies), the system not counting
+export function hasRememberedColorMode(): boolean {
+  try {
+    return isColorMode(localStorage.getItem(COLOR_MODE_KEY));
+  } catch {
+    return false;
+  }
+}
+
 // A preference cookie: only kept when the customer accepted the preference cookies
 export function rememberColorMode(colorMode: ColorMode): void {
   if (!preferencesAccepted()) {

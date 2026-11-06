@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { mount } from '@vue/test-utils';
+import { createPinia } from 'pinia';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import ColorModeButton from './ColorModeButton.vue';
@@ -9,7 +10,7 @@ import { i18n } from '@/test/setup';
 
 function mountButton(defaultTheme: string) {
   const vuetify = createVuetify({ components, theme: { defaultTheme, themes } });
-  const wrapper = mount(ColorModeButton, { global: { plugins: [vuetify, i18n] } });
+  const wrapper = mount(ColorModeButton, { global: { plugins: [vuetify, i18n, createPinia()] } });
   return { wrapper, vuetify };
 }
 
