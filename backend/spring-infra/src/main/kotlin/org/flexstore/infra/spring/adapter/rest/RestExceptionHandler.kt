@@ -14,6 +14,7 @@ import org.flexstore.domain.legal.*
 import org.flexstore.domain.product.model.*
 import org.flexstore.domain.review.*
 import org.flexstore.domain.sales.*
+import org.flexstore.domain.environment.*
 import org.flexstore.domain.seller.*
 import org.flexstore.domain.settings.*
 import org.flexstore.domain.stock.*
@@ -72,6 +73,7 @@ class RestExceptionHandler {
             is ProductImageForbiddenException, is StockChangeForbiddenException,
             is ReviewModerationForbiddenException, is OrderAdministrationForbiddenException,
             is CreditNoteForbiddenException, is SalesDashboardForbiddenException,
+            is EnvironmentAdministrationForbiddenException,
             is TwoFactorAuthenticationForbiddenException -> ResponseEntity
                 .status(403)
                 .body(mapOf("error" to (ex.message ?: "Forbidden")))

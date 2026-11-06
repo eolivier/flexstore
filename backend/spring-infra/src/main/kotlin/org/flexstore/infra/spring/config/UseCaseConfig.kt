@@ -26,6 +26,7 @@ import org.flexstore.domain.legal.usecase.*
 import org.flexstore.domain.review.*
 import org.flexstore.domain.review.usecase.*
 import org.flexstore.domain.sales.usecase.*
+import org.flexstore.domain.environment.*
 import org.flexstore.domain.seller.*
 import org.flexstore.domain.seller.usecase.*
 import org.flexstore.domain.stock.*
@@ -594,6 +595,11 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     @Bean
     open fun revokeAllRefreshSessionsUseCase(refreshSessionRepository: RefreshSessionRepository) =
         RevokeAllRefreshSessionsUseCase(refreshSessionRepository)
+
+    @Bean
+    open fun readEnvironmentUseCase(environmentRepository: EnvironmentRepository,
+                                    userRepository: UserRepository) =
+        ReadEnvironmentUseCase(environmentRepository, userRepository)
 
     @Bean
     open fun readSalesDashboardUseCase(orderRepository: OrderRepository, userRepository: UserRepository) =

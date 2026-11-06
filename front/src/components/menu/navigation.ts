@@ -35,4 +35,5 @@ export const adminLinks = [
   { to: '/admin/seller', icon: 'mdi-store-outline', label: 'nav.seller' },
   { to: '/admin/legal-pages', icon: 'mdi-scale-balance', label: 'nav.legalPages' },
   { to: '/admin/settings', icon: 'mdi-cog-outline', label: 'nav.settings' },
+  { to: '/admin/environment', icon: 'mdi-server-security', label: 'nav.environment' },
 ];
