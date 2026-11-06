@@ -18,24 +18,24 @@
 </script>
 
 <template>
-  <v-container class="py-10">
+  <v-container class="py-6">
     <AdminBreadcrumbs />
     <h1 class="text-h4 font-weight-bold mb-1">{{ t('settings.title') }}</h1>
-    <p class="text-body-2 text-medium-emphasis mb-8">{{ t('settings.subtitle') }}</p>
+    <p class="text-body-2 text-medium-emphasis mb-4">{{ t('settings.subtitle') }}</p>
 
     <v-alert v-if="settingsStore.loadError" type="error" variant="tonal">{{ t('settings.loadError') }}</v-alert>
 
     <v-skeleton-loader v-else-if="!settingsStore.settings" type="list-item-avatar-two-line" class="rounded-xl" />
 
-    <v-card v-else class="pa-6">
+    <v-card v-else class="pa-4">
       <SellerSetupSetting />
-      <v-divider class="my-6" />
+      <v-divider class="my-3" />
       <OrderConfirmationEmailSetting />
-      <v-divider class="my-6" />
+      <v-divider class="my-3" />
       <AbandonedCartReminderSetting />
-      <v-divider class="my-6" />
+      <v-divider class="my-3" />
       <PaymentDelaySetting />
-      <v-divider class="my-6" />
+      <v-divider class="my-3" />
       <FreeShippingThresholdSetting />
     </v-card>
   </v-container>
