@@ -19,15 +19,15 @@
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
-    "@unhead/vue": "^2.1.17",
+    "@unhead/vue": "^3.4.3",
     "axios": "^1.12.2",
-    "pinia": "^3.0.3",
+    "pinia": "^4.1.0",
     "qrcode": "^1.5.4",
     "sass": "^1.91.0",
     "vue": "^3.5.20",
     "vue-i18n": "^11.1.12",
-    "vue-router": "^4.5.1",
-    "vuetify": "^3.9.7"
+    "vue-router": "^5.4.0",
+    "vuetify": "^4.3.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.35.0",

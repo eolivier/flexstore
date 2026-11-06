@@ -26,7 +26,7 @@
     persistent-hint
   >
     <template #item="{ props: itemProps, item }">
-      <v-list-item v-bind="itemProps" :subtitle="item.raw.subtitle" />
+      <v-list-item v-bind="itemProps" :subtitle="item.subtitle" />
     </template>
   </v-select>
 </template>
