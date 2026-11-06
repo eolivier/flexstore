@@ -597,7 +597,8 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         RevokeAllRefreshSessionsUseCase(refreshSessionRepository)
 
     @Bean
-    open fun readEnvironmentUseCase(environmentRepository: EnvironmentRepository, userRepository: UserRepository) =
+    open fun readEnvironmentUseCase(environmentRepository: EnvironmentRepository,
+                                    userRepository: UserRepository) =
         ReadEnvironmentUseCase(environmentRepository, userRepository)
 
     @Bean

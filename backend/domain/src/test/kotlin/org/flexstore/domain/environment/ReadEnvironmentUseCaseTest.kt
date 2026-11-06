@@ -27,7 +27,8 @@ class ReadEnvironmentUseCaseTest : WithAssertions {
         val environmentReport = useCase.unfold(EnvironmentReading(testAdministrator.id))
         // Assert
         val reports = environmentReport.asList().associate { report -> report.variable.name to report.state }
-        assertThat(reports).hasSameSizeAs(ExpectedVariables.ofTheShop().reportOn { VariableValue.missing() }.asList())
+        val expectedVariables = ExpectedVariables.ofTheShop().reportOn { VariableValue.missing() }
+        assertThat(reports).hasSameSizeAs(expectedVariables.asList())
         assertThat(reports[jwtSecret]).isEqualTo(VariableState.DefinedAndHidden)
         assertThat(reports[frontUrl])
             .isEqualTo(VariableState.DefinedAndShown(VariableValue("https://shop.example.com")))
@@ -45,7 +46,8 @@ class ReadEnvironmentUseCaseTest : WithAssertions {
     @Test
     fun `the environment should be incomplete while a required variable is undefined`() {
         // Arrange
-        val withoutJwtSecret = ReadEnvironmentUseCase(InMemoryEnvironmentRepository(), usersOfTheAdministration())
+        val emptyEnvironment = InMemoryEnvironmentRepository()
+        val withoutJwtSecret = ReadEnvironmentUseCase(emptyEnvironment, usersOfTheAdministration())
         // Act
         val environmentReport = withoutJwtSecret.unfold(EnvironmentReading(testAdministrator.id))
         // Assert

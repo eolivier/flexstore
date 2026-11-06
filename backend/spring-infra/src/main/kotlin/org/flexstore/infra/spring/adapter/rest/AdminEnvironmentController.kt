@@ -11,8 +11,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.*
 
-// The environment variables of the back end, for the administrators (ADMIN role, see SecurityConfig, checked again
-// by the use case): the secrets are never given, only whether they are defined
+// The environment variables of the back end, for the administrators (ADMIN role, see SecurityConfig, checked
+// again by the use case): the secrets are never given, only whether they are defined
 @Tag(name = "Administration")
 @RestController
 @RequestMapping("/api/admin/environment")

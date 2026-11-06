@@ -4,8 +4,9 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.flexstore.domain.environment.*
 
-// sensitivity: PLAIN or SECRET; necessity: REQUIRED or OPTIONAL; status: DEFINED or UNDEFINED (a defined variable
-// is neither empty, nor blank); value: only the value of a defined plain variable, never the one of a secret
+// sensitivity: PLAIN or SECRET; necessity: REQUIRED or OPTIONAL; status: DEFINED or UNDEFINED (a defined
+// variable is neither empty, nor blank); value: only the value of a defined plain variable, never the one of a
+// secret
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class JsonEnvironmentVariable(
     @JsonProperty("name") val name: String,
