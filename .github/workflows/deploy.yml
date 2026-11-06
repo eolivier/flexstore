@@ -1,0 +1,189 @@
+name: Deploy to the VPS
+
+# Runs once the CI of a push to main is green (a merge on main), or by hand.
+# The back end image is built here and pulled by the VPS; the front end is built here and copied to the VPS.
+# Secrets of the repository: VPS_HOST, VPS_USER, VPS_SSH_KEY (private key), VPS_KNOWN_HOSTS (ssh-keyscan output).
+on:
+  workflow_run:
+    workflows: [ "CI" ]
+    types: [ completed ]
+    branches: [ "main" ]
+  workflow_dispatch:
+
+# One deployment at a time: the next one waits for the one in progress
+concurrency:
+  group: deploy-vps
+  cancel-in-progress: false
+
+env:
+  IMAGE: ghcr.io/${{ github.repository_owner }}/flexstore-back
+  SHOP_URL: https://flexstore.tech
+  DEPLOY_DIR: /opt/flexstore
+
+jobs:
+  back:
+    name: Build and push the back end image
+    # A manual run is always allowed; a run after the CI only when the CI is green
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      sha: ${{ steps.revision.outputs.sha }}
+
+    steps:
+      - name: Revision to deploy
+        id: revision
+        run: echo "sha=${{ github.event.workflow_run.head_sha || github.sha }}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.revision.outputs.sha }}
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Sign in to the GitHub container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # The Dockerfile runs the unit tests of the back end before it builds the jar
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:${{ steps.revision.outputs.sha }}
+            ${{ env.IMAGE }}:latest
+          # Links the package to this repository: the workflow can push to it and it shows on the repository
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    name: Update the VPS
+    needs: back
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.back.outputs.sha }}
+
+      - name: Prepare SSH
+        env:
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          install -d -m 700 ~/.ssh
+          # printf adds the final newline that OpenSSH needs when the secret was pasted without it
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$VPS_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          cat > ~/.ssh/config <<EOF
+          Host vps
+            HostName ${{ secrets.VPS_HOST }}
+            User ${{ secrets.VPS_USER }}
+            IdentityFile ~/.ssh/deploy_key
+            IdentitiesOnly yes
+            StrictHostKeyChecking yes
+          EOF
+
+      # The compose file and the Caddyfile are versioned: a change of them is deployed with the code.
+      # The .env (the secrets) stays on the server.
+      - name: Copy the stack files
+        run: scp deploy/docker-compose.prod.yml deploy/Caddyfile "vps:${DEPLOY_DIR}/"
+
+      # The configuration of the shop comes from GitHub (secrets, and variables for what is not secret): the .env of the
+      # server is written at each deployment, through SSH (the values never appear in a command line nor in the logs)
+      - name: Write the .env of the server
+        env:
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          FLEXSTORE_JWT_SECRET: ${{ secrets.FLEXSTORE_JWT_SECRET }}
+          FLEXSTORE_MAIL_USERNAME: ${{ secrets.FLEXSTORE_MAIL_USERNAME }}
+          FLEXSTORE_MAIL_PASSWORD: ${{ secrets.FLEXSTORE_MAIL_PASSWORD }}
+          FLEXSTORE_STRIPE_SECRET_KEY: ${{ secrets.FLEXSTORE_STRIPE_SECRET_KEY }}
+          FLEXSTORE_STRIPE_WEBHOOK_SECRET: ${{ secrets.FLEXSTORE_STRIPE_WEBHOOK_SECRET }}
+          FLEXSTORE_MAIL_HOST: ${{ vars.FLEXSTORE_MAIL_HOST }}
+          FLEXSTORE_MAIL_PORT: ${{ vars.FLEXSTORE_MAIL_PORT }}
+          FLEXSTORE_MAIL_FROM: ${{ vars.FLEXSTORE_MAIL_FROM }}
+        run: |
+          [ -n "$POSTGRES_PASSWORD" ] || { echo "::error::The secret POSTGRES_PASSWORD is missing"; exit 1; }
+          [ "${#FLEXSTORE_JWT_SECRET}" -ge 32 ] \
+            || { echo "::error::The secret FLEXSTORE_JWT_SECRET is missing or shorter than 32 characters"; exit 1; }
+          # The password is written in the address of the database: letters and digits only (openssl rand -hex 32)
+          [[ "$POSTGRES_PASSWORD" =~ ^[A-Za-z0-9]+$ ]] \
+            || { echo "::error::The secret POSTGRES_PASSWORD must hold letters and digits only"; exit 1; }
+          names="FLEXSTORE_JWT_SECRET FLEXSTORE_MAIL_HOST FLEXSTORE_MAIL_PORT FLEXSTORE_MAIL_USERNAME \
+          FLEXSTORE_MAIL_PASSWORD FLEXSTORE_MAIL_FROM FLEXSTORE_STRIPE_SECRET_KEY FLEXSTORE_STRIPE_WEBHOOK_SECRET"
+          # The values are written between single quotes: none of them may hold a quote nor a line break
+          for name in $names; do
+            case "${!name}" in
+              *\'* | *$'\n'*) echo "::error::$name must hold no quote and no line break"; exit 1 ;;
+            esac
+          done
+          {
+            echo "POSTGRES_DB=flexstore"
+            echo "POSTGRES_USER=flex"
+            echo "POSTGRES_PASSWORD='${POSTGRES_PASSWORD}'"
+            echo "FLEXSTORE_FRONT_URL=${SHOP_URL}"
+            for name in $names; do printf "%s='%s'\n" "$name" "${!name}"; done
+          } | ssh vps "umask 077 && cat > ${DEPLOY_DIR}/.env"
+
+      - name: Update the back end and the web server
+        run: |
+          ssh vps "cd ${DEPLOY_DIR} \
+            && export IMAGE_TAG=${{ needs.back.outputs.sha }} \
+            && docker compose -f docker-compose.prod.yml pull app \
+            && docker compose -f docker-compose.prod.yml up -d --remove-orphans \
+            && (docker compose -f docker-compose.prod.yml exec -T caddy \
+                caddy reload --config /etc/caddy/Caddyfile \
+              || docker compose -f docker-compose.prod.yml restart caddy) \
+            && docker image prune -f"
+
+      # The back end must answer before the front end, which reads the products from it, is built
+      - name: Wait for the back end
+        run: |
+          curl --fail --silent --show-error --retry 30 --retry-delay 5 --retry-connrefused --retry-all-errors \
+            "${SHOP_URL}/actuator/health"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: front/.nvmrc
+          cache: "npm"
+          cache-dependency-path: front/package-lock.json
+
+      - name: Upgrade npm
+        run: npm install -g npm@12.2.2
+
+      - name: Install deps
+        working-directory: front
+        run: npm ci
+
+      # The front end and the API share one address: the API is called on the address of the shop
+      - name: Build the front end
+        working-directory: front
+        env:
+          VITE_API_URL: ${{ env.SHOP_URL }}
+          VITE_SITE_URL: ${{ env.SHOP_URL }}
+        run: npm run build
+
+      # In place (no swap of the folder): Caddy serves the bind mount of this folder
+      - name: Copy the front end
+        run: rsync -az --delete front/dist/ "vps:${DEPLOY_DIR}/front/"
+
+      - name: Check the shop
+        run: |
+          curl --fail --silent --show-error --retry 5 --retry-delay 3 "${SHOP_URL}/fr" > /dev/null
+          curl --fail --silent --show-error "${SHOP_URL}/api/products/" > /dev/null
