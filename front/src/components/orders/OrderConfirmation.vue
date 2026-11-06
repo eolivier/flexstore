@@ -1,7 +1,8 @@
 <script setup lang="ts">
-  import { computed, onMounted, onUnmounted, ref } from 'vue';
+  import { computed, onMounted } from 'vue';
   import { useI18n } from 'vue-i18n';
-  import { useOrdersStore, type OrderLookup } from '@/stores/orders.store';
+  import { useOrdersStore } from '@/stores/orders.store';
+  import { usePaymentConfirmation } from '@/composables/usePaymentConfirmation';
   import { formatPrice } from '@/utils/price';
   import { orderItemsCount, orderNumber, placedOn } from '@/utils/order';
   import AccountBreadcrumbs from '@/components/account/AccountBreadcrumbs.vue';
@@ -9,31 +10,19 @@
   // The page the customer comes back to after paying:
   // the payment provider may confirm the payment a little later
   const props = defineProps<{ id: string }>();
-  const CONFIRMATION_CHECKS = 10;
-  const CONFIRMATION_CHECK_DELAY_MS = 2000;
 
   const { t, locale } = useI18n();
   const ordersStore = useOrdersStore();
 
-  const orderLookup = ref<OrderLookup | null>(null);
-  const order = computed(() => (orderLookup.value?.status === 'found' ? orderLookup.value.order : null));
-  const orderPath = computed(() => `/orders/${props.id}`);
+  // Once paid, the cart of the customer is empty
+  const { orderLookup, order, awaitingPayment, load } = usePaymentConfirmation(
+    () => props.id,
+    () => ordersStore.refreshCart()
+  );
+  // The order detail goes on waiting for the confirmation instead of offering to pay again
+  const orderPath = computed(() => `/orders/${props.id}?paymentReturned=true`);
 
-  const awaitingPayment = computed(() => order.value?.status === 'AWAITING_PAYMENT');
-  let confirmationCheck: ReturnType<typeof setTimeout> | undefined;
-
-  async function load(remainingChecks: number) {
-    orderLookup.value = await ordersStore.fetchOrder(props.id);
-    if (awaitingPayment.value && remainingChecks > 0) {
-      confirmationCheck = setTimeout(() => load(remainingChecks - 1), CONFIRMATION_CHECK_DELAY_MS);
-    } else {
-      // Once paid, the cart of the customer is empty
-      await ordersStore.refreshCart();
-    }
-  }
-
-  onMounted(() => load(CONFIRMATION_CHECKS));
-  onUnmounted(() => clearTimeout(confirmationCheck));
+  onMounted(() => load());
 </script>
 
 <template>

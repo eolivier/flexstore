@@ -57,11 +57,11 @@ describe('OrderConfirmation.vue', () => {
     expect(wrapper.text()).toContain('458.00 €');
   });
 
-  it('links the order number and the button to the order detail', async () => {
+  it('links the order number and the button to the order detail, told that the customer just paid', async () => {
     // Act
     const wrapper = await mountConfirmation();
     // Assert
-    const detailLinks = wrapper.findAll(`a[href="/orders/${order.id}"]`);
+    const detailLinks = wrapper.findAll(`a[href="/orders/${order.id}?paymentReturned=true"]`);
     expect(detailLinks.map((link) => link.text())).toEqual(['46555C9F', 'See the order details']);
   });
 
