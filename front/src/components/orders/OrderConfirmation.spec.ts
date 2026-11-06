@@ -71,12 +71,9 @@ describe('OrderConfirmation.vue', () => {
     const awaitingPayment = { ...order, status: 'AWAITING_PAYMENT' };
     const paid = { ...order, status: 'PAID' };
     mockFetch
+      .mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve(awaitingPayment) })
       .mockResolvedValueOnce({ ok: true, status: 204 })
-      .mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        json: () => Promise.resolve(awaitingPayment),
-      })
+      .mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve(awaitingPayment) })
       .mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve(paid) });
     const wrapper = await mountConfirmation();
     const whileAwaiting = wrapper.text();
@@ -89,11 +86,27 @@ describe('OrderConfirmation.vue', () => {
     vi.useRealTimers();
   });
 
-  it('asks the shop to verify the payment with the provider when the customer comes back', async () => {
+  it('asks the shop to verify the payment with the provider when the order awaits it', async () => {
+    // Arrange
+    mockFetch.mockImplementation((url: string) =>
+      Promise.resolve(
+        String(url).endsWith('/payment/verification')
+          ? { ok: true, status: 204 }
+          : { ok: true, status: 200, json: () => Promise.resolve({ ...order, status: 'AWAITING_PAYMENT' }) }
+      )
+    );
     // Act
     await mountConfirmation();
     // Assert
     const verification = `/api/orders/${order.id}/payment/verification`;
-    expect(mockFetch.mock.calls.some(([url]) => String(url).endsWith(verification))).toBe(true);
+    expect(mockFetch.mock.calls.filter(([url]) => String(url).endsWith(verification))).toHaveLength(1);
+  });
+
+  it('does not verify the payment of an order already paid', async () => {
+    // Act
+    await mountConfirmation();
+    // Assert
+    const verification = `/api/orders/${order.id}/payment/verification`;
+    expect(mockFetch.mock.calls.some(([url]) => String(url).endsWith(verification))).toBe(false);
   });
 });
