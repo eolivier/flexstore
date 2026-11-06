@@ -1,5 +1,6 @@
 # Production stack of the VPS (copied to /opt/flexstore by .github/workflows/deploy.yml).
-# The secrets are in /opt/flexstore/.env on the server, never in the repository (see docs/deployment-vps.md).
+# The .env next to it is written by the workflow from the secrets and the variables of GitHub, never kept in the
+# repository (see docs/deployment-vps.md).
 services:
   db:
     image: postgres:16

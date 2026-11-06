@@ -101,6 +101,42 @@ jobs:
       - name: Copy the stack files
         run: scp deploy/docker-compose.prod.yml deploy/Caddyfile "vps:${DEPLOY_DIR}/"
 
+      # The configuration of the shop comes from GitHub (secrets, and variables for what is not secret): the .env of the
+      # server is written at each deployment, through SSH (the values never appear in a command line nor in the logs)
+      - name: Write the .env of the server
+        env:
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          FLEXSTORE_JWT_SECRET: ${{ secrets.FLEXSTORE_JWT_SECRET }}
+          FLEXSTORE_MAIL_USERNAME: ${{ secrets.FLEXSTORE_MAIL_USERNAME }}
+          FLEXSTORE_MAIL_PASSWORD: ${{ secrets.FLEXSTORE_MAIL_PASSWORD }}
+          FLEXSTORE_STRIPE_SECRET_KEY: ${{ secrets.FLEXSTORE_STRIPE_SECRET_KEY }}
+          FLEXSTORE_STRIPE_WEBHOOK_SECRET: ${{ secrets.FLEXSTORE_STRIPE_WEBHOOK_SECRET }}
+          FLEXSTORE_MAIL_HOST: ${{ vars.FLEXSTORE_MAIL_HOST }}
+          FLEXSTORE_MAIL_PORT: ${{ vars.FLEXSTORE_MAIL_PORT }}
+          FLEXSTORE_MAIL_FROM: ${{ vars.FLEXSTORE_MAIL_FROM }}
+        run: |
+          [ -n "$POSTGRES_PASSWORD" ] || { echo "::error::The secret POSTGRES_PASSWORD is missing"; exit 1; }
+          [ "${#FLEXSTORE_JWT_SECRET}" -ge 32 ] \
+            || { echo "::error::The secret FLEXSTORE_JWT_SECRET is missing or shorter than 32 characters"; exit 1; }
+          # The password is written in the address of the database: letters and digits only (openssl rand -hex 32)
+          [[ "$POSTGRES_PASSWORD" =~ ^[A-Za-z0-9]+$ ]] \
+            || { echo "::error::The secret POSTGRES_PASSWORD must hold letters and digits only"; exit 1; }
+          names="FLEXSTORE_JWT_SECRET FLEXSTORE_MAIL_HOST FLEXSTORE_MAIL_PORT FLEXSTORE_MAIL_USERNAME \
+          FLEXSTORE_MAIL_PASSWORD FLEXSTORE_MAIL_FROM FLEXSTORE_STRIPE_SECRET_KEY FLEXSTORE_STRIPE_WEBHOOK_SECRET"
+          # The values are written between single quotes: none of them may hold a quote nor a line break
+          for name in $names; do
+            case "${!name}" in
+              *\'* | *$'\n'*) echo "::error::$name must hold no quote and no line break"; exit 1 ;;
+            esac
+          done
+          {
+            echo "POSTGRES_DB=flexstore"
+            echo "POSTGRES_USER=flex"
+            echo "POSTGRES_PASSWORD='${POSTGRES_PASSWORD}'"
+            echo "FLEXSTORE_FRONT_URL=${SHOP_URL}"
+            for name in $names; do printf "%s='%s'\n" "$name" "${!name}"; done
+          } | ssh vps "umask 077 && cat > ${DEPLOY_DIR}/.env"
+
       - name: Update the back end and the web server
         run: |
           ssh vps "cd ${DEPLOY_DIR} \

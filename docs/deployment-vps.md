@@ -17,8 +17,8 @@ the database and the back end publish no port.
 
 1. builds the back end image with the root `Dockerfile` and pushes it to `ghcr.io/eolivier/flexstore-back`
    (tags: the commit and `latest`);
-2. copies `deploy/docker-compose.prod.yml` and `deploy/Caddyfile` to `/opt/flexstore` on the VPS, pulls the image
-   and restarts what changed (Flyway runs the new migrations when the back end starts);
+2. copies `deploy/docker-compose.prod.yml` and `deploy/Caddyfile` to `/opt/flexstore` on the VPS, writes its `.env`
+   from the secrets and the variables of GitHub, pulls the image and restarts what changed (Flyway runs the new migrations when the back end starts);
 3. waits for `https://flexstore.tech/actuator/health`;
 4. builds the front end (`VITE_API_URL` and `VITE_SITE_URL` are the address of the shop) and copies `front/dist`
    to `/opt/flexstore/front`;
@@ -113,31 +113,15 @@ Keep your root session open and test a new connection of `deploy` before closing
 An `A` record of `flexstore.tech` to the IP of the VPS. Caddy gets its certificate from Let's Encrypt when it
 starts, so the name must already lead to the VPS (`dig +short flexstore.tech`).
 
-### 6. The secrets of the server: `/opt/flexstore/.env`
-
-As `deploy` (`chmod 600 /opt/flexstore/.env`). Generate the secrets with `openssl rand -hex 32`; hexadecimal
-avoids the characters that break the database address.
-
-```
-POSTGRES_DB=flexstore
-POSTGRES_USER=flex
-POSTGRES_PASSWORD=<hex>
-FLEXSTORE_JWT_SECRET=<hex, 32 characters at least>
-FLEXSTORE_FRONT_URL=https://flexstore.tech
-FLEXSTORE_MAIL_HOST=smtp-relay.brevo.com
-FLEXSTORE_MAIL_USERNAME=...
-FLEXSTORE_MAIL_PASSWORD=...
-FLEXSTORE_MAIL_FROM=Flexstore <no-reply@flexstore.tech>
-FLEXSTORE_STRIPE_SECRET_KEY=sk_live_...
-FLEXSTORE_STRIPE_WEBHOOK_SECRET=whsec_...
-```
-
-Without `FLEXSTORE_MAIL_HOST` the emails are written to the logs; without `FLEXSTORE_STRIPE_SECRET_KEY` the payments
-are simulated. The other variables are in the README.
+There is nothing else to write on the server: its `.env` is generated at each deployment from the secrets and the
+variables of GitHub (next section).
 
 ## Set up GitHub (once)
 
-**Settings > Secrets and variables > Actions > New repository secret**:
+**Settings > Secrets and variables > Actions**. The workflow writes the `.env` of the server from them (`/opt/flexstore/.env`,
+readable by `deploy` only), so the configuration lives in GitHub and nowhere else.
+
+*Secrets* (tab Secrets > New repository secret):
 
 | Secret | Value |
 |---|---|
@@ -145,6 +129,28 @@ are simulated. The other variables are in the README.
 | `VPS_USER` | `deploy` |
 | `VPS_SSH_KEY` | the private key `~/.ssh/flexstore_deploy`, with its `BEGIN` and `END` lines |
 | `VPS_KNOWN_HOSTS` | the output of `ssh-keyscan -t ed25519 VPS_IP` |
+| `POSTGRES_PASSWORD` | letters and digits only: `openssl rand -hex 32` |
+| `FLEXSTORE_JWT_SECRET` | 32 characters at least: `openssl rand -hex 32` |
+| `FLEXSTORE_MAIL_USERNAME`, `FLEXSTORE_MAIL_PASSWORD` | credentials of the SMTP provider (optional) |
+| `FLEXSTORE_STRIPE_SECRET_KEY` | `sk_live_...` (optional: without it the payments are simulated) |
+| `FLEXSTORE_STRIPE_WEBHOOK_SECRET` | `whsec_...` (optional) |
+
+*Variables* (tab Variables, not secret, all optional):
+
+| Variable | Value |
+|---|---|
+| `FLEXSTORE_MAIL_HOST` | e.g. `smtp-relay.brevo.com` (without it the emails are written to the logs) |
+| `FLEXSTORE_MAIL_PORT` | `587` by default |
+| `FLEXSTORE_MAIL_FROM` | e.g. `Flexstore <no-reply@flexstore.tech>` |
+
+`POSTGRES_PASSWORD` and `FLEXSTORE_JWT_SECRET` are required: the deployment stops with an error when one is missing.
+The values hold no quote and no line break. The name and the user of the database (`flexstore`, `flex`) and
+`FLEXSTORE_FRONT_URL` (the address of the shop) are written by the workflow. To change a value, change it in GitHub and
+run the workflow again.
+
+**Change `POSTGRES_PASSWORD` only before the first deployment.** PostgreSQL stores it when it creates the database;
+a new value in GitHub would then be refused by the database. To change it afterwards, change it in the database first
+(`docker exec -it flexstore-db psql -U flex -d flexstore -c "ALTER USER flex PASSWORD '...'"`), then in GitHub.
 
 GitHub never gives a secret back; replace it to change it. `VPS_KNOWN_HOSTS` pins the identity of the server: compare
 `ssh-keyscan -t ed25519 VPS_IP | ssh-keygen -lf -` with `ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub` run on the
@@ -161,7 +167,8 @@ Run the workflow by hand (**Actions > Deploy to the VPS > Run workflow**), then 
 1. Sign in as `admin@flexstore.com` / `admin` and **change this password at once**: the migrations create the account
    with this well known password.
 2. Stripe: add the webhook endpoint `https://flexstore.tech/api/payments/stripe/webhook` for the event
-   `checkout.session.completed`, and put its secret in `FLEXSTORE_STRIPE_WEBHOOK_SECRET`.
+   `checkout.session.completed`, put its secret in the GitHub secret `FLEXSTORE_STRIPE_WEBHOOK_SECRET` and run the
+   workflow again.
 3. Back up the database, for instance a daily cron of `deploy`:
 
    ```bash
@@ -179,7 +186,7 @@ docker compose -f docker-compose.prod.yml logs -f app
 docker compose -f docker-compose.prod.yml restart app
 ```
 
-After a change of `.env`, run `docker compose -f docker-compose.prod.yml up -d` to recreate the containers.
+The `.env` is rewritten by every deployment: change the secrets and the variables in GitHub, not in this file.
 
 **Roll back**: every deployed commit stays available as an image, so start the image of an earlier commit on the VPS:
 
