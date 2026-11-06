@@ -11,6 +11,9 @@ import org.flexstore.infra.spring.adapter.mapping.percentage
 import org.flexstore.infra.spring.adapter.mapping.promotionOf
 import org.flexstore.infra.spring.adapter.mapping.startsAt
 import org.flexstore.domain.sharedkernel.*
+import org.flexstore.infra.spring.config.PRODUCTS_CACHE
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
@@ -45,12 +48,16 @@ interface JpaProductRepository : JpaRepository<ProductEntity, String> {
 // Catalog order: oldest products first, then by id
 private val CATALOG_ORDER = Sort.by("createdAt", "id")
 
+// The reads of the product table go through one cache: the catalog, a product by id and the products of a
+// category are each cached under their own key. A save (insert or update) evicts them all, so that the next read
+// loads the table again. Not cached: the existence checks
 @Repository
 @Transactional
 class PostgresProductRepositoryAdapter(
     private val jpaRepo: JpaProductRepository
 ) : ProductRepository {
 
+    @CacheEvict(PRODUCTS_CACHE, allEntries = true)
     override fun save(product: Product): Product {
         val entity = when (product) {
             is DraftProduct -> product.toEntity(Identity.nextId().value)
@@ -59,13 +66,16 @@ class PostgresProductRepositoryAdapter(
         return jpaRepo.save(entity).toDomain()
     }
 
+    @Cacheable(PRODUCTS_CACHE, key = "'all'")
     @Transactional(readOnly = true)
     override fun findAll(): List<Product> = jpaRepo.findAll(CATALOG_ORDER).map { it.toDomain() }
 
+    @Cacheable(PRODUCTS_CACHE, key = "'id:' + #p0.id.value")
     @Transactional(readOnly = true)
     override fun findById(productId: ProductId): DefinedProduct? =
         jpaRepo.findById(productId.id.value).map { it.toDomain() }.orElse(null)
 
+    @Cacheable(PRODUCTS_CACHE, key = "'category:' + #p0.name")
     @Transactional(readOnly = true)
     override fun findAllBy(category: Category): List<Product> =
         jpaRepo.findAllByCategory(category.name, CATALOG_ORDER).map { it.toDomain() }

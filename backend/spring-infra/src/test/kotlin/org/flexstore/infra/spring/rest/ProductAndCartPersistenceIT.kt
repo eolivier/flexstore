@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaCartItemRepository
 import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaCartRepository
 import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaProductRepository
+import org.flexstore.infra.spring.clearProductCache
+import org.springframework.cache.CacheManager
 import org.flexstore.infra.spring.adapter.rest.CART_ID_HEADER
 import org.flexstore.infra.spring.adapter.rest.json.JsonItem
 import org.flexstore.infra.spring.security.asAdmin
@@ -48,6 +50,9 @@ class ProductAndCartPersistenceIT {
     @Autowired
     private lateinit var productRepository: JpaProductRepository
 
+    @Autowired
+    private lateinit var cacheManager: CacheManager
+
     // The cart of a visitor
     private val cartId = VisitorCartId.nextId().value
 
@@ -60,6 +65,7 @@ class ProductAndCartPersistenceIT {
             product.translations.any { it.name == TEST_PRODUCT_NAME }
         }
         productRepository.deleteAll(testProducts)
+        cacheManager.clearProductCache()
     }
 
     @Test

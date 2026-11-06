@@ -6,6 +6,8 @@ import org.flexstore.domain.product.model.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.ProductTranslationEntity
 import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaProductRepository
+import org.flexstore.infra.spring.clearProductCache
+import org.springframework.cache.CacheManager
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -23,6 +25,9 @@ class ProductTranslationIT {
     @Autowired
     private lateinit var jpaProductRepository: JpaProductRepository
 
+    @Autowired
+    private lateinit var cacheManager: CacheManager
+
     private val englishText = ProductText(Name("Translated lamp"), Description("Warm light"))
     private val frenchText = ProductText(Name("Lampe traduite"), Description("Lumière chaude"))
     private val frenchTranslation = ProductTranslation(Language.FR, frenchText)
@@ -38,6 +43,7 @@ class ProductTranslationIT {
     @AfterEach
     fun deleteLamp() {
         jpaProductRepository.deleteById(lamp.productId.id.value)
+        cacheManager.clearProductCache()
     }
 
     private fun storedFrenchRow(): ProductTranslationEntity {

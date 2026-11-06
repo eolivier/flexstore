@@ -3,6 +3,8 @@ package org.flexstore.infra.spring.rest
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaProductRepository
+import org.flexstore.infra.spring.clearProductCache
+import org.springframework.cache.CacheManager
 import org.flexstore.infra.spring.adapter.rest.json.JsonProduct
 import org.flexstore.infra.spring.security.asAdmin
 import org.flexstore.infra.spring.security.asUser
@@ -41,12 +43,16 @@ class DefinedProductControllerIT {
     @Autowired
     private lateinit var productRepository: JpaProductRepository
 
+    @Autowired
+    private lateinit var cacheManager: CacheManager
+
     // The products created by a test, deleted after it: the other tests read the seeded catalog
     private val createdProductIds = mutableListOf<String>()
 
     @AfterEach
     fun deleteCreatedProducts() {
         productRepository.deleteAllById(createdProductIds)
+        cacheManager.clearProductCache()
     }
 
     @Test
