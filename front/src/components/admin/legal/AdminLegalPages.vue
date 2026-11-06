@@ -16,7 +16,7 @@
 </script>
 
 <template>
-  <v-container class="page py-10">
+  <v-container class="py-10">
     <AdminBreadcrumbs />
     <h1 class="text-h4 font-weight-bold mb-1">{{ t('legalPages.adminTitle') }}</h1>
     <p class="text-body-2 text-medium-emphasis mb-8">{{ t('legalPages.adminSubtitle') }}</p>
@@ -34,9 +34,3 @@
     <p class="text-body-2 text-medium-emphasis">{{ t('legalPages.versionsNote') }}</p>
   </v-container>
 </template>
-
-<style scoped>
-  .page {
-    max-width: 960px;
-  }
-</style>
