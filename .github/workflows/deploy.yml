@@ -61,6 +61,9 @@ jobs:
           tags: |
             ${{ env.IMAGE }}:${{ steps.revision.outputs.sha }}
             ${{ env.IMAGE }}:latest
+          # Links the package to this repository: the workflow can push to it and it shows on the repository
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
