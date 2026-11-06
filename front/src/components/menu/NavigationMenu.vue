@@ -48,7 +48,7 @@
 <template>
   <v-app-bar flat border="b" color="surface" height="72">
     <LoadingBar />
-    <div class="header-inner d-flex align-center w-100 px-4">
+    <v-container class="d-flex align-center py-0">
       <v-app-bar-nav-icon class="d-md-none mr-1" :aria-label="t('nav.openMenu')" @click="drawer = !drawer" />
 
       <router-link to="/" class="brand d-flex align-center text-decoration-none mr-8">
@@ -146,7 +146,7 @@
           <v-icon icon="mdi-cart-outline" />
         </v-badge>
       </v-btn>
-    </div>
+    </v-container>
   </v-app-bar>
 
   <v-navigation-drawer v-model="drawer" temporary width="290">
@@ -191,10 +191,6 @@
 </template>
 
 <style scoped>
-  .header-inner {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
   .brand-mark {
     width: 34px;
     height: 34px;

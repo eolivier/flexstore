@@ -11,7 +11,7 @@
 
 <template>
   <v-footer color="footer" class="footer pt-10 pb-6">
-    <div class="footer-inner w-100 px-4">
+    <v-container class="py-0">
       <v-row>
         <v-col cols="12" md="5">
           <div class="d-flex align-center mb-3">
@@ -59,7 +59,7 @@
       </v-row>
       <v-divider class="my-6" />
       <div class="text-caption footer-muted">© {{ year }} Flexstore. {{ t('footer.rights') }}</div>
-    </div>
+    </v-container>
   </v-footer>
 </template>
 
@@ -69,10 +69,6 @@
   }
   .footer-muted {
     opacity: 0.72;
-  }
-  .footer-inner {
-    max-width: 1200px;
-    margin: 0 auto;
   }
   .brand-mark {
     width: 34px;
