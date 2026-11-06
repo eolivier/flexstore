@@ -2,6 +2,15 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
+    <!--
+      The order of the CSS layers of Vuetify, declared before any style: the first layer a browser meets is the
+      lowest one. In the pre-rendered pages, the styles written in the page come in another order (the utilities
+      before the core), and the reset of the buttons (color: inherit) then wins over the color of a primary
+      button, which gets a dark text on its dark background.
+    -->
+    <style>
+      @layer vuetify-core, vuetify-components, vuetify-overrides, vuetify-utilities, vuetify-final;
+    </style>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
