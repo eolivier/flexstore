@@ -1,7 +1,8 @@
 <script setup lang="ts">
-  import { computed, onMounted, ref, watch } from 'vue';
+  import { computed, onMounted, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
-  import { useOrdersStore, type OrderLookup } from '@/stores/orders.store';
+  import { useRoute } from 'vue-router';
+  import { CONFIRMATION_CHECKS, usePaymentConfirmation } from '@/composables/usePaymentConfirmation';
   import { hasCreditNote, isInvoiced, orderItemsCount, orderNumber, placedOn } from '@/utils/order';
   import OrderStatusSteps from './OrderStatusSteps.vue';
   import OrderLinesTable from './OrderLinesTable.vue';
@@ -15,14 +16,16 @@
   const props = defineProps<{ id: string }>();
 
   const { t, locale } = useI18n();
-  const ordersStore = useOrdersStore();
+  const route = useRoute();
 
-  const orderLookup = ref<OrderLookup | null>(null);
-  const order = computed(() => (orderLookup.value?.status === 'found' ? orderLookup.value.order : null));
+  // The customer comes back from the payment page: the provider may not have confirmed the payment yet, so the
+  // order is read again for a while instead of offering to pay again
+  const paymentReturned = computed(() => route.query.paymentReturned === 'true');
+  const { orderLookup, order, confirming, load: loadOrder } = usePaymentConfirmation(() => props.id);
 
   async function load() {
     orderLookup.value = null;
-    orderLookup.value = await ordersStore.fetchOrder(props.id);
+    await loadOrder(paymentReturned.value ? CONFIRMATION_CHECKS : 0);
   }
 
   onMounted(load);
@@ -80,7 +83,10 @@
           />
         </div>
       </div>
-      <v-card v-if="order.status === 'AWAITING_PAYMENT'" class="pa-5 mb-6">
+      <v-alert v-if="confirming" type="info" variant="tonal" class="mb-6">
+        {{ t('orders.awaitingPaymentConfirmation') }}
+      </v-alert>
+      <v-card v-else-if="order.status === 'AWAITING_PAYMENT'" class="pa-5 mb-6">
         <PaymentCountdown v-if="order.paymentDeadline" :order="order" @expired="load" />
         <p v-else class="text-body-2 text-medium-emphasis mb-3">{{ t('orders.awaitingPaymentText') }}</p>
         <PayOrderButton :order="order" @status-changed="load" />
