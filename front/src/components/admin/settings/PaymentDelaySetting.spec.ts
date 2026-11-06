@@ -14,6 +14,8 @@ function mountSetting() {
     paymentDelayMinutes: 10,
     freeShippingThreshold: 50,
     sellerSetup: 'ENABLED',
+    abandonedCartReminder: 'DISABLED',
+    abandonedCartDelayHours: 24,
   };
   return mount(PaymentDelaySetting, { global: { plugins: [vuetify, i18n] } });
 }

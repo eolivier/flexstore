@@ -48,6 +48,40 @@ class ShopSettingsAdministrationServiceTest : WithAssertions {
     }
 
     @Test
+    fun `the abandoned cart reminder should be off by default`() {
+        // Act
+        val settings = administration.getSettings(administrator)
+        // Assert
+        assertThat(settings.sendsAbandonedCartReminder()).isFalse()
+    }
+
+    @Test
+    fun `should enable the abandoned cart reminder`() {
+        // Act
+        val savedSettings = administration.enableAbandonedCartReminder(administrator)
+        // Assert
+        assertThat(savedSettings.sendsAbandonedCartReminder()).isTrue()
+    }
+
+    @Test
+    fun `should disable the abandoned cart reminder again`() {
+        // Arrange
+        administration.enableAbandonedCartReminder(administrator)
+        // Act
+        val savedSettings = administration.disableAbandonedCartReminder(administrator)
+        // Assert
+        assertThat(savedSettings.sendsAbandonedCartReminder()).isFalse()
+    }
+
+    @Test
+    fun `a customer should not change the abandoned cart reminder`() {
+        // Act
+        val thrown = catchThrowable { administration.enableAbandonedCartReminder(testCustomer.id) }
+        // Assert
+        assertThat(thrown).isInstanceOf(ShopSettingsAdministrationForbiddenException::class.java)
+    }
+
+    @Test
     fun `a customer should not change the settings of the shop`() {
         // Arrange
         val settingsBefore = repository.load()

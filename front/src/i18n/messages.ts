@@ -40,6 +40,11 @@ export default {
       orderConfirmationEmailText:
         'Send an email to the customer, with the summary of the order, when an order is placed.',
       saveError: 'The setting could not be saved.',
+      abandonedCartReminder: 'Abandoned cart reminder',
+      abandonedCartReminderText:
+        'Send an email to the customer who left items in their cart, once it has been left for this time. Sent once, until the cart changes again.',
+      abandonedCartDelayHours: 'Hours',
+      abandonedCartDelayRange: 'From 1 to 720 hours (30 days)',
       paymentDelay: 'Time to pay an order',
       paymentDelayText:
         'Once an order is placed, its items are reserved for this time. Not paid in time, the order is cancelled and its items go back to the stock.',
@@ -959,6 +964,11 @@ export default {
       orderConfirmationEmail: 'Email de confirmation de commande',
       orderConfirmationEmailText: "Envoyer au client un email récapitulant sa commande lorsqu'elle est passée.",
       saveError: "Le paramètre n'a pas pu être enregistré.",
+      abandonedCartReminder: 'Rappel de panier abandonné',
+      abandonedCartReminderText:
+        "Envoyer un email au client qui a laissé des articles dans son panier, une fois qu'il est resté ce temps sans changement. Envoyé une seule fois, jusqu'à ce que le panier change de nouveau.",
+      abandonedCartDelayHours: 'Heures',
+      abandonedCartDelayRange: 'De 1 à 720 heures (30 jours)',
       paymentDelay: "Délai de paiement d'une commande",
       paymentDelayText:
         'Une fois la commande passée, ses articles sont réservés pendant ce délai. Non payée à temps, la commande est annulée et ses articles reviennent en stock.',

@@ -10,10 +10,16 @@ export interface ShopSettings {
   freeShippingThreshold: number;
   // ENABLED once the setup assistant of the seller is finished; never changed by the administrators
   sellerSetup: 'ENABLED' | 'DISABLED';
+  // The email that reminds a customer of the items left in their cart, sent once the cart was left for the delay
+  abandonedCartReminder: 'ENABLED' | 'DISABLED';
+  abandonedCartDelayHours: number;
 }
 
 // From 1 minute to 1 day
 export const MAX_PAYMENT_DELAY_MINUTES = 24 * 60;
+
+// From 1 hour to 30 days
+export const MAX_ABANDONED_CART_DELAY_HOURS = 30 * 24;
 
 // The settings of the shop, for the administrators
 export const useSettingsStore = defineStore('settings', () => {
@@ -44,6 +50,34 @@ export const useSettingsStore = defineStore('settings', () => {
   const enableOrderConfirmationEmail = () => changeOrderConfirmationEmail('enable');
 
   const disableOrderConfirmationEmail = () => changeOrderConfirmationEmail('disable');
+
+  // Returns whether the change was saved
+  async function changeAbandonedCartReminder(action: 'enable' | 'disable'): Promise<boolean> {
+    const response = await authStore
+      .authFetch(`/api/admin/settings/abandoned-cart-reminder/${action}`, { method: 'POST' })
+      .catch(() => null);
+    if (!response?.ok) return false;
+    settings.value = await response.json();
+    return true;
+  }
+
+  const enableAbandonedCartReminder = () => changeAbandonedCartReminder('enable');
+
+  const disableAbandonedCartReminder = () => changeAbandonedCartReminder('disable');
+
+  // Returns whether the change was saved
+  async function changeAbandonedCartDelay(hours: number): Promise<boolean> {
+    const response = await authStore
+      .authFetch('/api/admin/settings/abandoned-cart-delay', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hours }),
+      })
+      .catch(() => null);
+    if (!response?.ok) return false;
+    settings.value = await response.json();
+    return true;
+  }
 
   // Returns whether the change was saved
   async function changePaymentDelay(minutes: number): Promise<boolean> {
@@ -79,6 +113,9 @@ export const useSettingsStore = defineStore('settings', () => {
     fetchSettings,
     enableOrderConfirmationEmail,
     disableOrderConfirmationEmail,
+    enableAbandonedCartReminder,
+    disableAbandonedCartReminder,
+    changeAbandonedCartDelay,
     changePaymentDelay,
     changeFreeShippingThreshold,
   };

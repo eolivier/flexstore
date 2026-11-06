@@ -105,6 +105,12 @@ open class ServiceConfig {
         UnpaidOrderService(readShopSettingsUseCase, listAllOrdersUseCase, cancelUnpaidOrderUseCase)
 
     @Bean
+    open fun abandonedCartService(readShopSettingsUseCase: ReadShopSettingsUseCase,
+                                  listAbandonedCartsUseCase: ListAbandonedCartsUseCase,
+                                  remindAbandonedCartUseCase: RemindAbandonedCartUseCase) =
+        AbandonedCartService(readShopSettingsUseCase, listAbandonedCartsUseCase, remindAbandonedCartUseCase)
+
+    @Bean
     open fun addressBookService(readAccountUseCase: ReadAccountUseCase, addressUseCases: AddressUseCases) =
         AddressBookService(readAccountUseCase, addressUseCases)
 

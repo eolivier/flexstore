@@ -96,6 +96,60 @@ class ShopSettingsIT {
         response.andExpect(status().isBadRequest)
     }
 
+    @Test
+    fun `the abandoned cart reminder should be off by default, with a delay of one day`() {
+        // Act
+        val response = mockMvc.perform(get("/api/admin/settings").with(asAdmin()))
+        // Assert
+        response.andExpect(jsonPath("$.abandonedCartReminder").value("DISABLED"))
+            .andExpect(jsonPath("$.abandonedCartDelayHours").value(24))
+    }
+
+    @ParameterizedTest(name = "{0} the abandoned cart reminder -> {1}")
+    @CsvSource("enable, ENABLED", "disable, DISABLED")
+    fun `an admin should enable or disable the abandoned cart reminder`(action: String, activation: String) {
+        // Act
+        val response = mockMvc.perform(post("/api/admin/settings/abandoned-cart-reminder/$action").with(asAdmin()))
+        // Assert
+        response.andExpect(status().isOk).andExpect(jsonPath("$.abandonedCartReminder").value(activation))
+        mockMvc.perform(get("/api/admin/settings").with(asAdmin()))
+            .andExpect(jsonPath("$.abandonedCartReminder").value(activation))
+    }
+
+    @Test
+    fun `an admin should change the time a cart is left before its customer is reminded`() {
+        // Act
+        val response = changeAbandonedCartDelay(48)
+        // Assert
+        response.andExpect(status().isOk).andExpect(jsonPath("$.abandonedCartDelayHours").value(48))
+        mockMvc.perform(get("/api/admin/settings").with(asAdmin()))
+            .andExpect(jsonPath("$.abandonedCartDelayHours").value(48))
+    }
+
+    @ParameterizedTest
+    @CsvSource("0", "721")
+    fun `an abandoned cart delay outside 1 hour to 30 days should be refused`(hours: Int) {
+        // Act
+        val response = changeAbandonedCartDelay(hours)
+        // Assert
+        response.andExpect(status().isBadRequest)
+    }
+
+    @Test
+    fun `a user without the admin role should not turn the abandoned cart reminder on`() {
+        // Act
+        val response = mockMvc.perform(
+            post("/api/admin/settings/abandoned-cart-reminder/enable").with(asUser("u-admin"))
+        )
+        // Assert
+        response.andExpect(status().isForbidden)
+    }
+
+    private fun changeAbandonedCartDelay(hours: Int) = mockMvc.perform(
+        put("/api/admin/settings/abandoned-cart-delay").with(asAdmin()).contentType(MediaType.APPLICATION_JSON)
+            .content("""{"hours": $hours}""")
+    )
+
     private fun changeFreeShippingThreshold(amount: String) = mockMvc.perform(
         put("/api/admin/settings/free-shipping-threshold").with(asAdmin()).contentType(MediaType.APPLICATION_JSON)
             .content("""{"amount": $amount}""")

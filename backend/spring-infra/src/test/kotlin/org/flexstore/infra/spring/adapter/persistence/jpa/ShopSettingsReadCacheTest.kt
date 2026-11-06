@@ -21,7 +21,8 @@ class ShopSettingsReadCacheTest {
 
     private val settingsEntity = ShopSettingsEntity(
         orderConfirmationEmail = "ENABLED", paymentDelayMinutes = 30,
-        freeShippingThreshold = BigDecimal("50.00"), sellerSetup = "DISABLED"
+        freeShippingThreshold = BigDecimal("50.00"), sellerSetup = "DISABLED",
+        abandonedCartReminder = "DISABLED", abandonedCartDelayHours = 24
     )
 
     private val jpaShopSettingsRepository = mock(JpaShopSettingsRepository::class.java)

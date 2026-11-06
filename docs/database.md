@@ -1,6 +1,6 @@
 # Physical data model
 
-The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V52**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
+The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V53**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
 
 ![Physical data model](database.png)
 
@@ -95,6 +95,8 @@ erDiagram
     cart {
         id varchar(50) PK
         user_id varchar(50) FK,UK "nullable: the cart of a visitor"
+        last_changed_at timestamptz "the items of the cart last changed"
+        reminded_at timestamptz "nullable: the customer was reminded of the cart, until it changes again"
         created_at timestamp
         updated_at timestamp
     }
@@ -322,6 +324,8 @@ erDiagram
         payment_delay_minutes int "1 to 1440: time to pay an order"
         free_shipping_threshold numeric "standard shipping free from this price of the items (0 or more)"
         seller_setup varchar(10) "ENABLED once the setup assistant of the seller is finished (read only)"
+        abandoned_cart_reminder varchar(20) "ENABLED or DISABLED: the email that reminds a customer of their abandoned cart"
+        abandoned_cart_delay_hours int "1 to 720: time a cart is left before its customer is reminded"
         created_at timestamp
         updated_at timestamp
     }

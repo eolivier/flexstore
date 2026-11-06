@@ -124,6 +124,16 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         SendOrderConfirmationEmailUseCase(shopSettingsRepository, userRepository, emailRepository)
 
     @Bean
+    open fun listAbandonedCartsUseCase(cartRepository: CartRepository) =
+        ListAbandonedCartsUseCase(cartRepository)
+
+    @Bean
+    open fun remindAbandonedCartUseCase(cartRepository: CartRepository,
+                                        userRepository: UserRepository,
+                                        emailRepository: EmailRepository) =
+        RemindAbandonedCartUseCase(cartRepository, userRepository, emailRepository)
+
+    @Bean
     open fun readShopSettingsUseCase(shopSettingsRepository: ShopSettingsRepository): ReadShopSettingsUseCase {
         return ReadShopSettingsUseCase(shopSettingsRepository)
     }

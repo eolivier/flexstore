@@ -12,6 +12,7 @@ class InMemoryEmailRepository : EmailRepository {
     private val verifications = mutableListOf<EmailVerification>()
     private val sentPasswordResetEmails = mutableListOf<PasswordResetEmail>()
     private val sentOrderStatusEmails = mutableListOf<OrderStatusEmail>()
+    private val sentAbandonedCartReminderEmails = mutableListOf<AbandonedCartReminderEmail>()
 
     override fun send(email: OrderConfirmationEmail) {
         sentEmails.add(email)
@@ -27,6 +28,10 @@ class InMemoryEmailRepository : EmailRepository {
 
     override fun send(email: PasswordResetEmail) {
         sentPasswordResetEmails.add(email)
+    }
+
+    override fun send(email: AbandonedCartReminderEmail) {
+        sentAbandonedCartReminderEmails.add(email)
     }
 
     override fun save(verification: EmailVerification) {
@@ -56,11 +61,15 @@ class InMemoryEmailRepository : EmailRepository {
 
     fun sentOrderStatusEmails(): List<OrderStatusEmail> = sentOrderStatusEmails.toList()
 
+    fun sentAbandonedCartReminderEmails(): List<AbandonedCartReminderEmail> =
+        sentAbandonedCartReminderEmails.toList()
+
     fun clear() {
         sentEmails.clear()
         sentVerificationLinks.clear()
         verifications.clear()
         sentPasswordResetEmails.clear()
         sentOrderStatusEmails.clear()
+        sentAbandonedCartReminderEmails.clear()
     }
 }

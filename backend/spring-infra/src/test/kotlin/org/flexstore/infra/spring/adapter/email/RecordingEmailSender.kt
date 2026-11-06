@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.adapter.email
 
+import org.flexstore.domain.email.model.AbandonedCartReminderEmail
 import org.flexstore.domain.email.model.EmailVerificationLink
 import org.flexstore.domain.email.model.OrderConfirmationEmail
 import org.flexstore.domain.email.model.OrderStatusEmail
@@ -15,6 +16,7 @@ class RecordingEmailSender : EmailSender {
     private val sentVerificationLinks = mutableListOf<EmailVerificationLink>()
     private val sentPasswordResetEmails = mutableListOf<PasswordResetEmail>()
     private val sentOrderStatusEmails = mutableListOf<OrderStatusEmail>()
+    private val sentAbandonedCartReminderEmails = mutableListOf<AbandonedCartReminderEmail>()
 
     override fun send(email: OrderConfirmationEmail) {
         sentEmails.add(email)
@@ -32,6 +34,10 @@ class RecordingEmailSender : EmailSender {
         sentPasswordResetEmails.add(email)
     }
 
+    override fun send(email: AbandonedCartReminderEmail) {
+        sentAbandonedCartReminderEmails.add(email)
+    }
+
     fun sentEmails(): List<OrderConfirmationEmail> = sentEmails.toList()
 
     fun sentVerificationLinks(): List<EmailVerificationLink> = sentVerificationLinks.toList()
@@ -40,11 +46,15 @@ class RecordingEmailSender : EmailSender {
 
     fun sentOrderStatusEmails(): List<OrderStatusEmail> = sentOrderStatusEmails.toList()
 
+    fun sentAbandonedCartReminderEmails(): List<AbandonedCartReminderEmail> =
+        sentAbandonedCartReminderEmails.toList()
+
     fun clear() {
         sentEmails.clear()
         sentVerificationLinks.clear()
         sentPasswordResetEmails.clear()
         sentOrderStatusEmails.clear()
+        sentAbandonedCartReminderEmails.clear()
     }
 }
 

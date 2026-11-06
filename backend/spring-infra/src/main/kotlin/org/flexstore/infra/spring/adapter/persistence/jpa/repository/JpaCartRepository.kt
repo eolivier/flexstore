@@ -5,14 +5,35 @@ import org.flexstore.infra.spring.adapter.persistence.jpa.entity.CartItemEntity
 import org.flexstore.infra.spring.adapter.persistence.jpa.toDomain
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.sharedkernel.*
+import org.flexstore.domain.user.model.UserId
 import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Modifying
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
+import java.time.Instant
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 
 @Repository
 interface JpaCartRepository : JpaRepository<CartEntity, String> {
     fun findByUserId(userId: String): CartEntity?
+
+    @Query(
+        "select c from CartEntity c where c.userId is not null and c.remindedAt is null " +
+            "and c.lastChangedAt <= :limit and exists (select i.id from CartItemEntity i where i.cartId = c.id) " +
+            "order by c.lastChangedAt"
+    )
+    fun findAbandonedBefore(@Param("limit") limit: Instant): List<CartEntity>
+
+    // The cart changed: it is not reminded any more, until it is left again
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("update CartEntity c set c.lastChangedAt = :changedAt, c.remindedAt = null where c.id = :id")
+    fun markChanged(@Param("id") id: String, @Param("changedAt") changedAt: Instant)
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("update CartEntity c set c.remindedAt = :remindedAt where c.userId = :userId")
+    fun markReminded(@Param("userId") userId: String, @Param("remindedAt") remindedAt: Instant)
 }
 
 @Repository
@@ -57,6 +78,7 @@ class PostgresCartRepositoryAdapter(
                 is NoItem -> Unit
             }
         }
+        cartRepo.markChanged(cartEntity.id, InstantProvider.now())
         return load(cart.owner)
     }
 
@@ -66,6 +88,23 @@ class PostgresCartRepositoryAdapter(
             cartRepo.delete(cartEntity)
         }
     }
+
+    @Transactional(readOnly = true)
+    override fun abandonedCartsAt(limit: AbandonmentLimit): AbandonedCarts {
+        val abandonedCarts = cartRepo.findAbandonedBefore(limit.value).map { cartEntity ->
+            val customer = CartOwner.Customer(UserId.ValidUserId(cartEntity.userId!!))
+            Cart(customer, Items(items(cartEntity).map { it.toDomain() }))
+        }
+        return AbandonedCarts(abandonedCarts)
+    }
+
+    override fun markReminded(customer: CartOwner.Customer) {
+        cartRepo.markReminded(customer.userId.value, InstantProvider.now())
+    }
+
+    @Transactional(readOnly = true)
+    override fun isReminded(customer: CartOwner.Customer) =
+        cartRepo.findByUserId(customer.userId.value)?.remindedAt != null
 
     private fun find(owner: CartOwner): CartEntity? = when (owner) {
         is CartOwner.Customer -> cartRepo.findByUserId(owner.userId.value)

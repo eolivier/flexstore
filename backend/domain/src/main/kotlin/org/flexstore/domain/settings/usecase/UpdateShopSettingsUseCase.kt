@@ -13,7 +13,8 @@ class UpdateShopSettingsUseCase(
 ) : UseCase<ShopSettingsUpdate> {
 
     override fun getPreConditions(): PreConditions<ShopSettingsUpdate> = PreConditions(
-        editorIsAdministratorCondition(), paymentDelayIsValidCondition(), freeShippingThresholdIsValidCondition()
+        editorIsAdministratorCondition(), paymentDelayIsValidCondition(),
+        freeShippingThresholdIsValidCondition(), abandonedCartDelayIsValidCondition()
     )
 
     override fun getNominalScenario(): NominalScenario<ShopSettingsUpdate> =
@@ -42,6 +43,14 @@ class UpdateShopSettingsUseCase(
         if (settings.freeShippingThreshold.isInvalid()) {
             val message = ErrorMessage("The threshold of free shipping must be 0 or more.")
             throw InvalidFreeShippingThresholdException(message)
+        }
+    }
+
+    private fun abandonedCartDelayIsValidCondition() = PreCondition<ShopSettingsUpdate> { (_, settings) ->
+        if (settings.abandonedCartDelay.isInvalid()) {
+            val maxHours = AbandonedCartDelay.MAX_HOURS
+            val message = ErrorMessage("The abandoned cart delay must be from 1 to $maxHours hours.")
+            throw InvalidAbandonedCartDelayException(message)
         }
     }
 
