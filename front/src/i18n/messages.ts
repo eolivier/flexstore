@@ -876,6 +876,8 @@ export default {
       mandatoryField: 'Mandatory field',
       invalidEmail: 'Invalid email format',
       forgotPassword: 'Forgot your password?',
+      or: 'or',
+      googleUnavailable: 'Sign in with Google is not available right now.',
       noAccount: 'No account yet?',
       refused: {
         SUSPENDED: 'Your account is suspended. Contact the shop to know more.',
@@ -1875,6 +1877,8 @@ export default {
       mandatoryField: 'Champ obligatoire',
       invalidEmail: "Format d'email invalide",
       forgotPassword: 'Mot de passe oublié ?',
+      or: 'ou',
+      googleUnavailable: "La connexion avec Google n'est pas disponible pour le moment.",
       noAccount: 'Pas encore de compte ?',
       refused: {
         SUSPENDED: 'Votre compte est suspendu. Contactez la boutique pour en savoir plus.',

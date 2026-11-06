@@ -430,6 +430,12 @@ export const JsonEnvironmentVariableStatusEnum = {
 
 export type JsonEnvironmentVariableStatusEnum = typeof JsonEnvironmentVariableStatusEnum[keyof typeof JsonEnvironmentVariableStatusEnum];
 
+export interface JsonGoogleLoginRequest {
+    /**
+     * The ID token (JWT) that Google gave to the browser
+     */
+    'idToken': string;
+}
 export interface JsonItem {
     'itemId'?: string;
     'productId'?: string;
@@ -6706,6 +6712,42 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
             };
         },
         /**
+         * Public. Takes the ID token that the Sign in with Google button gives to the browser and verifies it (signature, expiry, issuer, audience = FLEXSTORE_GOOGLE_CLIENT_ID, verified email). The account that has the email of the Google account is signed in; a customer who has none gets an active account. Returns like POST /api/users/login.
+         * @summary Authenticate a user with their Google account
+         * @param {JsonGoogleLoginRequest} jsonGoogleLoginRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        loginUserWithGoogle: async (jsonGoogleLoginRequest: JsonGoogleLoginRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'jsonGoogleLoginRequest' is not null or undefined
+            assertParamExists('loginUserWithGoogle', 'jsonGoogleLoginRequest', jsonGoogleLoginRequest)
+            const localVarPath = `/api/users/login/google`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonGoogleLoginRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Signing out twice, or with an unknown refresh token, is no error
          * @summary Sign out, ending the session of a refresh token
          * @param {JsonRefreshRequest} jsonRefreshRequest 
@@ -7040,6 +7082,19 @@ export const UsersApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Public. Takes the ID token that the Sign in with Google button gives to the browser and verifies it (signature, expiry, issuer, audience = FLEXSTORE_GOOGLE_CLIENT_ID, verified email). The account that has the email of the Google account is signed in; a customer who has none gets an active account. Returns like POST /api/users/login.
+         * @summary Authenticate a user with their Google account
+         * @param {JsonGoogleLoginRequest} jsonGoogleLoginRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async loginUserWithGoogle(jsonGoogleLoginRequest: JsonGoogleLoginRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonLoginResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.loginUserWithGoogle(jsonGoogleLoginRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UsersApi.loginUserWithGoogle']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Signing out twice, or with an unknown refresh token, is no error
          * @summary Sign out, ending the session of a refresh token
          * @param {JsonRefreshRequest} jsonRefreshRequest 
@@ -7220,6 +7275,16 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
             return localVarFp.loginUser(jsonLoginRequest, options).then((request) => request(axios, basePath));
         },
         /**
+         * Public. Takes the ID token that the Sign in with Google button gives to the browser and verifies it (signature, expiry, issuer, audience = FLEXSTORE_GOOGLE_CLIENT_ID, verified email). The account that has the email of the Google account is signed in; a customer who has none gets an active account. Returns like POST /api/users/login.
+         * @summary Authenticate a user with their Google account
+         * @param {JsonGoogleLoginRequest} jsonGoogleLoginRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        loginUserWithGoogle(jsonGoogleLoginRequest: JsonGoogleLoginRequest, options?: RawAxiosRequestConfig): AxiosPromise<JsonLoginResponse> {
+            return localVarFp.loginUserWithGoogle(jsonGoogleLoginRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
          * Signing out twice, or with an unknown refresh token, is no error
          * @summary Sign out, ending the session of a refresh token
          * @param {JsonRefreshRequest} jsonRefreshRequest 
@@ -7390,6 +7455,17 @@ export class UsersApi extends BaseAPI {
      */
     public loginUser(jsonLoginRequest: JsonLoginRequest, options?: RawAxiosRequestConfig) {
         return UsersApiFp(this.configuration).loginUser(jsonLoginRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Public. Takes the ID token that the Sign in with Google button gives to the browser and verifies it (signature, expiry, issuer, audience = FLEXSTORE_GOOGLE_CLIENT_ID, verified email). The account that has the email of the Google account is signed in; a customer who has none gets an active account. Returns like POST /api/users/login.
+     * @summary Authenticate a user with their Google account
+     * @param {JsonGoogleLoginRequest} jsonGoogleLoginRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public loginUserWithGoogle(jsonGoogleLoginRequest: JsonGoogleLoginRequest, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).loginUserWithGoogle(jsonGoogleLoginRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

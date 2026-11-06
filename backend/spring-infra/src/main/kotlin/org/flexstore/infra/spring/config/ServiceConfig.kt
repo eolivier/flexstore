@@ -118,9 +118,11 @@ open class ServiceConfig {
     open fun signInService(userRepository: UserRepository,
                            recordFailedSignInUseCase: RecordFailedSignInUseCase,
                            resetFailedSignInsUseCase: ResetFailedSignInsUseCase,
-                           twoFactorChallengeRepository: TwoFactorChallengeRepository) =
+                           twoFactorChallengeRepository: TwoFactorChallengeRepository,
+                           googleIdentityVerifier: GoogleIdentityVerifier) =
         SignInService(
-            userRepository, recordFailedSignInUseCase, resetFailedSignInsUseCase, twoFactorChallengeRepository
+            userRepository, recordFailedSignInUseCase, resetFailedSignInsUseCase, twoFactorChallengeRepository,
+            googleIdentityVerifier
         )
 
     @Bean

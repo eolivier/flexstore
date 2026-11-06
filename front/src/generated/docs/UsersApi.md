@@ -14,6 +14,7 @@ All URIs are relative to *http://localhost:8080*
 |[**getAllUsers**](#getallusers) | **GET** /api/users | Retrieve a page of the users, the first created first (ADMIN role)|
 |[**getUser**](#getuser) | **GET** /api/users/{id} | Retrieve a user by ID|
 |[**loginUser**](#loginuser) | **POST** /api/users/login | Authenticate a user|
+|[**loginUserWithGoogle**](#loginuserwithgoogle) | **POST** /api/users/login/google | Authenticate a user with their Google account|
 |[**logoutUser**](#logoutuser) | **POST** /api/users/logout | Sign out, ending the session of a refresh token|
 |[**refreshSession**](#refreshsession) | **POST** /api/users/refresh | Renew the access of a signed-in user with their refresh token|
 |[**startTwoFactorEnrollment**](#starttwofactorenrollment) | **POST** /api/users/{id}/two-factor-authentication/enrollment | Start the enrollment of two-factor authentication|
@@ -558,6 +559,60 @@ No authorization required
 |-------------|-------------|------------------|
 |**200** | SIGNED_IN: the token is returned with the user. TWO_FACTOR_REQUIRED: the code of the authenticator app is still needed, see POST /api/users/login/two-factor-authentication.  |  -  |
 |**401** | Invalid credentials |  -  |
+|**403** | The account is SUSPENDED, LOCKED or DISABLED: { error, status } |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **loginUserWithGoogle**
+> JsonLoginResponse loginUserWithGoogle(jsonGoogleLoginRequest)
+
+Public. Takes the ID token that the Sign in with Google button gives to the browser and verifies it (signature, expiry, issuer, audience = FLEXSTORE_GOOGLE_CLIENT_ID, verified email). The account that has the email of the Google account is signed in; a customer who has none gets an active account. Returns like POST /api/users/login.
+
+### Example
+
+```typescript
+import {
+    UsersApi,
+    Configuration,
+    JsonGoogleLoginRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new UsersApi(configuration);
+
+let jsonGoogleLoginRequest: JsonGoogleLoginRequest; //
+
+const { status, data } = await apiInstance.loginUserWithGoogle(
+    jsonGoogleLoginRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **jsonGoogleLoginRequest** | **JsonGoogleLoginRequest**|  | |
+
+
+### Return type
+
+**JsonLoginResponse**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | SIGNED_IN: the token is returned with the user. TWO_FACTOR_REQUIRED: the code of the authenticator app is still needed, see POST /api/users/login/two-factor-authentication.  |  -  |
+|**401** | The Google token is refused (invalid, expired, not meant for this shop, unverified email), or Sign in with Google is not set up |  -  |
 |**403** | The account is SUSPENDED, LOCKED or DISABLED: { error, status } |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

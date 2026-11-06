@@ -40,6 +40,8 @@ services:
       FLEXSTORE_MAIL_FROM: ${FLEXSTORE_MAIL_FROM:-Flexstore <no-reply@flexstore.tech>}
       FLEXSTORE_STRIPE_SECRET_KEY: ${FLEXSTORE_STRIPE_SECRET_KEY:-}
       FLEXSTORE_STRIPE_WEBHOOK_SECRET: ${FLEXSTORE_STRIPE_WEBHOOK_SECRET:-}
+      # Turns on Sign in with Google (empty: the Google tokens are refused)
+      FLEXSTORE_GOOGLE_CLIENT_ID: ${FLEXSTORE_GOOGLE_CLIENT_ID:-}
       # The JVM takes most of the memory of the VPS, not the default quarter
       JAVA_TOOL_OPTIONS: -XX:MaxRAMPercentage=60
 

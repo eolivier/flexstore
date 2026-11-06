@@ -9,6 +9,7 @@ import org.flexstore.domain.twofactor.model.TwoFactorChallengeLookup
 import org.flexstore.domain.twofactor.usecase.TwoFactorCodeVerification
 import org.flexstore.domain.twofactor.usecase.VerifyTwoFactorCodeUseCase
 import org.flexstore.domain.user.model.*
+import org.flexstore.domain.user.repository.GoogleIdentityVerifier
 import org.flexstore.domain.user.repository.UserRepository
 import org.flexstore.domain.user.usecase.*
 
@@ -20,7 +21,8 @@ class SignInService(
     private val userRepository: UserRepository,
     private val recordFailedSignInUseCase: RecordFailedSignInUseCase,
     private val resetFailedSignInsUseCase: ResetFailedSignInsUseCase,
-    private val twoFactorChallengeRepository: TwoFactorChallengeRepository
+    private val twoFactorChallengeRepository: TwoFactorChallengeRepository,
+    private val googleIdentityVerifier: GoogleIdentityVerifier
 ) {
 
     // A user who enabled two-factor authentication is given a challenge instead of a session
@@ -32,7 +34,17 @@ class SignInService(
             recordFailedSignInUseCase.unfold(loginRequest.email)
             throw wrongPassword
         }
-        val user = loginUseCase.authenticatedUser as User.DefinedUser
+        return outcomeOf(loginUseCase.authenticatedUser as User.DefinedUser)
+    }
+
+    // A person signs in with their Google account: Google replaces the password, not the second factor
+    fun signInWithGoogle(idToken: GoogleIdToken): SignInOutcome {
+        val signInWithGoogleUseCase = SignInWithGoogleUseCase(userRepository, googleIdentityVerifier)
+        signInWithGoogleUseCase.unfold(idToken)
+        return outcomeOf(signInWithGoogleUseCase.authenticatedUser as User.DefinedUser)
+    }
+
+    private fun outcomeOf(user: User.DefinedUser): SignInOutcome {
         return if (user.twoFactorAuthentication is TwoFactorAuthentication.Enabled) {
             val challenge = TwoFactorChallenge.issuedFor(user.id)
             twoFactorChallengeRepository.save(challenge)

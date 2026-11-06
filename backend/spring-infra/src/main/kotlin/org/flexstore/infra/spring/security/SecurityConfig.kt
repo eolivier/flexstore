@@ -81,6 +81,8 @@ open class SecurityConfig(@Value("\${flexstore.security.jwt-secret:}") private v
                     .requestMatchers(HttpMethod.POST, "/api/cart/merge").authenticated()
                     .requestMatchers("/api/cart/**").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()
+                    // The token of Google is the credential: it is verified by the back end
+                    .requestMatchers(HttpMethod.POST, "/api/users/login/google").permitAll()
                     // The refresh token in the body is the credential: the access token has expired
                     .requestMatchers(HttpMethod.POST, "/api/users/refresh", "/api/users/logout").permitAll()
                     // The password is already checked: completing the challenge needs no token yet

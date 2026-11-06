@@ -94,15 +94,25 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function login(email: string, password: string): Promise<LoginOutcome> {
+    return signIn('/api/users/login', { email, password }, 'Invalid email or password');
+  }
+
+  // Signs in with the ID token that the Google button gave to the browser: the back end verifies it
+  async function loginWithGoogle(idToken: string): Promise<LoginOutcome> {
+    return signIn('/api/users/login/google', { idToken }, 'Google sign-in failed');
+  }
+
+  // The same answers for every way to sign in: a session, a second factor to give, or a refusal
+  async function signIn(path: string, credentials: object, invalidMessage: string): Promise<LoginOutcome> {
     loginError.value = null;
     refusedStatus.value = null;
     pendingChallengeId.value = null;
     try {
       const response = await loadingStore.track(
-        fetch(`${apiUrl}/api/users/login`, {
+        fetch(`${apiUrl}${path}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify(credentials),
         })
       );
 
@@ -121,12 +131,12 @@ export const useAuthStore = defineStore('auth', () => {
         });
         return 'signedIn';
       } else if (response.status === 403) {
-        // Right password, but a suspended, locked or disabled account: the user is told why
+        // The account is suspended, locked or disabled: the user is told why
         refusedStatus.value = (await response.json()).status ?? null;
         loginError.value = 'Account refused';
         return 'refused';
       } else {
-        loginError.value = 'Invalid email or password';
+        loginError.value = invalidMessage;
         return 'invalidCredentials';
       }
     } catch (error) {
@@ -349,6 +359,7 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated,
     isAdmin,
     login,
+    loginWithGoogle,
     verifyTwoFactorCode,
     cancelTwoFactorChallenge,
     register,
