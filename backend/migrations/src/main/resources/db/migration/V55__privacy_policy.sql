@@ -79,7 +79,8 @@ Les échanges avec le site sont chiffrés (HTTPS), les mots de passe sont chiffr
 
 9. Modification de la politique
 Cette politique peut évoluer : la date de la dernière mise à jour est indiquée en haut de la page.$$,
-           E'\n +', ' ', 'g')
+           E'\n +', ' ', 'g'),
+       now()
 FROM current_seller s
 JOIN LATERAL (
     SELECT version, text FROM legal_page WHERE kind = 'PRIVACY_POLICY' ORDER BY version DESC LIMIT 1
