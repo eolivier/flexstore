@@ -46,7 +46,7 @@ class PaymentServiceTest : WithAssertions {
     private val emailRepository = InMemoryEmailRepository()
     private val orderQueryUseCases = OrderQueryUseCases(
         ListCustomerOrdersUseCase(orderRepository, userRepository),
-        ListAllOrdersUseCase(orderRepository),
+        ListAllOrdersUseCase(orderRepository, userRepository),
         ReadAnyOrderUseCase(orderRepository),
         ReadCustomerOrderUseCase(orderRepository, userRepository)
     )

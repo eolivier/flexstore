@@ -39,7 +39,7 @@ class UnpaidOrderServiceTest : WithAssertions {
 
     private val service = UnpaidOrderService(
         ReadShopSettingsUseCase(shopSettingsRepository),
-        ListAllOrdersUseCase(orderRepository),
+        ListLatePaymentOrdersUseCase(orderRepository),
         cancelUnpaidOrderUseCase
     )
 

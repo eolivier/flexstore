@@ -13,6 +13,8 @@ import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.customersWithIds
 import org.flexstore.domain.user.unknownCustomerId
+import org.flexstore.domain.user.administration.testAdministrator
+import org.flexstore.domain.user.administration.unknownUser
 import org.assertj.core.api.WithAssertions
 import org.flexstore.infra.repository.InMemoryOrderRepository
 import org.junit.jupiter.api.Test
@@ -26,11 +28,11 @@ class OrderQueryUseCasesTest : WithAssertions {
     private val otherCustomer = CartOwner.Customer(UserId.ValidUserId("user-2"))
     private val placedAt = Instant.parse("2026-10-24T10:00:00Z")
     private val orderRepository = InMemoryOrderRepository()
-    private val userRepository = customersWithIds("user-1", "user-2")
+    private val userRepository = customersWithIds("user-1", "user-2").apply { save(testAdministrator) }
     private val listCustomerOrdersUseCase = ListCustomerOrdersUseCase(orderRepository, userRepository)
     private val readCustomerOrderUseCase = ReadCustomerOrderUseCase(orderRepository, userRepository)
     private val readAnyOrderUseCase = ReadAnyOrderUseCase(orderRepository)
-    private val listAllOrdersUseCase = ListAllOrdersUseCase(orderRepository)
+    private val listAllOrdersUseCase = ListAllOrdersUseCase(orderRepository, userRepository)
 
     private fun placeOrder(orderId: OrderId, customer: CartOwner.Customer, placedAt: Instant): Order {
         val orderStamp = OrderStamp(orderId, placedAt)
@@ -93,14 +95,32 @@ class OrderQueryUseCasesTest : WithAssertions {
     }
 
     @Test
-    fun `the orders of all the customers should be listed, newest first`() {
+    fun `an administrator should list the orders of all the customers, newest first`() {
         // Arrange
         val older = placeOrder(OrderId("older"), customer, placedAt)
         val newer = placeOrder(OrderId("newer"), otherCustomer, placedAt.plusSeconds(60))
         // Act
-        val orders = listAllOrdersUseCase.unfold(Unit)
+        val orders = listAllOrdersUseCase.unfold(AllOrdersReading(testAdministrator.id))
         // Assert
         assertThat(orders.asList()).containsExactly(newer, older)
+    }
+
+    @Test
+    fun `a customer should not list the orders of all the customers`() {
+        // Arrange
+        placeOrder(OrderId("order-1"), customer, placedAt)
+        // Act
+        val thrown = catchThrowable { listAllOrdersUseCase.unfold(AllOrdersReading(customer.userId)) }
+        // Assert
+        assertThat(thrown).isInstanceOf(OrderAdministrationForbiddenException::class.java)
+    }
+
+    @Test
+    fun `an unknown user should not list the orders of all the customers`() {
+        // Act
+        val thrown = catchThrowable { listAllOrdersUseCase.unfold(AllOrdersReading(unknownUser)) }
+        // Assert
+        assertThat(thrown).isInstanceOf(OrderAdministrationForbiddenException::class.java)
     }
 
     @Test

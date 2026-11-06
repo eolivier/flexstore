@@ -290,6 +290,9 @@ data class OrderRefund(val editor: UserId, val orderId: OrderId, val currentStat
 // An administrator who reads the orders of all the customers
 data class AdministeredOrdersReading(val reader: UserId, val pageRequest: PageRequest)
 
+// An administrator who reads all the orders, without paging
+data class AllOrdersReading(val reader: UserId)
+
 // A user who reads an order with its customer: an administrator, or the customer of the order
 data class AdministeredOrderReading(val reader: UserId, val orderId: OrderId)
 

@@ -11,7 +11,7 @@ import org.ucop.domain.NominalException
 // reserved units can be sold again. Called regularly by the infrastructure
 class UnpaidOrderService(
     private val readShopSettingsUseCase: ReadShopSettingsUseCase,
-    private val listAllOrdersUseCase: ListAllOrdersUseCase,
+    private val listLatePaymentOrdersUseCase: ListLatePaymentOrdersUseCase,
     private val cancelUnpaidOrderUseCase: CancelUnpaidOrderUseCase
 ) {
 
@@ -19,7 +19,7 @@ class UnpaidOrderService(
     fun cancelLateOrders(): Orders {
         val paymentDelay = readShopSettingsUseCase.unfold(Unit).paymentDelay
         val timeLimit = PaymentTimeLimit(paymentDelay, InstantProvider.now())
-        val lateOrders = listAllOrdersUseCase.unfold(Unit).latePaymentsAt(timeLimit).asList()
+        val lateOrders = listLatePaymentOrdersUseCase.unfold(timeLimit).asList()
         val cancelledOrders = lateOrders.filter { order ->
             val cancellation = UnpaidOrderCancellation(order.orderId, timeLimit)
             runCatching { cancelUnpaidOrderUseCase.unfold(cancellation) }
