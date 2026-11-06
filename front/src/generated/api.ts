@@ -461,7 +461,8 @@ export interface JsonLegalPage {
 
 export const JsonLegalPageKindEnum = {
     LegalNotice: 'LEGAL_NOTICE',
-    TermsOfSale: 'TERMS_OF_SALE'
+    TermsOfSale: 'TERMS_OF_SALE',
+    PrivacyPolicy: 'PRIVACY_POLICY'
 } as const;
 
 export type JsonLegalPageKindEnum = typeof JsonLegalPageKindEnum[keyof typeof JsonLegalPageKindEnum];
@@ -2404,7 +2405,7 @@ export const AdministrationApiAxiosParamCreator = function (configuration?: Conf
         /**
          * 
          * @summary Publish a new version of a legal page; the versions before are kept (ADMIN role)
-         * @param {PublishLegalPageKindEnum} kind The legal notice or the terms of sale
+         * @param {PublishLegalPageKindEnum} kind The legal notice, the terms of sale or the privacy policy
          * @param {JsonLegalText} jsonLegalText 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -2724,7 +2725,7 @@ export const AdministrationApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Publish a new version of a legal page; the versions before are kept (ADMIN role)
-         * @param {PublishLegalPageKindEnum} kind The legal notice or the terms of sale
+         * @param {PublishLegalPageKindEnum} kind The legal notice, the terms of sale or the privacy policy
          * @param {JsonLegalText} jsonLegalText 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -2915,7 +2916,7 @@ export const AdministrationApiFactory = function (configuration?: Configuration,
         /**
          * 
          * @summary Publish a new version of a legal page; the versions before are kept (ADMIN role)
-         * @param {PublishLegalPageKindEnum} kind The legal notice or the terms of sale
+         * @param {PublishLegalPageKindEnum} kind The legal notice, the terms of sale or the privacy policy
          * @param {JsonLegalText} jsonLegalText 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -3109,7 +3110,7 @@ export class AdministrationApi extends BaseAPI {
     /**
      * 
      * @summary Publish a new version of a legal page; the versions before are kept (ADMIN role)
-     * @param {PublishLegalPageKindEnum} kind The legal notice or the terms of sale
+     * @param {PublishLegalPageKindEnum} kind The legal notice, the terms of sale or the privacy policy
      * @param {JsonLegalText} jsonLegalText 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -3144,7 +3145,8 @@ export class AdministrationApi extends BaseAPI {
 
 export const PublishLegalPageKindEnum = {
     LegalNotice: 'legal-notice',
-    TermsOfSale: 'terms-of-sale'
+    TermsOfSale: 'terms-of-sale',
+    PrivacyPolicy: 'privacy-policy'
 } as const;
 export type PublishLegalPageKindEnum = typeof PublishLegalPageKindEnum[keyof typeof PublishLegalPageKindEnum];
 
@@ -3908,7 +3910,7 @@ export const LegalPagesApiAxiosParamCreator = function (configuration?: Configur
         /**
          * 
          * @summary Retrieve the current version of a legal page
-         * @param {GetLegalPageKindEnum} kind The legal notice or the terms of sale
+         * @param {GetLegalPageKindEnum} kind The legal notice, the terms of sale or the privacy policy
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3951,7 +3953,7 @@ export const LegalPagesApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Retrieve the current version of a legal page
-         * @param {GetLegalPageKindEnum} kind The legal notice or the terms of sale
+         * @param {GetLegalPageKindEnum} kind The legal notice, the terms of sale or the privacy policy
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3973,7 +3975,7 @@ export const LegalPagesApiFactory = function (configuration?: Configuration, bas
         /**
          * 
          * @summary Retrieve the current version of a legal page
-         * @param {GetLegalPageKindEnum} kind The legal notice or the terms of sale
+         * @param {GetLegalPageKindEnum} kind The legal notice, the terms of sale or the privacy policy
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3990,7 +3992,7 @@ export class LegalPagesApi extends BaseAPI {
     /**
      * 
      * @summary Retrieve the current version of a legal page
-     * @param {GetLegalPageKindEnum} kind The legal notice or the terms of sale
+     * @param {GetLegalPageKindEnum} kind The legal notice, the terms of sale or the privacy policy
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -4001,7 +4003,8 @@ export class LegalPagesApi extends BaseAPI {
 
 export const GetLegalPageKindEnum = {
     LegalNotice: 'legal-notice',
-    TermsOfSale: 'terms-of-sale'
+    TermsOfSale: 'terms-of-sale',
+    PrivacyPolicy: 'privacy-policy'
 } as const;
 export type GetLegalPageKindEnum = typeof GetLegalPageKindEnum[keyof typeof GetLegalPageKindEnum];
 

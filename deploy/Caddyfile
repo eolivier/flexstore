@@ -26,6 +26,7 @@ flexstore.tech {
 		redir /about /fr/a-propos 301
 		redir /legal-notice /fr/mentions-legales 301
 		redir /terms-of-sale /fr/conditions-generales-de-vente 301
+		redir /privacy-policy /fr/politique-de-confidentialite 301
 		redir /products /fr/produits 301
 		redir /products/clothing /fr/produits/vetements 301
 		redir /products/accessories /fr/produits/accessoires 301
@@ -37,6 +38,7 @@ flexstore.tech {
 		redir /fr/about /fr/a-propos 301
 		redir /fr/legal-notice /fr/mentions-legales 301
 		redir /fr/terms-of-sale /fr/conditions-generales-de-vente 301
+		redir /fr/privacy-policy /fr/politique-de-confidentialite 301
 		redir /fr/products /fr/produits 301
 		redir /fr/products/clothing /fr/produits/vetements 301
 		redir /fr/products/accessories /fr/produits/accessoires 301

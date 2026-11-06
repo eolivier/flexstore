@@ -759,7 +759,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new AdministrationApi(configuration);
 
-let kind: 'legal-notice' | 'terms-of-sale'; //The legal notice or the terms of sale (default to undefined)
+let kind: 'legal-notice' | 'terms-of-sale' | 'privacy-policy'; //The legal notice, the terms of sale or the privacy policy (default to undefined)
 let jsonLegalText: JsonLegalText; //
 
 const { status, data } = await apiInstance.publishLegalPage(
@@ -773,7 +773,7 @@ const { status, data } = await apiInstance.publishLegalPage(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **jsonLegalText** | **JsonLegalText**|  | |
-| **kind** | [**&#39;legal-notice&#39; | &#39;terms-of-sale&#39;**]**Array<&#39;legal-notice&#39; &#124; &#39;terms-of-sale&#39;>** | The legal notice or the terms of sale | defaults to undefined|
+| **kind** | [**&#39;legal-notice&#39; | &#39;terms-of-sale&#39; | &#39;privacy-policy&#39;**]**Array<&#39;legal-notice&#39; &#124; &#39;terms-of-sale&#39; &#124; &#39;privacy-policy&#39;>** | The legal notice, the terms of sale or the privacy policy | defaults to undefined|
 
 
 ### Return type

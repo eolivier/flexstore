@@ -86,6 +86,8 @@ describe('localizedPath', () => {
     ['/about', 'fr', '/fr/a-propos'],
     ['/legal-notice', 'fr', '/fr/mentions-legales'],
     ['/terms-of-sale', 'fr', '/fr/conditions-generales-de-vente'],
+    ['/privacy-policy', 'fr', '/fr/politique-de-confidentialite'],
+    ['/fr/politique-de-confidentialite', 'en', '/en/privacy-policy'],
     ['/en', 'fr', '/fr'],
   ] as const)('%s in %s is %s', (path, language, localized) => {
     // Act

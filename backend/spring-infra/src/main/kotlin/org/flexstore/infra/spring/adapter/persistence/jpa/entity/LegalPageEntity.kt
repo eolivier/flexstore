@@ -11,7 +11,7 @@ data class LegalPageEntity(
     @Id
     val id: String,
 
-    // LEGAL_NOTICE or TERMS_OF_SALE
+    // LEGAL_NOTICE, TERMS_OF_SALE or PRIVACY_POLICY
     @Column(nullable = false, updatable = false)
     val kind: String,
 

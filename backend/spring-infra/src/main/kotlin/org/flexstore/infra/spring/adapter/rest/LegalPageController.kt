@@ -16,7 +16,8 @@ import org.springframework.web.bind.annotation.*
 // How each legal page is named in the paths of the API
 private val legalPageKinds = mapOf(
     "legal-notice" to LegalPageKind.LEGAL_NOTICE,
-    "terms-of-sale" to LegalPageKind.TERMS_OF_SALE
+    "terms-of-sale" to LegalPageKind.TERMS_OF_SALE,
+    "privacy-policy" to LegalPageKind.PRIVACY_POLICY
 )
 
 // The legal pages of the shop, read by everyone
@@ -25,7 +26,7 @@ private val legalPageKinds = mapOf(
 @RequestMapping("/api/legal-pages")
 class LegalPageController(private val legalPageUseCases: LegalPageUseCases) {
 
-    @Operation(summary = "Retrieve the current version of a legal page: legal-notice or terms-of-sale")
+    @Operation(summary = "Retrieve the current version of a legal page: legal-notice, terms-of-sale or privacy-policy")
     @GetMapping("/{kind}")
     fun getLegalPage(@PathVariable kind: String): ResponseEntity<JsonLegalPage> {
         val legalPageKind = legalPageKinds[kind] ?: return ResponseEntity.notFound().build()
@@ -39,7 +40,7 @@ class LegalPageController(private val legalPageUseCases: LegalPageUseCases) {
 @RequestMapping("/api/admin/legal-pages")
 class AdminLegalPageController(private val legalPageUseCases: LegalPageUseCases) {
 
-    @Operation(summary = "Publish a new version of a legal page: legal-notice or terms-of-sale")
+    @Operation(summary = "Publish a new version of a legal page: legal-notice, terms-of-sale or privacy-policy")
     @PutMapping("/{kind}")
     fun publishLegalPage(
         @AuthenticationPrincipal publisher: Jwt,

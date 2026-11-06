@@ -177,6 +177,12 @@ const shopRoutes: RouteRecordRaw[] = [
     props: { kind: 'terms-of-sale' },
     meta: { title: 'nav.termsOfSale', description: 'seo.termsOfSale', indexed: true },
   },
+  {
+    path: '/privacy-policy',
+    component: LegalPage,
+    props: { kind: 'privacy-policy' },
+    meta: { title: 'nav.privacyPolicy', description: 'seo.privacyPolicy', indexed: true },
+  },
 ];
 
 const publicRoutes = shopRoutes.filter((route) => route.meta?.indexed);

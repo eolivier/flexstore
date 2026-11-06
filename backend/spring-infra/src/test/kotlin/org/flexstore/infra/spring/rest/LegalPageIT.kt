@@ -75,6 +75,17 @@ class LegalPageIT {
     }
 
     @Test
+    fun `a visitor should read the standard privacy policy, written with the seller of the shop`() {
+        // Act
+        val response = mockMvc.perform(get("/api/legal-pages/privacy-policy"))
+        // Assert
+        response.andExpect(status().isOk)
+            .andExpect(jsonPath("$.kind").value("PRIVACY_POLICY"))
+            .andExpect(jsonPath("$.text").value(containsString("POLITIQUE DE CONFIDENTIALITÉ")))
+            .andExpect(jsonPath("$.text").value(containsString("traitées par Flexstore SAS")))
+    }
+
+    @Test
     fun `an unknown legal page should not be found`() {
         // Act
         val response = mockMvc.perform(get("/api/legal-pages/privacy"))

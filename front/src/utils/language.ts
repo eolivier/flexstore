@@ -8,7 +8,7 @@ export const MAIN_LANGUAGE: ShopLanguage = 'fr';
 export const PAGE_LANGUAGES: ShopLanguage[] = ['fr', 'en'];
 
 // The pages that exist in each language: the others (cart, account, administration...) follow the chosen one
-const TRANSLATED_AREAS = ['/products', '/about', '/legal-notice', '/terms-of-sale'];
+const TRANSLATED_AREAS = ['/products', '/about', '/legal-notice', '/terms-of-sale', '/privacy-policy'];
 
 // The words of an address that change with the language, without accent (/fr/produits/vetements,
 // /en/products/clothing). The addresses of the application use the English words; the others are only seen by
@@ -19,6 +19,7 @@ const ADDRESS_WORDS: Record<ShopLanguage, Record<string, string>> = {
     about: 'a-propos',
     'legal-notice': 'mentions-legales',
     'terms-of-sale': 'conditions-generales-de-vente',
+    'privacy-policy': 'politique-de-confidentialite',
     clothing: 'vetements',
     accessories: 'accessoires',
     electronics: 'electronique',
