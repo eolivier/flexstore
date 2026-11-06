@@ -728,6 +728,46 @@ paths:
                 $ref: "#/components/schemas/JsonCookieConsent"
         "401":
           description: Not signed in
+  /api/color-mode:
+    get:
+      tags:
+      - Preferences
+      summary: Retrieve the display mode of the signed-in customer
+      description: NONE when the customer never chose.
+      operationId: getColorModePreference
+      security:
+      - bearerAuth: []
+      responses:
+        "200":
+          description: The display mode
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonColorModePreference"
+        "401":
+          description: Not signed in
+    put:
+      tags:
+      - Preferences
+      summary: Record the display mode chosen by the signed-in customer
+      operationId: recordColorModePreference
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonColorModeChoice"
+      responses:
+        "200":
+          description: The recorded display mode
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonColorModePreference"
+        "401":
+          description: Not signed in
   /api/admin/products/sku-proposal:
     get:
       tags:
@@ -2779,6 +2819,20 @@ components:
         choice:
           type: string
           enum: [ACCEPTED, REFUSED]
+    JsonColorModePreference:
+      type: object
+      required: [colorMode]
+      properties:
+        colorMode:
+          type: string
+          enum: [LIGHT, DARK, NONE]
+    JsonColorModeChoice:
+      type: object
+      required: [colorMode]
+      properties:
+        colorMode:
+          type: string
+          enum: [LIGHT, DARK]
     JsonStockAlert:
       type: object
       required: [productId, threshold]

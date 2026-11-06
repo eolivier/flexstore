@@ -292,6 +292,29 @@ export interface JsonChosenPassword {
      */
     'password': string;
 }
+export interface JsonColorModeChoice {
+    'colorMode': JsonColorModeChoiceColorModeEnum;
+}
+
+export const JsonColorModeChoiceColorModeEnum = {
+    Light: 'LIGHT',
+    Dark: 'DARK'
+} as const;
+
+export type JsonColorModeChoiceColorModeEnum = typeof JsonColorModeChoiceColorModeEnum[keyof typeof JsonColorModeChoiceColorModeEnum];
+
+export interface JsonColorModePreference {
+    'colorMode': JsonColorModePreferenceColorModeEnum;
+}
+
+export const JsonColorModePreferenceColorModeEnum = {
+    Light: 'LIGHT',
+    Dark: 'DARK',
+    None: 'NONE'
+} as const;
+
+export type JsonColorModePreferenceColorModeEnum = typeof JsonColorModePreferenceColorModeEnum[keyof typeof JsonColorModePreferenceColorModeEnum];
+
 export interface JsonCookieChoice {
     'choice': JsonCookieChoiceChoiceEnum;
 }
@@ -4556,6 +4579,178 @@ export class PaymentsApi extends BaseAPI {
      */
     public stripeNotification(stripeSignature: string, body: object, options?: RawAxiosRequestConfig) {
         return PaymentsApiFp(this.configuration).stripeNotification(stripeSignature, body, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * PreferencesApi - axios parameter creator
+ */
+export const PreferencesApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * NONE when the customer never chose.
+         * @summary Retrieve the display mode of the signed-in customer
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getColorModePreference: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/color-mode`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Record the display mode chosen by the signed-in customer
+         * @param {JsonColorModeChoice} jsonColorModeChoice 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        recordColorModePreference: async (jsonColorModeChoice: JsonColorModeChoice, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'jsonColorModeChoice' is not null or undefined
+            assertParamExists('recordColorModePreference', 'jsonColorModeChoice', jsonColorModeChoice)
+            const localVarPath = `/api/color-mode`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonColorModeChoice, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * PreferencesApi - functional programming interface
+ */
+export const PreferencesApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = PreferencesApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * NONE when the customer never chose.
+         * @summary Retrieve the display mode of the signed-in customer
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getColorModePreference(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonColorModePreference>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getColorModePreference(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PreferencesApi.getColorModePreference']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Record the display mode chosen by the signed-in customer
+         * @param {JsonColorModeChoice} jsonColorModeChoice 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async recordColorModePreference(jsonColorModeChoice: JsonColorModeChoice, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonColorModePreference>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.recordColorModePreference(jsonColorModeChoice, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PreferencesApi.recordColorModePreference']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * PreferencesApi - factory interface
+ */
+export const PreferencesApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = PreferencesApiFp(configuration)
+    return {
+        /**
+         * NONE when the customer never chose.
+         * @summary Retrieve the display mode of the signed-in customer
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getColorModePreference(options?: RawAxiosRequestConfig): AxiosPromise<JsonColorModePreference> {
+            return localVarFp.getColorModePreference(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Record the display mode chosen by the signed-in customer
+         * @param {JsonColorModeChoice} jsonColorModeChoice 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        recordColorModePreference(jsonColorModeChoice: JsonColorModeChoice, options?: RawAxiosRequestConfig): AxiosPromise<JsonColorModePreference> {
+            return localVarFp.recordColorModePreference(jsonColorModeChoice, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * PreferencesApi - object-oriented interface
+ */
+export class PreferencesApi extends BaseAPI {
+    /**
+     * NONE when the customer never chose.
+     * @summary Retrieve the display mode of the signed-in customer
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getColorModePreference(options?: RawAxiosRequestConfig) {
+        return PreferencesApiFp(this.configuration).getColorModePreference(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Record the display mode chosen by the signed-in customer
+     * @param {JsonColorModeChoice} jsonColorModeChoice 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public recordColorModePreference(jsonColorModeChoice: JsonColorModeChoice, options?: RawAxiosRequestConfig) {
+        return PreferencesApiFp(this.configuration).recordColorModePreference(jsonColorModeChoice, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

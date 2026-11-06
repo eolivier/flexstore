@@ -1,6 +1,6 @@
 # Physical data model
 
-The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V53**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
+The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V54**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
 
 ![Physical data model](database.png)
 
@@ -267,6 +267,14 @@ erDiagram
         updated_at timestamp
     }
 
+    user_preference {
+        id varchar(50) PK
+        user_id varchar(50) FK,UK "at most one row of preferences per customer"
+        color_mode varchar(20) "LIGHT or DARK"
+        created_at timestamp
+        updated_at timestamp
+    }
+
     stock {
         id varchar(50) PK
         product_id varchar(50) FK,UK "a product without row has none"
@@ -333,6 +341,7 @@ erDiagram
     user ||--o{ user_token : "user_id (cascade)"
     user ||--o| customer_company : "user_id (cascade)"
     user ||--o| cookie_consent : "user_id (cascade)"
+    user ||--o| user_preference : "user_id (cascade)"
     user ||--o| failed_sign_in : "user_id (cascade)"
     user ||--o{ refresh_session : "user_id (cascade)"
     user ||--o{ user_address : "user_id (cascade)"
@@ -369,6 +378,7 @@ erDiagram
 - The `legal_page` rows are the legal notice and the terms of sale of the shop, written by the administrators and read by everyone. Each publication adds a version of its kind and never changes one, so that the terms of sale of a given date can be found again. The migration creates a first, empty version of each kind; V38 adds a standard version of each one, written with the current seller, while its current version is still empty. An order keeps the version of the terms of sale its customer accepted (`legal_page_id`); the orders placed before V37 have none.
 - A customer who creates their account for their company gives it once: its `customer_company` row (name, SIREN, VAT number). The address they give is then addressed to the company, for their attention (`address.recipient_type` `LEGAL_ENTITY`, with the company name and the VAT number).
 - A signed-in customer's choice about the preference cookies is one `cookie_consent` row, replaced by each new choice and valid until `expires_at` (6 months after the choice). A visitor who is not signed in keeps theirs in their browser; at sign-in it is recorded here and removed from the browser.
+- A signed-in customer's display mode (light or dark) is kept in their `user_preference` row (column `color_mode`), created by their first choice and replaced by each new one; a customer who never chose has no row, and their browser decides. A visitor who is not signed in keeps theirs in their browser (when they accepted the preference cookies).
 - A wrong password for an existing account adds one to its `failed_sign_in` row (created by the first failure). At the 5th failure in a row, the account becomes `LOCKED` and the row is deleted, so that the count starts again when an administrator reactivates the account; a successful sign-in deletes the row too. An email that belongs to no account, and an account that cannot sign in already, are not counted.
 - A `refresh_session` is a session of a signed-in user: its refresh token renews their access token (15 minutes) once, then the session is revoked (`revoked_at`) and replaced by a new row. A revoked token that comes back revokes every open session of its user. Only the hash of the token is stored; deleting a user deletes their sessions.
 - The carrier and the tracking number of the parcel of an order are given together by an administrator when the order is shipped, or corrected afterwards (`tracking_carrier` and `tracking_number`, a check forbids one without the other); the orders shipped before V45, or shipped without them, have none.
