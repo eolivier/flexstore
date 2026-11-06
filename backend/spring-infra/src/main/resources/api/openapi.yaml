@@ -2102,10 +2102,10 @@ components:
       name: kind
       in: path
       required: true
-      description: The legal notice or the terms of sale
+      description: The legal notice, the terms of sale or the privacy policy
       schema:
         type: string
-        enum: [legal-notice, terms-of-sale]
+        enum: [legal-notice, terms-of-sale, privacy-policy]
   securitySchemes:
     bearerAuth:
       type: http
@@ -2125,7 +2125,7 @@ components:
           description: The id of this version of the page; the customers accept the terms of sale by it
         kind:
           type: string
-          enum: [LEGAL_NOTICE, TERMS_OF_SALE]
+          enum: [LEGAL_NOTICE, TERMS_OF_SALE, PRIVACY_POLICY]
         text:
           type: string
           description: Plain text, its paragraphs separated by line breaks; empty until the administrators write it

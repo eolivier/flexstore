@@ -7,8 +7,9 @@ import org.flexstore.domain.user.model.UserId
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
 
-// The legal pages of the shop, written by the administrators: its legal notice and its terms of sale
-enum class LegalPageKind { LEGAL_NOTICE, TERMS_OF_SALE }
+// The legal pages of the shop, written by the administrators: its legal notice, its terms of sale and its
+// privacy policy
+enum class LegalPageKind { LEGAL_NOTICE, TERMS_OF_SALE, PRIVACY_POLICY }
 
 // One version of a legal page: each publication gives a new one, the ones before are kept
 data class LegalPageId(val value: Identity) {

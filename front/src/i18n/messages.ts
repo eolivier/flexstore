@@ -32,7 +32,7 @@ export default {
       settingsText: 'Turn the features of the shop on or off.',
       environmentText: 'Check which environment variables of the back end are defined.',
       sellerText: 'Edit the shop as written on its invoices: its name, address, SIRET and VAT number.',
-      legalPagesText: 'Write the legal notice and the terms of sale of the shop.',
+      legalPagesText: 'Write the legal notice, the terms of sale and the privacy policy of the shop.',
     },
     environment: {
       title: 'Environment',
@@ -171,7 +171,7 @@ export default {
           },
           discountCodes: { title: 'Discount codes', text: 'Create promotional codes for your customers.' },
           seller: { title: 'Seller information', text: 'Set the identity of the shop shown on invoices.' },
-          legalPages: { title: 'Legal pages', text: 'Edit the legal notice and the terms of sale.' },
+          legalPages: { title: 'Legal pages', text: 'Edit the legal notice, the terms of sale and the privacy policy.' },
           settings: { title: 'Settings', text: 'Adjust the settings of the shop.' },
           environment: {
             title: 'Environment',
@@ -749,6 +749,7 @@ export default {
       about: 'What Flexstore is, the features of the shop and the technologies it is built with.',
       legalNotice: 'The legal notice of Flexstore: who publishes the shop and how to reach them.',
       termsOfSale: 'The terms of sale of Flexstore: prices, payment, delivery and returns.',
+      privacyPolicy: 'The privacy policy of Flexstore: which personal data is collected, why, and your rights.',
     },
     nav: {
       home: 'Home',
@@ -778,6 +779,7 @@ export default {
       legalPages: 'Legal pages',
       legalNotice: 'Legal notice',
       termsOfSale: 'Terms of sale',
+      privacyPolicy: 'Privacy policy',
       about: 'About',
       login: 'Sign in',
       signUp: 'Create an account',
@@ -790,11 +792,13 @@ export default {
     legalPages: {
       'legal-notice': { title: 'Legal notice' },
       'terms-of-sale': { title: 'Terms of sale' },
+      'privacy-policy': { title: 'Privacy policy' },
       publishedOn: 'Updated on {date}',
       notWritten: 'This page has not been written yet.',
       loadError: 'The page could not be loaded.',
       adminTitle: 'Legal pages',
-      adminSubtitle: 'The legal notice and the terms of sale of the shop, read by everyone from the footer.',
+      adminSubtitle:
+        'The legal notice, the terms of sale and the privacy policy of the shop, read by everyone from the footer.',
       textHint: 'Plain text: each line break is kept',
       required: 'Required',
       tooLong: '50,000 characters at most',
@@ -1005,7 +1009,8 @@ export default {
       environmentText: 'Vérifier quelles variables d’environnement du back end sont définies.',
       sellerText:
         'Modifier la boutique telle qu’elle figure sur ses factures : raison sociale, adresse, SIRET et TVA.',
-      legalPagesText: 'Rédiger les mentions légales et les conditions générales de vente de la boutique.',
+      legalPagesText:
+        'Rédiger les mentions légales, les conditions générales de vente et la politique de confidentialité de la boutique.',
     },
     environment: {
       title: 'Environnement',
@@ -1160,7 +1165,7 @@ export default {
           },
           legalPages: {
             title: 'Pages légales',
-            text: 'Modifiez les mentions légales et les conditions de vente.',
+            text: 'Modifiez les mentions légales, les conditions de vente et la politique de confidentialité.',
           },
           settings: { title: 'Paramètres', text: 'Ajustez les paramètres de la boutique.' },
           environment: {
@@ -1747,6 +1752,8 @@ export default {
       about: "Ce qu'est Flexstore, les fonctionnalités de la boutique et les technologies utilisées.",
       legalNotice: 'Les mentions légales de Flexstore : qui édite la boutique et comment le contacter.',
       termsOfSale: 'Les conditions générales de vente de Flexstore : prix, paiement, livraison et retours.',
+      privacyPolicy:
+        'La politique de confidentialité de Flexstore : quelles données personnelles sont collectées, pourquoi, et vos droits.',
     },
     nav: {
       home: 'Accueil',
@@ -1776,6 +1783,7 @@ export default {
       legalPages: 'Pages légales',
       legalNotice: 'Mentions légales',
       termsOfSale: 'Conditions générales de vente',
+      privacyPolicy: 'Politique de confidentialité',
       about: 'À propos',
       login: 'Se connecter',
       signUp: 'Créer un compte',
@@ -1788,12 +1796,13 @@ export default {
     legalPages: {
       'legal-notice': { title: 'Mentions légales' },
       'terms-of-sale': { title: 'Conditions générales de vente' },
+      'privacy-policy': { title: 'Politique de confidentialité' },
       publishedOn: 'Mis à jour le {date}',
       notWritten: 'Cette page n’a pas encore été rédigée.',
       loadError: 'La page n’a pas pu être chargée.',
       adminTitle: 'Pages légales',
       adminSubtitle:
-        'Les mentions légales et les conditions générales de vente de la boutique, lues par tous depuis le pied de page.',
+        'Les mentions légales, les conditions générales de vente et la politique de confidentialité de la boutique, lues par tous depuis le pied de page.',
       textHint: 'Texte brut : chaque retour à la ligne est conservé',
       required: 'Obligatoire',
       tooLong: '50 000 caractères au maximum',

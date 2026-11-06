@@ -23,6 +23,7 @@ export function accountLinksOf(signedIn: boolean) {
 export const legalLinks = [
   { to: '/legal-notice', label: 'nav.legalNotice' },
   { to: '/terms-of-sale', label: 'nav.termsOfSale' },
+  { to: '/privacy-policy', label: 'nav.privacyPolicy' },
 ];
 
 export const adminLinks = [

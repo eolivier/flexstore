@@ -8,7 +8,7 @@
   const { t } = useI18n();
   const legalPagesStore = useLegalPagesStore();
 
-  const kinds: LegalPageKind[] = ['legal-notice', 'terms-of-sale'];
+  const kinds: LegalPageKind[] = ['legal-notice', 'terms-of-sale', 'privacy-policy'];
 
   onMounted(() => {
     kinds.forEach((kind) => legalPagesStore.fetchLegalPage(kind));
