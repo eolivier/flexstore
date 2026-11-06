@@ -34,6 +34,8 @@ docs/JsonEmailVerification.md
 docs/JsonEnvironmentVariable.md
 docs/JsonGoogleLoginRequest.md
 docs/JsonItem.md
+docs/JsonLanguageChoice.md
+docs/JsonLanguagePreference.md
 docs/JsonLegalPage.md
 docs/JsonLegalText.md
 docs/JsonLoginRequest.md

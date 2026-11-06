@@ -5,7 +5,9 @@ All URIs are relative to *http://localhost:8080*
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
 |[**getColorModePreference**](#getcolormodepreference) | **GET** /api/color-mode | Retrieve the display mode of the signed-in customer|
+|[**getLanguagePreference**](#getlanguagepreference) | **GET** /api/language | Retrieve the preferred language of the signed-in customer|
 |[**recordColorModePreference**](#recordcolormodepreference) | **PUT** /api/color-mode | Record the display mode chosen by the signed-in customer|
+|[**recordLanguagePreference**](#recordlanguagepreference) | **PUT** /api/language | Record the preferred language chosen by the signed-in customer|
 
 # **getColorModePreference**
 > JsonColorModePreference getColorModePreference()
@@ -48,6 +50,51 @@ This endpoint does not have any parameters.
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | The display mode |  -  |
+|**401** | Not signed in |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getLanguagePreference**
+> JsonLanguagePreference getLanguagePreference()
+
+NONE when the customer never chose.
+
+### Example
+
+```typescript
+import {
+    PreferencesApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new PreferencesApi(configuration);
+
+const { status, data } = await apiInstance.getLanguagePreference();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**JsonLanguagePreference**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The preferred language |  -  |
 |**401** | Not signed in |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -100,6 +147,58 @@ const { status, data } = await apiInstance.recordColorModePreference(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | The recorded display mode |  -  |
+|**401** | Not signed in |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **recordLanguagePreference**
+> JsonLanguagePreference recordLanguagePreference(jsonLanguageChoice)
+
+
+### Example
+
+```typescript
+import {
+    PreferencesApi,
+    Configuration,
+    JsonLanguageChoice
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new PreferencesApi(configuration);
+
+let jsonLanguageChoice: JsonLanguageChoice; //
+
+const { status, data } = await apiInstance.recordLanguagePreference(
+    jsonLanguageChoice
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **jsonLanguageChoice** | **JsonLanguageChoice**|  | |
+
+
+### Return type
+
+**JsonLanguagePreference**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The recorded preferred language |  -  |
 |**401** | Not signed in |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

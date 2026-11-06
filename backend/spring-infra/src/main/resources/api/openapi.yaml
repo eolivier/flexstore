@@ -799,6 +799,46 @@ paths:
                 $ref: "#/components/schemas/JsonColorModePreference"
         "401":
           description: Not signed in
+  /api/language:
+    get:
+      tags:
+      - Preferences
+      summary: Retrieve the preferred language of the signed-in customer
+      description: NONE when the customer never chose.
+      operationId: getLanguagePreference
+      security:
+      - bearerAuth: []
+      responses:
+        "200":
+          description: The preferred language
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonLanguagePreference"
+        "401":
+          description: Not signed in
+    put:
+      tags:
+      - Preferences
+      summary: Record the preferred language chosen by the signed-in customer
+      operationId: recordLanguagePreference
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonLanguageChoice"
+      responses:
+        "200":
+          description: The recorded preferred language
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonLanguagePreference"
+        "401":
+          description: Not signed in
   /api/admin/products/sku-proposal:
     get:
       tags:
@@ -2895,6 +2935,20 @@ components:
         colorMode:
           type: string
           enum: [LIGHT, DARK]
+    JsonLanguagePreference:
+      type: object
+      required: [language]
+      properties:
+        language:
+          type: string
+          enum: [EN, FR, NONE]
+    JsonLanguageChoice:
+      type: object
+      required: [language]
+      properties:
+        language:
+          type: string
+          enum: [EN, FR]
     JsonStockAlert:
       type: object
       required: [productId, threshold]

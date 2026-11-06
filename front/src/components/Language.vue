@@ -2,39 +2,29 @@
   <v-menu location="bottom end">
     <template #activator="{ props }">
       <v-btn v-bind="props" variant="text" :aria-label="t('nav.language')" prepend-icon="mdi-translate">
-        {{ locale.toUpperCase() }}
+        {{ language.toUpperCase() }}
       </v-btn>
     </template>
     <v-list density="compact" min-width="160">
       <v-list-item
-        v-for="language in languages"
-        :key="language.value"
-        :active="locale === language.value"
+        v-for="item in languages"
+        :key="item.value"
+        :active="language === item.value"
         color="secondary"
-        @click="changeLocale(language.value)"
+        @click="changeLanguage(item.value)"
       >
-        <v-list-item-title>{{ language.title }}</v-list-item-title>
+        <v-list-item-title>{{ item.title }}</v-list-item-title>
       </v-list-item>
     </v-list>
   </v-menu>
 </template>
 
-<script setup>
+<script setup lang="ts">
   import { useI18n } from 'vue-i18n';
-  import { useRoute, useRouter } from 'vue-router';
-  import { isTranslatedPath, localizedPath } from '@/utils/language';
+  import { useLanguage } from '@/composables/useLanguage';
+  import { LANGUAGE_NAMES, PAGE_LANGUAGES } from '@/utils/language';
 
-  const { locale, t } = useI18n();
-  const route = useRoute();
-  const router = useRouter();
-  const languages = [
-    { title: 'Français', value: 'fr' },
-    { title: 'English', value: 'en' },
-  ];
-
-  // A page that exists in each language moves to the address of the new one
-  function changeLocale(val) {
-    locale.value = val;
-    if (isTranslatedPath(route.path)) router.push({ path: localizedPath(route.path, val), query: route.query });
-  }
+  const { t } = useI18n();
+  const { language, changeLanguage } = useLanguage();
+  const languages = PAGE_LANGUAGES.map((value) => ({ title: LANGUAGE_NAMES[value], value }));
 </script>

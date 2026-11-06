@@ -2,11 +2,17 @@
   import { computed } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useColorMode } from '@/composables/useColorMode';
+  import { useLanguage } from '@/composables/useLanguage';
+  import { LANGUAGE_NAMES, PAGE_LANGUAGES } from '@/utils/language';
   import AccountBreadcrumbs from '@/components/account/AccountBreadcrumbs.vue';
 
-  // The preferences of the signed-in customer: they see the display mode they chose and can change it here
+  // The preferences of the signed-in customer: they see the display mode and the language they chose and can
+  // change them here
   const { t } = useI18n();
   const { colorMode, switchColorMode } = useColorMode();
+
+  const { language, changeLanguage } = useLanguage();
+  const languages = PAGE_LANGUAGES.map((value) => ({ title: LANGUAGE_NAMES[value], value }));
 
   const darkModeChosen = computed(() => colorMode.value === 'dark');
 </script>
@@ -18,6 +24,15 @@
     <p class="text-body-2 text-medium-emphasis mt-1 mb-6">{{ t('preferences.subtitle') }}</p>
 
     <v-card class="pa-4">
+      <v-select
+        :model-value="language"
+        :items="languages"
+        :label="t('preferences.language')"
+        :hint="t('preferences.languageHint')"
+        persistent-hint
+        class="mb-4"
+        @update:model-value="changeLanguage"
+      />
       <v-switch
         :model-value="darkModeChosen"
         :label="t('preferences.darkMode')"
