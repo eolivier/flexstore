@@ -25,6 +25,7 @@ const trails: { pattern: RegExp; parents: AdminBreadcrumb[]; label: string }[] =
   { pattern: /^\/admin\/seller$/, parents: [home], label: 'nav.seller' },
   { pattern: /^\/admin\/legal-pages$/, parents: [home], label: 'nav.legalPages' },
   { pattern: /^\/admin\/settings$/, parents: [home], label: 'nav.settings' },
+  { pattern: /^\/admin\/environment$/, parents: [home], label: 'nav.environment' },
   { pattern: /^\/admin$/, parents: [], label: 'nav.admin' },
 ];
 

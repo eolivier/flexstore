@@ -22,6 +22,7 @@ import AdminOrderDetail from './components/admin/orders/AdminOrderDetail.vue';
 import AddressBook from './components/account/addresses/AddressBook.vue';
 import Wishlist from './components/account/wishlist/Wishlist.vue';
 import ShopSettings from './components/admin/settings/ShopSettings.vue';
+import AdminEnvironment from './components/admin/environment/AdminEnvironment.vue';
 import SalesDashboard from './components/admin/sales/SalesDashboard.vue';
 import SellerSettings from './components/admin/seller/SellerSettings.vue';
 import SellerSetupWizard from './components/admin/seller/setup/SellerSetupWizard.vue';
@@ -150,6 +151,11 @@ const shopRoutes: RouteRecordRaw[] = [
   {
     path: '/admin/settings',
     component: ShopSettings,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/admin/environment',
+    component: AdminEnvironment,
     meta: { requiresAuth: true, requiresAdmin: true },
   },
   {

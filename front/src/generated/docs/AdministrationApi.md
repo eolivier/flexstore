@@ -14,6 +14,7 @@ All URIs are relative to *http://localhost:8080*
 |[**getAllOrders**](#getallorders) | **GET** /api/admin/orders | Retrieve a page of the orders of all the customers, newest first, with their customer (ADMIN role)|
 |[**getAnyOrder**](#getanyorder) | **GET** /api/admin/orders/{id} | Retrieve any order, with its customer (ADMIN role)|
 |[**getDiscountCodes**](#getdiscountcodes) | **GET** /api/admin/discount-codes | Retrieve the discount codes, newest first (ADMIN role)|
+|[**getEnvironment**](#getenvironment) | **GET** /api/admin/environment | Retrieve the environment variables of the shop, the secrets only as defined or not (ADMIN role)|
 |[**getSalesDashboard**](#getsalesdashboard) | **GET** /api/admin/sales-dashboard | Retrieve the revenue, the orders per day and the best sellers of the last 7, 30 or 90 days (ADMIN role)|
 |[**getSeller**](#getseller) | **GET** /api/admin/seller | Retrieve the seller written on the next invoices (ADMIN role)|
 |[**proposeSku**](#proposesku) | **GET** /api/admin/products/sku-proposal | Propose a SKU free in the catalog, from the category and the name of a product (ADMIN role)|
@@ -545,6 +546,50 @@ This endpoint does not have any parameters.
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | The discount codes |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getEnvironment**
+> Array<JsonEnvironmentVariable> getEnvironment()
+
+
+### Example
+
+```typescript
+import {
+    AdministrationApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdministrationApi(configuration);
+
+const { status, data } = await apiInstance.getEnvironment();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**Array<JsonEnvironmentVariable>**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The variables the shop reads, with their sensitivity, their necessity and whether they are defined (neither null, nor empty, nor blank); the value of a secret is never given |  -  |
+|**403** | Not an administrator |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

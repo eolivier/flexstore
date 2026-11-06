@@ -1300,6 +1300,27 @@ paths:
           description: Unknown discount code
         "410":
           description: The discount code has expired, or is used up
+  /api/admin/environment:
+    get:
+      tags:
+      - Administration
+      summary: Retrieve the environment variables of the shop, the secrets only as defined or not (ADMIN role)
+      operationId: getEnvironment
+      security:
+      - bearerAuth: []
+      responses:
+        "200":
+          description: >-
+            The variables the shop reads, with their sensitivity, their necessity and whether they are defined
+            (neither null, nor empty, nor blank); the value of a secret is never given
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/JsonEnvironmentVariable"
+        "403":
+          description: Not an administrator
   /api/admin/sales-dashboard:
     get:
       tags:
@@ -2883,6 +2904,27 @@ components:
           description: The average of the ratings, from 1 to 5, with one decimal
         reviewCount:
           type: integer
+    JsonEnvironmentVariable:
+      type: object
+      required: [name, sensitivity, necessity, status]
+      properties:
+        name:
+          type: string
+        sensitivity:
+          type: string
+          enum: [PLAIN, SECRET]
+          description: A SECRET (password, key) is never shown
+        necessity:
+          type: string
+          enum: [REQUIRED, OPTIONAL]
+          description: A REQUIRED variable is needed by the shop to work properly
+        status:
+          type: string
+          enum: [DEFINED, UNDEFINED]
+          description: DEFINED when the value is neither null, nor empty, nor blank
+        value:
+          type: string
+          description: The value of a defined PLAIN variable; absent for a SECRET and for an undefined variable
     JsonSalesDashboard:
       type: object
       required: [firstDay, lastDay, currency, revenue, orderCount, days, bestSellers]

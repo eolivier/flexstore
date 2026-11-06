@@ -368,6 +368,45 @@ export interface JsonEmailVerification {
      */
     'token': string;
 }
+export interface JsonEnvironmentVariable {
+    'name': string;
+    /**
+     * A SECRET (password, key) is never shown
+     */
+    'sensitivity': JsonEnvironmentVariableSensitivityEnum;
+    /**
+     * A REQUIRED variable is needed by the shop to work properly
+     */
+    'necessity': JsonEnvironmentVariableNecessityEnum;
+    /**
+     * DEFINED when the value is neither null, nor empty, nor blank
+     */
+    'status': JsonEnvironmentVariableStatusEnum;
+    /**
+     * The value of a defined PLAIN variable; absent for a SECRET and for an undefined variable
+     */
+    'value'?: string;
+}
+
+export const JsonEnvironmentVariableSensitivityEnum = {
+    Plain: 'PLAIN',
+    Secret: 'SECRET'
+} as const;
+
+export type JsonEnvironmentVariableSensitivityEnum = typeof JsonEnvironmentVariableSensitivityEnum[keyof typeof JsonEnvironmentVariableSensitivityEnum];
+export const JsonEnvironmentVariableNecessityEnum = {
+    Required: 'REQUIRED',
+    Optional: 'OPTIONAL'
+} as const;
+
+export type JsonEnvironmentVariableNecessityEnum = typeof JsonEnvironmentVariableNecessityEnum[keyof typeof JsonEnvironmentVariableNecessityEnum];
+export const JsonEnvironmentVariableStatusEnum = {
+    Defined: 'DEFINED',
+    Undefined: 'UNDEFINED'
+} as const;
+
+export type JsonEnvironmentVariableStatusEnum = typeof JsonEnvironmentVariableStatusEnum[keyof typeof JsonEnvironmentVariableStatusEnum];
+
 export interface JsonItem {
     'itemId'?: string;
     'productId'?: string;
@@ -2182,6 +2221,40 @@ export const AdministrationApiAxiosParamCreator = function (configuration?: Conf
         },
         /**
          * 
+         * @summary Retrieve the environment variables of the shop, the secrets only as defined or not (ADMIN role)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getEnvironment: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/environment`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Retrieve the revenue, the orders per day and the best sellers of the last 7, 30 or 90 days (ADMIN role)
          * @param {number} [days] The number of days, the day of the request included (7, 30 or 90)
          * @param {*} [options] Override http request option.
@@ -2570,6 +2643,18 @@ export const AdministrationApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Retrieve the environment variables of the shop, the secrets only as defined or not (ADMIN role)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getEnvironment(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<JsonEnvironmentVariable>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getEnvironment(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdministrationApi.getEnvironment']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Retrieve the revenue, the orders per day and the best sellers of the last 7, 30 or 90 days (ADMIN role)
          * @param {number} [days] The number of days, the day of the request included (7, 30 or 90)
          * @param {*} [options] Override http request option.
@@ -2761,6 +2846,15 @@ export const AdministrationApiFactory = function (configuration?: Configuration,
         },
         /**
          * 
+         * @summary Retrieve the environment variables of the shop, the secrets only as defined or not (ADMIN role)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getEnvironment(options?: RawAxiosRequestConfig): AxiosPromise<Array<JsonEnvironmentVariable>> {
+            return localVarFp.getEnvironment(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Retrieve the revenue, the orders per day and the best sellers of the last 7, 30 or 90 days (ADMIN role)
          * @param {number} [days] The number of days, the day of the request included (7, 30 or 90)
          * @param {*} [options] Override http request option.
@@ -2938,6 +3032,16 @@ export class AdministrationApi extends BaseAPI {
      */
     public getDiscountCodes(options?: RawAxiosRequestConfig) {
         return AdministrationApiFp(this.configuration).getDiscountCodes(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Retrieve the environment variables of the shop, the secrets only as defined or not (ADMIN role)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getEnvironment(options?: RawAxiosRequestConfig) {
+        return AdministrationApiFp(this.configuration).getEnvironment(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
