@@ -10,6 +10,7 @@ const orders = { label: 'nav.orders', to: '/orders' };
 // The trail from the home of the customer's own space to the page; the order pages go through their list
 const trails: { pattern: RegExp; parents: AccountBreadcrumb[]; label: string }[] = [
   { pattern: /^\/account\/addresses$/, parents: [home], label: 'addressBook.title' },
+  { pattern: /^\/account\/preferences$/, parents: [home], label: 'nav.preferences' },
   { pattern: /^\/orders\/[^/]+\/confirmation$/, parents: [home, orders], label: 'orders.detail' },
   { pattern: /^\/orders\/[^/]+$/, parents: [home, orders], label: 'orders.detail' },
   { pattern: /^\/orders$/, parents: [home], label: 'nav.orders' },
