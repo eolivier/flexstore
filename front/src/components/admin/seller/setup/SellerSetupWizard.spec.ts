@@ -34,6 +34,8 @@ const enabledSettings = {
   paymentDelayMinutes: 10,
   freeShippingThreshold: 50,
   sellerSetup: 'ENABLED',
+  abandonedCartReminder: 'DISABLED',
+  abandonedCartDelayHours: 24,
 };
 
 async function mountWizard() {

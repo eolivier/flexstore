@@ -11,6 +11,8 @@ const settings: ShopSettings = {
   paymentDelayMinutes: 10,
   freeShippingThreshold: 50,
   sellerSetup: 'DISABLED',
+  abandonedCartReminder: 'DISABLED',
+  abandonedCartDelayHours: 24,
 };
 
 describe('sellerSetupIsPendingFor', () => {

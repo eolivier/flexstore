@@ -1,5 +1,6 @@
 package org.flexstore.domain.email
 
+import org.flexstore.domain.email.model.AbandonedCartReminderEmail
 import org.flexstore.domain.email.model.EmailVerification
 import org.flexstore.domain.email.model.EmailVerificationLink
 import org.flexstore.domain.email.model.ExpirationDate
@@ -16,6 +17,7 @@ interface EmailRepository {
     fun send(email: OrderStatusEmail)
     fun send(link: EmailVerificationLink)
     fun send(email: PasswordResetEmail)
+    fun send(email: AbandonedCartReminderEmail)
 
     fun save(verification: EmailVerification)
     fun findBy(token: VerificationToken): EmailVerification?

@@ -19,6 +19,15 @@ class ShopSettingsAdministrationService(
     fun disableOrderConfirmationEmail(editor: UserId) =
         update(editor, getSettings(editor).withOrderConfirmationEmailDisabled())
 
+    fun enableAbandonedCartReminder(editor: UserId) =
+        update(editor, getSettings(editor).withAbandonedCartReminderEnabled())
+
+    fun disableAbandonedCartReminder(editor: UserId) =
+        update(editor, getSettings(editor).withAbandonedCartReminderDisabled())
+
+    fun changeAbandonedCartDelay(editor: UserId, abandonedCartDelay: AbandonedCartDelay) =
+        update(editor, getSettings(editor).withAbandonedCartDelay(abandonedCartDelay))
+
     fun changePaymentDelay(editor: UserId, paymentDelay: PaymentDelay) =
         update(editor, getSettings(editor).withPaymentDelay(paymentDelay))
 

@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.domain.user.model.UserId
 import org.flexstore.domain.user.model.of
+import org.flexstore.infra.spring.adapter.rest.json.JsonAbandonedCartDelay
 import org.flexstore.infra.spring.adapter.rest.json.JsonFreeShippingThreshold
 import org.flexstore.infra.spring.adapter.rest.json.JsonPaymentDelay
 import org.flexstore.infra.spring.adapter.rest.json.JsonShopSettings
@@ -36,6 +37,33 @@ class ShopSettingsController(private val shopSettingsAdministrationService: Shop
     fun disableOrderConfirmationEmail(@AuthenticationPrincipal editor: Jwt): JsonShopSettings {
         val editorId = UserId.of(editor.subject)
         return JsonShopSettings(shopSettingsAdministrationService.disableOrderConfirmationEmail(editorId))
+    }
+
+    @Operation(summary = "Remind the customers by email of the items left in their cart")
+    @PostMapping("/abandoned-cart-reminder/enable")
+    fun enableAbandonedCartReminder(@AuthenticationPrincipal editor: Jwt): JsonShopSettings {
+        val editorId = UserId.of(editor.subject)
+        return JsonShopSettings(shopSettingsAdministrationService.enableAbandonedCartReminder(editorId))
+    }
+
+    @Operation(summary = "Stop reminding the customers by email of the items left in their cart")
+    @PostMapping("/abandoned-cart-reminder/disable")
+    fun disableAbandonedCartReminder(@AuthenticationPrincipal editor: Jwt): JsonShopSettings {
+        val editorId = UserId.of(editor.subject)
+        return JsonShopSettings(shopSettingsAdministrationService.disableAbandonedCartReminder(editorId))
+    }
+
+    @Operation(summary = "Change the time a cart is left before its customer is reminded (1 to 720 hours)")
+    @PutMapping("/abandoned-cart-delay")
+    fun changeAbandonedCartDelay(
+        @AuthenticationPrincipal editor: Jwt,
+        @RequestBody abandonedCartDelay: JsonAbandonedCartDelay
+    ): JsonShopSettings {
+        val editorId = UserId.of(editor.subject)
+        val administration = shopSettingsAdministrationService
+        val delay = abandonedCartDelay.toAbandonedCartDelay()
+        val changedSettings = administration.changeAbandonedCartDelay(editorId, delay)
+        return JsonShopSettings(changedSettings)
     }
 
     @Operation(summary = "Change the time a customer has to pay an order (1 to 1440 minutes); unpaid, it is cancelled")

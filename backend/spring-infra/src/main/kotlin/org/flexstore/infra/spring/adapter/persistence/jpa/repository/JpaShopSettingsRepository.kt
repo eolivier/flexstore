@@ -31,7 +31,9 @@ class PostgresShopSettingsRepositoryAdapter(private val jpaRepo: JpaShopSettings
             orderConfirmationEmail = settings.orderConfirmationEmail.name,
             paymentDelayMinutes = settings.paymentDelay.minutes,
             freeShippingThreshold = settings.freeShippingThreshold.price.amount.value,
-            sellerSetup = settings.sellerSetup.name
+            sellerSetup = settings.sellerSetup.name,
+            abandonedCartReminder = settings.abandonedCartReminder.activation.name,
+            abandonedCartDelayHours = settings.abandonedCartDelay.hours
         )
         return jpaRepo.save(settingsEntity).toDomain()
     }
@@ -40,6 +42,11 @@ class PostgresShopSettingsRepositoryAdapter(private val jpaRepo: JpaShopSettings
         val threshold = FreeShippingThreshold(Price(Amount(freeShippingThreshold), Currency.EUR))
         val orderRules = OrderRules(PaymentDelay(paymentDelayMinutes), threshold)
         val sellerSetupActivation = Activation.valueOf(sellerSetup)
-        return ShopSettings(Activation.valueOf(orderConfirmationEmail), orderRules, sellerSetupActivation)
+        val abandonedCartReminder = AbandonedCartReminder(
+            Activation.valueOf(abandonedCartReminder), AbandonedCartDelay(abandonedCartDelayHours)
+        )
+        return ShopSettings(
+            Activation.valueOf(orderConfirmationEmail), orderRules, sellerSetupActivation, abandonedCartReminder
+        )
     }
 }

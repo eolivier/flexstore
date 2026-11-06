@@ -28,6 +28,33 @@ data class PaymentDelay(val minutes: Int) {
     }
 }
 
+// How long after its last change a cart is abandoned, in hours: its customer is then reminded of it.
+// From 1 hour to 30 days
+data class AbandonedCartDelay(val hours: Int) {
+
+    fun isValid() = hours in 1..MAX_HOURS
+
+    fun isInvalid() = !isValid()
+
+    fun asDuration(): Duration = Duration.ofHours(hours.toLong())
+
+    companion object {
+        const val MAX_HOURS = 30 * 24
+        private const val DEFAULT_HOURS = 24
+
+        fun byDefault() = AbandonedCartDelay(DEFAULT_HOURS)
+    }
+}
+
+// The reminder sent by email to the customer who left items in their cart: turned on or off, then sent once the
+// cart has been left for the delay
+data class AbandonedCartReminder(val activation: Activation, val delay: AbandonedCartDelay) {
+    companion object {
+        // Off by default: the shop decides to write to its customers
+        fun byDefault() = AbandonedCartReminder(Activation.DISABLED, AbandonedCartDelay.byDefault())
+    }
+}
+
 // The price of the items of an order from which its standard shipping is free (0: always free)
 data class FreeShippingThreshold(val price: Price) {
 
@@ -57,8 +84,12 @@ data class OrderRules(val paymentDelay: PaymentDelay, val freeShippingThreshold:
 data class ShopSettings(
     val orderConfirmationEmail: Activation,
     val orderRules: OrderRules,
-    val sellerSetup: Activation
+    val sellerSetup: Activation,
+    val abandonedCartReminder: AbandonedCartReminder
 ) {
+
+    constructor(orderConfirmationEmail: Activation, orderRules: OrderRules, sellerSetup: Activation) :
+        this(orderConfirmationEmail, orderRules, sellerSetup, AbandonedCartReminder.byDefault())
 
     constructor(orderConfirmationEmail: Activation) :
         this(orderConfirmationEmail, OrderRules.byDefault(), Activation.DISABLED)
@@ -69,6 +100,10 @@ data class ShopSettings(
     val paymentDelay get() = orderRules.paymentDelay
 
     val freeShippingThreshold get() = orderRules.freeShippingThreshold
+
+    val abandonedCartDelay get() = abandonedCartReminder.delay
+
+    fun sendsAbandonedCartReminder() = abandonedCartReminder.activation == Activation.ENABLED
 
     fun sendsOrderConfirmationEmail() = orderConfirmationEmail == Activation.ENABLED
 
@@ -81,6 +116,15 @@ data class ShopSettings(
     fun withOrderConfirmationEmailEnabled() = copy(orderConfirmationEmail = Activation.ENABLED)
 
     fun withOrderConfirmationEmailDisabled() = copy(orderConfirmationEmail = Activation.DISABLED)
+
+    fun withAbandonedCartReminderEnabled() =
+        copy(abandonedCartReminder = abandonedCartReminder.copy(activation = Activation.ENABLED))
+
+    fun withAbandonedCartReminderDisabled() =
+        copy(abandonedCartReminder = abandonedCartReminder.copy(activation = Activation.DISABLED))
+
+    fun withAbandonedCartDelay(abandonedCartDelay: AbandonedCartDelay) =
+        copy(abandonedCartReminder = abandonedCartReminder.copy(delay = abandonedCartDelay))
 
     fun withPaymentDelay(paymentDelay: PaymentDelay) =
         copy(orderRules = orderRules.copy(paymentDelay = paymentDelay))
@@ -102,6 +146,8 @@ data class ShopSettingsReading(val reader: UserId)
 data class ShopSettingsAdministrationForbiddenException(override val errorMessage: ErrorMessage) :
     NominalException(errorMessage)
 data class InvalidFreeShippingThresholdException(override val errorMessage: ErrorMessage) :
+    NominalException(errorMessage)
+data class InvalidAbandonedCartDelayException(override val errorMessage: ErrorMessage) :
     NominalException(errorMessage)
 data class InvalidPaymentDelayException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class ShopSettingsUpdateFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

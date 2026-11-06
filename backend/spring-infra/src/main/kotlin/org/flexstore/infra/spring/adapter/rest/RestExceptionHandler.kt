@@ -147,6 +147,9 @@ class RestExceptionHandler {
             is InvalidLegalPageException -> ResponseEntity
                 .status(400)
                 .body(mapOf("error" to (ex.message ?: "Invalid legal page")))
+            is InvalidAbandonedCartDelayException -> ResponseEntity
+                .status(400)
+                .body(mapOf("error" to (ex.message ?: "Invalid delay of the abandoned cart reminder")))
             is InvalidPaymentDelayException -> ResponseEntity
                 .status(400)
                 .body(mapOf("error" to (ex.message ?: "Invalid payment delay")))

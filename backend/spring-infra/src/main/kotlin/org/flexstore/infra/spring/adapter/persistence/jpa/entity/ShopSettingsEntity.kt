@@ -22,5 +22,11 @@ data class ShopSettingsEntity(
     val freeShippingThreshold: BigDecimal,
 
     @Column(name = "seller_setup", nullable = false)
-    val sellerSetup: String
+    val sellerSetup: String,
+
+    @Column(name = "abandoned_cart_reminder", nullable = false)
+    val abandonedCartReminder: String,
+
+    @Column(name = "abandoned_cart_delay_hours", nullable = false)
+    val abandonedCartDelayHours: Int
 ) :TimestampedEntity()

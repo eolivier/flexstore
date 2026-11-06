@@ -11,6 +11,8 @@ function mountSetting(sellerSetup: 'ENABLED' | 'DISABLED') {
     paymentDelayMinutes: 10,
     freeShippingThreshold: 50,
     sellerSetup,
+    abandonedCartReminder: 'DISABLED',
+    abandonedCartDelayHours: 24,
   };
   const stubs = { 'router-link': { template: '<a class="setup-link"><slot /></a>' } };
   return mount(SellerSetupSetting, { global: { plugins: [vuetify, i18n], stubs } });

@@ -5,6 +5,7 @@
   import { useSettingsStore } from '@/stores/settings.store';
   import SellerSetupSetting from './SellerSetupSetting.vue';
   import OrderConfirmationEmailSetting from './OrderConfirmationEmailSetting.vue';
+  import AbandonedCartReminderSetting from './AbandonedCartReminderSetting.vue';
   import PaymentDelaySetting from './PaymentDelaySetting.vue';
   import FreeShippingThresholdSetting from './FreeShippingThresholdSetting.vue';
 
@@ -30,6 +31,8 @@
       <SellerSetupSetting />
       <v-divider class="my-6" />
       <OrderConfirmationEmailSetting />
+      <v-divider class="my-6" />
+      <AbandonedCartReminderSetting />
       <v-divider class="my-6" />
       <PaymentDelaySetting />
       <v-divider class="my-6" />
