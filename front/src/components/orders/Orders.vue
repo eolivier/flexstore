@@ -15,7 +15,7 @@
 </script>
 
 <template>
-  <v-container class="page py-10">
+  <v-container class="py-10">
     <AccountBreadcrumbs />
     <h1 class="text-h4 font-weight-bold mb-6">{{ t('orders.title') }}</h1>
 
@@ -46,9 +46,3 @@
     </template>
   </v-container>
 </template>
-
-<style scoped>
-  .page {
-    max-width: 960px;
-  }
-</style>
