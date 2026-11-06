@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils';
 import { createHead } from '@unhead/vue/client';
 import { createMemoryHistory, createRouter } from 'vue-router';
@@ -38,36 +38,39 @@ describe('useRouteHead', () => {
 
   it('gives an indexed page its title, its description and its canonical address', async () => {
     await openPage('/about');
-    await flushPromises();
 
-    expect(document.title).toBe('About | Flexstore');
-    expect(metaOf('description')).toBe(i18n.global.t('seo.about'));
-    expect(metaOf('robots')).toBe('index,follow');
-    expect(document.head.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe(
-      `${window.location.origin}/about`
-    );
+    await vi.waitFor(() => {
+      expect(document.title).toBe('About | Flexstore');
+      expect(metaOf('description')).toBe(i18n.global.t('seo.about'));
+      expect(metaOf('robots')).toBe('index,follow');
+      expect(document.head.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe(
+        `${window.location.origin}/about`
+      );
+    });
   });
 
   it('links an indexed page to its address in each language', async () => {
     await openPage('/about');
-    await flushPromises();
 
-    const alternates = [...document.head.querySelectorAll('link[rel="alternate"]')].map((link) => [
-      link.getAttribute('hreflang'),
-      link.getAttribute('href'),
-    ]);
-    expect(alternates).toEqual([
-      ['fr', `${window.location.origin}/fr/a-propos`],
-      ['en', `${window.location.origin}/en/about`],
-      ['x-default', `${window.location.origin}/fr/a-propos`],
-    ]);
+    await vi.waitFor(() => {
+      const alternates = [...document.head.querySelectorAll('link[rel="alternate"]')].map((link) => [
+        link.getAttribute('hreflang'),
+        link.getAttribute('href'),
+      ]);
+      expect(alternates).toEqual([
+        ['fr', `${window.location.origin}/fr/a-propos`],
+        ['en', `${window.location.origin}/en/about`],
+        ['x-default', `${window.location.origin}/fr/a-propos`],
+      ]);
+    });
   });
 
   it('keeps a page that does not say it is public out of the search engines', async () => {
     await openPage('/cart');
-    await flushPromises();
 
-    expect(document.title).toBe('Flexstore');
-    expect(metaOf('robots')).toBe('noindex,follow');
+    await vi.waitFor(() => {
+      expect(document.title).toBe('Flexstore');
+      expect(metaOf('robots')).toBe('noindex,follow');
+    });
   });
 });
