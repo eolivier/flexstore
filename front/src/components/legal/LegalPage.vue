@@ -26,7 +26,7 @@
 </script>
 
 <template>
-  <v-container class="legal-page py-12">
+  <v-container class="py-12">
     <h1 class="text-h4 font-weight-bold mb-2">{{ t(`legalPages.${kind}.title`) }}</h1>
 
     <v-alert v-if="legalPagesStore.loadErrors[kind]" type="error" variant="tonal">{{
@@ -47,9 +47,6 @@
 </template>
 
 <style scoped>
-  .legal-page {
-    max-width: 760px;
-  }
   .legal-text {
     white-space: pre-line;
     overflow-wrap: anywhere;
