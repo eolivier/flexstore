@@ -32,8 +32,8 @@
 
 <template>
   <div class="d-flex align-start ga-4">
-    <v-avatar color="secondary" variant="tonal" rounded="lg" size="44">
-      <v-icon icon="mdi-truck-fast-outline" />
+    <v-avatar color="secondary" variant="tonal" rounded="lg" size="36">
+      <v-icon icon="mdi-truck-fast-outline" size="small" />
     </v-avatar>
     <div class="flex-grow-1">
       <h2 class="text-subtitle-1 font-weight-bold">{{ t('settings.freeShippingThreshold') }}</h2>
