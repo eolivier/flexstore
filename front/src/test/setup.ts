@@ -28,6 +28,8 @@ config.global.plugins = [vuetify, i18n, head];
 
 // Mock import.meta.env
 vi.stubEnv('VITE_API_URL', 'http://localhost:8080');
+// Without the Google client id of a local .env, the tests do not load the script of Google
+vi.stubEnv('VITE_GOOGLE_CLIENT_ID', '');
 
 // happy-dom has no visualViewport, used by the Vuetify overlays (snackbars, menus)
 if (!('visualViewport' in globalThis)) {
