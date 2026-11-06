@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { JsonEnvironmentVariable } from '@/generated';
-import { isRequiredButUndefined, requiredButUndefined } from './environment';
+import { categoryOf, groupedByCategory, isRequiredButUndefined, requiredButUndefined } from './environment';
 
 function variable(necessity: 'REQUIRED' | 'OPTIONAL', status: 'DEFINED' | 'UNDEFINED'): JsonEnvironmentVariable {
   return { name: 'FLEXSTORE_X', sensitivity: 'PLAIN', necessity, status };
@@ -27,5 +27,34 @@ describe('environment', () => {
     const found = requiredButUndefined(variables);
     // Assert
     expect(found).toEqual([missing]);
+  });
+});
+
+describe('environment categories', () => {
+  it.each([
+    { name: 'FLEXSTORE_MAIL_HOST', category: 'EMAIL' },
+    { name: 'FLEXSTORE_STRIPE_SECRET_KEY', category: 'PAYMENT' },
+    { name: 'FLEXSTORE_MCP_ENABLED', category: 'MCP' },
+    { name: 'FLEXSTORE_DATABASE_URL', category: 'DATABASE' },
+    { name: 'FLEXSTORE_DATASOURCE_PORT', category: 'DATABASE' },
+    { name: 'FLEXSTORE_JWT_SECRET', category: 'OTHER' },
+  ])('puts $name in the category $category', ({ name, category }) => {
+    // Act
+    const found = categoryOf({ ...variable('OPTIONAL', 'DEFINED'), name });
+    // Assert
+    expect(found).toBe(category);
+  });
+
+  it('groups the variables in the order of the categories and leaves out the empty ones', () => {
+    // Arrange
+    const other = { ...variable('REQUIRED', 'DEFINED'), name: 'FLEXSTORE_FRONT_URL' };
+    const mail = { ...variable('OPTIONAL', 'DEFINED'), name: 'FLEXSTORE_MAIL_FROM' };
+    // Act
+    const groups = groupedByCategory([other, mail]);
+    // Assert
+    expect(groups).toEqual([
+      { category: 'EMAIL', variables: [mail] },
+      { category: 'OTHER', variables: [other] },
+    ]);
   });
 });
