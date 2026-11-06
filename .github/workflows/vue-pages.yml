@@ -1,15 +1,13 @@
+# DISABLED: the shop is deployed on the VPS (https://flexstore.tech, see deploy.yml), no longer on Cloudflare Pages.
+# The workflow is kept for reference: it only starts by hand, and its job is skipped (remove `if: false` to use it).
 name: Deploy Vue front to Cloudflare Pages
 
 on:
-  push:
-    branches: [ "main" ]
-    paths:
-      - "front/**"
-      - ".github/workflows/vue-pages.yml"
   workflow_dispatch:
 
 jobs:
   build-deploy:
+    if: false
     runs-on: ubuntu-latest
     env:
       VITE_API_URL: ${{ secrets.VITE_API_URL }}

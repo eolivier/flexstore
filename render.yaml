@@ -7,7 +7,8 @@ services:
     branch: main
     dockerContext: .
     dockerfilePath: ./Dockerfile
-    autoDeploy: true
+    # Disabled: the shop is deployed on a VPS (https://flexstore.tech), no longer on Render
+    autoDeploy: false
     healthCheckPath: /actuator/health
     envVars:
       - key: FLEXSTORE_DATABASE_URL
