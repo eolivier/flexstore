@@ -19,7 +19,7 @@ export interface PageHead {
 // The address of the page in each language, and the one for the visitors of any other language
 function languageAlternates(path: string) {
   const alternate = (hreflang: string, language: ShopLanguage) => ({
-    rel: 'alternate',
+    rel: 'alternate' as const,
     hreflang,
     href: canonicalUrl(localizedPath(path, language)),
   });
