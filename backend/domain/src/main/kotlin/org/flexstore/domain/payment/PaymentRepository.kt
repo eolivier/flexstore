@@ -14,6 +14,10 @@ interface PaymentRepository {
 
     fun sessionIsMissingFor(orderId: OrderId) = !sessionExistsFor(orderId)
 
+    // The customer paid the order on the provider, whose notification may be late or lost (so the order may
+    // still await its payment here); false when no payment started
+    fun isCompleted(orderId: OrderId): Boolean
+
     // The payment of the order can no longer complete (e.g. the payment page closes); throws
     // PaymentAlreadyCompletedException when the customer has already paid
     fun stop(orderId: OrderId)

@@ -151,6 +151,17 @@ describe('orders.store', () => {
     expect(paymentStart).toEqual(expected);
   });
 
+  it('should ask the shop to verify the payment of an order with the provider', async () => {
+    // Arrange
+    await signIn();
+    respondWith({ [`POST /api/orders/${order.id}/payment/verification`]: { status: 204 } });
+    const store = useOrdersStore();
+    // Act
+    await store.verifyPayment(order.id);
+    // Assert
+    expect(mockFetch.mock.calls.some(([url]) => url.endsWith(`/api/orders/${order.id}/payment/verification`))).toBe(true);
+  });
+
   it('should send the addresses of the order', async () => {
     // Arrange
     await signIn();

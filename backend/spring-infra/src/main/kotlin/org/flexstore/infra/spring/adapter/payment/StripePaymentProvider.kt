@@ -30,7 +30,8 @@ import org.ucop.domain.ErrorMessage
 private val CENTS_PER_EURO = BigDecimal(100)
 
 // Stripe Checkout: the customer pays on the page of Stripe (the card never reaches the shop),
-// then comes back to the confirmation page of the order. Stripe confirms the payment later, with its webhook.
+// then comes back to the confirmation page of the order. Stripe confirms the payment later, with its webhook;
+// when the webhook does not arrive, the shop asks Stripe itself when the customer comes back.
 // The page is prefilled through a Stripe customer: the email of the payer and the name of the cardholder
 class StripePaymentProvider(private val secretKey: String, private val shopUrl: ShopUrl) : PaymentProvider {
 
@@ -52,6 +53,9 @@ class StripePaymentProvider(private val secretKey: String, private val shopUrl: 
         val session = Session.create(params, requestOptions)
         return ProviderCheckout(session.id, CheckoutPage(session.url), PaymentOutcome.PENDING)
     }
+
+    override fun isPaid(reference: String) =
+        Session.retrieve(reference, requestOptions).paymentStatus == "paid"
 
     // The payment page of Stripe lasts at least 30 minutes: it is closed (expired) when the order is cancelled
     // sooner. A session completed in the meantime means that the customer paid

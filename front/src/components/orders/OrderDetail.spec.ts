@@ -16,11 +16,15 @@ const awaitingPayment = {
 };
 const paid = { ...twoLinesOrder, status: 'PAID' };
 
+// The order is read, then the shop asks the provider to verify its payment (no order in the answer) when it
+// awaits it, then the order is read again
 function answerWith(...orders: object[]) {
-  orders.forEach((order) =>
-    mockFetch.mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve(order) })
-  );
-  mockFetch.mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve(orders[orders.length - 1]) });
+  const remainingOrders = [...orders];
+  mockFetch.mockImplementation((url: string) => {
+    if (String(url).endsWith('/payment/verification')) return Promise.resolve({ ok: true, status: 204 });
+    const order = remainingOrders.length > 1 ? remainingOrders.shift() : remainingOrders[0];
+    return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(order) });
+  });
 }
 
 async function mountDetail(path: string) {
@@ -57,7 +61,7 @@ describe('OrderDetail.vue', () => {
 
   it('waits for the confirmation instead of offering to pay again when the customer just paid', async () => {
     // Arrange
-    answerWith(awaitingPayment, paid);
+    answerWith(awaitingPayment, awaitingPayment, paid);
     // Act
     const wrapper = await mountDetail(`/orders/${twoLinesOrder.id}?paymentReturned=true`);
     const whileAwaiting = wrapper.text();
@@ -69,6 +73,27 @@ describe('OrderDetail.vue', () => {
     expect(timerWhileAwaiting).toBe(false);
     expect(wrapper.text()).not.toContain('Your payment is being confirmed');
     expect(wrapper.find('[role="timer"]').exists()).toBe(false);
+  });
+
+  it('verifies the payment of an order awaiting it, even when the customer did not come back from the payment page', async () => {
+    // Arrange
+    answerWith(awaitingPayment, paid);
+    // Act
+    const wrapper = await mountDetail(`/orders/${twoLinesOrder.id}`);
+    // Assert
+    const verification = `/api/orders/${twoLinesOrder.id}/payment/verification`;
+    expect(mockFetch.mock.calls.some(([url]) => String(url).endsWith(verification))).toBe(true);
+    expect(wrapper.find('[role="timer"]').exists()).toBe(false);
+  });
+
+  it('does not verify the payment of an order already paid', async () => {
+    // Arrange
+    answerWith(paid);
+    // Act
+    await mountDetail(`/orders/${twoLinesOrder.id}`);
+    // Assert
+    const verification = `/api/orders/${twoLinesOrder.id}/payment/verification`;
+    expect(mockFetch.mock.calls.some(([url]) => String(url).endsWith(verification))).toBe(false);
   });
 
   it('shows the time left again when the payment is still not confirmed after the checks', async () => {

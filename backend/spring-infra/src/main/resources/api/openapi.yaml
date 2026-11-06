@@ -1629,6 +1629,29 @@ paths:
           description: No order with this id for the signed-in customer
         "409":
           description: The order is already paid
+  /api/orders/{id}/payment/verification:
+    post:
+      tags:
+      - Payments
+      summary: Ask the payment provider whether an order of the signed-in customer was paid
+      description: >
+        Called when the customer comes back from the checkout page: if the provider says the order was paid, it
+        is paid here too (cart emptied, invoice issued, confirmation email), even when the notification of the
+        provider did not arrive. Nothing changes when the order was not paid
+      operationId: verifyOrderPayment
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: The payment was verified
+        "404":
+          description: No order with this id for the signed-in customer
   /api/payments/stripe/webhook:
     post:
       tags:

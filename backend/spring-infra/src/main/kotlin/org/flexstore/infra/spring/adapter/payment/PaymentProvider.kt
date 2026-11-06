@@ -12,6 +12,9 @@ data class ProviderCheckout(val reference: String, val checkoutPage: CheckoutPag
 interface PaymentProvider {
     fun checkout(paymentRequest: PaymentRequest): ProviderCheckout
 
+    // The customer paid the checkout with this reference
+    fun isPaid(reference: String): Boolean
+
     // The checkout with this reference can no longer be paid; throws PaymentAlreadyCompletedException when it
     // was paid
     fun stop(reference: String)

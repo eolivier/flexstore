@@ -24,6 +24,12 @@ class PaymentService(
         return paymentSession
     }
 
+    // The customer comes back from the payment page: the notification of the provider may be late or lost, so
+    // the provider is asked whether the order was paid
+    fun verify(orderPayment: OrderPayment) {
+        if (paymentUseCases.verifyPaymentUseCase.unfold(orderPayment)) confirm(orderPayment.orderId)
+    }
+
     // The provider may notify the same payment several times: an order already paid stays as it is
     fun confirm(orderId: OrderId) {
         val order = orderUseCases.getAnyOrder(orderId)
@@ -39,5 +45,6 @@ class PaymentService(
 data class PaymentUseCases(
     val startPaymentUseCase: StartPaymentUseCase,
     val confirmPaymentUseCase: ConfirmPaymentUseCase,
-    val readPaymentUseCase: ReadPaymentUseCase
+    val readPaymentUseCase: ReadPaymentUseCase,
+    val verifyPaymentUseCase: VerifyPaymentUseCase
 )

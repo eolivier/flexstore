@@ -32,6 +32,8 @@ class InMemoryPaymentRepository(private val outcome: PaymentOutcome) : PaymentRe
         completedPayments.add(orderId)
     }
 
+    override fun isCompleted(orderId: OrderId) = orderId in completedPayments
+
     override fun stop(orderId: OrderId) {
         if (orderId in completedPayments) {
             throw PaymentAlreadyCompletedException(ErrorMessage("Order ${orderId.value} is already paid."))
