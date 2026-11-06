@@ -470,6 +470,12 @@ export default {
         removal: 'The address could not be removed.',
       },
     },
+    preferences: {
+      title: 'My preferences',
+      subtitle: 'Choose how the shop looks for you, on every device you sign in from.',
+      darkMode: 'Dark mode',
+      darkModeHint: 'The shop is displayed with dark colors.',
+    },
     wishlist: {
       title: 'My wishlist',
       subtitle: 'The products you saved, to buy them back later.',
@@ -754,6 +760,7 @@ export default {
       orders: 'My orders',
       addresses: 'My addresses',
       wishlist: 'My wishlist',
+      preferences: 'My preferences',
       profile: 'My profile',
       account: 'My account',
       admin: 'Administration',
@@ -1455,6 +1462,12 @@ export default {
         removal: "L'adresse n'a pas pu être supprimée.",
       },
     },
+    preferences: {
+      title: 'Mes préférences',
+      subtitle: 'Choisissez l’apparence de la boutique, sur tous les appareils où vous vous connectez.',
+      darkMode: 'Mode sombre',
+      darkModeHint: 'La boutique est affichée avec des couleurs sombres.',
+    },
     wishlist: {
       title: 'Ma liste de souhaits',
       subtitle: 'Les produits que vous avez enregistrés, pour les acheter plus tard.',
@@ -1742,6 +1755,7 @@ export default {
       orders: 'Mes commandes',
       addresses: 'Mes adresses',
       wishlist: 'Ma liste de souhaits',
+      preferences: 'Mes préférences',
       profile: 'Mon profil',
       account: 'Mon compte',
       admin: 'Administration',

@@ -13,10 +13,14 @@ describe('accountBreadcrumbs', () => {
     // Act
     const breadcrumbs = accountBreadcrumbsOf('/account/addresses');
     // Assert
-    expect(breadcrumbs).toEqual([
-      { label: 'nav.profile', to: '/user-profile' },
-      { label: 'addressBook.title' },
-    ]);
+    expect(breadcrumbs).toEqual([{ label: 'nav.profile', to: '/user-profile' }, { label: 'addressBook.title' }]);
+  });
+
+  it('the preferences go back to the home of the customer own space', () => {
+    // Act
+    const breadcrumbs = accountBreadcrumbsOf('/account/preferences');
+    // Assert
+    expect(breadcrumbs).toEqual([{ label: 'nav.profile', to: '/user-profile' }, { label: 'nav.preferences' }]);
   });
 
   it('the orders go back to the home of the customer own space', () => {
