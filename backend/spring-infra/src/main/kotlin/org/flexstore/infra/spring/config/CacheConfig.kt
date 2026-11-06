@@ -13,6 +13,9 @@ import java.time.Duration
 // application is read again in the end
 const val USERS_CACHE = "users"
 
+// The cache of the read of the shop settings table, a single row: every save of the settings evicts it
+const val SHOP_SETTINGS_CACHE = "shopSettings"
+
 private const val MAXIMUM_CACHED_ENTRIES = 1_000L
 private const val ENTRY_LIFETIME_MINUTES = 10L
 
@@ -22,7 +25,7 @@ open class CacheConfig {
 
     @Bean
     open fun cacheManager(): CacheManager {
-        val cacheManager = CaffeineCacheManager(USERS_CACHE)
+        val cacheManager = CaffeineCacheManager(USERS_CACHE, SHOP_SETTINGS_CACHE)
         val entryLifetime = Duration.ofMinutes(ENTRY_LIFETIME_MINUTES)
         val caffeine = Caffeine.newBuilder().maximumSize(MAXIMUM_CACHED_ENTRIES).expireAfterWrite(entryLifetime)
         cacheManager.setCaffeine(caffeine)
