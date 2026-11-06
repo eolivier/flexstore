@@ -7,8 +7,8 @@ import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // A signed-in customer chooses their display mode: it is kept in their account for their next visits
-class RecordColorModePreferenceUseCase(
-    private val colorModePreferenceRepository: ColorModePreferenceRepository,
+class RecordUserPreferenceUseCase(
+    private val userPreferenceRepository: UserPreferenceRepository,
     private val userRepository: UserRepository
 ) : UseCase<ColorModeChoice> {
 
@@ -17,7 +17,7 @@ class RecordColorModePreferenceUseCase(
 
     override fun getNominalScenario(): NominalScenario<ColorModeChoice> =
         NominalScenario(Step { colorModeChoice ->
-            colorModePreferenceRepository.save(colorModeChoice.customer, colorModeChoice.colorMode)
+            userPreferenceRepository.save(colorModeChoice.customer, colorModeChoice.colorMode)
         })
 
     override fun getPostConditions(): PostConditions<ColorModeChoice> =
@@ -30,7 +30,7 @@ class RecordColorModePreferenceUseCase(
     }
 
     private fun preferenceIsStoredCondition() = PostCondition<ColorModeChoice> { colorModeChoice ->
-        val storedPreference = colorModePreferenceRepository.preferenceOf(colorModeChoice.customer)
+        val storedPreference = userPreferenceRepository.preferenceOf(colorModeChoice.customer)
         if (storedPreference != ColorModePreference.Chosen(colorModeChoice.colorMode)) {
             throw ColorModePreferenceRecordFailed(ErrorMessage("The display mode was not recorded."))
         }

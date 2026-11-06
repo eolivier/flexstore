@@ -5,31 +5,31 @@ import org.flexstore.domain.preference.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.model.User.DefinedUser
 import org.flexstore.domain.user.model.UserId.ValidUserId
-import org.flexstore.infra.repository.InMemoryColorModePreferenceRepository
+import org.flexstore.infra.repository.InMemoryUserPreferenceRepository
 import org.flexstore.infra.repository.InMemoryUserRepository
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 
-class ColorModePreferenceUseCasesTest : WithAssertions {
+class UserPreferenceUseCasesTest : WithAssertions {
 
     private val customer = DefinedUser(
         ValidUserId("customer-1"), FullName(FirstName("Jane"), LastName("Doe")), Email("jane@flexstore.fr"),
         HashedPassword("hashed"), Role.USER
     )
     private val userRepository = InMemoryUserRepository().apply { save(customer) }
-    private val colorModePreferenceRepository = InMemoryColorModePreferenceRepository()
-    private val readColorModePreferenceUseCase =
-        ReadColorModePreferenceUseCase(colorModePreferenceRepository, userRepository)
-    private val recordColorModePreferenceUseCase =
-        RecordColorModePreferenceUseCase(colorModePreferenceRepository, userRepository)
-    private val colorModePreferenceUseCases =
-        ColorModePreferenceUseCases(readColorModePreferenceUseCase, recordColorModePreferenceUseCase)
+    private val userPreferenceRepository = InMemoryUserPreferenceRepository()
+    private val readUserPreferenceUseCase =
+        ReadUserPreferenceUseCase(userPreferenceRepository, userRepository)
+    private val recordUserPreferenceUseCase =
+        RecordUserPreferenceUseCase(userPreferenceRepository, userRepository)
+    private val userPreferenceUseCases =
+        UserPreferenceUseCases(readUserPreferenceUseCase, recordUserPreferenceUseCase)
 
     @Test
     fun `a customer who never chose should have no preference`() {
         // Act
-        val colorModePreference = colorModePreferenceUseCases.preferenceOf(customer.id)
+        val colorModePreference = userPreferenceUseCases.preferenceOf(customer.id)
         // Assert
         assertThat(colorModePreference).isEqualTo(ColorModePreference.Unchosen)
     }
@@ -38,7 +38,7 @@ class ColorModePreferenceUseCasesTest : WithAssertions {
     @EnumSource(ColorMode::class)
     fun `a customer should record their display mode`(colorMode: ColorMode) {
         // Act
-        val colorModePreference = colorModePreferenceUseCases.record(customer.id, colorMode)
+        val colorModePreference = userPreferenceUseCases.record(customer.id, colorMode)
         // Assert
         assertThat(colorModePreference).isEqualTo(ColorModePreference.Chosen(colorMode))
     }
@@ -46,9 +46,9 @@ class ColorModePreferenceUseCasesTest : WithAssertions {
     @Test
     fun `a new choice should replace the previous one`() {
         // Arrange
-        colorModePreferenceUseCases.record(customer.id, ColorMode.DARK)
+        userPreferenceUseCases.record(customer.id, ColorMode.DARK)
         // Act
-        val colorModePreference = colorModePreferenceUseCases.record(customer.id, ColorMode.LIGHT)
+        val colorModePreference = userPreferenceUseCases.record(customer.id, ColorMode.LIGHT)
         // Assert
         assertThat(colorModePreference).isEqualTo(ColorModePreference.Chosen(ColorMode.LIGHT))
     }
@@ -58,7 +58,7 @@ class ColorModePreferenceUseCasesTest : WithAssertions {
         // Arrange
         val unknownUser = ValidUserId("unknown")
         // Act
-        val thrown = catchThrowable { colorModePreferenceUseCases.record(unknownUser, ColorMode.DARK) }
+        val thrown = catchThrowable { userPreferenceUseCases.record(unknownUser, ColorMode.DARK) }
         // Assert
         assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
     }
@@ -66,7 +66,7 @@ class ColorModePreferenceUseCasesTest : WithAssertions {
     @Test
     fun `an unknown user should not read a display mode`() {
         // Act
-        val thrown = catchThrowable { colorModePreferenceUseCases.preferenceOf(ValidUserId("unknown")) }
+        val thrown = catchThrowable { userPreferenceUseCases.preferenceOf(ValidUserId("unknown")) }
         // Assert
         assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
     }

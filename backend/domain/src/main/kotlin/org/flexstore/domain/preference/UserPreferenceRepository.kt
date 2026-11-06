@@ -2,7 +2,7 @@ package org.flexstore.domain.preference
 
 import org.flexstore.domain.user.model.UserId
 
-interface ColorModePreferenceRepository {
+interface UserPreferenceRepository {
 
     // Unchosen when the customer never chose
     fun preferenceOf(customer: UserId): ColorModePreference

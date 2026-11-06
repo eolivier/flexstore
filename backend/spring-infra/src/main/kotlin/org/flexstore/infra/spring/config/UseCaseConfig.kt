@@ -7,7 +7,7 @@ import org.flexstore.domain.cart.*
 import org.flexstore.domain.cart.usecase.*
 import org.flexstore.domain.cookie.CookieConsentRepository
 import org.flexstore.domain.cookie.usecase.*
-import org.flexstore.domain.preference.ColorModePreferenceRepository
+import org.flexstore.domain.preference.UserPreferenceRepository
 import org.flexstore.domain.preference.usecase.*
 import org.flexstore.domain.email.*
 import org.flexstore.domain.invoice.*
@@ -575,22 +575,22 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     ) = CookieConsentUseCases(readCookieConsentUseCase, recordCookieConsentUseCase)
 
     @Bean
-    open fun readColorModePreferenceUseCase(
-        colorModePreferenceRepository: ColorModePreferenceRepository,
+    open fun readUserPreferenceUseCase(
+        userPreferenceRepository: UserPreferenceRepository,
         userRepository: UserRepository
-    ) = ReadColorModePreferenceUseCase(colorModePreferenceRepository, userRepository)
+    ) = ReadUserPreferenceUseCase(userPreferenceRepository, userRepository)
 
     @Bean
-    open fun recordColorModePreferenceUseCase(
-        colorModePreferenceRepository: ColorModePreferenceRepository,
+    open fun recordUserPreferenceUseCase(
+        userPreferenceRepository: UserPreferenceRepository,
         userRepository: UserRepository
-    ) = RecordColorModePreferenceUseCase(colorModePreferenceRepository, userRepository)
+    ) = RecordUserPreferenceUseCase(userPreferenceRepository, userRepository)
 
     @Bean
-    open fun colorModePreferenceUseCases(
-        readColorModePreferenceUseCase: ReadColorModePreferenceUseCase,
-        recordColorModePreferenceUseCase: RecordColorModePreferenceUseCase
-    ) = ColorModePreferenceUseCases(readColorModePreferenceUseCase, recordColorModePreferenceUseCase)
+    open fun userPreferenceUseCases(
+        readUserPreferenceUseCase: ReadUserPreferenceUseCase,
+        recordUserPreferenceUseCase: RecordUserPreferenceUseCase
+    ) = UserPreferenceUseCases(readUserPreferenceUseCase, recordUserPreferenceUseCase)
 
     @Bean
     open fun openSessionUseCase(

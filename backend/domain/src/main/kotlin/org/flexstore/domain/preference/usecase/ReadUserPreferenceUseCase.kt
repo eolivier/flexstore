@@ -7,8 +7,8 @@ import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // A signed-in customer reads their display mode
-class ReadColorModePreferenceUseCase(
-    private val colorModePreferenceRepository: ColorModePreferenceRepository,
+class ReadUserPreferenceUseCase(
+    private val userPreferenceRepository: UserPreferenceRepository,
     private val userRepository: UserRepository
 ) : QueryUseCase<ColorModePreferenceReading, ColorModePreference> {
 
@@ -17,7 +17,7 @@ class ReadColorModePreferenceUseCase(
 
     override fun getNominalQuery() =
         NominalQuery<ColorModePreferenceReading, ColorModePreference> { reading ->
-            colorModePreferenceRepository.preferenceOf(reading.customer)
+            userPreferenceRepository.preferenceOf(reading.customer)
         }
 
     override fun getPostConditions(): PostConditions<ColorModePreference> = PostConditions.none()

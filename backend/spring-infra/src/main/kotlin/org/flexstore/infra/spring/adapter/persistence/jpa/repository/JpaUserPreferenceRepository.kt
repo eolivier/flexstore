@@ -2,7 +2,7 @@ package org.flexstore.infra.spring.adapter.persistence.jpa.repository
 
 import org.flexstore.domain.preference.ColorMode
 import org.flexstore.domain.preference.ColorModePreference
-import org.flexstore.domain.preference.ColorModePreferenceRepository
+import org.flexstore.domain.preference.UserPreferenceRepository
 import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.user.model.UserId
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.UserPreferenceEntity
@@ -18,8 +18,8 @@ interface JpaUserPreferenceRepository : JpaRepository<UserPreferenceEntity, Stri
 // One user_preference row per customer: a new choice replaces the display mode of the previous one
 @Repository
 @Transactional
-class PostgresColorModePreferenceRepositoryAdapter(private val jpaRepo: JpaUserPreferenceRepository) :
-    ColorModePreferenceRepository {
+class PostgresUserPreferenceRepositoryAdapter(private val jpaRepo: JpaUserPreferenceRepository) :
+    UserPreferenceRepository {
 
     @Transactional(readOnly = true)
     override fun preferenceOf(customer: UserId): ColorModePreference {

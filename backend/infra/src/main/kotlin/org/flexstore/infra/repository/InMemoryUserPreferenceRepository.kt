@@ -2,10 +2,10 @@ package org.flexstore.infra.repository
 
 import org.flexstore.domain.preference.ColorMode
 import org.flexstore.domain.preference.ColorModePreference
-import org.flexstore.domain.preference.ColorModePreferenceRepository
+import org.flexstore.domain.preference.UserPreferenceRepository
 import org.flexstore.domain.user.model.UserId
 
-class InMemoryColorModePreferenceRepository : ColorModePreferenceRepository {
+class InMemoryUserPreferenceRepository : UserPreferenceRepository {
 
     private val colorModes = mutableMapOf<UserId, ColorMode>()
 
