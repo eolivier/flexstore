@@ -1,9 +1,10 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { useRouter, useRoute } from 'vue-router';
-  import { useAuthStore } from '@/stores/auth.store';
+  import { useAuthStore, type LoginOutcome } from '@/stores/auth.store';
   import { useI18n } from 'vue-i18n';
   import TwoFactorChallengeForm from '@/components/account/TwoFactorChallengeForm.vue';
+  import GoogleSignInButton from '@/components/account/GoogleSignInButton.vue';
 
   const email = ref('');
   const password = ref('');
@@ -28,18 +29,28 @@
     router.push(redirectTo);
   }
 
+  function continueAfter(outcome: LoginOutcome) {
+    if (outcome === 'signedIn') {
+      redirectAfterSignIn();
+    } else if (outcome === 'twoFactorRequired') {
+      twoFactorStep.value = true;
+    }
+  }
+
   const submitForm = async () => {
     if (!valid.value) return;
 
     loading.value = true;
     const outcome = await authStore.login(email.value, password.value);
     loading.value = false;
+    continueAfter(outcome);
+  };
 
-    if (outcome === 'signedIn') {
-      redirectAfterSignIn();
-    } else if (outcome === 'twoFactorRequired') {
-      twoFactorStep.value = true;
-    }
+  const signInWithGoogle = async (idToken: string) => {
+    loading.value = true;
+    const outcome = await authStore.loginWithGoogle(idToken);
+    loading.value = false;
+    continueAfter(outcome);
   };
 
   function backToCredentials() {
@@ -91,6 +102,7 @@
             {{ t('login.submit') }}
           </v-btn>
         </v-form>
+        <GoogleSignInButton @credential="signInWithGoogle" />
         <p class="text-body-2 text-center mt-6">
           {{ t('login.noAccount') }}
           <router-link :to="{ path: '/sign-up', query: route.query }">{{ t('nav.signUp') }}</router-link>

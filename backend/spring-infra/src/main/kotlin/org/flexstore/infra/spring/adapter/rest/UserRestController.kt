@@ -15,6 +15,7 @@ import org.flexstore.infra.spring.adapter.mapping.toJsonUser
 import org.flexstore.infra.spring.adapter.mapping.toJsonUsers
 import org.flexstore.infra.spring.adapter.rest.json.DraftJsonUser
 import org.flexstore.infra.spring.adapter.rest.json.JsonChangePasswordRequest
+import org.flexstore.infra.spring.adapter.rest.json.JsonGoogleLoginRequest
 import org.flexstore.infra.spring.adapter.rest.json.JsonLoginRequest
 import org.flexstore.infra.spring.adapter.rest.json.JsonLoginResponse
 import org.flexstore.infra.spring.adapter.rest.json.JsonRefreshRequest
@@ -184,6 +185,36 @@ class UserRestController(
     @ResponseStatus(HttpStatus.OK)
     fun login(@RequestBody jsonLoginRequest: JsonLoginRequest): JsonLoginResponse {
         return when (val outcome = signInService.signIn(jsonLoginRequest.toLoginRequest())) {
+            is SignInOutcome.SignedIn -> sessionOf(outcome.user)
+            is SignInOutcome.TwoFactorChallengeRequired ->
+                JsonLoginResponse.twoFactorChallengeRequired(outcome.challengeId.value)
+        }
+    }
+
+    @Operation(summary = "Login with a Google account",
+        description = "The ID token that the Sign in with Google button gives to the browser. The account " +
+            "that has the email of the Google account is signed in; a customer who has none gets one.",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "SIGNED_IN: the token is returned with the user; TWO_FACTOR_REQUIRED: the " +
+                    "code of the authenticator app is still needed, see " +
+                    "POST /api/users/login/two-factor-authentication",
+                content = [
+                    Content(schema = Schema(implementation = JsonLoginResponse::class))
+                ]
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "The Google token is refused, or Sign in with Google is not set up"
+            ),
+            ApiResponse(responseCode = "403", description = "The account is suspended, locked or disabled")
+        ]
+    )
+    @PostMapping("/login/google")
+    @ResponseStatus(HttpStatus.OK)
+    fun loginWithGoogle(@RequestBody jsonGoogleLoginRequest: JsonGoogleLoginRequest): JsonLoginResponse {
+        return when (val outcome = signInService.signInWithGoogle(jsonGoogleLoginRequest.toGoogleIdToken())) {
             is SignInOutcome.SignedIn -> sessionOf(outcome.user)
             is SignInOutcome.TwoFactorChallengeRequired ->
                 JsonLoginResponse.twoFactorChallengeRequired(outcome.challengeId.value)

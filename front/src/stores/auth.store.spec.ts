@@ -146,6 +146,58 @@ describe('auth.store', () => {
     });
   });
 
+  describe('loginWithGoogle', () => {
+    it('should send the Google token to the back end and open the session', async () => {
+      // Arrange
+      loginSucceeds();
+      const store = useAuthStore();
+      // Act
+      const outcome = await store.loginWithGoogle('google-id-token');
+      // Assert
+      expect(outcome).toBe('signedIn');
+      expect(mockFetch).toHaveBeenCalledWith(
+        'http://localhost:8080/api/users/login/google',
+        expect.objectContaining({ method: 'POST', body: JSON.stringify({ idToken: 'google-id-token' }) })
+      );
+      expect(store.isAuthenticated).toBe(true);
+    });
+
+    it('should keep a challenge reference when a second factor is required', async () => {
+      // Arrange
+      twoFactorChallengeRequired('challenge-9');
+      const store = useAuthStore();
+      // Act
+      const outcome = await store.loginWithGoogle('google-id-token');
+      // Assert
+      expect(outcome).toBe('twoFactorRequired');
+      expect(store.pendingChallengeId).toBe('challenge-9');
+      expect(store.isAuthenticated).toBe(false);
+    });
+
+    it('should report a refused Google token', async () => {
+      // Arrange
+      answer(401);
+      const store = useAuthStore();
+      // Act
+      const outcome = await store.loginWithGoogle('forged-token');
+      // Assert
+      expect(outcome).toBe('invalidCredentials');
+      expect(store.loginError).toBe('Google sign-in failed');
+      expect(store.isAuthenticated).toBe(false);
+    });
+
+    it('should tell why an account is refused', async () => {
+      // Arrange
+      answer(403, { status: 'SUSPENDED' });
+      const store = useAuthStore();
+      // Act
+      const outcome = await store.loginWithGoogle('google-id-token');
+      // Assert
+      expect(outcome).toBe('refused');
+      expect(store.refusedStatus).toBe('SUSPENDED');
+    });
+  });
+
   describe('verifyTwoFactorCode', () => {
     it('should open the session when the code is right', async () => {
       // Arrange

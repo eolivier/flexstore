@@ -121,6 +121,7 @@ The server starts on [http://localhost:8080](http://localhost:8080) (health chec
 | `FLEXSTORE_MAIL_SMTP_AUTH` / `FLEXSTORE_MAIL_SMTP_STARTTLS` | `true` / `true` | `false` / `false` for a local server such as Mailpit |
 | `FLEXSTORE_MAIL_FROM` | `Flexstore <no-reply@flexstore.com>` | sender (often to be validated at the provider) |
 | `FLEXSTORE_FRONT_URL` | `http://localhost:5173` | address of the shop, for the link to the order and the return from the payment |
+| `FLEXSTORE_GOOGLE_CLIENT_ID` | empty | OAuth client id of the shop (Google Cloud console), turns on Sign in with Google; empty: Google tokens are refused |
 | `FLEXSTORE_MCP_ENABLED` | `true` | `false` turns the MCP server (`POST /mcp`) off |
 | `FLEXSTORE_STRIPE_SECRET_KEY` | empty | secret key of Stripe (`sk_test_...`); empty: simulated payments, confirmed at once |
 | `FLEXSTORE_STRIPE_WEBHOOK_SECRET` | empty | secret of the webhook endpoint (`whsec_...`), to verify the notifications of Stripe |
@@ -128,6 +129,8 @@ The server starts on [http://localhost:8080](http://localhost:8080) (health chec
 Locally, `docker compose up -d mailpit` starts an SMTP server that catches the emails ([http://localhost:8025](http://localhost:8025)): start the back end with `FLEXSTORE_MAIL_HOST=localhost FLEXSTORE_MAIL_PORT=1025 FLEXSTORE_MAIL_SMTP_AUTH=false FLEXSTORE_MAIL_SMTP_STARTTLS=false` (the `app` service of docker compose is already configured so). On Render, the variables are declared in `render.yaml` and their values set in the dashboard. Sending can be turned off in Administration > Paramètres.
 
 To pay with Stripe (test mode): create a Stripe account, copy its test secret key (`sk_test_...`), and add a webhook endpoint `https://<back end>/api/payments/stripe/webhook` for the event `checkout.session.completed`, whose signing secret (`whsec_...`) goes in `FLEXSTORE_STRIPE_WEBHOOK_SECRET`. Locally, `stripe listen --forward-to localhost:8080/api/payments/stripe/webhook` gives a signing secret and forwards the notifications. The test card `4242 4242 4242 4242` pays with any future date and any code.
+
+**Sign in with Google**: in the [Google Cloud console](https://console.cloud.google.com/apis/credentials), create an OAuth client id of type *Web application*, add the address of the front end (`http://localhost:5173`, and the public address) to its *Authorized JavaScript origins*, then give the same client id to the back end (`FLEXSTORE_GOOGLE_CLIENT_ID`) and to the front end (`VITE_GOOGLE_CLIENT_ID`). The button is only shown when the front end has the client id. The back end verifies the ID token of Google (`POST /api/users/login/google`), signs in the account that has the same email (a customer who has none gets an active account, Google having verified the email) and gives the same session as the password login (an administrator with two-factor authentication still gives the code).
 
 Set `FLEXSTORE_JWT_SECRET` (at least 32 characters) to sign the authentication tokens. Without it, a random secret is used and tokens stop working when the back end restarts.
 
@@ -150,6 +153,8 @@ Add a `front/.env` file:
 ```bash
 VITE_API_URL=http://localhost:8080
 VITE_SITE_URL=http://localhost:5173
+# Optional: OAuth client id of Google, shows the "Sign in with Google" button (same value as FLEXSTORE_GOOGLE_CLIENT_ID)
+VITE_GOOGLE_CLIENT_ID=
 ```
 
 `npm run build` pre-renders the public pages (the routes that say `indexed` in `front/src/routes.ts`: home, catalog, products, about, legal pages) as static HTML, so that search engines read them without running JavaScript. It reads the products from `VITE_API_URL` at build time; when the API does not answer, the product pages are left out and the build goes on.
@@ -213,6 +218,7 @@ npm run gen:api
 | `DELETE` | `/api/accounts/me/addresses/{position}` | signed in | Remove an address; the orders keep theirs (`404` no address there) |
 | `POST` | `/api/accounts/email-verification` | public | Verify the email with the token of the link: the account becomes `ACTIVE` (`404` unknown or used link, `410` link older than 1 hour) |
 | `POST` | `/api/accounts/me/verification-email` | signed in | Send a new verification link; the previous ones stop working (`409` if already verified) |
+| `POST` | `/api/users/login/google` | public | Sign in with a Google account: takes `{ idToken }`, answers like the login (`401` when Google's token is refused or Sign in with Google is off) |
 | `POST` | `/api/users/login` | public | Sign in: returns a token (15 minutes), a refresh token (7 days) and the user (`401` on wrong credentials) |
 | `POST` | `/api/users/refresh` | public | Renew the session with a refresh token: returns a new token and a new refresh token (`401` unknown, expired or already used refresh token, `403` suspended, locked or disabled account) |
 | `POST` | `/api/users/logout` | public | Sign out: ends the session of a refresh token (`204`, also when it is unknown or already ended) |

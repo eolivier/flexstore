@@ -36,6 +36,9 @@ services:
         sync: false
       - key: FLEXSTORE_STRIPE_WEBHOOK_SECRET
         sync: false
+      # OAuth client id of Google (value set in the Render dashboard): turns on Sign in with Google
+      - key: FLEXSTORE_GOOGLE_CLIENT_ID
+        sync: false
       # Address of the shop, for the links of the emails and the return from the payment
       - key: FLEXSTORE_FRONT_URL
         value: https://flexstore-front.pages.dev

@@ -46,9 +46,10 @@ class RestExceptionHandler {
                 .body(mapOf("error" to (ex.message ?: "User already exists")))
             // Same answer for an unknown email and a wrong password, so that the login does not reveal which
             // accounts exist
-            is InvalidCredentialsException, is UserNotFoundByEmailException -> ResponseEntity
-                .status(401)
-                .body(mapOf("error" to "Invalid credentials."))
+            is InvalidCredentialsException, is UserNotFoundByEmailException, is InvalidGoogleIdTokenException ->
+                ResponseEntity
+                    .status(401)
+                    .body(mapOf("error" to "Invalid credentials."))
             // The password is right, but the account is suspended, locked or disabled: the front tells the user
             // why
             // The front signs the user out: they sign in again

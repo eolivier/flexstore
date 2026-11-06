@@ -554,6 +554,37 @@ paths:
           description: Invalid credentials
         "403":
           description: "The account is SUSPENDED, LOCKED or DISABLED: { error, status }"
+  /api/users/login/google:
+    post:
+      tags:
+      - Users
+      summary: Authenticate a user with their Google account
+      description: "Public. Takes the ID token that the Sign in with Google button gives to the browser and
+        verifies it (signature, expiry, issuer, audience = FLEXSTORE_GOOGLE_CLIENT_ID, verified email). The
+        account that has the email of the Google account is signed in; a customer who has none gets an active
+        account. Returns like POST /api/users/login."
+      operationId: loginUserWithGoogle
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonGoogleLoginRequest"
+        required: true
+      responses:
+        "200":
+          description: >
+            SIGNED_IN: the token is returned with the user.
+            TWO_FACTOR_REQUIRED: the code of the authenticator app is still needed, see
+            POST /api/users/login/two-factor-authentication.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonLoginResponse"
+        "401":
+          description: The Google token is refused (invalid, expired, not meant for this shop, unverified email), or Sign in with Google is not set up
+        "403":
+          description: "The account is SUSPENDED, LOCKED or DISABLED: { error, status }"
   /api/users/refresh:
     post:
       tags:
@@ -2433,6 +2464,14 @@ components:
         password:
           type: string
           description: User's password (plain text)
+    JsonGoogleLoginRequest:
+      type: object
+      required:
+        - idToken
+      properties:
+        idToken:
+          type: string
+          description: The ID token (JWT) that Google gave to the browser
     JsonTwoFactorEnrollment:
       type: object
       description: What a customer or administrator reads once an enrollment started, to set up their

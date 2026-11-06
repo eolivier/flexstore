@@ -8,6 +8,7 @@ import org.flexstore.domain.twofactor.model.TwoFactorCode
 import org.flexstore.domain.twofactor.model.TwoFactorSecret
 import org.flexstore.domain.twofactor.usecase.TwoFactorCodeVerification
 import org.flexstore.domain.user.model.*
+import org.flexstore.domain.user.repository.GoogleIdentityVerifier
 import org.flexstore.domain.user.usecase.*
 import org.flexstore.infra.repository.InMemoryFailedSignInRepository
 import org.flexstore.infra.repository.InMemoryTwoFactorChallengeRepository
@@ -26,7 +27,8 @@ class SignInServiceTest : WithAssertions {
         userRepository,
         RecordFailedSignInUseCase(userRepository, failedSignInRepository),
         ResetFailedSignInsUseCase(failedSignInRepository),
-        twoFactorChallengeRepository
+        twoFactorChallengeRepository,
+        GoogleIdentityVerifier { GoogleIdentity(FullName(FirstName("Jane"), LastName("Doe")), janeEmail) }
     )
     private val janeId = UserId.ValidUserId("jane-1")
     private val janeEmail = Email("jane@example.com")
@@ -228,5 +230,26 @@ class SignInServiceTest : WithAssertions {
         // Assert
         assertThat(statusOfJane()).isEqualTo(status)
         assertThat(failedSignInsOfJane()).isEqualTo(FailedSignInCount.none())
+    }
+
+    @Test
+    fun `a signing in with Google of an account with two-factor authentication should wait for the code`() {
+        // Arrange
+        janeWithTwoFactorEnabled()
+        // Act
+        val outcome = signInService.signInWithGoogle(GoogleIdToken("google-token"))
+        // Assert
+        assertThat(outcome).isInstanceOf(SignInOutcome.TwoFactorChallengeRequired::class.java)
+    }
+
+    @Test
+    fun `a signing in with Google should give a session to an account without two-factor authentication`() {
+        // Arrange
+        janeWith(AccountStatus.ACTIVE)
+        // Act
+        val outcome = signInService.signInWithGoogle(GoogleIdToken("google-token"))
+        // Assert
+        val jane = userRepository.findByEmail(janeEmail) as User.DefinedUser
+        assertThat(outcome).isEqualTo(SignInOutcome.SignedIn(jane))
     }
 }

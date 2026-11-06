@@ -117,6 +117,7 @@ data class ExpectedVariables(private val variables: List<ExpectedVariable>) {
                 ExpectedVariable.optionalPlain(VariableName("FLEXSTORE_MAIL_SMTP_AUTH")),
                 ExpectedVariable.optionalPlain(VariableName("FLEXSTORE_MAIL_SMTP_STARTTLS")),
                 ExpectedVariable.optionalPlain(VariableName("FLEXSTORE_MAIL_FROM")),
+                ExpectedVariable.optionalPlain(VariableName("FLEXSTORE_GOOGLE_CLIENT_ID")),
                 ExpectedVariable.optionalPlain(VariableName("FLEXSTORE_MCP_ENABLED")),
                 ExpectedVariable.optionalSecret(VariableName("FLEXSTORE_STRIPE_SECRET_KEY")),
                 ExpectedVariable.optionalSecret(VariableName("FLEXSTORE_STRIPE_WEBHOOK_SECRET"))
