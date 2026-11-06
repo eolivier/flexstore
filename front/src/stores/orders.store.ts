@@ -150,6 +150,18 @@ export const useOrdersStore = defineStore('orders', () => {
     }
   }
 
+  // The customer comes back from the checkout page: the shop asks the payment provider whether the order was
+  // paid, in case its notification is late or lost. Best effort: the order is read again afterwards anyway
+  async function verifyPayment(orderId: string): Promise<void> {
+    try {
+      await authStore.authFetch(`/api/orders/${encodeURIComponent(orderId)}/payment/verification`, {
+        method: 'POST',
+      });
+    } catch (error) {
+      console.error('Failed to verify the payment', error);
+    }
+  }
+
   // The cart is emptied once the order is paid
   async function refreshCart() {
     await cartStore.fetchCartItems();
@@ -166,6 +178,7 @@ export const useOrdersStore = defineStore('orders', () => {
     checkDiscountCode,
     placeOrder,
     startPayment,
+    verifyPayment,
     refreshCart,
   };
 });

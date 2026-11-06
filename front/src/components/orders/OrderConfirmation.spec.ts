@@ -71,6 +71,7 @@ describe('OrderConfirmation.vue', () => {
     const awaitingPayment = { ...order, status: 'AWAITING_PAYMENT' };
     const paid = { ...order, status: 'PAID' };
     mockFetch
+      .mockResolvedValueOnce({ ok: true, status: 204 })
       .mockResolvedValueOnce({
         ok: true,
         status: 200,
@@ -86,5 +87,13 @@ describe('OrderConfirmation.vue', () => {
     expect(whileAwaiting).toContain('Your payment is being confirmed');
     expect(wrapper.text()).not.toContain('Your payment is being confirmed');
     vi.useRealTimers();
+  });
+
+  it('asks the shop to verify the payment with the provider when the customer comes back', async () => {
+    // Act
+    await mountConfirmation();
+    // Assert
+    const verification = `/api/orders/${order.id}/payment/verification`;
+    expect(mockFetch.mock.calls.some(([url]) => String(url).endsWith(verification))).toBe(true);
   });
 });

@@ -114,10 +114,17 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     open fun readPaymentUseCase(paymentRepository: PaymentRepository) = ReadPaymentUseCase(paymentRepository)
 
     @Bean
+    open fun verifyPaymentUseCase(orderRepository: OrderRepository,
+                                  paymentRepository: PaymentRepository,
+                                  userRepository: UserRepository) =
+        VerifyPaymentUseCase(orderRepository, paymentRepository, userRepository)
+
+    @Bean
     open fun paymentUseCases(startPaymentUseCase: StartPaymentUseCase,
                              confirmPaymentUseCase: ConfirmPaymentUseCase,
-                             readPaymentUseCase: ReadPaymentUseCase) =
-        PaymentUseCases(startPaymentUseCase, confirmPaymentUseCase, readPaymentUseCase)
+                             readPaymentUseCase: ReadPaymentUseCase,
+                             verifyPaymentUseCase: VerifyPaymentUseCase) =
+        PaymentUseCases(startPaymentUseCase, confirmPaymentUseCase, readPaymentUseCase, verifyPaymentUseCase)
 
 
     @Bean

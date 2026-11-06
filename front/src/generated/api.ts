@@ -4491,6 +4491,44 @@ export const PaymentsApiAxiosParamCreator = function (configuration?: Configurat
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * Called when the customer comes back from the checkout page: if the provider says the order was paid, it is paid here too (cart emptied, invoice issued, confirmation email), even when the notification of the provider did not arrive. Nothing changes when the order was not paid 
+         * @summary Ask the payment provider whether an order of the signed-in customer was paid
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        verifyOrderPayment: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('verifyOrderPayment', 'id', id)
+            const localVarPath = `/api/orders/{id}/payment/verification`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -4527,6 +4565,19 @@ export const PaymentsApiFp = function(configuration?: Configuration) {
             const localVarOperationServerBasePath = operationServerMap['PaymentsApi.stripeNotification']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
+        /**
+         * Called when the customer comes back from the checkout page: if the provider says the order was paid, it is paid here too (cart emptied, invoice issued, confirmation email), even when the notification of the provider did not arrive. Nothing changes when the order was not paid 
+         * @summary Ask the payment provider whether an order of the signed-in customer was paid
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async verifyOrderPayment(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.verifyOrderPayment(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PaymentsApi.verifyOrderPayment']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
     }
 };
 
@@ -4557,6 +4608,16 @@ export const PaymentsApiFactory = function (configuration?: Configuration, baseP
         stripeNotification(stripeSignature: string, body: object, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.stripeNotification(stripeSignature, body, options).then((request) => request(axios, basePath));
         },
+        /**
+         * Called when the customer comes back from the checkout page: if the provider says the order was paid, it is paid here too (cart emptied, invoice issued, confirmation email), even when the notification of the provider did not arrive. Nothing changes when the order was not paid 
+         * @summary Ask the payment provider whether an order of the signed-in customer was paid
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        verifyOrderPayment(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.verifyOrderPayment(id, options).then((request) => request(axios, basePath));
+        },
     };
 };
 
@@ -4585,6 +4646,17 @@ export class PaymentsApi extends BaseAPI {
      */
     public stripeNotification(stripeSignature: string, body: object, options?: RawAxiosRequestConfig) {
         return PaymentsApiFp(this.configuration).stripeNotification(stripeSignature, body, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Called when the customer comes back from the checkout page: if the provider says the order was paid, it is paid here too (cart emptied, invoice issued, confirmation email), even when the notification of the provider did not arrive. Nothing changes when the order was not paid 
+     * @summary Ask the payment provider whether an order of the signed-in customer was paid
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public verifyOrderPayment(id: string, options?: RawAxiosRequestConfig) {
+        return PaymentsApiFp(this.configuration).verifyOrderPayment(id, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

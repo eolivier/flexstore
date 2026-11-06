@@ -59,7 +59,9 @@ class PaymentServiceTest : WithAssertions {
         val startPaymentUseCase = StartPaymentUseCase(orderRepository, paymentRepository, userRepository)
         val confirmPaymentUseCase = ConfirmPaymentUseCase(orderRepository, cartRepository, stockRepository)
         val readPaymentUseCase = ReadPaymentUseCase(paymentRepository)
-        val paymentUseCases = PaymentUseCases(startPaymentUseCase, confirmPaymentUseCase, readPaymentUseCase)
+        val verifyPaymentUseCase = VerifyPaymentUseCase(orderRepository, paymentRepository, userRepository)
+        val paymentUseCases =
+            PaymentUseCases(startPaymentUseCase, confirmPaymentUseCase, readPaymentUseCase, verifyPaymentUseCase)
         val readShopSettingsUseCase = ReadShopSettingsUseCase(shopSettingsRepository)
         val orderUseCases =
             OrderUseCases(
@@ -163,6 +165,56 @@ class PaymentServiceTest : WithAssertions {
         paidAtOnce.pay(OrderPayment(customer, orderId))
         // Assert
         assertThat(storedStatus()).isEqualTo(OrderStatus.PAID)
+    }
+
+    @Test
+    fun `a payment completed on the provider should pay the order when its notification never came`() {
+        // Arrange
+        placeOrder()
+        paidLater.pay(OrderPayment(customer, orderId))
+        pendingPaymentRepository.completePaymentOf(orderId)
+        // Act
+        paidLater.verify(OrderPayment(customer, orderId))
+        // Assert
+        assertThat(storedStatus()).isEqualTo(OrderStatus.PAID)
+        assertThat(cartRepository.load(customer).isEmpty()).isTrue()
+        assertThat(emailRepository.sentEmails()).hasSize(1)
+    }
+
+    @Test
+    fun `a payment not completed on the provider should leave the order awaiting it`() {
+        // Arrange
+        placeOrder()
+        paidLater.pay(OrderPayment(customer, orderId))
+        // Act
+        paidLater.verify(OrderPayment(customer, orderId))
+        // Assert
+        assertThat(storedStatus()).isEqualTo(OrderStatus.AWAITING_PAYMENT)
+    }
+
+    @Test
+    fun `a payment verified after its notification should confirm the order once`() {
+        // Arrange
+        placeOrder()
+        paidLater.pay(OrderPayment(customer, orderId))
+        pendingPaymentRepository.completePaymentOf(orderId)
+        paidLater.confirm(orderId)
+        // Act
+        paidLater.verify(OrderPayment(customer, orderId))
+        // Assert
+        assertThat(emailRepository.sentEmails()).hasSize(1)
+    }
+
+    @Test
+    fun `the payment of the order of another customer should not be verified`() {
+        // Arrange
+        placeOrder()
+        paidLater.pay(OrderPayment(customer, orderId))
+        val otherCustomer = CartOwner.Customer(UserId.ValidUserId("user-2"))
+        // Act
+        val thrown = catchThrowable { paidLater.verify(OrderPayment(otherCustomer, orderId)) }
+        // Assert
+        assertThat(thrown).isInstanceOf(OrderNotFoundException::class.java)
     }
 
     @Test

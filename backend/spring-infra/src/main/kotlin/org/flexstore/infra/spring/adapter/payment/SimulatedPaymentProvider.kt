@@ -22,6 +22,8 @@ class SimulatedPaymentProvider(private val shopUrl: ShopUrl) : PaymentProvider {
         return ProviderCheckout("simulated-${Identity.nextId().value}", checkoutPage, PaymentOutcome.PAID)
     }
 
+    override fun isPaid(reference: String) = true
+
     // A simulated checkout is paid at once: there is no page left to close
     override fun stop(reference: String) {}
 

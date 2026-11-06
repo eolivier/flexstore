@@ -45,6 +45,12 @@ class PaymentRepositoryAdapter(
         jpaOrderRepository.save(orderEntityWithPayment.also { it.createdAt = storedCreatedAt })
     }
 
+    // An order whose payment never started was not paid
+    override fun isCompleted(orderId: OrderId): Boolean {
+        val paymentId = jpaOrderRepository.findById(orderId.value).orElse(null)?.paymentId ?: return false
+        return paymentProvider.isPaid(jpaPaymentRepository.findById(paymentId).orElseThrow().providerReference)
+    }
+
     // An order whose payment never started has nothing to stop
     override fun stop(orderId: OrderId) {
         val paymentId = jpaOrderRepository.findById(orderId.value).orElse(null)?.paymentId ?: return

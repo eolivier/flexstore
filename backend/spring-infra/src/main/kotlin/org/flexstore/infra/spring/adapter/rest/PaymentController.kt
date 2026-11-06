@@ -33,6 +33,16 @@ class PaymentController(
         return JsonPaymentSession.of(paymentSession)
     }
 
+    // The customer comes back from the payment page: the order is paid if the provider says so, even when its
+    // notification did not arrive
+    @Operation(summary = "Ask the payment provider whether an order of the signed-in customer was paid")
+    @PostMapping("/api/orders/{orderId}/payment/verification")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun verify(@AuthenticationPrincipal jwt: Jwt, @PathVariable orderId: String) {
+        val customer = CartOwner.Customer(UserId.ValidUserId(jwt.subject))
+        paymentService.verify(OrderPayment(customer, OrderId(orderId)))
+    }
+
     // Called by Stripe, not by the front: the signature of the notification authenticates it
     @Operation(summary = "Notification of Stripe: a checkout session is completed")
     @PostMapping("/api/payments/stripe/webhook")

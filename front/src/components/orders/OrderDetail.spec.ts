@@ -16,11 +16,14 @@ const awaitingPayment = {
 };
 const paid = { ...twoLinesOrder, status: 'PAID' };
 
+// The shop first asks the provider to verify the payment (no order in its answer), then reads the order
 function answerWith(...orders: object[]) {
-  orders.forEach((order) =>
-    mockFetch.mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve(order) })
-  );
-  mockFetch.mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve(orders[orders.length - 1]) });
+  const remainingOrders = [...orders];
+  mockFetch.mockImplementation((url: string) => {
+    if (String(url).endsWith('/payment/verification')) return Promise.resolve({ ok: true, status: 204 });
+    const order = remainingOrders.length > 1 ? remainingOrders.shift() : remainingOrders[0];
+    return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(order) });
+  });
 }
 
 async function mountDetail(path: string) {
