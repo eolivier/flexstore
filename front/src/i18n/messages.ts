@@ -172,6 +172,26 @@ export default {
           seller: { title: 'Seller information', text: 'Set the identity of the shop shown on invoices.' },
           legalPages: { title: 'Legal pages', text: 'Edit the legal notice and the terms of sale.' },
           settings: { title: 'Settings', text: 'Adjust the settings of the shop.' },
+          environment: {
+            title: 'Environment',
+            text: 'Check the configuration of the back end: the environment variables defined, with their value, except for the secrets, shown only as defined or not.',
+          },
+          sellerSetup: {
+            title: 'Shop setup assistant',
+            text: 'Until the shop is set up, a step-by-step assistant guides the administrator through the seller information to get it ready.',
+          },
+        },
+        automatic: {
+          title: 'Automatic tasks',
+          subtitle: 'Scheduled tasks that run on their own, with nothing to do.',
+          unpaidOrders: {
+            title: 'Unpaid orders released',
+            text: 'An order not paid within the payment delay of the settings is cancelled automatically, so that its reserved units go back on sale.',
+          },
+          abandonedCart: {
+            title: 'Abandoned cart reminder',
+            text: 'A customer who left items in the cart receives one email that lists them and leads back to the cart, when the administrator turns it on.',
+          },
         },
       },
       stackTitle: 'Built with',
@@ -1132,6 +1152,26 @@ export default {
             text: 'Modifiez les mentions légales et les conditions de vente.',
           },
           settings: { title: 'Paramètres', text: 'Ajustez les paramètres de la boutique.' },
+          environment: {
+            title: 'Environnement',
+            text: "Vérifiez la configuration du backend : les variables d'environnement définies avec leur valeur, sauf les secrets, indiqués seulement comme définis ou non.",
+          },
+          sellerSetup: {
+            title: "Assistant d'initialisation de la boutique",
+            text: "Tant que la boutique n'est pas initialisée, un assistant pas à pas guide l'administrateur dans la saisie des informations du vendeur pour la préparer.",
+          },
+        },
+        automatic: {
+          title: 'Tâches automatiques',
+          subtitle: 'Des tâches planifiées qui se déclenchent seules, sans rien à faire.',
+          unpaidOrders: {
+            title: 'Commandes impayées libérées',
+            text: "Une commande non payée dans le délai de paiement des paramètres est annulée automatiquement, pour que ses unités réservées soient de nouveau en vente.",
+          },
+          abandonedCart: {
+            title: 'Rappel de panier abandonné',
+            text: "Un client qui a laissé des articles dans son panier reçoit un email qui les liste et ramène vers le panier, si l'administrateur l'a activé.",
+          },
         },
       },
       stackTitle: 'Technologies',
