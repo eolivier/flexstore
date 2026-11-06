@@ -29,6 +29,9 @@ jobs:
           cache: "npm"
           cache-dependency-path: front/package-lock.json
 
+      - name: Upgrade npm
+        run: npm install -g npm@12.2.2
+
       - name: Clean npm cache
         working-directory: front
         run: npm cache clean --force
