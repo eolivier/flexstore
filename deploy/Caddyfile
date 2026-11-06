@@ -1,0 +1,56 @@
+# Web server of the VPS: HTTPS (Let's Encrypt, automatic), the front end and the API on one address.
+# The front end and the API share the same origin, so the browser needs no CORS.
+flexstore.tech {
+	encode zstd gzip
+
+	header {
+		# Same policy as front/public/_headers (Cloudflare Pages), the API being on the same origin
+		Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+	}
+
+	# The back end: the API, the MCP server and the health check (the other actuator endpoints stay private)
+	@back path /api/* /mcp /actuator/health /actuator/health/*
+	handle @back {
+		reverse_proxy app:8080
+	}
+
+	# The front end
+	handle {
+		root * /srv/front
+
+		# The root and the addresses without language prefix lead to the French pages (as front/public/_redirects)
+		redir / /fr 302
+		redir /about /fr/a-propos 301
+		redir /legal-notice /fr/mentions-legales 301
+		redir /terms-of-sale /fr/conditions-generales-de-vente 301
+		redir /products /fr/produits 301
+		redir /products/clothing /fr/produits/vetements 301
+		redir /products/accessories /fr/produits/accessoires 301
+		redir /products/electronics /fr/produits/electronique 301
+		@legacyProduct path_regexp legacyProduct ^/products/(.+)$
+		redir @legacyProduct /fr/produits/{re.legacyProduct.1} 301
+
+		# The French addresses written with the English words, before they were translated
+		redir /fr/about /fr/a-propos 301
+		redir /fr/legal-notice /fr/mentions-legales 301
+		redir /fr/terms-of-sale /fr/conditions-generales-de-vente 301
+		redir /fr/products /fr/produits 301
+		redir /fr/products/clothing /fr/produits/vetements 301
+		redir /fr/products/accessories /fr/produits/accessoires 301
+		redir /fr/products/electronics /fr/produits/electronique 301
+		@legacyFrenchProduct path_regexp legacyFrenchProduct ^/fr/products/(.+)$
+		redir @legacyFrenchProduct /fr/produits/{re.legacyFrenchProduct.1} 301
+
+		# The built files carry a hash in their name: the browser keeps them. The pages are checked every time
+		@hashed path /assets/*
+		header @hashed Cache-Control "public, max-age=31536000, immutable"
+		@pages not path /assets/*
+		header @pages Cache-Control "no-cache"
+
+		# A pre-rendered page (/fr/a-propos.html), else the single page application, which draws the other pages
+		try_files {path} {path}.html {path}/index.html /index.html
+		file_server
+	}
+}

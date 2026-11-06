@@ -1,0 +1,66 @@
+# Production stack of the VPS (copied to /opt/flexstore by .github/workflows/deploy.yml).
+# The secrets are in /opt/flexstore/.env on the server, never in the repository (see docs/deployment-vps.md).
+services:
+  db:
+    image: postgres:16
+    container_name: flexstore-db
+    restart: unless-stopped
+    # No published port: only the app reaches the database, through the internal network
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is missing from .env}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is missing from .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is missing from .env}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    # Built and pushed by the deploy workflow; IMAGE_TAG is the commit deployed (latest when run by hand)
+    image: ghcr.io/eolivier/flexstore-back:${IMAGE_TAG:-latest}
+    container_name: flexstore-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    # No published port: Caddy reaches the app on the internal network
+    environment:
+      # Flyway runs the migrations when the app starts
+      FLEXSTORE_DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      FLEXSTORE_JWT_SECRET: ${FLEXSTORE_JWT_SECRET:?FLEXSTORE_JWT_SECRET is missing from .env}
+      FLEXSTORE_FRONT_URL: ${FLEXSTORE_FRONT_URL:?FLEXSTORE_FRONT_URL is missing from .env}
+      FLEXSTORE_MAIL_HOST: ${FLEXSTORE_MAIL_HOST:-}
+      FLEXSTORE_MAIL_PORT: ${FLEXSTORE_MAIL_PORT:-587}
+      FLEXSTORE_MAIL_USERNAME: ${FLEXSTORE_MAIL_USERNAME:-}
+      FLEXSTORE_MAIL_PASSWORD: ${FLEXSTORE_MAIL_PASSWORD:-}
+      FLEXSTORE_MAIL_FROM: ${FLEXSTORE_MAIL_FROM:-Flexstore <no-reply@flexstore.tech>}
+      FLEXSTORE_STRIPE_SECRET_KEY: ${FLEXSTORE_STRIPE_SECRET_KEY:-}
+      FLEXSTORE_STRIPE_WEBHOOK_SECRET: ${FLEXSTORE_STRIPE_WEBHOOK_SECRET:-}
+      # The JVM takes most of the memory of the VPS, not the default quarter
+      JAVA_TOOL_OPTIONS: -XX:MaxRAMPercentage=60
+
+  caddy:
+    image: caddy:2
+    container_name: flexstore-caddy
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # The pre-rendered front end, written by the deploy workflow
+      - ./front:/srv/front:ro
+      # The certificates: kept between restarts, so that Let's Encrypt is not asked again
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:
