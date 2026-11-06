@@ -33,6 +33,25 @@ jobs:
       sha: ${{ steps.revision.outputs.sha }}
 
     steps:
+      # Stops at once, before the image is built, when a secret of the deployment is missing or empty
+      - name: Check the secrets
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          FLEXSTORE_JWT_SECRET: ${{ secrets.FLEXSTORE_JWT_SECRET }}
+        run: |
+          missing=0
+          for name in VPS_HOST VPS_USER VPS_SSH_KEY VPS_KNOWN_HOSTS POSTGRES_PASSWORD FLEXSTORE_JWT_SECRET; do
+            if [ -z "${!name}" ]; then
+              echo "::error::The repository secret $name is missing or empty (Settings > Secrets and variables > Actions > Secrets)"
+              missing=1
+            fi
+          done
+          exit $missing
+
       - name: Revision to deploy
         id: revision
         run: echo "sha=${{ github.event.workflow_run.head_sha || github.sha }}" >> "$GITHUB_OUTPUT"
@@ -82,6 +101,8 @@ jobs:
 
       - name: Prepare SSH
         env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
           VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
           VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
         run: |
@@ -92,8 +113,8 @@ jobs:
           printf '%s\n' "$VPS_KNOWN_HOSTS" > ~/.ssh/known_hosts
           cat > ~/.ssh/config <<EOF
           Host vps
-            HostName ${{ secrets.VPS_HOST }}
-            User ${{ secrets.VPS_USER }}
+            HostName ${VPS_HOST}
+            User ${VPS_USER}
             IdentityFile ~/.ssh/deploy_key
             IdentitiesOnly yes
             StrictHostKeyChecking yes
