@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import { ref } from 'vue';
+  import SettingTitle from './SettingTitle.vue';
   import { useI18n } from 'vue-i18n';
   import { useSettingsStore } from '@/stores/settings.store';
 
@@ -26,7 +27,7 @@
       <v-icon icon="mdi-email-check-outline" size="small" />
     </v-avatar>
     <div class="flex-grow-1">
-      <h2 class="text-subtitle-1 font-weight-bold">{{ t('settings.orderConfirmationEmail') }}</h2>
+      <SettingTitle>{{ t('settings.orderConfirmationEmail') }}</SettingTitle>
       <p class="text-body-2 text-medium-emphasis">{{ t('settings.orderConfirmationEmailText') }}</p>
       <p v-if="saveError" class="text-body-2 text-error mt-1">{{ t('settings.saveError') }}</p>
     </div>

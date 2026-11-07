@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import SettingTitle from './SettingTitle.vue';
   import { useI18n } from 'vue-i18n';
   import { useSettingsStore } from '@/stores/settings.store';
   import { SELLER_SETUP_PATH } from '@/utils/sellerSetupRedirect';
@@ -13,7 +14,7 @@
       <v-icon icon="mdi-store-cog-outline" size="small" />
     </v-avatar>
     <div class="flex-grow-1">
-      <h2 class="text-subtitle-1 font-weight-bold">{{ t('settings.sellerSetup') }}</h2>
+      <SettingTitle>{{ t('settings.sellerSetup') }}</SettingTitle>
       <p class="text-body-2 text-medium-emphasis">{{ t('settings.sellerSetupText') }}</p>
       <router-link v-if="settingsStore.settings?.sellerSetup === 'DISABLED'" :to="SELLER_SETUP_PATH">{{
         t('settings.sellerSetupOpen')
