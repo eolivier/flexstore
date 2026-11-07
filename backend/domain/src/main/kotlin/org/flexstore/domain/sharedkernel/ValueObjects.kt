@@ -1,6 +1,7 @@
 package org.flexstore.domain.sharedkernel
 
 import java.math.BigDecimal
+import java.math.RoundingMode
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -14,6 +15,9 @@ data class Price(val amount: Amount, val currency: Currency) {
     operator fun minus(other: Price) = Price(Amount(amount.value.subtract(other.amount.value)), currency)
 
     fun isFree() = amount.value.signum() == 0
+
+    // The whole euros or dollars of the price, without its cents
+    fun wholeUnits() = Quantity(amount.value.setScale(0, RoundingMode.DOWN).toInt())
 
     fun isAtLeast(other: Price) = amount.value >= other.amount.value
 

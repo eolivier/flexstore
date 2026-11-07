@@ -41,6 +41,7 @@ docs/JsonLegalText.md
 docs/JsonLoginRequest.md
 docs/JsonLoginResponse.md
 docs/JsonLowStock.md
+docs/JsonLoyaltyPoints.md
 docs/JsonNewDiscountCode.md
 docs/JsonNewReview.md
 docs/JsonOrder.md
@@ -84,6 +85,7 @@ docs/JsonUser.md
 docs/JsonUserCreate.md
 docs/JsonUserUpdate.md
 docs/LegalPagesApi.md
+docs/LoyaltyApi.md
 docs/OrdersApi.md
 docs/PaymentsApi.md
 docs/PreferencesApi.md

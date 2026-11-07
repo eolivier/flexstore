@@ -43,6 +43,7 @@ import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.repository.*
 import org.flexstore.domain.user.service.*
 import org.flexstore.domain.user.usecase.*
+import org.flexstore.domain.loyalty.usecase.*
 import org.flexstore.domain.wishlist.*
 import org.flexstore.domain.wishlist.usecase.*
 import org.springframework.context.annotation.Bean
@@ -616,6 +617,14 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         readUserPreferenceUseCase: ReadUserPreferenceUseCase,
         recordUserPreferenceUseCase: RecordUserPreferenceUseCase
     ) = UserPreferenceUseCases(readUserPreferenceUseCase, recordUserPreferenceUseCase)
+
+    @Bean
+    open fun readLoyaltyPointsUseCase(orderRepository: OrderRepository, userRepository: UserRepository) =
+        ReadLoyaltyPointsUseCase(orderRepository, userRepository)
+
+    @Bean
+    open fun loyaltyUseCases(readLoyaltyPointsUseCase: ReadLoyaltyPointsUseCase) =
+        LoyaltyUseCases(readLoyaltyPointsUseCase)
 
     @Bean
     open fun openSessionUseCase(

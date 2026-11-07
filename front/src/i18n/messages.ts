@@ -144,6 +144,10 @@ export default {
           orders: { title: 'Orders', text: 'Follow the status of your orders and review their details.' },
           addresses: { title: 'Address book', text: 'Save your delivery addresses to check out faster.' },
           wishlist: { title: 'Wishlist', text: 'Keep the products you love for later.' },
+          loyalty: {
+            title: 'Loyalty',
+            text: 'Earn 1 point for each euro or dollar spent and check your balance.',
+          },
           security: {
             title: 'Security',
             text: 'Verify your email and protect your account with two-factor authentication.',
@@ -497,6 +501,14 @@ export default {
       empty: 'Your wishlist is empty: save a product from the shop to see it here.',
       loadError: 'Your wishlist could not be loaded.',
     },
+    loyalty: {
+      title: 'My loyalty',
+      subtitle: 'Each euro or dollar spent earns you 1 point.',
+      balance: 'Your balance',
+      points: 'No point | 1 point | {n} points',
+      rule: 'Points are earned on your paid orders; an order refunded gives its points back.',
+      loadError: 'Your points could not be loaded.',
+    },
     orderTracking: {
       title: 'Tracking of your parcel',
       carrier: 'Carrier',
@@ -776,6 +788,7 @@ export default {
       orders: 'My orders',
       addresses: 'My addresses',
       wishlist: 'My wishlist',
+      loyalty: 'My loyalty',
       preferences: 'My preferences',
       profile: 'My profile',
       account: 'My account',
@@ -1171,6 +1184,10 @@ export default {
             text: 'Enregistrez vos adresses de livraison pour commander plus vite.',
           },
           wishlist: { title: 'Liste d’envies', text: 'Gardez de côté les produits que vous aimez.' },
+          loyalty: {
+            title: 'Fidélité',
+            text: 'Gagnez 1 point par euro ou dollar dépensé et consultez votre solde.',
+          },
           security: {
             title: 'Sécurité',
             text: 'Vérifiez votre email et protégez votre compte avec l’authentification à deux facteurs.',
@@ -1541,6 +1558,14 @@ export default {
       empty: 'Votre liste de souhaits est vide : enregistrez un produit depuis la boutique pour le voir ici.',
       loadError: "Votre liste de souhaits n'a pas pu être chargée.",
     },
+    loyalty: {
+      title: 'Ma fidélité',
+      subtitle: 'Chaque euro ou dollar dépensé vous fait gagner 1 point.',
+      balance: 'Votre solde',
+      points: 'Aucun point | 1 point | {n} points',
+      rule: 'Les points sont gagnés sur vos commandes payées ; une commande remboursée rend ses points.',
+      loadError: "Vos points n'ont pas pu être chargés.",
+    },
     orderTracking: {
       title: 'Suivi de votre colis',
       carrier: 'Transporteur',
@@ -1824,6 +1849,7 @@ export default {
       orders: 'Mes commandes',
       addresses: 'Mes adresses',
       wishlist: 'Ma liste de souhaits',
+      loyalty: 'Ma fidélité',
       preferences: 'Mes préférences',
       profile: 'Mon profil',
       account: 'Mon compte',

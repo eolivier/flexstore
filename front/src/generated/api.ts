@@ -546,6 +546,9 @@ export interface JsonLowStock {
      */
     'threshold': number;
 }
+export interface JsonLoyaltyPoints {
+    'points': number;
+}
 export interface JsonNewDiscountCode {
     /**
      * Upper-case letters and digits, 3 to 30 (put in upper case)
@@ -4142,6 +4145,104 @@ export const GetLegalPageKindEnum = {
     PrivacyPolicy: 'privacy-policy'
 } as const;
 export type GetLegalPageKindEnum = typeof GetLegalPageKindEnum[keyof typeof GetLegalPageKindEnum];
+
+
+/**
+ * LoyaltyApi - axios parameter creator
+ */
+export const LoyaltyApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Retrieve the loyalty points of the signed-in customer, one for each whole euro or dollar of their paid orders
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getLoyaltyPoints: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/loyalty`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * LoyaltyApi - functional programming interface
+ */
+export const LoyaltyApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = LoyaltyApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Retrieve the loyalty points of the signed-in customer, one for each whole euro or dollar of their paid orders
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getLoyaltyPoints(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonLoyaltyPoints>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getLoyaltyPoints(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['LoyaltyApi.getLoyaltyPoints']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * LoyaltyApi - factory interface
+ */
+export const LoyaltyApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = LoyaltyApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Retrieve the loyalty points of the signed-in customer, one for each whole euro or dollar of their paid orders
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getLoyaltyPoints(options?: RawAxiosRequestConfig): AxiosPromise<JsonLoyaltyPoints> {
+            return localVarFp.getLoyaltyPoints(options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * LoyaltyApi - object-oriented interface
+ */
+export class LoyaltyApi extends BaseAPI {
+    /**
+     * 
+     * @summary Retrieve the loyalty points of the signed-in customer, one for each whole euro or dollar of their paid orders
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getLoyaltyPoints(options?: RawAxiosRequestConfig) {
+        return LoyaltyApiFp(this.configuration).getLoyaltyPoints(options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
 
 
 /**
