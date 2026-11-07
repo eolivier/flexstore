@@ -1,6 +1,6 @@
 # Physical data model
 
-The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V60**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
+The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V61**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
 
 ![Physical data model](database.png)
 
@@ -22,16 +22,9 @@ erDiagram
         phone_number varchar(30) "nullable"
         two_factor_secret varchar(64) "nullable: TOTP secret, set once an enrollment starts"
         two_factor_status varchar(20) "nullable: PENDING or ENABLED, null with two_factor_secret"
-        created_at timestamp
-        updated_at timestamp
-    }
-
-    customer_company {
-        id varchar(50) PK
-        user_id varchar(50) FK,UK "at most one company per user"
-        company_name varchar(255)
-        siren varchar(9) "9 digits"
-        vat_number varchar(30) "nullable: intra-community VAT number, FR + key + SIREN for a French company"
+        company_name varchar(255) "nullable: the company the customer buys for, null for a customer who buys for themselves"
+        company_siren varchar(9) "nullable: 9 digits, filled with company_name"
+        company_vat_number varchar(30) "nullable: intra-community VAT number, FR + key + SIREN for a French company"
         created_at timestamp
         updated_at timestamp
     }
@@ -326,7 +319,6 @@ erDiagram
     }
 
     user ||--o{ user_token : "user_id (cascade)"
-    user ||--o| customer_company : "user_id (cascade)"
     user ||--o{ user_setting : "user_id (cascade)"
     user ||--o| failed_sign_in : "user_id (cascade)"
     user ||--o{ refresh_session : "user_id (cascade)"
@@ -361,7 +353,7 @@ erDiagram
 - The `seller` written on the invoices is edited by the administrators. Each edit adds a version and never changes one: an `invoice` references the version current when it was issued, so that it keeps the seller it was issued with. Its legal form, its share capital and the city of its trade register are asked since V40, which adds a version of the demonstration seller with them while it is still the current one; the versions written before have none. Its accounts on the social networks (Facebook, Instagram, X, TikTok, YouTube, Twitch) are asked since V51, each one optional: the footer of the shop shows the ones that are given, and the versions written before have none.
 - A `credit_note` cancels the `invoice` of a refunded order, and is written with the seller of that invoice. The credit notes have their own sequence of numbers, as the invoices (one row of `document_counter` per kind and year, V60 merged the former `invoice_counter` and `credit_note_counter` tables); V39 issues the credit notes of the orders refunded before it, dated when they were refunded.
 - The `legal_page` rows are the legal notice, the terms of sale and the privacy policy of the shop, written by the administrators and read by everyone. Each publication adds a version of its kind and never changes one, so that the terms of sale of a given date can be found again. The migration creates a first, empty version of each kind; V38 adds a standard version of each one, written with the current seller, while its current version is still empty. V55 adds the privacy policy: a first, empty version, then its standard version, in the same way. An order keeps the version of the terms of sale its customer accepted (`legal_page_id`); the orders placed before V37 have none.
-- A customer who creates their account for their company gives it once: its `customer_company` row (name, SIREN, VAT number). The address they give is then addressed to the company, for their attention (`address.recipient_type` `LEGAL_ENTITY`, with the company name and the VAT number).
+- A customer who creates their account for their company gives it once: its three `company_` columns of `user` (name, SIREN, VAT number; V61 merged the former `customer_company` table into `user`): the name and the SIREN are filled together, and all are empty for a customer who buys for themselves. The address they give is then addressed to the company, for their attention (`address.recipient_type` `LEGAL_ENTITY`, with the company name and the VAT number).
 - The settings of a signed-in customer are `user_setting` rows (V58 merged the former `cookie_consent` and `user_preference` tables into it): one row per setting the customer chose, at most one per customer and `name`, replaced by each new choice. A new setting is a new authorized name (and its authorized values) in the checks of the table, not a new column. A customer who never chose a setting has no row for it.
   - `cookie_choice`: their choice about the preference cookies (`ACCEPTED` or `REFUSED`), valid until `expires_at` (6 months after the choice, then the customer is asked again; `expires_at` is filled for this setting only). A visitor who is not signed in keeps theirs in their browser; at sign-in it is recorded here and removed from the browser;
   - `color_mode`: their display mode (`LIGHT` or `DARK`); without a row, their browser decides. A visitor who is not signed in keeps theirs in their browser (when they accepted the preference cookies);

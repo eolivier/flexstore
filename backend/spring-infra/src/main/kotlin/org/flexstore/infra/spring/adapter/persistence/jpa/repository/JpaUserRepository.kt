@@ -1,7 +1,6 @@
 package org.flexstore.infra.spring.adapter.persistence.jpa.repository
 
 import org.flexstore.domain.user.repository.*
-import org.flexstore.infra.spring.adapter.persistence.jpa.entity.CustomerCompanyEntity
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.UserAddressEntity
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.UserEntity
 import org.flexstore.infra.spring.adapter.persistence.jpa.toDomain
@@ -60,6 +59,7 @@ class PostgresUserRepositoryAdapter(
             }
             is User.DefinedUser -> {
                 val hashedPasswordValue = hashPasswordIfNeeded(user.password)
+                val company = (user.customerType as? CustomerType.Business)?.company
                 val entity = UserEntity(
                     id = user.id.value,
                     firstName = user.fullName.firstName.value,
@@ -72,7 +72,9 @@ class PostgresUserRepositoryAdapter(
                     twoFactorSecret = twoFactorSecretColumnOf(user.twoFactorAuthentication),
                     twoFactorStatus = twoFactorStatusColumnOf(user.twoFactorAuthentication),
                     addresses = addressEntities(user),
-                    companies = companyEntities(user)
+                    companyName = company?.name?.value,
+                    companySiren = company?.siren?.value,
+                    companyVatNumber = company?.vatNumber?.value?.ifEmpty { null }
                 )
                 val saved = jpaRepo.save(entity)
                 savedUser = saved.toDomain()
@@ -122,21 +124,6 @@ class PostgresUserRepositoryAdapter(
                 UserAddressEntity(Identity.nextId().value, addressEntity, position)
             }
         }
-    }
-
-    // The stored row of the company is kept when the company did not change (same id, same creation date)
-    private fun companyEntities(user: User.DefinedUser): List<CustomerCompanyEntity> {
-        val customerType = user.customerType as? CustomerType.Business ?: return emptyList()
-        val company = customerType.company
-        val stored = jpaRepo.findById(user.id.value).map { it.companies.firstOrNull() }.orElse(null)
-        val entity = CustomerCompanyEntity(
-            id = stored?.id ?: Identity.nextId().value,
-            companyName = company.name.value,
-            siren = company.siren.value,
-            vatNumber = company.vatNumber.value.ifEmpty { null }
-        )
-        stored?.let { entity.createdAt = it.createdAt }
-        return listOf(entity)
     }
 
     @Cacheable(USERS_CACHE, key = "#p0.value")
@@ -192,7 +179,7 @@ class PostgresUserRepositoryAdapter(
         status = AccountStatus.valueOf(this.status),
         phoneNumber = phoneNumber?.let { PhoneNumber(it) },
         postalAddresses = PostalAddresses(addresses.map { it.address.toDomain() }),
-        customerType = companies.firstOrNull()?.toDomain() ?: CustomerType.Individual,
+        customerType = customerType(),
         twoFactorAuthentication = twoFactorAuthenticationOf(twoFactorSecret, twoFactorStatus)
     )
 
@@ -209,8 +196,11 @@ class PostgresUserRepositoryAdapter(
         }
     }
 
-    private fun CustomerCompanyEntity.toDomain(): CustomerType {
-        val company = Company(CompanyName(companyName), VatNumber(vatNumber.orEmpty()))
+    // The company is given by its name and its SIREN together: without them the customer buys for themselves
+    private fun UserEntity.customerType(): CustomerType {
+        val name = companyName ?: return CustomerType.Individual
+        val siren = companySiren ?: return CustomerType.Individual
+        val company = Company(CompanyName(name), VatNumber(companyVatNumber.orEmpty()))
         return CustomerType.Business(CustomerCompany(company, Siren(siren)))
     }
 }
