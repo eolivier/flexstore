@@ -93,7 +93,7 @@ class StockTakenMeanwhileIT {
     }
 
     private fun stockOf(productId: String): Int? {
-        val stockQuery = "SELECT quantity FROM stock WHERE product_id = ?"
+        val stockQuery = "SELECT stock_quantity FROM product WHERE id = ?"
         return jdbcTemplate.queryForObject(stockQuery, Int::class.java, productId)
     }
 

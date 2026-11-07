@@ -133,7 +133,7 @@ class UnpaidOrderIT {
     }
 
     private fun stock() =
-        jdbcTemplate.queryForObject("SELECT quantity FROM stock WHERE product_id = ?", Int::class.java, PRODUCT_ID)
+        jdbcTemplate.queryForObject("SELECT stock_quantity FROM product WHERE id = ?", Int::class.java, PRODUCT_ID)
 
     private fun placedMinutesAgo(orderId: String, minutes: Int) {
         val placedAgo = "UPDATE customer_order SET placed_at = now() - make_interval(mins => ?) WHERE id = ?"

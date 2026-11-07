@@ -1,6 +1,6 @@
 # Physical data model
 
-The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V58**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
+The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V59**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
 
 ![Physical data model](database.png)
 
@@ -268,15 +268,6 @@ erDiagram
         updated_at timestamp
     }
 
-    stock {
-        id varchar(50) PK
-        product_id varchar(50) FK,UK "a product without row has none"
-        quantity int "0 or more, orders awaiting payment reserved"
-        alert_threshold int "the administrators are warned at or under it: 5 by default"
-        created_at timestamp
-        updated_at timestamp
-    }
-
     cart_item {
         id varchar(50) PK
         cart_id varchar(50) FK,UK "unique with product_id"
@@ -296,6 +287,8 @@ erDiagram
         promotion_percentage numeric "nullable: percentage off the price, from more than 0 to 100"
         promotion_starts_at timestamptz "nullable: the promotion starts (included); the three promotion columns are all filled or all empty"
         promotion_ends_at timestamptz "nullable: the promotion ends (excluded), after its start"
+        stock_quantity int "nullable: units the shop has, 0 or more, orders awaiting payment reserved; null while the stock was never given"
+        stock_alert_threshold int "the administrators are warned at or under it: 5 by default"
         created_at timestamp
         updated_at timestamp
     }
@@ -360,7 +353,6 @@ erDiagram
     user |o--o| cart : "user_id (cascade)"
     cart ||--o{ cart_item : "cart_id (cascade)"
     cart_item }o--|| product : "product_id (cascade)"
-    stock }o--|| product : "product_id (cascade)"
     product_image }o--|| product : "product_id (cascade)"
     product_translation }o--|| product : "product_id (cascade)"
     product_review }o--|| product : "product_id (cascade)"
@@ -388,3 +380,4 @@ erDiagram
 - `user` is quoted in SQL (`"user"`), a reserved word; the orders are stored in `customer_order` for the same reason.
 - The name and the description of a `product` are in `product_translation`, one row per language: always one in the default language (`en`), which the application requires, and one per other language the product is translated into. A product without a translation in the language of the customer is shown in `en`.
 - A `wishlist_item` is a product a customer saved to buy it back later: at most one row per customer and product (saving it again changes nothing). Removing it from the wishlist only deletes this row, not the product or the orders already placed for it.
+- The stock of a `product` is two of its columns (V59 merged the former `stock` table into `product`): `stock_quantity`, the units the shop has, and `stock_alert_threshold`, the units at or under which the administrators are warned (5 by default). `stock_quantity` is empty while the stock was never given: such a product has no units, an order for it is refused, and it is not listed among the low stocks.

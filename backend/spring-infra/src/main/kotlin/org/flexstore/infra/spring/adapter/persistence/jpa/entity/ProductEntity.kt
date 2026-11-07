@@ -6,8 +6,8 @@ import org.hibernate.annotations.FetchMode
 import java.math.BigDecimal
 import java.time.Instant
 
-// A product of the catalog, with its SKU: its name and its description are in its translations, one per
-// language, the default one included
+// A product of the catalog, with its SKU and its stock: its name and its description are in its translations,
+// one per language, the default one included
 @Entity
 @Table(name = "product")
 data class ProductEntity(
@@ -40,6 +40,15 @@ data class ProductEntity(
 
     @Column(name = "promotion_ends_at")
     val promotionEndsAt: Instant? = null,
+
+    // The stock of the product: the number of units, empty while it was never given, and the number at or under
+    // which the administrators are warned. Written by the stock adapter only (updatable = false): saving the
+    // product never overwrites them
+    @Column(name = "stock_quantity", updatable = false)
+    val stockQuantity: Int? = null,
+
+    @Column(name = "stock_alert_threshold", nullable = false, updatable = false)
+    val stockAlertThreshold: Int = 5,
 
     // The translations of all the products read are loaded in a single query
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
