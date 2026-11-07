@@ -1,8 +1,6 @@
 package org.flexstore.infra.spring.adapter.persistence.jpa.repository
 
-import org.flexstore.infra.spring.adapter.persistence.jpa.entity.StockEntity
-import org.flexstore.infra.spring.adapter.persistence.jpa.toDomain
-import org.flexstore.infra.spring.adapter.persistence.jpa.toEntity
+import org.flexstore.infra.spring.adapter.persistence.jpa.entity.ProductEntity
 import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.sharedkernel.Quantity
@@ -13,26 +11,66 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 
+// The stock of a product as stored: its units are empty while the stock was never given
+data class StockRow(val productId: String, val quantity: Int?, val threshold: Int)
+
+// The stock is two columns of the product table, written by these statements only (the product entity does not
+// update them). The update date is set here, as Hibernate does not set it on a bulk update. Each update returns
+// the number of rows updated: 0 or 1
 @Repository
-interface JpaStockRepository : JpaRepository<StockEntity, String> {
-    fun findByProductId(productId: String): StockEntity?
+interface JpaStockRepository : JpaRepository<ProductEntity, String> {
 
-    @Query("SELECT s FROM StockEntity s WHERE s.quantity <= s.alertThreshold")
-    fun findLow(): List<StockEntity>
+    @Query(
+        "SELECT new org.flexstore.infra.spring.adapter.persistence.jpa.repository.StockRow(" +
+            "p.id, p.stockQuantity, p.stockAlertThreshold) FROM ProductEntity p WHERE p.id = :productId"
+    )
+    fun findStockOf(productId: String): StockRow?
 
-    // One statement: the database checks and takes the units together, one order after the other. The update
-    // date is set here, as Hibernate does not set it on a bulk update. The number of rows updated: 0 or 1
+    // Only the products whose stock was given
+    @Query(
+        "SELECT new org.flexstore.infra.spring.adapter.persistence.jpa.repository.StockRow(" +
+            "p.id, p.stockQuantity, p.stockAlertThreshold) FROM ProductEntity p " +
+            "WHERE p.stockQuantity IS NOT NULL"
+    )
+    fun findGivenStocks(): List<StockRow>
+
+    @Query(
+        "SELECT new org.flexstore.infra.spring.adapter.persistence.jpa.repository.StockRow(" +
+            "p.id, p.stockQuantity, p.stockAlertThreshold) FROM ProductEntity p " +
+            "WHERE p.stockQuantity <= p.stockAlertThreshold"
+    )
+    fun findLowStocks(): List<StockRow>
+
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(
-        "UPDATE StockEntity s SET s.quantity = s.quantity - :quantity, s.updatedAt = CURRENT_TIMESTAMP " +
-            "WHERE s.productId = :productId AND s.quantity >= :quantity"
+        "UPDATE product SET stock_quantity = :quantity, updated_at = now() WHERE id = :productId",
+        nativeQuery = true
+    )
+    fun giveQuantity(productId: String, quantity: Int): Int
+
+    // A threshold given for a product that has no stock yet gives it a stock without units
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query(
+        "UPDATE product SET stock_alert_threshold = :threshold, stock_quantity = COALESCE(stock_quantity, 0), " +
+            "updated_at = now() WHERE id = :productId",
+        nativeQuery = true
+    )
+    fun giveThreshold(productId: String, threshold: Int): Int
+
+    // One statement: the database checks and takes the units together, one order after the other
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query(
+        "UPDATE product SET stock_quantity = stock_quantity - :quantity, updated_at = now() " +
+            "WHERE id = :productId AND stock_quantity >= :quantity",
+        nativeQuery = true
     )
     fun takeOut(productId: String, quantity: Int): Int
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(
-        "UPDATE StockEntity s SET s.quantity = s.quantity + :quantity, s.updatedAt = CURRENT_TIMESTAMP " +
-            "WHERE s.productId = :productId"
+        "UPDATE product SET stock_quantity = stock_quantity + :quantity, updated_at = now() " +
+            "WHERE id = :productId",
+        nativeQuery = true
     )
     fun putBack(productId: String, quantity: Int): Int
 }
@@ -43,31 +81,26 @@ class PostgresStockRepositoryAdapter(private val jpaRepo: JpaStockRepository) : 
 
     @Transactional(readOnly = true)
     override fun stockOf(productId: ProductId): Stock =
-        jpaRepo.findByProductId(productId.id.value)?.toDomain() ?: Stock.noneOf(productId)
+        jpaRepo.findStockOf(productId.id.value)?.toStock() ?: Stock.noneOf(productId)
 
     @Transactional(readOnly = true)
-    override fun findAll() = Stocks(jpaRepo.findAll().map { it.toDomain() })
+    override fun findAll() = Stocks(jpaRepo.findGivenStocks().map { it.toStock() })
 
-    // The row of the product is updated, or created with its first stock
     override fun save(stock: Stock) {
-        val storedStock = jpaRepo.findByProductId(stock.productId.id.value)
-        val stockEntity = storedStock?.withQuantityOf(stock) ?: stock.toEntity()
-        jpaRepo.save(stockEntity)
+        jpaRepo.giveQuantity(stock.productId.id.value, stock.quantity.value)
     }
 
     @Transactional(readOnly = true)
     override fun alertOf(productId: ProductId): StockAlert =
-        jpaRepo.findByProductId(productId.id.value)?.toAlert() ?: StockAlert.byDefaultOf(productId)
+        jpaRepo.findStockOf(productId.id.value)?.toAlert() ?: StockAlert.byDefaultOf(productId)
 
-    // The row of the product is updated, or created without units
     override fun saveAlert(stockAlert: StockAlert) {
-        val storedStock = jpaRepo.findByProductId(stockAlert.productId.id.value)
-        val stockEntity = storedStock?.withThresholdOf(stockAlert) ?: stockAlert.toEntity()
-        jpaRepo.save(stockEntity)
+        jpaRepo.giveThreshold(stockAlert.productId.id.value, stockAlert.threshold.value)
     }
 
     @Transactional(readOnly = true)
-    override fun findLow() = LowStocks(jpaRepo.findLow().map { LowStock(it.toDomain(), it.toAlert().threshold) })
+    override fun findLow() =
+        LowStocks(jpaRepo.findLowStocks().map { LowStock(it.toStock(), it.toAlert().threshold) })
 
     override fun reserve(productId: ProductId, quantity: Quantity): StockReservation {
         val updatedRows = jpaRepo.takeOut(productId.id.value, quantity.value)
@@ -78,26 +111,8 @@ class PostgresStockRepositoryAdapter(private val jpaRepo: JpaStockRepository) : 
         jpaRepo.putBack(productId.id.value, quantity.value)
     }
 
-    private fun StockEntity.withQuantityOf(stock: Stock): StockEntity {
-        val storedCreatedAt = createdAt
-        return copy(quantity = stock.quantity.value).also { it.createdAt = storedCreatedAt }
-    }
+    private fun StockRow.toStock() =
+        Stock(ProductId(Identity(productId)), quantity?.let { StockQuantity(it) } ?: StockQuantity.none())
 
-    private fun StockEntity.withThresholdOf(stockAlert: StockAlert): StockEntity {
-        val storedCreatedAt = createdAt
-        return copy(alertThreshold = stockAlert.threshold.value).also { it.createdAt = storedCreatedAt }
-    }
-
-    private fun Stock.toEntity() = StockEntity(
-        Identity.nextId().value, productId.id.value, quantity.value, AlertThreshold.byDefault().value
-    )
-
-    private fun StockAlert.toEntity() = StockEntity(
-        Identity.nextId().value, productId.id.value, StockQuantity.none().value, threshold.value
-    )
-
-    private fun StockEntity.toDomain() = Stock(ProductId(Identity(productId)), StockQuantity(quantity))
-
-    private fun StockEntity.toAlert() =
-        StockAlert(ProductId(Identity(productId)), AlertThreshold(alertThreshold))
+    private fun StockRow.toAlert() = StockAlert(ProductId(Identity(productId)), AlertThreshold(threshold))
 }

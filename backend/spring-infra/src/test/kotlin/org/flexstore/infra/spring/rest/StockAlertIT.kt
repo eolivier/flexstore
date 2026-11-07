@@ -39,13 +39,14 @@ class StockAlertIT {
 
     @BeforeEach
     fun keepThreshold() {
-        val readThreshold = "SELECT alert_threshold FROM stock WHERE product_id = ?"
+        val readThreshold = "SELECT stock_alert_threshold FROM product WHERE id = ?"
         thresholdBefore = jdbcTemplate.queryForObject(readThreshold, Int::class.java, PRODUCT_ID)!!
     }
 
     @AfterEach
     fun restoreThreshold() {
-        jdbcTemplate.update("UPDATE stock SET alert_threshold = ? WHERE product_id = ?", thresholdBefore, PRODUCT_ID)
+        val restoreThreshold = "UPDATE product SET stock_alert_threshold = ? WHERE id = ?"
+        jdbcTemplate.update(restoreThreshold, thresholdBefore, PRODUCT_ID)
     }
 
     private fun changeThreshold(threshold: Int) = mockMvc.perform(
