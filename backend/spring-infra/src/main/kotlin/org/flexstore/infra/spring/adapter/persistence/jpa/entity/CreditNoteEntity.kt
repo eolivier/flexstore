@@ -4,7 +4,7 @@ import jakarta.persistence.*
 import java.time.Instant
 
 // The credit note of a refunded order, which cancels its invoice, numbered in the sequence of its year
-// (credit_note_counter)
+// (document_counter)
 @Entity
 @Table(name = "credit_note")
 data class CreditNoteEntity(

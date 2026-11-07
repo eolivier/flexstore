@@ -16,12 +16,12 @@ interface JpaCreditNoteRepository : JpaRepository<CreditNoteEntity, String> {
 
     fun findByInvoiceId(invoiceId: String): CreditNoteEntity?
 
-    // The next rank of the credit notes of the year, as for the invoices: the counter of the year is created
-    // at 1, or incremented, and its row stays locked until the end of the transaction
+    // The next rank of the credit notes of the year, as for the invoices: the credit note counter of the year
+    // is created at 1, or incremented, and its row stays locked until the end of the transaction
     @Query(
-        value = """INSERT INTO credit_note_counter (id, year, last_rank) VALUES (:id, :year, 1)
-                   ON CONFLICT (year)
-                   DO UPDATE SET last_rank = credit_note_counter.last_rank + 1, updated_at = now()
+        value = """INSERT INTO document_counter (id, kind, year, last_rank) VALUES (:id, 'CREDIT_NOTE', :year, 1)
+                   ON CONFLICT (kind, year)
+                   DO UPDATE SET last_rank = document_counter.last_rank + 1, updated_at = now()
                    RETURNING last_rank""",
         nativeQuery = true
     )
