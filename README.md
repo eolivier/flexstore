@@ -126,7 +126,7 @@ The server starts on [http://localhost:8080](http://localhost:8080) (health chec
 | `FLEXSTORE_STRIPE_SECRET_KEY` | empty | secret key of Stripe (`sk_test_...`); empty: simulated payments, confirmed at once |
 | `FLEXSTORE_STRIPE_WEBHOOK_SECRET` | empty | secret of the webhook endpoint (`whsec_...`), to verify the notifications of Stripe |
 
-Locally, `docker compose up -d mailpit` starts an SMTP server that catches the emails ([http://localhost:8025](http://localhost:8025)): start the back end with `FLEXSTORE_MAIL_HOST=localhost FLEXSTORE_MAIL_PORT=1025 FLEXSTORE_MAIL_SMTP_AUTH=false FLEXSTORE_MAIL_SMTP_STARTTLS=false` (the `app` service of docker compose is already configured so). On Render, the variables are declared in `render.yaml` and their values set in the dashboard. Sending can be turned off in Administration > Paramètres.
+Locally, `docker compose up -d mailpit` starts an SMTP server that catches the emails ([http://localhost:8025](http://localhost:8025)): start the back end with `FLEXSTORE_MAIL_HOST=localhost FLEXSTORE_MAIL_PORT=1025 FLEXSTORE_MAIL_SMTP_AUTH=false FLEXSTORE_MAIL_SMTP_STARTTLS=false` (the `app` service of docker compose is already configured so). Sending can be turned off in Administration > Paramètres.
 
 To pay with Stripe (test mode): create a Stripe account, copy its test secret key (`sk_test_...`), and add a webhook endpoint `https://<back end>/api/payments/stripe/webhook` for the event `checkout.session.completed`, whose signing secret (`whsec_...`) goes in `FLEXSTORE_STRIPE_WEBHOOK_SECRET`. Locally, `stripe listen --forward-to localhost:8080/api/payments/stripe/webhook` gives a signing secret and forwards the notifications. The test card `4242 4242 4242 4242` pays with any future date and any code.
 
@@ -135,7 +135,7 @@ To pay with Stripe (test mode): create a Stripe account, copy its test secret ke
 Set `FLEXSTORE_JWT_SECRET` (at least 32 characters) to sign the authentication tokens. Without it, a random secret is used and tokens stop working when the back end restarts.
 
 The database can be configured either with:
-- `FLEXSTORE_DATABASE_URL`: a connection string `postgres(ql)://user:password@host:port/database` (as given by Render) or a full JDBC URL including the credentials
+- `FLEXSTORE_DATABASE_URL`: a connection string `postgres(ql)://user:password@host:port/database` (as given by a managed PostgreSQL) or a full JDBC URL including the credentials
 - or the separate variables `FLEXSTORE_DATASOURCE_HOST`, `FLEXSTORE_DATASOURCE_HOST_SUFFIX`, `FLEXSTORE_DATASOURCE_PORT`, `FLEXSTORE_DATASOURCE_DATABASE`, `FLEXSTORE_DATASOURCE_USERNAME`, `FLEXSTORE_DATASOURCE_PASSWORD` (see `backend/spring-infra/.env`)
 
 The back end can also run in Docker, with the root `Dockerfile` (unit tests included):
@@ -298,7 +298,7 @@ npm run build   # type check (vue-tsc) + production build, with the public pages
 
 - **CI** (`.github/workflows/ci.yml`): on every pull request and push to `main`, back-end unit and integration tests (with a PostgreSQL service) and front-end lint, build and tests
 - **VPS** (https://flexstore.tech): every merge on `main` whose CI is green deploys the shop to a Debian VPS: back end image pushed to `ghcr.io`, PostgreSQL, back end and Caddy (HTTPS) in Docker Compose, the pre-rendered front end copied over SSH (`.github/workflows/deploy.yml`, `deploy/`); the set up of the server and of the GitHub secrets is in [docs/deployment-vps.md](docs/deployment-vps.md)
-- **Cloudflare Pages and Render: no longer used.** The workflow `.github/workflows/vue-pages.yml` (Cloudflare Pages) and `render.yaml` (Render) are kept for reference but disabled: the workflow only starts by hand and its job is skipped, and `autoDeploy` is off in `render.yaml`. `front/public/_headers` is specific to Cloudflare Pages: Caddy sets the HTTP headers on the VPS
+- **Cloudflare Pages and Render: no longer used.** The workflow `.github/workflows/vue-pages.yml` (Cloudflare Pages) is kept for reference but disabled: it only starts by hand and its job is skipped. The Render blueprint (`render.yaml`) is removed. `front/public/_headers` is specific to Cloudflare Pages: Caddy sets the HTTP headers on the VPS
 
 ---
 
