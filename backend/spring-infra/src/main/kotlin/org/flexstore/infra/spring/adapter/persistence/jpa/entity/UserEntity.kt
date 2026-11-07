@@ -42,8 +42,14 @@ data class UserEntity(
     @OrderBy("position")
     val addresses: List<UserAddressEntity> = emptyList(),
 
-    // The company of a customer who buys for it: none, or a single one (unique user_id)
-    @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", nullable = false)
-    val companies: List<CustomerCompanyEntity> = emptyList()
+    // The company of a customer who buys for it: its name and its SIREN, null together when the customer buys
+    // for themselves, and its intra-community VAT number (null: not given)
+    @Column(name = "company_name")
+    val companyName: String? = null,
+
+    @Column(name = "company_siren")
+    val companySiren: String? = null,
+
+    @Column(name = "company_vat_number")
+    val companyVatNumber: String? = null
 ) : TimestampedEntity()
