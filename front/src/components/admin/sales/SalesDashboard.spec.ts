@@ -62,6 +62,15 @@ describe('SalesDashboard.vue', () => {
     expect(heights).toEqual(['height: 0%;', 'height: 33%;', 'height: 100%;']);
   });
 
+  it('shows the amount of each day when hovering its bar', async () => {
+    // Act
+    const wrapper = await mountDashboard();
+    // Assert
+    const tooltips = wrapper.findAll('.bar-slot').map((slot) => slot.attributes('title'));
+    expect(tooltips[1]).toContain('100');
+    expect(tooltips[2]).toContain('200');
+  });
+
   it('lists the best sellers, the best first', async () => {
     // Act
     const wrapper = await mountDashboard();
