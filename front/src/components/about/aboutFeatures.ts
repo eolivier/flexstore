@@ -64,4 +64,10 @@ export const aboutFeatureGroups: AboutFeatureGroup[] = [
       { key: 'abandonedCart', icon: 'mdi-cart-arrow-right' },
     ],
   },
+  {
+    key: 'assistants',
+    icon: 'mdi-creation-outline',
+    color: 'success',
+    features: [{ key: 'mcp', icon: 'mdi-connection' }],
+  },
 ];
