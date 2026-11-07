@@ -9,7 +9,7 @@ describe('navigation', () => {
     expect(links).toEqual([]);
   });
 
-  it('a signed-in customer has the links to their profile, orders, addresses, wishlist and preferences', () => {
+  it('a signed-in customer has the links to their profile, orders, addresses, wishlist, loyalty and preferences', () => {
     // Act
     const links = accountLinksOf(true);
     // Assert
@@ -18,6 +18,7 @@ describe('navigation', () => {
       'nav.orders',
       'nav.addresses',
       'nav.wishlist',
+      'nav.loyalty',
       'nav.preferences',
     ]);
   });

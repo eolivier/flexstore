@@ -384,6 +384,9 @@ data class Orders(private val orders: List<Order>) {
     // The orders that were paid, and not cancelled or refunded since: the sales of the shop
     fun paid() = Orders(orders.filter { order -> order.isPaid() })
 
+    // The whole euros or dollars spent on the orders that are paid (a refunded order is not counted)
+    fun wholeUnitsSpent() = Quantity(paid().asList().sumOf { order -> order.totalPrice().wholeUnits().value })
+
     fun placedDuring(interval: OrderInterval) =
         Orders(orders.filter { order -> interval.contains(order.placedAt) })
 

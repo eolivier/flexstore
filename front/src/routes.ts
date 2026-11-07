@@ -22,6 +22,7 @@ import AdminOrderDetail from './components/admin/orders/AdminOrderDetail.vue';
 import AddressBook from './components/account/addresses/AddressBook.vue';
 import MyPreferences from './components/account/preferences/MyPreferences.vue';
 import Wishlist from './components/account/wishlist/Wishlist.vue';
+import MyLoyalty from './components/account/loyalty/MyLoyalty.vue';
 import ShopSettings from './components/admin/settings/ShopSettings.vue';
 import AdminEnvironment from './components/admin/environment/AdminEnvironment.vue';
 import SalesDashboard from './components/admin/sales/SalesDashboard.vue';
@@ -52,6 +53,7 @@ const shopRoutes: RouteRecordRaw[] = [
   { path: '/orders', component: Orders, meta: { requiresAuth: true } },
   { path: '/account/addresses', component: AddressBook, meta: { requiresAuth: true } },
   { path: '/account/wishlist', component: Wishlist, meta: { requiresAuth: true } },
+  { path: '/account/loyalty', component: MyLoyalty, meta: { requiresAuth: true } },
   { path: '/account/preferences', component: MyPreferences, meta: { requiresAuth: true } },
   { path: '/orders/:id', component: OrderDetail, props: true, meta: { requiresAuth: true } },
   {

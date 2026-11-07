@@ -11,6 +11,7 @@ export const accountLinks = [
   { to: '/orders', icon: 'mdi-truck-outline', label: 'nav.orders' },
   { to: '/account/addresses', icon: 'mdi-map-marker-outline', label: 'nav.addresses' },
   { to: '/account/wishlist', icon: 'mdi-heart-outline', label: 'nav.wishlist' },
+  { to: '/account/loyalty', icon: 'mdi-star-circle-outline', label: 'nav.loyalty' },
   { to: '/account/preferences', icon: 'mdi-tune-variant', label: 'nav.preferences' },
 ];
 
