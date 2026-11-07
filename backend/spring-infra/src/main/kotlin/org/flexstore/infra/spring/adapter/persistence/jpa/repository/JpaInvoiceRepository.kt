@@ -17,12 +17,13 @@ interface JpaInvoiceRepository : JpaRepository<InvoiceEntity, String> {
 
     fun findByCustomerOrderId(customerOrderId: String): InvoiceEntity?
 
-    // The next rank of the invoices of the year: the counter of the year is created at 1, or incremented. Its
-    // row stays locked until the end of the transaction, so that two invoices never take the same rank, and an
-    // issue rolled back gives its rank back
+    // The next rank of the invoices of the year: the invoice counter of the year is created at 1, or
+    // incremented. Its row stays locked until the end of the transaction, so that two invoices never take the
+    // same rank, and an issue rolled back gives its rank back
     @Query(
-        value = """INSERT INTO invoice_counter (id, year, last_rank) VALUES (:id, :year, 1)
-                   ON CONFLICT (year) DO UPDATE SET last_rank = invoice_counter.last_rank + 1, updated_at = now()
+        value = """INSERT INTO document_counter (id, kind, year, last_rank) VALUES (:id, 'INVOICE', :year, 1)
+                   ON CONFLICT (kind, year)
+                   DO UPDATE SET last_rank = document_counter.last_rank + 1, updated_at = now()
                    RETURNING last_rank""",
         nativeQuery = true
     )

@@ -3,7 +3,7 @@ package org.flexstore.infra.spring.adapter.persistence.jpa.entity
 import jakarta.persistence.*
 import java.time.Instant
 
-// The invoice of a paid order, numbered in the sequence of its year (invoice_counter)
+// The invoice of a paid order, numbered in the sequence of its year (document_counter)
 @Entity
 @Table(name = "invoice")
 data class InvoiceEntity(
