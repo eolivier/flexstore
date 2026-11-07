@@ -5,6 +5,7 @@
   import { useLanguage } from '@/composables/useLanguage';
   import { LANGUAGE_NAMES, PAGE_LANGUAGES } from '@/utils/language';
   import AccountBreadcrumbs from '@/components/account/AccountBreadcrumbs.vue';
+  import CookieSettings from '@/components/cookies/CookieSettings.vue';
 
   // The preferences of the signed-in customer: they see the display mode and the language they chose and can
   // change them here
@@ -42,5 +43,7 @@
         @update:model-value="switchColorMode"
       />
     </v-card>
+
+    <CookieSettings class="mt-6" />
   </v-container>
 </template>
