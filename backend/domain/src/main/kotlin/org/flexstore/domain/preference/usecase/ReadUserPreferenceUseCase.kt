@@ -6,23 +6,23 @@ import org.flexstore.domain.user.repository.UserRepository
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
-// A signed-in customer reads their display mode
+// A signed-in customer reads their preferences (their display mode and their language)
 class ReadUserPreferenceUseCase(
     private val userPreferenceRepository: UserPreferenceRepository,
     private val userRepository: UserRepository
-) : QueryUseCase<ColorModePreferenceReading, ColorModePreference> {
+) : QueryUseCase<UserPreferencesReading, UserPreferences> {
 
-    override fun getPreConditions(): PreConditions<ColorModePreferenceReading> =
+    override fun getPreConditions(): PreConditions<UserPreferencesReading> =
         PreConditions(customerExistsCondition())
 
     override fun getNominalQuery() =
-        NominalQuery<ColorModePreferenceReading, ColorModePreference> { reading ->
-            userPreferenceRepository.preferenceOf(reading.customer)
+        NominalQuery<UserPreferencesReading, UserPreferences> { reading ->
+            userPreferenceRepository.preferencesOf(reading.customer)
         }
 
-    override fun getPostConditions(): PostConditions<ColorModePreference> = PostConditions.none()
+    override fun getPostConditions(): PostConditions<UserPreferences> = PostConditions.none()
 
-    private fun customerExistsCondition() = PreCondition<ColorModePreferenceReading> { reading ->
+    private fun customerExistsCondition() = PreCondition<UserPreferencesReading> { reading ->
         if (userRepository.notExists(reading.customer)) {
             throw UserNotFoundException(ErrorMessage("User ${reading.customer.value} not found."))
         }

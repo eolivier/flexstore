@@ -2,6 +2,7 @@ package org.flexstore.infra.spring.adapter.rest
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.flexstore.domain.preference.UserPreference
 import org.flexstore.domain.preference.usecase.UserPreferenceUseCases
 import org.flexstore.domain.user.model.UserId
 import org.flexstore.domain.user.model.of
@@ -19,7 +20,7 @@ class LanguagePreferenceController(private val userPreferenceUseCases: UserPrefe
     @Operation(summary = "Retrieve the preferred language of the signed-in customer (NONE when they never chose)")
     @GetMapping("/api/language")
     fun getLanguagePreference(@AuthenticationPrincipal customer: Jwt): JsonLanguagePreference =
-        JsonLanguagePreference.of(userPreferenceUseCases.languagePreferenceOf(UserId.of(customer.subject)))
+        JsonLanguagePreference.of(userPreferenceUseCases.preferencesOf(UserId.of(customer.subject)).language)
 
     @Operation(summary = "Record the preferred language chosen by the signed-in customer")
     @PutMapping("/api/language")
@@ -27,8 +28,8 @@ class LanguagePreferenceController(private val userPreferenceUseCases: UserPrefe
         @AuthenticationPrincipal customer: Jwt,
         @RequestBody languageChoice: JsonLanguageChoice
     ): JsonLanguagePreference {
-        val languagePreference =
-            userPreferenceUseCases.recordLanguage(UserId.of(customer.subject), languageChoice.language)
-        return JsonLanguagePreference.of(languagePreference)
+        val preferredLanguage = UserPreference.PreferredLanguage(languageChoice.language)
+        val preferences = userPreferenceUseCases.record(UserId.of(customer.subject), preferredLanguage)
+        return JsonLanguagePreference.of(preferences.language)
     }
 }

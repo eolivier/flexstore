@@ -1,9 +1,6 @@
 package org.flexstore.infra.spring.adapter.persistence.jpa.repository
 
-import org.flexstore.domain.preference.ColorMode
-import org.flexstore.domain.preference.ColorModePreference
-import org.flexstore.domain.preference.LanguagePreference
-import org.flexstore.domain.preference.UserPreferenceRepository
+import org.flexstore.domain.preference.*
 import org.flexstore.domain.product.model.Language
 import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.user.model.UserId
@@ -24,27 +21,28 @@ class PostgresUserPreferenceRepositoryAdapter(private val jpaRepo: JpaUserPrefer
     UserPreferenceRepository {
 
     @Transactional(readOnly = true)
-    override fun preferenceOf(customer: UserId): ColorModePreference {
-        val colorMode = jpaRepo.findByUserId(customer.value)?.colorMode ?: return ColorModePreference.Unchosen
-        return ColorModePreference.Chosen(ColorMode.valueOf(colorMode))
+    override fun preferencesOf(customer: UserId): UserPreferences {
+        val entity = jpaRepo.findByUserId(customer.value) ?: return UserPreferences(
+            ColorModePreference.Unchosen, LanguagePreference.Unchosen
+        )
+        return UserPreferences(colorModePreferenceOf(entity), languagePreferenceOf(entity))
     }
 
-    override fun save(customer: UserId, colorMode: ColorMode) {
-        val stored = storedPreferenceOf(customer)
-        jpaRepo.save(stored.copy(colorMode = colorMode.name))
+    override fun save(customer: UserId, preference: UserPreference) {
+        val stored = jpaRepo.findByUserId(customer.value)
+            ?: UserPreferenceEntity(Identity.nextId().value, customer.value)
+        jpaRepo.save(
+            when (preference) {
+                is UserPreference.DisplayMode -> stored.copy(colorMode = preference.colorMode.name)
+                is UserPreference.PreferredLanguage -> stored.copy(language = preference.language.name)
+            }
+        )
     }
 
-    @Transactional(readOnly = true)
-    override fun languagePreferenceOf(customer: UserId): LanguagePreference {
-        val language = jpaRepo.findByUserId(customer.value)?.language ?: return LanguagePreference.Unchosen
-        return LanguagePreference.Chosen(Language.valueOf(language))
-    }
+    private fun colorModePreferenceOf(entity: UserPreferenceEntity) =
+        entity.colorMode?.let { ColorModePreference.Chosen(ColorMode.valueOf(it)) }
+            ?: ColorModePreference.Unchosen
 
-    override fun saveLanguage(customer: UserId, language: Language) {
-        val stored = storedPreferenceOf(customer)
-        jpaRepo.save(stored.copy(language = language.name))
-    }
-
-    private fun storedPreferenceOf(customer: UserId) =
-        jpaRepo.findByUserId(customer.value) ?: UserPreferenceEntity(Identity.nextId().value, customer.value)
+    private fun languagePreferenceOf(entity: UserPreferenceEntity) =
+        entity.language?.let { LanguagePreference.Chosen(Language.valueOf(it)) } ?: LanguagePreference.Unchosen
 }

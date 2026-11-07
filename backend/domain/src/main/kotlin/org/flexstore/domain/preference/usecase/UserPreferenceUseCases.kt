@@ -1,30 +1,19 @@
 package org.flexstore.domain.preference.usecase
 
 import org.flexstore.domain.preference.*
-import org.flexstore.domain.product.model.Language
 import org.flexstore.domain.user.model.UserId
 
 // The use cases of the preferences of a signed-in customer (their display mode and their language):
-// a preference is read back once recorded
+// the preferences are read back once one is recorded
 class UserPreferenceUseCases(
     private val readUserPreferenceUseCase: ReadUserPreferenceUseCase,
-    private val recordUserPreferenceUseCase: RecordUserPreferenceUseCase,
-    private val readLanguagePreferenceUseCase: ReadLanguagePreferenceUseCase,
-    private val recordLanguagePreferenceUseCase: RecordLanguagePreferenceUseCase
+    private val recordUserPreferenceUseCase: RecordUserPreferenceUseCase
 ) {
-    fun preferenceOf(customer: UserId): ColorModePreference =
-        readUserPreferenceUseCase.unfold(ColorModePreferenceReading(customer))
+    fun preferencesOf(customer: UserId): UserPreferences =
+        readUserPreferenceUseCase.unfold(UserPreferencesReading(customer))
 
-    fun record(customer: UserId, colorMode: ColorMode): ColorModePreference {
-        recordUserPreferenceUseCase.unfold(ColorModeChoice(customer, colorMode))
-        return preferenceOf(customer)
-    }
-
-    fun languagePreferenceOf(customer: UserId): LanguagePreference =
-        readLanguagePreferenceUseCase.unfold(LanguagePreferenceReading(customer))
-
-    fun recordLanguage(customer: UserId, language: Language): LanguagePreference {
-        recordLanguagePreferenceUseCase.unfold(LanguageChoice(customer, language))
-        return languagePreferenceOf(customer)
+    fun record(customer: UserId, preference: UserPreference): UserPreferences {
+        recordUserPreferenceUseCase.unfold(UserPreferenceChoice(customer, preference))
+        return preferencesOf(customer)
     }
 }

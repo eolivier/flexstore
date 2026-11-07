@@ -2,6 +2,8 @@ package org.flexstore.domain.preference.usecase
 
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.preference.*
+import org.flexstore.domain.preference.UserPreference.DisplayMode
+import org.flexstore.domain.preference.UserPreference.PreferredLanguage
 import org.flexstore.domain.product.model.Language
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.model.User.DefinedUser
@@ -24,110 +26,73 @@ class UserPreferenceUseCasesTest : WithAssertions {
         ReadUserPreferenceUseCase(userPreferenceRepository, userRepository)
     private val recordUserPreferenceUseCase =
         RecordUserPreferenceUseCase(userPreferenceRepository, userRepository)
-    private val readLanguagePreferenceUseCase =
-        ReadLanguagePreferenceUseCase(userPreferenceRepository, userRepository)
-    private val recordLanguagePreferenceUseCase =
-        RecordLanguagePreferenceUseCase(userPreferenceRepository, userRepository)
-    private val userPreferenceUseCases = UserPreferenceUseCases(
-        readUserPreferenceUseCase, recordUserPreferenceUseCase,
-        readLanguagePreferenceUseCase, recordLanguagePreferenceUseCase
-    )
+    private val userPreferenceUseCases =
+        UserPreferenceUseCases(readUserPreferenceUseCase, recordUserPreferenceUseCase)
 
     @Test
     fun `a customer who never chose should have no preference`() {
         // Act
-        val colorModePreference = userPreferenceUseCases.preferenceOf(customer.id)
+        val preferences = userPreferenceUseCases.preferencesOf(customer.id)
         // Assert
-        assertThat(colorModePreference).isEqualTo(ColorModePreference.Unchosen)
+        assertThat(preferences)
+            .isEqualTo(UserPreferences(ColorModePreference.Unchosen, LanguagePreference.Unchosen))
     }
 
     @ParameterizedTest(name = "a customer chooses the mode {0}")
     @EnumSource(ColorMode::class)
     fun `a customer should record their display mode`(colorMode: ColorMode) {
         // Act
-        val colorModePreference = userPreferenceUseCases.record(customer.id, colorMode)
+        val preferences = userPreferenceUseCases.record(customer.id, DisplayMode(colorMode))
         // Assert
-        assertThat(colorModePreference).isEqualTo(ColorModePreference.Chosen(colorMode))
-    }
-
-    @Test
-    fun `a new choice should replace the previous one`() {
-        // Arrange
-        userPreferenceUseCases.record(customer.id, ColorMode.DARK)
-        // Act
-        val colorModePreference = userPreferenceUseCases.record(customer.id, ColorMode.LIGHT)
-        // Assert
-        assertThat(colorModePreference).isEqualTo(ColorModePreference.Chosen(ColorMode.LIGHT))
-    }
-
-    @Test
-    fun `an unknown user should not record a display mode`() {
-        // Arrange
-        val unknownUser = ValidUserId("unknown")
-        // Act
-        val thrown = catchThrowable { userPreferenceUseCases.record(unknownUser, ColorMode.DARK) }
-        // Assert
-        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
-    }
-
-    @Test
-    fun `an unknown user should not read a display mode`() {
-        // Act
-        val thrown = catchThrowable { userPreferenceUseCases.preferenceOf(ValidUserId("unknown")) }
-        // Assert
-        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
-    }
-
-    @Test
-    fun `a customer who never chose a language should have no language preference`() {
-        // Act
-        val languagePreference = userPreferenceUseCases.languagePreferenceOf(customer.id)
-        // Assert
-        assertThat(languagePreference).isEqualTo(LanguagePreference.Unchosen)
+        assertThat(preferences.colorMode).isEqualTo(ColorModePreference.Chosen(colorMode))
     }
 
     @ParameterizedTest(name = "a customer chooses the language {0}")
     @EnumSource(Language::class)
     fun `a customer should record their preferred language`(language: Language) {
         // Act
-        val languagePreference = userPreferenceUseCases.recordLanguage(customer.id, language)
+        val preferences = userPreferenceUseCases.record(customer.id, PreferredLanguage(language))
         // Assert
-        assertThat(languagePreference).isEqualTo(LanguagePreference.Chosen(language))
+        assertThat(preferences.language).isEqualTo(LanguagePreference.Chosen(language))
     }
 
     @Test
-    fun `a new language choice should replace the previous one`() {
+    fun `a new choice should replace the previous one`() {
         // Arrange
-        userPreferenceUseCases.recordLanguage(customer.id, Language.FR)
+        userPreferenceUseCases.record(customer.id, DisplayMode(ColorMode.DARK))
+        userPreferenceUseCases.record(customer.id, PreferredLanguage(Language.FR))
         // Act
-        val languagePreference = userPreferenceUseCases.recordLanguage(customer.id, Language.EN)
+        val preferences = userPreferenceUseCases.record(customer.id, DisplayMode(ColorMode.LIGHT))
         // Assert
-        assertThat(languagePreference).isEqualTo(LanguagePreference.Chosen(Language.EN))
+        assertThat(preferences.colorMode).isEqualTo(ColorModePreference.Chosen(ColorMode.LIGHT))
     }
 
     @Test
     fun `choosing a language should keep the display mode`() {
         // Arrange
-        userPreferenceUseCases.record(customer.id, ColorMode.DARK)
+        userPreferenceUseCases.record(customer.id, DisplayMode(ColorMode.DARK))
         // Act
-        userPreferenceUseCases.recordLanguage(customer.id, Language.FR)
+        val preferences = userPreferenceUseCases.record(customer.id, PreferredLanguage(Language.FR))
         // Assert
-        val colorModePreference = userPreferenceUseCases.preferenceOf(customer.id)
-        assertThat(colorModePreference).isEqualTo(ColorModePreference.Chosen(ColorMode.DARK))
+        assertThat(preferences).isEqualTo(
+            UserPreferences(ColorModePreference.Chosen(ColorMode.DARK), LanguagePreference.Chosen(Language.FR))
+        )
     }
 
     @Test
-    fun `an unknown user should not record a language`() {
+    fun `an unknown user should not record a preference`() {
+        // Arrange
+        val unknownUser = ValidUserId("unknown")
         // Act
-        val thrown = catchThrowable { userPreferenceUseCases.recordLanguage(ValidUserId("unknown"), Language.FR) }
+        val thrown = catchThrowable { userPreferenceUseCases.record(unknownUser, DisplayMode(ColorMode.DARK)) }
         // Assert
         assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
     }
 
     @Test
-    fun `an unknown user should not read a language`() {
+    fun `an unknown user should not read preferences`() {
         // Act
-        val thrown = catchThrowable { userPreferenceUseCases.languagePreferenceOf(ValidUserId("unknown")) }
+        val thrown = catchThrowable { userPreferenceUseCases.preferencesOf(ValidUserId("unknown")) }
         // Assert
         assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
     }

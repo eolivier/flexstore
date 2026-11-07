@@ -594,27 +594,10 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     ) = RecordUserPreferenceUseCase(userPreferenceRepository, userRepository)
 
     @Bean
-    open fun readLanguagePreferenceUseCase(
-        userPreferenceRepository: UserPreferenceRepository,
-        userRepository: UserRepository
-    ) = ReadLanguagePreferenceUseCase(userPreferenceRepository, userRepository)
-
-    @Bean
-    open fun recordLanguagePreferenceUseCase(
-        userPreferenceRepository: UserPreferenceRepository,
-        userRepository: UserRepository
-    ) = RecordLanguagePreferenceUseCase(userPreferenceRepository, userRepository)
-
-    @Bean
     open fun userPreferenceUseCases(
         readUserPreferenceUseCase: ReadUserPreferenceUseCase,
-        recordUserPreferenceUseCase: RecordUserPreferenceUseCase,
-        readLanguagePreferenceUseCase: ReadLanguagePreferenceUseCase,
-        recordLanguagePreferenceUseCase: RecordLanguagePreferenceUseCase
-    ) = UserPreferenceUseCases(
-        readUserPreferenceUseCase, recordUserPreferenceUseCase,
-        readLanguagePreferenceUseCase, recordLanguagePreferenceUseCase
-    )
+        recordUserPreferenceUseCase: RecordUserPreferenceUseCase
+    ) = UserPreferenceUseCases(readUserPreferenceUseCase, recordUserPreferenceUseCase)
 
     @Bean
     open fun openSessionUseCase(
