@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import { ref, watch } from 'vue';
+  import SettingTitle from './SettingTitle.vue';
   import { useI18n } from 'vue-i18n';
   import { useSettingsStore } from '@/stores/settings.store';
 
@@ -36,7 +37,7 @@
       <v-icon icon="mdi-truck-fast-outline" size="small" />
     </v-avatar>
     <div class="flex-grow-1">
-      <h2 class="text-subtitle-1 font-weight-bold">{{ t('settings.freeShippingThreshold') }}</h2>
+      <SettingTitle>{{ t('settings.freeShippingThreshold') }}</SettingTitle>
       <p class="text-body-2 text-medium-emphasis mb-3">{{ t('settings.freeShippingThresholdText') }}</p>
       <v-form v-model="valid" class="d-flex align-start ga-3" @submit.prevent="save">
         <v-text-field

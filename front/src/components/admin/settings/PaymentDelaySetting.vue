@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import { ref, watch } from 'vue';
+  import SettingTitle from './SettingTitle.vue';
   import { useI18n } from 'vue-i18n';
   import { MAX_PAYMENT_DELAY_MINUTES, useSettingsStore } from '@/stores/settings.store';
 
@@ -43,7 +44,7 @@
       <v-icon icon="mdi-timer-sand" size="small" />
     </v-avatar>
     <div class="flex-grow-1">
-      <h2 class="text-subtitle-1 font-weight-bold">{{ t('settings.paymentDelay') }}</h2>
+      <SettingTitle>{{ t('settings.paymentDelay') }}</SettingTitle>
       <p class="text-body-2 text-medium-emphasis mb-3">{{ t('settings.paymentDelayText') }}</p>
       <v-form v-model="valid" class="d-flex align-start ga-3" @submit.prevent="save">
         <v-text-field

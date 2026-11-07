@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import { ref, watch } from 'vue';
+  import SettingTitle from './SettingTitle.vue';
   import { useI18n } from 'vue-i18n';
   import { MAX_ABANDONED_CART_DELAY_HOURS, useSettingsStore } from '@/stores/settings.store';
 
@@ -52,7 +53,7 @@
       <v-icon icon="mdi-cart-arrow-right" size="small" />
     </v-avatar>
     <div class="flex-grow-1">
-      <h2 class="text-subtitle-1 font-weight-bold">{{ t('settings.abandonedCartReminder') }}</h2>
+      <SettingTitle>{{ t('settings.abandonedCartReminder') }}</SettingTitle>
       <p class="text-body-2 text-medium-emphasis mb-3">{{ t('settings.abandonedCartReminderText') }}</p>
       <v-form v-model="valid" class="d-flex align-start ga-3" @submit.prevent="saveDelay">
         <v-text-field
