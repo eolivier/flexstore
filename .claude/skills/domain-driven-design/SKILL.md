@@ -1,6 +1,6 @@
 ---
 name: domain-driven-design
-description: Domain-Driven Design and hexagonal architecture principles to follow when writing or reviewing back-end code - where business rules live, what entities, value objects and aggregates may reference (value objects rather than primitive types), the role of use cases, domain services, repositories and adapters, groups of use cases named after their sub-domain (OrderUseCases, not a facade), every use case implementing the UseCase interface of ucop (or QueryUseCase when it answers), methods of the domain model that expose neither a primitive type nor a raw collection, the current moment read from InstantProvider (never a clock member), every administration use case checking in its own precondition that its actor is an administrator, one use case (not two) for a journey that the customer concerned or an administrator may run, a precondition or postcondition taken out of its use case staying in the usecase package (in a sub-package from more than 3). Use before creating or changing an entity, aggregate, value object, use case, domain service, port (repository interface) or infrastructure adapter, and when reviewing domain code.
+description: Domain-Driven Design and hexagonal architecture principles to follow when writing or reviewing back-end code - where business rules live, what entities, value objects and aggregates may reference (value objects rather than primitive types), the role of use cases, domain services, repositories and adapters, groups of use cases named after their sub-domain (OrderUseCases, not a facade), every use case implementing the UseCase interface of ucop (or QueryUseCase when it answers), methods of the domain model that expose neither a primitive type nor a raw collection, the current moment read from InstantProvider (never a clock member), every administration use case checking in its own precondition that its actor is an administrator, one use case (not two) for a journey that the customer concerned or an administrator may run, a precondition or postcondition taken out of its use case staying in the usecase package (in a sub-package from more than 3), a use case that is not too fine-grained (one use case for the same action on several variants of a concept, such as the display mode and the language of the preferences). Use before creating or changing an entity, aggregate, value object, use case, domain service, port (repository interface) or infrastructure adapter, and when reviewing domain code.
 ---
 
 # Domain-Driven Design
@@ -630,3 +630,39 @@ domain/order/usecase/postcondition/OrderIsSavedPostCondition.kt, ...
 ```
 
 Why: the conditions are read with the use cases that run them, and the dependency direction of section 4 is kept (`model` knows nothing of the use cases); a sub-package keeps the folder of the use cases readable once the conditions outnumber them.
+
+## 16. A use case is not too fine-grained: one use case for the same action on the variants of a concept
+
+A use case is a journey of the user (section 14), not a variant of its data. When several use cases run **the same action with the same rules** (same actor, same preconditions, same scenario, same postconditions) and only differ by **which attribute of the same concept they touch**, they are **one use case**, whose request carries the variant.
+
+Avoid (the display mode and the language are two preferences of the same customer, recorded the same way; the second use case copies the first):
+
+```kotlin
+class RecordUserPreferenceUseCase(...) : UseCase<ColorModeChoice>              // records the display mode
+class RecordLanguagePreferenceUseCase(...) : UseCase<LanguageChoice>           // records the language
+class ReadUserPreferenceUseCase(...) : QueryUseCase<ColorModePreferenceReading, ColorModePreference>
+class ReadLanguagePreferenceUseCase(...) : QueryUseCase<LanguagePreferenceReading, LanguagePreference>
+```
+
+Prefer:
+
+```kotlin
+// One preference a customer chooses: the variants are in the request, not in the use cases
+sealed interface UserPreference {
+    data class DisplayMode(val colorMode: ColorMode) : UserPreference
+    data class PreferredLanguage(val language: Language) : UserPreference
+}
+
+data class UserPreferenceChoice(val customer: UserId, val preference: UserPreference)
+
+class RecordUserPreferenceUseCase(...) : UseCase<UserPreferenceChoice>
+class ReadUserPreferenceUseCase(...) : QueryUseCase<UserPreferencesReading, UserPreferences>
+```
+
+Why: the rules (the customer exists, the preference is stored) are written once; a third preference (a currency, a newsletter) is a new variant of the request, not a new use case with its preconditions, its postconditions, its bean and its tests copied from the others. Too many fine-grained use cases also scatter one journey over many classes and make the group of use cases (section 9) grow with every attribute.
+
+Details:
+- **Different rules make different use cases**: when a variant has its own precondition, its own scenario or its own actor, it stays a use case of its own. The test is the rules, not the name of the attribute.
+- **The variant is typed in the request** (a sealed interface, section 8): not a string, a flag or a nullable field per variant.
+- **The repository follows**: one `save` taking the variant and one read returning the whole concept, rather than a pair of methods per attribute.
+- **The REST endpoints may stay one per attribute**: only the domain use cases are grouped; the adapters translate each endpoint to the variant of the request.
