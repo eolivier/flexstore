@@ -3,9 +3,10 @@
   import { useI18n } from 'vue-i18n';
   import type { JsonDailySales } from '@/generated';
   import { barHeightPercent } from '@/utils/sales';
+  import { formatPrice } from '@/utils/price';
 
   // The orders of each day of the period, as bars
-  const props = defineProps<{ days: JsonDailySales[] }>();
+  const props = defineProps<{ days: JsonDailySales[]; currency: string }>();
 
   const { t, locale } = useI18n();
 
@@ -14,7 +15,11 @@
     props.days.map((day) => ({
       day: day.day,
       height: barHeightPercent(day.orderCount, busiestDayOrderCount.value),
-      label: t('salesDashboard.dayOrders', { day: dayOf(day), n: day.orderCount }),
+      label: t('salesDashboard.dayOrders', {
+        day: dayOf(day),
+        n: day.orderCount,
+        amount: formatPrice(day.revenue, props.currency, locale.value),
+      }),
     }))
   );
 

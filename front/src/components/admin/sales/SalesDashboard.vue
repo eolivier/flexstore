@@ -44,7 +44,10 @@
     <v-skeleton-loader v-else-if="!salesDashboardStore.dashboard" type="card, card" />
     <div v-else class="d-flex flex-column ga-6" :class="{ 'opacity-60': salesDashboardStore.loading }">
       <SalesFigures :dashboard="salesDashboardStore.dashboard" />
-      <DailyOrdersChart :days="salesDashboardStore.dashboard.days" />
+      <DailyOrdersChart
+        :days="salesDashboardStore.dashboard.days"
+        :currency="salesDashboardStore.dashboard.currency"
+      />
       <BestSellersTable
         :best-sellers="salesDashboardStore.dashboard.bestSellers"
         :currency="salesDashboardStore.dashboard.currency"
