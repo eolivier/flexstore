@@ -23,6 +23,10 @@ const val SELLERS_CACHE = "sellers"
 // The cache of the reads of the product table (the catalog, a product by id, a category): every save evicts it
 const val PRODUCTS_CACHE = "products"
 
+// The cache of the read of the contents of the shop pages (key words, description, Google Analytics id), all of
+// them at once: every edit of a content evicts it
+const val SHOP_PAGE_CONTENT_CACHE = "shopPageContent"
+
 private const val MAXIMUM_CACHED_ENTRIES = 1_000L
 private const val ENTRY_LIFETIME_MINUTES = 10L
 
@@ -32,7 +36,9 @@ open class CacheConfig {
 
     @Bean
     open fun cacheManager(): CacheManager {
-        val cacheManager = CaffeineCacheManager(USERS_CACHE, SHOP_SETTINGS_CACHE, SELLERS_CACHE, PRODUCTS_CACHE)
+        val cacheManager = CaffeineCacheManager(
+            USERS_CACHE, SHOP_SETTINGS_CACHE, SELLERS_CACHE, PRODUCTS_CACHE, SHOP_PAGE_CONTENT_CACHE
+        )
         val entryLifetime = Duration.ofMinutes(ENTRY_LIFETIME_MINUTES)
         val caffeine = Caffeine.newBuilder().maximumSize(MAXIMUM_CACHED_ENTRIES).expireAfterWrite(entryLifetime)
         cacheManager.setCaffeine(caffeine)

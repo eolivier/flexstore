@@ -3,8 +3,10 @@
   import AppFooter from './components/layout/AppFooter.vue';
   import CookieBanner from './components/cookies/CookieBanner.vue';
   import { useRouteHead } from './composables/useRouteHead';
+  import { useShopPageContentHead } from './composables/useShopPageContentHead';
 
   useRouteHead();
+  useShopPageContentHead();
 </script>
 
 <template>

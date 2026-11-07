@@ -1386,6 +1386,49 @@ paths:
           description: Not an administrator
         "404":
           description: No such legal page
+  /api/shop-page-contents:
+    get:
+      tags:
+      - Shop page content
+      summary: Retrieve the contents of the shop pages (key words, description, Google Analytics id), public
+      operationId: getShopPageContents
+      responses:
+        "200":
+          description: One content for each type; its text is empty until the administrators write it
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonShopPageContents"
+  /api/admin/shop-page-contents/{type}:
+    put:
+      tags:
+      - Administration
+      summary: Edit the content of a type of the shop pages, an empty text clears it (ADMIN role)
+      operationId: editShopPageContent
+      security:
+      - bearerAuth: []
+      parameters:
+      - $ref: "#/components/parameters/ShopPageContentTypePath"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonShopPageContentText"
+      responses:
+        "200":
+          description: The contents of the shop pages, with the one just edited
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonShopPageContents"
+        "400":
+          description: A text of more than 1 000 characters, or a Google Analytics id with other characters than
+            letters, digits and hyphens
+        "403":
+          description: Not an administrator
+        "404":
+          description: No such type of content
   /api/orders/discount-preview:
     get:
       tags:
@@ -2169,6 +2212,14 @@ components:
       schema:
         type: string
         enum: [legal-notice, terms-of-sale, privacy-policy]
+    ShopPageContentTypePath:
+      name: type
+      in: path
+      required: true
+      description: The key words, the Google Analytics id or the description of the shop
+      schema:
+        type: string
+        enum: [meta-key-words, google-analytics-id, meta-shop-description]
   securitySchemes:
     bearerAuth:
       type: http
@@ -2203,6 +2254,35 @@ components:
         text:
           type: string
           description: Plain text, its paragraphs separated by line breaks, 50 000 characters at most
+    JsonShopPageContents:
+      type: object
+      required:
+        - contents
+      properties:
+        contents:
+          type: array
+          items:
+            $ref: "#/components/schemas/JsonShopPageContent"
+    JsonShopPageContent:
+      type: object
+      required:
+        - type
+        - text
+      properties:
+        type:
+          type: string
+          enum: [META_KEY_WORDS, GOOGLE_ANALYTICS_ID, META_SHOP_DESCRIPTION]
+        text:
+          type: string
+          description: Plain text, 1 000 characters at most; empty until the administrators write it
+    JsonShopPageContentText:
+      type: object
+      required:
+        - text
+      properties:
+        text:
+          type: string
+          description: Plain text, 1 000 characters at most; a Google Analytics id is letters, digits and hyphens
     JsonSeller:
       type: object
       required:

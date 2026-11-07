@@ -11,6 +11,7 @@ import org.flexstore.domain.payment.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.image.*
 import org.flexstore.domain.legal.*
+import org.flexstore.domain.pagecontent.*
 import org.flexstore.domain.product.model.*
 import org.flexstore.domain.review.*
 import org.flexstore.domain.sales.*
@@ -74,7 +75,7 @@ class RestExceptionHandler {
             is ProductImageForbiddenException, is StockChangeForbiddenException,
             is ReviewModerationForbiddenException, is OrderAdministrationForbiddenException,
             is CreditNoteForbiddenException, is SalesDashboardForbiddenException,
-            is EnvironmentAdministrationForbiddenException,
+            is EnvironmentAdministrationForbiddenException, is ShopPageContentForbiddenException,
             is TwoFactorAuthenticationForbiddenException -> ResponseEntity
                 .status(403)
                 .body(mapOf("error" to (ex.message ?: "Forbidden")))
@@ -150,6 +151,9 @@ class RestExceptionHandler {
             is InvalidLegalPageException -> ResponseEntity
                 .status(400)
                 .body(mapOf("error" to (ex.message ?: "Invalid legal page")))
+            is InvalidShopPageContentException -> ResponseEntity
+                .status(400)
+                .body(mapOf("error" to (ex.message ?: "Invalid shop page content")))
             is InvalidAbandonedCartDelayException -> ResponseEntity
                 .status(400)
                 .body(mapOf("error" to (ex.message ?: "Invalid delay of the abandoned cart reminder")))

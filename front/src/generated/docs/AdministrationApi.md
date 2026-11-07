@@ -10,6 +10,7 @@ All URIs are relative to *http://localhost:8080*
 |[**createDiscountCode**](#creatediscountcode) | **POST** /api/admin/discount-codes | Give a discount code (ADMIN role)|
 |[**deleteDiscountCode**](#deletediscountcode) | **DELETE** /api/admin/discount-codes/{code} | Delete a discount code; the orders that used it keep their discount (ADMIN role)|
 |[**deleteReview**](#deletereview) | **DELETE** /api/admin/reviews/{id} | Delete a review; the rating of its product no longer counts it (ADMIN role)|
+|[**editShopPageContent**](#editshoppagecontent) | **PUT** /api/admin/shop-page-contents/{type} | Edit the content of a type of the shop pages, an empty text clears it (ADMIN role)|
 |[**getAdminProduct**](#getadminproduct) | **GET** /api/admin/products/{id} | Retrieve a product with its translations in every language, to edit it|
 |[**getAllOrders**](#getallorders) | **GET** /api/admin/orders | Retrieve a page of the orders of all the customers, newest first, with their customer (ADMIN role)|
 |[**getAnyOrder**](#getanyorder) | **GET** /api/admin/orders/{id} | Retrieve any order, with its customer (ADMIN role)|
@@ -345,6 +346,63 @@ void (empty response body)
 |-------------|-------------|------------------|
 |**204** | The review is deleted |  -  |
 |**404** | Unknown review |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **editShopPageContent**
+> JsonShopPageContents editShopPageContent(jsonShopPageContentText)
+
+
+### Example
+
+```typescript
+import {
+    AdministrationApi,
+    Configuration,
+    JsonShopPageContentText
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdministrationApi(configuration);
+
+let type: 'meta-key-words' | 'google-analytics-id' | 'meta-shop-description'; //The key words, the Google Analytics id or the description of the shop (default to undefined)
+let jsonShopPageContentText: JsonShopPageContentText; //
+
+const { status, data } = await apiInstance.editShopPageContent(
+    type,
+    jsonShopPageContentText
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **jsonShopPageContentText** | **JsonShopPageContentText**|  | |
+| **type** | [**&#39;meta-key-words&#39; | &#39;google-analytics-id&#39; | &#39;meta-shop-description&#39;**]**Array<&#39;meta-key-words&#39; &#124; &#39;google-analytics-id&#39; &#124; &#39;meta-shop-description&#39;>** | The key words, the Google Analytics id or the description of the shop | defaults to undefined|
+
+
+### Return type
+
+**JsonShopPageContents**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The contents of the shop pages, with the one just edited |  -  |
+|**400** | A text of more than 1 000 characters, or a Google Analytics id with other characters than letters, digits and hyphens |  -  |
+|**403** | Not an administrator |  -  |
+|**404** | No such type of content |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
