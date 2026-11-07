@@ -33,6 +33,7 @@ export default {
       environmentText: 'Check which environment variables of the back end are defined.',
       sellerText: 'Edit the shop as written on its invoices: its name, address, SIRET and VAT number.',
       legalPagesText: 'Write the legal notice, the terms of sale and the privacy policy of the shop.',
+      shopPageContentText: 'Edit the key words, the description and the Google Analytics id of the shop.',
     },
     environment: {
       title: 'Environment',
@@ -171,7 +172,10 @@ export default {
           },
           discountCodes: { title: 'Discount codes', text: 'Create promotional codes for your customers.' },
           seller: { title: 'Seller information', text: 'Set the identity of the shop shown on invoices.' },
-          legalPages: { title: 'Legal pages', text: 'Edit the legal notice, the terms of sale and the privacy policy.' },
+          legalPages: {
+            title: 'Legal pages',
+            text: 'Edit the legal notice, the terms of sale and the privacy policy.',
+          },
           settings: { title: 'Settings', text: 'Adjust the settings of the shop.' },
           environment: {
             title: 'Environment',
@@ -777,6 +781,7 @@ export default {
       environment: 'Environment',
       seller: 'Seller',
       legalPages: 'Legal pages',
+      shopPageContent: 'Shop page content',
       legalNotice: 'Legal notice',
       termsOfSale: 'Terms of sale',
       privacyPolicy: 'Privacy policy',
@@ -808,6 +813,30 @@ export default {
       invalid: 'The shop refused the page: its text is empty or too long.',
       saveError: 'The page could not be published.',
       versionsNote: 'Each publication is kept as a new version: the versions before are not lost.',
+    },
+    shopPageContent: {
+      title: 'Shop page content',
+      subtitle:
+        'What the shop tells the search engines and the visitor statistics. Each change is shown at once to the visitors.',
+      META_KEY_WORDS: {
+        label: 'Key words',
+        hint: 'Key words of the shop, separated by commas',
+      },
+      META_SHOP_DESCRIPTION: {
+        label: 'Description of the shop',
+        hint: 'The text that the search engines show under the title of the shop',
+      },
+      GOOGLE_ANALYTICS_ID: {
+        label: 'Google Analytics id',
+        hint: 'For example G-ABC123DEF4. Visits are only measured for the visitors who accepted the cookies. Empty: no measure',
+      },
+      tooLong: '1,000 characters at most',
+      badIdentifier: 'Letters, digits and hyphens only',
+      save: 'Save',
+      saved: 'Saved: the visitors now read this content.',
+      invalid: 'The shop refused the content: it is too long, or it is not an identifier.',
+      saveError: 'The content could not be saved.',
+      loadError: 'The content of the shop pages could not be loaded.',
     },
     cookies: {
       title: 'Cookies',
@@ -1011,16 +1040,25 @@ export default {
         'Modifier la boutique telle qu’elle figure sur ses factures : raison sociale, adresse, SIRET et TVA.',
       legalPagesText:
         'Rédiger les mentions légales, les conditions générales de vente et la politique de confidentialité de la boutique.',
+      shopPageContentText:
+        'Modifier les mots-clés, la description et l’identifiant Google Analytics de la boutique.',
     },
     environment: {
       title: 'Environnement',
-      subtitle: 'Les variables d’environnement du back end. Les mots de passe et les clés ne sont jamais affichés.',
+      subtitle:
+        'Les variables d’environnement du back end. Les mots de passe et les clés ne sont jamais affichés.',
       name: 'Variable',
       necessityTitle: 'Besoin',
       statusTitle: 'État',
       value: 'Valeur',
       hidden: 'Masquée (secret)',
-      category: { EMAIL: 'Email', PAYMENT: 'Paiement', MCP: 'MCP', DATABASE: 'Base de données', OTHER: 'Autres' },
+      category: {
+        EMAIL: 'Email',
+        PAYMENT: 'Paiement',
+        MCP: 'MCP',
+        DATABASE: 'Base de données',
+        OTHER: 'Autres',
+      },
       necessity: { REQUIRED: 'Obligatoire', OPTIONAL: 'Facultative' },
       status: { DEFINED: 'Définie', UNDEFINED: 'Non définie' },
       missing: '{n} variable(s) obligatoire(s) non définie(s).',
@@ -1182,7 +1220,7 @@ export default {
           subtitle: 'Des tâches planifiées qui se déclenchent seules, sans rien à faire.',
           unpaidOrders: {
             title: 'Commandes impayées libérées',
-            text: "Une commande non payée dans le délai de paiement des paramètres est annulée automatiquement, pour que ses unités réservées soient de nouveau en vente.",
+            text: 'Une commande non payée dans le délai de paiement des paramètres est annulée automatiquement, pour que ses unités réservées soient de nouveau en vente.',
           },
           abandonedCart: {
             title: 'Rappel de panier abandonné',
@@ -1781,6 +1819,7 @@ export default {
       environment: 'Environnement',
       seller: 'Vendeur',
       legalPages: 'Pages légales',
+      shopPageContent: 'Contenu des pages',
       legalNotice: 'Mentions légales',
       termsOfSale: 'Conditions générales de vente',
       privacyPolicy: 'Politique de confidentialité',
@@ -1813,6 +1852,30 @@ export default {
       saveError: 'La page n’a pas pu être publiée.',
       versionsNote:
         'Chaque publication est conservée comme une nouvelle version : les précédentes ne sont pas perdues.',
+    },
+    shopPageContent: {
+      title: 'Contenu des pages de la boutique',
+      subtitle:
+        'Ce que la boutique dit aux moteurs de recherche et aux statistiques de visite. Chaque modification est visible tout de suite par les visiteurs.',
+      META_KEY_WORDS: {
+        label: 'Mots-clés',
+        hint: 'Les mots-clés de la boutique, séparés par des virgules',
+      },
+      META_SHOP_DESCRIPTION: {
+        label: 'Description de la boutique',
+        hint: 'Le texte que les moteurs de recherche affichent sous le titre de la boutique',
+      },
+      GOOGLE_ANALYTICS_ID: {
+        label: 'Identifiant Google Analytics',
+        hint: 'Par exemple G-ABC123DEF4. Les visites ne sont mesurées que pour les visiteurs qui ont accepté les cookies. Vide : aucune mesure',
+      },
+      tooLong: '1 000 caractères au maximum',
+      badIdentifier: 'Lettres, chiffres et tirets uniquement',
+      save: 'Enregistrer',
+      saved: 'Enregistré : les visiteurs lisent désormais ce contenu.',
+      invalid: 'La boutique a refusé le contenu : il est trop long, ou ce n’est pas un identifiant.',
+      saveError: 'Le contenu n’a pas pu être enregistré.',
+      loadError: 'Le contenu des pages de la boutique n’a pas pu être chargé.',
     },
     cookies: {
       title: 'Cookies',

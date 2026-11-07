@@ -981,6 +981,31 @@ export interface JsonShippingOptions {
     'freeShippingThreshold': number;
     'currency': string;
 }
+export interface JsonShopPageContent {
+    'type': JsonShopPageContentTypeEnum;
+    /**
+     * Plain text, 1 000 characters at most; empty until the administrators write it
+     */
+    'text': string;
+}
+
+export const JsonShopPageContentTypeEnum = {
+    MetaKeyWords: 'META_KEY_WORDS',
+    GoogleAnalyticsId: 'GOOGLE_ANALYTICS_ID',
+    MetaShopDescription: 'META_SHOP_DESCRIPTION'
+} as const;
+
+export type JsonShopPageContentTypeEnum = typeof JsonShopPageContentTypeEnum[keyof typeof JsonShopPageContentTypeEnum];
+
+export interface JsonShopPageContentText {
+    /**
+     * Plain text, 1 000 characters at most; a Google Analytics id is letters, digits and hyphens
+     */
+    'text': string;
+}
+export interface JsonShopPageContents {
+    'contents': Array<JsonShopPageContent>;
+}
 export interface JsonSkuProposal {
     'sku': string;
 }
@@ -2101,6 +2126,50 @@ export const AdministrationApiAxiosParamCreator = function (configuration?: Conf
         },
         /**
          * 
+         * @summary Edit the content of a type of the shop pages, an empty text clears it (ADMIN role)
+         * @param {EditShopPageContentTypeEnum} type The key words, the Google Analytics id or the description of the shop
+         * @param {JsonShopPageContentText} jsonShopPageContentText 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        editShopPageContent: async (type: EditShopPageContentTypeEnum, jsonShopPageContentText: JsonShopPageContentText, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'type' is not null or undefined
+            assertParamExists('editShopPageContent', 'type', type)
+            // verify required parameter 'jsonShopPageContentText' is not null or undefined
+            assertParamExists('editShopPageContent', 'jsonShopPageContentText', jsonShopPageContentText)
+            const localVarPath = `/api/admin/shop-page-contents/{type}`
+                .replace(`{${"type"}}`, encodeURIComponent(String(type)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonShopPageContentText, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Retrieve a product with its translations in every language, to edit it
          * @param {string} id 
          * @param {*} [options] Override http request option.
@@ -2621,6 +2690,20 @@ export const AdministrationApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Edit the content of a type of the shop pages, an empty text clears it (ADMIN role)
+         * @param {EditShopPageContentTypeEnum} type The key words, the Google Analytics id or the description of the shop
+         * @param {JsonShopPageContentText} jsonShopPageContentText 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async editShopPageContent(type: EditShopPageContentTypeEnum, jsonShopPageContentText: JsonShopPageContentText, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonShopPageContents>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.editShopPageContent(type, jsonShopPageContentText, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdministrationApi.editShopPageContent']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Retrieve a product with its translations in every language, to edit it
          * @param {string} id 
          * @param {*} [options] Override http request option.
@@ -2836,6 +2919,17 @@ export const AdministrationApiFactory = function (configuration?: Configuration,
         },
         /**
          * 
+         * @summary Edit the content of a type of the shop pages, an empty text clears it (ADMIN role)
+         * @param {EditShopPageContentTypeEnum} type The key words, the Google Analytics id or the description of the shop
+         * @param {JsonShopPageContentText} jsonShopPageContentText 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        editShopPageContent(type: EditShopPageContentTypeEnum, jsonShopPageContentText: JsonShopPageContentText, options?: RawAxiosRequestConfig): AxiosPromise<JsonShopPageContents> {
+            return localVarFp.editShopPageContent(type, jsonShopPageContentText, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Retrieve a product with its translations in every language, to edit it
          * @param {string} id 
          * @param {*} [options] Override http request option.
@@ -3022,6 +3116,18 @@ export class AdministrationApi extends BaseAPI {
 
     /**
      * 
+     * @summary Edit the content of a type of the shop pages, an empty text clears it (ADMIN role)
+     * @param {EditShopPageContentTypeEnum} type The key words, the Google Analytics id or the description of the shop
+     * @param {JsonShopPageContentText} jsonShopPageContentText 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public editShopPageContent(type: EditShopPageContentTypeEnum, jsonShopPageContentText: JsonShopPageContentText, options?: RawAxiosRequestConfig) {
+        return AdministrationApiFp(this.configuration).editShopPageContent(type, jsonShopPageContentText, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Retrieve a product with its translations in every language, to edit it
      * @param {string} id 
      * @param {*} [options] Override http request option.
@@ -3143,6 +3249,12 @@ export class AdministrationApi extends BaseAPI {
     }
 }
 
+export const EditShopPageContentTypeEnum = {
+    MetaKeyWords: 'meta-key-words',
+    GoogleAnalyticsId: 'google-analytics-id',
+    MetaShopDescription: 'meta-shop-description'
+} as const;
+export type EditShopPageContentTypeEnum = typeof EditShopPageContentTypeEnum[keyof typeof EditShopPageContentTypeEnum];
 export const PublishLegalPageKindEnum = {
     LegalNotice: 'legal-notice',
     TermsOfSale: 'terms-of-sale',
@@ -5905,6 +6017,100 @@ export class SellerApi extends BaseAPI {
      */
     public getSocialNetworks(options?: RawAxiosRequestConfig) {
         return SellerApiFp(this.configuration).getSocialNetworks(options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * ShopPageContentApi - axios parameter creator
+ */
+export const ShopPageContentApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Retrieve the contents of the shop pages (key words, description, Google Analytics id), public
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getShopPageContents: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/shop-page-contents`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * ShopPageContentApi - functional programming interface
+ */
+export const ShopPageContentApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ShopPageContentApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Retrieve the contents of the shop pages (key words, description, Google Analytics id), public
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getShopPageContents(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonShopPageContents>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getShopPageContents(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ShopPageContentApi.getShopPageContents']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * ShopPageContentApi - factory interface
+ */
+export const ShopPageContentApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ShopPageContentApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Retrieve the contents of the shop pages (key words, description, Google Analytics id), public
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getShopPageContents(options?: RawAxiosRequestConfig): AxiosPromise<JsonShopPageContents> {
+            return localVarFp.getShopPageContents(options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * ShopPageContentApi - object-oriented interface
+ */
+export class ShopPageContentApi extends BaseAPI {
+    /**
+     * 
+     * @summary Retrieve the contents of the shop pages (key words, description, Google Analytics id), public
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getShopPageContents(options?: RawAxiosRequestConfig) {
+        return ShopPageContentApiFp(this.configuration).getShopPageContents(options).then((request) => request(this.axios, this.basePath));
     }
 }
 

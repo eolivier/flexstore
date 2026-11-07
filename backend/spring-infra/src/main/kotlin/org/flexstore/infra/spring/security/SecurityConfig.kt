@@ -78,6 +78,7 @@ open class SecurityConfig(@Value("\${flexstore.security.jwt-secret:}") private v
                     .requestMatchers(HttpMethod.GET, "/api/product-images").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/legal-pages/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/social-networks").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/shop-page-contents").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/cart/merge").authenticated()
                     .requestMatchers("/api/cart/**").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()

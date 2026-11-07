@@ -29,6 +29,7 @@ import SellerSettings from './components/admin/seller/SellerSettings.vue';
 import SellerSetupWizard from './components/admin/seller/setup/SellerSetupWizard.vue';
 import { SELLER_SETUP_PATH } from './utils/sellerSetupRedirect';
 import AdminLegalPages from './components/admin/legal/AdminLegalPages.vue';
+import AdminShopPageContent from './components/admin/pagecontent/AdminShopPageContent.vue';
 import LegalPage from './components/legal/LegalPage.vue';
 import AdminDiscountCodes from './components/admin/discounts/AdminDiscountCodes.vue';
 import Login from './components/Login.vue';
@@ -148,6 +149,11 @@ const shopRoutes: RouteRecordRaw[] = [
   {
     path: '/admin/legal-pages',
     component: AdminLegalPages,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/admin/shop-page-content',
+    component: AdminShopPageContent,
     meta: { requiresAuth: true, requiresAdmin: true },
   },
   {

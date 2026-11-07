@@ -3,6 +3,8 @@ import { flushPromises, mount, type VueWrapper } from '@vue/test-utils';
 import { createHead } from '@unhead/vue/client';
 import { createMemoryHistory, createRouter } from 'vue-router';
 import { defineComponent, h } from 'vue';
+import { createPinia } from 'pinia';
+import { useShopPageContentStore } from '@/stores/shopPageContent.store';
 import { useRouteHead } from './useRouteHead';
 import { i18n, vuetify } from '@/test/setup';
 
@@ -16,7 +18,7 @@ const Host = defineComponent({
 
 let page: VueWrapper;
 
-async function openPage(path: string) {
+async function openPage(path: string, shopDescription = '') {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
@@ -27,7 +29,9 @@ async function openPage(path: string) {
   router.push(path);
   await router.isReady();
   const head = createHead();
-  page = mount(Host, { global: { plugins: [vuetify, i18n, router, head] } });
+  const pinia = createPinia();
+  useShopPageContentStore(pinia).texts.META_SHOP_DESCRIPTION = shopDescription;
+  page = mount(Host, { global: { plugins: [vuetify, i18n, router, head, pinia] } });
   await flushPromises();
 }
 
@@ -71,6 +75,22 @@ describe('useRouteHead', () => {
     await vi.waitFor(() => {
       expect(document.title).toBe('Flexstore');
       expect(metaOf('robots')).toBe('noindex,follow');
+    });
+  });
+
+  it('gives a page without its own description the description written by the administrators', async () => {
+    await openPage('/cart', 'The shop of the demo');
+
+    await vi.waitFor(() => {
+      expect(metaOf('description')).toBe('The shop of the demo');
+    });
+  });
+
+  it('keeps the description of a page over the description of the shop', async () => {
+    await openPage('/about', 'The shop of the demo');
+
+    await vi.waitFor(() => {
+      expect(metaOf('description')).toBe(i18n.global.t('seo.about'));
     });
   });
 });

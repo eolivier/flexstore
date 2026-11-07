@@ -36,6 +36,7 @@ export const adminLinks = [
   { to: '/admin/discount-codes', icon: 'mdi-ticket-percent-outline', label: 'nav.discountCodes' },
   { to: '/admin/seller', icon: 'mdi-store-outline', label: 'nav.seller' },
   { to: '/admin/legal-pages', icon: 'mdi-scale-balance', label: 'nav.legalPages' },
+  { to: '/admin/shop-page-content', icon: 'mdi-text-box-edit-outline', label: 'nav.shopPageContent' },
   { to: '/admin/settings', icon: 'mdi-cog-outline', label: 'nav.settings' },
   { to: '/admin/environment', icon: 'mdi-server-security', label: 'nav.environment' },
 ];

@@ -5,6 +5,7 @@ import {
   ProductsApi,
   ReviewsApi,
   SellerApi,
+  ShopPageContentApi,
   StocksApi,
 } from './generated';
 
@@ -18,6 +19,7 @@ export const productImagesApi = new ProductImagesApi(config);
 export const reviewsApi = new ReviewsApi(config);
 export const legalPagesApi = new LegalPagesApi(config);
 export const sellerApi = new SellerApi(config);
+export const shopPageContentApi = new ShopPageContentApi(config);
 
 // The address of the back end, for the links the browser follows itself (the images)
 export const apiBaseUrl = config.basePath;

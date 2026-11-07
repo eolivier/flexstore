@@ -15,6 +15,7 @@
     '/admin/discount-codes': 'admin.discountCodesText',
     '/admin/seller': 'admin.sellerText',
     '/admin/legal-pages': 'admin.legalPagesText',
+    '/admin/shop-page-content': 'admin.shopPageContentText',
     '/admin/settings': 'admin.settingsText',
     '/admin/environment': 'admin.environmentText',
   };

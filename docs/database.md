@@ -1,6 +1,6 @@
 # Physical data model
 
-The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V54**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
+The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V57**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
 
 ![Physical data model](database.png)
 
@@ -338,6 +338,14 @@ erDiagram
         updated_at timestamp
     }
 
+    shop_page_content {
+        id varchar(50) PK
+        page_type varchar(50) UK "META_KEY_WORDS, GOOGLE_ANALYTICS_ID or META_SHOP_DESCRIPTION"
+        content text "empty until the administrators write it"
+        created_at timestamp
+        updated_at timestamp
+    }
+
     user ||--o{ user_token : "user_id (cascade)"
     user ||--o| customer_company : "user_id (cascade)"
     user ||--o| cookie_consent : "user_id (cascade)"
@@ -382,6 +390,7 @@ erDiagram
 - A wrong password for an existing account adds one to its `failed_sign_in` row (created by the first failure). At the 5th failure in a row, the account becomes `LOCKED` and the row is deleted, so that the count starts again when an administrator reactivates the account; a successful sign-in deletes the row too. An email that belongs to no account, and an account that cannot sign in already, are not counted.
 - A `refresh_session` is a session of a signed-in user: its refresh token renews their access token (15 minutes) once, then the session is revoked (`revoked_at`) and replaced by a new row. A revoked token that comes back revokes every open session of its user. Only the hash of the token is stored; deleting a user deletes their sessions.
 - The carrier and the tracking number of the parcel of an order are given together by an administrator when the order is shipped, or corrected afterwards (`tracking_carrier` and `tracking_number`, a check forbids one without the other); the orders shipped before V45, or shipped without them, have none.
+- The `shop_page_content` rows are what the administrators write for the head of the shop pages: one row for each `page_type` (the key words, the description of the shop, the Google Analytics identifier), all created empty by V57. A new type is a new row, not a column. They are read by everyone, edited by the administrators, and kept in a cache that every edit evicts.
 - `user` is quoted in SQL (`"user"`), a reserved word; the orders are stored in `customer_order` for the same reason.
 - The name and the description of a `product` are in `product_translation`, one row per language: always one in the default language (`en`), which the application requires, and one per other language the product is translated into. A product without a translation in the language of the customer is shown in `en`.
 - A `wishlist_item` is a product a customer saved to buy it back later: at most one row per customer and product (saving it again changes nothing). Removing it from the wishlist only deletes this row, not the product or the orders already placed for it.
