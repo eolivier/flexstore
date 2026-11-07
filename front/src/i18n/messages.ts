@@ -198,6 +198,14 @@ export default {
             text: 'A customer who left items in the cart receives one email that lists them and leads back to the cart, when the administrator turns it on.',
           },
         },
+        assistants: {
+          title: 'AI assistants',
+          subtitle: 'The shop can be read by the AI assistants you already use.',
+          mcp: {
+            title: 'MCP server for the products',
+            text: 'An AI assistant such as Claude Desktop or Claude Code can list the products and read one of them, in English or in French, through the Model Context Protocol at /mcp. The server only gives the catalog and can be turned off with FLEXSTORE_MCP_ENABLED.',
+          },
+        },
       },
       stackTitle: 'Built with',
       stack: {
@@ -1227,6 +1235,14 @@ export default {
           abandonedCart: {
             title: 'Rappel de panier abandonné',
             text: "Un client qui a laissé des articles dans son panier reçoit un email qui les liste et ramène vers le panier, si l'administrateur l'a activé.",
+          },
+        },
+        assistants: {
+          title: 'Assistants IA',
+          subtitle: 'La boutique peut être consultée par les assistants IA que vous utilisez déjà.',
+          mcp: {
+            title: 'Serveur MCP des produits',
+            text: "Un assistant IA comme Claude Desktop ou Claude Code peut lister les produits et lire l'un d'eux, en français ou en anglais, grâce au Model Context Protocol sur /mcp. Le serveur ne donne que le catalogue et peut être désactivé avec FLEXSTORE_MCP_ENABLED.",
           },
         },
       },
