@@ -7,6 +7,9 @@ export const MAIN_LANGUAGE: ShopLanguage = 'fr';
 // The languages of the pages, in the order of their hreflang
 export const PAGE_LANGUAGES: ShopLanguage[] = ['fr', 'en'];
 
+// How each language is named in its own language, for the customer to recognize it
+export const LANGUAGE_NAMES: Record<ShopLanguage, string> = { fr: 'Français', en: 'English' };
+
 // The pages that exist in each language: the others (cart, account, administration...) follow the chosen one
 const TRANSLATED_AREAS = ['/products', '/about', '/legal-notice', '/terms-of-sale', '/privacy-policy'];
 

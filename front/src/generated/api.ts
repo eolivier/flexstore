@@ -446,6 +446,29 @@ export interface JsonItem {
     'productCurrency'?: string;
     'productQuantity'?: number;
 }
+export interface JsonLanguageChoice {
+    'language': JsonLanguageChoiceLanguageEnum;
+}
+
+export const JsonLanguageChoiceLanguageEnum = {
+    En: 'EN',
+    Fr: 'FR'
+} as const;
+
+export type JsonLanguageChoiceLanguageEnum = typeof JsonLanguageChoiceLanguageEnum[keyof typeof JsonLanguageChoiceLanguageEnum];
+
+export interface JsonLanguagePreference {
+    'language': JsonLanguagePreferenceLanguageEnum;
+}
+
+export const JsonLanguagePreferenceLanguageEnum = {
+    En: 'EN',
+    Fr: 'FR',
+    None: 'NONE'
+} as const;
+
+export type JsonLanguagePreferenceLanguageEnum = typeof JsonLanguagePreferenceLanguageEnum[keyof typeof JsonLanguagePreferenceLanguageEnum];
+
 export interface JsonLegalPage {
     /**
      * The id of this version of the page; the customers accept the terms of sale by it
@@ -4705,6 +4728,40 @@ export const PreferencesApiAxiosParamCreator = function (configuration?: Configu
             };
         },
         /**
+         * NONE when the customer never chose.
+         * @summary Retrieve the preferred language of the signed-in customer
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getLanguagePreference: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/language`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 
          * @summary Record the display mode chosen by the signed-in customer
          * @param {JsonColorModeChoice} jsonColorModeChoice 
@@ -4744,6 +4801,46 @@ export const PreferencesApiAxiosParamCreator = function (configuration?: Configu
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * 
+         * @summary Record the preferred language chosen by the signed-in customer
+         * @param {JsonLanguageChoice} jsonLanguageChoice 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        recordLanguagePreference: async (jsonLanguageChoice: JsonLanguageChoice, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'jsonLanguageChoice' is not null or undefined
+            assertParamExists('recordLanguagePreference', 'jsonLanguageChoice', jsonLanguageChoice)
+            const localVarPath = `/api/language`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonLanguageChoice, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -4766,6 +4863,18 @@ export const PreferencesApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * NONE when the customer never chose.
+         * @summary Retrieve the preferred language of the signed-in customer
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getLanguagePreference(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonLanguagePreference>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getLanguagePreference(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PreferencesApi.getLanguagePreference']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * 
          * @summary Record the display mode chosen by the signed-in customer
          * @param {JsonColorModeChoice} jsonColorModeChoice 
@@ -4776,6 +4885,19 @@ export const PreferencesApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.recordColorModePreference(jsonColorModeChoice, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['PreferencesApi.recordColorModePreference']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Record the preferred language chosen by the signed-in customer
+         * @param {JsonLanguageChoice} jsonLanguageChoice 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async recordLanguagePreference(jsonLanguageChoice: JsonLanguageChoice, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonLanguagePreference>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.recordLanguagePreference(jsonLanguageChoice, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PreferencesApi.recordLanguagePreference']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -4797,6 +4919,15 @@ export const PreferencesApiFactory = function (configuration?: Configuration, ba
             return localVarFp.getColorModePreference(options).then((request) => request(axios, basePath));
         },
         /**
+         * NONE when the customer never chose.
+         * @summary Retrieve the preferred language of the signed-in customer
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getLanguagePreference(options?: RawAxiosRequestConfig): AxiosPromise<JsonLanguagePreference> {
+            return localVarFp.getLanguagePreference(options).then((request) => request(axios, basePath));
+        },
+        /**
          * 
          * @summary Record the display mode chosen by the signed-in customer
          * @param {JsonColorModeChoice} jsonColorModeChoice 
@@ -4805,6 +4936,16 @@ export const PreferencesApiFactory = function (configuration?: Configuration, ba
          */
         recordColorModePreference(jsonColorModeChoice: JsonColorModeChoice, options?: RawAxiosRequestConfig): AxiosPromise<JsonColorModePreference> {
             return localVarFp.recordColorModePreference(jsonColorModeChoice, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Record the preferred language chosen by the signed-in customer
+         * @param {JsonLanguageChoice} jsonLanguageChoice 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        recordLanguagePreference(jsonLanguageChoice: JsonLanguageChoice, options?: RawAxiosRequestConfig): AxiosPromise<JsonLanguagePreference> {
+            return localVarFp.recordLanguagePreference(jsonLanguageChoice, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -4824,6 +4965,16 @@ export class PreferencesApi extends BaseAPI {
     }
 
     /**
+     * NONE when the customer never chose.
+     * @summary Retrieve the preferred language of the signed-in customer
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getLanguagePreference(options?: RawAxiosRequestConfig) {
+        return PreferencesApiFp(this.configuration).getLanguagePreference(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * 
      * @summary Record the display mode chosen by the signed-in customer
      * @param {JsonColorModeChoice} jsonColorModeChoice 
@@ -4832,6 +4983,17 @@ export class PreferencesApi extends BaseAPI {
      */
     public recordColorModePreference(jsonColorModeChoice: JsonColorModeChoice, options?: RawAxiosRequestConfig) {
         return PreferencesApiFp(this.configuration).recordColorModePreference(jsonColorModeChoice, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Record the preferred language chosen by the signed-in customer
+     * @param {JsonLanguageChoice} jsonLanguageChoice 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public recordLanguagePreference(jsonLanguageChoice: JsonLanguageChoice, options?: RawAxiosRequestConfig) {
+        return PreferencesApiFp(this.configuration).recordLanguagePreference(jsonLanguageChoice, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

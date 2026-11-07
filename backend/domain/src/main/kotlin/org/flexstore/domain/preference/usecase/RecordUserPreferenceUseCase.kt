@@ -6,33 +6,33 @@ import org.flexstore.domain.user.repository.UserRepository
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
-// A signed-in customer chooses their display mode: it is kept in their account for their next visits
+// A signed-in customer chooses a preference (their display mode or their language): it is kept in their account
+// for their next visits
 class RecordUserPreferenceUseCase(
     private val userPreferenceRepository: UserPreferenceRepository,
     private val userRepository: UserRepository
-) : UseCase<ColorModeChoice> {
+) : UseCase<UserPreferenceChoice> {
 
-    override fun getPreConditions(): PreConditions<ColorModeChoice> =
+    override fun getPreConditions(): PreConditions<UserPreferenceChoice> =
         PreConditions(customerExistsCondition())
 
-    override fun getNominalScenario(): NominalScenario<ColorModeChoice> =
-        NominalScenario(Step { colorModeChoice ->
-            userPreferenceRepository.save(colorModeChoice.customer, colorModeChoice.colorMode)
+    override fun getNominalScenario(): NominalScenario<UserPreferenceChoice> =
+        NominalScenario(Step { choice ->
+            userPreferenceRepository.save(choice.customer, choice.preference)
         })
 
-    override fun getPostConditions(): PostConditions<ColorModeChoice> =
+    override fun getPostConditions(): PostConditions<UserPreferenceChoice> =
         PostConditions(preferenceIsStoredCondition())
 
-    private fun customerExistsCondition() = PreCondition<ColorModeChoice> { colorModeChoice ->
-        if (userRepository.notExists(colorModeChoice.customer)) {
-            throw UserNotFoundException(ErrorMessage("User ${colorModeChoice.customer.value} not found."))
+    private fun customerExistsCondition() = PreCondition<UserPreferenceChoice> { choice ->
+        if (userRepository.notExists(choice.customer)) {
+            throw UserNotFoundException(ErrorMessage("User ${choice.customer.value} not found."))
         }
     }
 
-    private fun preferenceIsStoredCondition() = PostCondition<ColorModeChoice> { colorModeChoice ->
-        val storedPreference = userPreferenceRepository.preferenceOf(colorModeChoice.customer)
-        if (storedPreference != ColorModePreference.Chosen(colorModeChoice.colorMode)) {
-            throw ColorModePreferenceRecordFailed(ErrorMessage("The display mode was not recorded."))
+    private fun preferenceIsStoredCondition() = PostCondition<UserPreferenceChoice> { choice ->
+        if (!userPreferenceRepository.preferencesOf(choice.customer).contain(choice.preference)) {
+            throw UserPreferenceRecordFailed(ErrorMessage("The preference was not recorded."))
         }
     }
 }

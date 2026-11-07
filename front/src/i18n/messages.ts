@@ -476,6 +476,8 @@ export default {
       subtitle: 'Choose how the shop looks for you, on every device you sign in from.',
       darkMode: 'Dark mode',
       darkModeHint: 'The shop is displayed with dark colors.',
+      language: 'Preferred language',
+      languageHint: 'The shop is shown in this language every time you sign in.',
     },
     wishlist: {
       title: 'My wishlist',
@@ -1476,6 +1478,8 @@ export default {
       subtitle: 'Choisissez l’apparence de la boutique, sur tous les appareils où vous vous connectez.',
       darkMode: 'Mode sombre',
       darkModeHint: 'La boutique est affichée avec des couleurs sombres.',
+      language: 'Langue préférée',
+      languageHint: 'La boutique s’affiche dans cette langue à chacune de vos connexions.',
     },
     wishlist: {
       title: 'Ma liste de souhaits',

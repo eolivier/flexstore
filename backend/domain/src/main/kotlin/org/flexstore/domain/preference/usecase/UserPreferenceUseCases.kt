@@ -3,17 +3,17 @@ package org.flexstore.domain.preference.usecase
 import org.flexstore.domain.preference.*
 import org.flexstore.domain.user.model.UserId
 
-// The use cases of the preferences of a signed-in customer (their display mode for now):
-// a preference is read back once recorded
+// The use cases of the preferences of a signed-in customer (their display mode and their language):
+// the preferences are read back once one is recorded
 class UserPreferenceUseCases(
     private val readUserPreferenceUseCase: ReadUserPreferenceUseCase,
     private val recordUserPreferenceUseCase: RecordUserPreferenceUseCase
 ) {
-    fun preferenceOf(customer: UserId): ColorModePreference =
-        readUserPreferenceUseCase.unfold(ColorModePreferenceReading(customer))
+    fun preferencesOf(customer: UserId): UserPreferences =
+        readUserPreferenceUseCase.unfold(UserPreferencesReading(customer))
 
-    fun record(customer: UserId, colorMode: ColorMode): ColorModePreference {
-        recordUserPreferenceUseCase.unfold(ColorModeChoice(customer, colorMode))
-        return preferenceOf(customer)
+    fun record(customer: UserId, preference: UserPreference): UserPreferences {
+        recordUserPreferenceUseCase.unfold(UserPreferenceChoice(customer, preference))
+        return preferencesOf(customer)
     }
 }

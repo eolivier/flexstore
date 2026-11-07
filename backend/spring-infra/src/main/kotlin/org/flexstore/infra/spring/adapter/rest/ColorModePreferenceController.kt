@@ -2,6 +2,7 @@ package org.flexstore.infra.spring.adapter.rest
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.flexstore.domain.preference.UserPreference
 import org.flexstore.domain.preference.usecase.UserPreferenceUseCases
 import org.flexstore.domain.user.model.UserId
 import org.flexstore.domain.user.model.of
@@ -19,7 +20,7 @@ class ColorModePreferenceController(private val userPreferenceUseCases: UserPref
     @Operation(summary = "Retrieve the display mode of the signed-in customer (NONE when they never chose)")
     @GetMapping("/api/color-mode")
     fun getColorModePreference(@AuthenticationPrincipal customer: Jwt): JsonColorModePreference =
-        JsonColorModePreference.of(userPreferenceUseCases.preferenceOf(UserId.of(customer.subject)))
+        JsonColorModePreference.of(userPreferenceUseCases.preferencesOf(UserId.of(customer.subject)).colorMode)
 
     @Operation(summary = "Record the display mode chosen by the signed-in customer")
     @PutMapping("/api/color-mode")
@@ -27,8 +28,8 @@ class ColorModePreferenceController(private val userPreferenceUseCases: UserPref
         @AuthenticationPrincipal customer: Jwt,
         @RequestBody colorModeChoice: JsonColorModeChoice
     ): JsonColorModePreference {
-        val colorModePreference =
-            userPreferenceUseCases.record(UserId.of(customer.subject), colorModeChoice.colorMode)
-        return JsonColorModePreference.of(colorModePreference)
+        val displayMode = UserPreference.DisplayMode(colorModeChoice.colorMode)
+        val preferences = userPreferenceUseCases.record(UserId.of(customer.subject), displayMode)
+        return JsonColorModePreference.of(preferences.colorMode)
     }
 }

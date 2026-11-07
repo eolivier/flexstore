@@ -4,9 +4,9 @@ import org.flexstore.domain.user.model.UserId
 
 interface UserPreferenceRepository {
 
-    // Unchosen when the customer never chose
-    fun preferenceOf(customer: UserId): ColorModePreference
+    // Each preference is unchosen when the customer never chose it
+    fun preferencesOf(customer: UserId): UserPreferences
 
-    // Replaces the display mode of the customer
-    fun save(customer: UserId, colorMode: ColorMode)
+    // Replaces the stored preference of the same kind, the other one is kept
+    fun save(customer: UserId, preference: UserPreference)
 }
