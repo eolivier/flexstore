@@ -10,7 +10,7 @@ import { i18n } from '@/test/setup';
 
 function mountPreferences(defaultTheme: string) {
   const vuetify = createVuetify({ components, theme: { defaultTheme, themes } });
-  const stubs = { AccountBreadcrumbs: true };
+  const stubs = { AccountBreadcrumbs: true, CookieSettings: true };
   const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/:any(.*)', component: {} }] });
   const plugins = [vuetify, i18n, createPinia(), router];
   const wrapper = mount(MyPreferences, { global: { plugins, stubs } });
@@ -52,5 +52,12 @@ describe('MyPreferences.vue', () => {
     // Assert
     expect(i18n.global.locale.value).toBe('fr');
     i18n.global.locale.value = 'en';
+  });
+
+  it('shows the cookie settings', () => {
+    // Act
+    const { wrapper } = mountPreferences('flexstoreLight');
+    // Assert
+    expect(wrapper.findComponent({ name: 'CookieSettings' }).exists()).toBe(true);
   });
 });
