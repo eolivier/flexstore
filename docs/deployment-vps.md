@@ -202,7 +202,7 @@ your own access is not affected.
 
 ## Notes
 
-- The Render back end and the Cloudflare Pages front end (`render.yaml`, `vue-pages.yml`) are no longer deployed: the
-  workflow only starts by hand with its job skipped, and `autoDeploy` is off in `render.yaml`. Delete the Render
-  services and the Cloudflare Pages project when they are no longer needed.
+- The Cloudflare Pages front end (`vue-pages.yml`) is no longer deployed: the workflow only starts by hand with its job
+  skipped. The Render blueprint (`render.yaml`) is removed; delete the Render services (`flexstore-back`,
+  `flexstore-db`) in the Render dashboard, and the Cloudflare Pages project when it is no longer needed.
 - `CorsConfig` does not need `flexstore.tech`: the API is called from the same address.
