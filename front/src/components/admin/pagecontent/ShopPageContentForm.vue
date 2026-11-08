@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { computed, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import {
     MAXIMUM_SHOP_PAGE_CONTENT_LENGTH,
@@ -22,6 +22,9 @@
   const saving = ref(false);
   // null until saved
   const edit = ref<ShopPageContentEdit | null>(null);
+
+  // The button stays disabled until the text differs from the saved one
+  const modified = computed(() => text.value.trim() !== shopPageContentStore.textOf(props.type));
 
   // An empty text clears the content
   const rules = [
@@ -56,7 +59,7 @@
       class="mb-2"
     />
     <div class="d-flex align-center ga-4 mt-2">
-      <v-btn type="submit" color="secondary" :loading="saving" :disabled="valid === false">{{
+      <v-btn type="submit" color="secondary" :loading="saving" :disabled="valid === false || !modified">{{
         t('shopPageContent.save')
       }}</v-btn>
       <span v-if="edit === 'saved'" class="text-body-2 text-success">{{ t('shopPageContent.saved') }}</span>

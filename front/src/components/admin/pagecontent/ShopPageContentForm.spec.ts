@@ -26,6 +26,32 @@ describe('ShopPageContentForm.vue', () => {
     expect((wrapper.find('textarea').element as HTMLTextAreaElement).value).toBe('shop, demo');
   });
 
+  it('disables the save button while the text is unchanged', () => {
+    // Act
+    const wrapper = mountForm('META_KEY_WORDS', 'shop, demo');
+    // Assert
+    expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeDefined();
+  });
+
+  it('enables the save button once the text is edited', async () => {
+    // Arrange
+    const wrapper = mountForm('META_KEY_WORDS', 'shop, demo');
+    // Act
+    await wrapper.find('textarea').setValue('shop, new');
+    // Assert
+    expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeUndefined();
+  });
+
+  it('disables the save button again when the text goes back to the saved one', async () => {
+    // Arrange
+    const wrapper = mountForm('META_KEY_WORDS', 'shop, demo');
+    await wrapper.find('textarea').setValue('shop, new');
+    // Act
+    await wrapper.find('textarea').setValue('shop, demo');
+    // Assert
+    expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeDefined();
+  });
+
   it('saves the edited text', async () => {
     // Arrange
     const edited = { contents: [{ type: 'META_KEY_WORDS', text: 'shop, new' }] };
