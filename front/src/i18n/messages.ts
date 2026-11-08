@@ -145,8 +145,8 @@ export default {
           addresses: { title: 'Address book', text: 'Save your delivery addresses to check out faster.' },
           wishlist: { title: 'Wishlist', text: 'Keep the products you love for later.' },
           loyalty: {
-            title: 'Loyalty',
-            text: 'Earn 1 point for each euro or dollar spent and check your balance.',
+            title: 'Loyalty programme',
+            text: 'Loyalty is a feature of Flexstore: earn 1 point for each euro or dollar spent and check your balance.',
           },
           security: {
             title: 'Security',
@@ -1185,8 +1185,8 @@ export default {
           },
           wishlist: { title: 'Liste d’envies', text: 'Gardez de côté les produits que vous aimez.' },
           loyalty: {
-            title: 'Fidélité',
-            text: 'Gagnez 1 point par euro ou dollar dépensé et consultez votre solde.',
+            title: 'Programme de fidélité',
+            text: 'La fidélité est une fonctionnalité de Flexstore : gagnez 1 point par euro ou dollar dépensé et consultez votre solde.',
           },
           security: {
             title: 'Sécurité',
