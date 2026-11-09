@@ -117,14 +117,14 @@
     />
     <h2 class="text-subtitle-1 font-weight-bold mt-4 mb-2">{{ t('socialNetworks.title') }}</h2>
     <SellerSocialNetworksFields v-model="editedSeller.socialNetworks" />
-    <div class="d-flex align-center ga-4 mt-2">
-      <v-btn type="submit" color="secondary" :loading="saving" :disabled="valid === false || !modified">{{
-        t('seller.save')
-      }}</v-btn>
-      <v-btn variant="text" :disabled="!modified || saving" @click="cancel">{{ t('seller.cancel') }}</v-btn>
+    <div class="d-flex align-center justify-end ga-2 mt-2">
       <span v-if="update === 'saved'" class="text-body-2 text-success">{{ t('seller.saved') }}</span>
       <span v-else-if="update === 'invalid'" class="text-body-2 text-error">{{ t('seller.invalid') }}</span>
       <span v-else-if="update === 'failed'" class="text-body-2 text-error">{{ t('seller.saveError') }}</span>
+      <v-btn variant="text" :disabled="!modified || saving" @click="cancel">{{ t('seller.cancel') }}</v-btn>
+      <v-btn type="submit" color="secondary" :loading="saving" :disabled="valid === false">{{
+        t('seller.save')
+      }}</v-btn>
     </div>
   </v-form>
 </template>
