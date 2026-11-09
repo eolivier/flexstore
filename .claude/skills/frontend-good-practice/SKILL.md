@@ -61,12 +61,13 @@ Exceptions: an exception is allowed when following the common pattern would harm
 
 ## 3. Save and Cancel in an edit form
 
-An editable form (settings, seller, product, user...) offers a "Save" and a "Cancel" button, in this order, built the same way everywhere:
-- **"Save" is disabled by default**: it is enabled only when at least one editable value differs from its initial value (the last saved one). Typing the initial value back disables it again. It is also disabled while the form is invalid, and shows a loading state while saving.
-- **"Cancel" restores the initial values** (nested values included) and clears the save message, without leaving the screen. It is disabled while nothing is modified, and while saving.
-- **After a successful save**, the saved values become the new initial values: both buttons are disabled again.
-- **Compare with the initial values, not with a "touched" flag**: a field edited then restored is not a modification.
+An editable form (settings, seller, product, user...) offers a "Cancel" and a "Save" button, built the same way everywhere:
+- **Placement**: the two buttons form one group, aligned to the right of the form (of the modal dialog when the form is in one: `<div class="d-flex justify-end ga-2">`). "Cancel" comes first, on the left, as a text button (`variant="text"`); "Save" comes last, on the right, as the filled primary button (`type="submit" color="secondary"`). The main action is the rightmost one, as in the Material Design convention that Vuetify follows.
+- **"Save" stays enabled even when no value has changed**: the user may want to save again (e.g. to republish the current values), and a disabled button does not say why. It is disabled only while the form is invalid, and shows a loading state while saving.
+- **"Cancel" restores the initial values** (nested values included) and clears the save message, without leaving the screen. It is disabled while nothing differs from the initial values (the last saved ones), and while saving.
+- **After a successful save**, the saved values become the new initial values: "Cancel" is disabled again.
+- **Compare with the initial values, not with a "touched" flag**: a field edited then restored is not a modification, so "Cancel" is disabled again.
 - Labels come from the i18n keys of the form (`save`, `cancel`), the same wording as the other forms ("Save" / "Cancel", "Enregistrer" / "Annuler").
-- Test it: both buttons disabled at first, enabled after a change, Save disabled again when the initial value is typed back, Cancel restoring the initial values.
+- Test it: "Save" enabled and "Cancel" disabled at first, "Cancel" enabled after a change and disabled again when the initial value is typed back, "Cancel" restoring the initial values.
 
 Reference implementation: `components/admin/seller/SellerForm.vue`. When another form needs the same logic, extract it into a composable (e.g. `useEditedForm`) rather than copying it.
