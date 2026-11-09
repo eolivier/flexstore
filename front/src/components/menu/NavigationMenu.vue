@@ -10,6 +10,7 @@
   import LoadingBar from '@/components/layout/LoadingBar.vue';
   import CatalogSearchField from '@/components/products/CatalogSearchField.vue';
   import LowStockBell from './LowStockBell.vue';
+  import HeaderCartButton from './HeaderCartButton.vue';
   import { accountLinksOf, adminLinks, shopLinks } from './navigation';
   import { useAuthStore } from '@/stores/auth.store';
   import { useCartStore } from '@/stores/cart.store';
@@ -141,11 +142,7 @@
         </v-list>
       </v-menu>
 
-      <v-btn to="/cart" icon variant="text" :aria-label="t('nav.cart')">
-        <v-badge :content="cartCount" :model-value="cartCount > 0" color="secondary">
-          <v-icon icon="mdi-cart-outline" />
-        </v-badge>
-      </v-btn>
+      <HeaderCartButton :count="cartCount" />
     </v-container>
   </v-app-bar>
 
