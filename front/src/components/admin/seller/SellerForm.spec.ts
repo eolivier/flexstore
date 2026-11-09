@@ -112,6 +112,14 @@ describe('SellerForm.vue', () => {
     expect(buttonLabelled(wrapper, 'Save').attributes('disabled')).toBeDefined();
   });
 
+  it('puts Cancel on the left of Save', () => {
+    // Act
+    const wrapper = mountForm();
+    // Assert
+    const labels = wrapper.findAll('button').map((button) => button.text());
+    expect(labels.indexOf('Cancel')).toBe(labels.indexOf('Save') - 1);
+  });
+
   it('saves the edited seller', async () => {
     // Arrange
     const renamed = { ...flexstore, name: 'Flexstore Group' };
