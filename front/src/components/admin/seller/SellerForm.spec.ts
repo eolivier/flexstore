@@ -65,6 +65,53 @@ describe('SellerForm.vue', () => {
     ]);
   });
 
+  const buttonLabelled = (wrapper: ReturnType<typeof mountForm>, label: string) =>
+    wrapper.findAll('button').find((button) => button.text() === label)!;
+
+  it('disables Save and Cancel while nothing is modified', () => {
+    // Act
+    const wrapper = mountForm();
+    // Assert
+    expect(buttonLabelled(wrapper, 'Save').attributes('disabled')).toBeDefined();
+    expect(buttonLabelled(wrapper, 'Cancel').attributes('disabled')).toBeDefined();
+  });
+
+  it('enables Save and Cancel once a value differs from the initial one', async () => {
+    // Arrange
+    const wrapper = mountForm();
+    // Act
+    await inputs(wrapper)[0].setValue('Flexstore Group');
+    await flushPromises();
+    // Assert
+    expect(buttonLabelled(wrapper, 'Save').attributes('disabled')).toBeUndefined();
+    expect(buttonLabelled(wrapper, 'Cancel').attributes('disabled')).toBeUndefined();
+  });
+
+  it('disables Save again when the initial value is typed back', async () => {
+    // Arrange
+    const wrapper = mountForm();
+    await inputs(wrapper)[0].setValue('Flexstore Group');
+    // Act
+    await inputs(wrapper)[0].setValue(flexstore.name);
+    await flushPromises();
+    // Assert
+    expect(buttonLabelled(wrapper, 'Save').attributes('disabled')).toBeDefined();
+  });
+
+  it('restores the initial values when cancelled', async () => {
+    // Arrange
+    const wrapper = mountForm();
+    await inputs(wrapper)[0].setValue('Flexstore Group');
+    await inputs(wrapper)[10].setValue('https://www.facebook.com/other');
+    // Act
+    await buttonLabelled(wrapper, 'Cancel').trigger('click');
+    await flushPromises();
+    // Assert
+    expect((inputs(wrapper)[0].element as HTMLInputElement).value).toBe(flexstore.name);
+    expect((inputs(wrapper)[10].element as HTMLInputElement).value).toBe(flexstore.socialNetworks.facebook);
+    expect(buttonLabelled(wrapper, 'Save').attributes('disabled')).toBeDefined();
+  });
+
   it('saves the edited seller', async () => {
     // Arrange
     const renamed = { ...flexstore, name: 'Flexstore Group' };

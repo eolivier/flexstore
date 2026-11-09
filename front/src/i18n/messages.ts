@@ -699,6 +699,7 @@ export default {
       registryCity: 'Trade register (RCS) city',
       registryCityHint: 'Written on the invoices with the SIREN: RCS Paris 123 456 789',
       save: 'Save',
+      cancel: 'Cancel',
       saved: 'Saved: the next invoices are issued with this seller.',
       invalid:
         'The shop refused the seller: check its SIRET, its VAT number, its phone, its email, its website, its incorporation and its social networks.',
@@ -1763,6 +1764,7 @@ export default {
       registryCity: 'Ville du RCS',
       registryCityHint: 'Écrite sur les factures avec le SIREN : RCS Paris 123 456 789',
       save: 'Enregistrer',
+      cancel: 'Annuler',
       saved: 'Enregistré : les prochaines factures sont émises avec ce vendeur.',
       invalid:
         'La boutique a refusé le vendeur : vérifiez son SIRET, son numéro de TVA, son téléphone, son email, son site, sa forme juridique et ses réseaux sociaux.',
