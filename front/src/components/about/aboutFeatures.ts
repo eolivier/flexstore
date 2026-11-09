@@ -34,6 +34,7 @@ export const aboutFeatureGroups: AboutFeatureGroup[] = [
       { key: 'addresses', icon: 'mdi-map-marker-outline' },
       { key: 'wishlist', icon: 'mdi-heart-outline' },
       { key: 'loyalty', icon: 'mdi-star-circle-outline' },
+      { key: 'googleSignIn', icon: 'mdi-google' },
       { key: 'security', icon: 'mdi-shield-lock-outline' },
       { key: 'twoFactorAuthentication', icon: 'mdi-two-factor-authentication' },
     ],
