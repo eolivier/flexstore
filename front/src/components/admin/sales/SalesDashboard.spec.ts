@@ -66,9 +66,11 @@ describe('SalesDashboard.vue', () => {
     // Act
     const wrapper = await mountDashboard();
     // Assert
-    const tooltips = wrapper.findAll('.bar-slot').map((slot) => slot.attributes('title'));
-    expect(tooltips[1]).toContain('100');
-    expect(tooltips[2]).toContain('200');
+    const slots = wrapper.findAll('[data-test="bar-slot"]');
+    await slots[2].trigger('mouseenter');
+    await flushPromises();
+    const tooltips = [...document.body.querySelectorAll('.v-overlay__content')].map((tip) => tip.textContent);
+    expect(tooltips.some((text) => text?.includes('Oct 31') && text.includes('200'))).toBe(true);
   });
 
   it('lists the best sellers, the best first', async () => {

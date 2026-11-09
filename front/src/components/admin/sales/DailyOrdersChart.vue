@@ -32,8 +32,9 @@
   <v-card class="pa-5">
     <h2 class="text-h6 font-weight-bold mb-4">{{ t('salesDashboard.ordersPerDay') }}</h2>
     <div class="chart d-flex align-end" role="img" :aria-label="t('salesDashboard.ordersPerDay')">
-      <div v-for="bar in bars" :key="bar.day" class="bar-slot d-flex align-end" :title="bar.label">
+      <div v-for="bar in bars" :key="bar.day" class="bar-slot d-flex align-end" data-test="bar-slot">
         <div class="bar bg-primary" data-test="bar" :style="{ height: `${bar.height}%` }" />
+        <v-tooltip activator="parent" location="top" data-test="bar-tooltip">{{ bar.label }}</v-tooltip>
       </div>
     </div>
     <div class="d-flex justify-space-between text-caption text-medium-emphasis mt-2">
