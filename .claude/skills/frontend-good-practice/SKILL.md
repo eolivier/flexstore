@@ -58,3 +58,15 @@ How to apply:
 - **When a screen differs from the others**, point it out in the review and align it (in its own refactoring pull request when you are not already changing it).
 
 Exceptions: an exception is allowed when following the common pattern would harm the user experience (e.g. a long form of many fields that does not fit in a modal, a multi-step editing flow, an action that must stay visible while the user scrolls, an inline edit of a single value). The exception stays rare, is deliberate and consistent with the other screens of the same kind, and is written in the description of the pull request under "Choices to validate" with the reason.
+
+## 3. Save and Cancel in an edit form
+
+An editable form (settings, seller, product, user...) offers a "Save" and a "Cancel" button, in this order, built the same way everywhere:
+- **"Save" is disabled by default**: it is enabled only when at least one editable value differs from its initial value (the last saved one). Typing the initial value back disables it again. It is also disabled while the form is invalid, and shows a loading state while saving.
+- **"Cancel" restores the initial values** (nested values included) and clears the save message, without leaving the screen. It is disabled while nothing is modified, and while saving.
+- **After a successful save**, the saved values become the new initial values: both buttons are disabled again.
+- **Compare with the initial values, not with a "touched" flag**: a field edited then restored is not a modification.
+- Labels come from the i18n keys of the form (`save`, `cancel`), the same wording as the other forms ("Save" / "Cancel", "Enregistrer" / "Annuler").
+- Test it: both buttons disabled at first, enabled after a change, Save disabled again when the initial value is typed back, Cancel restoring the initial values.
+
+Reference implementation: `components/admin/seller/SellerForm.vue`. When another form needs the same logic, extract it into a composable (e.g. `useEditedForm`) rather than copying it.
