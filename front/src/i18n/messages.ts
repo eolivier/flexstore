@@ -152,6 +152,10 @@ export default {
             title: 'Security',
             text: 'Verify your email and protect your account with two-factor authentication.',
           },
+          googleSignIn: {
+            title: 'Sign in with Google',
+            text: 'Sign in with your Google account instead of creating a password.',
+          },
           twoFactorAuthentication: {
             title: 'Two-factor authentication',
             text: 'Add a second verification step at sign-in to keep your account safe.',
@@ -1191,6 +1195,10 @@ export default {
           security: {
             title: 'Sécurité',
             text: 'Vérifiez votre email et protégez votre compte avec l’authentification à deux facteurs.',
+          },
+          googleSignIn: {
+            title: 'Connexion avec Google',
+            text: 'Connectez-vous avec votre compte Google, sans créer de mot de passe.',
           },
           twoFactorAuthentication: {
             title: 'Authentification à deux facteurs',
