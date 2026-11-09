@@ -122,7 +122,7 @@
       <span v-else-if="update === 'invalid'" class="text-body-2 text-error">{{ t('seller.invalid') }}</span>
       <span v-else-if="update === 'failed'" class="text-body-2 text-error">{{ t('seller.saveError') }}</span>
       <v-btn variant="text" :disabled="!modified || saving" @click="cancel">{{ t('seller.cancel') }}</v-btn>
-      <v-btn type="submit" color="secondary" :loading="saving" :disabled="valid === false || !modified">{{
+      <v-btn type="submit" color="secondary" :loading="saving" :disabled="valid === false">{{
         t('seller.save')
       }}</v-btn>
     </div>
