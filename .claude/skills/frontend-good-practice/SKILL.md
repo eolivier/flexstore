@@ -61,7 +61,8 @@ Exceptions: an exception is allowed when following the common pattern would harm
 
 ## 3. Save and Cancel in an edit form
 
-An editable form (settings, seller, product, user...) offers a "Save" and a "Cancel" button, in this order, built the same way everywhere:
+An editable form (settings, seller, product, user...) offers a "Cancel" and a "Save" button, built the same way everywhere:
+- **Placement**: the two buttons form one group, aligned to the right of the form (of the modal dialog when the form is in one: `<div class="d-flex justify-end ga-2">`). "Cancel" comes first, on the left, as a text button (`variant="text"`); "Save" comes last, on the right, as the filled primary button (`type="submit" color="secondary"`). The main action is the rightmost one, as in the Material Design convention that Vuetify follows.
 - **"Save" is disabled by default**: it is enabled only when at least one editable value differs from its initial value (the last saved one). Typing the initial value back disables it again. It is also disabled while the form is invalid, and shows a loading state while saving.
 - **"Cancel" restores the initial values** (nested values included) and clears the save message, without leaving the screen. It is disabled while nothing is modified, and while saving.
 - **After a successful save**, the saved values become the new initial values: both buttons are disabled again.
