@@ -62,10 +62,11 @@
     <v-row v-else>
       <v-col cols="12" md="8">
         <v-card class="px-5">
-          <template v-for="(item, index) in items" :key="item.itemId">
-            <v-divider v-if="index > 0" />
-            <CartLine :item="item" @update:quantity="(quantity) => updateQuantityAndSave(item, quantity)" />
-          </template>
+          <transition-group name="cart-line-fade" tag="div">
+            <div v-for="item in items" :key="item.itemId" class="cart-line-row">
+              <CartLine :item="item" @update:quantity="(quantity) => updateQuantityAndSave(item, quantity)" />
+            </div>
+          </transition-group>
         </v-card>
       </v-col>
 
@@ -107,5 +108,19 @@
   .summary {
     position: sticky;
     top: 96px;
+  }
+  .cart-line-row + .cart-line-row {
+    border-top: thin solid rgba(var(--v-border-color), var(--v-border-opacity));
+  }
+  .cart-line-fade-leave-active {
+    transition: opacity 0.3s ease;
+  }
+  .cart-line-fade-leave-to {
+    opacity: 0;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cart-line-fade-leave-active {
+      transition: none;
+    }
   }
 </style>
