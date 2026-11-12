@@ -8,6 +8,7 @@ import org.flexstore.domain.stock.*
 import org.flexstore.domain.stock.usecase.StockAlertUseCases
 import org.flexstore.domain.user.model.UserId
 import org.flexstore.domain.user.model.of
+import org.flexstore.domain.user.service.ActorResolutionService
 import org.flexstore.infra.spring.adapter.rest.json.JsonAlertThreshold
 import org.flexstore.infra.spring.adapter.rest.json.JsonLowStock
 import org.flexstore.infra.spring.adapter.rest.json.JsonStockAlert
@@ -19,7 +20,10 @@ import org.springframework.web.bind.annotation.*
 // cases): the threshold of each product, and the stocks that reached it
 @Tag(name = "Stocks")
 @RestController
-class StockAlertController(private val stockAlertUseCases: StockAlertUseCases) {
+class StockAlertController(
+    private val stockAlertUseCases: StockAlertUseCases,
+    private val actorResolutionService: ActorResolutionService
+) {
 
     @Operation(summary = "Retrieve the stocks at or under the alert threshold of their product, from the lowest")
     @GetMapping("/api/admin/stocks/low")
@@ -29,8 +33,8 @@ class StockAlertController(private val stockAlertUseCases: StockAlertUseCases) {
     @Operation(summary = "Retrieve the alert threshold of a product (the default one when it was never given)")
     @GetMapping("/api/admin/stocks/{productId}/alert")
     fun getStockAlert(@AuthenticationPrincipal reader: Jwt, @PathVariable productId: String): JsonStockAlert {
-        val stockAlert = stockAlertUseCases.alertOf(UserId.of(reader.subject), ProductId(Identity(productId)))
-        return JsonStockAlert.of(stockAlert)
+        val actor = actorResolutionService.actorOf(UserId.of(reader.subject))
+        return JsonStockAlert.of(stockAlertUseCases.alertOf(actor, ProductId(Identity(productId))))
     }
 
     @Operation(summary = "Give the number of units at or under which the administrators are warned")
@@ -41,6 +45,7 @@ class StockAlertController(private val stockAlertUseCases: StockAlertUseCases) {
         @RequestBody alertThreshold: JsonAlertThreshold
     ): JsonStockAlert {
         val stockAlert = StockAlert(ProductId(Identity(productId)), AlertThreshold(alertThreshold.threshold))
-        return JsonStockAlert.of(stockAlertUseCases.change(UserId.of(editor.subject), stockAlert))
+        val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
+        return JsonStockAlert.of(stockAlertUseCases.change(actor, stockAlert))
     }
 }
