@@ -1,6 +1,6 @@
 ---
 name: fluent-code-reading-semantic
-description: Principles that make code read like the business language - wrapping collections in their own class, naming boolean methods affirmatively, no negated condition before an else (swap the branches), naming a condition with a method (a deadline that is reached rather than a comparison of dates), naming variables after their type, intermediate variables, strong types rather than nullable ones, no nullable type marker (`?`) in declarations, no magic number, one or two arguments per method, lines of 113 characters at most, singular or plural names, no repeated names, no null arguments, beans declared step by step (repository, use case, service). Use before writing, changing or reviewing domain or application code (entities, value objects, aggregates, use cases), in any language.
+description: Principles that make code read like the business language - wrapping collections in their own class, naming boolean methods affirmatively (no negated `is`: `isNotAdmin()` rather than `!is Admin`), no negated condition before an else (swap the branches), naming a condition with a method (a deadline that is reached rather than a comparison of dates), naming variables after their type, intermediate variables, strong types rather than nullable ones, no nullable type marker (`?`) in declarations, no magic number, one or two arguments per method, lines of 113 characters at most, singular or plural names, no repeated names, no null arguments, beans declared step by step (repository, use case, service). Use before writing, changing or reviewing domain or application code (entities, value objects, aggregates, use cases), in any language.
 ---
 
 # Fluent code reading semantic
@@ -65,6 +65,24 @@ Why: a condition reads as the rule it expresses ("if the quantity is zero or neg
 Details:
 - Each predicate and its opposite may both exist (`isPositive()` / `isZeroOrNegative()`, `exists()` / `notExists()`), so that every caller uses the affirmative form of what it means.
 - The same applies to local booleans: `val unchanged = ...` checked as `if (unchanged)` rather than `val changed = ...` checked as `if (!changed)`.
+- **No negation on a type check**: `!is` is not written where a condition is read. The class (or an extension on its base type) gets a method named after the negated case, `isNotX()`, and callers use it. The only `!is` left is inside that method.
+
+Avoid:
+
+```kotlin
+if (actor !is Admin) { throw StockAlertForbiddenException(...) }
+```
+
+Prefer:
+
+```kotlin
+fun Actor.isNotAdmin() = this !is Admin
+
+if (actor.isNotAdmin()) { throw StockAlertForbiddenException(...) }
+// a condition on several types combines the named methods: actor.isNotAdmin() && actor.isNotSystem()
+```
+
+Why: `!is` hides the negation in the middle of the line, between the value and the type; `isNotAdmin()` reads as the question it answers, and the affirmative `isAdmin()` stays available next to it when a caller needs it.
 
 ## 3. Name a condition with a method
 
