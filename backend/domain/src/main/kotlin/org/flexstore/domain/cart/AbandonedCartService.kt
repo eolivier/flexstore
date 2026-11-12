@@ -4,7 +4,7 @@ import org.flexstore.domain.actor.SystemActor
 import org.flexstore.domain.cart.usecase.*
 import org.flexstore.domain.settings.usecase.ReadShopSettingsUseCase
 import org.flexstore.domain.sharedkernel.InstantProvider
-import org.ucop.domain.NominalException
+import org.ucop.domain.isNotNominal
 
 // Domain service: when the shop settings turn the reminder on, the customers who left their cart for the delay
 // of the settings are reminded of it by email. Called regularly by the infrastructure
@@ -28,8 +28,13 @@ class AbandonedCartService(
 
     private fun isReminded(cart: Cart): Boolean {
         val customer = cart.owner as? CartOwner.Customer ?: return false
-        return runCatching { remindAbandonedCartUseCase.unfold(AbandonedCartReminding(SystemActor(), customer)) }
-            .onFailure { if (it !is NominalException) throw it }
+        val reminding = AbandonedCartReminding(SystemActor(), customer)
+        return runCatching { remindAbandonedCartUseCase.unfold(reminding) }
+            .onFailure { failure -> if (failure.stopsTheRun()) throw failure }
             .isSuccess
     }
+
+    // A customer who cannot be reminded is left aside; a failure that is not nominal, or the refusal of the
+    // system itself, stops the run
+    private fun Throwable.stopsTheRun() = isNotNominal() || cause is AbandonedCartForbiddenException
 }

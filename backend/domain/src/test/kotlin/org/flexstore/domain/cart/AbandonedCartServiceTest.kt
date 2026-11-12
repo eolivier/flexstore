@@ -1,5 +1,7 @@
 package org.flexstore.domain.cart
 
+import io.mockk.every
+import io.mockk.mockk
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.cart.usecase.*
 import org.flexstore.domain.product.*
@@ -15,6 +17,9 @@ import org.flexstore.infra.repository.InMemoryShopSettingsRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.ucop.domain.ErrorMessage
+import org.ucop.domain.NominalException
+import org.ucop.domain.PreConditionException
 import java.math.BigDecimal
 import java.time.Duration
 import java.time.Instant
@@ -132,5 +137,44 @@ class AbandonedCartServiceTest : WithAssertions {
         // Assert
         assertThat(remindedCarts.isEmpty()).isTrue()
         assertThat(emailRepository.sentAbandonedCartReminderEmails()).isEmpty()
+    }
+
+    // A service whose use case to remind fails with the given precondition not met
+    private fun serviceFailingWith(
+        precondition: PreConditionException
+    ): Pair<AbandonedCartService, NominalException> {
+        val failure = NominalException(precondition)
+        val failingUseCase = mockk<RemindAbandonedCartUseCase>()
+        every { failingUseCase.unfold(any()) } throws failure
+        val failingService = AbandonedCartService(
+            ReadShopSettingsUseCase(settingsRepository),
+            ListAbandonedCartsUseCase(cartRepository),
+            failingUseCase
+        )
+        return Pair(failingService, failure)
+    }
+
+    @Test
+    fun `the refusal of the system to remind a customer should stop the run`() {
+        // Arrange
+        hoursLater(24)
+        val refusal = AbandonedCartForbiddenException(ErrorMessage("Only an administrator or the system."))
+        val (refusingService, failure) = serviceFailingWith(refusal)
+        // Act
+        val thrown = catchThrowable { refusingService.remindAbandonedCarts() }
+        // Assert
+        assertThat(thrown).isSameAs(failure)
+    }
+
+    @Test
+    fun `another precondition not met should only leave the customer aside`() {
+        // Arrange
+        hoursLater(24)
+        val emptyCart = AbandonedCartReminderRefusedException(ErrorMessage("Empty."))
+        val (failingService, _) = serviceFailingWith(emptyCart)
+        // Act
+        val remindedCarts = failingService.remindAbandonedCarts()
+        // Assert
+        assertThat(remindedCarts.isEmpty()).isTrue()
     }
 }
