@@ -1,7 +1,7 @@
 package org.flexstore.domain.stock.usecase
 
 import org.flexstore.domain.stock.*
-import org.flexstore.domain.user.model.Admin
+import org.flexstore.domain.user.model.isNotAdmin
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
@@ -21,7 +21,7 @@ class ReadStockAlertUseCase(
 
     // The reader, resolved before the use case runs, must be an Admin
     private fun readerIsAdministratorCondition() = PreCondition<StockAlertReading> { reading ->
-        if (reading.reader !is Admin) {
+        if (reading.reader.isNotAdmin()) {
             throw StockAlertForbiddenException(
                 ErrorMessage("Only an administrator can read the alert threshold of a product.")
             )

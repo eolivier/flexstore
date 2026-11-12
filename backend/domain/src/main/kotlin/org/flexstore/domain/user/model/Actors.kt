@@ -11,3 +11,5 @@ open class Visitor internal constructor(name: Name = Name("Visitor")) : Actor(na
 open class Customer internal constructor(val userId: UserId, name: Name) : Visitor(name)
 
 class Admin internal constructor(userId: UserId, name: Name) : Customer(userId, name)
+
+fun Actor.isNotAdmin() = this !is Admin

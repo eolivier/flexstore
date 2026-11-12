@@ -3,7 +3,7 @@ package org.flexstore.domain.stock.usecase
 import org.flexstore.domain.product.*
 import org.flexstore.domain.product.model.*
 import org.flexstore.domain.stock.*
-import org.flexstore.domain.user.model.Admin
+import org.flexstore.domain.user.model.isNotAdmin
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
@@ -25,7 +25,7 @@ class ChangeStockAlertUseCase(
 
     // The editor, resolved before the use case runs, must be an Admin
     private fun editorIsAdministratorCondition() = PreCondition<StockAlertChange> { change ->
-        if (change.editor !is Admin) {
+        if (change.editor.isNotAdmin()) {
             throw StockAlertForbiddenException(
                 ErrorMessage("Only an administrator can change the alert threshold of a product.")
             )
