@@ -56,7 +56,7 @@ class RemindAbandonedCartUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(AbandonedCartReminding(systemActor, customer)) }
         // Assert
-        assertThat(thrown).isInstanceOf(AbandonedCartReminderRefusedException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(AbandonedCartReminderRefusedException::class.java)
         assertThat(emailRepository.sentAbandonedCartReminderEmails()).isEmpty()
     }
 
@@ -106,7 +106,7 @@ class RemindAbandonedCartUseCaseTest : WithAssertions {
         val reminding = AbandonedCartReminding(Customer(userId, actorName), customer)
         val thrown = catchThrowable { useCase.unfold(reminding) }
         // Assert
-        assertThat(thrown).isInstanceOf(AbandonedCartForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(AbandonedCartForbiddenException::class.java)
         assertThat(emailRepository.sentAbandonedCartReminderEmails()).isEmpty()
     }
 
@@ -117,7 +117,7 @@ class RemindAbandonedCartUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(AbandonedCartReminding(Visitor(), customer)) }
         // Assert
-        assertThat(thrown).isInstanceOf(AbandonedCartForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(AbandonedCartForbiddenException::class.java)
         assertThat(cartRepository.isReminded(customer)).isFalse()
     }
 }

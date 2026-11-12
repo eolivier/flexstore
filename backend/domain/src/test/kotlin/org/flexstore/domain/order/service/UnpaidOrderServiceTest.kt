@@ -144,7 +144,7 @@ class UnpaidOrderServiceTest : WithAssertions {
             cancelUnpaidOrderUseCase.unfold(cancellationBy(Customer(customer.userId, Name("Jane Doe"))))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(UnpaidOrderForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UnpaidOrderForbiddenException::class.java)
         assertThat(storedStatus()).isEqualTo(OrderStatus.AWAITING_PAYMENT)
     }
 
@@ -155,7 +155,7 @@ class UnpaidOrderServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { cancelUnpaidOrderUseCase.unfold(cancellationBy(Visitor())) }
         // Assert
-        assertThat(thrown).isInstanceOf(UnpaidOrderForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UnpaidOrderForbiddenException::class.java)
         assertThat(paymentRepository.isStopped(orderId)).isFalse()
     }
 }
