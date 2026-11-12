@@ -67,7 +67,7 @@ class StockAlertUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { stockAlertUseCases.change(administratorActor, negativeAlert) }
         // Assert
-        assertThat(thrown).isInstanceOf(NegativeAlertThresholdException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(NegativeAlertThresholdException::class.java)
     }
 
     @Test
@@ -112,7 +112,7 @@ class StockAlertUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { stockAlertUseCases.change(customerActor, stockAlert) }
         // Assert
-        assertThat(thrown).isInstanceOf(StockAlertForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(StockAlertForbiddenException::class.java)
         val defaultAlert = StockAlert.byDefaultOf(deskLamp.productId)
         assertThat(stockRepository.alertOf(deskLamp.productId)).isEqualTo(defaultAlert)
     }
@@ -125,7 +125,7 @@ class StockAlertUseCasesTest : WithAssertions {
             stockAlertUseCases.change(unknownUser, StockAlert(deskLamp.productId, AlertThreshold(10)))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(StockAlertForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(StockAlertForbiddenException::class.java)
     }
 
     @Test
@@ -133,7 +133,7 @@ class StockAlertUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { stockAlertUseCases.alertOf(customerActor, deskLamp.productId) }
         // Assert
-        assertThat(thrown).isInstanceOf(StockAlertForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(StockAlertForbiddenException::class.java)
     }
 
     @Test
@@ -141,6 +141,6 @@ class StockAlertUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { stockAlertUseCases.lowStocks(ValidUserId("unknown")) }
         // Assert
-        assertThat(thrown).isInstanceOf(StockAlertForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(StockAlertForbiddenException::class.java)
     }
 }
