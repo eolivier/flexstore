@@ -5,6 +5,7 @@ import org.flexstore.domain.sharedkernel.Quantity
 import org.flexstore.domain.user.model.UserId
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
+import org.ucop.domain.PreConditionException
 import org.ucop.domain.entity.Actor
 
 // The number of units of a product that the shop has: never negative
@@ -112,8 +113,8 @@ data class StockChangeForbiddenException(override val errorMessage: ErrorMessage
 data class OutOfStockException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class NegativeStockException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class NegativeAlertThresholdException(override val errorMessage: ErrorMessage) :
-    NominalException(errorMessage)
+    PreConditionException(errorMessage)
 data class StockAlertForbiddenException(override val errorMessage: ErrorMessage) :
-    NominalException(errorMessage)
+    PreConditionException(errorMessage)
 data class StockAlertChangeFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class StockChangeFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
