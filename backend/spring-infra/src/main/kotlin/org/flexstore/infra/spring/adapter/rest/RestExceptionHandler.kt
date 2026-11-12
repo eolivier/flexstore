@@ -31,6 +31,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.multipart.MaxUploadSizeExceededException
 import org.ucop.domain.NominalException
+import org.ucop.domain.PostConditionException
+import org.ucop.domain.PreConditionException
 import org.flexstore.domain.user.address.AddressNotFoundException
 import org.flexstore.domain.user.address.IncompleteAddressException
 
@@ -40,7 +42,14 @@ class RestExceptionHandler {
     private val logger = LoggerFactory.getLogger(RestExceptionHandler::class.java)
 
     @ExceptionHandler(NominalException::class)
-    fun handleNominalException(ex: NominalException): ResponseEntity<Map<String, String>> {
+    fun handleNominalException(nominal: NominalException): ResponseEntity<Map<String, String>> {
+        // A precondition or a postcondition not met is answered for its precise exception, which is the cause of
+        // the failure
+        val ex: Exception = when (val cause = nominal.cause) {
+            is PreConditionException -> cause
+            is PostConditionException -> cause
+            else -> nominal
+        }
         return when (ex) {
             is UserAlreadyExists -> ResponseEntity
                 .status(409)
