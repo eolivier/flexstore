@@ -1,5 +1,6 @@
 package org.flexstore.domain.order.service
 
+import org.flexstore.domain.actor.SystemActor
 import org.flexstore.domain.order.model.*
 import org.flexstore.domain.order.usecase.*
 import org.flexstore.domain.sharedkernel.InstantProvider
@@ -21,7 +22,7 @@ class UnpaidOrderService(
         val timeLimit = PaymentTimeLimit(paymentDelay, InstantProvider.now())
         val lateOrders = listAllOrdersUseCase.unfold(Unit).latePaymentsAt(timeLimit).asList()
         val cancelledOrders = lateOrders.filter { order ->
-            val cancellation = UnpaidOrderCancellation(order.orderId, timeLimit)
+            val cancellation = UnpaidOrderCancellation(SystemActor(), order.orderId, timeLimit)
             runCatching { cancelUnpaidOrderUseCase.unfold(cancellation) }
                 .onFailure { if (it !is NominalException) throw it }
                 .isSuccess
