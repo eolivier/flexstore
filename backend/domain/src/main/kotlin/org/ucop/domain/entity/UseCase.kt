@@ -3,6 +3,7 @@ package org.ucop.domain.entity
 import org.flexstore.domain.sharedkernel.*
 import org.ucop.domain.AlternativeException
 import org.ucop.domain.NominalException
+import org.ucop.domain.PostConditionException
 import org.ucop.domain.PreConditionException
 import org.ucop.domain.StepException
 import org.ucop.domain.UseCaseLog
@@ -46,6 +47,16 @@ data class PostConditions<T>(private val postConditions: List<PostCondition<T>>)
     constructor(vararg postConditions: PostCondition<T>) : this(postConditions.toList())
 
     fun validate(t: T) = postConditions.forEach { it.validate(t) }
+
+    // What a use case runs: a postcondition not met is raised as a nominal failure, caused by the precise
+    // exception
+    fun validateOrFail(t: T) {
+        try {
+            validate(t)
+        } catch (pce: PostConditionException) {
+            throw NominalException(pce)
+        }
+    }
 
     companion object {
         fun <T> none() = PostConditions(EmptyPostCondition<T>())
@@ -112,7 +123,7 @@ interface UseCase<T> {
         try {
             getPreConditions().validateOrFail(t)
             getNominalScenario().unfold(t)
-            getPostConditions().validate(t)
+            getPostConditions().validateOrFail(t)
         } catch (ne: NominalException) {
             if (getAlternativeScenarii().containsKey(ne::class)) {
                 getAlternativeScenarii()[ne::class]?.unfold(t)
@@ -149,7 +160,7 @@ interface QueryUseCase<T, R> {
     fun unfold(t: T): R = UseCaseLog.execution(this::class.simpleName ?: "QueryUseCase") {
         getPreConditions().validateOrFail(t)
         val answer = getNominalQuery().answer(t)
-        getPostConditions().validate(answer)
+        getPostConditions().validateOrFail(answer)
         answer
     }
 }
