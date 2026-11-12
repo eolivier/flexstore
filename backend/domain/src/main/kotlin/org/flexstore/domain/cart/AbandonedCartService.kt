@@ -19,7 +19,8 @@ class AbandonedCartService(
         val shopSettings = readShopSettingsUseCase.unfold(Unit)
         if (shopSettings.sendsAbandonedCartReminder()) {
             val limit = AbandonmentLimit.of(shopSettings.abandonedCartDelay, InstantProvider.now())
-            val abandonedCarts = listAbandonedCartsUseCase.unfold(AbandonedCartsReading(SystemActor(), limit)).asList()
+            val reading = AbandonedCartsReading(SystemActor(), limit)
+            val abandonedCarts = listAbandonedCartsUseCase.unfold(reading).asList()
             return AbandonedCarts(abandonedCarts.filter { cart -> isReminded(cart) })
         }
         return AbandonedCarts()

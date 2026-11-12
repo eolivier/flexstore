@@ -81,7 +81,8 @@ class RemindAbandonedCartUseCaseTest : WithAssertions {
         val blockedUseCase = RemindAbandonedCartUseCase(cartRepository, blockedUsers, emailRepository)
         cartRepository.save(Cart(blockedCustomer).add(deskLamp, Quantity(1)))
         // Act
-        val thrown = catchThrowable { blockedUseCase.unfold(AbandonedCartReminding(systemActor, blockedCustomer)) }
+        val reminding = AbandonedCartReminding(systemActor, blockedCustomer)
+        val thrown = catchThrowable { blockedUseCase.unfold(reminding) }
         // Assert
         assertThat(thrown).isInstanceOf(AccountRefusedException::class.java)
         assertThat(emailRepository.sentAbandonedCartReminderEmails()).isEmpty()
