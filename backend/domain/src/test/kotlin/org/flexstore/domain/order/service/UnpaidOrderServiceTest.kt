@@ -2,6 +2,8 @@ package org.flexstore.domain.order.service
 
 import org.flexstore.domain.order.model.*
 import org.flexstore.domain.order.usecase.*
+import io.mockk.every
+import io.mockk.mockk
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.actor.*
 import org.flexstore.domain.cart.*
@@ -14,6 +16,9 @@ import org.flexstore.domain.settings.usecase.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.stock.*
 import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.ErrorMessage
+import org.ucop.domain.NominalException
+import org.ucop.domain.PreConditionException
 import org.ucop.domain.entity.Actor
 import org.flexstore.infra.repository.*
 import org.junit.jupiter.api.AfterEach
@@ -157,5 +162,47 @@ class UnpaidOrderServiceTest : WithAssertions {
         // Assert
         assertThat(thrown).hasCauseInstanceOf(UnpaidOrderForbiddenException::class.java)
         assertThat(paymentRepository.isStopped(orderId)).isFalse()
+    }
+
+    private class OrderNotCancelledException(errorMessage: ErrorMessage) : PreConditionException(errorMessage)
+
+    // A service whose use case fails with the given exception, caused by the given precondition
+    private fun serviceFailingWith(
+        precondition: PreConditionException
+    ): Pair<UnpaidOrderService, NominalException> {
+        val failure = NominalException(precondition)
+        val failingUseCase = mockk<CancelUnpaidOrderUseCase>()
+        every { failingUseCase.unfold(any()) } throws failure
+        val failingService = UnpaidOrderService(
+            ReadShopSettingsUseCase(shopSettingsRepository),
+            ListAllOrdersUseCase(orderRepository),
+            failingUseCase
+        )
+        return Pair(failingService, failure)
+    }
+
+    @Test
+    fun `the refusal of the system to cancel an order should stop the run`() {
+        // Arrange
+        placeOrder()
+        val refusal = UnpaidOrderForbiddenException(ErrorMessage("Only an administrator or the system."))
+        val (refusingService, failure) = serviceFailingWith(refusal)
+        InstantProvider.fixAt(placedAt.plusSeconds(10 * 60))
+        // Act
+        val thrown = catchThrowable { refusingService.cancelLateOrders() }
+        // Assert
+        assertThat(thrown).isSameAs(failure)
+    }
+
+    @Test
+    fun `another precondition not met should only set the order aside`() {
+        // Arrange
+        placeOrder()
+        val (failingService, _) = serviceFailingWith(OrderNotCancelledException(ErrorMessage("Cannot cancel.")))
+        InstantProvider.fixAt(placedAt.plusSeconds(10 * 60))
+        // Act
+        val cancelledOrders = failingService.cancelLateOrders()
+        // Assert
+        assertThat(cancelledOrders.asList()).isEmpty()
     }
 }

@@ -19,3 +19,5 @@ open class PreConditionException(open val errorMessage: ErrorMessage) : Exceptio
 // A postcondition that is not met: the business exceptions of the postconditions derive from it
 open class PostConditionException(open val errorMessage: ErrorMessage) : Exception(errorMessage.value)
 data class AlternativeException(val errorMessage: ErrorMessage) : Exception(errorMessage.value)
+
+fun Throwable.isNotNominal() = this !is NominalException
