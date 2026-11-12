@@ -12,6 +12,7 @@ import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.*
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
+import org.ucop.domain.PreConditionException
 import org.ucop.domain.entity.Actor
 
 // Number of characters of the order id shown to the customer as the order number
@@ -448,7 +449,7 @@ data class PaymentDeadline(val value: Instant) {
 data class UnpaidOrderCancellation(val actor: Actor, val orderId: OrderId, val timeLimit: PaymentTimeLimit)
 
 data class UnpaidOrderForbiddenException(override val errorMessage: ErrorMessage) :
-    NominalException(errorMessage)
+    PreConditionException(errorMessage)
 
 data class OrderNotAwaitingPaymentException(override val errorMessage: ErrorMessage) :
     NominalException(errorMessage)

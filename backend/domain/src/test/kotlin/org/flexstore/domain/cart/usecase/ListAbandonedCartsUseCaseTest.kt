@@ -39,7 +39,7 @@ class ListAbandonedCartsUseCaseTest : WithAssertions {
             useCase.unfold(AbandonedCartsReading(Customer(userId, actorName), limit))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(AbandonedCartForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(AbandonedCartForbiddenException::class.java)
     }
 
     @Test
@@ -47,6 +47,6 @@ class ListAbandonedCartsUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(AbandonedCartsReading(Visitor(), limit)) }
         // Assert
-        assertThat(thrown).isInstanceOf(AbandonedCartForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(AbandonedCartForbiddenException::class.java)
     }
 }
