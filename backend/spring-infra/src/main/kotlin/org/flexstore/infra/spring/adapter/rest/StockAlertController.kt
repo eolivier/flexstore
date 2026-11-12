@@ -8,7 +8,7 @@ import org.flexstore.domain.stock.*
 import org.flexstore.domain.stock.usecase.StockAlertUseCases
 import org.flexstore.domain.user.model.UserId
 import org.flexstore.domain.user.model.of
-import org.flexstore.domain.user.service.ActorResolutionService
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.infra.spring.adapter.rest.json.JsonAlertThreshold
 import org.flexstore.infra.spring.adapter.rest.json.JsonLowStock
 import org.flexstore.infra.spring.adapter.rest.json.JsonStockAlert

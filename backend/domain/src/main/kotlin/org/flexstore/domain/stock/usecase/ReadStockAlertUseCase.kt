@@ -1,7 +1,7 @@
 package org.flexstore.domain.stock.usecase
 
 import org.flexstore.domain.stock.*
-import org.flexstore.domain.user.model.isNotAdmin
+import org.flexstore.domain.actor.isNotAdmin
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 

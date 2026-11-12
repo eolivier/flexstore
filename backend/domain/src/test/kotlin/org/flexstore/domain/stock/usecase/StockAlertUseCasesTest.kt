@@ -8,7 +8,7 @@ import org.flexstore.domain.stock.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.model.User.DefinedUser
 import org.flexstore.domain.user.model.UserId.ValidUserId
-import org.flexstore.domain.user.service.ActorResolutionService
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.infra.repository.InMemoryProductRepository
 import org.flexstore.infra.repository.InMemoryStockRepository
 import org.flexstore.infra.repository.InMemoryUserRepository

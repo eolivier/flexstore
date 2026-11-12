@@ -38,6 +38,7 @@ import org.flexstore.domain.stock.usecase.*
 import org.flexstore.domain.sharedkernel.ShopUrl
 import org.flexstore.domain.twofactor.TwoFactorChallengeRepository
 import org.flexstore.domain.twofactor.usecase.*
+import org.flexstore.domain.actor.*
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.repository.*

@@ -1,4 +1,4 @@
-package org.flexstore.domain.user.service
+package org.flexstore.domain.actor
 
 import org.flexstore.domain.sharedkernel.Name
 import org.flexstore.domain.user.model.*

@@ -1,6 +1,7 @@
-package org.flexstore.domain.user.model
+package org.flexstore.domain.actor
 
 import org.flexstore.domain.sharedkernel.Name
+import org.flexstore.domain.user.model.UserId
 import org.ucop.domain.entity.Actor
 
 // Who runs a use case, resolved before it runs. The roles are hierarchical: every Admin is a Customer, every
