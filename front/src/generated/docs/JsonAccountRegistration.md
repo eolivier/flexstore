@@ -1,5 +1,6 @@
 # JsonAccountRegistration
 
+The express registration only gives the names, the email and the password; the phone number and the postal address can be given later, from the account
 
 ## Properties
 
@@ -9,8 +10,8 @@ Name | Type | Description | Notes
 **lastName** | **string** |  | [default to undefined]
 **email** | **string** |  | [default to undefined]
 **password** | **string** | At least 8 characters (will be hashed by the server) | [default to undefined]
-**phoneNumber** | **string** |  | [default to undefined]
-**postalAddress** | [**JsonPostalAddress**](JsonPostalAddress.md) |  | [default to undefined]
+**phoneNumber** | **string** | Optional | [optional] [default to undefined]
+**postalAddress** | [**JsonPostalAddress**](JsonPostalAddress.md) |  | [optional] [default to undefined]
 **company** | [**JsonCustomerCompany**](JsonCustomerCompany.md) |  | [optional] [default to undefined]
 
 ## Example

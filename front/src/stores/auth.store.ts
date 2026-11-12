@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import type { AccountStatus, User } from '@/models/user';
-import type { AccountRegistration } from '@/models/account';
+import type { ExpressAccountRegistration } from '@/models/account';
 import { useLoadingStore } from '@/stores/loading.store';
 import { shareWhilePending } from '@/utils/shareWhilePending';
 
@@ -174,7 +174,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   // Creates the account of a customer, then signs them in
-  async function register(registration: AccountRegistration): Promise<Registration> {
+  async function register(registration: ExpressAccountRegistration): Promise<Registration> {
     try {
       const response = await loadingStore.track(
         fetch(`${apiUrl}/api/accounts`, {

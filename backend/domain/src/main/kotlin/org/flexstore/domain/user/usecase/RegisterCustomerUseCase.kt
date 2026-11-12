@@ -26,7 +26,9 @@ class RegisterCustomerUseCase(private val userRepository: UserRepository) : UseC
     private fun registrationIsCompleteCondition() = PreCondition<CustomerRegistration> { registration ->
         if (registration.isIncomplete()) {
             throw IncompleteRegistrationException(
-                ErrorMessage("First name, last name, email, phone number and postal address are required.")
+                ErrorMessage(
+                    "First name, last name and email are required, and a postal address given must be complete."
+                )
             )
         }
     }

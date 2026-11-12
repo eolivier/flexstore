@@ -261,7 +261,7 @@ No authorization required
 |**201** | Account created |  -  |
 |**400** | Invalid company (reason INVALID_COMPANY): no name, a SIREN other than 9 digits, or a VAT number malformed or that does not agree with the SIREN |  -  |
 |**409** | The email is already used |  -  |
-|**422** | A required field is missing or the password has fewer than 8 characters |  -  |
+|**422** | A required field is missing (first name, last name or email), a postal address given is incomplete, or the password has fewer than 8 characters |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

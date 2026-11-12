@@ -93,6 +93,42 @@ class AccountIT {
     }
 
     @Test
+    fun `an express registration should create the account with the names, the email and the password`() {
+        // Act
+        val response = register(expressRegistration())
+        // Assert
+        response.andExpect(status().isCreated)
+            .andExpect(jsonPath("$.email").value(CUSTOMER_EMAIL))
+            .andExpect(jsonPath("$.status").value("PENDING_VERIFICATION"))
+    }
+
+    @Test
+    fun `an express account should have neither a phone number nor a postal address`() {
+        // Arrange
+        register(expressRegistration()).andExpect(status().isCreated)
+        val customerId = userRepository.findByEmail(CUSTOMER_EMAIL)!!.id
+        // Act
+        val response = mockMvc.perform(get("/api/accounts/me").with(asUser(customerId)))
+        // Assert
+        response.andExpect(status().isOk)
+            .andExpect(jsonPath("\$.phoneNumber").doesNotExist())
+            .andExpect(jsonPath("\$.postalAddresses").isEmpty)
+    }
+
+    @Test
+    fun `the customer of an express account should sign in at once`() {
+        // Arrange
+        register(expressRegistration()).andExpect(status().isCreated)
+        // Act
+        val response = mockMvc.perform(
+            post("/api/users/login").contentType(MediaType.APPLICATION_JSON)
+                .content("""{"email": "$CUSTOMER_EMAIL", "password": "password123"}""")
+        )
+        // Assert
+        response.andExpect(status().isOk)
+    }
+
+    @Test
     fun `an email already used should be refused`() {
         // Arrange
         register(registration()).andExpect(status().isCreated)
@@ -105,7 +141,6 @@ class AccountIT {
     @ParameterizedTest(name = "{0} -> 422")
     @CsvSource(
         "a short password, short, +33 6 12 34 56 78, Paris",
-        "no phone number, password123, '', Paris",
         "no city, password123, +33 6 12 34 56 78, ''",
     )
     fun `an invalid registration should be refused`(@Suppress("UNUSED_PARAMETER") case: String, password: String, phoneNumber: String, city: String) {
@@ -256,6 +291,10 @@ class AccountIT {
 
     private fun register(registration: String) =
         mockMvc.perform(post("/api/accounts").contentType(MediaType.APPLICATION_JSON).content(registration))
+
+    private fun expressRegistration() = """
+        {"firstName": "Jane", "lastName": "Doe", "email": "$CUSTOMER_EMAIL", "password": "password123"}
+    """
 
     private fun registration(password: String = "password123", phoneNumber: String = "+33 6 12 34 56 78", city: String = "Paris") = """
         {"firstName": "Jane", "lastName": "Doe", "email": "$CUSTOMER_EMAIL", "password": "$password",
