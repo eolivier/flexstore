@@ -3,6 +3,7 @@ package org.flexstore.domain.stock
 import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.sharedkernel.Quantity
 import org.flexstore.domain.user.model.UserId
+import org.flexstore.domain.user.model.Visitor
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
 
@@ -75,7 +76,7 @@ data class StockAlert(val productId: ProductId, val threshold: AlertThreshold) {
 }
 
 // An administrator who gives the threshold of the stock of a product
-data class StockAlertChange(val editor: UserId, val stockAlert: StockAlert)
+data class StockAlertChange(val editor: Visitor, val stockAlert: StockAlert)
 
 // An administrator who reads the threshold of the stock of a product
 data class StockAlertReading(val reader: UserId, val productId: ProductId)

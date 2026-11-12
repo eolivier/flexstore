@@ -8,6 +8,7 @@ import org.flexstore.domain.stock.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.model.User.DefinedUser
 import org.flexstore.domain.user.model.UserId.ValidUserId
+import org.flexstore.domain.user.service.ActorResolutionService
 import org.flexstore.infra.repository.InMemoryProductRepository
 import org.flexstore.infra.repository.InMemoryStockRepository
 import org.flexstore.infra.repository.InMemoryUserRepository
@@ -27,12 +28,14 @@ class StockAlertUseCasesTest : WithAssertions {
         save(administrator)
         save(customer)
     }
-    private val changeStockAlertUseCase =
-        ChangeStockAlertUseCase(stockRepository, productRepository, userRepository)
+    private val changeStockAlertUseCase = ChangeStockAlertUseCase(stockRepository, productRepository)
     private val readStockAlertUseCase = ReadStockAlertUseCase(stockRepository, userRepository)
     private val listLowStocksUseCase = ListLowStocksUseCase(stockRepository, userRepository)
     private val stockAlertUseCases =
-        StockAlertUseCases(listLowStocksUseCase, readStockAlertUseCase, changeStockAlertUseCase)
+        StockAlertUseCases(
+            listLowStocksUseCase, readStockAlertUseCase, changeStockAlertUseCase,
+            ActorResolutionService(userRepository)
+        )
 
     private fun userOf(id: String, role: Role) = DefinedUser(
         ValidUserId(id), FullName(FirstName("Jane"), LastName("Doe")), Email("$id@flexstore.fr"),
@@ -112,6 +115,16 @@ class StockAlertUseCasesTest : WithAssertions {
         assertThat(thrown).isInstanceOf(StockAlertForbiddenException::class.java)
         val defaultAlert = StockAlert.byDefaultOf(deskLamp.productId)
         assertThat(stockRepository.alertOf(deskLamp.productId)).isEqualTo(defaultAlert)
+    }
+
+    @Test
+    fun `an unknown user should not change the alert threshold of a product`() {
+        // Act
+        val thrown = catchThrowable {
+            stockAlertUseCases.change(ValidUserId("unknown"), StockAlert(deskLamp.productId, AlertThreshold(10)))
+        }
+        // Assert
+        assertThat(thrown).isInstanceOf(StockAlertForbiddenException::class.java)
     }
 
     @Test

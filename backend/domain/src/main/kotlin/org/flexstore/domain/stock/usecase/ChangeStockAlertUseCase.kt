@@ -3,15 +3,14 @@ package org.flexstore.domain.stock.usecase
 import org.flexstore.domain.product.*
 import org.flexstore.domain.product.model.*
 import org.flexstore.domain.stock.*
-import org.flexstore.domain.user.repository.UserRepository
+import org.flexstore.domain.user.model.Admin
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // An administrator gives the number of units at or under which they are warned that a product runs low
 class ChangeStockAlertUseCase(
     private val stockRepository: StockRepository,
-    private val productRepository: ProductRepository,
-    private val userRepository: UserRepository
+    private val productRepository: ProductRepository
 ) : UseCase<StockAlertChange> {
 
     override fun getPreConditions(): PreConditions<StockAlertChange> = PreConditions(
@@ -24,9 +23,9 @@ class ChangeStockAlertUseCase(
     override fun getPostConditions(): PostConditions<StockAlertChange> =
         PostConditions(stockAlertIsStoredCondition())
 
-    // The editor must be an existing user with the ADMIN role (read from the users, not from the request)
+    // The editor, resolved before the use case runs, must be an Admin
     private fun editorIsAdministratorCondition() = PreCondition<StockAlertChange> { change ->
-        if (userRepository.isNotAdministrator(change.editor)) {
+        if (change.editor !is Admin) {
             throw StockAlertForbiddenException(
                 ErrorMessage("Only an administrator can change the alert threshold of a product.")
             )

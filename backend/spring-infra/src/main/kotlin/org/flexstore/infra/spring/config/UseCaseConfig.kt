@@ -383,16 +383,19 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         ReadStockAlertUseCase(stockRepository, userRepository)
 
     @Bean
-    open fun changeStockAlertUseCase(stockRepository: StockRepository,
-                                     productRepository: ProductRepository,
-                                     userRepository: UserRepository) =
-        ChangeStockAlertUseCase(stockRepository, productRepository, userRepository)
+    open fun changeStockAlertUseCase(stockRepository: StockRepository, productRepository: ProductRepository) =
+        ChangeStockAlertUseCase(stockRepository, productRepository)
+
+    @Bean
+    open fun actorResolutionService(userRepository: UserRepository) = ActorResolutionService(userRepository)
 
     @Bean
     open fun stockAlertUseCases(listLowStocksUseCase: ListLowStocksUseCase,
                                 readStockAlertUseCase: ReadStockAlertUseCase,
-                                changeStockAlertUseCase: ChangeStockAlertUseCase) =
-        StockAlertUseCases(listLowStocksUseCase, readStockAlertUseCase, changeStockAlertUseCase)
+                                changeStockAlertUseCase: ChangeStockAlertUseCase,
+                                actorResolutionService: ActorResolutionService) =
+        StockAlertUseCases(listLowStocksUseCase, readStockAlertUseCase, changeStockAlertUseCase,
+            actorResolutionService)
 
     @Bean
     open fun addProductImageUseCase(productImageRepository: ProductImageRepository,
