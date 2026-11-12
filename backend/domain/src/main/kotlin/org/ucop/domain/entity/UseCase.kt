@@ -4,7 +4,6 @@ import org.flexstore.domain.sharedkernel.*
 import org.ucop.domain.AlternativeException
 import org.ucop.domain.NominalException
 import org.ucop.domain.PreConditionException
-import org.ucop.domain.PreConditionFailed
 import org.ucop.domain.StepException
 import org.ucop.domain.UseCaseLog
 import kotlin.reflect.KClass
@@ -28,7 +27,7 @@ data class PreConditions<T>(private val preConditions: List<PreCondition<T>>) {
         try {
             validate(t)
         } catch (pce: PreConditionException) {
-            throw PreConditionFailed(pce)
+            throw NominalException(pce)
         }
     }
 

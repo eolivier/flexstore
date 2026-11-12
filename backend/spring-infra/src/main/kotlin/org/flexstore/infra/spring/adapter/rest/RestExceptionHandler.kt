@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.multipart.MaxUploadSizeExceededException
 import org.ucop.domain.NominalException
-import org.ucop.domain.PreConditionFailed
+import org.ucop.domain.PreConditionException
 import org.flexstore.domain.user.address.AddressNotFoundException
 import org.flexstore.domain.user.address.IncompleteAddressException
 
@@ -43,7 +43,8 @@ class RestExceptionHandler {
     @ExceptionHandler(NominalException::class)
     fun handleNominalException(nominal: NominalException): ResponseEntity<Map<String, String>> {
         // A precondition not met is answered for its precise exception, which is the cause of the failure
-        val ex = if (nominal is PreConditionFailed) nominal.cause else nominal
+        val cause = nominal.cause
+        val ex = if (cause is PreConditionException) cause else nominal
         return when (ex) {
             is UserAlreadyExists -> ResponseEntity
                 .status(409)

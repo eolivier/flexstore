@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
 import org.ucop.domain.PreConditionException
-import org.ucop.domain.PreConditionFailed
 
 class PreConditionFailureTest {
 
@@ -44,8 +43,7 @@ class PreConditionFailureTest {
         // Act
         val thrown = catchThrowable { SpellWordUseCase(wordIsNotEmpty, spelled).unfold("") }
         // Assert
-        assertThat(thrown).isInstanceOf(PreConditionFailed::class.java)
-        assertThat(thrown).isInstanceOf(NominalException::class.java)
+        assertThat(thrown.javaClass).isEqualTo(NominalException::class.java)
         assertThat(thrown).hasCauseInstanceOf(EmptyWordException::class.java)
         assertThat(thrown).hasMessage(emptyWordMessage.value)
         assertThat(spelled).isEmpty()
@@ -56,7 +54,7 @@ class PreConditionFailureTest {
         // Act
         val thrown = catchThrowable { SpellWordQuery(wordIsNotEmpty).unfold("") }
         // Assert
-        assertThat(thrown).isInstanceOf(PreConditionFailed::class.java)
+        assertThat(thrown.javaClass).isEqualTo(NominalException::class.java)
         assertThat(thrown).hasCauseInstanceOf(EmptyWordException::class.java)
     }
 
