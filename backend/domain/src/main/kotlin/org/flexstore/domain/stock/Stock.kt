@@ -79,7 +79,7 @@ data class StockAlert(val productId: ProductId, val threshold: AlertThreshold) {
 data class StockAlertChange(val editor: Visitor, val stockAlert: StockAlert)
 
 // An administrator who reads the threshold of the stock of a product
-data class StockAlertReading(val reader: UserId, val productId: ProductId)
+data class StockAlertReading(val reader: Visitor, val productId: ProductId)
 
 // An administrator who reads the stocks that reached the threshold of their product
 data class LowStocksReading(val reader: UserId)

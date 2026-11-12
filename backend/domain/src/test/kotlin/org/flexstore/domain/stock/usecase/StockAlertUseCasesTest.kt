@@ -29,7 +29,7 @@ class StockAlertUseCasesTest : WithAssertions {
         save(customer)
     }
     private val changeStockAlertUseCase = ChangeStockAlertUseCase(stockRepository, productRepository)
-    private val readStockAlertUseCase = ReadStockAlertUseCase(stockRepository, userRepository)
+    private val readStockAlertUseCase = ReadStockAlertUseCase(stockRepository)
     private val listLowStocksUseCase = ListLowStocksUseCase(stockRepository, userRepository)
     private val stockAlertUseCases =
         StockAlertUseCases(

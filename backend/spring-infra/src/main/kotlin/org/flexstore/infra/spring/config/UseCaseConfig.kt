@@ -379,8 +379,7 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         ListLowStocksUseCase(stockRepository, userRepository)
 
     @Bean
-    open fun readStockAlertUseCase(stockRepository: StockRepository, userRepository: UserRepository) =
-        ReadStockAlertUseCase(stockRepository, userRepository)
+    open fun readStockAlertUseCase(stockRepository: StockRepository) = ReadStockAlertUseCase(stockRepository)
 
     @Bean
     open fun changeStockAlertUseCase(stockRepository: StockRepository, productRepository: ProductRepository) =

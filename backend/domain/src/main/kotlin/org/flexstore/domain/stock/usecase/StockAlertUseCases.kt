@@ -16,10 +16,12 @@ class StockAlertUseCases(
     fun lowStocks(reader: UserId) = listLowStocksUseCase.unfold(LowStocksReading(reader))
 
     fun alertOf(reader: UserId, productId: ProductId) =
-        readStockAlertUseCase.unfold(StockAlertReading(reader, productId))
+        readStockAlertUseCase.unfold(StockAlertReading(actorResolutionService.actorOf(reader), productId))
 
+    // The editor is resolved once, then reads back what they changed
     fun change(editor: UserId, stockAlert: StockAlert): StockAlert {
-        changeStockAlertUseCase.unfold(StockAlertChange(actorResolutionService.actorOf(editor), stockAlert))
-        return readStockAlertUseCase.unfold(StockAlertReading(editor, stockAlert.productId))
+        val actor = actorResolutionService.actorOf(editor)
+        changeStockAlertUseCase.unfold(StockAlertChange(actor, stockAlert))
+        return readStockAlertUseCase.unfold(StockAlertReading(actor, stockAlert.productId))
     }
 }
