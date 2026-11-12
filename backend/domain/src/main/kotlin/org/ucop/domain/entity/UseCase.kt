@@ -3,6 +3,8 @@ package org.ucop.domain.entity
 import org.flexstore.domain.sharedkernel.*
 import org.ucop.domain.AlternativeException
 import org.ucop.domain.NominalException
+import org.ucop.domain.PreConditionException
+import org.ucop.domain.PreConditionFailed
 import org.ucop.domain.StepException
 import org.ucop.domain.UseCaseLog
 import kotlin.reflect.KClass
@@ -19,6 +21,16 @@ data class PreConditions<T>(private val preConditions: List<PreCondition<T>>) {
     constructor(vararg preConditions: PreCondition<T>) : this(preConditions.toList())
 
     fun validate(t: T) = preConditions.forEach { it.validate(t) }
+
+    // What a use case runs: a precondition not met is raised as a nominal failure, caused by the precise
+    // exception
+    fun validateOrFail(t: T) {
+        try {
+            validate(t)
+        } catch (pce: PreConditionException) {
+            throw PreConditionFailed(pce)
+        }
+    }
 
     companion object {
         fun <T> none() = PreConditions(EmptyPreCondition<T>())
@@ -99,7 +111,7 @@ interface UseCase<T> {
 
     fun unfold(t: T) = UseCaseLog.execution(this::class.simpleName ?: "UseCase") {
         try {
-            getPreConditions().validate(t)
+            getPreConditions().validateOrFail(t)
             getNominalScenario().unfold(t)
             getPostConditions().validate(t)
         } catch (ne: NominalException) {
@@ -136,7 +148,7 @@ interface QueryUseCase<T, R> {
     fun getPostConditions(): PostConditions<R>
 
     fun unfold(t: T): R = UseCaseLog.execution(this::class.simpleName ?: "QueryUseCase") {
-        getPreConditions().validate(t)
+        getPreConditions().validateOrFail(t)
         val answer = getNominalQuery().answer(t)
         getPostConditions().validate(answer)
         answer
