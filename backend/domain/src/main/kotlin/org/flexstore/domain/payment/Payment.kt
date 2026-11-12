@@ -4,6 +4,7 @@ import org.flexstore.domain.cart.CartOwner
 import org.flexstore.domain.order.model.OrderId
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
+import org.ucop.domain.PreConditionException
 
 // The page of the payment provider where the customer pays an order
 data class CheckoutPage(val url: String)
@@ -20,7 +21,8 @@ data class PaymentSession(val checkoutPage: CheckoutPage, val outcome: PaymentOu
 // A customer pays one of their orders
 data class OrderPayment(val customer: CartOwner.Customer, val orderId: OrderId)
 
-data class OrderAlreadyPaidException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class OrderAlreadyPaidException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage)
 // The customer paid, but the payment provider has not confirmed it yet
 data class PaymentAlreadyCompletedException(override val errorMessage: ErrorMessage) :
     NominalException(errorMessage)

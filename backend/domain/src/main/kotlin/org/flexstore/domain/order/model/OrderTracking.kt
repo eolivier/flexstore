@@ -3,6 +3,7 @@ package org.flexstore.domain.order.model
 import org.flexstore.domain.user.model.UserId
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
+import org.ucop.domain.PreConditionException
 
 // The name of a carrier, as told to the customer
 data class CarrierName(val value: String)
@@ -108,5 +109,5 @@ data class OrderTrackingCorrection(
 data class InvalidOrderTrackingException(override val errorMessage: ErrorMessage) :
     NominalException(errorMessage)
 data class OrderTrackingCannotBeCorrectedException(override val errorMessage: ErrorMessage) :
-    NominalException(errorMessage)
+    PreConditionException(errorMessage)
 data class OrderTrackingChangeFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

@@ -6,6 +6,7 @@ import org.flexstore.domain.user.model.FullName
 import org.flexstore.domain.user.model.UserId
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
+import org.ucop.domain.PreConditionException
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.Instant
@@ -135,11 +136,12 @@ data class RatingSummary(val productId: ProductId, val average: AverageRating, v
 data class ReviewDeletion(val editor: UserId, val reviewId: ReviewId)
 
 data class ReviewModerationForbiddenException(override val errorMessage: ErrorMessage) :
-    NominalException(errorMessage)
-data class InvalidReviewException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
-data class ReviewNotAllowedException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+    PreConditionException(errorMessage)
+data class InvalidReviewException(override val errorMessage: ErrorMessage) : PreConditionException(errorMessage)
+data class ReviewNotAllowedException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage)
 data class ReviewAlreadyWrittenException(override val errorMessage: ErrorMessage) :
-    NominalException(errorMessage)
+    PreConditionException(errorMessage)
 data class ReviewNotFoundException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class ReviewAdditionFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class ReviewDeletionFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

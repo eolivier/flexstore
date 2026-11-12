@@ -44,7 +44,7 @@ class CreateDiscountCodeUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(creationOf(code, percent, usageLimit)) }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidDiscountCodeException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(InvalidDiscountCodeException::class.java)
     }
 
     @Test
@@ -54,7 +54,7 @@ class CreateDiscountCodeUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(creationOf("WELCOME10", 20, 5)) }
         // Assert
-        assertThat(thrown).isInstanceOf(DiscountCodeAlreadyExistsException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(DiscountCodeAlreadyExistsException::class.java)
     }
 
     @Test
@@ -64,7 +64,7 @@ class CreateDiscountCodeUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(creation) }
         // Assert
-        assertThat(thrown).isInstanceOf(DiscountCodeAdministrationForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(DiscountCodeAdministrationForbiddenException::class.java)
         assertThat(discountCodeRepository.codeIsMissing(PromoCode("WELCOME10"))).isTrue()
     }
 
@@ -73,6 +73,6 @@ class CreateDiscountCodeUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(DiscountCodeCreation(unknownUser, discountCode("WELCOME10", 10, 100))) }
         // Assert
-        assertThat(thrown).isInstanceOf(DiscountCodeAdministrationForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(DiscountCodeAdministrationForbiddenException::class.java)
     }
 }

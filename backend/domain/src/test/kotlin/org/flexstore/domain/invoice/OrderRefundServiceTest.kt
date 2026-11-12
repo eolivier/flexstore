@@ -112,7 +112,7 @@ class OrderRefundServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { service.refund(orderRefund) }
         // Assert
-        assertThat(thrown).isInstanceOf(OrderStatusChangedException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(OrderStatusChangedException::class.java)
         assertThat(creditNoteRepository.creditNoteIsMissingFor(orderId)).isTrue()
     }
 
@@ -123,7 +123,7 @@ class OrderRefundServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { service.refund(OrderRefund(testCustomer.id, orderId, OrderStatus.PAID)) }
         // Assert
-        assertThat(thrown).isInstanceOf(OrderAdministrationForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(OrderAdministrationForbiddenException::class.java)
         assertThat(orderRepository.findById(orderId)?.status).isEqualTo(OrderStatus.PAID)
     }
 }

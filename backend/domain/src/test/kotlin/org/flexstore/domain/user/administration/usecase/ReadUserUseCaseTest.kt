@@ -41,7 +41,7 @@ class ReadUserUseCaseTest {
         // Act
         val thrown = catchThrowable { readUserUseCase.unfold(UserReading(administrator, invalidUserId)) }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidUserIdException::class.java).hasMessage("User ID @ is invalid.")
+        assertThat(thrown).hasCauseInstanceOf(InvalidUserIdException::class.java).hasMessage("User ID @ is invalid.")
         verify(exactly = 0) { userRepository.exists(invalidUserId) }
     }
 
@@ -63,7 +63,7 @@ class ReadUserUseCaseTest {
         // Act
         val thrown = catchThrowable { readUserUseCase.unfold(UserReading(customer, userId)) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserReadingForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserReadingForbiddenException::class.java)
         verify(exactly = 0) { userRepository.findById(userId) }
     }
 }

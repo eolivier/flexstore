@@ -34,7 +34,7 @@ class ReadSalesDashboardUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(salesDashboardReading) }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidSalesPeriodException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(InvalidSalesPeriodException::class.java)
     }
 
     @Test
@@ -44,6 +44,6 @@ class ReadSalesDashboardUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(salesDashboardReading) }
         // Assert
-        assertThat(thrown).isInstanceOf(SalesDashboardForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(SalesDashboardForbiddenException::class.java)
     }
 }

@@ -47,7 +47,7 @@ class ConfirmTwoFactorEnrollmentUseCaseTest : WithAssertions {
             useCase.unfold(TwoFactorEnrollmentConfirmation(administrator.id, TwoFactorCode("000000")))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(TwoFactorCodeInvalidException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(TwoFactorCodeInvalidException::class.java)
         assertThat(storedTwoFactorAuthenticationOf(administrator.id)).isEqualTo(
             TwoFactorAuthentication.PendingConfirmation(secret)
         )

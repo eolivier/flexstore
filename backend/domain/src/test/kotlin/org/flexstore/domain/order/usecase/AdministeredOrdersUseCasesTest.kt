@@ -85,7 +85,7 @@ class AdministeredOrdersUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { readUseCase.unfold(AdministeredOrderReading(administrator, OrderId("unknown"))) }
         // Assert
-        assertThat(thrown).isInstanceOf(OrderNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(OrderNotFoundException::class.java)
     }
 
     @Test
@@ -94,7 +94,7 @@ class AdministeredOrdersUseCasesTest : WithAssertions {
         val reading = AdministeredOrdersReading(testCustomer.id, PageRequest.first())
         val thrown = catchThrowable { listUseCase.unfold(reading) }
         // Assert
-        assertThat(thrown).isInstanceOf(OrderAdministrationForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(OrderAdministrationForbiddenException::class.java)
     }
 
     @Test
@@ -114,7 +114,7 @@ class AdministeredOrdersUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { readUseCase.unfold(AdministeredOrderReading(testCustomer.id, OrderId("order-1"))) }
         // Assert
-        assertThat(thrown).isInstanceOf(OrderNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(OrderNotFoundException::class.java)
     }
 
     @Test
@@ -124,7 +124,7 @@ class AdministeredOrdersUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { readUseCase.unfold(AdministeredOrderReading(unknownUser, OrderId("order-1"))) }
         // Assert
-        assertThat(thrown).isInstanceOf(OrderNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(OrderNotFoundException::class.java)
     }
 
     @Test

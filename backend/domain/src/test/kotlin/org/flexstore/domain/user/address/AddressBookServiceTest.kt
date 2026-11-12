@@ -54,7 +54,7 @@ class AddressBookServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { addressBookService.add(AddressAddition(userId, incompleteAddress)) }
         // Assert
-        assertThat(thrown).isInstanceOf(IncompleteAddressException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(IncompleteAddressException::class.java)
         assertThat(addressBookService.getAddresses(userId)).isEqualTo(PostalAddresses(home, office))
     }
 
@@ -76,7 +76,7 @@ class AddressBookServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { addressBookService.change(AddressChange(first, incompleteAddress)) }
         // Assert
-        assertThat(thrown).isInstanceOf(IncompleteAddressException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(IncompleteAddressException::class.java)
         assertThat(addressBookService.getAddresses(userId)).isEqualTo(PostalAddresses(home, office))
     }
 
@@ -95,6 +95,6 @@ class AddressBookServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { addressBookService.remove(third) }
         // Assert
-        assertThat(thrown).isInstanceOf(AddressNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(AddressNotFoundException::class.java)
     }
 }

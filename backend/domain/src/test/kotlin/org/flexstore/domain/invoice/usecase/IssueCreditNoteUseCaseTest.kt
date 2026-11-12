@@ -65,7 +65,7 @@ class IssueCreditNoteUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(CreditNoteIssuance(administrator, CreditNoteIssue(OrderId("order-1"), refundedAt))) }
         // Assert
-        assertThat(thrown).isInstanceOf(OrderNotRefundedException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(OrderNotRefundedException::class.java)
         assertThat(creditNoteRepository.creditNoteIsMissingFor(OrderId("order-1"))).isTrue()
     }
 
@@ -76,7 +76,7 @@ class IssueCreditNoteUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(CreditNoteIssuance(administrator, CreditNoteIssue(OrderId("order-1"), refundedAt))) }
         // Assert
-        assertThat(thrown).isInstanceOf(InvoiceNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(InvoiceNotFoundException::class.java)
     }
 
     @Test
@@ -87,7 +87,7 @@ class IssueCreditNoteUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(CreditNoteIssuance(administrator, CreditNoteIssue(OrderId("order-1"), refundedAt))) }
         // Assert
-        assertThat(thrown).isInstanceOf(CreditNoteAlreadyIssuedException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(CreditNoteAlreadyIssuedException::class.java)
     }
 
     @Test
@@ -97,6 +97,6 @@ class IssueCreditNoteUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(CreditNoteIssuance(testCustomer.id, creditNoteIssue)) }
         // Assert
-        assertThat(thrown).isInstanceOf(CreditNoteForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(CreditNoteForbiddenException::class.java)
     }
 }

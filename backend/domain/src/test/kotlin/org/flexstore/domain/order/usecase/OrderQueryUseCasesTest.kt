@@ -71,7 +71,7 @@ class OrderQueryUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { readCustomerOrderUseCase.unfold(CustomerOrderLookup(customer.userId, OrderId("other"))) }
         // Assert
-        assertThat(thrown).isInstanceOf(OrderNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(OrderNotFoundException::class.java)
     }
 
     @Test
@@ -79,7 +79,7 @@ class OrderQueryUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { readCustomerOrderUseCase.unfold(CustomerOrderLookup(customer.userId, OrderId("unknown"))) }
         // Assert
-        assertThat(thrown).isInstanceOf(OrderNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(OrderNotFoundException::class.java)
     }
 
     @Test

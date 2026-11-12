@@ -1,7 +1,7 @@
 package org.flexstore.domain.user.model
 
 import org.ucop.domain.ErrorMessage
-import org.ucop.domain.NominalException
+import org.ucop.domain.PreConditionException
 
 // The SIREN of a company, its French identifier: 9 digits
 data class Siren(val value: String) {
@@ -54,4 +54,4 @@ sealed interface CustomerType {
     }
 }
 
-data class InvalidCompanyException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class InvalidCompanyException(override val errorMessage: ErrorMessage) : PreConditionException(errorMessage)

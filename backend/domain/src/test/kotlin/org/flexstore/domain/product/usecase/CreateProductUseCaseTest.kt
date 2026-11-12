@@ -111,7 +111,7 @@ class CreateProductUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(request) }
         // Assert
-        assertThat(thrown).isInstanceOf(ProductAlreadyExists::class.java)
+        assertThat(thrown).hasCauseInstanceOf(ProductAlreadyExists::class.java)
     }
 
     @Test
@@ -133,7 +133,7 @@ class CreateProductUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(request) }
         // Assert
-        assertThat(thrown).isInstanceOf(ProductAdministrationForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(ProductAdministrationForbiddenException::class.java)
         assertThat(productRepository.exists(lamp)).isFalse()
     }
 
@@ -144,6 +144,6 @@ class CreateProductUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(request) }
         // Assert
-        assertThat(thrown).isInstanceOf(ProductAdministrationForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(ProductAdministrationForbiddenException::class.java)
     }
 }

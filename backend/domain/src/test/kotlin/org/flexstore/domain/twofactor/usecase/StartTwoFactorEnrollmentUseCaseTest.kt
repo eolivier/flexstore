@@ -79,6 +79,6 @@ class StartTwoFactorEnrollmentUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(TwoFactorEnrollmentStart(administrator.id, secret)) }
         // Assert
-        assertThat(thrown).isInstanceOf(TwoFactorAuthenticationAlreadyEnabledException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(TwoFactorAuthenticationAlreadyEnabledException::class.java)
     }
 }

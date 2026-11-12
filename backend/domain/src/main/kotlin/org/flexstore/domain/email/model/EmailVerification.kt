@@ -7,7 +7,7 @@ import java.util.Base64
 import org.flexstore.domain.sharedkernel.ShopUrl
 import org.flexstore.domain.user.model.*
 import org.ucop.domain.ErrorMessage
-import org.ucop.domain.NominalException
+import org.ucop.domain.PreConditionException
 
 // The secret of a verification link: random, it cannot be guessed
 data class VerificationToken(val value: String) {
@@ -72,8 +72,8 @@ data class EmailVerificationLink(
 }
 
 data class VerificationLinkUnknownException(override val errorMessage: ErrorMessage) :
-    NominalException(errorMessage)
+    PreConditionException(errorMessage)
 data class VerificationLinkExpiredException(override val errorMessage: ErrorMessage) :
-    NominalException(errorMessage)
+    PreConditionException(errorMessage)
 data class AccountAlreadyVerifiedException(override val errorMessage: ErrorMessage) :
-    NominalException(errorMessage)
+    PreConditionException(errorMessage)

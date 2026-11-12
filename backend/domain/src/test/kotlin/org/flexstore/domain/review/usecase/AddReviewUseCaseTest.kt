@@ -65,7 +65,7 @@ class AddReviewUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(submission(sturdy)) }
         // Assert
-        assertThat(thrown).isInstanceOf(ReviewNotAllowedException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(ReviewNotAllowedException::class.java)
     }
 
     @ParameterizedTest(name = "an order {0} does not let the customer review")
@@ -76,7 +76,7 @@ class AddReviewUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(submission(sturdy)) }
         // Assert
-        assertThat(thrown).isInstanceOf(ReviewNotAllowedException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(ReviewNotAllowedException::class.java)
     }
 
     @Test
@@ -87,7 +87,7 @@ class AddReviewUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(submission(sturdy)) }
         // Assert
-        assertThat(thrown).isInstanceOf(ReviewAlreadyWrittenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(ReviewAlreadyWrittenException::class.java)
     }
 
     @ParameterizedTest(name = "a rating of {0} with the comment ''{1}'' is refused")
@@ -99,7 +99,7 @@ class AddReviewUseCaseTest : WithAssertions {
         val opinion = Opinion(Rating(rating), ReviewComment(comment))
         val thrown = catchThrowable { useCase.unfold(submission(opinion)) }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidReviewException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(InvalidReviewException::class.java)
     }
 
     @Test
@@ -110,7 +110,7 @@ class AddReviewUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(submission(tooLong)) }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidReviewException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(InvalidReviewException::class.java)
     }
 
     @Test

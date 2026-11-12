@@ -36,8 +36,8 @@ class LoginAccountStatusTest : WithAssertions {
         // Act
         val thrown = catchThrowable { loginUseCase.unfold(LoginRequest(email, PlainPassword("password123"))) }
         // Assert
-        assertThat(thrown).isInstanceOf(AccountSignInRefusedException::class.java)
-        assertThat((thrown as AccountSignInRefusedException).status).isEqualTo(status)
+        assertThat(thrown).hasCauseInstanceOf(AccountSignInRefusedException::class.java)
+        assertThat((thrown.cause as AccountSignInRefusedException).status).isEqualTo(status)
     }
 
     @Test

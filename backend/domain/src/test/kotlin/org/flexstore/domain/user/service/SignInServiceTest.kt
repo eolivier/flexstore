@@ -103,8 +103,8 @@ class SignInServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { signInService.signIn(LoginRequest(janeEmail, rightPassword)) }
         // Assert
-        assertThat(thrown).isInstanceOf(AccountSignInRefusedException::class.java)
-        assertThat((thrown as AccountSignInRefusedException).status).isEqualTo(AccountStatus.LOCKED)
+        assertThat(thrown).hasCauseInstanceOf(AccountSignInRefusedException::class.java)
+        assertThat((thrown.cause as AccountSignInRefusedException).status).isEqualTo(AccountStatus.LOCKED)
     }
 
     @Test
@@ -186,7 +186,7 @@ class SignInServiceTest : WithAssertions {
             signInService.verifyTwoFactorCode(TwoFactorCodeVerification(challengeId, TwoFactorCode("000000")))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(TwoFactorCodeInvalidException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(TwoFactorCodeInvalidException::class.java)
         assertThat(failedSignInsOfJane()).isEqualTo(FailedSignInCount(1))
     }
 
@@ -215,7 +215,7 @@ class SignInServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { signInService.signIn(LoginRequest(unknownEmail, wrongPassword)) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserNotFoundByEmailException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserNotFoundByEmailException::class.java)
         assertThat(failedSignInsOfJane()).isEqualTo(FailedSignInCount.none())
         assertThat(statusOfJane()).isEqualTo(AccountStatus.ACTIVE)
     }

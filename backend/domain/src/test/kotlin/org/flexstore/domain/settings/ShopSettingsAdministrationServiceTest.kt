@@ -78,7 +78,7 @@ class ShopSettingsAdministrationServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { administration.enableAbandonedCartReminder(testCustomer.id) }
         // Assert
-        assertThat(thrown).isInstanceOf(ShopSettingsAdministrationForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(ShopSettingsAdministrationForbiddenException::class.java)
     }
 
     @Test
@@ -90,7 +90,7 @@ class ShopSettingsAdministrationServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { updateShopSettingsUseCase.unfold(update) }
         // Assert
-        assertThat(thrown).isInstanceOf(ShopSettingsAdministrationForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(ShopSettingsAdministrationForbiddenException::class.java)
         assertThat(repository.load()).isEqualTo(settingsBefore)
     }
 
@@ -99,7 +99,7 @@ class ShopSettingsAdministrationServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { administration.getSettings(testCustomer.id) }
         // Assert
-        assertThat(thrown).isInstanceOf(ShopSettingsAdministrationForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(ShopSettingsAdministrationForbiddenException::class.java)
     }
 
     @Test
@@ -107,6 +107,6 @@ class ShopSettingsAdministrationServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { administration.changePaymentDelay(unknownUser, PaymentDelay(30)) }
         // Assert
-        assertThat(thrown).isInstanceOf(ShopSettingsAdministrationForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(ShopSettingsAdministrationForbiddenException::class.java)
     }
 }

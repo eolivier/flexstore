@@ -44,7 +44,7 @@ class DiscountCodeUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { discountCodeUseCases.getAll(testCustomer.id) }
         // Assert
-        assertThat(thrown).isInstanceOf(DiscountCodeAdministrationForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(DiscountCodeAdministrationForbiddenException::class.java)
     }
 
     @Test
@@ -54,7 +54,7 @@ class DiscountCodeUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { discountCodeUseCases.delete(testCustomer.id, welcome10.code) }
         // Assert
-        assertThat(thrown).isInstanceOf(DiscountCodeAdministrationForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(DiscountCodeAdministrationForbiddenException::class.java)
         assertThat(discountCodeRepository.codeExists(welcome10.code)).isTrue()
     }
 
@@ -65,6 +65,6 @@ class DiscountCodeUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { discountCodeUseCases.delete(unknownUser, welcome10.code) }
         // Assert
-        assertThat(thrown).isInstanceOf(DiscountCodeAdministrationForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(DiscountCodeAdministrationForbiddenException::class.java)
     }
 }

@@ -67,7 +67,7 @@ class IssueInvoiceUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(InvoiceIssue(OrderId("order-1"), issuedAt)) }
         // Assert
-        assertThat(thrown).isInstanceOf(OrderNotPaidException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(OrderNotPaidException::class.java)
         assertThat(invoiceRepository.invoiceIsMissingFor(OrderId("order-1"))).isTrue()
     }
 
@@ -79,6 +79,6 @@ class IssueInvoiceUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(InvoiceIssue(OrderId("order-1"), issuedAt)) }
         // Assert
-        assertThat(thrown).isInstanceOf(InvoiceAlreadyIssuedException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(InvoiceAlreadyIssuedException::class.java)
     }
 }

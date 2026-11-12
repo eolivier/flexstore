@@ -98,7 +98,7 @@ class UserSessionServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { service.refresh(session.refreshToken) }
         // Assert
-        assertThat(thrown).isInstanceOf(RefreshTokenReusedException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(RefreshTokenReusedException::class.java)
     }
 
     @Test
@@ -112,9 +112,9 @@ class UserSessionServiceTest : WithAssertions {
         // Assert
         assertThat(sessionRepository.hasOpenSessionOf(janeId)).isFalse()
         assertThat(catchThrowable { service.refresh(otherDevice.refreshToken) })
-            .isInstanceOf(RefreshTokenReusedException::class.java)
+            .hasCauseInstanceOf(RefreshTokenReusedException::class.java)
         assertThat(catchThrowable { service.refresh(renewed.refreshSession.refreshToken) })
-            .isInstanceOf(RefreshTokenReusedException::class.java)
+            .hasCauseInstanceOf(RefreshTokenReusedException::class.java)
     }
 
     @Test
@@ -135,7 +135,7 @@ class UserSessionServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { service.refresh(RefreshToken("unknown")) }
         // Assert
-        assertThat(thrown).isInstanceOf(RefreshTokenUnknownException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(RefreshTokenUnknownException::class.java)
     }
 
     @Test
@@ -146,7 +146,7 @@ class UserSessionServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { service.refresh(session.refreshToken) }
         // Assert
-        assertThat(thrown).isInstanceOf(RefreshTokenExpiredException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(RefreshTokenExpiredException::class.java)
     }
 
     @Test
@@ -169,7 +169,7 @@ class UserSessionServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { service.refresh(session.refreshToken) }
         // Assert
-        assertThat(thrown).isInstanceOf(AccountSignInRefusedException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(AccountSignInRefusedException::class.java)
     }
 
     @Test
@@ -204,7 +204,7 @@ class UserSessionServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { service.refresh(session.refreshToken) }
         // Assert
-        assertThat(thrown).isInstanceOf(RefreshTokenUnknownException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(RefreshTokenUnknownException::class.java)
     }
 
     @Test
@@ -216,7 +216,7 @@ class UserSessionServiceTest : WithAssertions {
         // Assert
         assertThat(sessionRepository.get(session.refreshToken).isRevoked()).isTrue()
         assertThat(catchThrowable { service.refresh(session.refreshToken) })
-            .isInstanceOf(RefreshTokenReusedException::class.java)
+            .hasCauseInstanceOf(RefreshTokenReusedException::class.java)
     }
 
     @Test

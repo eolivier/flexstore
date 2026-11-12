@@ -77,7 +77,7 @@ class VerifyTwoFactorCodeUseCaseTest : WithAssertions {
             useCase.unfold(TwoFactorCodeVerification(challengeId, TwoFactorCode("000000")))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(TwoFactorCodeInvalidException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(TwoFactorCodeInvalidException::class.java)
     }
 
     @Test

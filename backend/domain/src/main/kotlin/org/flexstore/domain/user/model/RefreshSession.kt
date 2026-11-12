@@ -7,6 +7,7 @@ import java.util.Base64
 import org.flexstore.domain.sharedkernel.InstantProvider
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
+import org.ucop.domain.PreConditionException
 
 // The secret that renews the access of a signed-in user once their access token expired: random, it cannot be
 // guessed. The database only keeps its hash
@@ -87,7 +88,10 @@ data class SessionEnding(val presented: RefreshToken, val sessionMoment: Session
 // All the sessions of a user are ended
 data class AllSessionsEnding(val userId: UserId, val sessionMoment: SessionMoment)
 
-data class RefreshTokenUnknownException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
-data class RefreshTokenExpiredException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
-data class RefreshTokenReusedException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class RefreshTokenUnknownException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage)
+data class RefreshTokenExpiredException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage)
+data class RefreshTokenReusedException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage)
 data class RefreshSessionFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

@@ -4,6 +4,7 @@ import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.user.model.UserId
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
+import org.ucop.domain.PreConditionException
 
 // One version of the seller: each edit gives a new one, so that an invoice keeps the seller of its issue
 data class SellerId(val value: Identity) {
@@ -185,10 +186,10 @@ data object SocialNetworksReading
 data class SellerReading(val reader: UserId)
 
 data class SellerAdministrationForbiddenException(override val errorMessage: ErrorMessage) :
-    NominalException(errorMessage)
-data class InvalidSellerException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+    PreConditionException(errorMessage)
+data class InvalidSellerException(override val errorMessage: ErrorMessage) : PreConditionException(errorMessage)
 data class SellerUpdateFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
-data class SellerNotFoundException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class SellerNotFoundException(override val errorMessage: ErrorMessage) : PreConditionException(errorMessage)
 
 private val SIRET = Regex("[0-9]{14}")
 private val VAT_NUMBER = Regex("[A-Z]{2}[0-9A-Z]{2,13}")

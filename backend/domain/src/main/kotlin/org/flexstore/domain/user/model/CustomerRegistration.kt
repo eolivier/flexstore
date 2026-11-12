@@ -1,7 +1,7 @@
 package org.flexstore.domain.user.model
 
 import org.ucop.domain.ErrorMessage
-import org.ucop.domain.NominalException
+import org.ucop.domain.PreConditionException
 
 // A customer creates their own account. The id is chosen by the caller, which can then read the created account.
 // The express registration only gives the names, the email and the password: the phone number and the postal
@@ -55,4 +55,4 @@ data class CustomerRegistration(
 }
 
 data class IncompleteRegistrationException(override val errorMessage: ErrorMessage) :
-    NominalException(errorMessage)
+    PreConditionException(errorMessage)

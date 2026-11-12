@@ -6,6 +6,7 @@ import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.repository.*
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
+import org.ucop.domain.PreConditionException
 import org.ucop.domain.entity.*
 
 const val PASSWORD_MIN_LENGTH = 8
@@ -82,5 +83,5 @@ class ChangePasswordUseCase(
 // Not InvalidCredentialsException: the user is authenticated, only the confirmation of the current password
 // failed
 data class InvalidCurrentPasswordException(override val errorMessage: ErrorMessage) :
-    NominalException(errorMessage)
+    PreConditionException(errorMessage)
 data class PasswordChangeFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

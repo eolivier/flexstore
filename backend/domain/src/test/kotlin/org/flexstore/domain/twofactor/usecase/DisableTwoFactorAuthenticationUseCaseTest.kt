@@ -43,7 +43,7 @@ class DisableTwoFactorAuthenticationUseCaseTest : WithAssertions {
             useCase.unfold(TwoFactorDisabling(administrator.id, PlainPassword("wrong-password")))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidCurrentPasswordException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(InvalidCurrentPasswordException::class.java)
         assertThat(storedTwoFactorAuthenticationOf(administrator.id)).isInstanceOf(
             TwoFactorAuthentication.Enabled::class.java
         )
@@ -62,7 +62,7 @@ class DisableTwoFactorAuthenticationUseCaseTest : WithAssertions {
             useCase.unfold(TwoFactorDisabling(other.id, PlainPassword("other-password")))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(TwoFactorAuthenticationNotEnabledException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(TwoFactorAuthenticationNotEnabledException::class.java)
     }
 
     @Test

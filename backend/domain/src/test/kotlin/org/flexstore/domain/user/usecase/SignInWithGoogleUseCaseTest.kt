@@ -74,8 +74,8 @@ class SignInWithGoogleUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { signInWithGoogleUseCase.unfold(idToken) }
         // Assert
-        assertThat(thrown).isInstanceOf(AccountSignInRefusedException::class.java)
-        assertThat((thrown as AccountSignInRefusedException).status).isEqualTo(status)
+        assertThat(thrown).hasCauseInstanceOf(AccountSignInRefusedException::class.java)
+        assertThat((thrown.cause as AccountSignInRefusedException).status).isEqualTo(status)
     }
 
     @Test

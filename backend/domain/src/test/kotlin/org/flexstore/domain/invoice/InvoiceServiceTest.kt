@@ -111,7 +111,7 @@ class InvoiceServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { service.invoice(UserId.ValidUserId("user-2"), orderId) }
         // Assert
-        assertThat(thrown).isInstanceOf(OrderNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(OrderNotFoundException::class.java)
     }
 
     @Test
@@ -121,7 +121,7 @@ class InvoiceServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { service.invoice(administrator, orderId) }
         // Assert
-        assertThat(thrown).isInstanceOf(InvoiceNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(InvoiceNotFoundException::class.java)
     }
 
     @Test
@@ -141,7 +141,7 @@ class InvoiceServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { service.creditNote(UserId.ValidUserId("user-2"), orderId) }
         // Assert
-        assertThat(thrown).isInstanceOf(OrderNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(OrderNotFoundException::class.java)
     }
 
     @Test
@@ -151,7 +151,7 @@ class InvoiceServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { service.creditNote(administrator, orderId) }
         // Assert
-        assertThat(thrown).isInstanceOf(CreditNoteNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(CreditNoteNotFoundException::class.java)
     }
 
     @Test

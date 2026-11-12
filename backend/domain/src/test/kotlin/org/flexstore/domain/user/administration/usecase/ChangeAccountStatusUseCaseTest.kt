@@ -44,7 +44,7 @@ class ChangeAccountStatusUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(accountStatusChange) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserUpdateForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserUpdateForbiddenException::class.java)
     }
 
     @Test

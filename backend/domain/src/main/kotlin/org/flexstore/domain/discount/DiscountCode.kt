@@ -3,6 +3,7 @@ package org.flexstore.domain.discount
 import org.flexstore.domain.sharedkernel.*
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
+import org.ucop.domain.PreConditionException
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.Instant
@@ -115,12 +116,15 @@ data class DiscountCodeDeletion(val editor: UserId, val code: PromoCode)
 data class DiscountCodesReading(val reader: UserId)
 
 data class DiscountCodeAdministrationForbiddenException(override val errorMessage: ErrorMessage) :
-    NominalException(errorMessage)
-data class InvalidDiscountCodeException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+    PreConditionException(errorMessage)
+data class InvalidDiscountCodeException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage)
 data class DiscountCodeAlreadyExistsException(override val errorMessage: ErrorMessage) :
-    NominalException(errorMessage)
+    PreConditionException(errorMessage)
 data class DiscountCodeNotFoundException(override val errorMessage: ErrorMessage) :
-    NominalException(errorMessage)
-data class DiscountCodeExpiredException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
-data class DiscountCodeUsedUpException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+    PreConditionException(errorMessage)
+data class DiscountCodeExpiredException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage)
+data class DiscountCodeUsedUpException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage)
 data class DiscountCodeCreationFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

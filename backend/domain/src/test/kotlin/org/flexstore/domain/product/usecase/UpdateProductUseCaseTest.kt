@@ -180,6 +180,6 @@ class UpdateProductUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(UpdateProductRequest(testCustomer.id, renamedTShirt)) }
         // Assert
-        assertThat(thrown).isInstanceOf(ProductAdministrationForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(ProductAdministrationForbiddenException::class.java)
     }
 }

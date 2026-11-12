@@ -75,7 +75,7 @@ class CustomerRegistrationServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { service.verifyEmail(link) }
         // Assert
-        assertThat(thrown).isInstanceOf(VerificationLinkUnknownException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(VerificationLinkUnknownException::class.java)
     }
 
     @Test
@@ -86,7 +86,7 @@ class CustomerRegistrationServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { verifyEmailUseCase.unfold(emailVerificationConfirmation) }
         // Assert
-        assertThat(thrown).isInstanceOf(VerificationLinkExpiredException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(VerificationLinkExpiredException::class.java)
         assertThat(stored().status).isEqualTo(AccountStatus.PENDING_VERIFICATION)
     }
 
@@ -95,7 +95,7 @@ class CustomerRegistrationServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { service.verifyEmail(VerificationToken("not-a-link")) }
         // Assert
-        assertThat(thrown).isInstanceOf(VerificationLinkUnknownException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(VerificationLinkUnknownException::class.java)
     }
 
     @Test
@@ -108,7 +108,7 @@ class CustomerRegistrationServiceTest : WithAssertions {
         val thrown = catchThrowable { service.verifyEmail(previousLink) }
         // Assert
         assertThat(emailRepository.sentVerificationLinks()).hasSize(2)
-        assertThat(thrown).isInstanceOf(VerificationLinkExpiredException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(VerificationLinkExpiredException::class.java)
         assertThat(stored().status).isEqualTo(AccountStatus.PENDING_VERIFICATION)
     }
 
@@ -131,6 +131,6 @@ class CustomerRegistrationServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { service.sendVerificationEmail(jane.userId) }
         // Assert
-        assertThat(thrown).isInstanceOf(AccountAlreadyVerifiedException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(AccountAlreadyVerifiedException::class.java)
     }
 }
