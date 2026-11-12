@@ -14,3 +14,12 @@ open class Customer internal constructor(val userId: UserId, name: Name) : Visit
 class Admin internal constructor(userId: UserId, name: Name) : Customer(userId, name)
 
 fun Actor.isNotAdmin() = this !is Admin
+
+// The system itself, which runs the scheduled use cases. It is not a user: the domain services that the
+// schedulers call instantiate it (internal constructor), so that no request and no user id can resolve to it.
+class SystemActor internal constructor() : Actor(Name("System"))
+
+// Only an Admin and the system run a use case that a scheduler triggers
+fun Actor.isNotSystem() = this !is SystemActor
+
+fun Actor.cannotRunScheduledUseCases() = isNotAdmin() && isNotSystem()

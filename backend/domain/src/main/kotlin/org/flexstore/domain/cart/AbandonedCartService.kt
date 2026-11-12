@@ -1,5 +1,6 @@
 package org.flexstore.domain.cart
 
+import org.flexstore.domain.actor.SystemActor
 import org.flexstore.domain.cart.usecase.*
 import org.flexstore.domain.settings.usecase.ReadShopSettingsUseCase
 import org.flexstore.domain.sharedkernel.InstantProvider
@@ -18,7 +19,8 @@ class AbandonedCartService(
         val shopSettings = readShopSettingsUseCase.unfold(Unit)
         if (shopSettings.sendsAbandonedCartReminder()) {
             val limit = AbandonmentLimit.of(shopSettings.abandonedCartDelay, InstantProvider.now())
-            val abandonedCarts = listAbandonedCartsUseCase.unfold(limit).asList()
+            val reading = AbandonedCartsReading(SystemActor(), limit)
+            val abandonedCarts = listAbandonedCartsUseCase.unfold(reading).asList()
             return AbandonedCarts(abandonedCarts.filter { cart -> isReminded(cart) })
         }
         return AbandonedCarts()
@@ -26,7 +28,7 @@ class AbandonedCartService(
 
     private fun isReminded(cart: Cart): Boolean {
         val customer = cart.owner as? CartOwner.Customer ?: return false
-        return runCatching { remindAbandonedCartUseCase.unfold(AbandonedCartReminding(customer)) }
+        return runCatching { remindAbandonedCartUseCase.unfold(AbandonedCartReminding(SystemActor(), customer)) }
             .onFailure { if (it !is NominalException) throw it }
             .isSuccess
     }

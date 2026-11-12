@@ -1,5 +1,6 @@
 package org.flexstore.domain.order.usecase
 
+import org.flexstore.domain.actor.cannotRunScheduledUseCases
 import org.flexstore.domain.order.*
 import org.flexstore.domain.order.model.*
 import org.flexstore.domain.payment.PaymentRepository
@@ -16,7 +17,10 @@ class CancelUnpaidOrderUseCase(
 ) : UseCase<UnpaidOrderCancellation> {
 
     override fun getPreConditions(): PreConditions<UnpaidOrderCancellation> =
-        PreConditions(orderExistsCondition(), orderAwaitsPaymentCondition(), timeLimitIsExceededCondition())
+        PreConditions(
+            actorCanRunScheduledUseCasesCondition(), orderExistsCondition(), orderAwaitsPaymentCondition(),
+            timeLimitIsExceededCondition()
+        )
 
     // The payment is stopped first: when the customer has just paid, it fails and the order stays as it is
     override fun getNominalScenario(): NominalScenario<UnpaidOrderCancellation> {
@@ -40,6 +44,15 @@ class CancelUnpaidOrderUseCase(
 
     // Only called once the order is known
     private fun order(cancellation: UnpaidOrderCancellation) = orderRepository.findById(cancellation.orderId)!!
+
+    // Only an Admin or the system cancels the orders that a scheduler finds late
+    private fun actorCanRunScheduledUseCasesCondition() = PreCondition<UnpaidOrderCancellation> { cancellation ->
+        if (cancellation.actor.cannotRunScheduledUseCases()) {
+            throw UnpaidOrderForbiddenException(
+                ErrorMessage("Only an administrator or the system can cancel an unpaid order.")
+            )
+        }
+    }
 
     private fun orderExistsCondition() = PreCondition<UnpaidOrderCancellation> { cancellation ->
         if (orderRepository.orderIsMissing(cancellation.orderId)) {

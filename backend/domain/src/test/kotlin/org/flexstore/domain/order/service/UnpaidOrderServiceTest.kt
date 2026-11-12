@@ -3,6 +3,7 @@ package org.flexstore.domain.order.service
 import org.flexstore.domain.order.model.*
 import org.flexstore.domain.order.usecase.*
 import org.assertj.core.api.WithAssertions
+import org.flexstore.domain.actor.*
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.payment.PaymentOutcome
@@ -13,6 +14,7 @@ import org.flexstore.domain.settings.usecase.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.stock.*
 import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.entity.Actor
 import org.flexstore.infra.repository.*
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -116,5 +118,44 @@ class UnpaidOrderServiceTest : WithAssertions {
         cancelLateOrdersAt(placedAt.plusSeconds(3600))
         // Assert
         assertThat(storedStatus()).isEqualTo(OrderStatus.PAID)
+    }
+
+    private fun cancellationBy(actor: Actor): UnpaidOrderCancellation {
+        val timeLimit = PaymentTimeLimit(PaymentDelay(10), placedAt.plusSeconds(10 * 60))
+        return UnpaidOrderCancellation(actor, orderId, timeLimit)
+    }
+
+    @Test
+    fun `an administrator should cancel an order not paid in time`() {
+        // Arrange
+        placeOrder()
+        // Act
+        cancelUnpaidOrderUseCase.unfold(cancellationBy(Admin(customer.userId, Name("Jane Doe"))))
+        // Assert
+        assertThat(storedStatus()).isEqualTo(OrderStatus.CANCELLED)
+    }
+
+    @Test
+    fun `a customer should not cancel an order not paid in time`() {
+        // Arrange
+        placeOrder()
+        // Act
+        val thrown = catchThrowable {
+            cancelUnpaidOrderUseCase.unfold(cancellationBy(Customer(customer.userId, Name("Jane Doe"))))
+        }
+        // Assert
+        assertThat(thrown).isInstanceOf(UnpaidOrderForbiddenException::class.java)
+        assertThat(storedStatus()).isEqualTo(OrderStatus.AWAITING_PAYMENT)
+    }
+
+    @Test
+    fun `a visitor should not cancel an order not paid in time`() {
+        // Arrange
+        placeOrder()
+        // Act
+        val thrown = catchThrowable { cancelUnpaidOrderUseCase.unfold(cancellationBy(Visitor())) }
+        // Assert
+        assertThat(thrown).isInstanceOf(UnpaidOrderForbiddenException::class.java)
+        assertThat(paymentRepository.isStopped(orderId)).isFalse()
     }
 }

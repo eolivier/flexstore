@@ -1,6 +1,7 @@
 package org.flexstore.domain.cart.usecase
 
 import org.assertj.core.api.WithAssertions
+import org.flexstore.domain.actor.*
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.email.model.AbandonedCartReminderEmail
 import org.flexstore.domain.product.*
@@ -24,13 +25,16 @@ class RemindAbandonedCartUseCaseTest : WithAssertions {
     private val userRepository = customersWithIds("user-1")
     private val emailRepository = InMemoryEmailRepository()
     private val useCase = RemindAbandonedCartUseCase(cartRepository, userRepository, emailRepository)
+    private val systemActor = SystemActor()
+    private val userId = UserId.ValidUserId("user-1")
+    private val actorName = Name("Jane Doe")
 
     @Test
     fun `should send the customer an email with their cart`() {
         // Arrange
         val cart = cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
         // Act
-        useCase.unfold(AbandonedCartReminding(customer))
+        useCase.unfold(AbandonedCartReminding(systemActor, customer))
         // Assert
         val jane = FullName(FirstName("Jane"), LastName("Doe"))
         val reminder = AbandonedCartReminderEmail(Email("user-1@flexstore.fr"), jane, cart)
@@ -42,7 +46,7 @@ class RemindAbandonedCartUseCaseTest : WithAssertions {
         // Arrange
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
         // Act
-        useCase.unfold(AbandonedCartReminding(customer))
+        useCase.unfold(AbandonedCartReminding(systemActor, customer))
         // Assert
         assertThat(cartRepository.isReminded(customer)).isTrue()
     }
@@ -50,7 +54,7 @@ class RemindAbandonedCartUseCaseTest : WithAssertions {
     @Test
     fun `should not remind a customer of an empty cart`() {
         // Act
-        val thrown = catchThrowable { useCase.unfold(AbandonedCartReminding(customer)) }
+        val thrown = catchThrowable { useCase.unfold(AbandonedCartReminding(systemActor, customer)) }
         // Assert
         assertThat(thrown).isInstanceOf(AbandonedCartReminderRefusedException::class.java)
         assertThat(emailRepository.sentAbandonedCartReminderEmails()).isEmpty()
@@ -62,7 +66,7 @@ class RemindAbandonedCartUseCaseTest : WithAssertions {
         val unknownCustomer = CartOwner.Customer(unknownCustomerId)
         cartRepository.save(Cart(unknownCustomer).add(deskLamp, Quantity(1)))
         // Act
-        val thrown = catchThrowable { useCase.unfold(AbandonedCartReminding(unknownCustomer)) }
+        val thrown = catchThrowable { useCase.unfold(AbandonedCartReminding(systemActor, unknownCustomer)) }
         // Assert
         assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
         assertThat(emailRepository.sentAbandonedCartReminderEmails()).isEmpty()
@@ -77,9 +81,43 @@ class RemindAbandonedCartUseCaseTest : WithAssertions {
         val blockedUseCase = RemindAbandonedCartUseCase(cartRepository, blockedUsers, emailRepository)
         cartRepository.save(Cart(blockedCustomer).add(deskLamp, Quantity(1)))
         // Act
-        val thrown = catchThrowable { blockedUseCase.unfold(AbandonedCartReminding(blockedCustomer)) }
+        val reminding = AbandonedCartReminding(systemActor, blockedCustomer)
+        val thrown = catchThrowable { blockedUseCase.unfold(reminding) }
         // Assert
         assertThat(thrown).isInstanceOf(AccountRefusedException::class.java)
         assertThat(emailRepository.sentAbandonedCartReminderEmails()).isEmpty()
+    }
+
+    @Test
+    fun `an administrator should remind a customer of their cart`() {
+        // Arrange
+        cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
+        // Act
+        useCase.unfold(AbandonedCartReminding(Admin(userId, actorName), customer))
+        // Assert
+        assertThat(cartRepository.isReminded(customer)).isTrue()
+    }
+
+    @Test
+    fun `a customer should not remind a customer of their cart`() {
+        // Arrange
+        cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
+        // Act
+        val reminding = AbandonedCartReminding(Customer(userId, actorName), customer)
+        val thrown = catchThrowable { useCase.unfold(reminding) }
+        // Assert
+        assertThat(thrown).isInstanceOf(AbandonedCartForbiddenException::class.java)
+        assertThat(emailRepository.sentAbandonedCartReminderEmails()).isEmpty()
+    }
+
+    @Test
+    fun `a visitor should not remind a customer of their cart`() {
+        // Arrange
+        cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
+        // Act
+        val thrown = catchThrowable { useCase.unfold(AbandonedCartReminding(Visitor(), customer)) }
+        // Assert
+        assertThat(thrown).isInstanceOf(AbandonedCartForbiddenException::class.java)
+        assertThat(cartRepository.isReminded(customer)).isFalse()
     }
 }

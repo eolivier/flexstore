@@ -1,5 +1,6 @@
 package org.flexstore.domain.cart.usecase
 
+import org.flexstore.domain.actor.cannotRunScheduledUseCases
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.email.EmailRepository
 import org.flexstore.domain.email.model.AbandonedCartReminderEmail
@@ -17,7 +18,9 @@ class RemindAbandonedCartUseCase(
 ) : UseCase<AbandonedCartReminding> {
 
     override fun getPreConditions(): PreConditions<AbandonedCartReminding> =
-        PreConditions(customerCanActCondition(), cartHoldsItemsCondition())
+        PreConditions(
+            actorCanRunScheduledUseCasesCondition(), customerCanActCondition(), cartHoldsItemsCondition()
+        )
 
     // The reminder is sent first: a failure leaves the cart to be reminded at the next run
     override fun getNominalScenario(): NominalScenario<AbandonedCartReminding> {
@@ -34,6 +37,15 @@ class RemindAbandonedCartUseCase(
 
     override fun getPostConditions(): PostConditions<AbandonedCartReminding> =
         PostConditions(cartIsRemindedCondition())
+
+    // Only an Admin or the system reminds the customers that a scheduler finds
+    private fun actorCanRunScheduledUseCasesCondition() = PreCondition<AbandonedCartReminding> { reminding ->
+        if (reminding.actor.cannotRunScheduledUseCases()) {
+            throw AbandonedCartForbiddenException(
+                ErrorMessage("Only an administrator or the system can remind an abandoned cart.")
+            )
+        }
+    }
 
     private fun customerCanActCondition() = PreCondition<AbandonedCartReminding> { reminding ->
         userRepository.verifyCustomerCanAct(reminding.customer.userId)
