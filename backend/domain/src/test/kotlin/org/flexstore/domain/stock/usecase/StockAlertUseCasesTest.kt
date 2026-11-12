@@ -8,6 +8,7 @@ import org.flexstore.domain.stock.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.model.User.DefinedUser
 import org.flexstore.domain.user.model.UserId.ValidUserId
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.infra.repository.InMemoryProductRepository
 import org.flexstore.infra.repository.InMemoryStockRepository
 import org.flexstore.infra.repository.InMemoryUserRepository
@@ -27,12 +28,14 @@ class StockAlertUseCasesTest : WithAssertions {
         save(administrator)
         save(customer)
     }
-    private val changeStockAlertUseCase =
-        ChangeStockAlertUseCase(stockRepository, productRepository, userRepository)
-    private val readStockAlertUseCase = ReadStockAlertUseCase(stockRepository, userRepository)
+    private val changeStockAlertUseCase = ChangeStockAlertUseCase(stockRepository, productRepository)
+    private val readStockAlertUseCase = ReadStockAlertUseCase(stockRepository)
     private val listLowStocksUseCase = ListLowStocksUseCase(stockRepository, userRepository)
     private val stockAlertUseCases =
         StockAlertUseCases(listLowStocksUseCase, readStockAlertUseCase, changeStockAlertUseCase)
+    private val actorResolutionService = ActorResolutionService(userRepository)
+    private val administratorActor = actorResolutionService.actorOf(administrator.id)
+    private val customerActor = actorResolutionService.actorOf(customer.id)
 
     private fun userOf(id: String, role: Role) = DefinedUser(
         ValidUserId(id), FullName(FirstName("Jane"), LastName("Doe")), Email("$id@flexstore.fr"),
@@ -42,7 +45,7 @@ class StockAlertUseCasesTest : WithAssertions {
     @Test
     fun `a product whose threshold was never given should have the default one`() {
         // Act
-        val stockAlert = stockAlertUseCases.alertOf(administrator.id, deskLamp.productId)
+        val stockAlert = stockAlertUseCases.alertOf(administratorActor, deskLamp.productId)
         // Assert
         assertThat(stockAlert.threshold).isEqualTo(AlertThreshold(5))
     }
@@ -52,7 +55,7 @@ class StockAlertUseCasesTest : WithAssertions {
         // Arrange
         val tenUnits = StockAlert(deskLamp.productId, AlertThreshold(10))
         // Act
-        val stockAlert = stockAlertUseCases.change(administrator.id, tenUnits)
+        val stockAlert = stockAlertUseCases.change(administratorActor, tenUnits)
         // Assert
         assertThat(stockAlert).isEqualTo(tenUnits)
     }
@@ -62,7 +65,7 @@ class StockAlertUseCasesTest : WithAssertions {
         // Arrange
         val negativeAlert = StockAlert(deskLamp.productId, AlertThreshold(-1))
         // Act
-        val thrown = catchThrowable { stockAlertUseCases.change(administrator.id, negativeAlert) }
+        val thrown = catchThrowable { stockAlertUseCases.change(administratorActor, negativeAlert) }
         // Assert
         assertThat(thrown).isInstanceOf(NegativeAlertThresholdException::class.java)
     }
@@ -72,7 +75,7 @@ class StockAlertUseCasesTest : WithAssertions {
         // Arrange
         val unknownAlert = StockAlert(ProductId(Identity("unknown")), AlertThreshold(3))
         // Act
-        val thrown = catchThrowable { stockAlertUseCases.change(administrator.id, unknownAlert) }
+        val thrown = catchThrowable { stockAlertUseCases.change(administratorActor, unknownAlert) }
         // Assert
         assertThat(thrown).isInstanceOf(ProductNotFoundException::class.java)
     }
@@ -82,7 +85,7 @@ class StockAlertUseCasesTest : WithAssertions {
         // Arrange
         stockRepository.save(Stock(deskLamp.productId, StockQuantity(5)))
         stockRepository.save(Stock(wallClock.productId, StockQuantity(8)))
-        stockAlertUseCases.change(administrator.id, StockAlert(wallClock.productId, AlertThreshold(10)))
+        stockAlertUseCases.change(administratorActor, StockAlert(wallClock.productId, AlertThreshold(10)))
         // Act
         val lowStocks = stockAlertUseCases.lowStocks(administrator.id)
         // Assert
@@ -107,7 +110,7 @@ class StockAlertUseCasesTest : WithAssertions {
         // Arrange
         val stockAlert = StockAlert(deskLamp.productId, AlertThreshold(10))
         // Act
-        val thrown = catchThrowable { stockAlertUseCases.change(customer.id, stockAlert) }
+        val thrown = catchThrowable { stockAlertUseCases.change(customerActor, stockAlert) }
         // Assert
         assertThat(thrown).isInstanceOf(StockAlertForbiddenException::class.java)
         val defaultAlert = StockAlert.byDefaultOf(deskLamp.productId)
@@ -115,9 +118,20 @@ class StockAlertUseCasesTest : WithAssertions {
     }
 
     @Test
+    fun `an unknown user should not change the alert threshold of a product`() {
+        // Act
+        val thrown = catchThrowable {
+            val unknownUser = actorResolutionService.actorOf(ValidUserId("unknown"))
+            stockAlertUseCases.change(unknownUser, StockAlert(deskLamp.productId, AlertThreshold(10)))
+        }
+        // Assert
+        assertThat(thrown).isInstanceOf(StockAlertForbiddenException::class.java)
+    }
+
+    @Test
     fun `a customer should not read the alert threshold of a product`() {
         // Act
-        val thrown = catchThrowable { stockAlertUseCases.alertOf(customer.id, deskLamp.productId) }
+        val thrown = catchThrowable { stockAlertUseCases.alertOf(customerActor, deskLamp.productId) }
         // Assert
         assertThat(thrown).isInstanceOf(StockAlertForbiddenException::class.java)
     }

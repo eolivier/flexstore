@@ -5,6 +5,7 @@ import org.flexstore.domain.sharedkernel.Quantity
 import org.flexstore.domain.user.model.UserId
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
+import org.ucop.domain.entity.Actor
 
 // The number of units of a product that the shop has: never negative
 data class StockQuantity(val value: Int) {
@@ -75,10 +76,10 @@ data class StockAlert(val productId: ProductId, val threshold: AlertThreshold) {
 }
 
 // An administrator who gives the threshold of the stock of a product
-data class StockAlertChange(val editor: UserId, val stockAlert: StockAlert)
+data class StockAlertChange(val editor: Actor, val stockAlert: StockAlert)
 
 // An administrator who reads the threshold of the stock of a product
-data class StockAlertReading(val reader: UserId, val productId: ProductId)
+data class StockAlertReading(val reader: Actor, val productId: ProductId)
 
 // An administrator who reads the stocks that reached the threshold of their product
 data class LowStocksReading(val reader: UserId)

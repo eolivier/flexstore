@@ -38,6 +38,7 @@ import org.flexstore.domain.stock.usecase.*
 import org.flexstore.domain.sharedkernel.ShopUrl
 import org.flexstore.domain.twofactor.TwoFactorChallengeRepository
 import org.flexstore.domain.twofactor.usecase.*
+import org.flexstore.domain.actor.*
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.repository.*
@@ -379,14 +380,14 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         ListLowStocksUseCase(stockRepository, userRepository)
 
     @Bean
-    open fun readStockAlertUseCase(stockRepository: StockRepository, userRepository: UserRepository) =
-        ReadStockAlertUseCase(stockRepository, userRepository)
+    open fun readStockAlertUseCase(stockRepository: StockRepository) = ReadStockAlertUseCase(stockRepository)
 
     @Bean
-    open fun changeStockAlertUseCase(stockRepository: StockRepository,
-                                     productRepository: ProductRepository,
-                                     userRepository: UserRepository) =
-        ChangeStockAlertUseCase(stockRepository, productRepository, userRepository)
+    open fun changeStockAlertUseCase(stockRepository: StockRepository, productRepository: ProductRepository) =
+        ChangeStockAlertUseCase(stockRepository, productRepository)
+
+    @Bean
+    open fun actorResolutionService(userRepository: UserRepository) = ActorResolutionService(userRepository)
 
     @Bean
     open fun stockAlertUseCases(listLowStocksUseCase: ListLowStocksUseCase,
