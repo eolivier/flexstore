@@ -117,6 +117,9 @@ export const JsonAccountStatusEnum = {
 
 export type JsonAccountStatusEnum = typeof JsonAccountStatusEnum[keyof typeof JsonAccountStatusEnum];
 
+/**
+ * The express registration only gives the names, the email and the password; the phone number and the postal address can be given later, from the account
+ */
 export interface JsonAccountRegistration {
     'firstName': string;
     'lastName': string;
@@ -125,8 +128,11 @@ export interface JsonAccountRegistration {
      * At least 8 characters (will be hashed by the server)
      */
     'password': string;
-    'phoneNumber': string;
-    'postalAddress': JsonPostalAddress;
+    /**
+     * Optional
+     */
+    'phoneNumber'?: string;
+    'postalAddress'?: JsonPostalAddress;
     'company'?: JsonCustomerCompany;
 }
 export interface JsonAccountStatus {

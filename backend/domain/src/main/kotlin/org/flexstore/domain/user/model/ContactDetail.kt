@@ -118,6 +118,9 @@ data class PostalAddresses(private val addresses: List<PostalAddress>) {
 
     fun includes(address: PostalAddress) = address in addresses
 
+    // An account without address has none to check
+    fun areComplete() = addresses.all { it.isComplete() }
+
     fun at(position: AddressPosition) = addresses[position.value]
 
     // The addresses with a new version of the one at the given position, at the same place

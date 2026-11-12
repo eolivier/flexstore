@@ -332,7 +332,7 @@ paths:
         "409":
           description: The email is already used
         "422":
-          description: A required field is missing or the password has fewer than 8 characters
+          description: A required field is missing (first name, last name or email), a postal address given is incomplete, or the password has fewer than 8 characters
   /api/accounts/me:
     get:
       tags:
@@ -2504,7 +2504,8 @@ components:
           description: Role of the new user (USER when absent)
     JsonAccountRegistration:
       type: object
-      required: [firstName, lastName, email, password, phoneNumber, postalAddress]
+      description: The express registration only gives the names, the email and the password; the phone number and the postal address can be given later, from the account
+      required: [firstName, lastName, email, password]
       properties:
         firstName:
           type: string
@@ -2517,6 +2518,7 @@ components:
           description: At least 8 characters (will be hashed by the server)
         phoneNumber:
           type: string
+          description: Optional
         postalAddress:
           $ref: "#/components/schemas/JsonPostalAddress"
         company:

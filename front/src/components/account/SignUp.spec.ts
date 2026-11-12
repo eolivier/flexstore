@@ -24,9 +24,32 @@ async function mountSignUp(redirect?: string) {
   return { wrapper, router };
 }
 
-// Fills in the form: the text fields in their order on the screen (the fields of the company left out),
-// then the email, the password and the phone number
-async function fillAndSubmit(wrapper: Awaited<ReturnType<typeof mountSignUp>>['wrapper']) {
+type SignUpWrapper = Awaited<ReturnType<typeof mountSignUp>>['wrapper'];
+
+// Fills in the express fields: the names, the email and the password
+async function fillExpressFields(wrapper: SignUpWrapper) {
+  const [firstName, lastName] = wrapper.findAll('input[type="text"]');
+  await firstName.setValue('Jane');
+  await lastName.setValue('Doe');
+  await wrapper.find('input[type="email"]').setValue('jane@example.com');
+  await wrapper.find('input[type="password"]').setValue('password123');
+}
+
+async function submit(wrapper: SignUpWrapper) {
+  await flushPromises();
+  await wrapper.find('form').trigger('submit.prevent');
+  await flushPromises();
+}
+
+async function fillExpressAndSubmit(wrapper: SignUpWrapper) {
+  await fillExpressFields(wrapper);
+  await submit(wrapper);
+}
+
+// Fills in the form with the details: the text fields in their order on the screen (the fields of the company
+// left out), then the email, the password and the phone number
+async function fillAndSubmit(wrapper: SignUpWrapper) {
+  await wrapper.get('[data-test="give-details"] input').setValue(true);
   const companyFields = '[data-test="company-name"], [data-test="siren"], [data-test="vat-number"]';
   const textFields = wrapper.findAll('input[type="text"]').filter((input) => !input.element.closest(companyFields));
   const [firstName, lastName, street, complement, postalCode, city] = textFields;
@@ -39,9 +62,7 @@ async function fillAndSubmit(wrapper: Awaited<ReturnType<typeof mountSignUp>>['w
   await complement.setValue('Bâtiment B');
   await postalCode.setValue('75011');
   await city.setValue('Paris');
-  await flushPromises();
-  await wrapper.find('form').trigger('submit.prevent');
-  await flushPromises();
+  await submit(wrapper);
 }
 
 function sentRegistration() {
@@ -60,6 +81,45 @@ describe('SignUp.vue', () => {
           : { ok: true, status: 200, json: () => Promise.resolve(session) }
       )
     );
+  });
+
+  it('sends only the names, the email and the password of an express registration', async () => {
+    // Arrange
+    const { wrapper } = await mountSignUp();
+    // Act
+    await fillExpressAndSubmit(wrapper);
+    // Assert
+    expect(sentRegistration()).toEqual({
+      firstName: 'Jane',
+      lastName: 'Doe',
+      email: 'jane@example.com',
+      password: 'password123',
+    });
+  });
+
+  it('does not ask for the phone number and the address at first', async () => {
+    // Act
+    const { wrapper } = await mountSignUp();
+    // Assert
+    expect(wrapper.find('[data-test="sign-up-details"]').exists()).toBe(false);
+  });
+
+  it('asks for the phone number and the address once the customer wants to give them', async () => {
+    // Arrange
+    const { wrapper } = await mountSignUp();
+    // Act
+    await wrapper.get('[data-test="give-details"] input').setValue(true);
+    // Assert
+    expect(wrapper.find('input[type="tel"]').exists()).toBe(true);
+  });
+
+  it('signs the customer of an express registration in', async () => {
+    // Arrange
+    const { wrapper, router } = await mountSignUp();
+    // Act
+    await fillExpressAndSubmit(wrapper);
+    // Assert
+    expect(router.currentRoute.value.path).toBe('/user-profile');
   });
 
   it('sends the names, the email, the password, the phone number and the postal address', async () => {
@@ -117,6 +177,7 @@ describe('SignUp.vue', () => {
   it('shows the fields of the company once the customer says they are a company', async () => {
     // Arrange
     const { wrapper } = await mountSignUp();
+    await wrapper.get('[data-test="give-details"] input').setValue(true);
     const fieldsBefore = wrapper.find('[data-test="siren"]').exists();
     // Act
     await wrapper.get('[data-test="is-company"] input').setValue(true);
@@ -128,6 +189,7 @@ describe('SignUp.vue', () => {
   it('sends the company, its address sent to it for the attention of the customer', async () => {
     // Arrange
     const { wrapper } = await mountSignUp();
+    await wrapper.get('[data-test="give-details"] input').setValue(true);
     await wrapper.get('[data-test="is-company"] input').setValue(true);
     await wrapper.get('[data-test="company-name"] input').setValue('Acme');
     await wrapper.get('[data-test="siren"] input').setValue('123 456 789');

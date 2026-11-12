@@ -1007,6 +1007,7 @@ export default {
       title: 'Create your account',
       subtitle: 'Order and follow your orders. You can order right away, before verifying your email.',
       password: 'Password (at least 8 characters)',
+      giveDetails: 'Add my phone number and my address now (you can do it later)',
       phoneNumber: 'Phone number',
       invalidPhoneNumber: 'Invalid phone number',
       address: 'Postal address',
@@ -2076,6 +2077,7 @@ export default {
       subtitle:
         'Commandez et suivez vos commandes. Vous pouvez commander tout de suite, avant de vérifier votre email.',
       password: 'Mot de passe (8 caractères minimum)',
+      giveDetails: 'Ajouter dès maintenant mon téléphone et mon adresse (vous pourrez le faire plus tard)',
       phoneNumber: 'Numéro de téléphone',
       invalidPhoneNumber: 'Numéro de téléphone invalide',
       address: 'Adresse postale',

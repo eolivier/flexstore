@@ -6,26 +6,27 @@ import org.flexstore.domain.email.model.VerificationToken
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.usecase.ChosenPassword
 
-// The account a customer creates for themselves
+// The account a customer creates for themselves. The express registration only gives the names, the email and
+// the password: the phone number and the postal address are optional
 data class JsonAccountRegistration @JsonCreator constructor(
     @JsonProperty("firstName") val firstName: String,
     @JsonProperty("lastName") val lastName: String,
     @JsonProperty("email") val email: String,
     @JsonProperty("password") val password: String,
-    @JsonProperty("phoneNumber") val phoneNumber: String,
-    @JsonProperty("postalAddress") val postalAddress: JsonPostalAddress,
+    @JsonProperty("phoneNumber") val phoneNumber: String? = null,
+    @JsonProperty("postalAddress") val postalAddress: JsonPostalAddress? = null,
     // Given by a customer who buys for their company; none for a customer who buys for themselves
     @JsonProperty("company") val company: JsonCustomerCompany? = null
 ) {
-    fun toRegistration(userId: UserId) = CustomerRegistration(
-        userId = userId,
-        fullName = FullName(FirstName(firstName.trim()), LastName(lastName.trim())),
-        email = Email(email.trim()),
-        password = PlainPassword(password),
-        phoneNumber = PhoneNumber(phoneNumber.trim()),
-        postalAddress = postalAddress.toPostalAddress(),
-        customerType = company?.toCustomerType() ?: CustomerType.Individual
-    )
+    fun toRegistration(userId: UserId): CustomerRegistration {
+        val fullName = FullName(FirstName(firstName.trim()), LastName(lastName.trim()))
+        val phone = PhoneNumber(phoneNumber.orEmpty().trim())
+        val addresses = postalAddress?.let { PostalAddresses(it.toPostalAddress()) } ?: PostalAddresses.none()
+        val customerType = company?.toCustomerType() ?: CustomerType.Individual
+        return CustomerRegistration(
+            userId, fullName, Email(email.trim()), PlainPassword(password), phone, addresses, customerType
+        )
+    }
 }
 
 // The company a customer buys for: its name, its SIREN (9 digits) and its intra-community VAT number (optional)

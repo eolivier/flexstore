@@ -45,12 +45,17 @@ export interface CustomerCompany {
   vatNumber: string;
 }
 
-// The account a customer creates for themselves; company: given by a customer who buys for their company
-export interface AccountRegistration {
+// The express registration of a customer: only the names, the email and the password
+export interface ExpressAccountRegistration {
   firstName: string;
   lastName: string;
   email: string;
   password: string;
+}
+
+// The account a customer creates for themselves with their phone number and their postal address;
+// company: given by a customer who buys for their company
+export interface AccountRegistration extends ExpressAccountRegistration {
   phoneNumber: string;
   postalAddress: PostalAddress;
   company?: CustomerCompany;

@@ -32,6 +32,8 @@ class RegisterCustomerUseCaseTest : WithAssertions {
 
         private fun addressAt(location: Location) = PostalAddress(PrivateIndividual(janeDoe), location)
 
+        private fun addressFor(recipient: Recipient) = PostalAddress(recipient, location)
+
         val jane = CustomerRegistration(
             UserId.ValidUserId("jane-1"),
             janeDoe,
@@ -49,12 +51,11 @@ class RegisterCustomerUseCaseTest : WithAssertions {
             Arguments.of("first name", jane.copy(fullName = FullName(FirstName(" "), LastName("Doe")))),
             Arguments.of("last name", jane.copy(fullName = FullName(FirstName("Jane"), LastName("")))),
             Arguments.of("email", jane.copy(email = Email(""))),
-            Arguments.of("phone number", jane.copy(phoneNumber = PhoneNumber(""))),
-            Arguments.of("street", jane.copy(postalAddress = addressAt(noStreet))),
-            Arguments.of("postal code", jane.copy(postalAddress = addressAt(noPostalCode))),
-            Arguments.of("city", jane.copy(postalAddress = addressAt(noCity))),
-            Arguments.of("country", jane.copy(postalAddress = addressAt(noCountry))),
-            Arguments.of("recipient", jane.copy(postalAddress = address.copy(recipient = nobody))),
+            Arguments.of("street", jane.copy(postalAddresses = PostalAddresses(addressAt(noStreet)))),
+            Arguments.of("postal code", jane.copy(postalAddresses = PostalAddresses(addressAt(noPostalCode)))),
+            Arguments.of("city", jane.copy(postalAddresses = PostalAddresses(addressAt(noCity)))),
+            Arguments.of("country", jane.copy(postalAddresses = PostalAddresses(addressAt(noCountry)))),
+            Arguments.of("recipient", jane.copy(postalAddresses = PostalAddresses(addressFor(nobody)))),
         )
     }
 
@@ -80,6 +81,38 @@ class RegisterCustomerUseCaseTest : WithAssertions {
     }
 
     @Test
+    fun `an express registration should only need the names, the email and the password`() {
+        // Arrange
+        val janeInAHurry = CustomerRegistration(jane.userId, janeDoe, jane.email, jane.password)
+        // Act
+        useCase.unfold(janeInAHurry)
+        // Assert
+        assertThat(stored().fullName).isEqualTo(janeDoe)
+        assertThat(stored().status).isEqualTo(AccountStatus.PENDING_VERIFICATION)
+    }
+
+    @Test
+    fun `an express account should have neither a phone number nor a postal address yet`() {
+        // Arrange
+        val janeInAHurry = CustomerRegistration(jane.userId, janeDoe, jane.email, jane.password)
+        // Act
+        useCase.unfold(janeInAHurry)
+        // Assert
+        assertThat(stored().phoneNumber).isNull()
+        assertThat(stored().postalAddresses).isEqualTo(PostalAddresses.none())
+    }
+
+    @Test
+    fun `the customer of an express account should sign in with the chosen password`() {
+        // Arrange
+        val janeInAHurry = CustomerRegistration(jane.userId, janeDoe, jane.email, jane.password)
+        // Act
+        useCase.unfold(janeInAHurry)
+        // Assert
+        assertThat(userRepository.passwordMatches(jane.email, PlainPassword("password123"))).isTrue()
+    }
+
+    @Test
     fun `the customer should sign in with the chosen password`() {
         // Act
         useCase.unfold(jane)
@@ -91,7 +124,8 @@ class RegisterCustomerUseCaseTest : WithAssertions {
     fun `the address complement should be optional`() {
         // Arrange
         val locationWithoutComplement = Location(StreetAddress(street), Locality(parisTown, france))
-        val withoutComplement = jane.copy(postalAddress = addressAt(locationWithoutComplement))
+        val addressWithoutComplement = addressAt(locationWithoutComplement)
+        val withoutComplement = jane.copy(postalAddresses = PostalAddresses(addressWithoutComplement))
         // Act
         useCase.unfold(withoutComplement)
         // Assert

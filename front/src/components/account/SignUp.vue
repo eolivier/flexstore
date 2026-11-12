@@ -3,36 +3,27 @@
   import { useI18n } from 'vue-i18n';
   import { useRoute, useRouter } from 'vue-router';
   import { useAuthStore, type Registration } from '@/stores/auth.store';
-  import type { AccountRegistration, CustomerCompany, Location } from '@/models/account';
+  import type { ExpressAccountRegistration, CustomerCompany, Location } from '@/models/account';
   import { normalizedIdentifier } from '@/utils/company';
   import UserNameFields from './UserNameFields.vue';
   import PasswordField from './PasswordField.vue';
-  import PostalAddressFields from './PostalAddressFields.vue';
-  import CompanyFields from './CompanyFields.vue';
+  import SignUpDetailsFields from './SignUpDetailsFields.vue';
 
   const { t } = useI18n();
   const route = useRoute();
   const router = useRouter();
   const authStore = useAuthStore();
 
-  const registration = ref<Omit<AccountRegistration, 'postalAddress'>>({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    phoneNumber: '',
-  });
+  // The express registration: the names, the email and the password
+  const registration = ref<ExpressAccountRegistration>({ firstName: '', lastName: '', email: '', password: '' });
+  // The customer may give their phone number and their postal address right now, or later from their account
+  const givesDetails = ref(false);
+  const phoneNumber = ref('');
   // A customer who buys for their company gives it: the address is then sent to the company, for their attention
   const isCompany = ref(false);
   const company = ref<CustomerCompany>({ companyName: '', siren: '', vatNumber: '' });
   // The customer receives what is sent to the address they give
-  const location = ref<Location>({
-    street: '',
-    complement: '',
-    postalCode: '',
-    city: '',
-    country: 'France',
-  });
+  const location = ref<Location>({ street: '', complement: '', postalCode: '', city: '', country: 'France' });
   const valid = ref(false);
   const saving = ref(false);
   const result = ref<Registration | null>(null);
@@ -41,7 +32,6 @@
     required: (v: string) => !!v?.trim() || t('createUser.mandatoryField'),
     email: (v: string) => /.+@.+\..+/.test(v) || t('createUser.invalidEmail'),
     passwordLength: (v: string) => v.length >= 8 || t('createUser.passwordTooShort'),
-    phoneNumber: (v: string) => /^\+?[0-9][0-9 .()-]{5,19}$/.test(v.trim()) || t('signUp.invalidPhoneNumber'),
   };
 
   function companyAsSent(): CustomerCompany {
@@ -52,10 +42,7 @@
     };
   }
 
-  // Once signed in, the customer goes back to where they came from (e.g. the cart, to order)
-  async function submit() {
-    if (!valid.value) return;
-    saving.value = true;
+  function details() {
     const { firstName, lastName } = registration.value;
     const customerCompany = isCompany.value ? companyAsSent() : undefined;
     const recipient = {
@@ -65,9 +52,20 @@
       companyName: customerCompany?.companyName ?? '',
       vatNumber: customerCompany?.vatNumber ?? '',
     };
-    const postalAddress = { ...location.value, ...recipient };
     const companyPart = customerCompany ? { company: customerCompany } : {};
-    result.value = await authStore.register({ ...registration.value, postalAddress, ...companyPart });
+    return {
+      phoneNumber: phoneNumber.value.trim(),
+      postalAddress: { ...location.value, ...recipient },
+      ...companyPart,
+    };
+  }
+
+  // Once signed in, the customer goes back to where they came from (e.g. the cart, to order)
+  async function submit() {
+    if (!valid.value) return;
+    saving.value = true;
+    const detailsPart = givesDetails.value ? details() : {};
+    result.value = await authStore.register({ ...registration.value, ...detailsPart });
     saving.value = false;
     if (result.value === 'signedIn') {
       router.push((route.query.redirect as string) || '/user-profile');
@@ -98,31 +96,21 @@
           :rules="[rules.required, rules.passwordLength]"
           class="mb-2"
         />
-        <v-text-field
-          v-model="registration.phoneNumber"
-          :label="t('signUp.phoneNumber')"
-          :rules="[rules.required, rules.phoneNumber]"
-          type="tel"
-          prepend-inner-icon="mdi-phone-outline"
-          autocomplete="tel"
-          class="mb-4"
-          required
-        />
         <v-checkbox
-          v-model="isCompany"
-          :label="t('company.iAmACompany')"
+          v-model="givesDetails"
+          :label="t('signUp.giveDetails')"
           density="compact"
           hide-details
           class="mb-2"
-          data-test="is-company"
+          data-test="give-details"
         />
-        <CompanyFields
-          v-if="isCompany"
-          v-model:company-name="company.companyName"
-          v-model:siren="company.siren"
-          v-model:vat-number="company.vatNumber"
+        <SignUpDetailsFields
+          v-if="givesDetails"
+          v-model:phone-number="phoneNumber"
+          v-model:is-company="isCompany"
+          v-model:company="company"
+          v-model:location="location"
         />
-        <PostalAddressFields v-model="location" />
         <v-alert
           v-if="result === 'emailUsed' || result === 'invalidCompany' || result === 'error'"
           type="error"
