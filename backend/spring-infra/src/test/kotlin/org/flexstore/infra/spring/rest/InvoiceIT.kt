@@ -57,7 +57,9 @@ class InvoiceIT {
     @BeforeEach
     fun createCustomers() {
         cleanUp()
-        userRepository.save(UserEntity(CUSTOMER_ID, "Jane", "Doe", "it-invoice-customer@example.com", "not-used"))
+        userRepository.save(
+            UserEntity(CUSTOMER_ID, "Jane", "Doe", "it-invoice-customer@example.com", "not-used")
+        )
         userRepository.save(UserEntity(OTHER_CUSTOMER_ID, "John", "Smith", "it-invoice-other@example.com", "x"))
     }
 
@@ -82,7 +84,11 @@ class InvoiceIT {
         // Assert
         val pdf = response.andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_PDF))
-            .andExpect(header().string("Content-Disposition", "attachment; filename=\"facture-${orderId.take(8).uppercase()}.pdf\""))
+            .andExpect(
+                header().string(
+                    "Content-Disposition", "attachment; filename=\"facture-${orderId.take(8).uppercase()}.pdf\""
+                )
+            )
             .andReturn().response.contentAsByteArray
         assertThat(String(pdf.copyOf(5))).isEqualTo("%PDF-")
     }
@@ -125,7 +131,9 @@ class InvoiceIT {
         val secondOrderId = placeOrder(paid = true)
         // Assert
         val numbers = listOf(firstOrderId, secondOrderId).map { orderId ->
-            jdbcTemplate.queryForObject("SELECT number FROM invoice WHERE customer_order_id = ?", String::class.java, orderId)!!
+            jdbcTemplate.queryForObject(
+                "SELECT number FROM invoice WHERE customer_order_id = ?", String::class.java, orderId
+            )!!
         }
         val ranks = numbers.map { it.substringAfter('-').toInt() }
         assertThat(ranks[1]).isEqualTo(ranks[0] + 1)
@@ -141,7 +149,11 @@ class InvoiceIT {
         // Assert
         val pdf = response.andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_PDF))
-            .andExpect(header().string("Content-Disposition", "attachment; filename=\"avoir-${orderId.take(8).uppercase()}.pdf\""))
+            .andExpect(
+                header().string(
+                    "Content-Disposition", "attachment; filename=\"avoir-${orderId.take(8).uppercase()}.pdf\""
+                )
+            )
             .andReturn().response.contentAsByteArray
         assertThat(String(pdf.copyOf(5))).isEqualTo("%PDF-")
     }
@@ -194,7 +206,9 @@ class InvoiceIT {
             post("/api/cart/save").with(asUser(CUSTOMER_ID)).contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(item))
         ).andExpect(status().isOk)
-        val body = mockMvc.perform(post("/api/orders").withHomeAddresses(mockMvc.currentTermsOfSaleId()).with(asUser(CUSTOMER_ID)))
+        val body = mockMvc.perform(post("/api/orders")
+            .withHomeAddresses(mockMvc.currentTermsOfSaleId())
+            .with(asUser(CUSTOMER_ID)))
             .andExpect(status().isCreated).andReturn().response.contentAsString
         val orderId = objectMapper.readTree(body)["id"].asText()
         if (paid) mockMvc.pay(orderId, CUSTOMER_ID).andExpect(status().isCreated)

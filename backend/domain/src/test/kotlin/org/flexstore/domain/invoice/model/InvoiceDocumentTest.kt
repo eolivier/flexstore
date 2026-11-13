@@ -27,7 +27,9 @@ class InvoiceDocumentTest : WithAssertions {
 
     private fun documentOf(shippingMethod: ShippingMethod): InvoiceDocument {
         val delivery = OrderDelivery(homeOrderAddresses, shippingMethod)
-        val orderPlacement = OrderPlacement(OrderStamp(OrderId("46555c9f-4e92"), placedAt), Checkout(customer, delivery, acceptedTermsOfSale))
+        val orderPlacement = OrderPlacement(
+            OrderStamp(OrderId("46555c9f-4e92"), placedAt), Checkout(customer, delivery, acceptedTermsOfSale)
+        )
         val order = Order.place(orderPlacement, Cart(customer).add(deskLamp, Quantity(1)))
         return InvoiceDocument(invoice, InvoicedSale(AdministeredOrder(order, janeDoe), testSeller))
     }
@@ -70,7 +72,9 @@ class InvoiceDocumentTest : WithAssertions {
         val invoiceDocument = documentOf(ShippingMethod.EXPRESS)
         // Assert
         assertThat(invoiceDocument.tableHeader())
-            .isEqualTo(InvoiceRow("Désignation", "Quantité", "Prix unitaire HT", "Taux TVA", "Montant TVA", "Total TTC"))
+            .isEqualTo(
+                InvoiceRow("Désignation", "Quantité", "Prix unitaire HT", "Taux TVA", "Montant TVA", "Total TTC")
+            )
         assertThat(invoiceDocument.tableRows()).isEqualTo(
             InvoiceRows(
                 InvoiceRow("Desk lamp", "1", "29,17 €", "20 %", "5,83 €", "35,00 €"),
@@ -83,7 +87,9 @@ class InvoiceDocumentTest : WithAssertions {
     fun `the discount of the order should be taken off the items on the invoice`() {
         // Arrange
         val validity = DiscountValidity(ExpiryDate(placedAt.plusSeconds(3600)), UsageLimit(5))
-        val fiveEurosOff = DiscountCode(PromoCode("FIVE"), DiscountOffer(AmountOff(Price(Amount(BigDecimal(5)), Currency.EUR)), validity))
+        val fiveEurosOff = DiscountCode(
+            PromoCode("FIVE"), DiscountOffer(AmountOff(Price(Amount(BigDecimal(5)), Currency.EUR)), validity)
+        )
         val delivery = OrderDelivery(homeOrderAddresses, ShippingMethod.EXPRESS)
         val orderStamp = OrderStamp(OrderId("46555c9f-4e92"), placedAt)
         val orderPlacement = OrderPlacement(orderStamp, Checkout(customer, delivery, acceptedTermsOfSale))
@@ -212,7 +218,8 @@ class InvoiceDocumentTest : WithAssertions {
         // Assert
         assertThat(invoiceDocument.footer().asList().map { it.value }).endsWith(
             "Pas d'escompte pour paiement anticipé.",
-            "En cas de retard de paiement : pénalités au taux d'intérêt légal multiplié par trois, et indemnité forfaitaire de 40 € pour frais de recouvrement."
+            "En cas de retard de paiement : pénalités au taux d'intérêt légal multiplié par trois, " +
+                "et indemnité forfaitaire de 40 € pour frais de recouvrement."
         )
     }
 }

@@ -46,9 +46,14 @@ fun MockMvc.pay(orderId: String, customerId: String): ResultActions =
 // then the orders, then their payments (an order refers to its last payment)
 fun JdbcTemplate.deleteOrdersOf(customerId: String) {
     val paymentIds = queryForList(
-        "SELECT payment_id FROM customer_order WHERE user_id = ? AND payment_id IS NOT NULL", String::class.java, customerId
+        "SELECT payment_id FROM customer_order WHERE user_id = ? AND payment_id IS NOT NULL",
+        String::class.java,
+        customerId
     )
-    update("DELETE FROM invoice WHERE customer_order_id IN (SELECT id FROM customer_order WHERE user_id = ?)", customerId)
+    update(
+        "DELETE FROM invoice WHERE customer_order_id IN (SELECT id FROM customer_order WHERE user_id = ?)",
+        customerId
+    )
     update("DELETE FROM customer_order WHERE user_id = ?", customerId)
     paymentIds.forEach { paymentId -> update("DELETE FROM payment WHERE id = ?", paymentId) }
 }

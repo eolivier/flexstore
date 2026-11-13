@@ -19,7 +19,9 @@ import java.math.BigDecimal
 
 class RemindAbandonedCartUseCaseTest : WithAssertions {
 
-    private val deskLamp = DefinedProduct(ProductId(Identity("desk-lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR))
+    private val deskLamp = DefinedProduct(
+        ProductId(Identity("desk-lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR)
+    )
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val cartRepository = InMemoryCartRepository()
     private val userRepository = customersWithIds("user-1")

@@ -27,7 +27,12 @@ class InMemoryUserRepositoryTest {
     fun `should return true when user exists`() {
         // Arrange
         val userRepository = InMemoryUserRepository()
-        val user = DefinedUser(ValidUserId("123"), FullName(FirstName("Jane"), LastName("Doe")), Email("jane.doe@example.com"), PlainPassword("password123"))
+        val user = DefinedUser(
+            ValidUserId("123"),
+            FullName(FirstName("Jane"), LastName("Doe")),
+            Email("jane.doe@example.com"),
+            PlainPassword("password123"),
+        )
         userRepository.save(user)
         // Act
         val exists = userRepository.exists(user.id)
@@ -39,7 +44,12 @@ class InMemoryUserRepositoryTest {
     fun `should save user successfully`() {
         // Arrange
         val userRepository = InMemoryUserRepository()
-        val user = DefinedUser(ValidUserId("123"), FullName(FirstName("Jane"), LastName("Doe")), Email("jane.doe@example.com"), PlainPassword("password123"))
+        val user = DefinedUser(
+            ValidUserId("123"),
+            FullName(FirstName("Jane"), LastName("Doe")),
+            Email("jane.doe@example.com"),
+            PlainPassword("password123"),
+        )
         // Act
         userRepository.save(user)
         // Assert
@@ -50,7 +60,12 @@ class InMemoryUserRepositoryTest {
     fun `should find user by id`() {
         // Arrange
         val userRepository = InMemoryUserRepository()
-        val user = DefinedUser(ValidUserId("123"), FullName(FirstName("Jane"), LastName("Doe")), Email("jane.doe@example.com"), PlainPassword("password123"))
+        val user = DefinedUser(
+            ValidUserId("123"),
+            FullName(FirstName("Jane"), LastName("Doe")),
+            Email("jane.doe@example.com"),
+            PlainPassword("password123"),
+        )
         userRepository.save(user)
         // Act
         val foundUser = userRepository.findById(user.id)
@@ -66,7 +81,12 @@ class InMemoryUserRepositoryTest {
     fun `should return true when user is deleted successfully`() {
         // Arrange
         val userRepository = InMemoryUserRepository()
-        val user = DefinedUser(ValidUserId("123"), FullName(FirstName("Jane"), LastName("Doe")), Email("jane.doe@example.com"), PlainPassword("password123"))
+        val user = DefinedUser(
+            ValidUserId("123"),
+            FullName(FirstName("Jane"), LastName("Doe")),
+            Email("jane.doe@example.com"),
+            PlainPassword("password123"),
+        )
         userRepository.save(user)
         // Act
         val deleted = userRepository.delete(user.id)
@@ -91,7 +111,12 @@ class InMemoryUserRepositoryTest {
     fun `should keep the role of a created user`(role: Role) {
         // Arrange
         val userRepository = InMemoryUserRepository()
-        val draftUser = User.DraftUser(FullName(FirstName("Jane"), LastName("Doe")), Email("jane.doe@example.com"), PlainPassword("password123"), role)
+        val draftUser = User.DraftUser(
+            FullName(FirstName("Jane"), LastName("Doe")),
+            Email("jane.doe@example.com"),
+            PlainPassword("password123"),
+            role,
+        )
         // Act
         val savedUser = userRepository.save(draftUser)
         // Assert
@@ -103,8 +128,23 @@ class InMemoryUserRepositoryTest {
     fun `only an existing ADMIN is an administrator`(userId: String, notAdministrator: Boolean) {
         // Arrange
         val userRepository = InMemoryUserRepository()
-        userRepository.save(DefinedUser(ValidUserId("admin-1"), FullName(FirstName("Admin"), LastName("Flexstore")), Email("admin@example.com"), PlainPassword("password123"), Role.ADMIN))
-        userRepository.save(DefinedUser(ValidUserId("user-1"), FullName(FirstName("Simple"), LastName("User")), Email("user@example.com"), PlainPassword("password123")))
+        userRepository.save(
+            DefinedUser(
+                ValidUserId("admin-1"),
+                FullName(FirstName("Admin"), LastName("Flexstore")),
+                Email("admin@example.com"),
+                PlainPassword("password123"),
+                Role.ADMIN,
+            ),
+        )
+        userRepository.save(
+            DefinedUser(
+                ValidUserId("user-1"),
+                FullName(FirstName("Simple"), LastName("User")),
+                Email("user@example.com"),
+                PlainPassword("password123"),
+            ),
+        )
         // Act
         val isNotAdministrator = userRepository.isNotAdministrator(ValidUserId(userId))
         // Assert
@@ -120,9 +160,17 @@ class InMemoryUserRepositoryTest {
     ) {
         // Arrange
         val userRepository = InMemoryUserRepository()
-        userRepository.save(DefinedUser(ValidUserId(owner), FullName(FirstName("Simple"), LastName("User")), Email("user@example.com"), PlainPassword("password123")))
+        userRepository.save(
+            DefinedUser(
+                ValidUserId(owner),
+                FullName(FirstName("Simple"), LastName("User")),
+                Email("user@example.com"),
+                PlainPassword("password123"),
+            ),
+        )
         // Act
-        val isUsedByAnother = userRepository.emailIsUsedByAnotherUser(Email("user@example.com"), ValidUserId(checkedFor))
+        val isUsedByAnother =
+            userRepository.emailIsUsedByAnotherUser(Email("user@example.com"), ValidUserId(checkedFor))
         // Assert
         assertThat(isUsedByAnother).isEqualTo(usedByAnother)
     }

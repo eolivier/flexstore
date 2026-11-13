@@ -22,7 +22,9 @@ class RemoveProductImageUseCase(
     // The editor, resolved before the use case runs, must be an Admin
     private fun editorIsAdministratorCondition() = PreCondition<ProductImageRemoval> { request ->
         if (request.editor.isNotAdmin()) {
-            throw ProductImageForbiddenException(ErrorMessage("Only an administrator can remove the image of a product."))
+            throw ProductImageForbiddenException(
+                ErrorMessage("Only an administrator can remove the image of a product.")
+            )
         }
     }
 

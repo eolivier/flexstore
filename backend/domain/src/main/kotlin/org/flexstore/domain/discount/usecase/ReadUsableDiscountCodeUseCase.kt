@@ -29,7 +29,9 @@ class ReadUsableDiscountCodeUseCase(
 
     private fun codeIsNotExpiredCondition() = PreCondition<DiscountCodeLookup> { lookup ->
         if (discountCodeOf(lookup).isExpiredAt(lookup.at)) {
-            throw DiscountCodeExpiredException(ErrorMessage("The discount code ${lookup.code.value} has expired."))
+            throw DiscountCodeExpiredException(
+                ErrorMessage("The discount code ${lookup.code.value} has expired.")
+            )
         }
     }
 

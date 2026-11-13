@@ -24,7 +24,11 @@ class OpenPdfInvoiceRendererTest {
         SellerContact(SellerName("Flexstore SAS"), SellerAddress("1 rue de la Démo, 75001 Paris, France"))
     private val sellerIdentifier = SellerIdentifier(Siret("123 456 789 00012"), SellerVatNumber("FR12345678901"))
     private val sellerReach =
-        SellerReach(SellerPhone("01 23 45 67 89"), SellerEmail("contact@flexstore.fr"), SellerWebsite("www.flexstore.fr"))
+        SellerReach(
+            SellerPhone("01 23 45 67 89"),
+            SellerEmail("contact@flexstore.fr"),
+            SellerWebsite("www.flexstore.fr"),
+        )
     private val sellerIncorporation =
         SellerIncorporation(SellerLegalForm("SAS"), ShareCapital("10 000"), RegistryCity("Paris"))
     private val seller = Seller(
@@ -36,17 +40,30 @@ class OpenPdfInvoiceRendererTest {
     private val placedAt = Instant.parse("2026-10-24T10:00:00Z")
 
     private fun invoiceDocument(): InvoiceDocument {
-        val lamp = DefinedProduct(ProductId(Identity("lamp")), Name("Lampe été"), Price(Amount(BigDecimal(35)), Currency.EUR))
+        val lamp = DefinedProduct(
+            ProductId(Identity("lamp")),
+            Name("Lampe été"),
+            Price(Amount(BigDecimal(35)), Currency.EUR),
+        )
         val home = PostalAddress(
             PrivateIndividual(FullName(FirstName("Jane"), LastName("Doe"))),
-            Location(StreetAddress(Street("12 rue des Lilas")), Locality(Town(PostalCode("75011"), City("Paris")), Country("France")))
+            Location(
+                StreetAddress(Street("12 rue des Lilas")),
+                Locality(Town(PostalCode("75011"), City("Paris")), Country("France")),
+            )
         )
         val delivery = OrderDelivery(OrderAddresses.sameFor(home), ShippingMethod.EXPRESS)
-        val placement = OrderPlacement(OrderStamp(OrderId("46555c9f-4e92"), placedAt), Checkout(customer, delivery, acceptedTermsOfSale))
+        val placement = OrderPlacement(
+            OrderStamp(OrderId("46555c9f-4e92"), placedAt),
+            Checkout(customer, delivery, acceptedTermsOfSale),
+        )
         val order = Order.place(placement, Cart(customer).add(lamp, Quantity(1)))
         val invoiceIssue = InvoiceIssue(order.orderId, InvoiceDate(placedAt))
         val invoice = Invoice(InvoiceNumber("2026-000042"), invoiceIssue, seller.id)
-        val orderCustomer = OrderCustomer(FullName(FirstName("Jane"), LastName("Doe")), Email("jane@example.com"))
+        val orderCustomer = OrderCustomer(
+            FullName(FirstName("Jane"), LastName("Doe")),
+            Email("jane@example.com"),
+        )
         return InvoiceDocument(invoice, InvoicedSale(AdministeredOrder(order, orderCustomer), seller))
     }
 

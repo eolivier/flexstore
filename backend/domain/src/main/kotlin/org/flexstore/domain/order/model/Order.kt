@@ -242,8 +242,12 @@ enum class OrderStatus {
         PAID -> PROCESSING
         PROCESSING -> SHIPPED
         SHIPPED -> DELIVERED
-        DELIVERED -> throw OrderStatusCannotAdvanceException(ErrorMessage("A delivered order has no next status"))
-        CANCELLED -> throw OrderStatusCannotAdvanceException(ErrorMessage("A cancelled order has no next status"))
+        DELIVERED -> throw OrderStatusCannotAdvanceException(
+            ErrorMessage("A delivered order has no next status")
+        )
+        CANCELLED -> throw OrderStatusCannotAdvanceException(
+            ErrorMessage("A cancelled order has no next status")
+        )
         REFUNDED -> throw OrderStatusCannotAdvanceException(ErrorMessage("A refunded order has no next status"))
     }
 }

@@ -143,7 +143,9 @@ class AccountIT {
         "a short password, short, +33 6 12 34 56 78, Paris",
         "no city, password123, +33 6 12 34 56 78, ''",
     )
-    fun `an invalid registration should be refused`(@Suppress("UNUSED_PARAMETER") case: String, password: String, phoneNumber: String, city: String) {
+    fun `an invalid registration should be refused`(
+        @Suppress("UNUSED_PARAMETER") case: String, password: String, phoneNumber: String, city: String
+    ) {
         // Act
         val response = register(registration(password = password, phoneNumber = phoneNumber, city = city))
         // Assert
@@ -187,7 +189,11 @@ class AccountIT {
         // Arrange
         register(registration()).andExpect(status().isCreated)
         val customerId = userRepository.findByEmail(CUSTOMER_EMAIL)!!.id
-        jdbcTemplate.update("UPDATE user_token SET expires_at = now() - interval '1 second' WHERE user_id = ? AND type = 'EMAIL_VERIFICATION'", customerId)
+        jdbcTemplate.update(
+            "UPDATE user_token SET expires_at = now() - interval '1 second' " +
+                "WHERE user_id = ? AND type = 'EMAIL_VERIFICATION'",
+            customerId
+        )
         // Act
         val response = verify(lastToken())
         // Assert
@@ -201,7 +207,11 @@ class AccountIT {
         register(registration()).andExpect(status().isCreated)
         // Assert
         val customerId = userRepository.findByEmail(CUSTOMER_EMAIL)!!.id
-        val storedHashes = jdbcTemplate.queryForList("SELECT token_hash FROM user_token WHERE user_id = ? AND type = 'EMAIL_VERIFICATION'", String::class.java, customerId)
+        val storedHashes = jdbcTemplate.queryForList(
+            "SELECT token_hash FROM user_token WHERE user_id = ? AND type = 'EMAIL_VERIFICATION'",
+            String::class.java,
+            customerId
+        )
         assertThat(storedHashes).hasSize(1).doesNotContain(lastToken())
     }
 
@@ -245,7 +255,8 @@ class AccountIT {
     @Test
     fun `a customer who buys for their company should find it in their account`() {
         // Arrange
-        register(companyRegistration(siren = "123 456 789", vatNumber = "fr 32 123456789")).andExpect(status().isCreated)
+        register(companyRegistration(siren = "123 456 789", vatNumber = "fr 32 123456789"))
+            .andExpect(status().isCreated)
         val customerId = userRepository.findByEmail(CUSTOMER_EMAIL)!!.id
         // Act
         val response = mockMvc.perform(get("/api/accounts/me").with(asUser(customerId)))
@@ -280,13 +291,17 @@ class AccountIT {
         assertThat(userRepository.findByEmail(CUSTOMER_EMAIL)).isNull()
     }
 
-    private fun companyRegistration(siren: String, vatNumber: String) = registration().trimEnd().removeSuffix("}") +
+    private fun companyRegistration(siren: String, vatNumber: String) = registration()
+        .trimEnd()
+        .removeSuffix("}") +
         """, "company": {"companyName": "Acme", "siren": "$siren", "vatNumber": "$vatNumber"}}"""
 
     private fun lastToken() = emailSender.sentVerificationLinks().last().token.value
 
     private fun verify(token: String) = mockMvc.perform(
-        post("/api/accounts/email-verification").contentType(MediaType.APPLICATION_JSON).content("""{"token": "$token"}""")
+        post("/api/accounts/email-verification")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("""{"token": "$token"}""")
     )
 
     private fun register(registration: String) =
@@ -296,7 +311,9 @@ class AccountIT {
         {"firstName": "Jane", "lastName": "Doe", "email": "$CUSTOMER_EMAIL", "password": "password123"}
     """
 
-    private fun registration(password: String = "password123", phoneNumber: String = "+33 6 12 34 56 78", city: String = "Paris") = """
+    private fun registration(
+        password: String = "password123", phoneNumber: String = "+33 6 12 34 56 78", city: String = "Paris"
+    ) = """
         {"firstName": "Jane", "lastName": "Doe", "email": "$CUSTOMER_EMAIL", "password": "$password",
          "phoneNumber": "$phoneNumber",
          "postalAddress": {"recipientType": "PRIVATE_INDIVIDUAL",

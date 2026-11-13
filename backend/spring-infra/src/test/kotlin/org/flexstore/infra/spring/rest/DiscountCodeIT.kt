@@ -62,13 +62,16 @@ class DiscountCodeIT {
     @BeforeEach
     fun createCustomer() {
         cleanUp()
-        userRepository.save(UserEntity(CUSTOMER_ID, "Jane", "Doe", "it-discount-customer@example.com", "not-used"))
+        userRepository.save(
+            UserEntity(CUSTOMER_ID, "Jane", "Doe", "it-discount-customer@example.com", "not-used")
+        )
     }
 
     @AfterEach
     fun cleanUp() {
         jdbcTemplate.deleteOrdersOf(CUSTOMER_ID)
-        discountCodeRepository.deleteAll(discountCodeRepository.findAll().filter { it.code.startsWith("ITDISC") })
+        discountCodeRepository.deleteAll(discountCodeRepository.findAll()
+            .filter { it.code.startsWith("ITDISC") })
         cartRepository.findByUserId(CUSTOMER_ID)?.let { cart ->
             cartItemRepository.deleteAll(cartItemRepository.findAll().filter { it.cartId == cart.id })
             cartRepository.delete(cart)
@@ -189,6 +192,7 @@ class DiscountCodeIT {
 
     private fun placeOrderWithCode(code: String) = mockMvc.perform(
         post("/api/orders").with(asUser(CUSTOMER_ID)).contentType(MediaType.APPLICATION_JSON)
-            .content(homeAddressesAccepting(mockMvc.currentTermsOfSaleId()).removeSuffix("}") + """, "discountCode": "$code"}""")
+            .content(homeAddressesAccepting(mockMvc.currentTermsOfSaleId())
+                .removeSuffix("}") + """, "discountCode": "$code"}""")
     )
 }

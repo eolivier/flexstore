@@ -19,7 +19,8 @@ class OrderStatusEmailContent(email: OrderStatusEmail, shopUrl: ShopUrl) : Email
 
     private val nextStep = when (order.status) {
         OrderStatus.SHIPPED -> "Elle est en route vers votre adresse de livraison."
-        OrderStatus.REFUNDED -> "Le montant payé vous est remboursé sur votre moyen de paiement, sous quelques jours."
+        OrderStatus.REFUNDED ->
+            "Le montant payé vous est remboursé sur votre moyen de paiement, sous quelques jours."
         else -> "Nous espérons qu'elle vous donne entière satisfaction."
     }
 

@@ -31,7 +31,9 @@ class SmtpEmailSenderTest {
 
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val acceptedTermsOfSale = AcceptedTermsOfSale(LegalPageId(Identity("terms-of-sale-1")))
-    private val lamp = DefinedProduct(ProductId(Identity("lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR))
+    private val lamp = DefinedProduct(
+        ProductId(Identity("lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR)
+    )
     private val janeDoe = PrivateIndividual(FullName(FirstName("Jane"), LastName("Doe")))
     private val homeStreet = Street("12 rue des Lilas")
     private val homeTown = Town(PostalCode("75011"), City("Paris"))
@@ -41,7 +43,9 @@ class SmtpEmailSenderTest {
     private val orderStamp = OrderStamp(OrderId("c5f7326c-0000"), Instant.parse("2026-10-24T10:00:00Z"))
     private val orderPlacement = OrderPlacement(orderStamp, checkout)
     private val order = Order.place(orderPlacement, Cart(customer).add(lamp, Quantity(1)))
-    private val email = OrderConfirmationEmail(Email("jane@example.com"), FullName(FirstName("Jane"), LastName("Doe")), order)
+    private val email = OrderConfirmationEmail(
+        Email("jane@example.com"), FullName(FirstName("Jane"), LastName("Doe")), order
+    )
     private val mailSender = mock(JavaMailSender::class.java)
     private val shopUrl = ShopUrl("https://flexstore.example")
     private val adapter = SmtpEmailSender(mailSender, "Flexstore <no-reply@flexstore.com>", shopUrl)
@@ -58,11 +62,14 @@ class SmtpEmailSenderTest {
     @Test
     fun `should log an email that could not be sent, without failing`(output: CapturedOutput) {
         // Arrange
-        doThrow(MailSendException("SMTP server unreachable")).`when`(mailSender).send(any(SimpleMailMessage::class.java))
+        doThrow(MailSendException("SMTP server unreachable"))
+            .`when`(mailSender)
+            .send(any(SimpleMailMessage::class.java))
         // Act
         adapter.send(email)
         // Assert
-        assertThat(output.out).contains("Order confirmation email of order C5F7326C to jane@example.com not sent")
+        assertThat(output.out)
+            .contains("Order confirmation email of order C5F7326C to jane@example.com not sent")
         assertThat(output.out).doesNotContain("sent to jane@example.com")
     }
 }

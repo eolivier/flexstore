@@ -54,7 +54,9 @@ class InMemoryPaymentRepository(private val outcome: PaymentOutcome) : PaymentRe
 
     override fun refund(orderId: OrderId) {
         if (orderId in refusedRefunds) {
-            throw PaymentRefundRefusedException(ErrorMessage("The payment of ${orderId.value} cannot be refunded."))
+            throw PaymentRefundRefusedException(
+                ErrorMessage("The payment of ${orderId.value} cannot be refunded."),
+            )
         }
         refundedPayments.add(orderId)
     }

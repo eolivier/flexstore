@@ -136,7 +136,9 @@ class OrderCheckoutServiceTest : WithAssertions {
     fun `an order should not be placed when the terms of sale were published again since they were accepted`() {
         // Arrange
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(1)))
-        val newTermsOfSale = currentTermsOfSale.copy(id = LegalPageId.nextId(), text = LegalText("Article 1 - Objet modifié"))
+        val newTermsOfSale = currentTermsOfSale.copy(
+            id = LegalPageId.nextId(), text = LegalText("Article 1 - Objet modifié")
+        )
         legalPageRepository.save(newTermsOfSale)
         // Act
         val thrown = catchThrowable { service.placeOrder(customerActor, checkout) }

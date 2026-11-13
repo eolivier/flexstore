@@ -37,7 +37,8 @@ val deskLampId = ProductId(Identity("desk-lamp"))
 val readingLampId = ProductId(Identity("reading-lamp"))
 
 private val lampPrice = Price(Amount(BigDecimal(35)), Currency.EUR)
-private val englishDeskLamp = ProductTranslation(Language.EN, Name("Desk lamp"), Description("A lamp for the desk"))
+private val englishDeskLamp =
+    ProductTranslation(Language.EN, Name("Desk lamp"), Description("A lamp for the desk"))
 private val frenchDeskLamp = ProductTranslation(Language.FR, Name("Lampe de bureau"), Description("Une lampe"))
 
 // Translated into French

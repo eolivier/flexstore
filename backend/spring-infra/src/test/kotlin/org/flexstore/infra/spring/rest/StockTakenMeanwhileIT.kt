@@ -85,7 +85,9 @@ class StockTakenMeanwhileIT {
         val headphonesId = ProductId(Identity(HEADPHONES_ID))
         doReturn(StockReservation.NOT_COVERED).`when`(stockRepository).reserve(headphonesId, Quantity(1))
         // Act
-        val response = mockMvc.perform(post("/api/orders").withHomeAddresses(mockMvc.currentTermsOfSaleId()).with(asUser(CUSTOMER_ID)))
+        val response = mockMvc.perform(post("/api/orders")
+            .withHomeAddresses(mockMvc.currentTermsOfSaleId())
+            .with(asUser(CUSTOMER_ID)))
         // Assert
         response.andExpect(status().isConflict)
         assertThat(orderRepository.findAllByUserId(CUSTOMER_ID)).isEmpty()

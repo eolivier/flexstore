@@ -15,8 +15,19 @@ class ChangeAccountStatusUseCaseTest : WithAssertions {
     private val actorResolutionService = ActorResolutionService(userRepository)
     private val administratorActor get() = actorResolutionService.actorOf(administrator.id)
     private val janeActor get() = actorResolutionService.actorOf(jane.id)
-    private val administrator = User.DefinedUser(UserId.ValidUserId("admin-1"), FullName(FirstName("Admin"), LastName("Flexstore")), Email("admin@example.com"), PlainPassword("admin-password"), Role.ADMIN)
-    private val jane = User.DefinedUser(UserId.ValidUserId("jane-1"), FullName(FirstName("Jane"), LastName("Doe")), Email("jane@example.com"), PlainPassword("password123"))
+    private val administrator = User.DefinedUser(
+        UserId.ValidUserId("admin-1"),
+        FullName(FirstName("Admin"), LastName("Flexstore")),
+        Email("admin@example.com"),
+        PlainPassword("admin-password"),
+        Role.ADMIN
+    )
+    private val jane = User.DefinedUser(
+        UserId.ValidUserId("jane-1"),
+        FullName(FirstName("Jane"), LastName("Doe")),
+        Email("jane@example.com"),
+        PlainPassword("password123")
+    )
 
     init {
         listOf(administrator, jane).forEach { userRepository.save(it) }
@@ -75,7 +86,9 @@ class ChangeAccountStatusUseCaseTest : WithAssertions {
     @Test
     fun `the status of an unknown account should not change`() {
         // Act
-        val change = AccountStatusChange(administratorActor, UserId.ValidUserId("unknown"), AccountStatus.SUSPENDED)
+        val change = AccountStatusChange(
+            administratorActor, UserId.ValidUserId("unknown"), AccountStatus.SUSPENDED
+        )
         val thrown = catchThrowable { useCase.unfold(change) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java)

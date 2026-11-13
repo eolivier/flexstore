@@ -163,7 +163,8 @@ data class InvoiceDocument(val invoice: Invoice, val sale: InvoicedSale) : Billi
     // every invoice between professionals
     override fun footer(): InvoiceLines {
         val paymentLines = listOf(
-            "Facture acquittée le ${DATE_FORMAT.format(invoice.issuedAt.value)} : la commande a été payée en ligne.",
+            "Facture acquittée le ${DATE_FORMAT.format(invoice.issuedAt.value)} : " +
+                "la commande a été payée en ligne.",
             "Prix en euros, TVA française comprise."
         )
         val lines = paymentLines + professionalTermsOf(order.addresses.billing.recipient)
@@ -173,7 +174,8 @@ data class InvoiceDocument(val invoice: Invoice, val sale: InvoicedSale) : Billi
     private fun professionalTermsOf(recipient: Recipient) = when (recipient) {
         is LegalEntity -> listOf(
             "Pas d'escompte pour paiement anticipé.",
-            "En cas de retard de paiement : pénalités au taux d'intérêt légal multiplié par trois, et indemnité forfaitaire de 40 € pour frais de recouvrement."
+            "En cas de retard de paiement : pénalités au taux d'intérêt légal multiplié par trois, " +
+                "et indemnité forfaitaire de 40 € pour frais de recouvrement."
         )
         is PrivateIndividual -> emptyList()
     }

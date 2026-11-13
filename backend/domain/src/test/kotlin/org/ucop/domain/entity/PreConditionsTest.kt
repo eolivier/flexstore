@@ -10,7 +10,9 @@ class PreConditionsTest {
     fun `should check every precondition, in order`() {
         // Arrange
         val checked = mutableListOf<String>()
-        val preConditions = PreConditions(PreCondition<String> { checked.add("first $it") }, PreCondition { checked.add("second $it") })
+        val preConditions = PreConditions(
+            PreCondition<String> { checked.add("first $it") }, PreCondition { checked.add("second $it") }
+        )
         // Act
         preConditions.validate("request")
         // Assert
@@ -21,7 +23,9 @@ class PreConditionsTest {
     fun `should stop at the first precondition that fails`() {
         // Arrange
         val checked = mutableListOf<String>()
-        val preConditions = PreConditions(PreCondition<String> { throw IllegalStateException("failed") }, PreCondition { checked.add(it) })
+        val preConditions = PreConditions(
+            PreCondition<String> { throw IllegalStateException("failed") }, PreCondition { checked.add(it) }
+        )
         // Act
         val thrown = catchThrowable { preConditions.validate("request") }
         // Assert

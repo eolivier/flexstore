@@ -14,7 +14,15 @@ class LoginAccountStatusTest : WithAssertions {
     private val email = Email("jane@example.com")
 
     private fun janeWith(status: AccountStatus) {
-        userRepository.save(User.DefinedUser(UserId.ValidUserId("jane-1"), FullName(FirstName("Jane"), LastName("Doe")), email, PlainPassword("password123"), status = status))
+        userRepository.save(
+            User.DefinedUser(
+                UserId.ValidUserId("jane-1"),
+                FullName(FirstName("Jane"), LastName("Doe")),
+                email,
+                PlainPassword("password123"),
+                status = status
+            )
+        )
     }
 
     @ParameterizedTest(name = "{0}")

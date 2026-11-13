@@ -46,14 +46,20 @@ class UpdateProductUseCaseTest : WithAssertions {
             Arguments.of("name", tShirt.renamed(Name("Linen T-shirt"))),
             Arguments.of("description", tShirt.describedAs(Description("Light and breathable"))),
             Arguments.of("category", tShirt.copy(category = Category.SPORTS)),
-            Arguments.of("promotion", tShirt.copy(pricing = ProductPricing(tShirt.price, tShirt.vatRate, tenPercentOff))),
-            Arguments.of("price", tShirt.copy(pricing = ProductPricing(Price(Amount(BigDecimal(29)), Currency.EUR)))),
+            Arguments.of(
+                "promotion", tShirt.copy(pricing = ProductPricing(tShirt.price, tShirt.vatRate, tenPercentOff))
+            ),
+            Arguments.of(
+                "price", tShirt.copy(pricing = ProductPricing(Price(Amount(BigDecimal(29)), Currency.EUR)))
+            ),
         )
     }
 
     @ParameterizedTest(name = "should store the edited {0}")
     @MethodSource("editions")
-    fun `should store the edited product`(@Suppress("UNUSED_PARAMETER") editedField: String, editedProduct: DefinedProduct) {
+    fun `should store the edited product`(
+        @Suppress("UNUSED_PARAMETER") editedField: String, editedProduct: DefinedProduct
+    ) {
         // Act
         useCase.unfold(UpdateProductRequest(administrator, editedProduct))
         // Assert

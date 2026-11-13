@@ -52,7 +52,9 @@ class ChangePasswordUseCase(
     private fun definedUser(request: ChangePasswordRequest): User.DefinedUser =
         when (val user = userRepository.findById(request.userId)) {
             is User.DefinedUser -> user
-            else -> throw UserNotFoundException(ErrorMessage("User with ID ${request.userId.value} does not exist."))
+            else -> throw UserNotFoundException(
+                ErrorMessage("User with ID ${request.userId.value} does not exist.")
+            )
         }
 
     private fun userExistsCondition() = PreCondition<ChangePasswordRequest> { request ->

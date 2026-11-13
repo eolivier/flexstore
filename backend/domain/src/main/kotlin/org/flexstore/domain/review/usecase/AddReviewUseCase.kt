@@ -84,7 +84,9 @@ class AddReviewUseCase(
 
     private fun reviewIsStoredCondition() = PostCondition<ReviewSubmission> { submission ->
         if (!reviewRepository.reviewExists(submission.stamp.reviewId)) {
-            throw ReviewAdditionFailed(ErrorMessage("The review ${submission.stamp.reviewId.value} was not stored."))
+            throw ReviewAdditionFailed(
+                ErrorMessage("The review ${submission.stamp.reviewId.value} was not stored.")
+            )
         }
     }
 }

@@ -37,7 +37,9 @@ class CreateDiscountCodeUseCase(
             else -> null
         }
         if (reason != null) {
-            throw InvalidDiscountCodeException(ErrorMessage("The discount code ${discountCode.code.value}: $reason."))
+            throw InvalidDiscountCodeException(
+                ErrorMessage("The discount code ${discountCode.code.value}: $reason.")
+            )
         }
     }
 

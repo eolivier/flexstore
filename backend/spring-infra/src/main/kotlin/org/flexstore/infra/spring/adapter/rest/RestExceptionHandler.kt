@@ -188,7 +188,11 @@ class RestExceptionHandler {
             // the customer to accept the terms of sale, or to read them again
             is TermsOfSaleNotAcceptedException -> ResponseEntity
                 .status(400)
-                .body(mapOf("error" to (ex.message ?: "Terms of sale not accepted"), "reason" to TERMS_NOT_ACCEPTED))
+                .body(
+                    mapOf(
+                        "error" to (ex.message ?: "Terms of sale not accepted"), "reason" to TERMS_NOT_ACCEPTED
+                    )
+                )
             is OutdatedTermsOfSaleException -> ResponseEntity
                 .status(409)
                 .body(mapOf("error" to (ex.message ?: "Terms of sale changed"), "reason" to OUTDATED_TERMS))
@@ -273,7 +277,9 @@ class RestExceptionHandler {
         val causeMessage = ex.mostSpecificCause.message.orEmpty()
         val missingParameter = MISSING_PARAMETER.find(causeMessage)?.groupValues?.get(1)
         val field = (path + listOfNotNull(missingParameter)).joinToString(".")
-        val error = if (field.isEmpty()) "The request is malformed." else "The field $field is missing or malformed."
+        val error = if (
+            field.isEmpty()
+        ) "The request is malformed." else "The field $field is missing or malformed."
         logger.warn("Unreadable request body: {} ({})", error, causeMessage.lineSequence().first())
         return ResponseEntity.status(400).body(mapOf("error" to error, "reason" to MALFORMED_REQUEST))
     }

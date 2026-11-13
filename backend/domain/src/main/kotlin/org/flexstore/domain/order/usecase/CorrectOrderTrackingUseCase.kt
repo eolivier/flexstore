@@ -46,15 +46,16 @@ class CorrectOrderTrackingUseCase(
     private fun orderAllowsTheCorrectionCondition() = PreCondition<OrderTrackingCorrection> { correction ->
         val order = orderRepository.findById(correction.orderId)!!
         if (order.status.refusesTrackingCorrection()) {
-            val message = "The tracking of order ${order.number()} is corrected once it is shipped, not when it is " +
-                "${order.status}."
+            val message = "The tracking of order ${order.number()} is corrected once it is shipped, " +
+                "not when it is ${order.status}."
             throw OrderTrackingCannotBeCorrectedException(ErrorMessage(message))
         }
     }
 
     private fun trackingIsValidCondition() = PreCondition<OrderTrackingCorrection> { correction ->
         if (correction.tracking.isInvalid()) {
-            val message = "A tracking number is letters, digits and hyphens, ${TrackingNumber.MAX_LENGTH} at most."
+            val message =
+                "A tracking number is letters, digits and hyphens, ${TrackingNumber.MAX_LENGTH} at most."
             throw InvalidOrderTrackingException(ErrorMessage(message))
         }
     }

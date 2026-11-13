@@ -23,7 +23,12 @@ class ReadUserUseCaseTest {
     @Test
     fun `should read user successfully`() {
         // Arrange
-        val user = User.DefinedUser(userId, FullName(FirstName("John"), LastName("Doe")), Email("john.doe@example.com"), PlainPassword("password123"))
+        val user = User.DefinedUser(
+            userId,
+            FullName(FirstName("John"), LastName("Doe")),
+            Email("john.doe@example.com"),
+            PlainPassword("password123")
+        )
         every { userRepository.findById(userId) } returns user
         every { userRepository.notExists(userId) } returns false
         // Act
@@ -40,7 +45,9 @@ class ReadUserUseCaseTest {
         val reading = UserReading(testAdministratorActor, invalidUserId)
         val thrown = catchThrowable { readUserUseCase.unfold(reading) }
         // Assert
-        assertThat(thrown).hasCauseInstanceOf(InvalidUserIdException::class.java).hasMessage("User ID @ is invalid.")
+        assertThat(thrown)
+            .hasCauseInstanceOf(InvalidUserIdException::class.java)
+            .hasMessage("User ID @ is invalid.")
         verify(exactly = 0) { userRepository.exists(invalidUserId) }
     }
 
@@ -51,7 +58,9 @@ class ReadUserUseCaseTest {
         // Act
         val thrown = catchThrowable { readUserUseCase.unfold(UserReading(testAdministratorActor, userId)) }
         // Assert
-        assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java).hasMessage("User with ID 123 does not exist.")
+        assertThat(thrown)
+            .hasCauseInstanceOf(UserNotFoundException::class.java)
+            .hasMessage("User with ID 123 does not exist.")
     }
 
     @Test

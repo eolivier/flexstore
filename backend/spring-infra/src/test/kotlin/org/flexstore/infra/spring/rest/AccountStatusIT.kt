@@ -40,7 +40,13 @@ class AccountStatusIT {
 
     @BeforeEach
     fun createCustomer() {
-        userRepository.save(User.DefinedUser(UserId.ValidUserId(CUSTOMER_ID), FullName(FirstName("Jane"), LastName("Doe")), Email(CUSTOMER_EMAIL), PlainPassword("password123")))
+        userRepository.save(
+            User.DefinedUser(
+                UserId.ValidUserId(CUSTOMER_ID), FullName(FirstName("Jane"), LastName("Doe")), Email(
+                    CUSTOMER_EMAIL
+                ), PlainPassword("password123")
+            )
+        )
     }
 
     @AfterEach
@@ -49,11 +55,16 @@ class AccountStatusIT {
     }
 
     private fun changeStatus(status: String, userId: String = CUSTOMER_ID) = mockMvc.perform(
-        put("/api/users/$userId/status").with(asAdmin()).contentType(MediaType.APPLICATION_JSON).content("""{"status": "$status"}""")
+        put("/api/users/$userId/status")
+            .with(asAdmin())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("""{"status": "$status"}""")
     )
 
     private fun signIn() = mockMvc.perform(
-        post("/api/users/login").contentType(MediaType.APPLICATION_JSON).content("""{"email": "$CUSTOMER_EMAIL", "password": "password123"}""")
+        post("/api/users/login")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("""{"email": "$CUSTOMER_EMAIL", "password": "password123"}""")
     )
 
     private fun signInWith(password: String) = mockMvc.perform(
@@ -102,7 +113,9 @@ class AccountStatusIT {
         // Arrange
         changeStatus("SUSPENDED").andExpect(status().isOk)
         // Act
-        val response = mockMvc.perform(post("/api/orders").withHomeAddresses(mockMvc.currentTermsOfSaleId()).with(asUser(CUSTOMER_ID)))
+        val response = mockMvc.perform(post("/api/orders")
+            .withHomeAddresses(mockMvc.currentTermsOfSaleId())
+            .with(asUser(CUSTOMER_ID)))
         // Assert
         response.andExpect(status().isUnauthorized)
     }
@@ -128,7 +141,10 @@ class AccountStatusIT {
     fun `a user without the admin role should not change a status`() {
         // Act
         val response = mockMvc.perform(
-            put("/api/users/$CUSTOMER_ID/status").with(asUser(CUSTOMER_ID)).contentType(MediaType.APPLICATION_JSON).content("""{"status": "ACTIVE"}""")
+            put("/api/users/$CUSTOMER_ID/status")
+                .with(asUser(CUSTOMER_ID))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"status": "ACTIVE"}""")
         )
         // Assert
         response.andExpect(status().isForbidden)

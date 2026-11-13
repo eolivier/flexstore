@@ -22,7 +22,9 @@ class CustomerRegistrationServiceTest : WithAssertions {
     private val verifyEmailUseCase = VerifyEmailUseCase(userRepository, emailRepository)
     private val service = CustomerRegistrationService(
         RegisterCustomerUseCase(userRepository),
-        SendVerificationEmailUseCase(userRepository, emailRepository, VerificationPage("https://shop.example/verify-email")),
+        SendVerificationEmailUseCase(
+            userRepository, emailRepository, VerificationPage("https://shop.example/verify-email")
+        ),
         verifyEmailUseCase,
         ReadAccountUseCase(userRepository)
     )

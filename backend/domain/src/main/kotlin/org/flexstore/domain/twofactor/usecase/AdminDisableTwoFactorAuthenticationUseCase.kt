@@ -40,7 +40,9 @@ class AdminDisableTwoFactorAuthenticationUseCase(private val userRepository: Use
     // The editor, resolved before the use case runs, must be an Admin
     private fun editorIsAdministratorCondition() = PreCondition<AdminTwoFactorDisabling> { disabling ->
         if (disabling.editor.isNotAdmin()) {
-            val message = ErrorMessage("Only an administrator can disable the two-factor authentication of a user.")
+            val message = ErrorMessage(
+                "Only an administrator can disable the two-factor authentication of a user."
+            )
             throw TwoFactorAuthenticationForbiddenException(message)
         }
     }

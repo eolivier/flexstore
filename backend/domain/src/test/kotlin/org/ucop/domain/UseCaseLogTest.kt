@@ -50,7 +50,8 @@ class UseCaseLogTest {
         val (level, message) = loggedLine()
         assertThat(thrown).isInstanceOf(NominalException::class.java)
         assertThat(level).isEqualTo(Level.WARN)
-        assertThat(message).matches("SampleUseCase: refused \\(NominalException: The cart is empty\\.\\) \\(\\d+ ms\\)")
+        assertThat(message)
+            .matches("SampleUseCase: refused \\(NominalException: The cart is empty\\.\\) \\(\\d+ ms\\)")
     }
 
     @Test

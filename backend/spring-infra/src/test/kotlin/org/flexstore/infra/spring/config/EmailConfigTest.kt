@@ -15,7 +15,9 @@ class EmailConfigTest {
     private val contextRunner = ApplicationContextRunner()
         .withConfiguration(AutoConfigurations.of(MailSenderAutoConfiguration::class.java))
         .withUserConfiguration(ShopConfig::class.java, EmailConfig::class.java)
-        .withPropertyValues("flexstore.mail.from=Flexstore <no-reply@flexstore.com>", "flexstore.front-url=http://localhost:5173")
+        .withPropertyValues(
+            "flexstore.mail.from=Flexstore <no-reply@flexstore.com>", "flexstore.front-url=http://localhost:5173"
+        )
 
     @ParameterizedTest(name = "spring.mail.host = \"{0}\" -> {1}")
     @CsvSource("smtp-relay.example.com, SMTP", "'', logs", "'  ', logs")
@@ -24,7 +26,9 @@ class EmailConfigTest {
         expected: String
     ) {
         // Arrange
-        val expectedAdapter = if (expected == "SMTP") SmtpEmailSender::class.java else LoggingEmailSender::class.java
+        val expectedAdapter = if (
+            expected == "SMTP"
+        ) SmtpEmailSender::class.java else LoggingEmailSender::class.java
         // Act
         contextRunner.withPropertyValues("spring.mail.host=$host").run { context ->
             // Assert

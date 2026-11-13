@@ -13,7 +13,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 // refused, is turned into an anonymous request before the routes are authorized
 const val EXISTING_CUSTOMER_ID = "it-existing-customer"
 
-private const val INSERT_CUSTOMER = """INSERT INTO "user" (id, first_name, last_name, email, password, role, status)
+private const val INSERT_CUSTOMER = """INSERT INTO "user"
+    (id, first_name, last_name, email, password, role, status)
     VALUES (?, 'Jane', 'Doe', 'it-existing-customer@example.com', 'not-used', 'USER', 'ACTIVE')"""
 private const val DELETE_CUSTOMER = """DELETE FROM "user" WHERE id = ?"""
 

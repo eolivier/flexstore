@@ -22,7 +22,9 @@ class ListProductsWithImageUseCase(
     // The reader, resolved before the use case runs, is a visitor or higher, or the system
     private fun readerCanReadCondition() = PreCondition<Actor> { reader ->
         if (reader.isNotAtLeastVisitor()) {
-            val message = ErrorMessage("The reader must be at least a visitor to read the products that have an image.")
+            val message = ErrorMessage(
+                "The reader must be at least a visitor to read the products that have an image."
+            )
             throw ProductImageReadingForbiddenException(message)
         }
     }

@@ -208,14 +208,18 @@ class ReviewIT {
             post("/api/cart/save").with(asUser(CUSTOMER_ID)).contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(item))
         ).andExpect(status().isOk)
-        val placed = mockMvc.perform(post("/api/orders").with(asUser(CUSTOMER_ID)).withHomeAddresses(mockMvc.currentTermsOfSaleId()))
+        val placed = mockMvc.perform(post("/api/orders")
+            .with(asUser(CUSTOMER_ID))
+            .withHomeAddresses(mockMvc.currentTermsOfSaleId()))
             .andExpect(status().isCreated).andReturn()
         val orderId = objectMapper.readTree(placed.response.contentAsString).get("id").asText()
         mockMvc.pay(orderId, CUSTOMER_ID).andExpect(status().isCreated)
     }
 
     private fun review(rating: Int, comment: String) = mockMvc.perform(
-        post("/api/products/$PRODUCT_ID/reviews").with(asUser(CUSTOMER_ID)).contentType(MediaType.APPLICATION_JSON)
+        post("/api/products/$PRODUCT_ID/reviews")
+            .with(asUser(CUSTOMER_ID))
+            .contentType(MediaType.APPLICATION_JSON)
             .content("""{"rating": $rating, "comment": "$comment"}""")
     )
 }

@@ -50,7 +50,9 @@ class RefundOrderUseCase(
     // The editor must be an existing user with the ADMIN role (read from the users, not from the request)
     private fun editorIsAdministratorCondition() = PreCondition<OrderRefund> { request ->
         if (userRepository.isNotAdministrator(request.editor)) {
-            throw OrderAdministrationForbiddenException(ErrorMessage("Only an administrator can cancel and refund an order."))
+            throw OrderAdministrationForbiddenException(
+                ErrorMessage("Only an administrator can cancel and refund an order.")
+            )
         }
     }
 

@@ -25,7 +25,9 @@ class ProposeSkuUseCase(
     // The requester, resolved before the use case runs, must be an Admin
     private fun requesterIsAdministratorCondition() = PreCondition<SkuProposalRequest> { request ->
         if (request.requester.isNotAdmin()) {
-            throw ProductAdministrationForbiddenException(ErrorMessage("Only an administrator can ask for a SKU."))
+            throw ProductAdministrationForbiddenException(
+                ErrorMessage("Only an administrator can ask for a SKU.")
+            )
         }
     }
 

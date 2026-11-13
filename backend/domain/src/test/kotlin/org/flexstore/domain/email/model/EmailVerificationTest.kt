@@ -16,7 +16,13 @@ class EmailVerificationTest : WithAssertions {
     private val userId = UserId.ValidUserId("u-1")
 
     private fun userWith(status: AccountStatus) =
-        User.DefinedUser(userId, FullName(FirstName("Jane"), LastName("Doe")), Email("jane@example.com"), PlainPassword("password"), status = status)
+        User.DefinedUser(
+            userId,
+            FullName(FirstName("Jane"), LastName("Doe")),
+            Email("jane@example.com"),
+            PlainPassword("password"),
+            status = status
+        )
 
     @Test
     fun `a verification link should be valid for 1 hour`() {

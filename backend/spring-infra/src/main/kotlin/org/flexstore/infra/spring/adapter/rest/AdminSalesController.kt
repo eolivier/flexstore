@@ -24,7 +24,9 @@ class AdminSalesController(
     private val actorResolutionService: ActorResolutionService
 ) {
 
-    @Operation(summary = "Retrieve the revenue, the orders per day and the best sellers of the last 7, 30 or 90 days")
+    @Operation(
+        summary = "Retrieve the revenue, the orders per day and the best sellers of the last 7, 30 or 90 days"
+    )
     @GetMapping
     fun getSalesDashboard(
         @AuthenticationPrincipal reader: Jwt,

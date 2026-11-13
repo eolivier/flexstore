@@ -21,7 +21,9 @@ class CookieConsentController(private val cookieConsentUseCases: CookieConsentUs
     fun getCookieConsent(@AuthenticationPrincipal customer: Jwt): JsonCookieConsent =
         JsonCookieConsent.of(cookieConsentUseCases.consentOf(UserId.of(customer.subject)))
 
-    @Operation(summary = "Record the choice of the signed-in customer about the preference cookies, for 6 months")
+    @Operation(
+        summary = "Record the choice of the signed-in customer about the preference cookies, for 6 months"
+    )
     @PutMapping("/api/cookie-consent")
     fun recordCookieConsent(
         @AuthenticationPrincipal customer: Jwt,

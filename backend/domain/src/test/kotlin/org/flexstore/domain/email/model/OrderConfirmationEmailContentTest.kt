@@ -25,7 +25,9 @@ class OrderConfirmationEmailContentTest : WithAssertions {
         val delivery = OrderDelivery(homeOrderAddresses, shippingMethod)
         val orderPlacement = OrderPlacement(orderStamp, Checkout(customer, delivery, acceptedTermsOfSale))
         val order = Order.place(orderPlacement, Cart(customer).add(deskLamp, Quantity(quantity)))
-        return OrderConfirmationEmailContent(OrderConfirmationEmail(Email("jane@example.com"), janeDoe, order), shopUrl)
+        return OrderConfirmationEmailContent(
+            OrderConfirmationEmail(Email("jane@example.com"), janeDoe, order), shopUrl
+        )
     }
 
     @Test

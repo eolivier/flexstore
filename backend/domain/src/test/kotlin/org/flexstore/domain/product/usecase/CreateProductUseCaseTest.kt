@@ -35,7 +35,9 @@ class CreateProductUseCaseTest : WithAssertions {
     )
     private val lampPrice = Price(Amount(BigDecimal(35)), Currency.EUR)
     private val lampSku = Sku("LAMP-DESK")
-    private val lamp = DraftProduct(lampSku, Name("Desk lamp"), Description("Warm light"), Category.HOME, lampPrice)
+    private val lamp = DraftProduct(
+        lampSku, Name("Desk lamp"), Description("Warm light"), Category.HOME, lampPrice
+    )
     private val mugPrice = Price(Amount(BigDecimal(12)), Currency.EUR)
     private val mugSku = Sku("MUG-CERAMIC")
     private val mug = DraftProduct(mugSku, Name("Mug"), Description("Ceramic"), Category.HOME, mugPrice)

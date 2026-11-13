@@ -14,7 +14,9 @@ class RequestPasswordResetUseCaseTest : WithAssertions {
     private val requestedAt = Instant.parse("2026-10-25T10:00:00Z")
     private val email = Email("jane@example.com")
     private val user = User.DefinedUser(
-        UserId.ValidUserId("jane"), FullName(FirstName("Jane"), LastName("Doe")), email, PlainPassword("password123")
+        UserId.ValidUserId(
+            "jane"
+        ), FullName(FirstName("Jane"), LastName("Doe")), email, PlainPassword("password123")
     )
     private val userRepository = InMemoryUserRepository().apply { save(user) }
     private val passwordResetRepository = InMemoryPasswordResetRepository()

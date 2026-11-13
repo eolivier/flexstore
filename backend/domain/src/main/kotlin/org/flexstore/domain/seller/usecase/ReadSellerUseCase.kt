@@ -33,7 +33,9 @@ class ReadSellerUseCase(
     // The reader, resolved before the use case runs, is a visitor or higher, or the system
     private fun readerCanReadCondition() = PreCondition<SellerVersionReading> { reading ->
         if (reading.reader.isNotAtLeastVisitor()) {
-            val message = ErrorMessage("The reader must be at least a visitor to read the versions of the seller.")
+            val message = ErrorMessage(
+                "The reader must be at least a visitor to read the versions of the seller."
+            )
             throw SellerReadingForbiddenException(message)
         }
     }

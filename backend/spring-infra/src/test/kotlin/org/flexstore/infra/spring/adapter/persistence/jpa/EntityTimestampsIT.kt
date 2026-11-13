@@ -49,7 +49,8 @@ class EntityTimestampsIT {
     fun `every entity should have a creation date and a last update date`() {
         // Act
         val entitiesWithoutDates = entityManager.metamodel.entities
-            .filterNot { entity -> entity.attributes.map { it.name }.containsAll(listOf("createdAt", "updatedAt")) }
+            .filterNot { entity -> entity.attributes.map { it.name }
+                .containsAll(listOf("createdAt", "updatedAt")) }
             .map { it.name }
         // Assert
         assertThat(entityManager.metamodel.entities).isNotEmpty

@@ -137,7 +137,9 @@ class UnpaidOrderServiceTest : WithAssertions {
         // Arrange
         placeOrder()
         // Act
-        cancelUnpaidOrderUseCase.unfold(cancellationBy(Admin(customer.userId, Name("Jane Doe"), AccountStatus.ACTIVE)))
+        cancelUnpaidOrderUseCase.unfold(
+            cancellationBy(Admin(customer.userId, Name("Jane Doe"), AccountStatus.ACTIVE))
+        )
         // Assert
         assertThat(storedStatus()).isEqualTo(OrderStatus.CANCELLED)
     }
@@ -148,7 +150,9 @@ class UnpaidOrderServiceTest : WithAssertions {
         placeOrder()
         // Act
         val thrown = catchThrowable {
-            cancelUnpaidOrderUseCase.unfold(cancellationBy(Customer(customer.userId, Name("Jane Doe"), AccountStatus.ACTIVE)))
+            cancelUnpaidOrderUseCase.unfold(
+                cancellationBy(Customer(customer.userId, Name("Jane Doe"), AccountStatus.ACTIVE))
+            )
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(UnpaidOrderForbiddenException::class.java)

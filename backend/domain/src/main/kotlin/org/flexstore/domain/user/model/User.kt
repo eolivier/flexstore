@@ -135,7 +135,8 @@ enum class Role {
         // The role given by name; a user without a given role is a USER
         fun fromName(name: String?): Role =
             if (name.isNullOrBlank()) USER
-            else entries.find { it.name == name } ?: throw InvalidRoleException(ErrorMessage("Unknown role: $name"))
+            else entries.find { it.name == name }
+                ?: throw InvalidRoleException(ErrorMessage("Unknown role: $name"))
     }
 }
 

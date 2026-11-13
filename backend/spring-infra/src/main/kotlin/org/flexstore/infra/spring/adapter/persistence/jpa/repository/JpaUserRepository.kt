@@ -134,7 +134,9 @@ class PostgresUserRepositoryAdapter(
 
     override fun findByEmail(email: Email): User {
         val entity = jpaRepo.findByEmail(email.value)
-        return entity?.toDomain() ?: User.UndefinedUser(UserId.InvalidUserId(""), "User not found with email ${email.value}")
+        return entity?.toDomain() ?: User.UndefinedUser(
+            UserId.InvalidUserId(""), "User not found with email ${email.value}"
+        )
     }
 
     override fun findAll(): List<User> = jpaRepo.findAll().map { it.toDomain() }

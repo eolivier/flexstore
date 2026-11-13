@@ -23,7 +23,9 @@ class JavaImageResizerRepository : ImageResizerRepository {
 
     override fun resize(content: ImageContent, format: ImageFormat): ImageContent {
         val image = ImageIO.read(ByteArrayInputStream(content.bytes.value))
-            ?: throw UnreadableImageException(ErrorMessage("The image cannot be read: JPEG, PNG or WebP expected."))
+            ?: throw UnreadableImageException(
+                ErrorMessage("The image cannot be read: JPEG, PNG or WebP expected."),
+            )
         var side = minOf(format.maxSide, maxOf(image.width, image.height))
         while (true) {
             val scaledImage = scaled(image, side)

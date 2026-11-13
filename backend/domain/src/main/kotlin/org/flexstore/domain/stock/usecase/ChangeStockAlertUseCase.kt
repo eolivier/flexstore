@@ -50,7 +50,9 @@ class ChangeStockAlertUseCase(
     private fun stockAlertIsStoredCondition() = PostCondition<StockAlertChange> { change ->
         val stockAlert = change.stockAlert
         if (stockRepository.alertOf(stockAlert.productId) != stockAlert) {
-            val message = ErrorMessage("The alert threshold of ${stockAlert.productId.id.value} was not changed.")
+            val message = ErrorMessage(
+                "The alert threshold of ${stockAlert.productId.id.value} was not changed."
+            )
             throw StockAlertChangeFailed(message)
         }
     }

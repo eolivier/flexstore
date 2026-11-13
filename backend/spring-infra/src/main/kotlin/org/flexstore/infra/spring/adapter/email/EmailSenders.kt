@@ -34,8 +34,16 @@ class SmtpEmailSender(
         val content = OrderConfirmationEmailContent(email, shopUrl)
         val orderNumber = email.order.number()
         runCatching { mailSender.send(message(email.recipient, content)) }
-            .onSuccess { logger.info("Order confirmation email of order {} sent to {}", orderNumber, email.recipient.value) }
-            .onFailure { logger.error("Order confirmation email of order $orderNumber to ${email.recipient.value} not sent", it) }
+            .onSuccess {
+                logger.info(
+                    "Order confirmation email of order {} sent to {}", orderNumber, email.recipient.value
+                )
+            }
+            .onFailure {
+                logger.error(
+                    "Order confirmation email of order $orderNumber to ${email.recipient.value} not sent", it
+                )
+            }
     }
 
     override fun send(email: OrderStatusEmail) {

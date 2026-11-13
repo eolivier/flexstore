@@ -30,7 +30,9 @@ class LegalPageController(
     private val actorResolutionService: ActorResolutionService
 ) {
 
-    @Operation(summary = "Retrieve the current version of a legal page: legal-notice, terms-of-sale or privacy-policy")
+    @Operation(
+        summary = "Retrieve the current version of a legal page: legal-notice, terms-of-sale or privacy-policy"
+    )
     @GetMapping("/{kind}")
     fun getLegalPage(@PathVariable kind: String): ResponseEntity<JsonLegalPage> {
         val legalPageKind = legalPageKinds[kind] ?: return ResponseEntity.notFound().build()

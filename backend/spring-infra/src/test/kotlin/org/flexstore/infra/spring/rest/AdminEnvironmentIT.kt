@@ -18,7 +18,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @ExtendWith(ExistingCustomer::class)
 @ActiveProfiles("test")
-@SpringBootTest(properties = ["FLEXSTORE_FRONT_URL=https://shop.example.com", "FLEXSTORE_MAIL_PASSWORD=s3cret-mail"])
+@SpringBootTest(
+    properties = ["FLEXSTORE_FRONT_URL=https://shop.example.com", "FLEXSTORE_MAIL_PASSWORD=s3cret-mail"]
+)
 @AutoConfigureMockMvc
 class AdminEnvironmentIT {
 

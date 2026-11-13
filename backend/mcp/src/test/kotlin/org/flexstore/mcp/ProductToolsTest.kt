@@ -87,7 +87,9 @@ class ProductToolsTest {
         // Act
         val outcome = productTools.call("list_products", arguments("""{"language": "de"}"""))
         // Assert
-        assertThat(outcome).isEqualTo(ToolOutcome.Refused("The language de is not supported: use one of EN, FR."))
+        assertThat(outcome).isEqualTo(
+            ToolOutcome.Refused("The language de is not supported: use one of EN, FR."),
+        )
     }
 
     @Test
@@ -122,6 +124,7 @@ class ProductToolsTest {
         val result = getProduct.callHandler().apply(McpTransportContext.EMPTY, request)
         // Assert
         assertThat(result.isError()).isTrue()
-        assertThat((result.content().single() as TextContent).text()).isEqualTo("The id of the product is required.")
+        assertThat((result.content().single() as TextContent).text())
+            .isEqualTo("The id of the product is required.")
     }
 }

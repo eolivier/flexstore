@@ -45,7 +45,9 @@ class AdminShopPageContentController(
     private val actorResolutionService: ActorResolutionService
 ) {
 
-    @Operation(summary = "Edit the content of a type: meta-key-words, google-analytics-id or meta-shop-description")
+    @Operation(
+        summary = "Edit the content of a type: meta-key-words, google-analytics-id or meta-shop-description"
+    )
     @PutMapping("/{type}")
     fun editContent(
         @AuthenticationPrincipal editor: Jwt,

@@ -66,7 +66,9 @@ class OrderIT {
     @BeforeEach
     fun createOtherCustomer() {
         cleanUp()
-        userRepository.save(UserEntity(OTHER_CUSTOMER_ID, "Other", "Customer", "it-order-customer@example.com", "not-used"))
+        userRepository.save(
+            UserEntity(OTHER_CUSTOMER_ID, "Other", "Customer", "it-order-customer@example.com", "not-used")
+        )
     }
 
     @AfterEach
@@ -95,7 +97,9 @@ class OrderIT {
         addToCart(CUSTOMER_ID, productId = "6", quantity = 2)
         addToCart(CUSTOMER_ID, productId = "9", quantity = 1)
         // Act
-        val response = mockMvc.perform(post("/api/orders").withHomeAddresses(mockMvc.currentTermsOfSaleId()).with(asUser(CUSTOMER_ID)))
+        val response = mockMvc.perform(post("/api/orders")
+            .withHomeAddresses(mockMvc.currentTermsOfSaleId())
+            .with(asUser(CUSTOMER_ID)))
         // Assert
         response.andExpect(status().isCreated)
             .andExpect(jsonPath("$.id").isNotEmpty)
@@ -122,7 +126,9 @@ class OrderIT {
         addToCart(CUSTOMER_ID, productId = "1", quantity = 1)
         // Act
         val response = mockMvc.perform(
-            post("/api/orders").withHomeAddressesShipped(shippingMethod, mockMvc.currentTermsOfSaleId()).with(asUser(CUSTOMER_ID))
+            post("/api/orders")
+                .withHomeAddressesShipped(shippingMethod, mockMvc.currentTermsOfSaleId())
+                .with(asUser(CUSTOMER_ID))
         )
         // Assert
         response.andExpect(status().isCreated)
@@ -174,7 +180,9 @@ class OrderIT {
         // Arrange
         addToCart(CUSTOMER_ID, productId = "6", quantity = 1)
         // Act
-        mockMvc.perform(post("/api/orders").withHomeAddresses(mockMvc.currentTermsOfSaleId()).with(asUser(CUSTOMER_ID))).andExpect(status().isCreated)
+        mockMvc.perform(
+            post("/api/orders").withHomeAddresses(mockMvc.currentTermsOfSaleId()).with(asUser(CUSTOMER_ID))
+        ).andExpect(status().isCreated)
         // Assert
         mockMvc.perform(get("/api/cart/cart-items").with(asUser(CUSTOMER_ID)))
             .andExpect(jsonPath("$.items.length()").value(1))
@@ -231,7 +239,9 @@ class OrderIT {
         // Arrange
         addToCart(CUSTOMER_ID, productId = "6", quantity = 1)
         // Act
-        val response = mockMvc.perform(post("/api/orders").withHomeAddresses(mockMvc.currentTermsOfSaleId()).with(asUser(CUSTOMER_ID)))
+        val response = mockMvc.perform(post("/api/orders")
+            .withHomeAddresses(mockMvc.currentTermsOfSaleId())
+            .with(asUser(CUSTOMER_ID)))
         // Assert
         response.andExpect(status().isCreated)
             .andExpect(jsonPath("$.deliveryAddress.city").value("Paris"))
@@ -251,7 +261,10 @@ class OrderIT {
                 "street": "3 place du Marché", "postalCode": "69001", "city": "Lyon", "country": "France"},
             "termsOfSaleId": "${mockMvc.currentTermsOfSaleId()}"}"""
         val orderId = objectMapper.readTree(
-            mockMvc.perform(post("/api/orders").with(asUser(CUSTOMER_ID)).contentType(MediaType.APPLICATION_JSON).content(addresses))
+            mockMvc.perform(post("/api/orders")
+                .with(asUser(CUSTOMER_ID))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(addresses))
                 .andExpect(status().isCreated).andReturn().response.contentAsString
         )["id"].asText()
         // Act
@@ -272,7 +285,10 @@ class OrderIT {
             "firstName": "Jane", "lastName": "Doe",
             "street": "12 rue des Lilas", "postalCode": "75011", "city": "", "country": "France"}}"""
         // Act
-        val response = mockMvc.perform(post("/api/orders").with(asUser(CUSTOMER_ID)).contentType(MediaType.APPLICATION_JSON).content(addresses))
+        val response = mockMvc.perform(post("/api/orders")
+            .with(asUser(CUSTOMER_ID))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(addresses))
         // Assert
         response.andExpect(status().isBadRequest).andExpect(jsonPath("$.reason").value("INCOMPLETE_ADDRESS"))
     }
@@ -282,7 +298,8 @@ class OrderIT {
         // Arrange
         addToCart(CUSTOMER_ID, productId = "6", quantity = 1)
         val addresses = """{"deliveryAddress": {"recipientType": "PRIVATE_INDIVIDUAL",
-            "firstName": "Jane", "lastName": "Doe", "postalCode": "75011", "city": "Paris", "country": "France"}}"""
+            "firstName": "Jane", "lastName": "Doe", "postalCode": "75011", "city": "Paris",
+            "country": "France"}}"""
         val request = post("/api/orders").with(asUser(CUSTOMER_ID)).contentType(MediaType.APPLICATION_JSON)
         // Act
         val response = mockMvc.perform(request.content(addresses))
@@ -298,7 +315,9 @@ class OrderIT {
         addToCart(CUSTOMER_ID, productId = "6", quantity = 1)
         val termsOfSaleId = mockMvc.currentTermsOfSaleId()
         // Act
-        val body = mockMvc.perform(post("/api/orders").withHomeAddresses(termsOfSaleId).with(asUser(CUSTOMER_ID)))
+        val body = mockMvc.perform(post("/api/orders")
+            .withHomeAddresses(termsOfSaleId)
+            .with(asUser(CUSTOMER_ID)))
             .andExpect(status().isCreated).andReturn().response.contentAsString
         // Assert
         val orderId = objectMapper.readTree(body)["id"].asText()
@@ -316,7 +335,8 @@ class OrderIT {
         // Act
         val response = mockMvc.perform(request.content(HOME_ADDRESSES))
         // Assert
-        response.andExpect(status().isBadRequest).andExpect(jsonPath("$.reason").value("TERMS_OF_SALE_NOT_ACCEPTED"))
+        response.andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.reason").value("TERMS_OF_SALE_NOT_ACCEPTED"))
     }
 
     @Test
@@ -333,7 +353,9 @@ class OrderIT {
     @Test
     fun `should not place an order from an empty cart`() {
         // Act
-        val response = mockMvc.perform(post("/api/orders").withHomeAddresses(mockMvc.currentTermsOfSaleId()).with(asUser(CUSTOMER_ID)))
+        val response = mockMvc.perform(post("/api/orders")
+            .withHomeAddresses(mockMvc.currentTermsOfSaleId())
+            .with(asUser(CUSTOMER_ID)))
         // Assert
         response.andExpect(status().isUnprocessableEntity)
     }
@@ -382,7 +404,9 @@ class OrderIT {
 
     private fun placeOrder(customerId: String, productId: String): String {
         addToCart(customerId, productId, quantity = 1)
-        val body = mockMvc.perform(post("/api/orders").withHomeAddresses(mockMvc.currentTermsOfSaleId()).with(asUser(customerId)))
+        val body = mockMvc.perform(post("/api/orders")
+            .withHomeAddresses(mockMvc.currentTermsOfSaleId())
+            .with(asUser(customerId)))
             .andExpect(status().isCreated).andReturn().response.contentAsString
         return objectMapper.readTree(body)["id"].asText()
     }
@@ -395,7 +419,10 @@ class OrderIT {
         val newestId = placeOrder(CUSTOMER_ID, productId = "4")
         // Act
         val firstPage = mockMvc.perform(get("/api/orders").param("size", "2").with(asUser(CUSTOMER_ID)))
-        val secondPage = mockMvc.perform(get("/api/orders").param("page", "1").param("size", "2").with(asUser(CUSTOMER_ID)))
+        val secondPage = mockMvc.perform(get("/api/orders")
+            .param("page", "1")
+            .param("size", "2")
+            .with(asUser(CUSTOMER_ID)))
         // Assert
         firstPage.andExpect(status().isOk)
             .andExpect(header().string("X-Total-Count", "3"))

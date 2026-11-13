@@ -32,7 +32,9 @@ class UpdateProductUseCase(
     // The editor, resolved before the use case runs, must be an Admin
     private fun editorIsAdministratorCondition() = PreCondition<UpdateProductRequest> { request ->
         if (request.editor.isNotAdmin()) {
-            throw ProductAdministrationForbiddenException(ErrorMessage("Only an administrator can change a product."))
+            throw ProductAdministrationForbiddenException(
+                ErrorMessage("Only an administrator can change a product.")
+            )
         }
     }
 

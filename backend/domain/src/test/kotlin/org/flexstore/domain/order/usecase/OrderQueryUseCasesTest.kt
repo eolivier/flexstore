@@ -21,7 +21,9 @@ import java.time.Instant
 
 class OrderQueryUseCasesTest : WithAssertions {
 
-    private val deskLamp = DefinedProduct(ProductId(Identity("desk-lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR))
+    private val deskLamp = DefinedProduct(
+        ProductId(Identity("desk-lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR)
+    )
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val otherCustomer = CartOwner.Customer(UserId.ValidUserId("user-2"))
     private val placedAt = Instant.parse("2026-10-24T10:00:00Z")
@@ -69,7 +71,9 @@ class OrderQueryUseCasesTest : WithAssertions {
         // Arrange
         placeOrder(OrderId("other"), otherCustomer, placedAt)
         // Act
-        val thrown = catchThrowable { readCustomerOrderUseCase.unfold(CustomerOrderLookup(customer.userId, OrderId("other"))) }
+        val thrown = catchThrowable {
+            readCustomerOrderUseCase.unfold(CustomerOrderLookup(customer.userId, OrderId("other")))
+        }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(OrderNotFoundException::class.java)
     }
@@ -77,7 +81,9 @@ class OrderQueryUseCasesTest : WithAssertions {
     @Test
     fun `an unknown order should not be found`() {
         // Act
-        val thrown = catchThrowable { readCustomerOrderUseCase.unfold(CustomerOrderLookup(customer.userId, OrderId("unknown"))) }
+        val thrown = catchThrowable {
+            readCustomerOrderUseCase.unfold(CustomerOrderLookup(customer.userId, OrderId("unknown")))
+        }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(OrderNotFoundException::class.java)
     }
