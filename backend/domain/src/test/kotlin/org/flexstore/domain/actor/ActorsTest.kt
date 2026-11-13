@@ -95,4 +95,12 @@ class ActorsTest : WithAssertions {
         // Assert
         assertThat(canAct).isFalse()
     }
+
+    @Test
+    fun `an actor should be the user of its own account only`() {
+        // Act
+        val adminAccounts = actors.filter { it.isTheUser(ValidUserId("admin-1")) }
+        // Assert
+        assertThat(adminAccounts).containsExactly(admin)
+    }
 }

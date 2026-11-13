@@ -1,5 +1,7 @@
 package org.flexstore.domain.twofactor.usecase
 
+import org.flexstore.domain.actor.isNotAdmin
+import org.flexstore.domain.actor.isTheUser
 import org.flexstore.domain.twofactor.model.InvalidTwoFactorAuthenticationChangeException
 import org.flexstore.domain.twofactor.model.TwoFactorAuthenticationForbiddenException
 import org.flexstore.domain.twofactor.model.TwoFactorAuthenticationNotEnabledException
@@ -14,7 +16,7 @@ import org.ucop.domain.entity.*
 // An administrator (the editor) disables the two-factor authentication of another user, from the user
 // administration screen: no current password is asked, unlike when an administrator removes it from their own
 // account (DisableTwoFactorAuthenticationUseCase)
-data class AdminTwoFactorDisabling(val editor: UserId, val userId: UserId)
+data class AdminTwoFactorDisabling(val editor: Actor, val userId: UserId)
 
 class AdminDisableTwoFactorAuthenticationUseCase(private val userRepository: UserRepository) :
     UseCase<AdminTwoFactorDisabling> {
@@ -35,9 +37,9 @@ class AdminDisableTwoFactorAuthenticationUseCase(private val userRepository: Use
 
     private fun user(userId: UserId) = userRepository.findById(userId) as User.DefinedUser
 
-    // The editor must be an existing user with the ADMIN role (read from the users, not from the request)
+    // The editor, resolved before the use case runs, must be an Admin
     private fun editorIsAdministratorCondition() = PreCondition<AdminTwoFactorDisabling> { disabling ->
-        if (userRepository.isNotAdministrator(disabling.editor)) {
+        if (disabling.editor.isNotAdmin()) {
             val message = ErrorMessage("Only an administrator can disable the two-factor authentication of a user.")
             throw TwoFactorAuthenticationForbiddenException(message)
         }
@@ -52,7 +54,7 @@ class AdminDisableTwoFactorAuthenticationUseCase(private val userRepository: Use
     // An administrator who disables their own two-factor authentication confirms it with their current password,
     // through the dedicated self-service operation, instead of this administration one
     private fun accountIsNotTheEditorsCondition() = PreCondition<AdminTwoFactorDisabling> { disabling ->
-        if (disabling.userId == disabling.editor) {
+        if (disabling.editor.isTheUser(disabling.userId)) {
             val message = ErrorMessage(
                 "An administrator cannot disable the two-factor authentication of their own account this way."
             )

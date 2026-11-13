@@ -1,6 +1,7 @@
 package org.flexstore.domain.twofactor.usecase
 
 import org.assertj.core.api.WithAssertions
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.twofactor.model.TwoFactorAuthenticationNotEnabledException
 import org.flexstore.domain.twofactor.model.TwoFactorAuthentication
 import org.flexstore.domain.twofactor.model.TwoFactorSecret
@@ -14,6 +15,7 @@ class DisableTwoFactorAuthenticationUseCaseTest : WithAssertions {
 
     private val userRepository = InMemoryUserRepository()
     private val useCase = DisableTwoFactorAuthenticationUseCase(userRepository)
+    private val actorResolutionService = ActorResolutionService(userRepository)
     private val password = PlainPassword("admin-password")
     private val administrator = User.DefinedUser(
         UserId.ValidUserId("admin-1"), FullName(FirstName("Admin"), LastName("Flexstore")),
@@ -25,13 +27,15 @@ class DisableTwoFactorAuthenticationUseCaseTest : WithAssertions {
         userRepository.save(administrator)
     }
 
+    private fun actorOf(userId: UserId) = actorResolutionService.actorOf(userId)
+
     private fun storedTwoFactorAuthenticationOf(userId: UserId) =
         (userRepository.findById(userId) as User.DefinedUser).twoFactorAuthentication
 
     @Test
     fun `the current password should disable two-factor authentication`() {
         // Act
-        useCase.unfold(TwoFactorDisabling(administrator.id, password))
+        useCase.unfold(TwoFactorDisabling(actorOf(administrator.id), password))
         // Assert
         assertThat(storedTwoFactorAuthenticationOf(administrator.id)).isEqualTo(TwoFactorAuthentication.Disabled)
     }
@@ -40,7 +44,7 @@ class DisableTwoFactorAuthenticationUseCaseTest : WithAssertions {
     fun `a wrong current password should not disable two-factor authentication`() {
         // Act
         val thrown = catchThrowable {
-            useCase.unfold(TwoFactorDisabling(administrator.id, PlainPassword("wrong-password")))
+            useCase.unfold(TwoFactorDisabling(actorOf(administrator.id), PlainPassword("wrong-password")))
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(InvalidCurrentPasswordException::class.java)
@@ -59,7 +63,7 @@ class DisableTwoFactorAuthenticationUseCaseTest : WithAssertions {
         userRepository.save(other)
         // Act
         val thrown = catchThrowable {
-            useCase.unfold(TwoFactorDisabling(other.id, PlainPassword("other-password")))
+            useCase.unfold(TwoFactorDisabling(actorOf(other.id), PlainPassword("other-password")))
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(TwoFactorAuthenticationNotEnabledException::class.java)
@@ -76,7 +80,7 @@ class DisableTwoFactorAuthenticationUseCaseTest : WithAssertions {
         )
         userRepository.save(jane)
         // Act
-        useCase.unfold(TwoFactorDisabling(jane.id, janePassword))
+        useCase.unfold(TwoFactorDisabling(actorOf(jane.id), janePassword))
         // Assert
         assertThat(storedTwoFactorAuthenticationOf(jane.id)).isEqualTo(TwoFactorAuthentication.Disabled)
     }
@@ -85,7 +89,7 @@ class DisableTwoFactorAuthenticationUseCaseTest : WithAssertions {
     fun `an unknown user should not disable two-factor authentication`() {
         // Act
         val thrown = catchThrowable {
-            useCase.unfold(TwoFactorDisabling(unknownCustomerId, PlainPassword("password123")))
+            useCase.unfold(TwoFactorDisabling(actorOf(unknownCustomerId), PlainPassword("password123")))
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java)

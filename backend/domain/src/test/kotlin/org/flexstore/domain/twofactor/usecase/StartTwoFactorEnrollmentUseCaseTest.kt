@@ -1,6 +1,7 @@
 package org.flexstore.domain.twofactor.usecase
 
 import org.assertj.core.api.WithAssertions
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.twofactor.model.TwoFactorAuthenticationAlreadyEnabledException
 import org.flexstore.domain.twofactor.model.TwoFactorAuthentication
 import org.flexstore.domain.twofactor.model.TwoFactorSecret
@@ -17,6 +18,7 @@ class StartTwoFactorEnrollmentUseCaseTest : WithAssertions {
 
     private val userRepository = InMemoryUserRepository()
     private val useCase = StartTwoFactorEnrollmentUseCase(userRepository)
+    private val actorResolutionService = ActorResolutionService(userRepository)
     private val administrator = User.DefinedUser(
         UserId.ValidUserId("admin-1"), FullName(FirstName("Admin"), LastName("Flexstore")),
         Email("admin@example.com"), PlainPassword("admin-password"), Role.ADMIN
@@ -31,13 +33,15 @@ class StartTwoFactorEnrollmentUseCaseTest : WithAssertions {
         listOf(administrator, jane).forEach { userRepository.save(it) }
     }
 
+    private fun actorOf(userId: UserId) = actorResolutionService.actorOf(userId)
+
     private fun storedTwoFactorAuthenticationOf(userId: UserId) =
         (userRepository.findById(userId) as User.DefinedUser).twoFactorAuthentication
 
     @Test
     fun `an administrator should start an enrollment kept pending until it is confirmed`() {
         // Act
-        useCase.unfold(TwoFactorEnrollmentStart(administrator.id, secret))
+        useCase.unfold(TwoFactorEnrollmentStart(actorOf(administrator.id), secret))
         // Assert
         val expected = TwoFactorAuthentication.PendingConfirmation(secret)
         assertThat(storedTwoFactorAuthenticationOf(administrator.id)).isEqualTo(expected)
@@ -46,7 +50,7 @@ class StartTwoFactorEnrollmentUseCaseTest : WithAssertions {
     @Test
     fun `a customer should start an enrollment kept pending until it is confirmed`() {
         // Act
-        useCase.unfold(TwoFactorEnrollmentStart(jane.id, secret))
+        useCase.unfold(TwoFactorEnrollmentStart(actorOf(jane.id), secret))
         // Assert
         val expected = TwoFactorAuthentication.PendingConfirmation(secret)
         assertThat(storedTwoFactorAuthenticationOf(jane.id)).isEqualTo(expected)
@@ -54,8 +58,10 @@ class StartTwoFactorEnrollmentUseCaseTest : WithAssertions {
 
     @Test
     fun `an unknown user should not start an enrollment`() {
+        // Arrange
+        val enrollmentStart = TwoFactorEnrollmentStart(actorOf(unknownCustomerId), secret)
         // Act
-        val thrown = catchThrowable { useCase.unfold(TwoFactorEnrollmentStart(unknownCustomerId, secret)) }
+        val thrown = catchThrowable { useCase.unfold(enrollmentStart) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java)
     }
@@ -65,8 +71,9 @@ class StartTwoFactorEnrollmentUseCaseTest : WithAssertions {
     fun `a user whose account is refused should not start an enrollment`(status: AccountStatus) {
         // Arrange
         userRepository.save(customerWithStatus(status))
+        val enrollmentStart = TwoFactorEnrollmentStart(actorOf(blockedCustomerId), secret)
         // Act
-        val thrown = catchThrowable { useCase.unfold(TwoFactorEnrollmentStart(blockedCustomerId, secret)) }
+        val thrown = catchThrowable { useCase.unfold(enrollmentStart) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(AccountRefusedException::class.java)
     }
@@ -76,8 +83,9 @@ class StartTwoFactorEnrollmentUseCaseTest : WithAssertions {
         // Arrange
         val enabledAdmin = administrator.withTwoFactorAuthenticationEnabled(secret)
         userRepository.save(enabledAdmin)
+        val enrollmentStart = TwoFactorEnrollmentStart(actorOf(administrator.id), secret)
         // Act
-        val thrown = catchThrowable { useCase.unfold(TwoFactorEnrollmentStart(administrator.id, secret)) }
+        val thrown = catchThrowable { useCase.unfold(enrollmentStart) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(TwoFactorAuthenticationAlreadyEnabledException::class.java)
     }

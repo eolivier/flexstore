@@ -1,6 +1,7 @@
 package org.flexstore.domain.twofactor.usecase
 
 import org.assertj.core.api.WithAssertions
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.twofactor.model.TwoFactorCodeInvalidException
 import org.flexstore.domain.twofactor.model.TwoFactorEnrollmentNotPendingException
 import org.flexstore.domain.twofactor.model.TwoFactorAuthentication
@@ -16,6 +17,7 @@ class ConfirmTwoFactorEnrollmentUseCaseTest : WithAssertions {
 
     private val userRepository = InMemoryUserRepository()
     private val useCase = ConfirmTwoFactorEnrollmentUseCase(userRepository)
+    private val actorResolutionService = ActorResolutionService(userRepository)
     private val administrator = User.DefinedUser(
         UserId.ValidUserId("admin-1"), FullName(FirstName("Admin"), LastName("Flexstore")),
         Email("admin@example.com"), PlainPassword("admin-password"), Role.ADMIN
@@ -26,6 +28,8 @@ class ConfirmTwoFactorEnrollmentUseCaseTest : WithAssertions {
         userRepository.save(administrator.withTwoFactorAuthenticationPending(secret))
     }
 
+    private fun actorOf(userId: UserId) = actorResolutionService.actorOf(userId)
+
     private fun storedTwoFactorAuthenticationOf(userId: UserId) =
         (userRepository.findById(userId) as User.DefinedUser).twoFactorAuthentication
 
@@ -34,7 +38,7 @@ class ConfirmTwoFactorEnrollmentUseCaseTest : WithAssertions {
         // Arrange
         val code = secret.codeAt(Instant.now())
         // Act
-        useCase.unfold(TwoFactorEnrollmentConfirmation(administrator.id, code))
+        useCase.unfold(TwoFactorEnrollmentConfirmation(actorOf(administrator.id), code))
         // Assert
         val expected = TwoFactorAuthentication.Enabled(secret)
         assertThat(storedTwoFactorAuthenticationOf(administrator.id)).isEqualTo(expected)
@@ -44,7 +48,7 @@ class ConfirmTwoFactorEnrollmentUseCaseTest : WithAssertions {
     fun `a wrong code should not enable the pending enrollment`() {
         // Act
         val thrown = catchThrowable {
-            useCase.unfold(TwoFactorEnrollmentConfirmation(administrator.id, TwoFactorCode("000000")))
+            useCase.unfold(TwoFactorEnrollmentConfirmation(actorOf(administrator.id), TwoFactorCode("000000")))
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(TwoFactorCodeInvalidException::class.java)
@@ -63,7 +67,7 @@ class ConfirmTwoFactorEnrollmentUseCaseTest : WithAssertions {
         userRepository.save(other)
         // Act
         val thrown = catchThrowable {
-            useCase.unfold(TwoFactorEnrollmentConfirmation(other.id, secret.codeAt(Instant.now())))
+            useCase.unfold(TwoFactorEnrollmentConfirmation(actorOf(other.id), secret.codeAt(Instant.now())))
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(TwoFactorEnrollmentNotPendingException::class.java)
@@ -78,17 +82,18 @@ class ConfirmTwoFactorEnrollmentUseCaseTest : WithAssertions {
         )
         userRepository.save(jane.withTwoFactorAuthenticationPending(secret))
         // Act
-        useCase.unfold(TwoFactorEnrollmentConfirmation(jane.id, secret.codeAt(Instant.now())))
+        useCase.unfold(TwoFactorEnrollmentConfirmation(actorOf(jane.id), secret.codeAt(Instant.now())))
         // Assert
         assertThat(storedTwoFactorAuthenticationOf(jane.id)).isEqualTo(TwoFactorAuthentication.Enabled(secret))
     }
 
     @Test
     fun `an unknown user should not confirm an enrollment`() {
+        // Arrange
+        val unknownCustomer = actorOf(unknownCustomerId)
+        val confirmation = TwoFactorEnrollmentConfirmation(unknownCustomer, secret.codeAt(Instant.now()))
         // Act
-        val thrown = catchThrowable {
-            useCase.unfold(TwoFactorEnrollmentConfirmation(unknownCustomerId, secret.codeAt(Instant.now())))
-        }
+        val thrown = catchThrowable { useCase.unfold(confirmation) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java)
     }

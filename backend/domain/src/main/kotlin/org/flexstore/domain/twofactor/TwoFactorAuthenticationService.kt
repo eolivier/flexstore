@@ -13,7 +13,9 @@ import org.flexstore.domain.twofactor.usecase.TwoFactorDisabling
 import org.flexstore.domain.twofactor.usecase.TwoFactorEnrollmentConfirmation
 import org.flexstore.domain.twofactor.usecase.TwoFactorEnrollmentStart
 import org.flexstore.domain.user.model.PlainPassword
+import org.flexstore.domain.actor.customerId
 import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.entity.Actor
 import org.flexstore.domain.user.usecase.ReadAccountUseCase
 
 // What a customer or administrator reads once an enrollment started: the secret to type manually, and the
@@ -30,19 +32,19 @@ class TwoFactorAuthenticationService(
     private val disableTwoFactorAuthenticationUseCase: DisableTwoFactorAuthenticationUseCase,
     private val adminDisableTwoFactorAuthenticationUseCase: AdminDisableTwoFactorAuthenticationUseCase
 ) {
-    fun startEnrollment(userId: UserId): TwoFactorEnrollment {
+    fun startEnrollment(customer: Actor): TwoFactorEnrollment {
         val secret = TwoFactorSecret.next()
-        startTwoFactorEnrollmentUseCase.unfold(TwoFactorEnrollmentStart(userId, secret))
-        val accountName = readAccountUseCase.unfold(userId).email
+        startTwoFactorEnrollmentUseCase.unfold(TwoFactorEnrollmentStart(customer, secret))
+        val accountName = readAccountUseCase.unfold(customer.customerId()).email
         return TwoFactorEnrollment(secret, secret.provisioningUri(accountName, TwoFactorIssuer.flexstore()))
     }
 
-    fun confirmEnrollment(userId: UserId, code: TwoFactorCode) =
-        confirmTwoFactorEnrollmentUseCase.unfold(TwoFactorEnrollmentConfirmation(userId, code))
+    fun confirmEnrollment(customer: Actor, code: TwoFactorCode) =
+        confirmTwoFactorEnrollmentUseCase.unfold(TwoFactorEnrollmentConfirmation(customer, code))
 
-    fun disable(userId: UserId, currentPassword: PlainPassword) =
-        disableTwoFactorAuthenticationUseCase.unfold(TwoFactorDisabling(userId, currentPassword))
+    fun disable(customer: Actor, currentPassword: PlainPassword) =
+        disableTwoFactorAuthenticationUseCase.unfold(TwoFactorDisabling(customer, currentPassword))
 
-    fun disableForUser(editor: UserId, userId: UserId) =
+    fun disableForUser(editor: Actor, userId: UserId) =
         adminDisableTwoFactorAuthenticationUseCase.unfold(AdminTwoFactorDisabling(editor, userId))
 }

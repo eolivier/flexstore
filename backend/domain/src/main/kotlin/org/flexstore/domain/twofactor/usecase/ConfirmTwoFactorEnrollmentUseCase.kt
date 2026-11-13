@@ -1,6 +1,8 @@
 package org.flexstore.domain.twofactor.usecase
 
 import org.flexstore.domain.sharedkernel.InstantProvider
+import org.flexstore.domain.actor.customerId
+import org.flexstore.domain.actor.verifyCanAct
 import org.flexstore.domain.twofactor.model.TwoFactorCodeInvalidException
 import org.flexstore.domain.twofactor.model.TwoFactorEnrollmentNotPendingException
 import org.flexstore.domain.twofactor.model.TwoFactorAuthentication
@@ -11,7 +13,10 @@ import org.flexstore.domain.user.model.UserId
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
-data class TwoFactorEnrollmentConfirmation(val userId: UserId, val code: TwoFactorCode)
+data class TwoFactorEnrollmentConfirmation(val customer: Actor, val code: TwoFactorCode) {
+
+    fun userId() = customer.customerId()
+}
 
 // The customer or administrator confirms their pending enrollment with the first code of their authenticator
 // app: only then does two-factor authentication become active
@@ -26,7 +31,7 @@ class ConfirmTwoFactorEnrollmentUseCase(private val userRepository: UserReposito
 
     override fun getNominalScenario(): NominalScenario<TwoFactorEnrollmentConfirmation> =
         NominalScenario(Step { confirmation ->
-            val user = definedUser(confirmation.userId)
+            val user = definedUser(confirmation.userId())
             val pending = user.twoFactorAuthentication as TwoFactorAuthentication.PendingConfirmation
             userRepository.save(user.withTwoFactorAuthenticationEnabled(pending.secret))
         })
@@ -43,18 +48,17 @@ class ConfirmTwoFactorEnrollmentUseCase(private val userRepository: UserReposito
         return twoFactorAuthentication
     }
 
-    // The user must be an existing user whose account is not suspended, locked or disabled (read from the
-    // users, not from the request)
+    // The customer, resolved before the use case runs, must be a customer or an admin who can act
     private fun customerCanActCondition() = PreCondition<TwoFactorEnrollmentConfirmation> { confirmation ->
-        userRepository.verifyCustomerCanAct(confirmation.userId)
+        confirmation.customer.verifyCanAct()
     }
 
     private fun enrollmentIsPendingCondition() = PreCondition<TwoFactorEnrollmentConfirmation> { confirmation ->
-        pendingEnrollmentOf(confirmation.userId)
+        pendingEnrollmentOf(confirmation.userId())
     }
 
     private fun codeMatchesCondition() = PreCondition<TwoFactorEnrollmentConfirmation> { confirmation ->
-        val pending = pendingEnrollmentOf(confirmation.userId)
+        val pending = pendingEnrollmentOf(confirmation.userId())
         if (pending.secret.doesNotMatch(confirmation.code, InstantProvider.now())) {
             throw TwoFactorCodeInvalidException(ErrorMessage("The two-factor code is wrong."))
         }
