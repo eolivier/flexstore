@@ -92,7 +92,7 @@ The cart rules live in the `Cart` aggregate (domain); the use cases (`AddItemToC
 ```
 backend/
   domain/         # Entities, value objects, use cases, ports, errors
-  infra/          # Infrastructure not linked to a framework (in-memory repositories, not used by the app)
+  infra/          # Infrastructure not linked to a framework (in-memory repositories; only the two-factor challenges one is used by the app)
   spring-infra/   # Spring adapters (REST controllers, JPA), OpenAPI spec
   migrations/     # Flyway SQL migrations
   mcp/            # MCP server that exposes the products to AI assistants (calls the use cases of the domain)
