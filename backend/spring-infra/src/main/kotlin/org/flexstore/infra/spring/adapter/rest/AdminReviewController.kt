@@ -2,6 +2,7 @@ package org.flexstore.infra.spring.adapter.rest
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.review.ReviewId
 import org.flexstore.domain.review.usecase.ReviewUseCases
 import org.springframework.http.HttpStatus
@@ -15,11 +16,16 @@ import org.springframework.security.oauth2.jwt.Jwt
 @Tag(name = "Administration")
 @RestController
 @RequestMapping("/api/admin/reviews")
-class AdminReviewController(private val reviewUseCases: ReviewUseCases) {
+class AdminReviewController(
+    private val reviewUseCases: ReviewUseCases,
+    private val actorResolutionService: ActorResolutionService
+) {
 
     @Operation(summary = "Delete a review: the rating of its product no longer counts it")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun deleteReview(@AuthenticationPrincipal editor: Jwt, @PathVariable id: String) =
-        reviewUseCases.delete(UserId.of(editor.subject), ReviewId(id))
+    fun deleteReview(@AuthenticationPrincipal editor: Jwt, @PathVariable id: String) {
+        val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
+        reviewUseCases.delete(actor, ReviewId(id))
+    }
 }

@@ -9,9 +9,8 @@ import org.flexstore.infra.repository.InMemoryReviewRepository
 import org.junit.jupiter.api.Test
 import java.time.Instant
 import org.flexstore.domain.user.*
-import org.flexstore.domain.user.administration.testAdministrator
-import org.flexstore.domain.user.administration.testCustomer
-import org.flexstore.domain.user.administration.usersOfTheAdministration
+import org.flexstore.domain.actor.testAdministratorActor
+import org.flexstore.domain.actor.testCustomerActor
 
 class DeleteReviewUseCaseTest : WithAssertions {
 
@@ -23,9 +22,8 @@ class DeleteReviewUseCaseTest : WithAssertions {
         val subject = ReviewSubject(lamp, Reviewer(customer, ReviewerName("Marie D.")))
         save(Review(stamp, subject, Opinion(Rating(1), ReviewComment("Spam"))))
     }
-    private val userRepository = usersOfTheAdministration()
-    private val administrator = testAdministrator.id
-    private val useCase = DeleteReviewUseCase(reviewRepository, userRepository)
+    private val administrator = testAdministratorActor
+    private val useCase = DeleteReviewUseCase(reviewRepository)
 
     @Test
     fun `an administrator should delete a review, which the rating of the product no longer counts`() {
@@ -54,7 +52,7 @@ class DeleteReviewUseCaseTest : WithAssertions {
     @Test
     fun `a customer should not delete a review`() {
         // Act
-        val thrown = catchThrowable { useCase.unfold(ReviewDeletion(testCustomer.id, reviewId)) }
+        val thrown = catchThrowable { useCase.unfold(ReviewDeletion(testCustomerActor, reviewId)) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(ReviewModerationForbiddenException::class.java)
         assertThat(reviewRepository.reviewExists(reviewId)).isTrue()

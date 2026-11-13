@@ -1,5 +1,6 @@
 package org.flexstore.domain.review.usecase
 
+import org.flexstore.domain.actor.verifyCanAct
 import org.flexstore.domain.order.OrderRepository
 import org.flexstore.domain.product.*
 import org.flexstore.domain.product.model.*
@@ -29,21 +30,21 @@ class AddReviewUseCase(
 
     private fun reviewOf(submission: ReviewSubmission): Review {
         val draft = submission.draft
-        val reviewer = Reviewer(draft.customer, reviewerNameOf(draft))
+        val reviewer = Reviewer(draft.customerId(), reviewerNameOf(draft))
         return Review(submission.stamp, ReviewSubject(draft.productOpinion.productId, reviewer),
             draft.productOpinion.opinion)
     }
 
     private fun reviewerNameOf(draft: ReviewDraft): ReviewerName =
-        when (val user = userRepository.findById(draft.customer)) {
+        when (val user = userRepository.findById(draft.customerId())) {
             is User.DefinedUser -> ReviewerName.of(user.fullName)
             else -> ReviewerName.of(FullName.none())
         }
 
-    // The customer must be an existing user whose account is not suspended, locked or disabled (read
-    // from the users, not from the request)
+    // The customer, resolved before the use case runs, must be a customer or an admin who can act: an account
+    // neither suspended, locked nor disabled
     private fun customerCanActCondition() = PreCondition<ReviewSubmission> { submission ->
-        userRepository.verifyCustomerCanAct(submission.draft.customer)
+        submission.draft.customer.verifyCanAct()
     }
 
     private fun opinionIsValidCondition() = PreCondition<ReviewSubmission> { submission ->
@@ -68,15 +69,15 @@ class AddReviewUseCase(
 
     private fun customerBoughtTheProductCondition() = PreCondition<ReviewSubmission> { submission ->
         val draft = submission.draft
-        val orders = orderRepository.findAllBy(draft.customer)
-        if (!orders.hasPaidFor(draft.productOpinion.productId)) {
+        val orders = orderRepository.findAllBy(draft.customerId())
+        if (orders.hasNotPaidFor(draft.productOpinion.productId)) {
             throw ReviewNotAllowedException(ErrorMessage("Only a customer who bought a product can review it."))
         }
     }
 
     private fun reviewIsNotWrittenYetCondition() = PreCondition<ReviewSubmission> { submission ->
         val draft = submission.draft
-        if (reviewRepository.hasReviewed(draft.customer, draft.productOpinion.productId)) {
+        if (reviewRepository.hasReviewed(draft.customerId(), draft.productOpinion.productId)) {
             throw ReviewAlreadyWrittenException(ErrorMessage("The customer already reviewed this product."))
         }
     }

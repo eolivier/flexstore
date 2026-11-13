@@ -546,15 +546,11 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         ListRatingSummariesUseCase(reviewRepository)
 
     @Bean
-    open fun deleteReviewUseCase(reviewRepository: ReviewRepository, userRepository: UserRepository) =
-        DeleteReviewUseCase(reviewRepository, userRepository)
+    open fun deleteReviewUseCase(reviewRepository: ReviewRepository) = DeleteReviewUseCase(reviewRepository)
 
     @Bean
-    open fun readReviewEligibilityUseCase(
-        reviewRepository: ReviewRepository,
-        orderRepository: OrderRepository,
-        userRepository: UserRepository
-    ) = ReadReviewEligibilityUseCase(reviewRepository, orderRepository, userRepository)
+    open fun readReviewEligibilityUseCase(reviewRepository: ReviewRepository, orderRepository: OrderRepository) =
+        ReadReviewEligibilityUseCase(reviewRepository, orderRepository)
 
     @Bean
     open fun reviewUseCases(addReviewUseCase: AddReviewUseCase,
