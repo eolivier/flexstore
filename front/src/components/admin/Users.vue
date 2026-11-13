@@ -95,6 +95,7 @@
       </template>
       <template #item.actions="{ item }">
         <v-btn
+          v-if="item.role !== 'SYSTEM'"
           :to="`/admin/users/${item.id}/edit`"
           icon="mdi-pencil-outline"
           variant="text"
