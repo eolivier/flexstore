@@ -57,3 +57,24 @@ class LoginUseCaseTest {
         assertThat(thrown).hasCauseInstanceOf(InvalidCredentialsException::class.java).hasMessage("Invalid credentials.")
     }
 }
+
+class LoginSystemUserTest {
+
+    private val userRepository = mockk<UserRepository>()
+    private val loginUseCase = LoginUseCase(userRepository)
+    private val systemEmail = Email("system@flexstore.local")
+    private val systemUser = DefinedUser(
+        SystemUser.id, FullName(FirstName("System"), LastName("System")), systemEmail, HashedPassword(""), Role.SYSTEM
+    )
+
+    @Test
+    fun `should refuse the sign-in of the system user`() {
+        // Arrange
+        every { userRepository.findByEmail(systemEmail) } returns systemUser
+        // Act
+        val thrown = catchThrowable { loginUseCase.unfold(LoginRequest(systemEmail, PlainPassword(""))) }
+        // Assert
+        assertThat(thrown).hasCauseInstanceOf(SystemSignInForbiddenException::class.java)
+            .hasMessage("The system user cannot sign in.")
+    }
+}

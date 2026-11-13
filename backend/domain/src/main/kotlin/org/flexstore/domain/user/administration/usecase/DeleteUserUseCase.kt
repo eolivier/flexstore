@@ -14,7 +14,9 @@ data class UserDeletion(val editor: UserId, val userId: UserId)
 class DeleteUserUseCase(private val userRepository: UserRepository) : UseCase<UserDeletion> {
 
     override fun getPreConditions(): PreConditions<UserDeletion> {
-        return PreConditions(editorIsAdministratorCondition(), userExistsCondition())
+        return PreConditions(
+            editorIsAdministratorCondition(), userExistsCondition(), userIsNotTheSystemCondition()
+        )
     }
 
     override fun getNominalScenario(): NominalScenario<UserDeletion> {
@@ -42,6 +44,14 @@ class DeleteUserUseCase(private val userRepository: UserRepository) : UseCase<Us
     private fun userExistsCondition() = PreCondition<UserDeletion> { (_, userId) ->
         if (userRepository.notExists(userId)) {
             throw UserNotFoundException(ErrorMessage("User with ID ${userId.value} does not exist."))
+        }
+    }
+
+    // The system user runs the scheduled use cases: it is never deleted
+    private fun userIsNotTheSystemCondition() = PreCondition<UserDeletion> { (_, userId) ->
+        val user = userRepository.findById(userId)
+        if (user is User.DefinedUser && user.isSystem()) {
+            throw SystemRoleForbiddenException(ErrorMessage("The system user cannot be deleted."))
         }
     }
 

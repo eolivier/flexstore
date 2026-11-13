@@ -10,12 +10,15 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.catchThrowable
 import org.flexstore.domain.user.repository.*
 import org.junit.jupiter.api.Test
+import org.flexstore.domain.user.customerOf
+import org.flexstore.domain.user.systemUser
 
 class DeleteUserUseCaseTest {
 
     private val administrator = ValidUserId("admin-1")
     private val userRepository = mockk<UserRepository> {
         every { isNotAdministrator(administrator) } returns false
+        every { findById(ValidUserId("123")) } returns customerOf("123")
     }
     private val deleteUserUseCase = DeleteUserUseCase(userRepository)
     private val userId = ValidUserId("123")
@@ -30,6 +33,18 @@ class DeleteUserUseCaseTest {
         deleteUserUseCase.unfold(UserDeletion(administrator, userId))
         // Assert
         verify { userRepository.delete(userId) }
+    }
+
+    @Test
+    fun `should refuse to delete the system user`() {
+        // Arrange
+        every { userRepository.notExists(SystemUser.id) } returns false
+        every { userRepository.findById(SystemUser.id) } returns systemUser
+        // Act
+        val thrown = catchThrowable { deleteUserUseCase.unfold(UserDeletion(administrator, SystemUser.id)) }
+        // Assert
+        assertThat(thrown).hasCauseInstanceOf(SystemRoleForbiddenException::class.java)
+            .hasMessage("The system user cannot be deleted.")
     }
 
     @Test

@@ -20,6 +20,7 @@ class CreateUserUseCase(
     override fun getPreConditions(): PreConditions<CreateUserRequest> {
         return PreConditions(
             creatorIsAdministratorCondition(),
+            roleIsNotSystemCondition(),
             userDoesNotExistCondition(),
             passwordIsNotBlankCondition()
         )
@@ -48,6 +49,14 @@ class CreateUserUseCase(
     private fun creatorIsAdministratorCondition() = PreCondition<CreateUserRequest> { request ->
         if (userRepository.isNotAdministrator(request.creator)) {
             throw UserCreationForbiddenException(ErrorMessage("Only an administrator can create a user."))
+        }
+    }
+
+    // The system user exists once, created by a migration: an administrator cannot create another one
+    private fun roleIsNotSystemCondition() = PreCondition<CreateUserRequest> { request ->
+        val user = request.user
+        if (user is User.DraftUser && user.role.isSystem()) {
+            throw SystemRoleForbiddenException(ErrorMessage("The SYSTEM role cannot be given to a user."))
         }
     }
 

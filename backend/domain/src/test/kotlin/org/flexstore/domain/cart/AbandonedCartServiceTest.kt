@@ -10,6 +10,8 @@ import org.flexstore.domain.settings.*
 import org.flexstore.domain.settings.usecase.ReadShopSettingsUseCase
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.customersWithIds
+import org.flexstore.domain.user.usersWithSystemAndCustomers
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.user.model.UserId
 import org.flexstore.infra.repository.InMemoryCartRepository
 import org.flexstore.infra.repository.InMemoryEmailRepository
@@ -37,9 +39,12 @@ class AbandonedCartServiceTest : WithAssertions {
         ShopSettings.byDefault().withAbandonedCartReminderEnabled().withAbandonedCartDelay(oneDay)
     )
     private val service = AbandonedCartService(
+        ActorResolutionService(usersWithSystemAndCustomers("user-1")),
         ReadShopSettingsUseCase(settingsRepository),
-        ListAbandonedCartsUseCase(cartRepository),
-        RemindAbandonedCartUseCase(cartRepository, customersWithIds("user-1"), emailRepository)
+        AbandonedCartUseCases(
+            ListAbandonedCartsUseCase(cartRepository),
+            RemindAbandonedCartUseCase(cartRepository, customersWithIds("user-1"), emailRepository)
+        )
     )
 
     @BeforeEach
@@ -147,9 +152,9 @@ class AbandonedCartServiceTest : WithAssertions {
         val failingUseCase = mockk<RemindAbandonedCartUseCase>()
         every { failingUseCase.unfold(any()) } throws failure
         val failingService = AbandonedCartService(
+            ActorResolutionService(usersWithSystemAndCustomers("user-1")),
             ReadShopSettingsUseCase(settingsRepository),
-            ListAbandonedCartsUseCase(cartRepository),
-            failingUseCase
+            AbandonedCartUseCases(ListAbandonedCartsUseCase(cartRepository), failingUseCase)
         )
         return Pair(failingService, failure)
     }

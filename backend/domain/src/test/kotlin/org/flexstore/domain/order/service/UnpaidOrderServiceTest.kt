@@ -16,6 +16,7 @@ import org.flexstore.domain.settings.usecase.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.stock.*
 import org.flexstore.domain.user.model.UserId
+import org.flexstore.domain.user.systemUser
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
 import org.ucop.domain.PreConditionException
@@ -46,9 +47,9 @@ class UnpaidOrderServiceTest : WithAssertions {
         CancelUnpaidOrderUseCase(orderRepository, stockRepository, paymentRepository)
 
     private val service = UnpaidOrderService(
+        ActorResolutionService(InMemoryUserRepository().apply { save(systemUser) }),
         ReadShopSettingsUseCase(shopSettingsRepository),
-        ListAllOrdersUseCase(orderRepository),
-        cancelUnpaidOrderUseCase
+        UnpaidOrderUseCases(ListAllOrdersUseCase(orderRepository), cancelUnpaidOrderUseCase)
     )
 
     // The late orders are looked for at the given moment
@@ -175,9 +176,9 @@ class UnpaidOrderServiceTest : WithAssertions {
         val failingUseCase = mockk<CancelUnpaidOrderUseCase>()
         every { failingUseCase.unfold(any()) } throws failure
         val failingService = UnpaidOrderService(
+            ActorResolutionService(InMemoryUserRepository().apply { save(systemUser) }),
             ReadShopSettingsUseCase(shopSettingsRepository),
-            ListAllOrdersUseCase(orderRepository),
-            failingUseCase
+            UnpaidOrderUseCases(ListAllOrdersUseCase(orderRepository), failingUseCase)
         )
         return Pair(failingService, failure)
     }
