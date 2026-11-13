@@ -1,7 +1,7 @@
 package org.flexstore.domain.discount.usecase
 
 import org.flexstore.domain.discount.*
-import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.entity.Actor
 
 // The use cases of the discount codes, for the administrators
 class DiscountCodeUseCases(
@@ -9,12 +9,12 @@ class DiscountCodeUseCases(
     private val listDiscountCodesUseCase: ListDiscountCodesUseCase,
     private val deleteDiscountCodeUseCase: DeleteDiscountCodeUseCase
 ) {
-    fun create(creator: UserId, discountCode: DiscountCode) =
+    fun create(creator: Actor, discountCode: DiscountCode) =
         createDiscountCodeUseCase.unfold(DiscountCodeCreation(creator, discountCode))
 
-    fun getAll(reader: UserId) = listDiscountCodesUseCase.unfold(DiscountCodesReading(reader))
+    fun getAll(reader: Actor) = listDiscountCodesUseCase.unfold(DiscountCodesReading(reader))
 
-    fun delete(editor: UserId, code: PromoCode) =
+    fun delete(editor: Actor, code: PromoCode) =
         deleteDiscountCodeUseCase.unfold(DiscountCodeDeletion(editor, code))
 }
 

@@ -7,19 +7,17 @@ import org.flexstore.infra.repository.InMemoryDiscountCodeRepository
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.time.Instant
-import org.flexstore.domain.user.administration.testAdministrator
-import org.flexstore.domain.user.administration.testCustomer
-import org.flexstore.domain.user.administration.unknownUser
-import org.flexstore.domain.user.administration.usersOfTheAdministration
+import org.flexstore.domain.actor.testAdministratorActor
+import org.flexstore.domain.actor.testCustomerActor
+import org.flexstore.domain.actor.unknownUserActor
 
 class DiscountCodeUseCasesTest : WithAssertions {
 
     private val discountCodeRepository = InMemoryDiscountCodeRepository()
-    private val userRepository = usersOfTheAdministration()
     private val discountCodeUseCases = DiscountCodeUseCases(
-        CreateDiscountCodeUseCase(discountCodeRepository, userRepository),
-        ListDiscountCodesUseCase(discountCodeRepository, userRepository),
-        DeleteDiscountCodeUseCase(discountCodeRepository, userRepository)
+        CreateDiscountCodeUseCase(discountCodeRepository),
+        ListDiscountCodesUseCase(discountCodeRepository),
+        DeleteDiscountCodeUseCase(discountCodeRepository)
     )
     private val welcome10 = DiscountCode(
         PromoCode("WELCOME10"),
@@ -32,17 +30,17 @@ class DiscountCodeUseCasesTest : WithAssertions {
     @Test
     fun `an administrator should read the discount codes and delete one`() {
         // Arrange
-        discountCodeUseCases.create(testAdministrator.id, welcome10)
+        discountCodeUseCases.create(testAdministratorActor, welcome10)
         // Act
-        discountCodeUseCases.delete(testAdministrator.id, welcome10.code)
+        discountCodeUseCases.delete(testAdministratorActor, welcome10.code)
         // Assert
-        assertThat(discountCodeUseCases.getAll(testAdministrator.id).asList()).isEmpty()
+        assertThat(discountCodeUseCases.getAll(testAdministratorActor).asList()).isEmpty()
     }
 
     @Test
     fun `a customer should not read the discount codes`() {
         // Act
-        val thrown = catchThrowable { discountCodeUseCases.getAll(testCustomer.id) }
+        val thrown = catchThrowable { discountCodeUseCases.getAll(testCustomerActor) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(DiscountCodeAdministrationForbiddenException::class.java)
     }
@@ -50,9 +48,9 @@ class DiscountCodeUseCasesTest : WithAssertions {
     @Test
     fun `a customer should not delete a discount code`() {
         // Arrange
-        discountCodeUseCases.create(testAdministrator.id, welcome10)
+        discountCodeUseCases.create(testAdministratorActor, welcome10)
         // Act
-        val thrown = catchThrowable { discountCodeUseCases.delete(testCustomer.id, welcome10.code) }
+        val thrown = catchThrowable { discountCodeUseCases.delete(testCustomerActor, welcome10.code) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(DiscountCodeAdministrationForbiddenException::class.java)
         assertThat(discountCodeRepository.codeExists(welcome10.code)).isTrue()
@@ -61,9 +59,9 @@ class DiscountCodeUseCasesTest : WithAssertions {
     @Test
     fun `an unknown user should not delete a discount code`() {
         // Arrange
-        discountCodeUseCases.create(testAdministrator.id, welcome10)
+        discountCodeUseCases.create(testAdministratorActor, welcome10)
         // Act
-        val thrown = catchThrowable { discountCodeUseCases.delete(unknownUser, welcome10.code) }
+        val thrown = catchThrowable { discountCodeUseCases.delete(unknownUserActor, welcome10.code) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(DiscountCodeAdministrationForbiddenException::class.java)
     }

@@ -1,15 +1,14 @@
 package org.flexstore.domain.discount.usecase
 
 import org.flexstore.domain.discount.*
-import org.flexstore.domain.user.repository.UserRepository
+import org.flexstore.domain.actor.isNotAdmin
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // An administrator gives a new discount code: well formed, with a valid reduction and usage limit, and a code
 // that no other discount code has
 class CreateDiscountCodeUseCase(
-    private val discountCodeRepository: DiscountCodeRepository,
-    private val userRepository: UserRepository
+    private val discountCodeRepository: DiscountCodeRepository
 ) : UseCase<DiscountCodeCreation> {
 
     override fun getPreConditions(): PreConditions<DiscountCodeCreation> =
@@ -21,12 +20,11 @@ class CreateDiscountCodeUseCase(
     override fun getPostConditions(): PostConditions<DiscountCodeCreation> =
         PostConditions(discountCodeIsStoredCondition())
 
-    // The creator must be an existing user with the ADMIN role (read from the users, not from the request)
+    // The creator, resolved before the use case runs, must be an Admin
     private fun creatorIsAdministratorCondition() = PreCondition<DiscountCodeCreation> { creation ->
-        if (userRepository.isNotAdministrator(creation.creator)) {
-            throw DiscountCodeAdministrationForbiddenException(
-                ErrorMessage("Only an administrator can give a discount code.")
-            )
+        if (creation.creator.isNotAdmin()) {
+            val message = ErrorMessage("Only an administrator can give a discount code.")
+            throw DiscountCodeAdministrationForbiddenException(message)
         }
     }
 
