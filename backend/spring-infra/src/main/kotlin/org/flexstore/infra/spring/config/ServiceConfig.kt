@@ -31,7 +31,8 @@ import org.flexstore.domain.user.address.AddressBookService
 import org.flexstore.domain.user.address.AddressUseCases
 import org.flexstore.domain.user.administration.UserService
 
-// The domain services, each one a bean that receives its use cases or groups of use cases (see UseCaseConfig)
+// The domain services, each one a bean that receives its use cases or groups of use cases
+// (see the *UseCaseConfig classes)
 @Configuration
 open class ServiceConfig {
 
