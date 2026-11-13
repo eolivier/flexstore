@@ -1,7 +1,7 @@
 package org.flexstore.domain.pagecontent.usecase
 
 import org.flexstore.domain.pagecontent.*
-import org.flexstore.domain.user.repository.UserRepository
+import org.flexstore.domain.actor.isNotAdmin
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
@@ -9,8 +9,7 @@ import org.ucop.domain.entity.*
 // Analytics identifier): 1 000 characters at most, an identifier written as such. An empty text clears it. It
 // is the only way to change a content, whatever its type
 class EditShopPageContentUseCase(
-    private val shopPageContentRepository: ShopPageContentRepository,
-    private val userRepository: UserRepository
+    private val shopPageContentRepository: ShopPageContentRepository
 ) : UseCase<ShopPageContentChange> {
 
     override fun getPreConditions(): PreConditions<ShopPageContentChange> =
@@ -22,12 +21,11 @@ class EditShopPageContentUseCase(
     override fun getPostConditions(): PostConditions<ShopPageContentChange> =
         PostConditions(contentIsSavedCondition())
 
-    // The editor must be an existing user with the ADMIN role (read from the users, not from the request)
+    // The editor, resolved before the use case runs, must be an Admin
     private fun editorIsAdministratorCondition() = PreCondition<ShopPageContentChange> { change ->
-        if (userRepository.isNotAdministrator(change.editor)) {
-            throw ShopPageContentForbiddenException(
-                ErrorMessage("Only an administrator can edit the content of the shop pages.")
-            )
+        if (change.editor.isNotAdmin()) {
+            val message = ErrorMessage("Only an administrator can edit the content of the shop pages.")
+            throw ShopPageContentForbiddenException(message)
         }
     }
 

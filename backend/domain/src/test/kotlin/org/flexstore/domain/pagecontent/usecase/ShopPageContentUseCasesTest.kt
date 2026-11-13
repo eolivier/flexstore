@@ -3,11 +3,10 @@ package org.flexstore.domain.pagecontent.usecase
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.pagecontent.*
 import org.flexstore.domain.pagecontent.ShopPageContentType.*
-import org.flexstore.domain.user.model.*
-import org.flexstore.domain.user.model.User.DefinedUser
-import org.flexstore.domain.user.model.UserId.ValidUserId
+import org.flexstore.domain.actor.testAdministratorActor
+import org.flexstore.domain.actor.testCustomerActor
+import org.flexstore.domain.actor.unknownUserActor
 import org.flexstore.infra.repository.InMemoryShopPageContentRepository
-import org.flexstore.infra.repository.InMemoryUserRepository
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -16,20 +15,9 @@ class ShopPageContentUseCasesTest : WithAssertions {
 
     private val shopDescription = ShopPageContent(META_SHOP_DESCRIPTION, ShopPageContentText("Demo shop"))
     private val shopPageContentRepository = InMemoryShopPageContentRepository(ShopPageContents(shopDescription))
-    private val administrator = userOf("admin-1", Role.ADMIN)
-    private val customer = userOf("customer-1", Role.USER)
-    private val userRepository = InMemoryUserRepository().apply {
-        save(administrator)
-        save(customer)
-    }
     private val shopPageContentUseCases = ShopPageContentUseCases(
         ReadShopPageContentUseCase(shopPageContentRepository),
-        EditShopPageContentUseCase(shopPageContentRepository, userRepository)
-    )
-
-    private fun userOf(id: String, role: Role) = DefinedUser(
-        ValidUserId(id), FullName(FirstName("Jane"), LastName("Doe")), Email("$id@flexstore.fr"),
-        HashedPassword("hashed"), role
+        EditShopPageContentUseCase(shopPageContentRepository)
     )
 
     private fun contentOf(type: ShopPageContentType, text: String) =
@@ -48,7 +36,7 @@ class ShopPageContentUseCasesTest : WithAssertions {
         // Arrange
         val keyWords = contentOf(META_KEY_WORDS, "shop, demo")
         // Act
-        val contents = shopPageContentUseCases.edit(administrator.id, keyWords)
+        val contents = shopPageContentUseCases.edit(testAdministratorActor, keyWords)
         // Assert
         assertThat(contents.of(META_KEY_WORDS)).isEqualTo(keyWords)
         assertThat(contents.of(META_SHOP_DESCRIPTION)).isEqualTo(shopDescription)
@@ -59,7 +47,7 @@ class ShopPageContentUseCasesTest : WithAssertions {
         // Arrange
         val clearedDescription = contentOf(META_SHOP_DESCRIPTION, "")
         // Act
-        val contents = shopPageContentUseCases.edit(administrator.id, clearedDescription)
+        val contents = shopPageContentUseCases.edit(testAdministratorActor, clearedDescription)
         // Assert
         assertThat(contents.of(META_SHOP_DESCRIPTION)).isEqualTo(clearedDescription)
     }
@@ -68,7 +56,7 @@ class ShopPageContentUseCasesTest : WithAssertions {
     fun `a customer should not edit a content`() {
         // Act
         val thrown = catchThrowable {
-            shopPageContentUseCases.edit(customer.id, contentOf(META_KEY_WORDS, "shop"))
+            shopPageContentUseCases.edit(testCustomerActor, contentOf(META_KEY_WORDS, "shop"))
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(ShopPageContentForbiddenException::class.java)
@@ -79,7 +67,7 @@ class ShopPageContentUseCasesTest : WithAssertions {
     fun `an unknown user should not edit a content`() {
         // Act
         val thrown = catchThrowable {
-            shopPageContentUseCases.edit(ValidUserId("unknown"), contentOf(META_KEY_WORDS, "shop"))
+            shopPageContentUseCases.edit(unknownUserActor, contentOf(META_KEY_WORDS, "shop"))
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(ShopPageContentForbiddenException::class.java)
@@ -90,7 +78,7 @@ class ShopPageContentUseCasesTest : WithAssertions {
         // Arrange
         val tooLongKeyWords = contentOf(META_KEY_WORDS, "a".repeat(1_001))
         // Act
-        val thrown = catchThrowable { shopPageContentUseCases.edit(administrator.id, tooLongKeyWords) }
+        val thrown = catchThrowable { shopPageContentUseCases.edit(testAdministratorActor, tooLongKeyWords) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(InvalidShopPageContentException::class.java)
     }
@@ -100,7 +88,7 @@ class ShopPageContentUseCasesTest : WithAssertions {
         // Arrange
         val longestKeyWords = contentOf(META_KEY_WORDS, "a".repeat(1_000))
         // Act
-        val contents = shopPageContentUseCases.edit(administrator.id, longestKeyWords)
+        val contents = shopPageContentUseCases.edit(testAdministratorActor, longestKeyWords)
         // Assert
         assertThat(contents.of(META_KEY_WORDS)).isEqualTo(longestKeyWords)
     }
@@ -112,7 +100,7 @@ class ShopPageContentUseCasesTest : WithAssertions {
     ) {
         // Act
         val thrown = catchThrowable {
-            shopPageContentUseCases.edit(administrator.id, contentOf(GOOGLE_ANALYTICS_ID, identifier))
+            shopPageContentUseCases.edit(testAdministratorActor, contentOf(GOOGLE_ANALYTICS_ID, identifier))
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(InvalidShopPageContentException::class.java)
@@ -123,7 +111,7 @@ class ShopPageContentUseCasesTest : WithAssertions {
         // Arrange
         val analyticsId = contentOf(GOOGLE_ANALYTICS_ID, "G-ABC123DEF4")
         // Act
-        val contents = shopPageContentUseCases.edit(administrator.id, analyticsId)
+        val contents = shopPageContentUseCases.edit(testAdministratorActor, analyticsId)
         // Assert
         assertThat(contents.of(GOOGLE_ANALYTICS_ID)).isEqualTo(analyticsId)
     }

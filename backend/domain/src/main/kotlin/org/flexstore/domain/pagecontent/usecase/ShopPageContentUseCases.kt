@@ -1,7 +1,7 @@
 package org.flexstore.domain.pagecontent.usecase
 
 import org.flexstore.domain.pagecontent.*
-import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.entity.Actor
 
 // The use cases of the contents of the shop pages: everyone reads them, an administrator edits one (read back
 // once saved)
@@ -11,7 +11,7 @@ class ShopPageContentUseCases(
 ) {
     fun contents() = readShopPageContentUseCase.unfold(Unit)
 
-    fun edit(editor: UserId, content: ShopPageContent): ShopPageContents {
+    fun edit(editor: Actor, content: ShopPageContent): ShopPageContents {
         editShopPageContentUseCase.unfold(ShopPageContentChange(editor, content))
         return contents()
     }
