@@ -718,14 +718,14 @@ headers.set("X-Cart-Id", "$cartId")
 Prefer (the text comes from the property that holds it):
 
 ```kotlin
-val key = productId.identity.value
-val ids = productIds.map { it.identity.value }
-headers.set("X-Cart-Id", cartId.identity.value)
+val key = productId.id.value
+val ids = productIds.map { it.id.value }
+headers.set("X-Cart-Id", cartId.id.value)
 ```
 
 Why: if `toString()` evolves, every caller that took its output as data breaks, silently (a wrong key, an empty JSON path, a query that finds nothing) and far from the change. With the property, the format of the display can change freely.
 
 Details:
 - **`toString()` stays for display**: an error message or a log line may print a value object through `toString()` or a template.
-- **A value object does not have to override `toString()` to give its text**: the property is the contract (`identity.value`, `value`), not the display.
+- **A value object does not have to override `toString()` to give its text**: the property is the contract (`id.value`, `value`), not the display.
 - **Look for the hidden forms** when applying the rule: `map { it.toString() }`, `::toString`, `joinToString`, `String.valueOf(...)` and string templates (`"$id"`, `"${order.id}"`), not only the explicit `.toString()`.
