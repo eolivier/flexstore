@@ -1,63 +1,33 @@
 <script setup lang="ts">
-  import FormActions from '@/components/form/FormActions.vue';
   import AdminBreadcrumbs from '@/components/admin/AdminBreadcrumbs.vue';
   import { useUsersStore } from '@/stores/users.store.ts';
-  import { nextTick, ref } from 'vue';
+  import { ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useSnackbar } from '@/composables/useSnackbar';
-  import { FullName, type User } from '@/models/user';
-  import UserRoleField from './UserRoleField.vue';
-  import PasswordField from '@/components/account/PasswordField.vue';
-  import UserNameFields from '@/components/account/UserNameFields.vue';
+  import { FullName } from '@/models/user';
+  import UserForm, { type UserFormValues } from './UserForm.vue';
 
-  const firstName = ref('');
-  const lastName = ref('');
-  const email = ref('');
-  const password = ref('');
   // A new user is a simple user unless the administrator chooses otherwise
-  const role = ref<NonNullable<User['role']>>('USER');
-  const valid = ref(false);
+  const emptyUser = { firstName: '', lastName: '', email: '', role: 'USER' } as const;
   const saving = ref(false);
-  const formRef = ref<{ resetValidation: () => void } | null>(null);
+  // Changing the key gives an empty form again
+  const formKey = ref(0);
 
   const usersStore = useUsersStore();
   const { t } = useI18n();
   const snackbar = useSnackbar();
 
-  const rules = {
-    required: (v: string) => !!v || t('createUser.mandatoryField'),
-    email: (v: string) => /.+@.+\..+/.test(v) || t('createUser.invalidEmail'),
-    passwordLength: (v: string) => v.length >= 8 || t('createUser.passwordTooShort'),
-  };
-
-  const submitForm = async () => {
-    if (!valid.value) return;
+  const create = async ({ firstName, lastName, email, password, role }: UserFormValues) => {
     saving.value = true;
-    const createdName = FullName.of({ firstName: firstName.value, lastName: lastName.value }).value;
-    const created = await usersStore.addUser({
-      firstName: firstName.value,
-      lastName: lastName.value,
-      email: email.value,
-      password: password.value,
-      role: role.value,
-    });
+    const createdName = FullName.of({ firstName, lastName }).value;
+    const created = await usersStore.addUser({ firstName, lastName, email, password, role });
     saving.value = false;
     if (created) {
       snackbar.success(t('createUser.success', { name: createdName }), {
         action: { text: t('nav.users'), to: '/admin/users' },
       });
-      resetForm();
+      formKey.value++;
     } else snackbar.error(t('createUser.error'));
-  };
-
-  const resetForm = () => {
-    firstName.value = '';
-    lastName.value = '';
-    email.value = '';
-    password.value = '';
-    role.value = 'USER';
-    valid.value = false;
-    nextTick(() => formRef.value?.resetValidation());
   };
 </script>
 
@@ -66,26 +36,13 @@
     <AdminBreadcrumbs />
     <h1 class="text-h4 font-weight-bold mb-6">{{ t('createUser.label') }}</h1>
     <v-card class="pa-6">
-      <v-form ref="formRef" v-model="valid" @submit.prevent="submitForm">
-        <UserNameFields v-model:first-name="firstName" v-model:last-name="lastName" />
-        <v-text-field
-          v-model="email"
-          :label="t('createUser.email')"
-          :rules="[rules.required, rules.email]"
-          type="email"
-          prepend-inner-icon="mdi-email-outline"
-          class="mb-2"
-          required
-        />
-        <PasswordField
-          v-model="password"
-          :label="t('createUser.password')"
-          :rules="[rules.required, rules.passwordLength]"
-          class="mb-4"
-        />
-        <UserRoleField v-model="role" />
-        <FormActions class="mt-2" cancel-to="/admin/users" :loading="saving" :disabled="!valid">{{ t('createUser.label') }}</FormActions>
-      </v-form>
+      <UserForm
+        :key="formKey"
+        :initial="emptyUser"
+        :submit-label="t('createUser.label')"
+        :saving="saving"
+        @submit="create"
+      />
     </v-card>
   </v-container>
 </template>
