@@ -1,6 +1,7 @@
 package org.flexstore.domain.order.model
 
 import java.math.BigDecimal
+import java.time.Instant
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.product.model.*
@@ -41,4 +42,13 @@ data class Orders(private val orders: List<Order>) {
     fun latePaymentsAt(timeLimit: PaymentTimeLimit) = Orders(orders.filter { timeLimit.isExceededFor(it) })
 
     fun asList(): List<Order> = orders.toList()
+}
+
+data class OrderCount(val value: Int) {
+    fun isZero() = value == 0
+}
+
+// From a moment included to another excluded
+data class OrderInterval(val start: Instant, val end: Instant) {
+    fun contains(instant: Instant) = instant >= start && instant < end
 }

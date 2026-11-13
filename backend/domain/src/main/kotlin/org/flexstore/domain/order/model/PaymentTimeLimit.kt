@@ -17,3 +17,9 @@ data class PaymentTimeLimit(val paymentDelay: PaymentDelay, val checkedAt: Insta
 
     fun isNotExceededFor(order: Order) = !isExceededFor(order)
 }
+
+// The moment an order must be paid by: its placement plus the payment delay
+data class PaymentDeadline(val value: Instant) {
+
+    fun isReachedAt(instant: Instant) = instant >= value
+}
