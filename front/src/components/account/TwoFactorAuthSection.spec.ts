@@ -77,7 +77,23 @@ describe('TwoFactorAuthSection.vue', () => {
     expect(buttonNamed('Disable')).toBeDefined();
   });
 
-  it('should enroll, then enable two-factor authentication once the first code is confirmed', async () => {
+  it('should show the secret and the QR code when the user starts to enable two-factor authentication', async () => {
+    // Arrange
+    await signedInCustomer(false);
+    await mountSection();
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ secret: 'ABCDEFGHIJKLMNOP', provisioningUri: 'otpauth://totp/Flexstore:jane' }),
+    });
+    // Act
+    buttonNamed('Enable')!.click();
+    await flushPromises();
+    // Assert
+    expect(document.body.textContent).toContain('ABCDEFGHIJKLMNOP');
+    expect(document.querySelector('img[alt="QR code"]')).not.toBeNull();
+  });
+
+  it('should enable two-factor authentication once the first code is confirmed', async () => {
     // Arrange
     await signedInCustomer(false);
     await mountSection();
@@ -87,15 +103,12 @@ describe('TwoFactorAuthSection.vue', () => {
     });
     buttonNamed('Enable')!.click();
     await flushPromises();
-    // Assert the secret and the QR code are shown
-    expect(document.body.textContent).toContain('ABCDEFGHIJKLMNOP');
-    expect(document.querySelector('img[alt="QR code"]')).not.toBeNull();
-    // Act: confirm with the first code
     mockFetch.mockResolvedValueOnce({ ok: true, status: 204 });
     const codeField = [...document.querySelectorAll('input')].find((input) => input.maxLength === 6)!;
     codeField.value = '123456';
     codeField.dispatchEvent(new Event('input'));
     await flushPromises();
+    // Act
     submitButtonNamed('Confirm')!.click();
     await flushPromises();
     // Assert
