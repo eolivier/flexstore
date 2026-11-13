@@ -5,5 +5,5 @@ import org.ucop.domain.entity.Actor
 // The use cases of the loyalty programme
 class LoyaltyUseCases(private val readLoyaltyPointsUseCase: ReadLoyaltyPointsUseCase) {
 
-    fun getPoints(customer: Actor) = readLoyaltyPointsUseCase.unfold(customer)
+    fun getStatement(customer: Actor) = readLoyaltyPointsUseCase.unfold(customer)
 }

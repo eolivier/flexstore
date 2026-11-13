@@ -6,6 +6,7 @@ import java.time.Instant
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.loyalty.LoyaltyPoints
+import org.flexstore.domain.loyalty.LoyaltyStatement
 import org.flexstore.domain.order.*
 import org.flexstore.domain.order.model.*
 import org.flexstore.domain.product.model.*
@@ -36,11 +37,13 @@ class ReadLoyaltyPointsUseCaseTest : WithAssertions {
         ProductId(Identity.nextId()), Name("Product"), Price(Amount(BigDecimal(amount)), Currency.EUR)
     )
 
-    private fun placeOrder(product: DefinedProduct, quantity: Int, status: OrderStatus) {
-        val stamp = OrderStamp(OrderId.nextId(), Instant.parse("2026-10-24T10:00:00Z"))
+    private fun placeOrder(
+        product: DefinedProduct, quantity: Int, status: OrderStatus, placedAt: String = "2026-10-24T10:00:00Z"
+    ): Order {
+        val stamp = OrderStamp(OrderId.nextId(), Instant.parse(placedAt))
         val placement = OrderPlacement(stamp, Checkout(customer, homeOrderAddresses, acceptedTermsOfSale))
         val order = Order.place(placement, Cart(customer).add(product, Quantity(quantity)))
-        orderRepository.save(order.withStatus(status))
+        return orderRepository.save(order.withStatus(status))
     }
 
     @Test
@@ -49,9 +52,21 @@ class ReadLoyaltyPointsUseCaseTest : WithAssertions {
         placeOrder(productPricedAt("35.00"), 2, OrderStatus.PAID)
         placeOrder(productPricedAt("19.99"), 1, OrderStatus.DELIVERED)
         // Act
-        val points = useCase.unfold(actorResolutionService.actorOf(customerId))
+        val statement = useCase.unfold(actorResolutionService.actorOf(customerId))
         // Assert: 70.00 (free shipping), then 19.99 + 5.00 of shipping = 24.99, without the cents
-        assertThat(points).isEqualTo(LoyaltyPoints(70 + 24))
+        assertThat(statement.total()).isEqualTo(LoyaltyPoints(70 + 24))
+    }
+
+    @Test
+    fun `each paid order should be a line with its points, the newest first`() {
+        // Arrange
+        val older = placeOrder(productPricedAt("35.00"), 2, OrderStatus.PAID, "2026-10-01T10:00:00Z")
+        val newer = placeOrder(productPricedAt("19.99"), 1, OrderStatus.DELIVERED, "2026-10-24T10:00:00Z")
+        // Act
+        val statement = useCase.unfold(actorResolutionService.actorOf(customerId))
+        // Assert
+        assertThat(statement.asList().map { it.orderNumber }).containsExactly(newer.number(), older.number())
+        assertThat(statement.asList().map { it.points }).containsExactly(LoyaltyPoints(24), LoyaltyPoints(70))
     }
 
     @ParameterizedTest
@@ -60,17 +75,19 @@ class ReadLoyaltyPointsUseCaseTest : WithAssertions {
         // Arrange
         placeOrder(productPricedAt("50.00"), 1, status)
         // Act
-        val points = useCase.unfold(actorResolutionService.actorOf(customerId))
+        val statement = useCase.unfold(actorResolutionService.actorOf(customerId))
         // Assert
-        assertThat(points).isEqualTo(LoyaltyPoints(0))
+        assertThat(statement).isEqualTo(LoyaltyStatement(emptyList()))
+        assertThat(statement.total()).isEqualTo(LoyaltyPoints(0))
     }
 
     @Test
-    fun `a customer without any order should have no point`() {
+    fun `a customer without any order should have no line and no point`() {
         // Act
-        val points = useCase.unfold(actorResolutionService.actorOf(customerId))
+        val statement = useCase.unfold(actorResolutionService.actorOf(customerId))
         // Assert
-        assertThat(points).isEqualTo(LoyaltyPoints(0))
+        assertThat(statement).isEqualTo(LoyaltyStatement(emptyList()))
+        assertThat(statement.total()).isEqualTo(LoyaltyPoints(0))
     }
 
     @Test

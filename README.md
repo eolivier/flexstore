@@ -56,7 +56,7 @@ This repo is meant to be a learning vehicle and a ready-to-fork base for real pr
 - Guided tour: at sign-in, an assistant presents the sections of the shop (catalog, cart, orders, wishlist, loyalty, preferences) step by step. The customer can skip it at any step (it comes back at their next sign-in) or, at its end, tick "Do not show again", which hides it in their account (`guided_tour` setting, `PUT /api/guided-tour`). Turning "Guided tour" back on in My preferences shows it again right away
 - My addresses: see, add, edit and remove the postal addresses of the account; the orders keep the address they were sent to
 - Wishlist: a customer saves products to find them again later (once per product, newest first)
-- Loyalty: one point for each whole euro or dollar of the paid orders of the customer, shown on their account
+- Loyalty: one point for each whole euro or dollar of the paid orders of the customer. "My loyalty" shows a line for each purchase with the points it earned (newest first, a refunded order gives its points back) and the total of the points collected
 
 **Administration** (`ADMIN` role)
 - Sales dashboard: revenue, number of orders and average basket, orders per day (bars) and the 5 best sellers, over the last 7, 30 or 90 days; only the paid orders count (not the awaiting, cancelled or refunded ones), on the day they were placed in Paris time
@@ -273,7 +273,7 @@ npm run gen:api
 | `DELETE` | `/api/admin/reviews/{id}` | `ADMIN` | Delete a review |
 | `GET` | `/api/wishlist` | signed in | The products saved to the wishlist, newest first |
 | `PUT` / `DELETE` | `/api/wishlist/{productId}` | signed in | Save a product to the wishlist / remove it |
-| `GET` | `/api/loyalty` | signed in | The loyalty points of the customer |
+| `GET` | `/api/loyalty` | signed in | The loyalty statement of the customer: the total of points and a line of points for each paid order |
 | `GET` | `/api/orders/shipping-options` | signed in | The shipping methods with their cost for the cart |
 | `GET` | `/api/orders/discount-preview` | signed in | What a discount code takes off the cart (`404` unknown code, `410` expired or used up) |
 | `POST` | `/api/orders/{id}/payment/verification` | signed in | Ask the payment provider whether the order was paid, and pay it here if so |

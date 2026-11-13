@@ -13,12 +13,21 @@ describe('loyalty.store', () => {
 
   it('fetches the points of the customer', async () => {
     // Arrange
-    mockFetch.mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve({ points: 89 }) });
+    mockFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: () =>
+        Promise.resolve({
+          points: 89,
+          purchases: [{ orderNumber: 'AAAA1111', placedAt: '2026-10-24', points: 89 }],
+        }),
+    });
     const store = useLoyaltyStore();
     // Act
     await store.fetchPoints();
     // Assert
     expect(store.points).toBe(89);
+    expect(store.purchases).toHaveLength(1);
     expect(store.loadError).toBe(false);
   });
 

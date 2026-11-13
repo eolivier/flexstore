@@ -33,6 +33,8 @@ docs/JsonDiscountPreview.md
 docs/JsonEmailVerification.md
 docs/JsonEnvironmentVariable.md
 docs/JsonGoogleLoginRequest.md
+docs/JsonGuidedTourChoice.md
+docs/JsonGuidedTourPreference.md
 docs/JsonItem.md
 docs/JsonLanguageChoice.md
 docs/JsonLanguagePreference.md
@@ -41,7 +43,8 @@ docs/JsonLegalText.md
 docs/JsonLoginRequest.md
 docs/JsonLoginResponse.md
 docs/JsonLowStock.md
-docs/JsonLoyaltyPoints.md
+docs/JsonLoyaltyPurchase.md
+docs/JsonLoyaltyStatement.md
 docs/JsonNewDiscountCode.md
 docs/JsonNewReview.md
 docs/JsonOrder.md

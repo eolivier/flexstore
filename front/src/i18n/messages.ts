@@ -532,7 +532,10 @@ export default {
     loyalty: {
       title: 'My loyalty',
       subtitle: 'Each euro or dollar spent earns you 1 point.',
-      balance: 'Your balance',
+      balance: 'Your total',
+      history: 'Your purchases',
+      purchase: 'Order {number}',
+      empty: 'No purchase yet: each paid order will earn you points.',
       points: 'No point | 1 point | {n} points',
       rule: 'Points are earned on your paid orders; an order refunded gives its points back.',
       loadError: 'Your points could not be loaded.',
@@ -1610,7 +1613,10 @@ export default {
     loyalty: {
       title: 'Ma fidélité',
       subtitle: 'Chaque euro ou dollar dépensé vous fait gagner 1 point.',
-      balance: 'Votre solde',
+      balance: 'Votre total',
+      history: 'Vos achats',
+      purchase: 'Commande {number}',
+      empty: 'Aucun achat pour le moment : chaque commande payée vous fera gagner des points.',
       points: 'Aucun point | 1 point | {n} points',
       rule: 'Les points sont gagnés sur vos commandes payées ; une commande remboursée rend ses points.',
       loadError: "Vos points n'ont pas pu être chargés.",

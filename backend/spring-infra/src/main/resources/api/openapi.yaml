@@ -1051,17 +1051,17 @@ paths:
     get:
       tags:
       - Loyalty
-      summary: Retrieve the loyalty points of the signed-in customer, one for each whole euro or dollar of their paid orders
-      operationId: getLoyaltyPoints
+      summary: Retrieve the loyalty statement of the signed-in customer, a line for each paid order with its points (one for each whole euro or dollar), and the total
+      operationId: getLoyaltyStatement
       security:
       - bearerAuth: []
       responses:
         "200":
-          description: The loyalty points of the customer
+          description: The loyalty statement of the customer
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JsonLoyaltyPoints"
+                $ref: "#/components/schemas/JsonLoyaltyStatement"
         "401":
           description: Not signed in
   /api/wishlist:
@@ -3060,10 +3060,28 @@ components:
         choice:
           type: string
           enum: [ACCEPTED, REFUSED]
-    JsonLoyaltyPoints:
+    JsonLoyaltyStatement:
       type: object
-      required: [points]
+      required: [points, purchases]
       properties:
+        points:
+          type: integer
+          format: int32
+          description: The total of the points collected
+        purchases:
+          type: array
+          description: The paid orders with the points they earned, newest first
+          items:
+            $ref: "#/components/schemas/JsonLoyaltyPurchase"
+    JsonLoyaltyPurchase:
+      type: object
+      required: [orderNumber, placedAt, points]
+      properties:
+        orderNumber:
+          type: string
+        placedAt:
+          type: string
+          format: date-time
         points:
           type: integer
           format: int32

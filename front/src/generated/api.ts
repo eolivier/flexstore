@@ -442,6 +442,29 @@ export interface JsonGoogleLoginRequest {
      */
     'idToken': string;
 }
+export interface JsonGuidedTourChoice {
+    'guidedTour': JsonGuidedTourChoiceGuidedTourEnum;
+}
+
+export const JsonGuidedTourChoiceGuidedTourEnum = {
+    Shown: 'SHOWN',
+    Hidden: 'HIDDEN'
+} as const;
+
+export type JsonGuidedTourChoiceGuidedTourEnum = typeof JsonGuidedTourChoiceGuidedTourEnum[keyof typeof JsonGuidedTourChoiceGuidedTourEnum];
+
+export interface JsonGuidedTourPreference {
+    'guidedTour': JsonGuidedTourPreferenceGuidedTourEnum;
+}
+
+export const JsonGuidedTourPreferenceGuidedTourEnum = {
+    Shown: 'SHOWN',
+    Hidden: 'HIDDEN',
+    None: 'NONE'
+} as const;
+
+export type JsonGuidedTourPreferenceGuidedTourEnum = typeof JsonGuidedTourPreferenceGuidedTourEnum[keyof typeof JsonGuidedTourPreferenceGuidedTourEnum];
+
 export interface JsonItem {
     'itemId'?: string;
     'productId'?: string;
@@ -552,8 +575,20 @@ export interface JsonLowStock {
      */
     'threshold': number;
 }
-export interface JsonLoyaltyPoints {
+export interface JsonLoyaltyPurchase {
+    'orderNumber': string;
+    'placedAt': string;
     'points': number;
+}
+export interface JsonLoyaltyStatement {
+    /**
+     * The total of the points collected
+     */
+    'points': number;
+    /**
+     * The paid orders with the points they earned, newest first
+     */
+    'purchases': Array<JsonLoyaltyPurchase>;
 }
 export interface JsonNewDiscountCode {
     /**
@@ -4161,11 +4196,11 @@ export const LoyaltyApiAxiosParamCreator = function (configuration?: Configurati
     return {
         /**
          * 
-         * @summary Retrieve the loyalty points of the signed-in customer, one for each whole euro or dollar of their paid orders
+         * @summary Retrieve the loyalty statement of the signed-in customer, a line for each paid order with its points (one for each whole euro or dollar), and the total
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getLoyaltyPoints: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getLoyaltyStatement: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/loyalty`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -4204,14 +4239,14 @@ export const LoyaltyApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
-         * @summary Retrieve the loyalty points of the signed-in customer, one for each whole euro or dollar of their paid orders
+         * @summary Retrieve the loyalty statement of the signed-in customer, a line for each paid order with its points (one for each whole euro or dollar), and the total
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getLoyaltyPoints(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonLoyaltyPoints>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getLoyaltyPoints(options);
+        async getLoyaltyStatement(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonLoyaltyStatement>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getLoyaltyStatement(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['LoyaltyApi.getLoyaltyPoints']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['LoyaltyApi.getLoyaltyStatement']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -4225,12 +4260,12 @@ export const LoyaltyApiFactory = function (configuration?: Configuration, basePa
     return {
         /**
          * 
-         * @summary Retrieve the loyalty points of the signed-in customer, one for each whole euro or dollar of their paid orders
+         * @summary Retrieve the loyalty statement of the signed-in customer, a line for each paid order with its points (one for each whole euro or dollar), and the total
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getLoyaltyPoints(options?: RawAxiosRequestConfig): AxiosPromise<JsonLoyaltyPoints> {
-            return localVarFp.getLoyaltyPoints(options).then((request) => request(axios, basePath));
+        getLoyaltyStatement(options?: RawAxiosRequestConfig): AxiosPromise<JsonLoyaltyStatement> {
+            return localVarFp.getLoyaltyStatement(options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -4241,12 +4276,12 @@ export const LoyaltyApiFactory = function (configuration?: Configuration, basePa
 export class LoyaltyApi extends BaseAPI {
     /**
      * 
-     * @summary Retrieve the loyalty points of the signed-in customer, one for each whole euro or dollar of their paid orders
+     * @summary Retrieve the loyalty statement of the signed-in customer, a line for each paid order with its points (one for each whole euro or dollar), and the total
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public getLoyaltyPoints(options?: RawAxiosRequestConfig) {
-        return LoyaltyApiFp(this.configuration).getLoyaltyPoints(options).then((request) => request(this.axios, this.basePath));
+    public getLoyaltyStatement(options?: RawAxiosRequestConfig) {
+        return LoyaltyApiFp(this.configuration).getLoyaltyStatement(options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -4948,6 +4983,40 @@ export const PreferencesApiAxiosParamCreator = function (configuration?: Configu
             };
         },
         /**
+         * NONE when the customer never chose (the tour is shown then).
+         * @summary Retrieve whether the guided tour is shown to the signed-in customer
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getGuidedTourPreference: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/guided-tour`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * NONE when the customer never chose.
          * @summary Retrieve the preferred language of the signed-in customer
          * @param {*} [options] Override http request option.
@@ -5023,6 +5092,46 @@ export const PreferencesApiAxiosParamCreator = function (configuration?: Configu
         },
         /**
          * 
+         * @summary Record whether the guided tour is shown to the signed-in customer
+         * @param {JsonGuidedTourChoice} jsonGuidedTourChoice 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        recordGuidedTourPreference: async (jsonGuidedTourChoice: JsonGuidedTourChoice, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'jsonGuidedTourChoice' is not null or undefined
+            assertParamExists('recordGuidedTourPreference', 'jsonGuidedTourChoice', jsonGuidedTourChoice)
+            const localVarPath = `/api/guided-tour`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonGuidedTourChoice, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Record the preferred language chosen by the signed-in customer
          * @param {JsonLanguageChoice} jsonLanguageChoice 
          * @param {*} [options] Override http request option.
@@ -5083,6 +5192,18 @@ export const PreferencesApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * NONE when the customer never chose (the tour is shown then).
+         * @summary Retrieve whether the guided tour is shown to the signed-in customer
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getGuidedTourPreference(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonGuidedTourPreference>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getGuidedTourPreference(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PreferencesApi.getGuidedTourPreference']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * NONE when the customer never chose.
          * @summary Retrieve the preferred language of the signed-in customer
          * @param {*} [options] Override http request option.
@@ -5105,6 +5226,19 @@ export const PreferencesApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.recordColorModePreference(jsonColorModeChoice, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['PreferencesApi.recordColorModePreference']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Record whether the guided tour is shown to the signed-in customer
+         * @param {JsonGuidedTourChoice} jsonGuidedTourChoice 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async recordGuidedTourPreference(jsonGuidedTourChoice: JsonGuidedTourChoice, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonGuidedTourPreference>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.recordGuidedTourPreference(jsonGuidedTourChoice, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PreferencesApi.recordGuidedTourPreference']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -5139,6 +5273,15 @@ export const PreferencesApiFactory = function (configuration?: Configuration, ba
             return localVarFp.getColorModePreference(options).then((request) => request(axios, basePath));
         },
         /**
+         * NONE when the customer never chose (the tour is shown then).
+         * @summary Retrieve whether the guided tour is shown to the signed-in customer
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getGuidedTourPreference(options?: RawAxiosRequestConfig): AxiosPromise<JsonGuidedTourPreference> {
+            return localVarFp.getGuidedTourPreference(options).then((request) => request(axios, basePath));
+        },
+        /**
          * NONE when the customer never chose.
          * @summary Retrieve the preferred language of the signed-in customer
          * @param {*} [options] Override http request option.
@@ -5156,6 +5299,16 @@ export const PreferencesApiFactory = function (configuration?: Configuration, ba
          */
         recordColorModePreference(jsonColorModeChoice: JsonColorModeChoice, options?: RawAxiosRequestConfig): AxiosPromise<JsonColorModePreference> {
             return localVarFp.recordColorModePreference(jsonColorModeChoice, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Record whether the guided tour is shown to the signed-in customer
+         * @param {JsonGuidedTourChoice} jsonGuidedTourChoice 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        recordGuidedTourPreference(jsonGuidedTourChoice: JsonGuidedTourChoice, options?: RawAxiosRequestConfig): AxiosPromise<JsonGuidedTourPreference> {
+            return localVarFp.recordGuidedTourPreference(jsonGuidedTourChoice, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -5185,6 +5338,16 @@ export class PreferencesApi extends BaseAPI {
     }
 
     /**
+     * NONE when the customer never chose (the tour is shown then).
+     * @summary Retrieve whether the guided tour is shown to the signed-in customer
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getGuidedTourPreference(options?: RawAxiosRequestConfig) {
+        return PreferencesApiFp(this.configuration).getGuidedTourPreference(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * NONE when the customer never chose.
      * @summary Retrieve the preferred language of the signed-in customer
      * @param {*} [options] Override http request option.
@@ -5203,6 +5366,17 @@ export class PreferencesApi extends BaseAPI {
      */
     public recordColorModePreference(jsonColorModeChoice: JsonColorModeChoice, options?: RawAxiosRequestConfig) {
         return PreferencesApiFp(this.configuration).recordColorModePreference(jsonColorModeChoice, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Record whether the guided tour is shown to the signed-in customer
+     * @param {JsonGuidedTourChoice} jsonGuidedTourChoice 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public recordGuidedTourPreference(jsonGuidedTourChoice: JsonGuidedTourChoice, options?: RawAxiosRequestConfig) {
+        return PreferencesApiFp(this.configuration).recordGuidedTourPreference(jsonGuidedTourChoice, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
