@@ -84,7 +84,7 @@ class GoogleIdentityVerifierAdapterTest {
         // Act
         val thrown = catchThrowable { verifier.verify(idToken) }
         // Assert
-        assertThat(thrown).hasCauseInstanceOf(InvalidGoogleIdTokenException::class.java)
+        assertThat(thrown).isInstanceOf(InvalidGoogleIdTokenException::class.java)
     }
 
     @Test
@@ -94,7 +94,7 @@ class GoogleIdentityVerifierAdapterTest {
         // Act
         val thrown = catchThrowable { verifier.verify(idToken) }
         // Assert
-        assertThat(thrown).hasCauseInstanceOf(InvalidGoogleIdTokenException::class.java)
+        assertThat(thrown).isInstanceOf(InvalidGoogleIdTokenException::class.java)
     }
 
     @Test
@@ -107,7 +107,7 @@ class GoogleIdentityVerifierAdapterTest {
         // Act
         val thrown = catchThrowable { verifier.verify(idToken) }
         // Assert
-        assertThat(thrown).hasCauseInstanceOf(InvalidGoogleIdTokenException::class.java)
+        assertThat(thrown).isInstanceOf(InvalidGoogleIdTokenException::class.java)
     }
 
     @Test
@@ -117,7 +117,7 @@ class GoogleIdentityVerifierAdapterTest {
         // Act
         val thrown = catchThrowable { verifier.verify(idToken) }
         // Assert
-        assertThat(thrown).hasCauseInstanceOf(InvalidGoogleIdTokenException::class.java)
+        assertThat(thrown).isInstanceOf(InvalidGoogleIdTokenException::class.java)
     }
 
     @Test
@@ -125,7 +125,7 @@ class GoogleIdentityVerifierAdapterTest {
         // Act
         val thrown = catchThrowable { verifier.verify(GoogleIdToken("not-a-jwt")) }
         // Assert
-        assertThat(thrown).hasCauseInstanceOf(InvalidGoogleIdTokenException::class.java)
+        assertThat(thrown).isInstanceOf(InvalidGoogleIdTokenException::class.java)
     }
 
     @Test
@@ -135,7 +135,7 @@ class GoogleIdentityVerifierAdapterTest {
         // Act
         val thrown = catchThrowable { verifierWithoutClientId.verify(tokenOf()) }
         // Assert
-        assertThat(thrown).hasCauseInstanceOf(InvalidGoogleIdTokenException::class.java)
+        assertThat(thrown).isInstanceOf(InvalidGoogleIdTokenException::class.java)
             .hasMessage("Signing in with Google is not set up.")
     }
 }
