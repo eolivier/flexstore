@@ -45,7 +45,8 @@ class InvoiceService(
 
     private fun invoiceDocumentOf(administeredOrder: AdministeredOrder): InvoiceDocument {
         val invoice = invoiceUseCases.readInvoiceUseCase.unfold(administeredOrder.order.orderId)
-        val seller = invoiceUseCases.readSellerUseCase.unfold(SellerVersionReading(SystemActor(), invoice.sellerId))
+        val sellerReading = SellerVersionReading(SystemActor(), invoice.sellerId)
+        val seller = invoiceUseCases.readSellerUseCase.unfold(sellerReading)
         return InvoiceDocument(invoice, InvoicedSale(administeredOrder, seller))
     }
 

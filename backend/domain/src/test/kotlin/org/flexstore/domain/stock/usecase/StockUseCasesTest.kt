@@ -1,5 +1,6 @@
 package org.flexstore.domain.stock.usecase
 
+import org.flexstore.domain.actor.unknownUserActor
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.product.*
@@ -33,7 +34,7 @@ class StockUseCasesTest : WithAssertions {
     @Test
     fun `a product whose stock was never given should have none`() {
         // Act
-        val stock = stockUseCases.getStock(deskLamp.productId)
+        val stock = stockUseCases.getStock(unknownUserActor, deskLamp.productId)
         // Assert
         assertThat(stock.quantity).isEqualTo(StockQuantity.none())
     }

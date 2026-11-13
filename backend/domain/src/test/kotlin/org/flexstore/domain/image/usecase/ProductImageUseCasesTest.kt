@@ -1,5 +1,6 @@
 package org.flexstore.domain.image.usecase
 
+import org.flexstore.domain.actor.unknownUserActor
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.image.*
 import org.flexstore.domain.product.*
@@ -55,11 +56,12 @@ class ProductImageUseCasesTest : WithAssertions {
         // Act
         productImageUseCases.add(administrator, uploadedImageOf(UploadedImage.MAX_BYTES))
         // Assert
-        val large = productImageUseCases.getImage(deskLamp.productId, ImageFormat.LARGE)
-        val small = productImageUseCases.getImage(deskLamp.productId, ImageFormat.SMALL)
+        val large = productImageUseCases.getImage(unknownUserActor, deskLamp.productId, ImageFormat.LARGE)
+        val small = productImageUseCases.getImage(unknownUserActor, deskLamp.productId, ImageFormat.SMALL)
         assertThat(large.content.size()).isEqualTo(ImageFormat.LARGE.maxBytes)
         assertThat(small.content.size()).isEqualTo(ImageFormat.SMALL.maxBytes)
-        assertThat(productImageUseCases.getProductsWithImage()).isEqualTo(ProductIds(deskLamp.productId))
+        val productsWithImage = productImageUseCases.getProductsWithImage(unknownUserActor)
+        assertThat(productsWithImage).isEqualTo(ProductIds(deskLamp.productId))
     }
 
     @Test
@@ -100,9 +102,11 @@ class ProductImageUseCasesTest : WithAssertions {
         // Act
         productImageUseCases.remove(administrator, deskLamp.productId)
         // Assert
-        val thrown = catchThrowable { productImageUseCases.getImage(deskLamp.productId, ImageFormat.SMALL) }
+        val productId = deskLamp.productId
+        val reader = unknownUserActor
+        val thrown = catchThrowable { productImageUseCases.getImage(reader, productId, ImageFormat.SMALL) }
         assertThat(thrown).hasCauseInstanceOf(ProductImageNotFoundException::class.java)
-        assertThat(productImageUseCases.getProductsWithImage()).isEqualTo(ProductIds())
+        assertThat(productImageUseCases.getProductsWithImage(unknownUserActor)).isEqualTo(ProductIds())
     }
 
     @Test
