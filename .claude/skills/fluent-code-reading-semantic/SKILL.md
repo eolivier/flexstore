@@ -65,7 +65,7 @@ Why: a condition reads as the rule it expresses ("if the quantity is zero or neg
 Details:
 - Each predicate and its opposite may both exist (`isPositive()` / `isZeroOrNegative()`, `exists()` / `notExists()`), so that every caller uses the affirmative form of what it means.
 - The same applies to local booleans: `val unchanged = ...` checked as `if (unchanged)` rather than `val changed = ...` checked as `if (!changed)`.
-- **`!is` is forbidden, everywhere**: not in a condition, and not inside the method that names it. A type check is written once, affirmatively, in a method `isX()` (`this is X`); the negated case is a method `isNotX()` defined as the negation of that one (`!isX()`). Callers use these two methods, never `!is` directly. For a type that needs no named method, use the generic `isNot<Type>()` of the shared kernel (`actor.isNot<SystemActor>()`), which is the negated `is`.
+- **`!is` is forbidden, everywhere**: not in a condition, and not inside the method that names it. A type check is written once, affirmatively, in a method `isX()` (`this is X`); the negated case is a method `isNotX()` defined as the negation of that one (`!isX()`). Callers use these two methods, never `!is` directly. For a type that needs no named method, use the infix `isNot` of the shared kernel (`actor isNot SystemActor::class`), which is the negated `is`, written like the keyword.
 
 Avoid:
 
@@ -81,7 +81,7 @@ fun Actor.isAdmin() = this is Admin
 fun Actor.isNotAdmin() = !isAdmin()
 
 if (actor.isNotAdmin()) { throw StockAlertForbiddenException(...) }
-// a condition on several types combines the named methods: actor.isNotAdmin() && actor.isNot<SystemActor>()
+// a condition on several types combines the named methods: actor.isNotAdmin() && actor isNot SystemActor::class
 ```
 
 Why: `!is` hides the negation in the middle of the line, between the value and the type; `isNotAdmin()` reads as the question it answers, and it cannot drift from `isAdmin()` since it is defined as its negation. The only type check left is the `is` of the affirmative method.
