@@ -24,21 +24,21 @@ function mountForm(props: Record<string, unknown> = {}) {
 describe('UserForm.vue', () => {
   beforeEach(() => setActivePinia(createPinia()));
 
-  it('asks for a password when the user is created', () => {
+  it('should ask for a password when the user is created', () => {
     // Act
     const wrapper = mountForm();
     // Assert
     expect(wrapper.find('input[type="password"]').exists()).toBe(true);
   });
 
-  it('does not ask for a password when the account exists', () => {
+  it('should not ask for a password when the account exists', () => {
     // Act
     const wrapper = mountForm({ account });
     // Assert
     expect(wrapper.find('input[type="password"]').exists()).toBe(false);
   });
 
-  it('shows the status and the two-factor authentication of an existing account only', () => {
+  it('should show the status and the two-factor authentication of an existing account only', () => {
     // Act
     const created = mountForm();
     const existing = mountForm({ account });
@@ -48,14 +48,14 @@ describe('UserForm.vue', () => {
     expect(existing.findComponent(AdminTwoFactorAuthenticationField).exists()).toBe(true);
   });
 
-  it('shows the initial values', () => {
+  it('should show the initial values', () => {
     // Act
     const wrapper = mountForm();
     // Assert
     expect((wrapper.find('input[type="email"]').element as HTMLInputElement).value).toBe('jane@example.com');
   });
 
-  it('submits the edited values', async () => {
+  it('should submit the edited values', async () => {
     // Arrange
     const wrapper = mountForm({ account });
     await wrapper.find('input[type="email"]').setValue('jane.doe@example.com');
@@ -72,7 +72,7 @@ describe('UserForm.vue', () => {
     });
   });
 
-  it('does not submit an invalid email', async () => {
+  it('should not submit an invalid email', async () => {
     // Arrange
     const wrapper = mountForm();
     await wrapper.find('input[type="email"]').setValue('jane');
@@ -83,7 +83,7 @@ describe('UserForm.vue', () => {
     expect(wrapper.emitted('submit')).toBeUndefined();
   });
 
-  it('shows the label of the submit button and the error message', () => {
+  it('should show the label of the submit button and the error message', () => {
     // Act
     const wrapper = mountForm({ submitLabel: 'Create user', errorMessage: 'Email already used' });
     // Assert
