@@ -1,6 +1,6 @@
 package org.flexstore.domain.environment
 
-import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.entity.Actor
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.PreConditionException
 
@@ -127,7 +127,7 @@ data class ExpectedVariables(private val variables: List<ExpectedVariable>) {
 }
 
 // An administrator who reads the state of the environment variables
-data class EnvironmentReading(val reader: UserId)
+data class EnvironmentReading(val reader: Actor)
 
 data class EnvironmentAdministrationForbiddenException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)

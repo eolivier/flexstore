@@ -2,6 +2,7 @@ package org.flexstore.infra.spring.adapter.rest
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.environment.EnvironmentReading
 import org.flexstore.domain.environment.ReadEnvironmentUseCase
 import org.flexstore.domain.user.model.UserId
@@ -16,12 +17,16 @@ import org.springframework.web.bind.annotation.*
 @Tag(name = "Administration")
 @RestController
 @RequestMapping("/api/admin/environment")
-class AdminEnvironmentController(private val readEnvironmentUseCase: ReadEnvironmentUseCase) {
+class AdminEnvironmentController(
+    private val readEnvironmentUseCase: ReadEnvironmentUseCase,
+    private val actorResolutionService: ActorResolutionService
+) {
 
     @Operation(summary = "Retrieve the environment variables of the shop, the secrets only as defined or not")
     @GetMapping
     fun getEnvironment(@AuthenticationPrincipal reader: Jwt): List<JsonEnvironmentVariable> {
-        val environmentReading = EnvironmentReading(UserId.of(reader.subject))
+        val actor = actorResolutionService.actorOf(UserId.of(reader.subject))
+        val environmentReading = EnvironmentReading(actor)
         return JsonEnvironmentVariable.listOf(readEnvironmentUseCase.unfold(environmentReading))
     }
 }

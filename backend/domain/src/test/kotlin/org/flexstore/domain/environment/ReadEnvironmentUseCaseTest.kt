@@ -1,9 +1,8 @@
 package org.flexstore.domain.environment
 
 import org.assertj.core.api.WithAssertions
-import org.flexstore.domain.user.administration.testAdministrator
-import org.flexstore.domain.user.administration.testCustomer
-import org.flexstore.domain.user.administration.usersOfTheAdministration
+import org.flexstore.domain.actor.testAdministratorActor
+import org.flexstore.domain.actor.testCustomerActor
 import org.flexstore.infra.repository.InMemoryEnvironmentRepository
 import org.junit.jupiter.api.Test
 
@@ -19,12 +18,12 @@ class ReadEnvironmentUseCaseTest : WithAssertions {
             mailPassword to VariableValue("")
         )
     )
-    private val useCase = ReadEnvironmentUseCase(environmentRepository, usersOfTheAdministration())
+    private val useCase = ReadEnvironmentUseCase(environmentRepository)
 
     @Test
     fun `an administrator should read the state of every variable of the shop`() {
         // Act
-        val environmentReport = useCase.unfold(EnvironmentReading(testAdministrator.id))
+        val environmentReport = useCase.unfold(EnvironmentReading(testAdministratorActor))
         // Assert
         val reports = environmentReport.asList().associate { report -> report.variable.name to report.state }
         val expectedVariables = ExpectedVariables.ofTheShop().reportOn { VariableValue.missing() }
@@ -38,7 +37,7 @@ class ReadEnvironmentUseCaseTest : WithAssertions {
     @Test
     fun `the report should never hold the value of a secret`() {
         // Act
-        val environmentReport = useCase.unfold(EnvironmentReading(testAdministrator.id))
+        val environmentReport = useCase.unfold(EnvironmentReading(testAdministratorActor))
         // Assert
         assertThat(environmentReport.toString()).doesNotContain("a-very-long-secret")
     }
@@ -47,9 +46,9 @@ class ReadEnvironmentUseCaseTest : WithAssertions {
     fun `the environment should be incomplete while a required variable is undefined`() {
         // Arrange
         val emptyEnvironment = InMemoryEnvironmentRepository()
-        val withoutJwtSecret = ReadEnvironmentUseCase(emptyEnvironment, usersOfTheAdministration())
+        val withoutJwtSecret = ReadEnvironmentUseCase(emptyEnvironment)
         // Act
-        val environmentReport = withoutJwtSecret.unfold(EnvironmentReading(testAdministrator.id))
+        val environmentReport = withoutJwtSecret.unfold(EnvironmentReading(testAdministratorActor))
         // Assert
         assertThat(environmentReport.isComplete()).isFalse()
     }
@@ -57,7 +56,7 @@ class ReadEnvironmentUseCaseTest : WithAssertions {
     @Test
     fun `the environment should be complete once the required variables are defined`() {
         // Act
-        val environmentReport = useCase.unfold(EnvironmentReading(testAdministrator.id))
+        val environmentReport = useCase.unfold(EnvironmentReading(testAdministratorActor))
         // Assert
         assertThat(environmentReport.isComplete()).isTrue()
     }
@@ -65,7 +64,7 @@ class ReadEnvironmentUseCaseTest : WithAssertions {
     @Test
     fun `a customer should not read the environment variables`() {
         // Act
-        val thrown = catchThrowable { useCase.unfold(EnvironmentReading(testCustomer.id)) }
+        val thrown = catchThrowable { useCase.unfold(EnvironmentReading(testCustomerActor)) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(EnvironmentAdministrationForbiddenException::class.java)
     }
