@@ -22,7 +22,7 @@ Back end (from `backend/`, Java 21, PostgreSQL needed: `docker compose up -d db`
 
 - `./gradlew test`: unit tests
 - `./gradlew integrationTest`: integration tests (need the database)
-- `./gradlew checkLineLength`: lines of 113 characters at most (checked by the CI)
+- `./gradlew checkLineLength`: lines of 120 characters at most (checked by the CI)
 - `./gradlew :spring-infra:bootRun`: run the back end
 
 Front end (from `front/`, Node version in `front/.nvmrc`):

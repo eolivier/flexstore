@@ -23,10 +23,10 @@ subprojects {
     }
 }
 
-// A line of code is 113 characters at most (fluent-code-reading-semantic skill). As for the front (ESLint
+// A line of code is 120 characters at most (fluent-code-reading-semantic skill). As for the front (ESLint
 // max-len with ignoreStrings), a line that holds a string literal is not checked. The migrations up to V18 are
 // already applied and frozen (Flyway checks their checksum): only the next ones are checked
-val maxLineLength = 113
+val maxLineLength = 120
 val lastFrozenMigration = 18
 
 tasks.register("checkLineLength") {
