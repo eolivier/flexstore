@@ -35,14 +35,14 @@ describe('WishlistToggleButton.vue', () => {
     mockFetch.mockResolvedValue({ ok: true, status: 204 });
   });
 
-  it('is hidden for a visitor', () => {
+  it('should be hidden for a visitor', () => {
     // Act
     const wrapper = mountButton();
     // Assert
     expect(wrapper.find('button').exists()).toBe(false);
   });
 
-  it('saves the product the first time it is clicked, signed in', async () => {
+  it('should save the product the first time it is clicked, signed in', async () => {
     // Arrange
     signIn();
     const wrapper = mountButton();
@@ -56,7 +56,7 @@ describe('WishlistToggleButton.vue', () => {
     expect(wrapper.find('.mdi-heart').exists()).toBe(true);
   });
 
-  it('removes the product on the second click', async () => {
+  it('should remove the product on the second click', async () => {
     // Arrange
     signIn();
     const wrapper = mountButton();

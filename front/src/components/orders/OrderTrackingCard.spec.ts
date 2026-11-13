@@ -8,7 +8,7 @@ const mountCard = (tracking: JsonOrderTracking) =>
   mount(OrderTrackingCard, { props: { tracking }, global: { plugins: [vuetify, i18n] } });
 
 describe('OrderTrackingCard.vue', () => {
-  it('shows the carrier and the tracking number', () => {
+  it('should show the carrier and the tracking number', () => {
     // Act
     const wrapper = mountCard({ carrier: 'COLISSIMO', trackingNumber: '6A123', trackingUrl: null });
     // Assert
@@ -16,7 +16,7 @@ describe('OrderTrackingCard.vue', () => {
     expect(wrapper.text()).toContain('6A123');
   });
 
-  it('links to the tracking page of the carrier when it has one', () => {
+  it('should link to the tracking page of the carrier when it has one', () => {
     // Act
     const wrapper = mountCard({
       carrier: 'UPS',
@@ -29,7 +29,7 @@ describe('OrderTrackingCard.vue', () => {
     expect(link.text()).toContain('Follow the parcel');
   });
 
-  it('offers no link for a carrier without a tracking page', () => {
+  it('should offer no link for a carrier without a tracking page', () => {
     // Act
     const wrapper = mountCard({ carrier: 'OTHER', trackingNumber: 'AB-1', trackingUrl: null });
     // Assert

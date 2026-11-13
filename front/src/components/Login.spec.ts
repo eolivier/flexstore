@@ -64,7 +64,7 @@ describe('Login.vue', () => {
     await flushPromises();
   };
 
-  it('renders login form with email and password fields', async () => {
+  it('should render login form with email and password fields', async () => {
     // Act
     const wrapper = await mountComponent();
     // Assert
@@ -73,7 +73,7 @@ describe('Login.vue', () => {
     expect(wrapper.find('button[type="submit"]').exists()).toBe(true);
   });
 
-  it('hides the password until the eye icon is clicked, then hides it again', async () => {
+  it('should hide the password until the eye icon is clicked, then hide it again', async () => {
     // Arrange
     const wrapper = await mountComponent();
     await wrapper.find('input[type="password"]').setValue('password123');
@@ -90,21 +90,21 @@ describe('Login.vue', () => {
     expect(wrapper.find('input[type="password"]').exists()).toBe(true);
   });
 
-  it('displays title from i18n', async () => {
+  it('should display title from i18n', async () => {
     // Act
     const wrapper = await mountComponent();
     // Assert
     expect(wrapper.text()).toContain('Login');
   });
 
-  it('submit button is disabled when form is invalid', async () => {
+  it('submit button should be disabled when form is invalid', async () => {
     // Act
     const wrapper = await mountComponent();
     // Assert
     expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeDefined();
   });
 
-  it('validates email format', async () => {
+  it('should validate email format', async () => {
     // Arrange
     const wrapper = await mountComponent();
     // Act
@@ -114,7 +114,7 @@ describe('Login.vue', () => {
     expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeDefined();
   });
 
-  it('calls login when form is submitted with valid data', async () => {
+  it('should call login when form is submitted with valid data', async () => {
     // Arrange
     mockFetch.mockResolvedValueOnce(loginSuccess('ADMIN'));
     const wrapper = await mountComponent();
@@ -133,7 +133,7 @@ describe('Login.vue', () => {
     expect(useAuthStore().isAuthenticated).toBe(true);
   });
 
-  it('displays error message when login fails', async () => {
+  it('should display error message when login fails', async () => {
     // Arrange
     mockFetch.mockResolvedValueOnce({ ok: false, status: 401 });
     const wrapper = await mountComponent();
@@ -150,7 +150,7 @@ describe('Login.vue', () => {
     { role: 'USER' as const, query: {}, expectedPath: '/user-profile' },
     { role: 'ADMIN' as const, query: { redirect: '/admin/users' }, expectedPath: '/admin/users' },
   ])(
-    'redirects a $role user to $expectedPath after login (query $query)',
+    'should redirect a $role user to $expectedPath after login (query $query)',
     async ({ role, query, expectedPath }) => {
       // Arrange
       mockFetch.mockResolvedValueOnce(loginSuccess(role));
@@ -167,7 +167,7 @@ describe('Login.vue', () => {
     { status: 'SUSPENDED', expected: 'Your account is suspended. Contact the shop to know more.' },
     { status: 'LOCKED', expected: 'Your account is locked. Contact the shop to unlock it.' },
     { status: 'DISABLED', expected: 'Your account is disabled.' },
-  ])('a $status account is told why it cannot sign in', async ({ status, expected }) => {
+  ])('a $status account should be told why it cannot sign in', async ({ status, expected }) => {
     // Arrange
     mockFetch.mockResolvedValueOnce({
       ok: false,
@@ -183,7 +183,7 @@ describe('Login.vue', () => {
     expect(router.currentRoute.value.path).toBe('/login');
   });
 
-  it('links to the sign-up, keeping where to go back', async () => {
+  it('should link to the sign-up, keeping where to go back', async () => {
     // Act
     const wrapper = await mountComponent({ redirect: '/cart' });
     // Assert
@@ -192,7 +192,7 @@ describe('Login.vue', () => {
   });
 
   describe('two-factor challenge', () => {
-    it('shows the code step instead of redirecting when a second factor is required', async () => {
+    it('should show the code step instead of redirecting when a second factor is required', async () => {
       // Arrange
       mockFetch.mockResolvedValueOnce(twoFactorChallengeRequired());
       const wrapper = await mountComponent();
@@ -205,7 +205,7 @@ describe('Login.vue', () => {
       expect(router.currentRoute.value.path).toBe('/login');
     });
 
-    it('redirects once the right code is verified', async () => {
+    it('should redirect once the right code is verified', async () => {
       // Arrange
       mockFetch.mockResolvedValueOnce(twoFactorChallengeRequired());
       const wrapper = await mountComponent();
@@ -221,7 +221,7 @@ describe('Login.vue', () => {
       expect(router.currentRoute.value.path).toBe('/admin');
     });
 
-    it('reports a wrong code, without redirecting', async () => {
+    it('should report a wrong code, without redirecting', async () => {
       // Arrange
       mockFetch.mockResolvedValueOnce(twoFactorChallengeRequired());
       const wrapper = await mountComponent();
@@ -237,7 +237,7 @@ describe('Login.vue', () => {
       expect(useAuthStore().isAuthenticated).toBe(false);
     });
 
-    it('goes back to the credentials step', async () => {
+    it('should go back to the credentials step', async () => {
       // Arrange
       mockFetch.mockResolvedValueOnce(twoFactorChallengeRequired());
       const wrapper = await mountComponent();

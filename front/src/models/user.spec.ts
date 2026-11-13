@@ -7,7 +7,7 @@ describe('FullName', () => {
     { person: { firstName: 'Admin', lastName: '' }, expected: 'Admin' },
     { person: { firstName: '', lastName: 'Doe' }, expected: 'Doe' },
     { person: null, expected: '' },
-  ])('the full name of $person reads "$expected"', ({ person, expected }) => {
+  ])('the full name of $person should read "$expected"', ({ person, expected }) => {
     // Act
     const value = FullName.of(person).value;
     // Assert
@@ -18,7 +18,7 @@ describe('FullName', () => {
     { person: { firstName: 'jane', lastName: 'doe' }, expected: 'JD' },
     { person: { firstName: 'Admin', lastName: '' }, expected: 'A' },
     { person: undefined, expected: '' },
-  ])('the initials of $person are "$expected"', ({ person, expected }) => {
+  ])('the initials of $person should be "$expected"', ({ person, expected }) => {
     // Act
     const initials = FullName.of(person).initials;
     // Assert

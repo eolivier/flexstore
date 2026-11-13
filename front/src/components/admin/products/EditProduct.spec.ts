@@ -61,14 +61,14 @@ describe('EditProduct.vue', () => {
     mockFetch.mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve(tShirt) });
   });
 
-  it('loads the product with its translations in every language', async () => {
+  it('should load the product with its translations in every language', async () => {
     // Act
     await mountEditProduct();
     // Assert
     expect(mockFetch.mock.calls.some(([url]) => /\/api\/admin\/products\/p-1$/.test(url))).toBe(true);
   });
 
-  it('shows the name and the description in the language of the chip chosen', async () => {
+  it('should show the name and the description in the language of the chip chosen', async () => {
     // Arrange
     const wrapper = await mountEditProduct();
     const frenchChip = wrapper.findAll('.v-chip').find((chip) => chip.text().startsWith('FR'))!;
@@ -79,7 +79,7 @@ describe('EditProduct.vue', () => {
     expect((shownName.element as HTMLInputElement).value).toBe('T-shirt bio');
   });
 
-  it('removes a translation whose name and description are emptied', async () => {
+  it('should remove a translation whose name and description are emptied', async () => {
     // Arrange
     const wrapper = await mountEditProduct();
     const [, frenchName] = wrapper.findAll(NAME_INPUTS);
@@ -96,7 +96,7 @@ describe('EditProduct.vue', () => {
     ]);
   });
 
-  it('shows the current name, description and price of the product', async () => {
+  it('should show the current name, description and price of the product', async () => {
     // Act
     const wrapper = await mountEditProduct();
     // Assert
@@ -107,7 +107,7 @@ describe('EditProduct.vue', () => {
     expect((stock.element as HTMLInputElement).value).toBe('12');
   });
 
-  it('saves the edited product', async () => {
+  it('should save the edited product', async () => {
     // Arrange
     const wrapper = await mountEditProduct();
     await wrapper.find(NAME_INPUTS).setValue('Linen T-shirt');
@@ -132,7 +132,7 @@ describe('EditProduct.vue', () => {
     });
   });
 
-  it('shows the promotion of the product with its period and saves its change', async () => {
+  it('should show the promotion of the product with its period and save its change', async () => {
     // Arrange
     const promotion = {
       percentage: 15,
@@ -167,7 +167,7 @@ describe('EditProduct.vue', () => {
     });
   });
 
-  it('saves a product without promotion when its percentage is emptied', async () => {
+  it('should save a product without promotion when its percentage is emptied', async () => {
     // Arrange
     const promotion = {
       percentage: 15,
@@ -190,7 +190,7 @@ describe('EditProduct.vue', () => {
     expect(savedProduct().promotion).toBeUndefined();
   });
 
-  it('reports a product that could not be saved', async () => {
+  it('should report a product that could not be saved', async () => {
     // Arrange
     mockFetch.mockImplementation((_url, init) =>
       Promise.resolve(
@@ -207,14 +207,14 @@ describe('EditProduct.vue', () => {
     expect(wrapper.text()).toContain('The product could not be saved.');
   });
 
-  it('shows the SKU of the product', async () => {
+  it('should show the SKU of the product', async () => {
     // Act
     const wrapper = await mountEditProduct();
     // Assert
     expect((wrapper.find(SKU_INPUT).element as HTMLInputElement).value).toBe('CLO-1');
   });
 
-  it('saves the SKU typed, trimmed and in upper case', async () => {
+  it('should save the SKU typed, trimmed and in upper case', async () => {
     // Arrange
     const wrapper = await mountEditProduct();
     await wrapper.find(SKU_INPUT).setValue(' tshirt-organic-m ');
@@ -226,7 +226,7 @@ describe('EditProduct.vue', () => {
     expect(savedProduct().sku).toBe('TSHIRT-ORGANIC-M');
   });
 
-  it('says that the SKU is used by another product', async () => {
+  it('should say that the SKU is used by another product', async () => {
     // Arrange
     mockFetch.mockImplementation((_url, init) =>
       Promise.resolve(
@@ -244,7 +244,7 @@ describe('EditProduct.vue', () => {
     expect(wrapper.text()).not.toContain('The product could not be saved.');
   });
 
-  it('reports a product that cannot be loaded', async () => {
+  it('should report a product that cannot be loaded', async () => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: false, status: 404, json: () => Promise.resolve({}) });
     // Act
@@ -253,7 +253,7 @@ describe('EditProduct.vue', () => {
     expect(wrapper.text()).toContain('The product could not be loaded.');
   });
 
-  it('the cancel button goes back to the list of products', async () => {
+  it('the cancel button should go back to the list of products', async () => {
     // Act
     const wrapper = await mountEditProduct();
     // Assert
@@ -261,7 +261,7 @@ describe('EditProduct.vue', () => {
     expect(cancel.attributes('href')).toBe('/admin/products');
   });
 
-  it('saves the stock of the product with it', async () => {
+  it('should save the stock of the product with it', async () => {
     // Arrange
     const wrapper = await mountEditProduct();
     const [, , stock] = wrapper.findAll('input[type="number"]');
@@ -275,7 +275,7 @@ describe('EditProduct.vue', () => {
     expect(JSON.parse(init.body)).toEqual({ quantity: 7 });
   });
 
-  it('saves the alert threshold of the product with it', async () => {
+  it('should save the alert threshold of the product with it', async () => {
     // Arrange
     const wrapper = await mountEditProduct();
     const [, , , threshold] = wrapper.findAll('input[type="number"]');

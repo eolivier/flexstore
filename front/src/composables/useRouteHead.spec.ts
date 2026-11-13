@@ -40,9 +40,10 @@ const metaOf = (name: string) => document.head.querySelector(`meta[name="${name}
 describe('useRouteHead', () => {
   afterEach(() => page.unmount());
 
-  it('gives an indexed page its title, its description and its canonical address', async () => {
+  it('should give an indexed page its title, its description and its canonical address', async () => {
+    // Act
     await openPage('/about');
-
+    // Assert
     await vi.waitFor(() => {
       expect(document.title).toBe('About | Flexstore');
       expect(metaOf('description')).toBe(i18n.global.t('seo.about'));
@@ -53,9 +54,10 @@ describe('useRouteHead', () => {
     });
   });
 
-  it('links an indexed page to its address in each language', async () => {
+  it('should link an indexed page to its address in each language', async () => {
+    // Act
     await openPage('/about');
-
+    // Assert
     await vi.waitFor(() => {
       const alternates = [...document.head.querySelectorAll('link[rel="alternate"]')].map((link) => [
         link.getAttribute('hreflang'),
@@ -69,26 +71,29 @@ describe('useRouteHead', () => {
     });
   });
 
-  it('keeps a page that does not say it is public out of the search engines', async () => {
+  it('should keep a page that does not say it is public out of the search engines', async () => {
+    // Act
     await openPage('/cart');
-
+    // Assert
     await vi.waitFor(() => {
       expect(document.title).toBe('Flexstore');
       expect(metaOf('robots')).toBe('noindex,follow');
     });
   });
 
-  it('gives a page without its own description the description written by the administrators', async () => {
+  it('should give a page without its own description the description written by the administrators', async () => {
+    // Act
     await openPage('/cart', 'The shop of the demo');
-
+    // Assert
     await vi.waitFor(() => {
       expect(metaOf('description')).toBe('The shop of the demo');
     });
   });
 
-  it('keeps the description of a page over the description of the shop', async () => {
+  it('should keep the description of a page over the description of the shop', async () => {
+    // Act
     await openPage('/about', 'The shop of the demo');
-
+    // Assert
     await vi.waitFor(() => {
       expect(metaOf('description')).toBe(i18n.global.t('seo.about'));
     });

@@ -43,7 +43,7 @@ describe('ProductReviews.vue', () => {
     mockFetch.mockReset();
   });
 
-  it('offers the form to a customer who bought the product', async () => {
+  it('should offer the form to a customer who bought the product', async () => {
     // Arrange
     signIn();
     mockFetch.mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve({ eligibility: 'CAN_REVIEW' }) });
@@ -56,7 +56,7 @@ describe('ProductReviews.vue', () => {
   it.each([
     { eligibility: 'NOT_BOUGHT', shown: 'not-bought' },
     { eligibility: 'ALREADY_REVIEWED', shown: 'already-reviewed' },
-  ])('tells a customer why there is no form ($eligibility)', async ({ eligibility, shown }) => {
+  ])('should tell a customer why there is no form ($eligibility)', async ({ eligibility, shown }) => {
     // Arrange
     signIn();
     mockFetch.mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve({ eligibility }) });
@@ -67,7 +67,7 @@ describe('ProductReviews.vue', () => {
     expect(wrapper.find(`[data-test="${shown}"]`).exists()).toBe(true);
   });
 
-  it('asks a visitor to sign in, without asking the back end', async () => {
+  it('should ask a visitor to sign in, without asking the back end', async () => {
     // Act
     const wrapper = await mountReviews();
     // Assert

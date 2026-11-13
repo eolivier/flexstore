@@ -23,7 +23,7 @@ describe('DiscountCodeField.vue', () => {
     mockFetch.mockReset();
   });
 
-  it('applies the code with what it takes off the cart', async () => {
+  it('should apply the code with what it takes off the cart', async () => {
     // Arrange
     const preview = { code: 'WELCOME10', amountOff: 7, currency: '€' };
     mockFetch.mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve(preview) });
@@ -39,7 +39,7 @@ describe('DiscountCodeField.vue', () => {
   it.each([
     { status: 404, message: 'This code does not exist.' },
     { status: 410, message: 'This code has expired or is used up.' },
-  ])('says why a code is refused ($status)', async ({ status, message }) => {
+  ])('should say why a code is refused ($status)', async ({ status, message }) => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: false, status });
     const wrapper = mountField();

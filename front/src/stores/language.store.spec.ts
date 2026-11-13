@@ -44,7 +44,7 @@ describe('language.store, signed in', () => {
     { stored: 'FR', expected: 'fr' },
     { stored: 'EN', expected: 'en' },
     { stored: 'NONE', expected: 'none' },
-  ])('the account holding $stored gives the language $expected', async ({ stored, expected }) => {
+  ])('the account holding $stored should give the language $expected', async ({ stored, expected }) => {
     // Arrange
     answer(200, { language: stored });
     // Act

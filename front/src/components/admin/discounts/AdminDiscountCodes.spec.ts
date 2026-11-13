@@ -34,7 +34,7 @@ describe('AdminDiscountCodes.vue', () => {
     mockFetch.mockReset();
   });
 
-  it('lists the discount codes with their reduction and their uses', async () => {
+  it('should list the discount codes with their reduction and their uses', async () => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve([welcome]) });
     // Act
@@ -45,7 +45,7 @@ describe('AdminDiscountCodes.vue', () => {
     expect(wrapper.text()).toContain('3 / 100');
   });
 
-  it('gives a new discount code, in upper case', async () => {
+  it('should give a new discount code, in upper case', async () => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: true, status: 201, json: () => Promise.resolve([]) });
     const wrapper = await mountPage();

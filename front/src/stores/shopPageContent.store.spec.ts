@@ -26,7 +26,7 @@ describe('shopPageContent.store', () => {
     getShopPageContents.mockReset();
   });
 
-  it('reads the contents of the shop pages', async () => {
+  it('should read the contents of the shop pages', async () => {
     // Arrange
     getShopPageContents.mockResolvedValue({ data: contents });
     const store = useShopPageContentStore();
@@ -38,7 +38,7 @@ describe('shopPageContent.store', () => {
     expect(store.loadError).toBe(false);
   });
 
-  it('tells when the contents could not be read', async () => {
+  it('should tell when the contents could not be read', async () => {
     // Arrange
     getShopPageContents.mockRejectedValue(new Error('network'));
     const store = useShopPageContentStore();
@@ -48,14 +48,14 @@ describe('shopPageContent.store', () => {
     expect(store.loadError).toBe(true);
   });
 
-  it('reads a content never loaded as an empty text', () => {
+  it('should read a content never loaded as an empty text', () => {
     // Act
     const store = useShopPageContentStore();
     // Assert
     expect(store.textOf('META_SHOP_DESCRIPTION')).toBe('');
   });
 
-  it('edits the content of a type and keeps what the shop answers', async () => {
+  it('should edit the content of a type and keep what the shop answers', async () => {
     // Arrange
     mockFetch.mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve(contents) });
     const store = useShopPageContentStore();
@@ -69,7 +69,7 @@ describe('shopPageContent.store', () => {
     expect(store.textOf('META_KEY_WORDS')).toBe('shop, demo');
   });
 
-  it('tells when the shop refuses a content', async () => {
+  it('should tell when the shop refuses a content', async () => {
     // Arrange
     mockFetch.mockResolvedValueOnce({ ok: false, status: 400 });
     const store = useShopPageContentStore();
@@ -79,7 +79,7 @@ describe('shopPageContent.store', () => {
     expect(edit).toBe('invalid');
   });
 
-  it('tells when the shop could not be reached', async () => {
+  it('should tell when the shop could not be reached', async () => {
     // Arrange
     mockFetch.mockRejectedValueOnce(new Error('network'));
     const store = useShopPageContentStore();

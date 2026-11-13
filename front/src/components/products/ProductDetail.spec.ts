@@ -78,7 +78,7 @@ describe('ProductDetail.vue', () => {
     vi.mocked(getAllProducts).mockResolvedValue(catalog);
   });
 
-  it('leaves the products out of stock out of the same category', async () => {
+  it('should leave the products out of stock out of the same category', async () => {
     // Act
     const wrapper = await mountProductDetail();
     // Assert
@@ -87,14 +87,14 @@ describe('ProductDetail.vue', () => {
     expect(wrapper.text()).not.toContain('Waterproof Jacket');
   });
 
-  it('shows the stock of the products of the same category', async () => {
+  it('should show the stock of the products of the same category', async () => {
     // Act
     const wrapper = await mountProductDetail();
     // Assert
     expect(wrapper.text()).toContain('Only 3 left in stock');
   });
 
-  it('shows the reviews of the product and the rating of the products of the same category', async () => {
+  it('should show the reviews of the product and the rating of the products of the same category', async () => {
     // Act
     const wrapper = await mountProductDetail();
     // Assert
@@ -102,7 +102,7 @@ describe('ProductDetail.vue', () => {
     expect(wrapper.text()).toContain('4.5 (2 reviews)');
   });
 
-  it('tells the search engines the name, the price and the rating of the product', async () => {
+  it('should tell the search engines the name, the price and the rating of the product', async () => {
     // Act
     await mountProductDetail();
     // Assert
@@ -114,7 +114,7 @@ describe('ProductDetail.vue', () => {
     expect(structuredData.offers.price).toBe(25);
   });
 
-  it('shows the address of the product, with its language and the slug of its name, when opened by its id', async () => {
+  it('should show the address of the product, with its language and the slug of its name, when opened by its id', async () => {
     // Arrange
     const productRouter = createRouter({
       history: createMemoryHistory(),

@@ -31,7 +31,7 @@ describe('BillingDocumentButton.vue', () => {
   it.each([
     { document: 'invoice' as const, path: 'invoice', fileName: 'facture-46555C9F.pdf' },
     { document: 'creditNote' as const, path: 'credit-note', fileName: 'avoir-46555C9F.pdf' },
-  ])('saves the $document of the order as $fileName', async ({ document, path, fileName }) => {
+  ])('should save the $document of the order as $fileName', async ({ document, path, fileName }) => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: true, status: 200, blob: () => Promise.resolve(pdf) });
     const wrapper = mountButton(document);
@@ -44,14 +44,14 @@ describe('BillingDocumentButton.vue', () => {
     expect(saveFile).toHaveBeenCalledWith(pdf, fileName);
   });
 
-  it('names the document it downloads', () => {
+  it('should name the document it downloads', () => {
     // Act
     const wrapper = mountButton('creditNote');
     // Assert
     expect(wrapper.find('button').text()).toBe('Download the credit note');
   });
 
-  it('says that the document could not be downloaded', async () => {
+  it('should say that the document could not be downloaded', async () => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: false, status: 404 });
     const wrapper = mountButton('invoice');

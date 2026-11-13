@@ -11,7 +11,7 @@ const router = createRouter({
 });
 
 describe('OrderLinesTable.vue', () => {
-  it('shows a row per line, with a link to the product, and the order total', () => {
+  it('should show a row per line, with a link to the product, and the order total', () => {
     // Act
     const wrapper = mount(OrderLinesTable, {
       props: { order: twoLinesOrder },

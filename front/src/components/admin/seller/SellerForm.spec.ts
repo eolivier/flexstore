@@ -40,7 +40,7 @@ describe('SellerForm.vue', () => {
     mockFetch.mockReset();
   });
 
-  it('shows the current seller', () => {
+  it('should show the current seller', () => {
     // Act
     const wrapper = mountForm();
     // Assert
@@ -68,7 +68,7 @@ describe('SellerForm.vue', () => {
   const buttonLabelled = (wrapper: ReturnType<typeof mountForm>, label: string) =>
     wrapper.findAll('button').find((button) => button.text() === label)!;
 
-  it('keeps Save enabled and Cancel disabled while nothing is modified', () => {
+  it('should keep Save enabled and Cancel disabled while nothing is modified', () => {
     // Act
     const wrapper = mountForm();
     // Assert
@@ -76,7 +76,7 @@ describe('SellerForm.vue', () => {
     expect(buttonLabelled(wrapper, 'Cancel').attributes('disabled')).toBeDefined();
   });
 
-  it('enables Cancel once a value differs from the initial one', async () => {
+  it('should enable Cancel once a value differs from the initial one', async () => {
     // Arrange
     const wrapper = mountForm();
     // Act
@@ -86,7 +86,7 @@ describe('SellerForm.vue', () => {
     expect(buttonLabelled(wrapper, 'Cancel').attributes('disabled')).toBeUndefined();
   });
 
-  it('disables Cancel again when the initial value is typed back', async () => {
+  it('should disable Cancel again when the initial value is typed back', async () => {
     // Arrange
     const wrapper = mountForm();
     await inputs(wrapper)[0].setValue('Flexstore Group');
@@ -97,7 +97,7 @@ describe('SellerForm.vue', () => {
     expect(buttonLabelled(wrapper, 'Cancel').attributes('disabled')).toBeDefined();
   });
 
-  it('restores the initial values when cancelled', async () => {
+  it('should restore the initial values when cancelled', async () => {
     // Arrange
     const wrapper = mountForm();
     await inputs(wrapper)[0].setValue('Flexstore Group');
@@ -111,7 +111,7 @@ describe('SellerForm.vue', () => {
     expect(buttonLabelled(wrapper, 'Cancel').attributes('disabled')).toBeDefined();
   });
 
-  it('puts Cancel on the left of Save', () => {
+  it('should put Cancel on the left of Save', () => {
     // Act
     const wrapper = mountForm();
     // Assert
@@ -119,7 +119,7 @@ describe('SellerForm.vue', () => {
     expect(labels.indexOf('Cancel')).toBe(labels.indexOf('Save') - 1);
   });
 
-  it('saves the edited seller', async () => {
+  it('should save the edited seller', async () => {
     // Arrange
     const renamed = { ...flexstore, name: 'Flexstore Group' };
     mockFetch.mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve(renamed) });
@@ -135,7 +135,7 @@ describe('SellerForm.vue', () => {
     expect(wrapper.text()).toContain('Saved: the next invoices are issued with this seller.');
   });
 
-  it('refuses a SIRET that is not 14 digits', async () => {
+  it('should refuse a SIRET that is not 14 digits', async () => {
     // Arrange
     const wrapper = mountForm();
     // Act
@@ -145,7 +145,7 @@ describe('SellerForm.vue', () => {
     expect(wrapper.text()).toContain('A SIRET has 14 digits');
   });
 
-  it('tells why the shop refused the seller', async () => {
+  it('should tell why the shop refused the seller', async () => {
     // Arrange
     mockFetch.mockResolvedValueOnce({ ok: false, status: 400, json: () => Promise.resolve({}) });
     const wrapper = mountForm();
@@ -165,7 +165,7 @@ describe('SellerForm.vue', () => {
     { field: 13, example: 'https://www.tiktok.com/@flexstore' },
     { field: 14, example: 'https://www.youtube.com/@flexstore' },
     { field: 15, example: 'https://www.twitch.tv/flexstore' },
-  ])('hints the address of the network of field $field with $example', async ({ field, example }) => {
+  ])('should hint the address of the network of field $field with $example', async ({ field, example }) => {
     // Arrange
     const wrapper = mountForm();
     // Act
@@ -182,7 +182,7 @@ describe('SellerForm.vue', () => {
     { field: 8, value: 'contact.flexstore.fr', expected: 'Invalid email' },
     { field: 9, value: 'flexstore', expected: 'Invalid website' },
     { field: 10, value: 'facebook', expected: 'Invalid web address' },
-  ])('refuses "$value" ($expected)', async ({ field, value, expected }) => {
+  ])('should refuse "$value" ($expected)', async ({ field, value, expected }) => {
     // Arrange
     const wrapper = mountForm();
     // Act

@@ -7,14 +7,14 @@ const pageButton = (wrapper: ReturnType<typeof mountPager>, label: string) =>
   wrapper.findAll('button').find((button) => button.text() === label)!;
 
 describe('ListPager.vue', () => {
-  it.each([0, 1, 20])('shows no pages for a list of %i items', (total) => {
+  it.each([0, 1, 20])('should show no pages for a list of %i items', (total) => {
     // Act
     const wrapper = mountPager(0, total);
     // Assert
     expect(wrapper.find('button').exists()).toBe(false);
   });
 
-  it('shows the pages of a list of more than 20 items', () => {
+  it('should show the pages of a list of more than 20 items', () => {
     // Act
     const wrapper = mountPager(0, 41);
     // Assert
@@ -23,7 +23,7 @@ describe('ListPager.vue', () => {
     expect(pageButton(wrapper, '4')).toBeUndefined();
   });
 
-  it('gives the page chosen, numbered from 0', async () => {
+  it('should give the page chosen, numbered from 0', async () => {
     // Arrange
     const wrapper = mountPager(0, 41);
     // Act

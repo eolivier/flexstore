@@ -40,7 +40,7 @@ describe('AdminOrders.vue', () => {
     mockFetch.mockReset();
   });
 
-  it('lists the orders of the customers with their recipient and their status', async () => {
+  it('should list the orders of the customers with their recipient and their status', async () => {
     // Arrange
     respondWith([twoLinesOrder, deliveredOrder]);
     // Act
@@ -51,7 +51,7 @@ describe('AdminOrders.vue', () => {
     expect(wrapper.text()).toContain('Processing');
   });
 
-  it('shows the customer of each order, and links its number to its detail', async () => {
+  it('should show the customer of each order, and link its number to its detail', async () => {
     // Arrange
     respondWith([twoLinesOrder]);
     // Act
@@ -63,7 +63,7 @@ describe('AdminOrders.vue', () => {
     expect(numberLink.attributes('href')).toBe(`/admin/orders/${twoLinesOrder.id}`);
   });
 
-  it('shows a customer whose account cannot be read any more', async () => {
+  it('should show a customer whose account cannot be read any more', async () => {
     // Arrange
     const formerCustomer = { firstName: '', lastName: '', email: '' };
     respondWith([{ ...twoLinesOrder, customer: formerCustomer }]);
@@ -73,7 +73,7 @@ describe('AdminOrders.vue', () => {
     expect(wrapper.text()).toContain('Account no longer available');
   });
 
-  it('shows only the orders that match the search', async () => {
+  it('should show only the orders that match the search', async () => {
     // Arrange
     const otherCustomer = { firstName: 'Ana', lastName: 'Martin', email: 'ana.martin@example.com' };
     respondWith([twoLinesOrder, { ...deliveredOrder, customer: otherCustomer }]);
@@ -87,7 +87,7 @@ describe('AdminOrders.vue', () => {
     expect(wrapper.text()).not.toContain('John Smith');
   });
 
-  it('says that no order matches the filters', async () => {
+  it('should say that no order matches the filters', async () => {
     // Arrange
     respondWith([twoLinesOrder]);
     const wrapper = await mountAdminOrders();
@@ -105,7 +105,7 @@ describe('AdminOrders.vue', () => {
       order: { ...twoLinesOrder, status: 'AWAITING_PAYMENT' as const },
       expected: 'Awaiting payment',
     },
-  ])('an order $order.status offers "$expected"', async ({ order, expected }) => {
+  ])('an order $order.status should offer "$expected"', async ({ order, expected }) => {
     // Arrange
     respondWith([order]);
     // Act
@@ -114,7 +114,7 @@ describe('AdminOrders.vue', () => {
     expect(wrapper.text()).toContain(expected);
   });
 
-  it('moving an order shows its next status', async () => {
+  it('moving an order should show its next status', async () => {
     // Arrange
     respondWith([twoLinesOrder]);
     const wrapper = await mountAdminOrders();

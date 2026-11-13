@@ -20,7 +20,7 @@ describe('AppSnackbar', () => {
     useSnackbar().close();
   });
 
-  it('shows the message sent through the composable', async () => {
+  it('should show the message sent through the composable', async () => {
     // Arrange
     mountSnackbar();
     // Act
@@ -30,7 +30,7 @@ describe('AppSnackbar', () => {
     expect(body()).toContain('Product saved');
   });
 
-  it('shows the action of the message', async () => {
+  it('should show the action of the message', async () => {
     // Arrange
     mountSnackbar();
     // Act

@@ -22,7 +22,7 @@ describe('LoadingBar.vue', () => {
   it.each([
     { elapsedMs: 100, shown: false },
     { elapsedMs: 200, shown: true },
-  ])('during a load, after $elapsedMs ms the bar is shown: $shown', async ({ elapsedMs, shown }) => {
+  ])('during a load, after $elapsedMs ms the bar should be shown: $shown', async ({ elapsedMs, shown }) => {
     // Arrange
     const wrapper = mountBar();
     useLoadingStore().track(new Promise(() => undefined));

@@ -136,7 +136,7 @@ describe('orders.store', () => {
     },
     { status: 409, expected: { status: 'statusChanged' } },
     { status: 500, expected: { status: 'error' } },
-  ])('a payment answered $status is $expected.status', async ({ status, expected }) => {
+  ])('a payment answered $status should be $expected.status', async ({ status, expected }) => {
     // Arrange
     await signIn();
     const paymentSession = {
@@ -184,7 +184,7 @@ describe('orders.store', () => {
     { status: 403, expected: 'refused' },
     { status: 409, expected: 'outOfStock' },
     { status: 500, expected: 'error' },
-  ])('an order answered $status is $expected', async ({ status, expected }) => {
+  ])('an order answered $status should be $expected', async ({ status, expected }) => {
     // Arrange
     await signIn();
     respondWith({ 'POST /api/orders': { status } });
@@ -195,7 +195,7 @@ describe('orders.store', () => {
     expect(placement).toEqual({ status: expected });
   });
 
-  it('an order refused for its address is incomplete', async () => {
+  it('an order refused for its address should be incomplete', async () => {
     // Arrange
     await signIn();
     const refusal = { error: 'An order needs a complete address.', reason: 'INCOMPLETE_ADDRESS' };
@@ -210,7 +210,7 @@ describe('orders.store', () => {
   it.each([
     { status: 400, reason: 'TERMS_OF_SALE_NOT_ACCEPTED', expected: 'termsOfSaleNotAccepted' },
     { status: 409, reason: 'OUTDATED_TERMS_OF_SALE', expected: 'outdatedTermsOfSale' },
-  ])('an order refused with the reason $reason is $expected', async ({ status, reason, expected }) => {
+  ])('an order refused with the reason $reason should be $expected', async ({ status, reason, expected }) => {
     // Arrange
     await signIn();
     respondWith({ 'POST /api/orders': { status, body: { error: 'Refused', reason } } });
@@ -221,7 +221,7 @@ describe('orders.store', () => {
     expect(placement).toEqual({ status: expected });
   });
 
-  it('an order refused for another reason tells that reason', async () => {
+  it('an order refused for another reason should tell that reason', async () => {
     // Arrange
     await signIn();
     const refusal = {

@@ -30,7 +30,7 @@ describe('OrderConfirmationEmailSetting.vue', () => {
   it.each([
     { activation: 'ENABLED' as const, checked: true },
     { activation: 'DISABLED' as const, checked: false },
-  ])('the switch is on when the email is $activation: $checked', ({ activation, checked }) => {
+  ])('the switch should be on when the email is $activation: $checked', ({ activation, checked }) => {
     // Act
     const wrapper = mountSetting(activation);
     // Assert
@@ -40,7 +40,7 @@ describe('OrderConfirmationEmailSetting.vue', () => {
   it.each([
     { activation: 'ENABLED' as const, wished: false, path: 'disable' },
     { activation: 'DISABLED' as const, wished: true, path: 'enable' },
-  ])('turning the switch of an $activation email calls /$path', async ({ activation, wished, path }) => {
+  ])('turning the switch of an $activation email should call /$path', async ({ activation, wished, path }) => {
     // Arrange
     mockFetch.mockResolvedValueOnce({
       ok: true,

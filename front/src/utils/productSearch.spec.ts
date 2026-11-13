@@ -22,7 +22,7 @@ describe('productSearch', () => {
     { search: 'clo-2', matches: true },
     { search: 'jacket blue', matches: false },
     { search: 'shoes', matches: false },
-  ])('the search "$search" matches the jacket: $matches', ({ search, matches }) => {
+  ])('the search "$search" should match the jacket: $matches', ({ search, matches }) => {
     // Act
     const result = matchesSearch(jacket, search);
     // Assert
@@ -44,7 +44,7 @@ describe('catalog search', () => {
     { search: 'legere', product: jacket, matches: true },
     { search: 'vetements', product: anyProduct, matches: false },
     { search: 'electronique', product: jacket, matches: false },
-  ])('the search "$search" matches $product.category: $matches', ({ search, product, matches }) => {
+  ])('the search "$search" should match $product.category: $matches', ({ search, product, matches }) => {
     // Arrange
     const catalogSearch = { text: search, categoryName: categoryNameInFrench };
     // Act

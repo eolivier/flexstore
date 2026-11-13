@@ -20,7 +20,7 @@ describe('legalPages.store', () => {
     getLegalPage.mockReset();
   });
 
-  it('reads the current version of a legal page', async () => {
+  it('should read the current version of a legal page', async () => {
     // Arrange
     getLegalPage.mockResolvedValue({ data: termsOfSale });
     const store = useLegalPagesStore();
@@ -32,7 +32,7 @@ describe('legalPages.store', () => {
     expect(store.loadErrors['terms-of-sale']).toBe(false);
   });
 
-  it('tells when a legal page could not be read', async () => {
+  it('should tell when a legal page could not be read', async () => {
     // Arrange
     getLegalPage.mockRejectedValue(new Error('network'));
     const store = useLegalPagesStore();
@@ -42,7 +42,7 @@ describe('legalPages.store', () => {
     expect(store.loadErrors['legal-notice']).toBe(true);
   });
 
-  it('keeps the published version as the current one', async () => {
+  it('should keep the published version as the current one', async () => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve(termsOfSale) });
     const store = useLegalPagesStore();
@@ -58,7 +58,7 @@ describe('legalPages.store', () => {
   it.each([
     { status: 400, ok: false, expected: 'invalid' },
     { status: 500, ok: false, expected: 'failed' },
-  ])('a $status answer reads $expected', async ({ status, ok, expected }) => {
+  ])('a $status answer should read $expected', async ({ status, ok, expected }) => {
     // Arrange
     mockFetch.mockResolvedValue({ ok, status });
     const store = useLegalPagesStore();

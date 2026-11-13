@@ -17,14 +17,14 @@ const labels = (wrapper: ReturnType<typeof mountActions>) =>
   wrapper.findAll('.v-btn').map((button) => button.text());
 
 describe('FormActions.vue', () => {
-  it('puts Cancel on the left of Save', () => {
+  it('should put Cancel on the left of Save', () => {
     // Act
     const wrapper = mountActions();
     // Assert
     expect(labels(wrapper)).toEqual(['Cancel', 'Save']);
   });
 
-  it('writes the labels in the language of the shop', () => {
+  it('should write the labels in the language of the shop', () => {
     // Arrange
     i18n.global.locale.value = 'fr';
     // Act
@@ -34,49 +34,49 @@ describe('FormActions.vue', () => {
     expect(labels(wrapper)).toEqual(['Annuler', 'Enregistrer']);
   });
 
-  it('submits the form with Save', () => {
+  it('should submit the form with Save', () => {
     // Act
     const wrapper = mountActions();
     // Assert
     expect(wrapper.find('[data-test="form-save"]').attributes('type')).toBe('submit');
   });
 
-  it('keeps Save enabled by default', () => {
+  it('should keep Save enabled by default', () => {
     // Act
     const wrapper = mountActions();
     // Assert
     expect(wrapper.find('[data-test="form-save"]').attributes('disabled')).toBeUndefined();
   });
 
-  it('disables Save when disabled', () => {
+  it('should disable Save when disabled', () => {
     // Act
     const wrapper = mountActions({ disabled: true });
     // Assert
     expect(wrapper.find('[data-test="form-save"]').attributes('disabled')).toBeDefined();
   });
 
-  it('disables Cancel while loading', () => {
+  it('should disable Cancel while loading', () => {
     // Act
     const wrapper = mountActions({ loading: true });
     // Assert
     expect(wrapper.find('[data-test="form-cancel"]').attributes('disabled')).toBeDefined();
   });
 
-  it('disables Cancel when asked to', () => {
+  it('should disable Cancel when asked to', () => {
     // Act
     const wrapper = mountActions({ cancelDisabled: true });
     // Assert
     expect(wrapper.find('[data-test="form-cancel"]').attributes('disabled')).toBeDefined();
   });
 
-  it('hides Cancel when the form is not cancellable', () => {
+  it('should hide Cancel when the form is not cancellable', () => {
     // Act
     const wrapper = mountActions({ cancellable: false });
     // Assert
     expect(labels(wrapper)).toEqual(['Save']);
   });
 
-  it('emits cancel when Cancel is clicked', async () => {
+  it('should emit cancel when Cancel is clicked', async () => {
     // Arrange
     const wrapper = mountActions();
     // Act
@@ -85,14 +85,14 @@ describe('FormActions.vue', () => {
     expect(wrapper.emitted('cancel')).toHaveLength(1);
   });
 
-  it('makes Cancel a link to the given address', () => {
+  it('should make Cancel a link to the given address', () => {
     // Act
     const wrapper = mountActions({ cancelTo: '/admin/users' });
     // Assert
     expect(wrapper.find('a[data-test="form-cancel"]').attributes('href')).toBe('/admin/users');
   });
 
-  it('replaces the label of Save with the slot', () => {
+  it('should replace the label of Save with the slot', () => {
     // Act
     const wrapper = mountActions({}, { default: 'Create user' });
     // Assert

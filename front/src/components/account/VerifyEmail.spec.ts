@@ -30,7 +30,7 @@ describe('VerifyEmail.vue', () => {
     { status: 204, expected: 'Email address verified' },
     { status: 410, expected: 'Link expired' },
     { status: 404, expected: 'Invalid link' },
-  ])('a link answered $status shows "$expected"', async ({ status, expected }) => {
+  ])('a link answered $status should show "$expected"', async ({ status, expected }) => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: status < 300, status });
     // Act
@@ -39,7 +39,7 @@ describe('VerifyEmail.vue', () => {
     expect(wrapper.find('h1').text()).toBe(expected);
   });
 
-  it('a link without token is invalid, without asking the server', async () => {
+  it('a link without token should be invalid, without asking the server', async () => {
     // Act
     const wrapper = await openLink({});
     // Assert
@@ -47,7 +47,7 @@ describe('VerifyEmail.vue', () => {
     expect(mockFetch).not.toHaveBeenCalled();
   });
 
-  it('an expired link offers a visitor to sign in to receive a new one', async () => {
+  it('an expired link should offer a visitor to sign in to receive a new one', async () => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: false, status: 410 });
     // Act

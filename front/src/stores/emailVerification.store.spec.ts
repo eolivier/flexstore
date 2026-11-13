@@ -38,7 +38,7 @@ describe('emailVerification.store', () => {
     { status: 410, expected: 'expired' },
     { status: 404, expected: 'unknown' },
     { status: 500, expected: 'error' },
-  ])('a verification answered $status is $expected', async ({ status, expected }) => {
+  ])('a verification answered $status should be $expected', async ({ status, expected }) => {
     // Arrange
     mockFetch.mockResolvedValueOnce({ ok: status < 300, status });
     const store = useEmailVerificationStore();
@@ -74,7 +74,7 @@ describe('emailVerification.store', () => {
   it.each([
     { ok: true, expected: true },
     { ok: false, expected: false },
-  ])('a new link answered ok=$ok is sent=$expected', async ({ ok, expected }) => {
+  ])('a new link answered ok=$ok should be sent=$expected', async ({ ok, expected }) => {
     // Arrange
     await signedInPendingCustomer();
     mockFetch.mockResolvedValueOnce({ ok, status: ok ? 204 : 409 });

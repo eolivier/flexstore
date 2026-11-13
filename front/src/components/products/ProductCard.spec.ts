@@ -33,7 +33,7 @@ describe('ProductCard.vue', () => {
     { stock: 3, disabled: false },
     { stock: null, disabled: false },
   ])(
-    'a product with a stock of $stock can be added to the cart: $disabled is disabled',
+    'a product with a stock of $stock should be addable to the cart: $disabled is disabled',
     ({ stock, disabled }) => {
       // Act
       const wrapper = mountCard(stock);
@@ -42,7 +42,7 @@ describe('ProductCard.vue', () => {
     }
   );
 
-  it('shows no stock while the stocks are not loaded', () => {
+  it('should show no stock while the stocks are not loaded', () => {
     // Act
     const wrapper = mountCard(null);
     // Assert

@@ -295,7 +295,7 @@ describe('auth.store', () => {
     it.each([
       { role: 'ADMIN' as const, isAdmin: true },
       { role: 'USER' as const, isAdmin: false },
-    ])('a $role user is admin: $isAdmin', async ({ role, isAdmin }) => {
+    ])('a $role user should be admin: $isAdmin', async ({ role, isAdmin }) => {
       // Act
       const store = await signedIn({ ...createMockUser(), role });
       // Assert
@@ -652,7 +652,7 @@ describe('auth.store', () => {
     it.each([
       { status: 409, expected: 'emailUsed' },
       { status: 422, expected: 'error' },
-    ])('a registration answered $status is $expected, without signing in', async ({ status, expected }) => {
+    ])('a registration answered $status should be $expected, without signing in', async ({ status, expected }) => {
       // Arrange
       mockFetch.mockResolvedValueOnce({ ok: false, status });
       const store = useAuthStore();

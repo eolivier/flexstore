@@ -42,7 +42,7 @@ describe('EditUser.vue', () => {
     );
   });
 
-  it('shows the current first name, last name, email and role of the user', async () => {
+  it('should show the current first name, last name, email and role of the user', async () => {
     // Act
     const wrapper = await mountEditUser();
     // Assert
@@ -53,7 +53,7 @@ describe('EditUser.vue', () => {
     expect((wrapper.find('input[type="radio"][value="USER"]').element as HTMLInputElement).checked).toBe(true);
   });
 
-  it('saves the edited last name, email and role', async () => {
+  it('should save the edited last name, email and role', async () => {
     // Arrange
     const wrapper = await mountEditUser();
     await wrapper.findAll('input[type="text"]')[1].setValue('Smith');
@@ -72,7 +72,7 @@ describe('EditUser.vue', () => {
     });
   });
 
-  it('the cancel button goes back to the list of users', async () => {
+  it('the cancel button should go back to the list of users', async () => {
     // Act
     const wrapper = await mountEditUser();
     // Assert
@@ -85,7 +85,7 @@ describe('EditUser.vue', () => {
       ([url, init]) => url.endsWith('/api/users/u-1/status') && init?.method === 'PUT'
     );
 
-  it('saves the status chosen by the administrator, with its own request', async () => {
+  it('should save the status chosen by the administrator, with its own request', async () => {
     // Arrange
     const wrapper = await mountEditUser();
     wrapper.findComponent(AccountStatusField).vm.$emit('update:modelValue', 'SUSPENDED');
@@ -98,7 +98,7 @@ describe('EditUser.vue', () => {
     expect(JSON.parse(statusRequests()[0][1].body)).toEqual({ status: 'SUSPENDED' });
   });
 
-  it('does not send the status when it did not change', async () => {
+  it('should not send the status when it did not change', async () => {
     // Arrange
     const wrapper = await mountEditUser();
     // Act
@@ -108,7 +108,7 @@ describe('EditUser.vue', () => {
     expect(statusRequests()).toHaveLength(0);
   });
 
-  it('an administrator cannot change the status of their own account', async () => {
+  it('an administrator should not change the status of their own account', async () => {
     // Arrange
     sessionStorage.setItem(
       'flexstore.session',
@@ -125,7 +125,7 @@ describe('EditUser.vue', () => {
   const saveButton = (wrapper: Awaited<ReturnType<typeof mountEditUser>>) =>
     wrapper.findAll('button').find((button) => button.text() === 'Save')!;
 
-  it('the save button is enabled when only the status changes', async () => {
+  it('the save button should be enabled when only the status changes', async () => {
     // Arrange
     const wrapper = await mountEditUser();
     // Act
@@ -148,7 +148,7 @@ describe('EditUser.vue', () => {
     );
   };
 
-  it('a user without last name shows at once the field to fill, which keeps the save button disabled', async () => {
+  it('a user without last name should show at once the field to fill, which keeps the save button disabled', async () => {
     // Arrange
     userWithoutLastName();
     // Act
@@ -158,7 +158,7 @@ describe('EditUser.vue', () => {
     expect(saveButton(wrapper).attributes('disabled')).toBeDefined();
   });
 
-  it('a user without last name can be saved once the last name is filled in', async () => {
+  it('a user without last name should be saved once the last name is filled in', async () => {
     // Arrange
     userWithoutLastName();
     const wrapper = await mountEditUser();

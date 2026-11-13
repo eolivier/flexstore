@@ -22,14 +22,14 @@ describe('ColorModeButton.vue', () => {
   it.each([
     { defaultTheme: 'flexstoreLight', label: 'Dark mode' },
     { defaultTheme: 'flexstoreDark', label: 'Light mode' },
-  ])('in the theme $defaultTheme, the button offers the "$label"', ({ defaultTheme, label }) => {
+  ])('in the theme $defaultTheme, the button should offer the "$label"', ({ defaultTheme, label }) => {
     // Act
     const { wrapper } = mountButton(defaultTheme);
     // Assert
     expect(wrapper.find('button').attributes('aria-label')).toBe(label);
   });
 
-  it('a click switches the light theme to the dark one and remembers it', async () => {
+  it('a click should switch the light theme to the dark one and remember it', async () => {
     // Arrange
     rememberCookieChoice('accepted');
     const { wrapper, vuetify } = mountButton('flexstoreLight');
@@ -40,7 +40,7 @@ describe('ColorModeButton.vue', () => {
     expect(localStorage.getItem('flexstore.colorMode')).toBe('dark');
   });
 
-  it('a click switches the dark theme back to the light one', async () => {
+  it('a click should switch the dark theme back to the light one', async () => {
     // Arrange
     const { wrapper, vuetify } = mountButton('flexstoreDark');
     // Act

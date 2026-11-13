@@ -31,7 +31,7 @@ describe('AppFooter.vue', () => {
     sessionStorage.clear();
   });
 
-  it('a visitor who is not signed in has no link to the orders or the account', () => {
+  it('a visitor who is not signed in should have no link to the orders or the account', () => {
     // Act
     const wrapper = mountFooter();
     // Assert
@@ -39,14 +39,14 @@ describe('AppFooter.vue', () => {
     expect(linkTargets(wrapper)).not.toContain('/user-profile');
   });
 
-  it('everyone has the links to the legal notice, the terms of sale and the privacy policy', () => {
+  it('everyone should have the links to the legal notice, the terms of sale and the privacy policy', () => {
     // Act
     const wrapper = mountFooter();
     // Assert
     expect(linkTargets(wrapper)).toEqual(expect.arrayContaining(['/legal-notice', '/terms-of-sale', '/privacy-policy']));
   });
 
-  it('a signed-in customer has the links to their orders and their account', async () => {
+  it('a signed-in customer should have the links to their orders and their account', async () => {
     // Arrange
     mockFetch.mockResolvedValueOnce({
       ok: true,

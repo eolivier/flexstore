@@ -42,7 +42,7 @@ describe('AdminOrderDetail.vue', () => {
     document.body.innerHTML = '';
   });
 
-  it('reads the order as an administrator', async () => {
+  it('should read the order as an administrator', async () => {
     // Arrange
     respondWith(twoLinesAdminOrder);
     // Act
@@ -52,7 +52,7 @@ describe('AdminOrderDetail.vue', () => {
     expect(url).toMatch(new RegExp(`/api/admin/orders/${twoLinesAdminOrder.id}$`));
   });
 
-  it('shows the order with its customer, its lines and its addresses', async () => {
+  it('should show the order with its customer, its lines and its addresses', async () => {
     // Arrange
     respondWith(twoLinesAdminOrder);
     // Act
@@ -65,7 +65,7 @@ describe('AdminOrderDetail.vue', () => {
     expect(wrapper.text()).toContain('12 rue des Lilas');
   });
 
-  it('shows the statuses the order went through, with their date', async () => {
+  it('should show the statuses the order went through, with their date', async () => {
     // Arrange
     respondWith(twoLinesAdminOrder);
     // Act
@@ -78,7 +78,7 @@ describe('AdminOrderDetail.vue', () => {
     expect(historyItems[2]).toContain('Processing');
   });
 
-  it('moves the order to its next status', async () => {
+  it('should move the order to its next status', async () => {
     // Arrange
     const shippedOrder = { ...twoLinesAdminOrder, status: 'SHIPPED' };
     respondWith(twoLinesAdminOrder, shippedOrder);
@@ -99,7 +99,7 @@ describe('AdminOrderDetail.vue', () => {
     expect(wrapper.text()).toContain('Move to: Delivered');
   });
 
-  it('shows a refunded order as such, without its steps', async () => {
+  it('should show a refunded order as such, without its steps', async () => {
     // Arrange
     respondWith({ ...twoLinesAdminOrder, status: 'REFUNDED' });
     // Act
@@ -109,7 +109,7 @@ describe('AdminOrderDetail.vue', () => {
     expect(wrapper.text()).not.toContain('Cancel and refund');
   });
 
-  it('offers the invoice and the credit note of a refunded order', async () => {
+  it('should offer the invoice and the credit note of a refunded order', async () => {
     // Arrange
     respondWith({ ...twoLinesAdminOrder, status: 'REFUNDED' });
     // Act
@@ -119,7 +119,7 @@ describe('AdminOrderDetail.vue', () => {
     expect(wrapper.text()).toContain('Download the credit note');
   });
 
-  it('offers no credit note for an order that is not refunded', async () => {
+  it('should offer no credit note for an order that is not refunded', async () => {
     // Arrange
     respondWith({ ...twoLinesAdminOrder, status: 'PAID' });
     // Act
@@ -129,7 +129,7 @@ describe('AdminOrderDetail.vue', () => {
     expect(wrapper.text()).not.toContain('Download the credit note');
   });
 
-  it('says that the payment provider refused the refund', async () => {
+  it('should say that the payment provider refused the refund', async () => {
     // Arrange
     mockFetch.mockImplementation((_url: string, init?: RequestInit) =>
       Promise.resolve(
@@ -149,7 +149,7 @@ describe('AdminOrderDetail.vue', () => {
     expect(wrapper.text()).toContain('The payment provider refused the refund: the order is unchanged.');
   });
 
-  it('says that the order does not exist', async () => {
+  it('should say that the order does not exist', async () => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: false, status: 404 });
     // Act

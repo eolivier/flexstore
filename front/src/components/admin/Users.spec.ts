@@ -33,7 +33,7 @@ describe('Users.vue', () => {
     });
   });
 
-  it('shows the translated label of the system role', async () => {
+  it('should show the translated label of the system role', async () => {
     // Act
     const wrapper = await mountUsers();
     // Assert
@@ -41,7 +41,7 @@ describe('Users.vue', () => {
     expect(wrapper.text()).not.toContain('createUser.roles.SYSTEM.label');
   });
 
-  it('offers to edit every user but the system one', async () => {
+  it('should offer to edit every user but the system one', async () => {
     // Act
     const wrapper = await mountUsers();
     // Assert

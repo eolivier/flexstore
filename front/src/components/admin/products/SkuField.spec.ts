@@ -20,7 +20,7 @@ describe('SkuField.vue', () => {
     mockFetch.mockReset();
   });
 
-  it('explains what a SKU is in a tooltip', async () => {
+  it('should explain what a SKU is in a tooltip', async () => {
     // Arrange
     const wrapper = mountSkuField('CLO-1');
     const help = wrapper.find('[aria-label="What is a SKU?"]');
@@ -31,7 +31,7 @@ describe('SkuField.vue', () => {
     expect(document.body.textContent).toContain('Stock Keeping Unit: your own reference for this product');
   });
 
-  it('refuses a malformed SKU', async () => {
+  it('should refuse a malformed SKU', async () => {
     // Arrange
     const wrapper = mountSkuField('');
     // Act
@@ -41,14 +41,14 @@ describe('SkuField.vue', () => {
     expect(wrapper.text()).toContain('Upper-case letters and digits, in groups separated by hyphens');
   });
 
-  it('says that the SKU is used by another product', () => {
+  it('should say that the SKU is used by another product', () => {
     // Act
     const wrapper = mountSkuField('CLO-1', true);
     // Assert
     expect(wrapper.text()).toContain('This SKU is already used by another product');
   });
 
-  it('fills the field with the SKU proposed from the category and the name', async () => {
+  it('should fill the field with the SKU proposed from the category and the name', async () => {
     // Arrange
     const proposal = { sku: 'CLO-ORGANIC-COTTON-0001' };
     mockFetch.mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve(proposal) });
@@ -64,7 +64,7 @@ describe('SkuField.vue', () => {
     expect(wrapper.emitted('update:modelValue')).toEqual([['CLO-ORGANIC-COTTON-0001']]);
   });
 
-  it('says that no SKU could be generated', async () => {
+  it('should say that no SKU could be generated', async () => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: false, status: 500 });
     const wrapper = mountSkuField('');

@@ -9,7 +9,7 @@ describe('StockBadge.vue', () => {
     { quantity: 1, expected: 'Only 1 left in stock' },
     { quantity: 5, expected: 'Only 5 left in stock' },
     { quantity: 6, expected: 'In stock' },
-  ])('$quantity units read "$expected"', ({ quantity, expected }) => {
+  ])('$quantity units should read "$expected"', ({ quantity, expected }) => {
     // Act
     const wrapper = mount(StockBadge, { props: { quantity }, global: { plugins: [vuetify, i18n] } });
     // Assert

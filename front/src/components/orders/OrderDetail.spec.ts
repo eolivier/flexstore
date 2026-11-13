@@ -49,7 +49,7 @@ describe('OrderDetail.vue', () => {
   });
   afterEach(() => vi.useRealTimers());
 
-  it('shows the time left to pay an order awaiting its payment', async () => {
+  it('should show the time left to pay an order awaiting its payment', async () => {
     // Arrange
     answerWith(awaitingPayment);
     // Act
@@ -59,7 +59,7 @@ describe('OrderDetail.vue', () => {
     expect(wrapper.text()).not.toContain('Your payment is being confirmed');
   });
 
-  it('waits for the confirmation instead of offering to pay again when the customer just paid', async () => {
+  it('should wait for the confirmation instead of offering to pay again when the customer just paid', async () => {
     // Arrange
     answerWith(awaitingPayment, awaitingPayment, paid);
     // Act
@@ -75,7 +75,7 @@ describe('OrderDetail.vue', () => {
     expect(wrapper.find('[role="timer"]').exists()).toBe(false);
   });
 
-  it('verifies the payment of an order awaiting it, even when the customer did not come back from the payment page', async () => {
+  it('should verify the payment of an order awaiting it, even when the customer did not come back from the payment page', async () => {
     // Arrange
     answerWith(awaitingPayment, paid);
     // Act
@@ -86,7 +86,7 @@ describe('OrderDetail.vue', () => {
     expect(wrapper.find('[role="timer"]').exists()).toBe(false);
   });
 
-  it('does not verify the payment of an order already paid', async () => {
+  it('should not verify the payment of an order already paid', async () => {
     // Arrange
     answerWith(paid);
     // Act
@@ -96,7 +96,7 @@ describe('OrderDetail.vue', () => {
     expect(mockFetch.mock.calls.some(([url]) => String(url).endsWith(verification))).toBe(false);
   });
 
-  it('shows the time left again when the payment is still not confirmed after the checks', async () => {
+  it('should show the time left again when the payment is still not confirmed after the checks', async () => {
     // Arrange
     answerWith(awaitingPayment);
     const wrapper = await mountDetail(`/orders/${twoLinesOrder.id}?paymentReturned=true`);

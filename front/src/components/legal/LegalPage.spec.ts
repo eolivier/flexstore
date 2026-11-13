@@ -22,7 +22,7 @@ describe('LegalPage.vue', () => {
     getLegalPage.mockReset();
   });
 
-  it('shows the text of the page, with the date it was updated', async () => {
+  it('should show the text of the page, with the date it was updated', async () => {
     // Arrange
     const text = 'Article 1 - Objet\nLes présentes conditions...';
     getLegalPage.mockResolvedValue({
@@ -36,7 +36,7 @@ describe('LegalPage.vue', () => {
     expect(wrapper.text()).toContain('2026');
   });
 
-  it('tells that a page not written yet has no text', async () => {
+  it('should tell that a page not written yet has no text', async () => {
     // Arrange
     getLegalPage.mockResolvedValue({
       data: { kind: 'LEGAL_NOTICE', text: '', publishedAt: '2026-01-01T00:00:00Z' },
@@ -48,7 +48,7 @@ describe('LegalPage.vue', () => {
     expect(wrapper.text()).toContain('This page has not been written yet.');
   });
 
-  it('tells when the page could not be loaded', async () => {
+  it('should tell when the page could not be loaded', async () => {
     // Arrange
     getLegalPage.mockRejectedValue(new Error('network'));
     // Act

@@ -27,14 +27,14 @@ describe('LegalPageForm.vue', () => {
     mockFetch.mockReset();
   });
 
-  it('shows the current text of the page', () => {
+  it('should show the current text of the page', () => {
     // Act
     const wrapper = mountForm();
     // Assert
     expect((wrapper.find('textarea').element as HTMLTextAreaElement).value).toBe('Flexstore SAS');
   });
 
-  it('publishes the edited text', async () => {
+  it('should publish the edited text', async () => {
     // Arrange
     const edited = { ...legalNotice, text: 'Flexstore SAS, 1 rue de la Démo' };
     mockFetch.mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve(edited) });
@@ -50,7 +50,7 @@ describe('LegalPageForm.vue', () => {
     expect(wrapper.text()).toContain('Published: the visitors now read this version.');
   });
 
-  it('does not publish an empty text', async () => {
+  it('should not publish an empty text', async () => {
     // Arrange
     const wrapper = mountForm();
     await wrapper.find('textarea').setValue('   ');

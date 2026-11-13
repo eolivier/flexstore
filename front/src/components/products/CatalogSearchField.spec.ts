@@ -15,7 +15,7 @@ async function mountField(path: string) {
 }
 
 describe('CatalogSearchField.vue', () => {
-  it('a search opens the catalog filtered by the text', async () => {
+  it('a search should open the catalog filtered by the text', async () => {
     // Arrange
     const { wrapper, router } = await mountField('/');
     await wrapper.find('input').setValue('  jacket ');
@@ -26,7 +26,7 @@ describe('CatalogSearchField.vue', () => {
     expect(router.currentRoute.value.fullPath).toBe('/products?q=jacket');
   });
 
-  it('the field shows the text searched on the catalog', async () => {
+  it('the field should show the text searched on the catalog', async () => {
     // Act
     const { wrapper } = await mountField('/products/?q=lamp');
     // Assert

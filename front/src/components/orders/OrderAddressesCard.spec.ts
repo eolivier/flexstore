@@ -30,7 +30,7 @@ function mountCard(order = twoLinesOrder) {
 }
 
 describe('OrderAddressesCard.vue', () => {
-  it('shows the delivery address, and a billing address that is the same', () => {
+  it('should show the delivery address, and a billing address that is the same', () => {
     // Act
     const wrapper = mountCard({ ...twoLinesOrder, deliveryAddress: home, billingAddress: home });
     // Assert
@@ -38,7 +38,7 @@ describe('OrderAddressesCard.vue', () => {
     expect(wrapper.text()).toContain('Same as the delivery address');
   });
 
-  it('shows a billing address different from the delivery address', () => {
+  it('should show a billing address different from the delivery address', () => {
     // Act
     const wrapper = mountCard({ ...twoLinesOrder, deliveryAddress: home, billingAddress: office });
     // Assert

@@ -17,14 +17,14 @@ function mountList(deletable: boolean) {
 }
 
 describe('ReviewList.vue', () => {
-  it('offers no deletion to a customer', () => {
+  it('should offer no deletion to a customer', () => {
     // Act
     const wrapper = mountList(false);
     // Assert
     expect(wrapper.find('[data-test="delete-review"]').exists()).toBe(false);
   });
 
-  it('lets an administrator ask for the deletion of a review', async () => {
+  it('should let an administrator ask for the deletion of a review', async () => {
     // Arrange
     const wrapper = mountList(true);
     // Act

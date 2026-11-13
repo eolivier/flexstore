@@ -9,14 +9,14 @@ function mountForm(props: Record<string, unknown> = {}) {
 }
 
 describe('ReviewForm.vue', () => {
-  it('cannot be published without a rating and a comment', () => {
+  it('should not be published without a rating and a comment', () => {
     // Act
     const wrapper = mountForm();
     // Assert
     expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeDefined();
   });
 
-  it('sends the rating and the trimmed comment', async () => {
+  it('should send the rating and the trimmed comment', async () => {
     // Arrange
     const wrapper = mountForm();
     wrapper.findComponent(VRating).vm.$emit('update:modelValue', 4);
@@ -30,7 +30,7 @@ describe('ReviewForm.vue', () => {
   it.each([
     { outcome: 'notBought', expected: 'Only a customer who bought and paid for this product can review it.' },
     { outcome: 'alreadyReviewed', expected: 'You already reviewed this product.' },
-  ])('tells why a review is refused ($outcome)', ({ outcome, expected }) => {
+  ])('should tell why a review is refused ($outcome)', ({ outcome, expected }) => {
     // Act
     const wrapper = mountForm({ outcome });
     // Assert

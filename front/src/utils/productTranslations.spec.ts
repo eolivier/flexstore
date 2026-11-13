@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { emptyTexts, isHalfEntered, textsOf, translationsOf } from './productTranslations';
 
 describe('productTranslations', () => {
-  it('gives empty texts for the languages a product is not translated into', () => {
+  it('should give empty texts for the languages a product is not translated into', () => {
     // Act
     const texts = textsOf([{ language: 'en', name: 'Lamp', description: 'Warm light' }]);
     // Assert
@@ -15,7 +15,7 @@ describe('productTranslations', () => {
   it.each([
     { fr: { name: '', description: '' }, languages: ['en'] },
     { fr: { name: 'Lampe', description: 'Lumière chaude' }, languages: ['en', 'fr'] },
-  ])('translates the product into the languages entered: $languages', ({ fr, languages }) => {
+  ])('should translate the product into the languages entered: $languages', ({ fr, languages }) => {
     // Arrange
     const texts = { ...emptyTexts(), en: { name: 'Lamp', description: 'Warm light' }, fr };
     // Act
@@ -29,7 +29,7 @@ describe('productTranslations', () => {
     { fr: { name: '', description: 'Lumière chaude' }, halfEntered: true },
     { fr: { name: 'Lampe', description: 'Lumière chaude' }, halfEntered: false },
     { fr: { name: ' ', description: '' }, halfEntered: false },
-  ])('$fr is half entered: $halfEntered', ({ fr, halfEntered }) => {
+  ])('$fr should be half entered: $halfEntered', ({ fr, halfEntered }) => {
     // Arrange
     const texts = { ...emptyTexts(), fr };
     // Act

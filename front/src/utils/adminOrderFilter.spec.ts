@@ -14,7 +14,7 @@ describe('adminOrderFilter', () => {
     { text: 'jane doe', matches: true },
     { text: 'john 46555', matches: true },
     { text: 'martin', matches: false },
-  ])('the search "$text" matches the order: $matches', ({ text, matches }) => {
+  ])('the search "$text" should match the order: $matches', ({ text, matches }) => {
     // Act
     const matching = matchesOrderFilter(order, { ...noOrderFilter, text });
     // Assert
@@ -25,7 +25,7 @@ describe('adminOrderFilter', () => {
     { status: null, matches: true },
     { status: 'PROCESSING' as const, matches: true },
     { status: 'SHIPPED' as const, matches: false },
-  ])('the status $status matches the order: $matches', ({ status, matches }) => {
+  ])('the status $status should match the order: $matches', ({ status, matches }) => {
     // Act
     const matching = matchesOrderFilter(order, { ...noOrderFilter, status });
     // Assert

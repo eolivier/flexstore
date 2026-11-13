@@ -7,7 +7,7 @@ describe('categories', () => {
     { category: 'ELECTRONICS', known: true },
     { category: 'ACCESSORIES', known: true },
     { category: 'GARDEN', known: false },
-  ])('the category $category is known: $known', ({ category, known }) => {
+  ])('the category $category should be known: $known', ({ category, known }) => {
     // Act
     const isKnown = isKnownCategory(category);
     // Assert

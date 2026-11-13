@@ -10,14 +10,14 @@ import {
 } from './sellerRules';
 
 describe('sellerRules', () => {
-  it.each(['12345678900012', '123 456 789 00012'])('the SIRET "%s" is accepted', (siret) => {
+  it.each(['12345678900012', '123 456 789 00012'])('the SIRET "%s" should be accepted', (siret) => {
     // Act
     const accepted = isSiret(siret);
     // Assert
     expect(accepted).toBe(true);
   });
 
-  it.each(['', '1234567890001', '123456789000123', '1234567890001A'])('the SIRET "%s" is refused', (siret) => {
+  it.each(['', '1234567890001', '123456789000123', '1234567890001A'])('the SIRET "%s" should be refused', (siret) => {
     // Act
     const accepted = isSiret(siret);
     // Assert
@@ -25,7 +25,7 @@ describe('sellerRules', () => {
   });
 
   it.each(['FR12345678901', 'fr 12 345678901', 'DE123456789'])(
-    'the VAT number "%s" is accepted',
+    'the VAT number "%s" should be accepted',
     (vatNumber) => {
       // Act
       const accepted = isVatNumber(vatNumber);
@@ -35,7 +35,7 @@ describe('sellerRules', () => {
   );
 
   it.each(['', '12345678901', 'FR1', 'FR12345678901234', 'FR-1234567'])(
-    'the VAT number "%s" is refused',
+    'the VAT number "%s" should be refused',
     (vatNumber) => {
       // Act
       const accepted = isVatNumber(vatNumber);
@@ -55,21 +55,21 @@ describe('sellerRules', () => {
     { rule: isWebsite, value: 'https://www.flexstore.fr/boutique', expected: true },
     { rule: isWebsite, value: 'flexstore', expected: false },
     { rule: isWebsite, value: '', expected: false },
-  ])('$rule.name("$value") is $expected', ({ rule, value, expected }) => {
+  ])('$rule.name("$value") should be $expected', ({ rule, value, expected }) => {
     // Act
     const accepted = rule(value);
     // Assert
     expect(accepted).toBe(expected);
   });
 
-  it.each(['10000', '10 000', '1'])('the share capital "%s" is accepted', (shareCapital) => {
+  it.each(['10000', '10 000', '1'])('the share capital "%s" should be accepted', (shareCapital) => {
     // Act
     const accepted = isShareCapital(shareCapital);
     // Assert
     expect(accepted).toBe(true);
   });
 
-  it.each(['', 'dix mille', '10 000 €', '-5'])('the share capital "%s" is refused', (shareCapital) => {
+  it.each(['', 'dix mille', '10 000 €', '-5'])('the share capital "%s" should be refused', (shareCapital) => {
     // Act
     const accepted = isShareCapital(shareCapital);
     // Assert
@@ -79,7 +79,7 @@ describe('sellerRules', () => {
 
 describe('isSocialNetworkUrl', () => {
   it.each(['', '  ', 'https://www.facebook.com/flexstore', 'www.facebook.com/flexstore', 'x.com/flexstore'])(
-    'the address "%s" of a social network is accepted',
+    'the address "%s" of a social network should be accepted',
     (url) => {
       // Act
       const accepted = isSocialNetworkUrl(url);
@@ -89,7 +89,7 @@ describe('isSocialNetworkUrl', () => {
   );
 
   it.each(['facebook', 'https://', 'face book.com/flexstore', 'www.'])(
-    'the address "%s" of a social network is refused',
+    'the address "%s" of a social network should be refused',
     (url) => {
       // Act
       const accepted = isSocialNetworkUrl(url);

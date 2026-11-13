@@ -20,7 +20,7 @@ describe('ProductVisual.vue', () => {
     useProductImagesStore().productIds = new Set(['lamp']);
   });
 
-  it('shows the image of a product in the given format', () => {
+  it('should show the image of a product in the given format', () => {
     // Act
     const wrapper = mountVisual('lamp');
     // Assert
@@ -29,7 +29,7 @@ describe('ProductVisual.vue', () => {
     );
   });
 
-  it('shows the icon of its category for a product without image', () => {
+  it('should show the icon of its category for a product without image', () => {
     // Act
     const wrapper = mountVisual('mug');
     // Assert

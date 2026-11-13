@@ -42,14 +42,14 @@ describe('ProductImageField.vue', () => {
   it.each([
     { productId: 'with-image', expected: ['Replace the image', 'Remove the image'] },
     { productId: 'without-image', expected: ['Add an image'] },
-  ])('offers $expected for the product $productId', async ({ productId, expected }) => {
+  ])('should offer $expected for the product $productId', async ({ productId, expected }) => {
     // Act
     const wrapper = await mountField(productId);
     // Assert
     expect(wrapper.findAll('button').map((button) => button.text())).toEqual(expected);
   });
 
-  it('sends the chosen image to be resized', async () => {
+  it('should send the chosen image to be resized', async () => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: true, status: 204 });
     const wrapper = await mountField('without-image');
@@ -62,7 +62,7 @@ describe('ProductImageField.vue', () => {
     expect(wrapper.text()).toContain('Replace the image');
   });
 
-  it('tells that an image of more than 2 MB is refused', async () => {
+  it('should tell that an image of more than 2 MB is refused', async () => {
     // Arrange
     const wrapper = await mountField('without-image');
     // Act
@@ -71,7 +71,7 @@ describe('ProductImageField.vue', () => {
     expect(wrapper.text()).toContain('The image is larger than 2 MB.');
   });
 
-  it('asks for confirmation before removing the image', async () => {
+  it('should ask for confirmation before removing the image', async () => {
     // Arrange
     const wrapper = await mountField('with-image');
     // Act
@@ -83,7 +83,7 @@ describe('ProductImageField.vue', () => {
     expect(wrapper.text()).toContain('Remove the image');
   });
 
-  it('removes the image once confirmed', async () => {
+  it('should remove the image once confirmed', async () => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: true, status: 204 });
     const wrapper = await mountField('with-image');

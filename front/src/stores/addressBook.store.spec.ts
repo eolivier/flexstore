@@ -25,7 +25,7 @@ describe('addressBook.store', () => {
     mockFetch.mockReset();
   });
 
-  it('adds a new address, at the end of the addresses', async () => {
+  it('should add a new address, at the end of the addresses', async () => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: true, status: 201, json: () => Promise.resolve([workshop]) });
     const store = useAddressBookStore();
@@ -40,7 +40,7 @@ describe('addressBook.store', () => {
     expect(store.addresses).toEqual([workshop]);
   });
 
-  it('reports an incomplete address without adding it', async () => {
+  it('should report an incomplete address without adding it', async () => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: false, status: 400 });
     // Act
@@ -49,7 +49,7 @@ describe('addressBook.store', () => {
     expect(addition).toBe('incomplete');
   });
 
-  it('reports an error when the address could not be added', async () => {
+  it('should report an error when the address could not be added', async () => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: false, status: 500 });
     // Act

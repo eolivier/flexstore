@@ -26,14 +26,14 @@ describe('PaymentDelaySetting.vue', () => {
     mockFetch.mockReset();
   });
 
-  it('shows the stored payment delay', () => {
+  it('should show the stored payment delay', () => {
     // Act
     const wrapper = mountSetting();
     // Assert
     expect((wrapper.find('input').element as HTMLInputElement).value).toBe('10');
   });
 
-  it('saves the new payment delay', async () => {
+  it('should save the new payment delay', async () => {
     // Arrange
     mockFetch.mockResolvedValueOnce({
       ok: true,
@@ -52,7 +52,7 @@ describe('PaymentDelaySetting.vue', () => {
     expect(wrapper.text()).toContain('Saved.');
   });
 
-  it('refuses a delay of 0 minutes', async () => {
+  it('should refuse a delay of 0 minutes', async () => {
     // Arrange
     const wrapper = mountSetting();
     // Act

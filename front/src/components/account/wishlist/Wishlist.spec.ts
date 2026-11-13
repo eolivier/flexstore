@@ -58,7 +58,7 @@ describe('Wishlist.vue', () => {
     signIn();
   });
 
-  it('shows the products saved by the customer', async () => {
+  it('should show the products saved by the customer', async () => {
     // Arrange
     respondWith([deskLamp]);
     // Act
@@ -67,7 +67,7 @@ describe('Wishlist.vue', () => {
     expect(wrapper.text()).toContain('Desk lamp');
   });
 
-  it('tells a customer with no saved product where to find some', async () => {
+  it('should tell a customer with no saved product where to find some', async () => {
     // Arrange
     respondWith([]);
     // Act
@@ -76,7 +76,7 @@ describe('Wishlist.vue', () => {
     expect(wrapper.text()).toContain('Your wishlist is empty');
   });
 
-  it('reports an error when the wishlist could not be loaded', async () => {
+  it('should report an error when the wishlist could not be loaded', async () => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: false, status: 500 });
     // Act

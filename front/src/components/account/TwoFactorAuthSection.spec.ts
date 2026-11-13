@@ -57,7 +57,7 @@ describe('TwoFactorAuthSection.vue', () => {
     document.body.innerHTML = '';
   });
 
-  it('offers to enable two-factor authentication when it is disabled', async () => {
+  it('should offer to enable two-factor authentication when it is disabled', async () => {
     // Arrange
     await signedInCustomer(false);
     // Act
@@ -67,7 +67,7 @@ describe('TwoFactorAuthSection.vue', () => {
     expect(wrapper.text()).not.toContain('Two-factor authentication is enabled on your account.');
   });
 
-  it('tells that two-factor authentication is enabled, with a way to disable it', async () => {
+  it('should tell that two-factor authentication is enabled, with a way to disable it', async () => {
     // Arrange
     await signedInCustomer(true);
     // Act
@@ -77,7 +77,7 @@ describe('TwoFactorAuthSection.vue', () => {
     expect(buttonNamed('Disable')).toBeDefined();
   });
 
-  it('enrolls, then enables two-factor authentication once the first code is confirmed', async () => {
+  it('should enroll, then enable two-factor authentication once the first code is confirmed', async () => {
     // Arrange
     await signedInCustomer(false);
     await mountSection();
@@ -103,7 +103,7 @@ describe('TwoFactorAuthSection.vue', () => {
     expect(useSnackbar().message.value?.text).toBe('Two-factor authentication is now enabled.');
   });
 
-  it('disables two-factor authentication with the current password', async () => {
+  it('should disable two-factor authentication with the current password', async () => {
     // Arrange
     await signedInCustomer(true);
     await mountSection();

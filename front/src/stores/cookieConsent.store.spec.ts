@@ -95,7 +95,7 @@ describe('cookieConsent.store, signed in', () => {
     { choice: 'ACCEPTED', accepted: true, undecided: false },
     { choice: 'REFUSED', accepted: false, undecided: false },
     { choice: 'UNDECIDED', accepted: false, undecided: true },
-  ])('without a choice in the browser, the account says $choice', async ({ choice, accepted, undecided }) => {
+  ])('without a choice in the browser, the account should say $choice', async ({ choice, accepted, undecided }) => {
     // Arrange
     answer(200, { choice });
     // Act

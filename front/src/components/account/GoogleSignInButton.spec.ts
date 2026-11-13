@@ -25,7 +25,7 @@ describe('GoogleSignInButton.vue', () => {
     vi.unstubAllEnvs();
   });
 
-  it('shows nothing without the client id of Google', async () => {
+  it('should show nothing without the client id of Google', async () => {
     // Arrange
     vi.stubEnv('VITE_GOOGLE_CLIENT_ID', '');
     // Act
@@ -35,7 +35,7 @@ describe('GoogleSignInButton.vue', () => {
     expect(initialize).not.toHaveBeenCalled();
   });
 
-  it('renders the button of Google with the client id of the shop', async () => {
+  it('should render the button of Google with the client id of the shop', async () => {
     // Arrange
     vi.stubEnv('VITE_GOOGLE_CLIENT_ID', 'shop-client-id');
     // Act
@@ -46,7 +46,7 @@ describe('GoogleSignInButton.vue', () => {
     expect(renderButton).toHaveBeenCalledTimes(1);
   });
 
-  it('gives the ID token of Google once the person chose their account', async () => {
+  it('should give the ID token of Google once the person chose their account', async () => {
     // Arrange
     vi.stubEnv('VITE_GOOGLE_CLIENT_ID', 'shop-client-id');
     const wrapper = await mountButton();

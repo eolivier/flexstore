@@ -137,7 +137,7 @@ describe('Checkout.vue', () => {
     getLegalPage.mockResolvedValue({ data: termsOfSale });
   });
 
-  it('offers the addresses of the customer', async () => {
+  it('should offer the addresses of the customer', async () => {
     // Arrange
     respondWith([home, office]);
     // Act
@@ -147,7 +147,7 @@ describe('Checkout.vue', () => {
     expect(wrapper.text()).toContain('Jane Doe, 3 place du Marché, 69001 Lyon, France');
   });
 
-  it('by default, delivers and bills the order to the first address of the customer', async () => {
+  it('should deliver and bill the order, by default, to the first address of the customer', async () => {
     // Arrange
     respondWith([home, office]);
     const { wrapper } = await mountCheckout();
@@ -161,7 +161,7 @@ describe('Checkout.vue', () => {
     });
   });
 
-  it('ships the order the way the customer chooses', async () => {
+  it('should ship the order the way the customer chooses', async () => {
     // Arrange
     respondWith([home]);
     const { wrapper } = await mountCheckout();
@@ -176,7 +176,7 @@ describe('Checkout.vue', () => {
     expect(sentAddresses().shippingMethod).toBe('EXPRESS');
   });
 
-  it('orders with the discount code applied, taken off the total', async () => {
+  it('should order with the discount code applied, taken off the total', async () => {
     // Arrange
     respondWith([home]);
     const { wrapper } = await mountCheckout();
@@ -193,7 +193,7 @@ describe('Checkout.vue', () => {
     expect(sentAddresses().discountCode).toBe('WELCOME10');
   });
 
-  it('adds the cost of the shipping chosen to the total', async () => {
+  it('should add the cost of the shipping chosen to the total', async () => {
     // Arrange
     respondWith([home]);
     const { wrapper } = await mountCheckout();
@@ -208,7 +208,7 @@ describe('Checkout.vue', () => {
     expect(wrapper.text()).toContain('79.90 €');
   });
 
-  it('bills the order to another address of the customer', async () => {
+  it('should bill the order to another address of the customer', async () => {
     // Arrange
     respondWith([home, office]);
     const { wrapper } = await mountCheckout();
@@ -229,7 +229,7 @@ describe('Checkout.vue', () => {
     });
   });
 
-  it('a saved address without the last name of its recipient is completed before ordering', async () => {
+  it('a saved address without the last name of its recipient should be completed before ordering', async () => {
     // Arrange
     respondWith([{ ...home, lastName: null }]);
     const { wrapper } = await mountCheckout();
@@ -241,7 +241,7 @@ describe('Checkout.vue', () => {
     expect(sentAddresses().deliveryAddress).toMatchObject({ firstName: 'Jane', lastName: 'Doe' });
   });
 
-  it('asks who receives a saved address without the last name of its recipient', async () => {
+  it('should ask who receives a saved address without the last name of its recipient', async () => {
     // Arrange
     respondWith([{ ...home, lastName: null }]);
     // Act
@@ -250,7 +250,7 @@ describe('Checkout.vue', () => {
     expect(wrapper.text()).toContain('Who receives this address? Complete their name.');
   });
 
-  it('a company is billed without the names of a contact', async () => {
+  it('a company should be billed without the names of a contact', async () => {
     // Arrange
     respondWith([home]);
     const { wrapper } = await mountCheckout();
@@ -276,7 +276,7 @@ describe('Checkout.vue', () => {
     });
   });
 
-  it('a customer without address enters the delivery address', async () => {
+  it('a customer without address should enter the delivery address', async () => {
     // Arrange
     respondWith([]);
     // Act
@@ -285,7 +285,7 @@ describe('Checkout.vue', () => {
     expect(wrapper.text()).toContain('Street address');
   });
 
-  it('another address is sent by default to the customer, without company', async () => {
+  it('another address should be sent by default to the customer, without company', async () => {
     // Arrange
     respondWith([]);
     // Act
@@ -298,7 +298,7 @@ describe('Checkout.vue', () => {
     expect(recipient).toEqual(['Jane', 'Doe', '']);
   });
 
-  it('a placed order is paid on the checkout page of the payment provider', async () => {
+  it('a placed order should be paid on the checkout page of the payment provider', async () => {
     // Arrange
     respondWith([home]);
     const { wrapper } = await mountCheckout();
@@ -308,7 +308,7 @@ describe('Checkout.vue', () => {
     expect(openExternalPage).toHaveBeenCalledWith(checkoutUrl);
   });
 
-  it('a refused order stays on the checkout page', async () => {
+  it('a refused order should stay on the checkout page', async () => {
     // Arrange
     respondWith([home], 403);
     const { wrapper, router } = await mountCheckout();
@@ -319,7 +319,7 @@ describe('Checkout.vue', () => {
     expect(openExternalPage).not.toHaveBeenCalled();
   });
 
-  it('tells the reason the shop gives when it refuses the order', async () => {
+  it('should tell the reason the shop gives when it refuses the order', async () => {
     // Arrange
     const reason = 'The field deliveryAddress.street is missing or malformed.';
     respondWith([home], 400, { error: reason, reason: 'MALFORMED_REQUEST' });
@@ -330,7 +330,7 @@ describe('Checkout.vue', () => {
     expect(wrapper.text()).toContain(`The shop refused the order: ${reason}`);
   });
 
-  it('tells a refused customer why the order was not placed', async () => {
+  it('should tell a refused customer why the order was not placed', async () => {
     // Arrange
     respondWith([home], 403);
     const { wrapper } = await mountCheckout();
@@ -340,7 +340,7 @@ describe('Checkout.vue', () => {
     expect(wrapper.text()).toContain('Your account does not allow ordering');
   });
 
-  it('cannot order before the customer accepts the terms of sale', async () => {
+  it('should not order before the customer accepts the terms of sale', async () => {
     // Arrange
     respondWith([home]);
     // Act
@@ -349,7 +349,7 @@ describe('Checkout.vue', () => {
     expect(orderButton(wrapper).attributes('disabled')).toBeDefined();
   });
 
-  it('orders under the version of the terms of sale the customer accepted', async () => {
+  it('should order under the version of the terms of sale the customer accepted', async () => {
     // Arrange
     respondWith([home]);
     const { wrapper } = await mountCheckout();
@@ -359,7 +359,7 @@ describe('Checkout.vue', () => {
     expect(sentAddresses().termsOfSaleId).toBe('terms-of-sale-2');
   });
 
-  it('asks to read the terms of sale again when they changed since the customer accepted them', async () => {
+  it('should ask to read the terms of sale again when they changed since the customer accepted them', async () => {
     // Arrange
     respondWith([home], 409, { error: 'The terms of sale changed', reason: 'OUTDATED_TERMS_OF_SALE' });
     const { wrapper } = await mountCheckout();

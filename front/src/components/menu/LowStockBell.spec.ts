@@ -51,7 +51,7 @@ describe('LowStockBell.vue', () => {
     await router.push('/');
   });
 
-  it('counts the products that run low', async () => {
+  it('should count the products that run low', async () => {
     // Arrange
     lowStocksAre([{ productId: 'p-1', quantity: 2, threshold: 5 }]);
     // Act
@@ -60,7 +60,7 @@ describe('LowStockBell.vue', () => {
     expect(wrapper.find('.v-badge__badge').text()).toBe('1');
   });
 
-  it('lists the products that run low, with their units left', async () => {
+  it('should list the products that run low, with their units left', async () => {
     // Arrange
     lowStocksAre([{ productId: 'p-1', quantity: 2, threshold: 5 }]);
     const wrapper = await mountBell();
@@ -72,7 +72,7 @@ describe('LowStockBell.vue', () => {
     expect(document.body.textContent).toContain('2 left (alert at 5)');
   });
 
-  it('shows no bell when no product runs low', async () => {
+  it('should show no bell when no product runs low', async () => {
     // Arrange
     lowStocksAre([]);
     // Act
@@ -81,7 +81,7 @@ describe('LowStockBell.vue', () => {
     expect(wrapper.find('button').exists()).toBe(false);
   });
 
-  it('reads the low stocks again at each page opened', async () => {
+  it('should read the low stocks again at each page opened', async () => {
     // Arrange
     lowStocksAre([]);
     await mountBell();

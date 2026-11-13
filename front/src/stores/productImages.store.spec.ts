@@ -18,7 +18,7 @@ describe('productImages.store', () => {
     mockFetch.mockReset();
   });
 
-  it('knows the products that have an image', async () => {
+  it('should know the products that have an image', async () => {
     // Arrange
     const store = useProductImagesStore();
     // Act
@@ -27,7 +27,7 @@ describe('productImages.store', () => {
     expect([store.hasImage('lamp'), store.hasImage('mug')]).toEqual([true, false]);
   });
 
-  it('refuses an image of more than 2 MB without sending it', async () => {
+  it('should refuse an image of more than 2 MB without sending it', async () => {
     // Act
     const upload = await useProductImagesStore().uploadImage('lamp', imageOf(MAX_IMAGE_BYTES + 1));
     // Assert
@@ -40,7 +40,7 @@ describe('productImages.store', () => {
     { status: 413, expected: 'tooLarge' },
     { status: 415, expected: 'unsupported' },
     { status: 500, expected: 'error' },
-  ])('an image answered $status is $expected', async ({ status, expected }) => {
+  ])('an image answered $status should be $expected', async ({ status, expected }) => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: status < 300, status });
     // Act
@@ -49,7 +49,7 @@ describe('productImages.store', () => {
     expect(upload).toBe(expected);
   });
 
-  it('shows a new image once given', async () => {
+  it('should show a new image once given', async () => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: true, status: 204 });
     const store = useProductImagesStore();

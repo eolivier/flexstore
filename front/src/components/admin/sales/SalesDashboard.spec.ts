@@ -43,7 +43,7 @@ describe('SalesDashboard.vue', () => {
     mockFetch.mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve(dashboard) });
   });
 
-  it('shows the revenue, the orders and the average basket', async () => {
+  it('should show the revenue, the orders and the average basket', async () => {
     // Act
     const wrapper = await mountDashboard();
     // Assert
@@ -54,7 +54,7 @@ describe('SalesDashboard.vue', () => {
     expect(figures[2]).toContain('75');
   });
 
-  it('draws a bar per day, the empty days included', async () => {
+  it('should draw a bar per day, the empty days included', async () => {
     // Act
     const wrapper = await mountDashboard();
     // Assert
@@ -62,7 +62,7 @@ describe('SalesDashboard.vue', () => {
     expect(heights).toEqual(['height: 0%;', 'height: 33%;', 'height: 100%;']);
   });
 
-  it('shows the amount of each day when hovering its bar', async () => {
+  it('should show the amount of each day when hovering its bar', async () => {
     // Act
     const wrapper = await mountDashboard();
     // Assert
@@ -73,7 +73,7 @@ describe('SalesDashboard.vue', () => {
     expect(tooltips.some((text) => text?.includes('Oct 31') && text.includes('200'))).toBe(true);
   });
 
-  it('lists the best sellers, the best first', async () => {
+  it('should list the best sellers, the best first', async () => {
     // Act
     const wrapper = await mountDashboard();
     // Assert
@@ -81,7 +81,7 @@ describe('SalesDashboard.vue', () => {
     expect(names).toEqual(['Chair', 'Desk lamp']);
   });
 
-  it('tells when the sales could not be loaded', async () => {
+  it('should tell when the sales could not be loaded', async () => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: false, status: 500 });
     // Act

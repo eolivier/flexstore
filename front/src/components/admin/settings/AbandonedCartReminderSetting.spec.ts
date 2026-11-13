@@ -29,7 +29,7 @@ describe('AbandonedCartReminderSetting.vue', () => {
   it.each([
     { activation: 'ENABLED' as const, checked: true },
     { activation: 'DISABLED' as const, checked: false },
-  ])('the switch is on when the reminder is $activation: $checked', ({ activation, checked }) => {
+  ])('the switch should be on when the reminder is $activation: $checked', ({ activation, checked }) => {
     // Act
     const wrapper = mountSetting(activation);
     // Assert
@@ -39,7 +39,7 @@ describe('AbandonedCartReminderSetting.vue', () => {
   it.each([
     { activation: 'ENABLED' as const, wished: false, path: 'disable' },
     { activation: 'DISABLED' as const, wished: true, path: 'enable' },
-  ])('turning the switch of an $activation reminder calls /$path', async ({ activation, wished, path }) => {
+  ])('turning the switch of an $activation reminder should call /$path', async ({ activation, wished, path }) => {
     // Arrange
     mockFetch.mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve({}) });
     const wrapper = mountSetting(activation);
@@ -52,14 +52,14 @@ describe('AbandonedCartReminderSetting.vue', () => {
     );
   });
 
-  it('shows the stored delay', () => {
+  it('should show the stored delay', () => {
     // Act
     const wrapper = mountSetting('ENABLED');
     // Assert
     expect((wrapper.find('input[type="number"]').element as HTMLInputElement).value).toBe('24');
   });
 
-  it('saves the new delay', async () => {
+  it('should save the new delay', async () => {
     // Arrange
     mockFetch.mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve({}) });
     const wrapper = mountSetting('ENABLED');
@@ -74,7 +74,7 @@ describe('AbandonedCartReminderSetting.vue', () => {
     expect(wrapper.text()).toContain('Saved.');
   });
 
-  it.each(['0', '721'])('refuses a delay of %s hours', async (hours) => {
+  it.each(['0', '721'])('should refuse a delay of %s hours', async (hours) => {
     // Arrange
     const wrapper = mountSetting('ENABLED');
     // Act

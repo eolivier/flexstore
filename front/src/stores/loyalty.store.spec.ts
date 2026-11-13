@@ -11,7 +11,7 @@ describe('loyalty.store', () => {
     mockFetch.mockReset();
   });
 
-  it('fetches the points of the customer', async () => {
+  it('should fetch the points of the customer', async () => {
     // Arrange
     mockFetch.mockResolvedValue({
       ok: true,
@@ -31,7 +31,7 @@ describe('loyalty.store', () => {
     expect(store.loadError).toBe(false);
   });
 
-  it('reports an error when the points could not be loaded', async () => {
+  it('should report an error when the points could not be loaded', async () => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: false, status: 500 });
     const store = useLoyaltyStore();
