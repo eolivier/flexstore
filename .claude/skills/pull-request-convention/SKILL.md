@@ -1,6 +1,6 @@
 ---
 name: pull-request-convention
-description: How a pull request is made and kept - a branch from main targeting main (a dependent pull request included), every pull request rebased on main so that its diff only shows its own changes, pushed as soon as the unit tests are green, opened ready for review (never as a draft), its title (Conventional Commits: feat, fix, refactor, chore...) and description (written in English), independent pull requests and migration numbers, switching branches cleanly, comments handled right away with the oldest pull request first, every open pull request rebased after each merge. Use before creating a branch, committing, pushing, opening or updating a pull request, when a comment is added to a pull request, and after each merge on main.
+description: How a pull request is made and kept - a branch from main targeting main (a dependent pull request included), every pull request rebased on main so that its diff only shows its own changes, pushed as soon as the code compiles, opened ready for review (never as a draft), its title (Conventional Commits: feat, fix, refactor, chore...) and description (written in English), independent pull requests and migration numbers, switching branches cleanly, comments handled right away with the oldest pull request first, every open pull request rebased after each merge. Use before creating a branch, committing, pushing, opening or updating a pull request, when a comment is added to a pull request, and after each merge on main.
 ---
 
 # Pull request convention
@@ -56,15 +56,18 @@ git rebase main                      # resolve the conflicts, if any, then: git 
 git push --force-with-lease="refs/heads/feature/order-status-history:${old}" origin feature/order-status-history
 ```
 
-## 3. Push the pull request as soon as the unit tests are green
+## 3. Push the pull request as soon as the code compiles
 
-Open (or update) the pull request as soon as the code compiles and the unit tests pass, before running the integration tests: the user can start the review earlier.
+Push the branch and open the pull request as soon as the code compiles, before running any test: the user can start the review earlier, and follows the tests as they come. The tests then run on the pushed pull request, and its description is updated with what they say.
 
 How to apply:
-- unit tests green (`./gradlew checkLineLength test`, `npm test`, lint and type check) → push and open the pull request, saying in the test plan that the integration tests are running;
+- the code compiles (`./gradlew compileKotlin compileTestKotlin`, `npm run build`, type check) → push and open the pull request, saying in the test plan that the unit tests and the integration tests are not green yet;
+- then run the unit tests (`./gradlew checkLineLength test`, `npm test`, lint), and tick them in the test plan once they are green;
 - then run the integration tests (`./gradlew integrationTest`) and the manual checks;
-- if they reveal a problem, fix it and push to the same pull request, then update its description (test plan, and what changed when it matters for the review);
+- **if a test fails**, fix it and push to the same pull request, then update its description (test plan, and what changed when it matters for the review); never leave a pull request with a red test unexplained;
 - once everything is green, tick the integration tests in the test plan.
+
+A box of the test plan is ticked only when that check has run green on the last commit of the branch.
 
 A pull request is finished on its own (unit tests, integration tests and manual checks ticked) before moving to the next one.
 

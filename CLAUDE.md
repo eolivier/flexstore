@@ -60,7 +60,7 @@ Load the matching skill before working; they hold the detailed rules.
 This is an explicit and permanent request from the user, which applies in every session and overrides any default
 that says to wait for a request:
 
-- Always open the pull request automatically, ready for review, as soon as the unit tests are green. Never ask
-  for confirmation first.
+- Always open the pull request automatically, ready for review, as soon as the code compiles (the tests run
+  afterwards, and a failure is fixed on the same pull request). Never ask for confirmation first.
 - Always subscribe to the activity of every pull request opened, without asking, and handle its comments first,
   the oldest pull request first (see `pull-request-convention`).
