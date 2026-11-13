@@ -23,6 +23,3 @@ export const shopPageContentApi = new ShopPageContentApi(config);
 
 // The address of the back end, for the links the browser follows itself (the images)
 export const apiBaseUrl = config.basePath;
-
-console.log('API URL:', config.basePath);
-console.log('import.meta.env.VITE_API_URL:', import.meta.env.VITE_API_URL);
