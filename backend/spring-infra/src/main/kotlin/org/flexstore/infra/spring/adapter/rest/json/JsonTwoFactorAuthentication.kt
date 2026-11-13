@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.adapter.rest.json
 
+import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.twofactor.TwoFactorEnrollment
 import org.flexstore.domain.twofactor.model.TwoFactorChallengeId
 import org.flexstore.domain.twofactor.model.TwoFactorCode
@@ -35,5 +36,5 @@ data class JsonTwoFactorChallengeVerification @JsonCreator constructor(
     @JsonProperty("code") val code: String
 ) {
     fun toTwoFactorCodeVerification() =
-        TwoFactorCodeVerification(TwoFactorChallengeId(challengeId), TwoFactorCode(code))
+        TwoFactorCodeVerification(TwoFactorChallengeId(Identity(challengeId)), TwoFactorCode(code))
 }

@@ -153,7 +153,7 @@ class CartTest : WithAssertions {
     @Test
     fun `a visitor cart id should be a UUID`() {
         // Act
-        val thrown = catchThrowable { VisitorCartId("not-a-uuid") }
+        val thrown = catchThrowable { VisitorCartId(Identity("not-a-uuid")) }
         // Assert
         assertThat(thrown).isInstanceOf(IllegalArgumentException::class.java)
     }

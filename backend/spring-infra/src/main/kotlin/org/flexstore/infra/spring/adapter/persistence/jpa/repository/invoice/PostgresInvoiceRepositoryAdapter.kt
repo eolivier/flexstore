@@ -24,7 +24,7 @@ class PostgresInvoiceRepositoryAdapter(private val jpaRepo: JpaInvoiceRepository
             number,
             invoiceIssue.orderId.value,
             invoiceIssue.issuedAt.value,
-            sellerId.value.value
+            sellerId.asString()
         )
         return jpaRepo.save(invoiceEntity).toDomain()
     }

@@ -15,7 +15,7 @@ class ReviewsTest : WithAssertions {
     private val reviewer = Reviewer(UserId.ValidUserId("user-1"), ReviewerName("Marie D."))
 
     private fun review(id: String, productId: ProductId, rating: Int, at: String): Review {
-        val stamp = ReviewStamp(ReviewId(id), ReviewedAt(Instant.parse(at)))
+        val stamp = ReviewStamp(ReviewId(Identity(id)), ReviewedAt(Instant.parse(at)))
         return Review(stamp, ReviewSubject(productId, reviewer), Opinion(Rating(rating), ReviewComment("ok")))
     }
 
@@ -51,7 +51,7 @@ class ReviewsTest : WithAssertions {
     @Test
     fun `a review that does not exist should not be found`() {
         // Act
-        val thrown = catchThrowable { Reviews().of(ReviewId("missing")) }
+        val thrown = catchThrowable { Reviews().of(ReviewId(Identity("missing"))) }
         // Assert
         assertThat(thrown).isInstanceOf(ReviewNotFoundException::class.java)
     }

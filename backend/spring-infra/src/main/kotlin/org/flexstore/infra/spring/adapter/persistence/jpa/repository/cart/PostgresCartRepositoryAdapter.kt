@@ -30,19 +30,19 @@ class PostgresCartRepositoryAdapter(
 
     override fun save(cart: Cart): Cart {
         val cartEntity = find(cart.owner) ?: cartRepo.save(newCartEntity(cart.owner))
-        val keptIds = cart.items.cartItems().itemIds().map { it.id.value }.toSet()
+        val keptIds = cart.items.cartItems().itemIds().map { it.asString() }.toSet()
         itemRepo.deleteAll(items(cartEntity).filterNot { it.id in keptIds })
         itemRepo.flush()
         cart.items.asList().forEach { item ->
             when (item) {
-                is CartItem -> itemRepo.findById(item.itemId.id.value).ifPresent {
+                is CartItem -> itemRepo.findById(item.itemId.asString()).ifPresent {
                     itemRepo.save(it.copy(quantity = item.quantity.value))
                 }
                 is DraftItem -> itemRepo.save(
                     CartItemEntity(
                         id = Identity.nextId().value,
                         cartId = cartEntity.id,
-                        product = productRepo.getReferenceById(item.product.productId.id.value),
+                        product = productRepo.getReferenceById(item.product.productId.asString()),
                         quantity = item.quantity.value
                     )
                 )
@@ -80,12 +80,12 @@ class PostgresCartRepositoryAdapter(
     private fun find(owner: CartOwner): CartEntity? = when (owner) {
         is CartOwner.Customer -> cartRepo.findByUserId(owner.userId.value)
         // A visitor id only maps to a visitor cart, never to the cart of a customer
-        is CartOwner.Visitor -> cartRepo.findById(owner.cartId.value).filter { it.userId == null }.orElse(null)
+        is CartOwner.Visitor -> cartRepo.findById(owner.cartId.asString()).filter { it.userId == null }.orElse(null)
     }
 
     private fun newCartEntity(owner: CartOwner) = when (owner) {
         is CartOwner.Customer -> CartEntity(id = Identity.nextId().value, userId = owner.userId.value)
-        is CartOwner.Visitor -> CartEntity(id = owner.cartId.value)
+        is CartOwner.Visitor -> CartEntity(id = owner.cartId.asString())
     }
 
     private fun items(cartEntity: CartEntity) =

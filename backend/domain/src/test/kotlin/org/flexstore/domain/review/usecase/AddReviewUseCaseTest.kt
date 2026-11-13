@@ -46,7 +46,7 @@ class AddReviewUseCaseTest : WithAssertions {
     }
 
     private fun submission(opinion: Opinion, productId: ProductId = deskLamp.productId): ReviewSubmission {
-        val stamp = ReviewStamp(ReviewId("review-1"), ReviewedAt(Instant.parse("2026-10-31T10:00:00Z")))
+        val stamp = ReviewStamp(ReviewId(Identity("review-1")), ReviewedAt(Instant.parse("2026-10-31T10:00:00Z")))
         val customerActor = actorResolutionService.actorOf(customerId)
         return ReviewSubmission(stamp, ReviewDraft(customerActor, ProductOpinion(productId, opinion)))
     }
@@ -58,7 +58,7 @@ class AddReviewUseCaseTest : WithAssertions {
         // Act
         useCase.unfold(submission(sturdy))
         // Assert
-        val review = reviewRepository.findAllAbout(deskLamp.productId).of(ReviewId("review-1"))
+        val review = reviewRepository.findAllAbout(deskLamp.productId).of(ReviewId(Identity("review-1")))
         assertThat(review.reviewer.name).isEqualTo(ReviewerName("Marie D."))
         assertThat(review.opinion).isEqualTo(sturdy)
     }
@@ -130,7 +130,7 @@ class AddReviewUseCaseTest : WithAssertions {
     fun `an unknown user should not write a review`() {
         // Arrange
         storeOrder(OrderStatus.DELIVERED)
-        val stamp = ReviewStamp(ReviewId("review-2"), ReviewedAt(Instant.parse("2026-10-31T10:00:00Z")))
+        val stamp = ReviewStamp(ReviewId(Identity("review-2")), ReviewedAt(Instant.parse("2026-10-31T10:00:00Z")))
         val unknownUser = actorResolutionService.actorOf(UserId.ValidUserId("unknown-user"))
         val draft = ReviewDraft(unknownUser, ProductOpinion(deskLamp.productId, sturdy))
         // Act
@@ -145,7 +145,7 @@ class AddReviewUseCaseTest : WithAssertions {
         // Arrange
         userRepository.save(customerWithStatus(status))
         storeOrder(OrderStatus.DELIVERED)
-        val stamp = ReviewStamp(ReviewId("review-3"), ReviewedAt(Instant.parse("2026-10-31T10:00:00Z")))
+        val stamp = ReviewStamp(ReviewId(Identity("review-3")), ReviewedAt(Instant.parse("2026-10-31T10:00:00Z")))
         val blockedCustomer = actorResolutionService.actorOf(blockedCustomerId)
         val draft = ReviewDraft(blockedCustomer, ProductOpinion(deskLamp.productId, sturdy))
         // Act

@@ -103,7 +103,7 @@ class PostgresOrderRepositoryAdapter(
                 OrderLineEntity(
                     id = Identity.nextId().value,
                     position = position,
-                    productId = line.productId.id.value,
+                    productId = line.productId.asString(),
                     productName = line.productName.value,
                     unitPrice = line.unitPrice.amount.value,
                     currency = line.unitPrice.currency.name,

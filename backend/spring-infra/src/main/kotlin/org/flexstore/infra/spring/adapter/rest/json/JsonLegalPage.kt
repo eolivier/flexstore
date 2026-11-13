@@ -14,7 +14,7 @@ data class JsonLegalPage(
     val publishedAt: Instant
 ) {
     constructor(legalPage: LegalPage) :
-        this(legalPage.id.value.value, legalPage.kind, legalPage.text.value, legalPage.publishedAt.value)
+        this(legalPage.id.asString(), legalPage.kind, legalPage.text.value, legalPage.publishedAt.value)
 }
 
 // The new text of a legal page, written by an administrator

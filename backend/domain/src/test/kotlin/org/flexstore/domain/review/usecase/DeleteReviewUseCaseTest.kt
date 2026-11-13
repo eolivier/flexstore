@@ -16,7 +16,7 @@ class DeleteReviewUseCaseTest : WithAssertions {
 
     private val lamp = ProductId(Identity("lamp"))
     private val customer = UserId.ValidUserId("user-1")
-    private val reviewId = ReviewId("review-1")
+    private val reviewId = ReviewId(Identity("review-1"))
     private val reviewRepository = InMemoryReviewRepository().apply {
         val stamp = ReviewStamp(reviewId, ReviewedAt(Instant.parse("2026-10-31T10:00:00Z")))
         val subject = ReviewSubject(lamp, Reviewer(customer, ReviewerName("Marie D.")))
@@ -44,7 +44,7 @@ class DeleteReviewUseCaseTest : WithAssertions {
     @Test
     fun `a review that does not exist should not be deleted`() {
         // Act
-        val thrown = catchThrowable { useCase.unfold(ReviewDeletion(administrator, ReviewId("missing"))) }
+        val thrown = catchThrowable { useCase.unfold(ReviewDeletion(administrator, ReviewId(Identity("missing")))) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(ReviewNotFoundException::class.java)
     }

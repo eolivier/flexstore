@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.adapter.persistence.jpa
 
+import org.flexstore.domain.sharedkernel.Identity
 import org.assertj.core.api.Assertions.assertThat
 import org.flexstore.domain.twofactor.TwoFactorChallengeRepository
 import org.flexstore.domain.twofactor.model.TwoFactorChallenge
@@ -36,7 +37,7 @@ class TwoFactorChallengeIT {
         PlainPassword("password123")
     )
     private val challenge = TwoFactorChallenge(
-        TwoFactorChallengeId("challenge-it-1"),
+        TwoFactorChallengeId(Identity("challenge-it-1")),
         jane.id,
         Instant.parse("2026-11-13T10:00:00Z")
     )
@@ -64,7 +65,7 @@ class TwoFactorChallengeIT {
     @Test
     fun `an unknown challenge should not be found`() {
         // Act
-        val lookup = challengeRepository.find(TwoFactorChallengeId("challenge-it-unknown"))
+        val lookup = challengeRepository.find(TwoFactorChallengeId(Identity("challenge-it-unknown")))
         // Assert
         assertThat(lookup).isEqualTo(TwoFactorChallengeLookup.NotFound)
     }
@@ -84,7 +85,7 @@ class TwoFactorChallengeIT {
         // Arrange
         challengeRepository.save(challenge)
         // Act
-        challengeRepository.delete(TwoFactorChallengeId("challenge-it-unknown"))
+        challengeRepository.delete(TwoFactorChallengeId(Identity("challenge-it-unknown")))
         // Assert
         assertThat(challengeRepository.find(challenge.id)).isEqualTo(TwoFactorChallengeLookup.Found(challenge))
     }

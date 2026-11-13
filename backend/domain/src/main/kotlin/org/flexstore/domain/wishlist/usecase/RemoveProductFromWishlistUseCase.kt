@@ -27,7 +27,7 @@ class RemoveProductFromWishlistUseCase(
 
     private fun productIsRemovedCondition() = PostCondition<WishlistEntry> { entry ->
         if (wishlistRepository.contains(entry.customer.customerId(), entry.productId)) {
-            val message = ErrorMessage("Product ${entry.productId.id.value} was not removed from the wishlist.")
+            val message = ErrorMessage("Product ${entry.productId.asString()} was not removed from the wishlist.")
             throw WishlistUpdateFailed(message)
         }
     }

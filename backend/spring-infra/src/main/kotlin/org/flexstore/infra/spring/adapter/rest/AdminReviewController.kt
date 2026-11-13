@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.adapter.rest
 
+import org.flexstore.domain.sharedkernel.Identity
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.domain.actor.ActorResolutionService
@@ -26,6 +27,6 @@ class AdminReviewController(
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteReview(@AuthenticationPrincipal editor: Jwt, @PathVariable id: String) {
         val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
-        reviewUseCases.delete(actor, ReviewId(id))
+        reviewUseCases.delete(actor, ReviewId(Identity(id)))
     }
 }

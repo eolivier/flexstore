@@ -13,21 +13,21 @@ class PostgresStockRepositoryAdapter(private val jpaRepo: JpaStockRepository) : 
 
     @Transactional(readOnly = true)
     override fun stockOf(productId: ProductId): Stock =
-        jpaRepo.findStockOf(productId.id.value)?.toStock() ?: Stock.noneOf(productId)
+        jpaRepo.findStockOf(productId.asString())?.toStock() ?: Stock.noneOf(productId)
 
     @Transactional(readOnly = true)
     override fun findAll() = Stocks(jpaRepo.findGivenStocks().map { it.toStock() })
 
     override fun save(stock: Stock) {
-        jpaRepo.giveQuantity(stock.productId.id.value, stock.quantity.value)
+        jpaRepo.giveQuantity(stock.productId.asString(), stock.quantity.value)
     }
 
     @Transactional(readOnly = true)
     override fun alertOf(productId: ProductId): StockAlert =
-        jpaRepo.findStockOf(productId.id.value)?.toAlert() ?: StockAlert.byDefaultOf(productId)
+        jpaRepo.findStockOf(productId.asString())?.toAlert() ?: StockAlert.byDefaultOf(productId)
 
     override fun saveAlert(stockAlert: StockAlert) {
-        jpaRepo.giveThreshold(stockAlert.productId.id.value, stockAlert.threshold.value)
+        jpaRepo.giveThreshold(stockAlert.productId.asString(), stockAlert.threshold.value)
     }
 
     @Transactional(readOnly = true)
@@ -35,12 +35,12 @@ class PostgresStockRepositoryAdapter(private val jpaRepo: JpaStockRepository) : 
         LowStocks(jpaRepo.findLowStocks().map { LowStock(it.toStock(), it.toAlert().threshold) })
 
     override fun reserve(productId: ProductId, quantity: Quantity): StockReservation {
-        val updatedRows = jpaRepo.takeOut(productId.id.value, quantity.value)
+        val updatedRows = jpaRepo.takeOut(productId.asString(), quantity.value)
         return if (updatedRows == 1) StockReservation.RESERVED else StockReservation.NOT_COVERED
     }
 
     override fun release(productId: ProductId, quantity: Quantity) {
-        jpaRepo.putBack(productId.id.value, quantity.value)
+        jpaRepo.putBack(productId.asString(), quantity.value)
     }
 
     private fun StockRow.toStock() =

@@ -73,7 +73,7 @@ data class DefinedProduct(
 
     // A product given with its id only: its SKU is its id
     constructor(productId: ProductId, name: Name, price: Price) :
-        this(productId, Sku.from(productId.id.value), name, NO_DESCRIPTION, Category.NOT_DEFINED, price)
+        this(productId, Sku.from(productId.asString()), name, NO_DESCRIPTION, Category.NOT_DEFINED, price)
 
     val price: Price get() = pricing.price
 
@@ -97,7 +97,7 @@ data class DefinedProduct(
     private fun inDefaultLanguage(text: ProductText) =
         copy(translations = translations.updatedWith(ProductTranslation(Language.DEFAULT, text)))
 }
-data class ProductId(val id: Identity) {
+data class ProductId(override val value: Identity) : IdentityBased {
     companion object {
         fun nextId() = ProductId(Identity.nextId())
     }

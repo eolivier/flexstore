@@ -26,7 +26,7 @@ class VatBreakdownsTest : WithAssertions {
         val translations = ProductTranslations.inDefaultLanguage(
             ProductText(name, Description("A product of the tests"))
         )
-        return DefinedProduct(productId, Sku.from(productId.id.value), translations, Category.HOME, pricing)
+        return DefinedProduct(productId, Sku.from(productId.asString()), translations, Category.HOME, pricing)
     }
 
     // Shipped by express (9,90 €), which is never free

@@ -67,13 +67,13 @@ sealed interface CartOwner {
     data class Visitor(val cartId: VisitorCartId) : CartOwner
 }
 
-data class VisitorCartId(val value: String) {
+data class VisitorCartId(override val value: Identity) : IdentityBased {
     init {
-        require(isValid(value)) { "A visitor cart id is a UUID: $value" }
+        require(isValid(value.value)) { "A visitor cart id is a UUID: ${value.value}" }
     }
 
     companion object {
-        fun nextId() = VisitorCartId(Identity.nextId().value)
+        fun nextId() = VisitorCartId(Identity.nextId())
 
         fun isValid(value: String?) = value != null && runCatching { UUID.fromString(value) }.isSuccess
     }

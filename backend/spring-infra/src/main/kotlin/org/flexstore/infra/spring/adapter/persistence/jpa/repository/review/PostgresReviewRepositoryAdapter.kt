@@ -22,26 +22,26 @@ class PostgresReviewRepositoryAdapter(
     }
 
     override fun delete(reviewId: ReviewId) {
-        jpaRepo.deleteById(reviewId.value)
+        jpaRepo.deleteById(reviewId.asString())
     }
 
     @Transactional(readOnly = true)
     override fun findAllAbout(productId: ProductId) =
-        Reviews(jpaRepo.findByProductId(productId.id.value).map { it.toDomain() }).newestFirst()
+        Reviews(jpaRepo.findByProductId(productId.asString()).map { it.toDomain() }).newestFirst()
 
     @Transactional(readOnly = true)
     override fun findAll() = Reviews(jpaRepo.findAll().map { it.toDomain() })
 
     @Transactional(readOnly = true)
-    override fun reviewExists(reviewId: ReviewId) = jpaRepo.existsById(reviewId.value)
+    override fun reviewExists(reviewId: ReviewId) = jpaRepo.existsById(reviewId.asString())
 
     @Transactional(readOnly = true)
     override fun hasReviewed(customer: UserId.ValidUserId, productId: ProductId) =
-        jpaRepo.existsByUser_IdAndProductId(customer.value, productId.id.value)
+        jpaRepo.existsByUser_IdAndProductId(customer.value, productId.asString())
 
     // The reviewer is the row of the customer, so that the review read back in the same request is named
     private fun Review.toEntity() = ProductReviewEntity(
-        reviewId.value, productId.id.value, userRepo.getReferenceById(reviewer.userId.value), rating.value,
+        reviewId.asString(), productId.asString(), userRepo.getReferenceById(reviewer.userId.value), rating.value,
         comment.value, reviewedAt.value
     )
 
@@ -50,7 +50,7 @@ class PostgresReviewRepositoryAdapter(
         val reviewer = Reviewer(UserId.ValidUserId(user.id), ReviewerName.of(fullName))
         val subject = ReviewSubject(ProductId(Identity(productId)), reviewer)
         return Review(
-            ReviewStamp(ReviewId(id), ReviewedAt(reviewedAt)), subject,
+            ReviewStamp(ReviewId(Identity(id)), ReviewedAt(reviewedAt)), subject,
             Opinion(Rating(rating), ReviewComment(comment))
         )
     }

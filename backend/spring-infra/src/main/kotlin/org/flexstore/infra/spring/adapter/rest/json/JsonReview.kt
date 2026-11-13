@@ -16,8 +16,8 @@ data class JsonReview(
     @JsonProperty("reviewedAt") val reviewedAt: String
 ) {
     constructor(review: Review) : this(
-        review.reviewId.value,
-        review.productId.id.value,
+        review.reviewId.asString(),
+        review.productId.asString(),
         review.reviewer.name.value,
         review.rating.value,
         review.comment.value,
@@ -40,7 +40,7 @@ data class JsonRatingSummary(
     @JsonProperty("reviewCount") val reviewCount: Int
 ) {
     constructor(summary: RatingSummary) : this(
-        summary.productId.id.value, summary.average.value, summary.reviewCount.value
+        summary.productId.asString(), summary.average.value, summary.reviewCount.value
     )
 }
 

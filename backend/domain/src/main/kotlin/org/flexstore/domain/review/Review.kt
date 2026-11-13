@@ -13,9 +13,9 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.Instant
 
-data class ReviewId(val value: String) {
+data class ReviewId(override val value: Identity) : IdentityBased {
     companion object {
-        fun nextId() = ReviewId(Identity.nextId().value)
+        fun nextId() = ReviewId(Identity.nextId())
     }
 }
 
