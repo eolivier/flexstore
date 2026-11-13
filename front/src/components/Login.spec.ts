@@ -73,6 +73,23 @@ describe('Login.vue', () => {
     expect(wrapper.find('button[type="submit"]').exists()).toBe(true);
   });
 
+  it('hides the password until the eye icon is clicked, then hides it again', async () => {
+    // Arrange
+    const wrapper = await mountComponent();
+    await wrapper.find('input[type="password"]').setValue('password123');
+    // Act
+    await wrapper.find('.mdi-eye-outline').trigger('click');
+    // Assert
+    expect(wrapper.find('input[type="password"]').exists()).toBe(false);
+    expect((wrapper.find('input[autocomplete="current-password"]').element as HTMLInputElement).value).toBe(
+      'password123'
+    );
+    // Act
+    await wrapper.find('.mdi-eye-off-outline').trigger('click');
+    // Assert
+    expect(wrapper.find('input[type="password"]').exists()).toBe(true);
+  });
+
   it('displays title from i18n', async () => {
     // Act
     const wrapper = await mountComponent();
