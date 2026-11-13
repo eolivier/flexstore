@@ -1,6 +1,6 @@
 ---
 name: fluent-code-reading-semantic
-description: Principles that make code read like the business language - wrapping collections in their own class, naming boolean methods affirmatively (no `!is`: `isNotAdmin()`, defined as `!isAdmin()`, rather than `!is Admin`), no negated condition before an else (swap the branches), no nested if (cumulate the conditions with &&, one guard clause per rule), the negated twin of a question rather than a ! (hasNotPaidFor), naming a condition with a method (a deadline that is reached rather than a comparison of dates), naming variables after their type, intermediate variables, strong types rather than nullable ones, no nullable type marker (`?`) in declarations, no magic number, one or two arguments per method, lines of 113 characters at most, singular or plural names, no repeated names, no null arguments, beans declared step by step (repository, use case, service). Use before writing, changing or reviewing domain or application code (entities, value objects, aggregates, use cases), in any language.
+description: Principles that make code read like the business language - wrapping collections in their own class, naming boolean methods affirmatively (no `!is`: `isNotAdmin()`, defined as `!isAdmin()`, rather than `!is Admin`), no negated condition before an else (swap the branches), no nested if (cumulate the conditions with &&, one guard clause per rule), the negated twin of a question rather than a ! (hasNotPaidFor), naming a condition with a method (a deadline that is reached rather than a comparison of dates), naming variables after their type, intermediate variables, strong types rather than nullable ones, no nullable type marker (`?`) in declarations, no magic number, one or two arguments per method, lines of 113 characters at most (shortened by extracting a variable, never by wrapping an instruction), singular or plural names, no repeated names, no null arguments, beans declared step by step (repository, use case, service). Use before writing, changing or reviewing domain or application code (entities, value objects, aggregates, use cases), in any language.
 ---
 
 # Fluent code reading semantic
@@ -370,9 +370,28 @@ private val cart = Cart(owner).add(deskLamp, Quantity(2))
 private val order = Order.place(orderPlacement, cart)
 ```
 
+The same goes for an exception: extract the message, then throw. Never cut the instruction after its opening parenthesis.
+
+Avoid:
+
+```kotlin
+throw ProductImageForbiddenException(
+    ErrorMessage("Only an administrator can give the image of a product.")
+)
+```
+
+Prefer:
+
+```kotlin
+val message = ErrorMessage("Only an administrator can give the image of a product.")
+throw ProductImageForbiddenException(message)
+```
+
 Why: a line that fits on the screen is read at once, without scrolling or following a wrapped expression; the intermediate variables that keep it short also name each step.
 
 Details:
+- A text that is still too long once alone on its line is the variable (`val reason = "..."`), then `ErrorMessage(reason)` on the next line.
+- The `checkLineLength` task checks every line of the Kotlin files, quotes included.
 - The limit applies to every language of the project (Kotlin, TypeScript, Vue, SQL); a long string or a URL that cannot be split is the only exception.
 - When the variables are not enough (a declaration with many parameters), put one parameter per line, as the existing data classes do.
 - Comments follow the same limit: split them over several lines.
