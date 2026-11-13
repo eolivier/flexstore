@@ -37,7 +37,8 @@ class ReadUserUseCaseTest {
         // Arrange
         val invalidUserId = InvalidUserId("@")
         // Act
-        val thrown = catchThrowable { readUserUseCase.unfold(UserReading(testAdministratorActor, invalidUserId)) }
+        val reading = UserReading(testAdministratorActor, invalidUserId)
+        val thrown = catchThrowable { readUserUseCase.unfold(reading) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(InvalidUserIdException::class.java).hasMessage("User ID @ is invalid.")
         verify(exactly = 0) { userRepository.exists(invalidUserId) }

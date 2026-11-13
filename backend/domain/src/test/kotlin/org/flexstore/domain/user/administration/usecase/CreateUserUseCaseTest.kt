@@ -105,7 +105,8 @@ class CreateUserUseCaseTest {
         // Arrange
         every { userRepository.emailIsAlreadyUsed(draftUser.email) } returns true
         // Act
-        val thrown = catchThrowable { createUserUseCase.unfold(CreateUserRequest(testAdministratorActor, draftUser)) }
+        val request = CreateUserRequest(testAdministratorActor, draftUser)
+        val thrown = catchThrowable { createUserUseCase.unfold(request) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(UserAlreadyExists::class.java)
             .hasMessage("User with email john.doe@example.com already exists.")

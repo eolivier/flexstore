@@ -56,6 +56,8 @@ class TwoFactorAuthenticationIT {
     @Autowired
     private lateinit var actorResolutionService: ActorResolutionService
 
+    private fun administrator() = actorResolutionService.actorOf(UserId.of(ADMIN_ACCOUNT_ID))
+
     private lateinit var adminId: String
     private lateinit var customerId: String
 
@@ -67,13 +69,13 @@ class TwoFactorAuthenticationIT {
 
     private fun createEnrolledAdmin(): String {
         val draftJsonUser = DraftJsonUser("Two-factor", "Admin", ADMIN_EMAIL, ADMIN_PASSWORD, "ADMIN")
-        userService.createUser(CreateUserRequest(actorResolutionService.actorOf(UserId.of(ADMIN_ACCOUNT_ID)), draftJsonUser.toUser()))
+        userService.createUser(CreateUserRequest(administrator(), draftJsonUser.toUser()))
         return (userRepository.findByEmail(Email(ADMIN_EMAIL)) as User.DefinedUser).id.value
     }
 
     private fun createCustomer(): String {
         val draftJsonUser = DraftJsonUser("Two-factor", "Customer", CUSTOMER_EMAIL, CUSTOMER_PASSWORD, "USER")
-        userService.createUser(CreateUserRequest(actorResolutionService.actorOf(UserId.of(ADMIN_ACCOUNT_ID)), draftJsonUser.toUser()))
+        userService.createUser(CreateUserRequest(administrator(), draftJsonUser.toUser()))
         return (userRepository.findByEmail(Email(CUSTOMER_EMAIL)) as User.DefinedUser).id.value
     }
 
