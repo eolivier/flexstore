@@ -1,4 +1,6 @@
 <script setup lang="ts">
+  import EmptyState from '@/components/layout/EmptyState.vue';
+  import LoadError from '@/components/layout/LoadError.vue';
   import { onMounted } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useLoyaltyStore } from '@/stores/loyalty.store';
@@ -21,9 +23,7 @@
     <h1 class="text-h4 font-weight-bold">{{ t('loyalty.title') }}</h1>
     <p class="text-body-2 text-medium-emphasis mt-1 mb-6">{{ t('loyalty.subtitle') }}</p>
 
-    <v-alert v-if="loyaltyStore.loadError" type="error" variant="tonal" class="mb-4">
-      {{ t('loyalty.loadError') }}
-    </v-alert>
+    <LoadError v-if="loyaltyStore.loadError" :message="t('loyalty.loadError')" class="mb-4" />
 
     <v-skeleton-loader v-else-if="loyaltyStore.loading" type="article" class="rounded-xl" />
 
@@ -38,13 +38,13 @@
 
     <v-card v-if="!loyaltyStore.loadError && !loyaltyStore.loading" class="mt-6">
       <v-card-title>{{ t('loyalty.history') }}</v-card-title>
-      <p
+      <EmptyState
         v-if="loyaltyStore.purchases.length === 0"
-        class="px-4 pb-4 text-medium-emphasis"
+        compact
+        class="px-4 pb-4"
+        :message="t('loyalty.empty')"
         data-testid="loyalty-empty"
-      >
-        {{ t('loyalty.empty') }}
-      </p>
+      />
       <v-list v-else lines="one">
         <v-list-item
           v-for="purchase in loyaltyStore.purchases"

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import LoadError from '@/components/layout/LoadError.vue';
   import AdminBreadcrumbs from '@/components/admin/AdminBreadcrumbs.vue';
   import { onMounted, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
@@ -81,9 +82,7 @@
     <AdminBreadcrumbs />
     <h1 class="text-h4 font-weight-bold mb-6">{{ t('editProduct.title') }}</h1>
     <v-skeleton-loader v-if="editedProduct === null" type="article" class="rounded-xl" />
-    <v-alert v-else-if="editedProduct === false" type="error" variant="tonal">{{
-      t('editProduct.loadError')
-    }}</v-alert>
+    <LoadError v-else-if="editedProduct === false" :message="t('editProduct.loadError')" />
     <v-card v-else class="pa-6">
       <ProductImageField :product-id="id" />
       <v-divider class="mb-4" />

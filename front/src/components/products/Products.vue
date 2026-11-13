@@ -1,4 +1,6 @@
 <script setup lang="ts">
+  import EmptyState from '@/components/layout/EmptyState.vue';
+  import LoadError from '@/components/layout/LoadError.vue';
   import { useProductImagesStore } from '@/stores/productImages.store';
   import { useStocksStore } from '@/stores/stocks.store';
   import { computed, onMounted, onServerPrefetch, ref } from 'vue';
@@ -133,22 +135,22 @@
       </v-col>
     </v-row>
 
-    <v-alert v-else-if="productsStore.error" type="error" variant="tonal" rounded="lg">
-      {{ t('products.error') }}
-      <template #append>
-        <v-btn variant="text" @click="productsStore.fetchProducts()">{{ t('products.retry') }}</v-btn>
-      </template>
-    </v-alert>
+    <LoadError
+      v-else-if="productsStore.error"
+      :message="t('products.loadError')"
+      retryable
+      @retry="productsStore.fetchProducts()"
+    />
 
-    <div v-else-if="products.length === 0" class="text-center py-16">
-      <v-icon icon="mdi-package-variant" size="56" class="text-medium-emphasis mb-3" />
-      <p class="text-body-1 text-medium-emphasis">
-        {{ search ? t('products.noMatch', { search }) : t('products.empty') }}
-      </p>
-      <v-btn v-if="search" variant="tonal" color="primary" class="mt-4" @click="clearSearch">
+    <EmptyState
+      v-else-if="products.length === 0"
+      icon="mdi-package-variant"
+      :message="search ? t('products.noMatch', { search }) : t('products.empty')"
+    >
+      <v-btn v-if="search" variant="tonal" color="primary" @click="clearSearch">
         {{ t('products.clearSearch') }}
       </v-btn>
-    </div>
+    </EmptyState>
 
     <v-row v-else>
       <v-col v-for="product in products" :key="product.id" cols="12" sm="6" md="4" lg="3">

@@ -60,8 +60,7 @@ export default {
     resultsFor: 'Résultats pour « {search} »',
     noMatch: 'Aucun produit ne correspond à « {search} ».',
     clearSearch: 'Effacer la recherche',
-    error: "Les produits n'ont pas pu être chargés.",
-    retry: 'Réessayer',
+    loadError: "Les produits n'ont pas pu être chargés.",
     added: '{name} a été ajouté à votre panier',
     addError: "Le produit n'a pas pu être ajouté à votre panier.",
     viewCart: 'Voir le panier',
@@ -77,7 +76,7 @@ export default {
   },
   reviews: {
     title: 'Avis des clients',
-    none: 'Aucun avis pour le moment.',
+    empty: 'Aucun avis pour le moment.',
     average: 'Note moyenne : {average} sur 5',
     count: 'Aucun avis | 1 avis | {n} avis',
     write: 'Donner votre avis sur ce produit',

@@ -60,8 +60,7 @@ export default {
     resultsFor: 'Results for “{search}”',
     noMatch: 'No product matches “{search}”.',
     clearSearch: 'Clear the search',
-    error: 'The products could not be loaded.',
-    retry: 'Retry',
+    loadError: 'The products could not be loaded.',
     added: '{name} added to your cart',
     addError: 'The product could not be added to your cart.',
     viewCart: 'View cart',
@@ -77,7 +76,7 @@ export default {
   },
   reviews: {
     title: 'Customer reviews',
-    none: 'No review yet.',
+    empty: 'No review yet.',
     average: 'Average rating: {average} out of 5',
     count: 'No review | 1 review | {n} reviews',
     write: 'Review this product',

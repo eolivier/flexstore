@@ -87,7 +87,7 @@ export default {
     usageLimit: 'Number of orders',
     uses: 'Used',
     create: 'Create the code',
-    none: 'No discount code yet.',
+    empty: 'No discount code yet.',
     loadError: 'The discount codes could not be loaded.',
     deletionError: 'The discount code could not be deleted.',
     delete: 'Delete the code {code}',

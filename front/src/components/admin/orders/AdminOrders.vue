@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import LoadError from '@/components/layout/LoadError.vue';
   import AdminBreadcrumbs from '@/components/admin/AdminBreadcrumbs.vue';
   import { computed, onMounted, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
@@ -62,9 +63,7 @@
 
     <AdminOrderFilters v-model="filter" />
 
-    <v-alert v-if="adminOrdersStore.loadError" type="error" variant="tonal" class="mb-4">
-      {{ t('adminOrders.loadError') }}
-    </v-alert>
+    <LoadError v-if="adminOrdersStore.loadError" :message="t('adminOrders.loadError')" class="mb-4" />
     <v-alert v-if="feedback" type="warning" variant="tonal" class="mb-4">{{ feedback }}</v-alert>
 
     <v-data-table

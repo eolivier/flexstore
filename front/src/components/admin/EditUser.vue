@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import LoadError from '@/components/layout/LoadError.vue';
   import AdminBreadcrumbs from '@/components/admin/AdminBreadcrumbs.vue';
   import { computed, onMounted, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
@@ -68,9 +69,7 @@
     <AdminBreadcrumbs />
     <h1 class="text-h4 font-weight-bold mb-6">{{ t('editUser.title') }}</h1>
     <v-skeleton-loader v-if="editedUser === null" type="article" class="rounded-xl" />
-    <v-alert v-else-if="editedUser === false" type="error" variant="tonal">{{
-      t('editUser.loadError')
-    }}</v-alert>
+    <LoadError v-else-if="editedUser === false" :message="t('editUser.loadError')" />
     <v-card v-else class="pa-6">
       <UserForm
         :initial="editedUser"

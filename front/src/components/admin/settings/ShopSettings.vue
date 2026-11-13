@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import LoadError from '@/components/layout/LoadError.vue';
   import AdminBreadcrumbs from '@/components/admin/AdminBreadcrumbs.vue';
   import { onMounted } from 'vue';
   import { useI18n } from 'vue-i18n';
@@ -23,7 +24,7 @@
     <h1 class="text-h4 font-weight-bold mb-1">{{ t('settings.title') }}</h1>
     <p class="text-body-2 text-medium-emphasis mb-4">{{ t('settings.subtitle') }}</p>
 
-    <v-alert v-if="settingsStore.loadError" type="error" variant="tonal">{{ t('settings.loadError') }}</v-alert>
+    <LoadError v-if="settingsStore.loadError" :message="t('settings.loadError')" />
 
     <v-skeleton-loader v-else-if="!settingsStore.settings" type="list-item-avatar-two-line" class="rounded-xl" />
 

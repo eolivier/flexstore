@@ -74,7 +74,7 @@ export default {
     bestSellers: 'Best sellers',
     product: 'Product',
     unitsSold: 'Units sold',
-    noSale: 'No sale over this period.',
-    error: 'The sales could not be loaded.',
+    empty: 'No sale over this period.',
+    loadError: 'The sales could not be loaded.',
   },
 };

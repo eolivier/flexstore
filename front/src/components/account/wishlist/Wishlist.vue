@@ -1,4 +1,6 @@
 <script setup lang="ts">
+  import EmptyState from '@/components/layout/EmptyState.vue';
+  import LoadError from '@/components/layout/LoadError.vue';
   import { onMounted } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useWishlistStore } from '@/stores/wishlist.store';
@@ -27,9 +29,7 @@
     <h1 class="text-h4 font-weight-bold">{{ t('wishlist.title') }}</h1>
     <p class="text-body-2 text-medium-emphasis mt-1 mb-6">{{ t('wishlist.subtitle') }}</p>
 
-    <v-alert v-if="wishlistStore.loadError" type="error" variant="tonal" class="mb-4">
-      {{ t('wishlist.loadError') }}
-    </v-alert>
+    <LoadError v-if="wishlistStore.loadError" :message="t('wishlist.loadError')" class="mb-4" />
 
     <v-row v-if="wishlistStore.loading">
       <v-col v-for="n in 4" :key="n" cols="12" sm="6" md="4" lg="3">
@@ -37,11 +37,13 @@
       </v-col>
     </v-row>
 
-    <v-card v-else-if="wishlistStore.products.length === 0" class="pa-10 text-center">
-      <v-icon icon="mdi-heart-outline" size="48" class="text-medium-emphasis mb-3" />
-      <p class="text-body-1 mb-4">{{ t('wishlist.empty') }}</p>
+    <EmptyState
+      v-else-if="wishlistStore.products.length === 0"
+      icon="mdi-heart-outline"
+      :message="t('wishlist.empty')"
+    >
       <v-btn to="/products" color="primary">{{ t('products.backToShop') }}</v-btn>
-    </v-card>
+    </EmptyState>
 
     <v-row v-else>
       <v-col v-for="product in wishlistStore.products" :key="product.id" cols="12" sm="6" md="4" lg="3">

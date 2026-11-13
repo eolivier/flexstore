@@ -123,11 +123,11 @@
         size="56"
         class="text-medium-emphasis mb-3"
       />
-      <h1 class="text-h6 font-weight-bold mb-1">{{ failed ? t('products.error') : t('products.notFound') }}</h1>
+      <h1 class="text-h6 font-weight-bold mb-1">{{ failed ? t('products.loadError') : t('products.notFound') }}</h1>
       <p v-if="!failed" class="text-body-2 text-medium-emphasis mb-6">{{ t('products.notFoundText') }}</p>
       <div class="d-flex justify-center ga-2">
         <v-btn v-if="failed" variant="outlined" color="primary" @click="loadProduct">{{
-          t('products.retry')
+          t('retry')
         }}</v-btn>
         <v-btn to="/products" color="secondary" prepend-icon="mdi-arrow-left">{{
           t('products.backToShop')

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import EmptyState from '@/components/layout/EmptyState.vue';
   import { useI18n } from 'vue-i18n';
   import type { JsonReview } from '@/generated';
 
@@ -12,7 +13,7 @@
 </script>
 
 <template>
-  <p v-if="reviews.length === 0" class="text-body-2 text-medium-emphasis">{{ t('reviews.none') }}</p>
+  <EmptyState v-if="reviews.length === 0" compact :message="t('reviews.empty')" />
   <div v-else class="d-flex flex-column ga-4">
     <div v-for="review in reviews" :key="review.id" data-test="review">
       <div class="d-flex align-center flex-wrap ga-2">

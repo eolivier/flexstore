@@ -1,4 +1,6 @@
 <script setup lang="ts">
+  import EmptyState from '@/components/layout/EmptyState.vue';
+  import LoadError from '@/components/layout/LoadError.vue';
   import { computed, onMounted, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { blankPostalAddress, type PostalAddress } from '@/models/account';
@@ -84,21 +86,22 @@
       </v-btn>
     </div>
 
-    <v-alert v-if="addressBookStore.loadError" type="error" variant="tonal" class="mt-6">
-      {{ t('addressBook.loadError') }}
-    </v-alert>
+    <LoadError v-if="addressBookStore.loadError" :message="t('addressBook.loadError')" class="mt-6" />
     <v-alert v-if="removalError" type="error" variant="tonal" class="mt-6">
       {{ t('addressBook.errors.removal') }}
     </v-alert>
 
     <v-skeleton-loader v-if="addressBookStore.loading" type="card" class="rounded-xl mt-6" />
-    <v-card v-else-if="addressBookStore.addresses.length === 0" class="pa-10 text-center mt-6">
-      <v-icon icon="mdi-map-marker-off-outline" size="48" class="text-medium-emphasis mb-3" />
-      <p class="text-body-1 mb-4">{{ t('addressBook.empty') }}</p>
+    <EmptyState
+      v-else-if="addressBookStore.addresses.length === 0"
+      icon="mdi-map-marker-off-outline"
+      :message="t('addressBook.empty')"
+      class="mt-6"
+    >
       <v-btn color="primary" prepend-icon="mdi-plus" @click="startAdding">
         {{ t('addressBook.add') }}
       </v-btn>
-    </v-card>
+    </EmptyState>
     <v-row v-else class="mt-1">
       <v-col v-for="(address, position) in addressBookStore.addresses" :key="position" cols="12" md="6">
         <AddressCard :address="address" @edit="edit(position)" @remove="positionToRemove = position" />

@@ -87,7 +87,7 @@ export default {
     usageLimit: 'Nombre de commandes',
     uses: 'Utilisé',
     create: 'Créer le code',
-    none: 'Aucun code promo pour le moment.',
+    empty: 'Aucun code promo pour le moment.',
     loadError: "Les codes promo n'ont pas pu être chargés.",
     deletionError: "Le code promo n'a pas pu être supprimé.",
     delete: 'Supprimer le code {code}',

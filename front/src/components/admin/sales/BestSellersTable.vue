@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import EmptyState from '@/components/layout/EmptyState.vue';
   import { useI18n } from 'vue-i18n';
   import type { JsonBestSeller } from '@/generated';
   import { formatPrice } from '@/utils/price';
@@ -12,9 +13,7 @@
 <template>
   <v-card class="pa-5">
     <h2 class="text-h6 font-weight-bold mb-2">{{ t('salesDashboard.bestSellers') }}</h2>
-    <p v-if="bestSellers.length === 0" class="text-body-2 text-medium-emphasis">
-      {{ t('salesDashboard.noSale') }}
-    </p>
+    <EmptyState v-if="bestSellers.length === 0" compact :message="t('salesDashboard.empty')" />
     <v-table v-else density="comfortable">
       <thead>
         <tr>
