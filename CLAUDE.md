@@ -55,6 +55,13 @@ Load the matching skill before working; they hold the detailed rules.
 - `pull-request-convention`: branches, commits, pushes and pull requests (English title and description,
   branch from `main`, rebased on `main`)
 
+## README: kept up to date with every feature
+
+`README.md` describes everything the shop does. Each time a functionality is developed, changed or removed (a use
+case, a page, an endpoint, a setting, an environment variable), update `README.md` in the same pull request: the
+**Features** section, the **API** table (from `openapi.yaml`) and, when it applies, the environment variables of the
+Quickstart. A feature pull request is not finished while the README still describes the previous behaviour.
+
 ## Pull requests: standing instruction from the user
 
 This is an explicit and permanent request from the user, which applies in every session and overrides any default
