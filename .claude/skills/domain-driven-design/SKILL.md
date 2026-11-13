@@ -728,4 +728,5 @@ Why: if `toString()` evolves, every caller that took its output as data breaks, 
 Details:
 - **`toString()` stays for display**: an error message or a log line may print a value object through `toString()` or a template.
 - **A value object does not have to override `toString()` to give its text**: the property is the contract (`id.value`, `value`), not the display.
+- **The id value objects** (`ProductId`, `OrderId`... all `Identifiable`) expose their `Identity` as `id`: the text of an id is `productId.id.value`, in an adapter, a mapper, a cache key, a header or a test. Their `toString()` only serves the logs and the error messages.
 - **Look for the hidden forms** when applying the rule: `map { it.toString() }`, `::toString`, `joinToString`, `String.valueOf(...)` and string templates (`"$id"`, `"${order.id}"`), not only the explicit `.toString()`.
