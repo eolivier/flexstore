@@ -5,8 +5,7 @@ import org.flexstore.domain.twofactor.model.TwoFactorChallenge
 import org.flexstore.domain.twofactor.model.TwoFactorChallengeId
 import org.flexstore.domain.twofactor.model.TwoFactorChallengeLookup
 
-// Kept in memory: a sign-in challenge is short-lived (see TwoFactorChallenge.VALIDITY) and does not need to
-// survive a restart of the application
+// In-memory double of the challenges, for the tests: the application keeps them in the database
 class InMemoryTwoFactorChallengeRepository : TwoFactorChallengeRepository {
 
     private val challenges = mutableMapOf<TwoFactorChallengeId, TwoFactorChallenge>()
