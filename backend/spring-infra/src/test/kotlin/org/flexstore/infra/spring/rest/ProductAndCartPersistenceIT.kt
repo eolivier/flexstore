@@ -54,7 +54,7 @@ class ProductAndCartPersistenceIT {
     private lateinit var cacheManager: CacheManager
 
     // The cart of a visitor
-    private val cartId = VisitorCartId.nextId().toString()
+    private val cartId = VisitorCartId.nextId().identity.value
 
     @BeforeEach
     @AfterEach
