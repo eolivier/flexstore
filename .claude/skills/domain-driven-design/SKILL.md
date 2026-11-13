@@ -1,6 +1,6 @@
 ---
 name: domain-driven-design
-description: Domain-Driven Design and hexagonal architecture principles to follow when writing or reviewing back-end code - where business rules live, what entities, value objects and aggregates may reference (value objects rather than primitive types), the role of use cases, domain services, repositories and adapters, groups of use cases named after their sub-domain (OrderUseCases, not a facade), every use case implementing the UseCase interface of ucop (or QueryUseCase when it answers), methods of the domain model that expose neither a primitive type nor a raw collection, the current moment read from InstantProvider (never a clock member), every administration use case checking in its own precondition that its actor is an administrator, one use case (not two) for a journey that the customer concerned or an administrator may run, a precondition or postcondition taken out of its use case staying in the usecase package (in a sub-package from more than 3), a use case that is not too fine-grained (one use case for the same action on several variants of a concept, such as the display mode and the language of the preferences). Use before creating or changing an entity, aggregate, value object, use case, domain service, port (repository interface) or infrastructure adapter, and when reviewing domain code.
+description: Domain-Driven Design and hexagonal architecture principles to follow when writing or reviewing back-end code - where business rules live, what entities, value objects and aggregates may reference (value objects rather than primitive types), the role of use cases, domain services, repositories and adapters, groups of use cases named after their sub-domain (OrderUseCases, not a facade), every use case implementing the UseCase interface of ucop (or QueryUseCase when it answers), methods of the domain model that expose neither a primitive type nor a raw collection, the current moment read from InstantProvider (never a clock member), every administration use case checking in its own precondition that its actor is an administrator, one use case (not two) for a journey that the customer concerned or an administrator may run, a precondition or postcondition taken out of its use case staying in the usecase package (in a sub-package from more than 3), a use case that is not too fine-grained (one use case for the same action on several variants of a concept, such as the display mode and the language of the preferences), the text of a value object read from its property and never from its toString(). Use before creating or changing an entity, aggregate, value object, use case, domain service, port (repository interface) or infrastructure adapter, and when reviewing domain code.
 ---
 
 # Domain-Driven Design
@@ -702,3 +702,31 @@ Details:
 - **The exceptions of a functional package** may share one file (`OrderExceptions.kt`) rather than one file each.
 - **The use cases stay one per file**, each with its own request when it has one: a use case is a journey, not a small type around a concept.
 - **When a grouped type grows** (or another concept starts using it on its own), move it to its own file.
+
+## 18. The text of a value object is read from its property, never from `toString()`
+
+`toString()` is for **display** (logs, error messages, the debugger), like a `printf`: its format is free and may change at any time (a prefix, a data class that prints `Identity(value=...)`, a rename). Code that **needs the value as a string** (a database column or query, a JSON field, a cache key, an HTTP header or path, a call to another system, a comparison, a business rule) reads it from the **explicit property** of the value object, never from `toString()` nor from a string template that calls it implicitly.
+
+Avoid (the code works until someone changes the display):
+
+```kotlin
+val key = productId.toString()
+val ids = productIds.map { it.toString() }
+headers.set("X-Cart-Id", "$cartId")
+```
+
+Prefer (the text comes from the property that holds it):
+
+```kotlin
+val key = productId.id.value
+val ids = productIds.map { it.id.value }
+headers.set("X-Cart-Id", cartId.id.value)
+```
+
+Why: if `toString()` evolves, every caller that took its output as data breaks, silently (a wrong key, an empty JSON path, a query that finds nothing) and far from the change. With the property, the format of the display can change freely.
+
+Details:
+- **`toString()` stays for display**: an error message or a log line may print a value object through `toString()` or a template.
+- **A value object does not have to override `toString()` to give its text**: the property is the contract (`id.value`, `value`), not the display.
+- **The id value objects** (`ProductId`, `OrderId`... all `Identifiable`) expose their `Identity` as `id`: the text of an id is `productId.id.value`, in an adapter, a mapper, a cache key, a header or a test. Their `toString()` only serves the logs and the error messages.
+- **Look for the hidden forms** when applying the rule: `map { it.toString() }`, `::toString`, `joinToString`, `String.valueOf(...)` and string templates (`"$id"`, `"${order.id}"`), not only the explicit `.toString()`.
