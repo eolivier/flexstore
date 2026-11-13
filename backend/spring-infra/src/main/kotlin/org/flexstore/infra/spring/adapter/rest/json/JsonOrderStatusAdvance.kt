@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.flexstore.domain.order.*
 import org.flexstore.domain.order.model.*
+import org.flexstore.domain.order.usecase.OrderStatusAdvance
 import org.ucop.domain.entity.Actor
 import org.ucop.domain.ErrorMessage
 
