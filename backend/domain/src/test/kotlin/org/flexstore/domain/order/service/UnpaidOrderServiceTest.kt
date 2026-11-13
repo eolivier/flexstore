@@ -22,6 +22,7 @@ import org.ucop.domain.PreConditionException
 import org.ucop.domain.entity.Actor
 import org.flexstore.infra.repository.*
 import org.junit.jupiter.api.AfterEach
+import org.flexstore.domain.user.model.AccountStatus
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.time.Instant
@@ -135,7 +136,7 @@ class UnpaidOrderServiceTest : WithAssertions {
         // Arrange
         placeOrder()
         // Act
-        cancelUnpaidOrderUseCase.unfold(cancellationBy(Admin(customer.userId, Name("Jane Doe"))))
+        cancelUnpaidOrderUseCase.unfold(cancellationBy(Admin(customer.userId, Name("Jane Doe"), AccountStatus.ACTIVE)))
         // Assert
         assertThat(storedStatus()).isEqualTo(OrderStatus.CANCELLED)
     }
@@ -146,7 +147,7 @@ class UnpaidOrderServiceTest : WithAssertions {
         placeOrder()
         // Act
         val thrown = catchThrowable {
-            cancelUnpaidOrderUseCase.unfold(cancellationBy(Customer(customer.userId, Name("Jane Doe"))))
+            cancelUnpaidOrderUseCase.unfold(cancellationBy(Customer(customer.userId, Name("Jane Doe"), AccountStatus.ACTIVE)))
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(UnpaidOrderForbiddenException::class.java)

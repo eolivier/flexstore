@@ -2,6 +2,7 @@ package org.flexstore.domain.review.usecase
 
 import org.flexstore.domain.order.model.*
 import org.flexstore.domain.product.model.*
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.user.blockedCustomerId
 import org.flexstore.domain.user.customerWithStatus
 import org.junit.jupiter.params.provider.EnumSource
@@ -33,6 +34,7 @@ class AddReviewUseCaseTest : WithAssertions {
         save(User.DefinedUser(customerId, FullName(FirstName("Marie"), LastName("Durand")), Email("m@d.fr"),
             HashedPassword("hash")))
     }
+    private val actorResolutionService = ActorResolutionService(userRepository)
     private val useCase = AddReviewUseCase(reviewRepository, orderRepository, productRepository, userRepository)
     private val sturdy = Opinion(Rating(5), ReviewComment("Sturdy and bright"))
 
@@ -45,7 +47,8 @@ class AddReviewUseCaseTest : WithAssertions {
 
     private fun submission(opinion: Opinion, productId: ProductId = deskLamp.productId): ReviewSubmission {
         val stamp = ReviewStamp(ReviewId("review-1"), ReviewedAt(Instant.parse("2026-10-31T10:00:00Z")))
-        return ReviewSubmission(stamp, ReviewDraft(customerId, ProductOpinion(productId, opinion)))
+        val customerActor = actorResolutionService.actorOf(customerId)
+        return ReviewSubmission(stamp, ReviewDraft(customerActor, ProductOpinion(productId, opinion)))
     }
 
     @Test
@@ -128,7 +131,8 @@ class AddReviewUseCaseTest : WithAssertions {
         // Arrange
         storeOrder(OrderStatus.DELIVERED)
         val stamp = ReviewStamp(ReviewId("review-2"), ReviewedAt(Instant.parse("2026-10-31T10:00:00Z")))
-        val draft = ReviewDraft(UserId.ValidUserId("unknown-user"), ProductOpinion(deskLamp.productId, sturdy))
+        val unknownUser = actorResolutionService.actorOf(UserId.ValidUserId("unknown-user"))
+        val draft = ReviewDraft(unknownUser, ProductOpinion(deskLamp.productId, sturdy))
         // Act
         val thrown = catchThrowable { useCase.unfold(ReviewSubmission(stamp, draft)) }
         // Assert
@@ -142,7 +146,8 @@ class AddReviewUseCaseTest : WithAssertions {
         userRepository.save(customerWithStatus(status))
         storeOrder(OrderStatus.DELIVERED)
         val stamp = ReviewStamp(ReviewId("review-3"), ReviewedAt(Instant.parse("2026-10-31T10:00:00Z")))
-        val draft = ReviewDraft(blockedCustomerId, ProductOpinion(deskLamp.productId, sturdy))
+        val blockedCustomer = actorResolutionService.actorOf(blockedCustomerId)
+        val draft = ReviewDraft(blockedCustomer, ProductOpinion(deskLamp.productId, sturdy))
         // Act
         val thrown = catchThrowable { useCase.unfold(ReviewSubmission(stamp, draft)) }
         // Assert

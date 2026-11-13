@@ -93,7 +93,7 @@ class RemindAbandonedCartUseCaseTest : WithAssertions {
         // Arrange
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
         // Act
-        useCase.unfold(AbandonedCartReminding(Admin(userId, actorName), customer))
+        useCase.unfold(AbandonedCartReminding(Admin(userId, actorName, AccountStatus.ACTIVE), customer))
         // Assert
         assertThat(cartRepository.isReminded(customer)).isTrue()
     }
@@ -103,7 +103,7 @@ class RemindAbandonedCartUseCaseTest : WithAssertions {
         // Arrange
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
         // Act
-        val reminding = AbandonedCartReminding(Customer(userId, actorName), customer)
+        val reminding = AbandonedCartReminding(Customer(userId, actorName, AccountStatus.ACTIVE), customer)
         val thrown = catchThrowable { useCase.unfold(reminding) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(AbandonedCartForbiddenException::class.java)

@@ -2,6 +2,7 @@ package org.flexstore.domain.review.usecase
 
 import org.flexstore.domain.order.model.*
 import org.flexstore.domain.product.model.*
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.user.blockedCustomerId
 import org.flexstore.domain.user.customerWithStatus
 import org.flexstore.domain.user.model.AccountRefusedException
@@ -34,8 +35,10 @@ class ReadReviewEligibilityUseCaseTest : WithAssertions {
     private val reviewRepository = InMemoryReviewRepository()
     private val orderRepository = InMemoryOrderRepository()
     private val userRepository = customersWithIds(customerId.value)
-    private val useCase = ReadReviewEligibilityUseCase(reviewRepository, orderRepository, userRepository)
-    private val question = ReviewEligibilityQuestion(customerId, deskLamp.productId)
+    private val actorResolutionService = ActorResolutionService(userRepository)
+    private val useCase = ReadReviewEligibilityUseCase(reviewRepository, orderRepository)
+    private val customerActor = actorResolutionService.actorOf(customerId)
+    private val question = ReviewEligibilityQuestion(customerActor, deskLamp.productId)
 
     private fun storeOrder(status: OrderStatus) {
         val cart = Cart(customer).add(deskLamp, Quantity(1))
@@ -94,7 +97,8 @@ class ReadReviewEligibilityUseCaseTest : WithAssertions {
     @Test
     fun `an unknown customer should not read their eligibility`() {
         // Arrange
-        val unknownQuestion = ReviewEligibilityQuestion(unknownCustomerId, deskLamp.productId)
+        val unknownCustomer = actorResolutionService.actorOf(unknownCustomerId)
+        val unknownQuestion = ReviewEligibilityQuestion(unknownCustomer, deskLamp.productId)
         // Act
         val thrown = catchThrowable { useCase.unfold(unknownQuestion) }
         // Assert
@@ -106,7 +110,8 @@ class ReadReviewEligibilityUseCaseTest : WithAssertions {
     fun `a customer whose account is refused should not read their eligibility`(status: AccountStatus) {
         // Arrange
         userRepository.save(customerWithStatus(status))
-        val blockedQuestion = ReviewEligibilityQuestion(blockedCustomerId, deskLamp.productId)
+        val blockedCustomer = actorResolutionService.actorOf(blockedCustomerId)
+        val blockedQuestion = ReviewEligibilityQuestion(blockedCustomer, deskLamp.productId)
         // Act
         val thrown = catchThrowable { useCase.unfold(blockedQuestion) }
         // Assert

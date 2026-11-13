@@ -6,6 +6,7 @@ import org.flexstore.domain.cart.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.UserId
 import org.flexstore.infra.repository.InMemoryCartRepository
+import org.flexstore.domain.user.model.AccountStatus
 import org.junit.jupiter.api.Test
 import java.time.Instant
 
@@ -26,8 +27,10 @@ class ListAbandonedCartsUseCaseTest : WithAssertions {
 
     @Test
     fun `an administrator should read the abandoned carts`() {
+        // Arrange
+        val admin = Admin(userId, actorName, AccountStatus.ACTIVE)
         // Act
-        val abandonedCarts = useCase.unfold(AbandonedCartsReading(Admin(userId, actorName), limit))
+        val abandonedCarts = useCase.unfold(AbandonedCartsReading(admin, limit))
         // Assert
         assertThat(abandonedCarts.isEmpty()).isTrue()
     }
@@ -36,7 +39,7 @@ class ListAbandonedCartsUseCaseTest : WithAssertions {
     fun `a customer should not read the abandoned carts`() {
         // Act
         val thrown = catchThrowable {
-            useCase.unfold(AbandonedCartsReading(Customer(userId, actorName), limit))
+            useCase.unfold(AbandonedCartsReading(Customer(userId, actorName, AccountStatus.ACTIVE), limit))
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(AbandonedCartForbiddenException::class.java)

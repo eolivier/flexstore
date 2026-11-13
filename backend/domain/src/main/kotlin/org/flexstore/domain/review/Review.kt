@@ -4,6 +4,8 @@ import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.FullName
 import org.flexstore.domain.user.model.UserId
+import org.flexstore.domain.actor.customerId
+import org.ucop.domain.entity.Actor
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.PostConditionException
 import org.ucop.domain.PreConditionException
@@ -104,7 +106,10 @@ data class Review(val stamp: ReviewStamp, val subject: ReviewSubject, val opinio
 data class ProductOpinion(val productId: ProductId, val opinion: Opinion)
 
 // A review to write: by a customer, whose name is read when the review is written
-data class ReviewDraft(val customer: UserId.ValidUserId, val productOpinion: ProductOpinion)
+data class ReviewDraft(val customer: Actor, val productOpinion: ProductOpinion) {
+
+    fun customerId() = customer.customerId()
+}
 
 // Whether a customer may review a product: they did not review it yet, and bought (and paid for) it
 enum class ReviewEligibility {
@@ -112,7 +117,10 @@ enum class ReviewEligibility {
 }
 
 // May this customer review this product?
-data class ReviewEligibilityQuestion(val customer: UserId.ValidUserId, val productId: ProductId)
+data class ReviewEligibilityQuestion(val customer: Actor, val productId: ProductId) {
+
+    fun customerId() = customer.customerId()
+}
 
 // A review to add, with its id and the moment it is written
 data class ReviewSubmission(val stamp: ReviewStamp, val draft: ReviewDraft)
@@ -133,7 +141,7 @@ data class ReviewCount(val value: Int)
 data class RatingSummary(val productId: ProductId, val average: AverageRating, val reviewCount: ReviewCount)
 
 // An administrator who deletes a review
-data class ReviewDeletion(val editor: UserId, val reviewId: ReviewId)
+data class ReviewDeletion(val editor: Actor, val reviewId: ReviewId)
 
 data class ReviewModerationForbiddenException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)

@@ -383,6 +383,9 @@ data class Orders(private val orders: List<Order>) {
     // One of the orders is paid and has a line of the product: the customer bought it
     fun hasPaidFor(productId: ProductId) = orders.any { order -> order.isPaid() && order.includes(productId) }
 
+    // None of the orders is paid with a line of the product: the customer did not buy it
+    fun hasNotPaidFor(productId: ProductId) = !hasPaidFor(productId)
+
     // The orders that were paid, and not cancelled or refunded since: the sales of the shop
     fun paid() = Orders(orders.filter { order -> order.isPaid() })
 

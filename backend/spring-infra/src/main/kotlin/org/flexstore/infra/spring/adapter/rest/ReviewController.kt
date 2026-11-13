@@ -2,11 +2,13 @@ package org.flexstore.infra.spring.adapter.rest
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.review.*
 import org.flexstore.domain.review.usecase.ReviewUseCases
 import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.user.model.UserId
+import org.flexstore.domain.user.model.of
 import org.flexstore.infra.spring.adapter.rest.json.*
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -17,7 +19,10 @@ import org.springframework.web.bind.annotation.*
 @Tag(name = "Reviews")
 @RestController
 @RequestMapping("/api")
-class ReviewController(private val reviewUseCases: ReviewUseCases) {
+class ReviewController(
+    private val reviewUseCases: ReviewUseCases,
+    private val actorResolutionService: ActorResolutionService
+) {
 
     @Operation(summary = "Retrieve the reviews of a product, newest first")
     @GetMapping("/products/{id}/reviews")
@@ -34,7 +39,7 @@ class ReviewController(private val reviewUseCases: ReviewUseCases) {
     ): JsonReview {
         val productId = productId(id)
         val stamp = ReviewStamp(ReviewId.nextId(), ReviewedAt.now())
-        val customer = UserId.ValidUserId(jwt.subject)
+        val customer = actorResolutionService.actorOf(UserId.of(jwt.subject))
         val productOpinion = ProductOpinion(productId, newReview.toOpinion())
         reviewUseCases.add(ReviewSubmission(stamp, ReviewDraft(customer, productOpinion)))
         return JsonReview(reviewUseCases.getAbout(productId).of(stamp.reviewId))
@@ -46,7 +51,8 @@ class ReviewController(private val reviewUseCases: ReviewUseCases) {
         @AuthenticationPrincipal jwt: Jwt,
         @PathVariable id: String
     ): JsonReviewEligibility {
-        val question = ReviewEligibilityQuestion(UserId.ValidUserId(jwt.subject), productId(id))
+        val customer = actorResolutionService.actorOf(UserId.of(jwt.subject))
+        val question = ReviewEligibilityQuestion(customer, productId(id))
         return JsonReviewEligibility(reviewUseCases.eligibilityOf(question).name)
     }
 
