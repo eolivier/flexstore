@@ -9,15 +9,14 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import java.math.BigDecimal
 import java.time.Instant
-import org.flexstore.domain.user.administration.testAdministrator
-import org.flexstore.domain.user.administration.testCustomer
-import org.flexstore.domain.user.administration.unknownUser
-import org.flexstore.domain.user.administration.usersOfTheAdministration
+import org.flexstore.domain.actor.testAdministratorActor
+import org.flexstore.domain.actor.testCustomerActor
+import org.flexstore.domain.actor.unknownUserActor
 
 class CreateDiscountCodeUseCaseTest : WithAssertions {
 
     private val discountCodeRepository = InMemoryDiscountCodeRepository()
-    private val useCase = CreateDiscountCodeUseCase(discountCodeRepository, usersOfTheAdministration())
+    private val useCase = CreateDiscountCodeUseCase(discountCodeRepository)
     private val endOfYear = ExpiryDate(Instant.parse("2026-12-31T23:00:00Z"))
 
     private fun discountCode(code: String, percent: Int, usageLimit: Int): DiscountCode {
@@ -28,7 +27,7 @@ class CreateDiscountCodeUseCaseTest : WithAssertions {
 
     // The discount code given by the administrator of the tests
     private fun creationOf(code: String, percent: Int, usageLimit: Int) =
-        DiscountCodeCreation(testAdministrator.id, discountCode(code, percent, usageLimit))
+        DiscountCodeCreation(testAdministratorActor, discountCode(code, percent, usageLimit))
 
     @Test
     fun `an administrator should give a discount code, used by no order yet`() {
@@ -60,7 +59,7 @@ class CreateDiscountCodeUseCaseTest : WithAssertions {
     @Test
     fun `a customer should not give a discount code`() {
         // Arrange
-        val creation = DiscountCodeCreation(testCustomer.id, discountCode("WELCOME10", 10, 100))
+        val creation = DiscountCodeCreation(testCustomerActor, discountCode("WELCOME10", 10, 100))
         // Act
         val thrown = catchThrowable { useCase.unfold(creation) }
         // Assert
@@ -70,8 +69,10 @@ class CreateDiscountCodeUseCaseTest : WithAssertions {
 
     @Test
     fun `an unknown user should not give a discount code`() {
+        // Arrange
+        val creation = DiscountCodeCreation(unknownUserActor, discountCode("WELCOME10", 10, 100))
         // Act
-        val thrown = catchThrowable { useCase.unfold(DiscountCodeCreation(unknownUser, discountCode("WELCOME10", 10, 100))) }
+        val thrown = catchThrowable { useCase.unfold(creation) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(DiscountCodeAdministrationForbiddenException::class.java)
     }

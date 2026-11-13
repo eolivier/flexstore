@@ -510,19 +510,16 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         InvoiceUseCases(readInvoiceUseCase, readCreditNoteUseCase, readSellerUseCase, renderInvoiceUseCase)
 
     @Bean
-    open fun createDiscountCodeUseCase(discountCodeRepository: DiscountCodeRepository,
-                                       userRepository: UserRepository) =
-        CreateDiscountCodeUseCase(discountCodeRepository, userRepository)
+    open fun createDiscountCodeUseCase(discountCodeRepository: DiscountCodeRepository) =
+        CreateDiscountCodeUseCase(discountCodeRepository)
 
     @Bean
-    open fun listDiscountCodesUseCase(discountCodeRepository: DiscountCodeRepository,
-                                      userRepository: UserRepository) =
-        ListDiscountCodesUseCase(discountCodeRepository, userRepository)
+    open fun listDiscountCodesUseCase(discountCodeRepository: DiscountCodeRepository) =
+        ListDiscountCodesUseCase(discountCodeRepository)
 
     @Bean
-    open fun deleteDiscountCodeUseCase(discountCodeRepository: DiscountCodeRepository,
-                                       userRepository: UserRepository) =
-        DeleteDiscountCodeUseCase(discountCodeRepository, userRepository)
+    open fun deleteDiscountCodeUseCase(discountCodeRepository: DiscountCodeRepository) =
+        DeleteDiscountCodeUseCase(discountCodeRepository)
 
     @Bean
     open fun readUsableDiscountCodeUseCase(discountCodeRepository: DiscountCodeRepository) =

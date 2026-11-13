@@ -2,6 +2,7 @@ package org.flexstore.infra.spring.adapter.rest
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.discount.PromoCode
 import org.flexstore.domain.discount.usecase.DiscountCodeUseCases
 import org.flexstore.infra.spring.adapter.rest.json.JsonDiscountCode
@@ -18,12 +19,17 @@ import org.springframework.security.oauth2.jwt.Jwt
 @Tag(name = "Administration")
 @RestController
 @RequestMapping("/api/admin/discount-codes")
-class AdminDiscountCodeController(private val discountCodeUseCases: DiscountCodeUseCases) {
+class AdminDiscountCodeController(
+    private val discountCodeUseCases: DiscountCodeUseCases,
+    private val actorResolutionService: ActorResolutionService
+) {
 
     @Operation(summary = "Retrieve the discount codes, newest first")
     @GetMapping
-    fun getDiscountCodes(@AuthenticationPrincipal reader: Jwt): List<JsonDiscountCode> =
-        discountCodeUseCases.getAll(UserId.of(reader.subject)).asList().map { JsonDiscountCode(it) }
+    fun getDiscountCodes(@AuthenticationPrincipal reader: Jwt): List<JsonDiscountCode> {
+        val actor = actorResolutionService.actorOf(UserId.of(reader.subject))
+        return discountCodeUseCases.getAll(actor).asList().map { JsonDiscountCode(it) }
+    }
 
     @Operation(summary = "Give a discount code: a percentage or an amount off the items, until a date, for some orders")
     @PostMapping
@@ -33,13 +39,16 @@ class AdminDiscountCodeController(private val discountCodeUseCases: DiscountCode
         @RequestBody newDiscountCode: JsonNewDiscountCode
     ): JsonDiscountCode {
         val discountCode = newDiscountCode.toDiscountCode()
-        discountCodeUseCases.create(UserId.of(creator.subject), discountCode)
+        val actor = actorResolutionService.actorOf(UserId.of(creator.subject))
+        discountCodeUseCases.create(actor, discountCode)
         return JsonDiscountCode(discountCode)
     }
 
     @Operation(summary = "Delete a discount code: the orders that used it keep their discount")
     @DeleteMapping("/{code}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun deleteDiscountCode(@AuthenticationPrincipal editor: Jwt, @PathVariable code: String) =
-        discountCodeUseCases.delete(UserId.of(editor.subject), PromoCode.from(code))
+    fun deleteDiscountCode(@AuthenticationPrincipal editor: Jwt, @PathVariable code: String) {
+        val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
+        discountCodeUseCases.delete(actor, PromoCode.from(code))
+    }
 }
