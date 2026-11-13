@@ -29,7 +29,7 @@ data class JsonOrder(
 ) {
     constructor(order: Order) : this(
         order.orderId.id.value,
-        order.placedAt.toString(),
+        order.placedAt.asJsonText(),
         order.status.name,
         order.lines.asList().map { JsonOrderLine.of(it) },
         order.itemsPrice().amount.value,
@@ -48,7 +48,7 @@ data class JsonOrder(
     // The order seen by its customer, who is told by when to pay it
     constructor(order: Order, paymentDelay: PaymentDelay) : this(
         order.orderId.id.value,
-        order.placedAt.toString(),
+        order.placedAt.asJsonText(),
         order.status.name,
         order.lines.asList().map { JsonOrderLine.of(it) },
         order.itemsPrice().amount.value,
@@ -85,7 +85,7 @@ data class JsonOrderTracking(
 }
 
 private fun paymentDeadlineOf(order: Order, paymentDelay: PaymentDelay): String? =
-    if (order.isAwaitingPayment()) order.paymentDeadline(paymentDelay).value.toString() else null
+    if (order.isAwaitingPayment()) order.paymentDeadline(paymentDelay).value.asJsonText() else null
 
 data class JsonOrderLine(
     @JsonProperty("productId") val productId: String,

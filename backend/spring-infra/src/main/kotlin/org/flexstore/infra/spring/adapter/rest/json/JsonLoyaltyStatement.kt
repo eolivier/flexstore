@@ -12,7 +12,7 @@ data class JsonLoyaltyPurchase(
 ) {
     companion object {
         fun of(purchase: LoyaltyPurchase) =
-            JsonLoyaltyPurchase(purchase.orderNumber, purchase.placedAt.toString(), purchase.points.value)
+            JsonLoyaltyPurchase(purchase.orderNumber, purchase.placedAt.asJsonText(), purchase.points.value)
     }
 }
 
