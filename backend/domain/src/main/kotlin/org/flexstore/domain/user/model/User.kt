@@ -5,6 +5,7 @@ import org.flexstore.domain.twofactor.model.TwoFactorAuthentication
 import org.flexstore.domain.twofactor.model.TwoFactorSecret
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
+import org.ucop.domain.PostConditionException
 import org.ucop.domain.PreConditionException
 import org.ucop.domain.entity.Actor
 
@@ -146,20 +147,22 @@ data class HashedPassword(override val value: String) : Password()
 
 // creation
 data class UserAlreadyExists(override val errorMessage: ErrorMessage) : PreConditionException(errorMessage)
-data class UserCreationFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class UserCreationFailed(override val errorMessage: ErrorMessage) : PostConditionException(errorMessage)
 data class InvalidPasswordException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
 // read
 data class InvalidUserIdException(override val errorMessage: ErrorMessage) : PreConditionException(errorMessage)
 data class UserNotFoundException(override val errorMessage: ErrorMessage) : PreConditionException(errorMessage)
-data class UserRetrievalFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class UserRetrievalException(override val errorMessage: ErrorMessage) : PostConditionException(errorMessage)
 // delete
-data class UserDeletionFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class UserDeletionFailed(override val errorMessage: ErrorMessage) : PostConditionException(errorMessage)
 // login
 data class InvalidCredentialsException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
 // The user was not authenticated although the login preconditions held
-data class UserAuthenticationFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class UserSignInException(override val errorMessage: ErrorMessage) : PostConditionException(errorMessage)
+data class UserGoogleAuthenticationException(override val errorMessage: ErrorMessage) :
+    PostConditionException(errorMessage)
 data class UserNotFoundByEmailException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
 

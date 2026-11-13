@@ -3,7 +3,7 @@ package org.flexstore.domain.product.model
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.UserId
 import org.ucop.domain.ErrorMessage
-import org.ucop.domain.NominalException
+import org.ucop.domain.PostConditionException
 import org.ucop.domain.PreConditionException
 
 private val NO_DESCRIPTION = Description("No description")
@@ -116,9 +116,9 @@ data class ProductAdministrationForbiddenException(override val errorMessage: Er
 data class InvalidPromotionException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
 data class ProductAlreadyExists(override val errorMessage: ErrorMessage) : PreConditionException(errorMessage)
-data class ProductCreationFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class ProductCreationFailed(override val errorMessage: ErrorMessage) : PostConditionException(errorMessage)
 data class InvalidSkuException(override val errorMessage: ErrorMessage) : PreConditionException(errorMessage)
-data class SkuProposalFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class SkuProposalFailed(override val errorMessage: ErrorMessage) : PostConditionException(errorMessage)
 data class SkuAlreadyUsedException(override val errorMessage: ErrorMessage) : PreConditionException(errorMessage)
 data class ProductNotFoundException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)

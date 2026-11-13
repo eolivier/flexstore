@@ -5,7 +5,7 @@ import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.sharedkernel.InstantProvider
 import org.flexstore.domain.user.model.UserId
 import org.ucop.domain.ErrorMessage
-import org.ucop.domain.NominalException
+import org.ucop.domain.PostConditionException
 import org.ucop.domain.PreConditionException
 
 // The legal pages of the shop, written by the administrators: its legal notice, its terms of sale and its
@@ -58,4 +58,5 @@ data class LegalPagePublicationForbiddenException(override val errorMessage: Err
     PreConditionException(errorMessage)
 data class InvalidLegalPageException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
-data class LegalPagePublicationFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class LegalPagePublicationFailed(override val errorMessage: ErrorMessage) :
+    PostConditionException(errorMessage)

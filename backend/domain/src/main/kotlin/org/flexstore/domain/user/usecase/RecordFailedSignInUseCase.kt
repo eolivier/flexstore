@@ -4,7 +4,7 @@ import org.flexstore.domain.user.repository.FailedSignInRepository
 import org.flexstore.domain.user.repository.UserRepository
 import org.flexstore.domain.user.model.*
 import org.ucop.domain.ErrorMessage
-import org.ucop.domain.NominalException
+import org.ucop.domain.PostConditionException
 import org.ucop.domain.entity.*
 
 // The sign-in of an account failed because of a wrong password: it is counted, and the account is locked once
@@ -49,4 +49,4 @@ class RecordFailedSignInUseCase(
     private fun countOf(user: User.DefinedUser) = failedSignInRepository.countOf(user.id)
 }
 
-data class FailedSignInNotCounted(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class FailedSignInNotCounted(override val errorMessage: ErrorMessage) : PostConditionException(errorMessage)

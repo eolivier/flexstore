@@ -3,7 +3,7 @@ package org.flexstore.domain.settings
 import org.flexstore.domain.sharedkernel.*
 import java.math.BigDecimal
 
-import org.ucop.domain.NominalException
+import org.ucop.domain.PostConditionException
 import org.ucop.domain.PreConditionException
 import org.ucop.domain.ErrorMessage
 import java.time.Duration
@@ -152,4 +152,5 @@ data class InvalidAbandonedCartDelayException(override val errorMessage: ErrorMe
     PreConditionException(errorMessage)
 data class InvalidPaymentDelayException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
-data class ShopSettingsUpdateFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class ShopSettingsUpdateFailed(override val errorMessage: ErrorMessage) :
+    PostConditionException(errorMessage)

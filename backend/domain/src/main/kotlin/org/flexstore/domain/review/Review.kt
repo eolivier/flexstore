@@ -5,7 +5,7 @@ import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.FullName
 import org.flexstore.domain.user.model.UserId
 import org.ucop.domain.ErrorMessage
-import org.ucop.domain.NominalException
+import org.ucop.domain.PostConditionException
 import org.ucop.domain.PreConditionException
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -143,5 +143,5 @@ data class ReviewNotAllowedException(override val errorMessage: ErrorMessage) :
 data class ReviewAlreadyWrittenException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
 data class ReviewNotFoundException(override val errorMessage: ErrorMessage) : PreConditionException(errorMessage)
-data class ReviewAdditionFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
-data class ReviewDeletionFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class ReviewAdditionFailed(override val errorMessage: ErrorMessage) : PostConditionException(errorMessage)
+data class ReviewDeletionFailed(override val errorMessage: ErrorMessage) : PostConditionException(errorMessage)

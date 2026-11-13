@@ -52,7 +52,7 @@ class SignInWithGoogleUseCase(
 
     private fun userAuthenticatedCondition() = PostCondition<GoogleIdToken> {
         if (authenticatedUser is User.UndefinedUser) {
-            throw UserAuthenticationFailed(ErrorMessage("User authentication failed."))
+            throw UserGoogleAuthenticationException(ErrorMessage("User authentication failed."))
         }
     }
 }

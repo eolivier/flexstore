@@ -3,7 +3,7 @@ package org.flexstore.domain.seller
 import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.user.model.UserId
 import org.ucop.domain.ErrorMessage
-import org.ucop.domain.NominalException
+import org.ucop.domain.PostConditionException
 import org.ucop.domain.PreConditionException
 
 // One version of the seller: each edit gives a new one, so that an invoice keeps the seller of its issue
@@ -188,7 +188,7 @@ data class SellerReading(val reader: UserId)
 data class SellerAdministrationForbiddenException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
 data class InvalidSellerException(override val errorMessage: ErrorMessage) : PreConditionException(errorMessage)
-data class SellerUpdateFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class SellerUpdateFailed(override val errorMessage: ErrorMessage) : PostConditionException(errorMessage)
 data class SellerNotFoundException(override val errorMessage: ErrorMessage) : PreConditionException(errorMessage)
 
 private val SIRET = Regex("[0-9]{14}")

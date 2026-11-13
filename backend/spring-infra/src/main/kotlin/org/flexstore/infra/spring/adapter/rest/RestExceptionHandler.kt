@@ -67,7 +67,7 @@ class RestExceptionHandler {
             // Same answer for an unknown email and a wrong password, so that the login does not reveal which
             // accounts exist
             is InvalidCredentialsException, is UserNotFoundByEmailException, is InvalidGoogleIdTokenException,
-            is UserAuthenticationFailed ->
+            is UserSignInException, is UserGoogleAuthenticationException ->
                 ResponseEntity
                     .status(401)
                     .body(mapOf("error" to "Invalid credentials."))

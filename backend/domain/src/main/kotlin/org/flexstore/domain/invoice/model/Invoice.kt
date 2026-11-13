@@ -6,7 +6,7 @@ import org.flexstore.domain.seller.*
 import org.flexstore.domain.sharedkernel.InstantProvider
 import org.flexstore.domain.user.model.UserId
 import org.ucop.domain.ErrorMessage
-import org.ucop.domain.NominalException
+import org.ucop.domain.PostConditionException
 import org.ucop.domain.PreConditionException
 
 // The number of an invoice, in a sequence without gaps: the year of issue, then its rank (2026-000042)
@@ -74,5 +74,5 @@ data class CreditNoteAlreadyIssuedException(override val errorMessage: ErrorMess
     PreConditionException(errorMessage)
 data class OrderNotRefundedException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
-data class CreditNoteIssueFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
-data class InvoiceIssueFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class CreditNoteIssueFailed(override val errorMessage: ErrorMessage) : PostConditionException(errorMessage)
+data class InvoiceIssueFailed(override val errorMessage: ErrorMessage) : PostConditionException(errorMessage)

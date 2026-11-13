@@ -6,7 +6,7 @@ import org.flexstore.domain.product.model.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.repository.UserRepository
 import org.ucop.domain.ErrorMessage
-import org.ucop.domain.NominalException
+import org.ucop.domain.PostConditionException
 import org.ucop.domain.entity.*
 
 data class AddItemToCartRequest(val owner: CartOwner, val productId: ProductId, val quantity: Quantity)
@@ -57,4 +57,4 @@ class AddItemToCartUseCase(
     }
 }
 
-data class CartUpdateFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class CartUpdateFailed(override val errorMessage: ErrorMessage) : PostConditionException(errorMessage)

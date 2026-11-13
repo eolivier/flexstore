@@ -84,7 +84,7 @@ class ProductImageUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { lazyUseCases.add(administrator, largeImage) }
         // Assert
-        assertThat(thrown).isInstanceOf(ProductImageStorageFailed::class.java)
+        assertThat(thrown).hasCauseInstanceOf(ProductImageStorageFailed::class.java)
     }
 
     @Test
