@@ -3,6 +3,7 @@ import { flushPromises, mount, type VueWrapper } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { createMemoryHistory, createRouter } from 'vue-router';
 import CreateProduct from './CreateProduct.vue';
+import { useSnackbar } from '@/composables/useSnackbar';
 import { vuetify, i18n } from '@/test/setup';
 
 vi.mock('@/services/product.service', () => ({ getAllProducts: vi.fn(() => Promise.resolve([])) }));
@@ -106,6 +107,6 @@ describe('CreateProduct.vue', () => {
     await wrapper.find('form').trigger('submit.prevent');
     await flushPromises();
     // Assert
-    expect(document.body.textContent).toContain('its image or its stock could not be saved');
+    expect(useSnackbar().message.value?.text).toContain('its image or its stock could not be saved');
   });
 });

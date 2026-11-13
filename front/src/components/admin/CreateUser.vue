@@ -3,6 +3,7 @@
   import { useUsersStore } from '@/stores/users.store.ts';
   import { nextTick, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
+  import { useSnackbar } from '@/composables/useSnackbar';
   import { FullName, type User } from '@/models/user';
   import UserRoleField from './UserRoleField.vue';
   import PasswordField from '@/components/account/PasswordField.vue';
@@ -17,10 +18,10 @@
   const valid = ref(false);
   const saving = ref(false);
   const formRef = ref<{ resetValidation: () => void } | null>(null);
-  const feedback = ref({ show: false, success: true, text: '' });
 
   const usersStore = useUsersStore();
   const { t } = useI18n();
+  const snackbar = useSnackbar();
 
   const rules = {
     required: (v: string) => !!v || t('createUser.mandatoryField'),
@@ -40,12 +41,12 @@
       role: role.value,
     });
     saving.value = false;
-    feedback.value = {
-      show: true,
-      success: created,
-      text: created ? t('createUser.success', { name: createdName }) : t('createUser.error'),
-    };
-    if (created) resetForm();
+    if (created) {
+      snackbar.success(t('createUser.success', { name: createdName }), {
+        action: { text: t('nav.users'), to: '/admin/users' },
+      });
+      resetForm();
+    } else snackbar.error(t('createUser.error'));
   };
 
   const resetForm = () => {
@@ -99,17 +100,6 @@
         </div>
       </v-form>
     </v-card>
-    <v-snackbar
-      v-model="feedback.show"
-      :color="feedback.success ? 'primary' : 'error'"
-      timeout="3000"
-      location="bottom right"
-    >
-      {{ feedback.text }}
-      <template v-if="feedback.success" #actions>
-        <v-btn to="/admin/users" variant="text" color="secondary">{{ t('nav.users') }}</v-btn>
-      </template>
-    </v-snackbar>
   </v-container>
 </template>
 

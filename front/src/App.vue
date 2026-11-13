@@ -3,6 +3,7 @@
   import AppFooter from './components/layout/AppFooter.vue';
   import CookieBanner from './components/cookies/CookieBanner.vue';
   import GuidedTour from './components/guidedtour/GuidedTour.vue';
+  import AppSnackbar from './components/layout/AppSnackbar.vue';
   import { useRouteHead } from './composables/useRouteHead';
   import { useShopPageContentHead } from './composables/useShopPageContentHead';
 
@@ -19,5 +20,6 @@
     <AppFooter />
     <CookieBanner />
     <GuidedTour />
+    <AppSnackbar />
   </v-app>
 </template>

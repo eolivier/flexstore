@@ -7,7 +7,6 @@
   import type { Product } from '@/models/product';
   import { useAddToCart } from '@/composables/useAddToCart';
   import ProductCard from '@/components/products/ProductCard.vue';
-  import CartSnackbar from '@/components/cart/CartSnackbar.vue';
 
   const FEATURED_COUNT = 4;
 
@@ -16,7 +15,7 @@
   const stocksStore = useStocksStore();
   stocksStore.fetchStocks();
   useProductImagesStore().fetchProductsWithImage();
-  const { addingProductId, feedback, addToCart } = useAddToCart();
+  const { addingProductId, addToCart } = useAddToCart();
 
   // Up to 4 products, taken in turn from each category so that the selection is varied
   const featuredProducts = computed(() => {
@@ -62,6 +61,5 @@
         />
       </v-col>
     </v-row>
-    <CartSnackbar v-model="feedback" />
   </section>
 </template>

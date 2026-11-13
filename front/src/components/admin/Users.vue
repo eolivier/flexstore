@@ -6,12 +6,13 @@
   import ListPager from '@/components/layout/ListPager.vue';
   import { FullName, type AccountStatus, type User } from '@/models/user';
   import { useI18n } from 'vue-i18n';
+  import { useSnackbar } from '@/composables/useSnackbar';
 
   const usersStore = useUsersStore();
   const dialog = ref(false);
   const userIdToDelete = ref<string | null>(null);
-  const feedback = ref({ show: false, success: true, text: '' });
   const { t } = useI18n();
+  const snackbar = useSnackbar();
 
   onMounted(() => {
     usersStore.fetchUsers();
@@ -26,11 +27,8 @@
     if (userIdToDelete.value !== null) {
       const deleted = await usersStore.deleteUser(userIdToDelete.value);
       userIdToDelete.value = null;
-      feedback.value = {
-        show: true,
-        success: deleted,
-        text: t(deleted ? 'users.deleted' : 'users.deleteError'),
-      };
+      if (deleted) snackbar.success(t('users.deleted'));
+      else snackbar.error(t('users.deleteError'));
     }
   }
 
@@ -124,13 +122,5 @@
       :message="t('confirmUserDeletion')"
       @confirm="confirmDelete"
     />
-    <v-snackbar
-      v-model="feedback.show"
-      :color="feedback.success ? 'primary' : 'error'"
-      timeout="3000"
-      location="bottom right"
-    >
-      {{ feedback.text }}
-    </v-snackbar>
   </v-container>
 </template>

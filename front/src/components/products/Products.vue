@@ -9,7 +9,6 @@
   import { useReviewsStore } from '@/stores/reviews.store';
   import { useWishlistStore } from '@/stores/wishlist.store';
   import { useAuthStore } from '@/stores/auth.store';
-  import CartSnackbar from '@/components/cart/CartSnackbar.vue';
   import { useAddToCart } from '@/composables/useAddToCart';
   import { categoryInfo, isKnownCategory } from './categories';
   import { shopLinks } from '@/components/menu/navigation';
@@ -47,7 +46,7 @@
   const reviewsStore = useReviewsStore();
   const wishlistStore = useWishlistStore();
   const authStore = useAuthStore();
-  const { addingProductId, feedback, addToCart } = useAddToCart();
+  const { addingProductId, addToCart } = useAddToCart();
 
   const title = computed(() => t(props.category ? categoryInfo(props.category).label : 'nav.allProducts'));
 
@@ -163,7 +162,6 @@
       </v-col>
     </v-row>
 
-    <CartSnackbar v-model="feedback" />
   </v-container>
 </template>
 
