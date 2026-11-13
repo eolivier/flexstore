@@ -6,6 +6,7 @@ import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.repository.*
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
+import org.ucop.domain.PostConditionException
 import org.ucop.domain.PreConditionException
 import org.ucop.domain.entity.*
 
@@ -84,4 +85,4 @@ class ChangePasswordUseCase(
 // failed
 data class InvalidCurrentPasswordException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
-data class PasswordChangeFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class PasswordChangeFailed(override val errorMessage: ErrorMessage) : PostConditionException(errorMessage)

@@ -4,7 +4,7 @@ import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.UserId
 import org.ucop.domain.ErrorMessage
-import org.ucop.domain.NominalException
+import org.ucop.domain.PostConditionException
 import java.time.Instant
 
 data class WishlistItemId(val value: String) {
@@ -31,4 +31,4 @@ data class WishlistItem(
 // A product a customer wants to save to, or remove from, their wishlist
 data class WishlistEntry(val customer: UserId.ValidUserId, val productId: ProductId)
 
-data class WishlistUpdateFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class WishlistUpdateFailed(override val errorMessage: ErrorMessage) : PostConditionException(errorMessage)

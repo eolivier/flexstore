@@ -4,6 +4,7 @@ import org.flexstore.domain.cart.CartOwner
 import org.flexstore.domain.order.model.OrderId
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
+import org.ucop.domain.PostConditionException
 import org.ucop.domain.PreConditionException
 
 // The page of the payment provider where the customer pays an order
@@ -31,7 +32,9 @@ data class PaymentAlreadyCompletedException(override val errorMessage: ErrorMess
 data class PaymentRefundRefusedException(override val errorMessage: ErrorMessage) :
     NominalException(errorMessage)
 // The payment of an order did not start although the preconditions held
-data class PaymentStartFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class OrderPaymentStartedException(override val errorMessage: ErrorMessage) :
+    PostConditionException(errorMessage)
 data class PaymentNotStartedException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
-data class PaymentConfirmationFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class PaymentConfirmationFailed(override val errorMessage: ErrorMessage) :
+    PostConditionException(errorMessage)

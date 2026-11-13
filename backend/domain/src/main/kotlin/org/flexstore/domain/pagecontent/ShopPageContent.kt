@@ -2,7 +2,7 @@ package org.flexstore.domain.pagecontent
 
 import org.flexstore.domain.user.model.UserId
 import org.ucop.domain.ErrorMessage
-import org.ucop.domain.NominalException
+import org.ucop.domain.PostConditionException
 import org.ucop.domain.PreConditionException
 
 // What the shop says about itself in its pages, written by the administrators: one content for each type
@@ -59,4 +59,5 @@ data class ShopPageContentForbiddenException(override val errorMessage: ErrorMes
     PreConditionException(errorMessage)
 data class InvalidShopPageContentException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
-data class ShopPageContentChangeFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class ShopPageContentChangeFailed(override val errorMessage: ErrorMessage) :
+    PostConditionException(errorMessage)

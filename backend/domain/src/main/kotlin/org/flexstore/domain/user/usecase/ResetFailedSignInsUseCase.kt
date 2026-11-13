@@ -4,7 +4,7 @@ import org.flexstore.domain.user.repository.FailedSignInRepository
 import org.flexstore.domain.user.model.FailedSignInCount
 import org.flexstore.domain.user.model.UserId
 import org.ucop.domain.ErrorMessage
-import org.ucop.domain.NominalException
+import org.ucop.domain.PostConditionException
 import org.ucop.domain.entity.*
 
 // An account signed in with the right password: its failed sign-ins in a row are counted again from none
@@ -26,4 +26,4 @@ class ResetFailedSignInsUseCase(
     }
 }
 
-data class FailedSignInsNotReset(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class FailedSignInsNotReset(override val errorMessage: ErrorMessage) : PostConditionException(errorMessage)

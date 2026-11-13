@@ -11,7 +11,7 @@ import org.flexstore.domain.settings.PaymentDelay
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.*
 import org.ucop.domain.ErrorMessage
-import org.ucop.domain.NominalException
+import org.ucop.domain.PostConditionException
 import org.ucop.domain.PreConditionException
 import org.ucop.domain.entity.Actor
 
@@ -456,7 +456,8 @@ data class OrderNotAwaitingPaymentException(override val errorMessage: ErrorMess
 data class PaymentTimeLimitNotExceededException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
 data class OrderCancelledException(override val errorMessage: ErrorMessage) : PreConditionException(errorMessage)
-data class OrderCancellationFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class OrderCancellationFailed(override val errorMessage: ErrorMessage) :
+    PostConditionException(errorMessage)
 data class EmptyCartException(override val errorMessage: ErrorMessage) : PreConditionException(errorMessage)
 data class IncompleteOrderAddressException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
@@ -466,10 +467,11 @@ data class OrderStatusCannotAdvanceException(override val errorMessage: ErrorMes
     PreConditionException(errorMessage)
 data class OrderStatusChangedException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
-data class OrderStatusAdvanceFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class OrderStatusAdvanceFailed(override val errorMessage: ErrorMessage) :
+    PostConditionException(errorMessage)
 data class OrderNotRefundableException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
-data class OrderRefundFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class OrderRefundFailed(override val errorMessage: ErrorMessage) : PostConditionException(errorMessage)
 data class OrderAdministrationForbiddenException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
 data class OrderNotFoundException(override val errorMessage: ErrorMessage) : PreConditionException(errorMessage)
@@ -477,4 +479,4 @@ data class TermsOfSaleNotAcceptedException(override val errorMessage: ErrorMessa
     PreConditionException(errorMessage)
 data class OutdatedTermsOfSaleException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
-data class OrderPlacementFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class OrderPlacementFailed(override val errorMessage: ErrorMessage) : PostConditionException(errorMessage)

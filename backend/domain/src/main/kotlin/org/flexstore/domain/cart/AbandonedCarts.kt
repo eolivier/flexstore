@@ -3,7 +3,7 @@ package org.flexstore.domain.cart
 import java.time.Instant
 import org.flexstore.domain.settings.AbandonedCartDelay
 import org.ucop.domain.ErrorMessage
-import org.ucop.domain.NominalException
+import org.ucop.domain.PostConditionException
 import org.ucop.domain.PreConditionException
 import org.ucop.domain.entity.Actor
 
@@ -38,4 +38,5 @@ data class AbandonedCartForbiddenException(override val errorMessage: ErrorMessa
 
 data class AbandonedCartReminderRefusedException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
-data class AbandonedCartReminderFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class AbandonedCartReminderFailed(override val errorMessage: ErrorMessage) :
+    PostConditionException(errorMessage)

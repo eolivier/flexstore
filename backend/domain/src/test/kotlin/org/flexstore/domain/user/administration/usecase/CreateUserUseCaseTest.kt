@@ -82,7 +82,8 @@ class CreateUserUseCaseTest {
         // Act
         val thrown = catchThrowable { createUserUseCase.unfold(CreateUserRequest(administrator.id, user)) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserCreationFailed::class.java).hasMessage("User with ID 123 was not created.")
+        assertThat(thrown).hasCauseInstanceOf(UserCreationFailed::class.java)
+            .hasMessage("User with ID 123 was not created.")
     }
 
     @Test

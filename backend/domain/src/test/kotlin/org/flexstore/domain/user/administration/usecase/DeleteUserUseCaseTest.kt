@@ -51,7 +51,7 @@ class DeleteUserUseCaseTest {
         // Act
         val thrown = catchThrowable { deleteUserUseCase.unfold(UserDeletion(administrator, userId)) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserDeletionFailed::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserDeletionFailed::class.java)
     }
 
     @Test

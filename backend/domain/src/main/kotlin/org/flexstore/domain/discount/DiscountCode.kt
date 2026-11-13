@@ -2,7 +2,7 @@ package org.flexstore.domain.discount
 
 import org.flexstore.domain.sharedkernel.*
 import org.ucop.domain.ErrorMessage
-import org.ucop.domain.NominalException
+import org.ucop.domain.PostConditionException
 import org.ucop.domain.PreConditionException
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -127,4 +127,5 @@ data class DiscountCodeExpiredException(override val errorMessage: ErrorMessage)
     PreConditionException(errorMessage)
 data class DiscountCodeUsedUpException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
-data class DiscountCodeCreationFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class DiscountCodeCreationFailed(override val errorMessage: ErrorMessage) :
+    PostConditionException(errorMessage)

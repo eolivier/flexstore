@@ -5,6 +5,7 @@ import org.flexstore.domain.sharedkernel.Quantity
 import org.flexstore.domain.user.model.UserId
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
+import org.ucop.domain.PostConditionException
 import org.ucop.domain.PreConditionException
 import org.ucop.domain.entity.Actor
 
@@ -118,5 +119,5 @@ data class NegativeAlertThresholdException(override val errorMessage: ErrorMessa
     PreConditionException(errorMessage)
 data class StockAlertForbiddenException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
-data class StockAlertChangeFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
-data class StockChangeFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class StockAlertChangeFailed(override val errorMessage: ErrorMessage) : PostConditionException(errorMessage)
+data class StockChangeFailed(override val errorMessage: ErrorMessage) : PostConditionException(errorMessage)
