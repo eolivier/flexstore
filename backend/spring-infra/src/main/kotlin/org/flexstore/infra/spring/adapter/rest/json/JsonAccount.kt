@@ -25,7 +25,7 @@ data class JsonAccount(
         account.email.value,
         account.role.name,
         account.status.name,
-        account.phoneNumber?.value,
+        if (account.phoneNumber.isGiven()) account.phoneNumber.value else null,
         account.postalAddresses.asList().map { JsonPostalAddress.of(it) },
         JsonCustomerCompany.of(account.customerType),
         account.twoFactorAuthentication.isEnabled()
