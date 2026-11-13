@@ -9,8 +9,8 @@ import org.flexstore.infra.spring.adapter.persistence.jpa.entity.UserSettingName
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 
-// The preferences are the color_mode and language settings of the customer: a new choice replaces the value of
-// its setting, the other one is kept
+// The preferences are the color_mode, language and guided_tour settings of the customer: a new choice replaces
+// the value of its setting, the others are kept
 @Repository
 @Transactional
 class PostgresUserPreferenceRepositoryAdapter(private val jpaRepo: JpaUserSettingRepository) :
@@ -22,7 +22,10 @@ class PostgresUserPreferenceRepositoryAdapter(private val jpaRepo: JpaUserSettin
             ?.let { ColorModePreference.Chosen(ColorMode.valueOf(it.value)) } ?: ColorModePreference.Unchosen
         val language = settingOf(customer, UserSettingName.LANGUAGE)
             ?.let { LanguagePreference.Chosen(Language.valueOf(it.value)) } ?: LanguagePreference.Unchosen
-        return UserPreferences(colorMode, language)
+        val guidedTour = settingOf(customer, UserSettingName.GUIDED_TOUR)
+            ?.let { GuidedTourPreference.Chosen(GuidedTourDisplay.valueOf(it.value)) }
+            ?: GuidedTourPreference.Unchosen
+        return UserPreferences(colorMode, language, guidedTour)
     }
 
     override fun save(customer: UserId, preference: UserPreference) {
@@ -31,6 +34,8 @@ class PostgresUserPreferenceRepositoryAdapter(private val jpaRepo: JpaUserSettin
                 replace(customer, UserSettingName.COLOR_MODE, preference.colorMode.name)
             is UserPreference.PreferredLanguage ->
                 replace(customer, UserSettingName.LANGUAGE, preference.language.name)
+            is UserPreference.GuidedTour ->
+                replace(customer, UserSettingName.GUIDED_TOUR, preference.guidedTourDisplay.name)
         }
     }
 

@@ -839,6 +839,46 @@ paths:
                 $ref: "#/components/schemas/JsonLanguagePreference"
         "401":
           description: Not signed in
+  /api/guided-tour:
+    get:
+      tags:
+      - Preferences
+      summary: Retrieve whether the guided tour is shown to the signed-in customer
+      description: NONE when the customer never chose (the tour is shown then).
+      operationId: getGuidedTourPreference
+      security:
+      - bearerAuth: []
+      responses:
+        "200":
+          description: Whether the guided tour is shown
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonGuidedTourPreference"
+        "401":
+          description: Not signed in
+    put:
+      tags:
+      - Preferences
+      summary: Record whether the guided tour is shown to the signed-in customer
+      operationId: recordGuidedTourPreference
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonGuidedTourChoice"
+      responses:
+        "200":
+          description: The recorded choice
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonGuidedTourPreference"
+        "401":
+          description: Not signed in
   /api/admin/products/sku-proposal:
     get:
       tags:
@@ -3055,6 +3095,20 @@ components:
         language:
           type: string
           enum: [EN, FR]
+    JsonGuidedTourPreference:
+      type: object
+      required: [guidedTour]
+      properties:
+        guidedTour:
+          type: string
+          enum: [SHOWN, HIDDEN, NONE]
+    JsonGuidedTourChoice:
+      type: object
+      required: [guidedTour]
+      properties:
+        guidedTour:
+          type: string
+          enum: [SHOWN, HIDDEN]
     JsonStockAlert:
       type: object
       required: [productId, threshold]

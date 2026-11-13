@@ -52,7 +52,8 @@ This repo is meant to be a learning vehicle and a ready-to-fork base for real pr
 - Two-factor authentication (TOTP, with an authenticator app): a customer or an administrator turns it on from their profile (QR code, then the first code to confirm) and off with their password; once on, the sign-in asks for the code after the password; an administrator can turn it off for another account that lost its device
 - Sessions and brute-force protection: the session is renewed with a refresh token (see Authentication); after 5 failed sign-ins in a row (a wrong password or a wrong code for an existing account), the account is locked (`LOCKED`) until an administrator reactivates it; a successful sign-in starts the count again; a wrong password and an unknown email still get the same answer
 - Cookies: a banner asks the visitor at their first visit to accept or refuse the preference cookies (the light or dark mode and the language kept for the next visits); the essential cookies (sign-in, cart) need no consent; the customer changes their choice in their account (profile page), and refusing forgets the stored preferences. A visitor keeps their choice in the browser (`localStorage`); a signed-in customer has it in the database (`user_setting`, `GET` and `PUT /api/cookie-consent`) for 6 months, after which they are asked again; at sign-in, the choice of the browser is recorded in their account and removed from the browser
-- My preferences: the display mode (light or dark) and the language of a signed-in customer are kept in their account (`/api/color-mode`, `/api/language`) and found again on every device
+- My preferences: the display mode (light or dark), the language and the guided tour of a signed-in customer are kept in their account (`/api/color-mode`, `/api/language`, `/api/guided-tour`) and found again on every device
+- Guided tour: at sign-in, an assistant presents the sections of the shop (catalog, cart, orders, wishlist, loyalty, preferences) step by step. The customer can skip it at any step (it comes back at their next sign-in) or, at its end, tick "Do not show again", which hides it in their account (`guided_tour` setting, `PUT /api/guided-tour`). Turning "Guided tour" back on in My preferences shows it again right away
 - My addresses: see, add, edit and remove the postal addresses of the account; the orders keep the address they were sent to
 - Wishlist: a customer saves products to find them again later (once per product, newest first)
 - Loyalty: one point for each whole euro or dollar of the paid orders of the customer, shown on their account
@@ -262,6 +263,7 @@ npm run gen:api
 | `DELETE` | `/api/users/{id}/two-factor-authentication` | the user `{id}` | Turn it off with the current password |
 | `PUT` | `/api/users/{id}/two-factor-authentication` | `ADMIN` | Turn it off for another account, without a password |
 | `GET` / `PUT` | `/api/color-mode`, `/api/language` | signed in | The display mode and the preferred language of the customer (`NONE` when never chosen) |
+| `GET` / `PUT` | `/api/guided-tour` | signed in | Whether the guided tour is shown to the customer: `SHOWN` or `HIDDEN` (`NONE` when never chosen: shown) |
 | `GET` / `PUT` | `/api/cookie-consent` | signed in | The cookie consent of the customer, kept 6 months |
 | `GET` | `/api/admin/products/{id}` | `ADMIN` | A product with its translations in every language, to edit it |
 | `GET` | `/api/admin/products/sku-proposal` | `ADMIN` | A SKU free in the catalog, from the category and the name |

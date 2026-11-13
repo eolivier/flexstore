@@ -489,6 +489,43 @@ export default {
       darkModeHint: 'The shop is displayed with dark colors.',
       language: 'Preferred language',
       languageHint: 'The shop is shown in this language every time you sign in.',
+      guidedTour: 'Guided tour',
+      guidedTourHint: 'A short presentation of the sections of the shop. Turning it on starts it again.',
+    },
+    guidedTour: {
+      title: 'Guided tour of the shop',
+      progress: 'Step {step} of {total}',
+      skip: 'Skip',
+      previous: 'Previous',
+      next: 'Next',
+      finish: 'Finish',
+      doNotShowAgain: 'Do not show again',
+      sections: {
+        catalog: {
+          title: 'Browse the catalog',
+          text: 'Find clothing, electronics and accessories in the shop, then open a product to read its details and reviews.',
+        },
+        cart: {
+          title: 'Fill your cart',
+          text: 'Add products to your cart, apply a discount code and check out in a few steps.',
+        },
+        orders: {
+          title: 'Follow your orders',
+          text: 'Find your orders, their invoices and the tracking of your parcels in My orders.',
+        },
+        wishlist: {
+          title: 'Save for later',
+          text: 'Keep the products you like in your wishlist to buy them back later.',
+        },
+        loyalty: {
+          title: 'Earn loyalty points',
+          text: 'Your purchases earn points that you can follow in My loyalty.',
+        },
+        preferences: {
+          title: 'Make the shop yours',
+          text: 'Choose the language and the light or dark mode in My preferences, and bring this tour back whenever you want.',
+        },
+      },
     },
     wishlist: {
       title: 'My wishlist',
@@ -1543,6 +1580,43 @@ export default {
       darkModeHint: 'La boutique est affichée avec des couleurs sombres.',
       language: 'Langue préférée',
       languageHint: 'La boutique s’affiche dans cette langue à chacune de vos connexions.',
+      guidedTour: 'Visite guidée',
+      guidedTourHint: 'Une courte présentation des rubriques de la boutique. L’activer la relance.',
+    },
+    guidedTour: {
+      title: 'Visite guidée de la boutique',
+      progress: 'Étape {step} sur {total}',
+      skip: 'Ignorer',
+      previous: 'Précédent',
+      next: 'Suivant',
+      finish: 'Terminer',
+      doNotShowAgain: 'Ne plus afficher',
+      sections: {
+        catalog: {
+          title: 'Parcourez le catalogue',
+          text: 'Trouvez des vêtements, de l’électronique et des accessoires dans la boutique, puis ouvrez un produit pour lire sa description et ses avis.',
+        },
+        cart: {
+          title: 'Remplissez votre panier',
+          text: 'Ajoutez des produits à votre panier, appliquez un code de réduction et commandez en quelques étapes.',
+        },
+        orders: {
+          title: 'Suivez vos commandes',
+          text: 'Retrouvez vos commandes, leurs factures et le suivi de vos colis dans Mes commandes.',
+        },
+        wishlist: {
+          title: 'Gardez pour plus tard',
+          text: 'Conservez les produits que vous aimez dans votre liste de souhaits pour les acheter plus tard.',
+        },
+        loyalty: {
+          title: 'Cumulez des points',
+          text: 'Vos achats rapportent des points que vous suivez dans Ma fidélité.',
+        },
+        preferences: {
+          title: 'Personnalisez la boutique',
+          text: 'Choisissez la langue et le mode clair ou sombre dans Mes préférences, et relancez cette visite quand vous voulez.',
+        },
+      },
     },
     wishlist: {
       title: 'Ma liste de souhaits',

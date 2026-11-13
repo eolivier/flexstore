@@ -6,7 +6,7 @@ import org.flexstore.domain.user.repository.UserRepository
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
-// A signed-in customer reads their preferences (their display mode and their language)
+// A signed-in customer reads their preferences (their display mode, their language and their guided tour)
 class ReadUserPreferenceUseCase(
     private val userPreferenceRepository: UserPreferenceRepository,
     private val userRepository: UserRepository

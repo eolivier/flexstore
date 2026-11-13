@@ -60,4 +60,11 @@ describe('MyPreferences.vue', () => {
     // Assert
     expect(wrapper.findComponent({ name: 'CookieSettings' }).exists()).toBe(true);
   });
+
+  it('offers to show the guided tour', () => {
+    // Act
+    const { wrapper } = mountPreferences('flexstoreLight');
+    // Assert
+    expect(wrapper.findComponent({ name: 'GuidedTourSwitch' }).exists()).toBe(true);
+  });
 });

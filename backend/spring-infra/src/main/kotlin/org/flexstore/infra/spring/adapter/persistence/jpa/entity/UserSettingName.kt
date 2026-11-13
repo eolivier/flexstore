@@ -4,5 +4,6 @@ package org.flexstore.infra.spring.adapter.persistence.jpa.entity
 enum class UserSettingName(val stored: String) {
     COLOR_MODE("color_mode"),
     LANGUAGE("language"),
+    GUIDED_TOUR("guided_tour"),
     COOKIE_CHOICE("cookie_choice")
 }

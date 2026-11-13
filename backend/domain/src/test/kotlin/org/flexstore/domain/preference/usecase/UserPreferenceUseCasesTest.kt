@@ -3,6 +3,7 @@ package org.flexstore.domain.preference.usecase
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.preference.*
 import org.flexstore.domain.preference.UserPreference.DisplayMode
+import org.flexstore.domain.preference.UserPreference.GuidedTour
 import org.flexstore.domain.preference.UserPreference.PreferredLanguage
 import org.flexstore.domain.product.model.Language
 import org.flexstore.domain.user.model.*
@@ -35,7 +36,11 @@ class UserPreferenceUseCasesTest : WithAssertions {
         val preferences = userPreferenceUseCases.preferencesOf(customer.id)
         // Assert
         assertThat(preferences)
-            .isEqualTo(UserPreferences(ColorModePreference.Unchosen, LanguagePreference.Unchosen))
+            .isEqualTo(
+                UserPreferences(
+                    ColorModePreference.Unchosen, LanguagePreference.Unchosen, GuidedTourPreference.Unchosen
+                )
+            )
     }
 
     @ParameterizedTest(name = "a customer chooses the mode {0}")
@@ -75,8 +80,41 @@ class UserPreferenceUseCasesTest : WithAssertions {
         val preferences = userPreferenceUseCases.record(customer.id, PreferredLanguage(Language.FR))
         // Assert
         assertThat(preferences).isEqualTo(
-            UserPreferences(ColorModePreference.Chosen(ColorMode.DARK), LanguagePreference.Chosen(Language.FR))
+            UserPreferences(
+                ColorModePreference.Chosen(ColorMode.DARK),
+                LanguagePreference.Chosen(Language.FR),
+                GuidedTourPreference.Unchosen
+            )
         )
+    }
+
+    @ParameterizedTest(name = "a customer chooses the guided tour {0}")
+    @EnumSource(GuidedTourDisplay::class)
+    fun `a customer should record whether the guided tour is shown`(guidedTourDisplay: GuidedTourDisplay) {
+        // Act
+        val preferences = userPreferenceUseCases.record(customer.id, GuidedTour(guidedTourDisplay))
+        // Assert
+        assertThat(preferences.guidedTour).isEqualTo(GuidedTourPreference.Chosen(guidedTourDisplay))
+    }
+
+    @Test
+    fun `showing the guided tour again should replace hiding it`() {
+        // Arrange
+        userPreferenceUseCases.record(customer.id, GuidedTour(GuidedTourDisplay.HIDDEN))
+        // Act
+        val preferences = userPreferenceUseCases.record(customer.id, GuidedTour(GuidedTourDisplay.SHOWN))
+        // Assert
+        assertThat(preferences.guidedTour).isEqualTo(GuidedTourPreference.Chosen(GuidedTourDisplay.SHOWN))
+    }
+
+    @Test
+    fun `hiding the guided tour should keep the display mode`() {
+        // Arrange
+        userPreferenceUseCases.record(customer.id, DisplayMode(ColorMode.DARK))
+        // Act
+        val preferences = userPreferenceUseCases.record(customer.id, GuidedTour(GuidedTourDisplay.HIDDEN))
+        // Assert
+        assertThat(preferences.colorMode).isEqualTo(ColorModePreference.Chosen(ColorMode.DARK))
     }
 
     @Test

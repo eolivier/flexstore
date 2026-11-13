@@ -16,7 +16,8 @@ data class UserSettingEntity(
     @Column(nullable = false, updatable = false)
     val name: String,
 
-    // LIGHT or DARK for color_mode, EN or FR for language, ACCEPTED or REFUSED for cookie_choice
+    // LIGHT or DARK for color_mode, EN or FR for language, SHOWN or HIDDEN for guided_tour,
+    // ACCEPTED or REFUSED for cookie_choice
     @Column(nullable = false)
     val value: String,
 

@@ -217,8 +217,8 @@ erDiagram
     user_setting {
         id varchar(50) PK
         user_id varchar(50) FK,UK "unique with name: at most one row per customer and setting"
-        name varchar(30) UK "authorized names: color_mode, language or cookie_choice"
-        value varchar(20) "LIGHT or DARK, EN or FR, ACCEPTED or REFUSED, by name"
+        name varchar(30) UK "authorized names: color_mode, language, guided_tour or cookie_choice"
+        value varchar(20) "LIGHT or DARK, EN or FR, SHOWN or HIDDEN, ACCEPTED or REFUSED, by name"
         expires_at timestamptz "nullable: filled for cookie_choice only, when the customer is asked again"
         created_at timestamp
         updated_at timestamp
@@ -323,7 +323,8 @@ erDiagram
 - The settings of a signed-in customer are `user_setting` rows (V58 merged the former `cookie_consent` and `user_preference` tables into it): one row per setting the customer chose, at most one per customer and `name`, replaced by each new choice. A new setting is a new authorized name (and its authorized values) in the checks of the table, not a new column. A customer who never chose a setting has no row for it.
   - `cookie_choice`: their choice about the preference cookies (`ACCEPTED` or `REFUSED`), valid until `expires_at` (6 months after the choice, then the customer is asked again; `expires_at` is filled for this setting only). A visitor who is not signed in keeps theirs in their browser; at sign-in it is recorded here and removed from the browser;
   - `color_mode`: their display mode (`LIGHT` or `DARK`); without a row, their browser decides. A visitor who is not signed in keeps theirs in their browser (when they accepted the preference cookies);
-  - `language`: their preferred language (`EN` or `FR`); without a row, the page decides.
+  - `language`: their preferred language (`EN` or `FR`); without a row, the page decides;
+  - `guided_tour` (V67): whether the guided tour of the shop is shown to them (`SHOWN` or `HIDDEN`, hidden by "Do not show again" at the end of the tour and shown again from their preferences); without a row, the tour is shown.
 - A `payment` has at most one refund: its reference on the payment provider is the nullable column `refund_provider_reference` (V64 merged the former `payment_refund` table into `payment`), empty while the payment is not refunded.
 - A wrong password for an existing account adds one to its `failed_sign_in_count` (a column of `user`, V63 merged the former `failed_sign_in` table into it). At the 5th failure in a row, the account becomes `LOCKED` and the count goes back to 0, so that it starts again when an administrator reactivates the account; a successful sign-in resets it too. An email that belongs to no account, and an account that cannot sign in already, are not counted.
 - A session of a signed-in user is a `user_token` of the type `REFRESH_SESSION` (V66 merged the former `refresh_session` table into `user_token`): its refresh token renews their access token (15 minutes) once, then the session is revoked (`revoked_at`) and replaced by a new row. A revoked token that comes back revokes every open session of its user. Only the hash of the token is stored; deleting a user deletes their sessions.
