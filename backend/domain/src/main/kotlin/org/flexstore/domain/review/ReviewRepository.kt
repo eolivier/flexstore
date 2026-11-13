@@ -22,8 +22,6 @@ interface ReviewRepository {
 
     // The customer already gave their opinion on the product
     fun hasReviewed(customer: UserId.ValidUserId, productId: ProductId): Boolean
-
-    fun hasNotReviewed(customer: UserId.ValidUserId, productId: ProductId) = !hasReviewed(customer, productId)
 }
 
 // Reviews, in the order given

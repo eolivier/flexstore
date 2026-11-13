@@ -217,8 +217,6 @@ enum class OrderStatus {
 
     fun isPaid() = this in listOf(PAID, PROCESSING, SHIPPED, DELIVERED)
 
-    fun isLast() = this == DELIVERED
-
     fun isMovedByAnAdministrator() = this != AWAITING_PAYMENT && hasNext()
 
     fun isNotMovedByAnAdministrator() = !isMovedByAnAdministrator()
