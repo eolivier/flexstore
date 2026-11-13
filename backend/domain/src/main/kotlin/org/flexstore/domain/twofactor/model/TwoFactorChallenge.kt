@@ -7,7 +7,7 @@ import org.flexstore.domain.user.model.UserId
 import java.time.Duration
 import java.time.Instant
 
-data class TwoFactorChallengeId(override val identity: Identity) : Identifiable() {
+data class TwoFactorChallengeId(override val id: Identity) : Identifiable() {
     companion object {
         fun nextId() = TwoFactorChallengeId(Identity.nextId())
     }

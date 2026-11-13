@@ -13,7 +13,7 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.Instant
 
-data class ReviewId(override val identity: Identity) : Identifiable() {
+data class ReviewId(override val id: Identity) : Identifiable() {
     companion object {
         fun nextId() = ReviewId(Identity.nextId())
     }

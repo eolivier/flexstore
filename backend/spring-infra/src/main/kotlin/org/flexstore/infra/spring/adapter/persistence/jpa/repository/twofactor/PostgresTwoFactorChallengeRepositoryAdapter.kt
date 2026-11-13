@@ -17,17 +17,17 @@ class PostgresTwoFactorChallengeRepositoryAdapter(private val jpaRepo: JpaTwoFac
     TwoFactorChallengeRepository {
 
     override fun save(challenge: TwoFactorChallenge) {
-        jpaRepo.save(TwoFactorChallengeEntity(challenge.id.identity.value, challenge.userId.value, challenge.issuedAt))
+        jpaRepo.save(TwoFactorChallengeEntity(challenge.id.id.value, challenge.userId.value, challenge.issuedAt))
     }
 
     @Transactional(readOnly = true)
     override fun find(challengeId: TwoFactorChallengeId): TwoFactorChallengeLookup =
-        jpaRepo.findById(challengeId.identity.value)
+        jpaRepo.findById(challengeId.id.value)
             .map<TwoFactorChallengeLookup> { TwoFactorChallengeLookup.Found(it.toDomain()) }
             .orElse(TwoFactorChallengeLookup.NotFound)
 
     override fun delete(challengeId: TwoFactorChallengeId) {
-        jpaRepo.deleteById(challengeId.identity.value)
+        jpaRepo.deleteById(challengeId.id.value)
     }
 
     private fun TwoFactorChallengeEntity.toDomain() =

@@ -20,17 +20,17 @@ class PostgresSellerRepositoryAdapter(private val jpaRepo: JpaSellerRepository) 
     @Transactional(readOnly = true)
     override fun current(): Seller = jpaRepo.findFirstByOrderByVersionDesc().toDomain()
 
-    @Cacheable(SELLERS_CACHE, key = "#p0.identity.value")
+    @Cacheable(SELLERS_CACHE, key = "#p0.id.value")
     @Transactional(readOnly = true)
     override fun findBy(sellerId: SellerId): Seller? =
-        jpaRepo.findById(sellerId.identity.value).orElse(null)?.toDomain()
+        jpaRepo.findById(sellerId.id.value).orElse(null)?.toDomain()
 
     @CacheEvict(SELLERS_CACHE, allEntries = true)
     override fun save(seller: Seller) {
         val nextVersion = jpaRepo.findFirstByOrderByVersionDesc().version + 1
         val (contact, identifier, reach, incorporation, socialNetworks) = seller.detail
         val sellerEntity = SellerEntity(
-            seller.id.identity.value,
+            seller.id.id.value,
             nextVersion,
             contact.name.value,
             contact.address.value,

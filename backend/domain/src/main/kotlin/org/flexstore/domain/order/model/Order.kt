@@ -55,7 +55,7 @@ data class Order(
     fun totalPrice() = detail.bill.totalPrice()
 
     // The number shown to the customer: the beginning of the order id
-    fun number() = orderId.identity.value.take(ORDER_NUMBER_LENGTH).uppercase()
+    fun number() = orderId.id.value.take(ORDER_NUMBER_LENGTH).uppercase()
 
     fun belongsTo(customer: UserId) = this.customer == customer
 

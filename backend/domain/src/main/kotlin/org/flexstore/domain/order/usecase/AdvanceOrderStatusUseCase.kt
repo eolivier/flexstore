@@ -95,7 +95,7 @@ class AdvanceOrderStatusUseCase(
         val expectedStatus = orderStatusAdvance.currentStatus.next()
         val storedStatus = orderRepository.findById(orderStatusAdvance.orderId)?.status
         if (storedStatus != expectedStatus) {
-            val orderId = orderStatusAdvance.orderId.identity.value
+            val orderId = orderStatusAdvance.orderId.id.value
             val message = "Order $orderId is $storedStatus instead of $expectedStatus."
             throw OrderStatusAdvanceFailed(ErrorMessage(message))
         }

@@ -14,7 +14,7 @@ class InMemoryPaymentRepository(private val outcome: PaymentOutcome) : PaymentRe
 
     override fun start(paymentRequest: PaymentRequest) {
         val orderId = paymentRequest.order.orderId
-        sessions[orderId] = PaymentSession(CheckoutPage("https://pay.example/${orderId.identity.value}"), outcome)
+        sessions[orderId] = PaymentSession(CheckoutPage("https://pay.example/${orderId.id.value}"), outcome)
         payers[orderId] = paymentRequest.payer
     }
 

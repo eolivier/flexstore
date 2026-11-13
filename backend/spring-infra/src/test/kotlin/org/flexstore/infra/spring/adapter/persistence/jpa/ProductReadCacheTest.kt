@@ -25,7 +25,7 @@ class ProductReadCacheTest {
     private val lampId = ProductId(Identity("product-1"))
     private val price = Price(Amount(BigDecimal(35)), Currency.EUR)
     private val lampEntity = ProductEntity(
-        id = lampId.identity.value,
+        id = lampId.id.value,
         sku = "HOM-1",
         category = Category.HOME.name,
         price = BigDecimal(35),
@@ -49,7 +49,7 @@ class ProductReadCacheTest {
         `when`(jpaProductRepository.findAll(any(Sort::class.java))).thenReturn(listOf(lampEntity))
         `when`(jpaProductRepository.findAllByCategory(Category.HOME.name, catalogOrder))
             .thenReturn(listOf(lampEntity))
-        `when`(jpaProductRepository.findById(lampId.identity.value)).thenReturn(Optional.of(lampEntity))
+        `when`(jpaProductRepository.findById(lampId.id.value)).thenReturn(Optional.of(lampEntity))
         `when`(jpaProductRepository.save(any(ProductEntity::class.java))).thenAnswer { it.arguments[0] }
         context = AnnotationConfigApplicationContext()
         context.register(CacheConfig::class.java, PostgresProductRepositoryAdapter::class.java)
@@ -78,7 +78,7 @@ class ProductReadCacheTest {
         productRepository.findById(lampId)
         productRepository.findById(lampId)
         // Assert
-        verify(jpaProductRepository, times(1)).findById(lampId.identity.value)
+        verify(jpaProductRepository, times(1)).findById(lampId.id.value)
     }
 
     @Test
@@ -119,7 +119,7 @@ class ProductReadCacheTest {
         // Act
         productRepository.findById(lampId)
         // Assert
-        verify(jpaProductRepository, times(1)).findById(lampId.identity.value)
+        verify(jpaProductRepository, times(1)).findById(lampId.id.value)
     }
 
     @Test

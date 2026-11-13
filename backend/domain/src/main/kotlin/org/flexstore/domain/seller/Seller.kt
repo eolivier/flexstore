@@ -8,7 +8,7 @@ import org.ucop.domain.PostConditionException
 import org.ucop.domain.PreConditionException
 
 // One version of the seller: each edit gives a new one, so that an invoice keeps the seller of its issue
-data class SellerId(override val identity: Identity) : Identifiable() {
+data class SellerId(override val id: Identity) : Identifiable() {
     companion object {
         fun nextId() = SellerId(Identity.nextId())
     }

@@ -6,7 +6,7 @@ import org.flexstore.domain.product.model.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.*
 
-data class OrderId(override val identity: Identity) : Identifiable() {
+data class OrderId(override val id: Identity) : Identifiable() {
     companion object {
         fun nextId() = OrderId(Identity.nextId())
     }
