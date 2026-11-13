@@ -61,7 +61,7 @@ class AddReviewUseCase(
     private fun productExistsCondition() = PreCondition<ReviewSubmission> { submission ->
         val productId = submission.draft.productOpinion.productId
         if (productRepository.productIsMissing(productId)) {
-            val message = ErrorMessage("The product ${productId.id.value} does not exist.")
+            val message = ErrorMessage("The product ${productId.value} does not exist.")
             throw ProductNotFoundException(message)
         }
     }

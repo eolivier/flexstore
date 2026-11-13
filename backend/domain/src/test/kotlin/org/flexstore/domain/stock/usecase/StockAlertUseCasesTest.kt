@@ -18,8 +18,8 @@ import java.math.BigDecimal
 class StockAlertUseCasesTest : WithAssertions {
 
     private val price = Price(Amount(BigDecimal(35)), Currency.EUR)
-    private val deskLamp = DefinedProduct(ProductId(Identity("desk-lamp")), Name("Desk lamp"), price)
-    private val wallClock = DefinedProduct(ProductId(Identity("wall-clock")), Name("Wall clock"), price)
+    private val deskLamp = DefinedProduct(ProductId("desk-lamp"), Name("Desk lamp"), price)
+    private val wallClock = DefinedProduct(ProductId("wall-clock"), Name("Wall clock"), price)
     private val productRepository = InMemoryProductRepository().apply { save(deskLamp); save(wallClock) }
     private val stockRepository = InMemoryStockRepository()
     private val administrator = userOf("admin-1", Role.ADMIN)
@@ -73,7 +73,7 @@ class StockAlertUseCasesTest : WithAssertions {
     @Test
     fun `the alert threshold of an unknown product should not be given`() {
         // Arrange
-        val unknownAlert = StockAlert(ProductId(Identity("unknown")), AlertThreshold(3))
+        val unknownAlert = StockAlert(ProductId("unknown"), AlertThreshold(3))
         // Act
         val thrown = catchThrowable { stockAlertUseCases.change(administratorActor, unknownAlert) }
         // Assert

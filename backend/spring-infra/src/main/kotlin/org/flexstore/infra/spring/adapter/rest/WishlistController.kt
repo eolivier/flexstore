@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.product.model.ProductId
-import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.user.model.UserId
 import org.flexstore.domain.user.model.of
 import org.flexstore.domain.wishlist.usecase.WishlistUseCases
@@ -40,14 +39,14 @@ class WishlistController(
     @PutMapping("/{productId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun saveProduct(@AuthenticationPrincipal jwt: Jwt, @PathVariable productId: String) {
-        wishlistUseCases.add(customer(jwt), ProductId(Identity(productId)))
+        wishlistUseCases.add(customer(jwt), ProductId(productId))
     }
 
     @Operation(summary = "Remove a product from the wishlist of the signed-in customer")
     @DeleteMapping("/{productId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun removeProduct(@AuthenticationPrincipal jwt: Jwt, @PathVariable productId: String) {
-        wishlistUseCases.remove(customer(jwt), ProductId(Identity(productId)))
+        wishlistUseCases.remove(customer(jwt), ProductId(productId))
     }
 
     private fun customer(jwt: Jwt) = actorResolutionService.actorOf(UserId.of(jwt.subject))

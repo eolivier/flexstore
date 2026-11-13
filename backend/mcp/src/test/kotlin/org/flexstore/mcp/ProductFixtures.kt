@@ -28,13 +28,12 @@ import org.flexstore.domain.product.usecase.UpdateProductUseCase
 import org.flexstore.domain.sharedkernel.Amount
 import org.flexstore.domain.sharedkernel.Currency
 import org.flexstore.domain.sharedkernel.Description
-import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.sharedkernel.Name
 import org.flexstore.domain.sharedkernel.Price
 import org.flexstore.domain.sharedkernel.VatRate
 
-val deskLampId = ProductId(Identity("desk-lamp"))
-val readingLampId = ProductId(Identity("reading-lamp"))
+val deskLampId = ProductId("desk-lamp")
+val readingLampId = ProductId("reading-lamp")
 
 private val lampPrice = Price(Amount(BigDecimal(35)), Currency.EUR)
 private val englishDeskLamp =

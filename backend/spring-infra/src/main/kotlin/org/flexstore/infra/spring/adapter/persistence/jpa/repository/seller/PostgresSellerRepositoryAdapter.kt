@@ -1,7 +1,6 @@
 package org.flexstore.infra.spring.adapter.persistence.jpa.repository.seller
 
 import org.flexstore.domain.seller.*
-import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.SellerEntity
 import org.flexstore.infra.spring.config.SELLERS_CACHE
 import org.springframework.cache.annotation.CacheEvict
@@ -20,17 +19,17 @@ class PostgresSellerRepositoryAdapter(private val jpaRepo: JpaSellerRepository) 
     @Transactional(readOnly = true)
     override fun current(): Seller = jpaRepo.findFirstByOrderByVersionDesc().toDomain()
 
-    @Cacheable(SELLERS_CACHE, key = "#p0.value.value")
+    @Cacheable(SELLERS_CACHE, key = "#p0.value")
     @Transactional(readOnly = true)
     override fun findBy(sellerId: SellerId): Seller? =
-        jpaRepo.findById(sellerId.value.value).orElse(null)?.toDomain()
+        jpaRepo.findById(sellerId.value).orElse(null)?.toDomain()
 
     @CacheEvict(SELLERS_CACHE, allEntries = true)
     override fun save(seller: Seller) {
         val nextVersion = jpaRepo.findFirstByOrderByVersionDesc().version + 1
         val (contact, identifier, reach, incorporation, socialNetworks) = seller.detail
         val sellerEntity = SellerEntity(
-            seller.id.value.value,
+            seller.id.value,
             nextVersion,
             contact.name.value,
             contact.address.value,
@@ -74,6 +73,6 @@ class PostgresSellerRepositoryAdapter(private val jpaRepo: JpaSellerRepository) 
             )
         )
         val sellerDetail = SellerDetail(contact, identifier, reach, incorporation, socialNetworks)
-        return Seller(SellerId(Identity(id)), sellerDetail)
+        return Seller(SellerId(id), sellerDetail)
     }
 }

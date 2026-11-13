@@ -19,10 +19,10 @@ import java.time.Instant
 class OrderTest : WithAssertions {
 
     private val lamp = DefinedProduct(
-        ProductId(Identity("lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR)
+        ProductId("lamp"), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR)
     )
     private val mug = DefinedProduct(
-        ProductId(Identity("mug")), Name("Mug"), Price(Amount(BigDecimal(12)), Currency.EUR)
+        ProductId("mug"), Name("Mug"), Price(Amount(BigDecimal(12)), Currency.EUR)
     )
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val placedAt = Instant.parse("2026-10-24T10:00:00Z")

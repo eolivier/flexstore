@@ -3,7 +3,6 @@ package org.flexstore.infra.spring.adapter.rest
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.domain.product.model.ProductId
-import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.stock.*
 import org.flexstore.domain.stock.usecase.StockUseCases
@@ -33,7 +32,7 @@ class StockController(
     @Operation(summary = "Retrieve the stock of a product (0 when it was never given)")
     @GetMapping("/api/stocks/{productId}")
     fun getStock(@PathVariable productId: String): JsonStock =
-        JsonStock.of(stockUseCases.getStock(actorResolutionService.visitor(), ProductId(Identity(productId))))
+        JsonStock.of(stockUseCases.getStock(actorResolutionService.visitor(), ProductId(productId)))
 
     @Operation(summary = "Give the number of units of a product that the shop has (administrator)")
     @PutMapping("/api/admin/stocks/{productId}")
@@ -42,7 +41,7 @@ class StockController(
         @PathVariable productId: String,
         @RequestBody stockQuantity: JsonStockQuantity
     ): JsonStock {
-        val stock = Stock(ProductId(Identity(productId)), StockQuantity(stockQuantity.quantity))
+        val stock = Stock(ProductId(productId), StockQuantity(stockQuantity.quantity))
         val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
         return JsonStock.of(stockUseCases.change(actor, stock))
     }

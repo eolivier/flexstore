@@ -12,12 +12,12 @@ import java.time.Instant
 class ItemsTest : WithAssertions {
 
     private val lamp = DefinedProduct(
-        ProductId(Identity("lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR)
+        ProductId("lamp"), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR)
     )
     private val mug = DefinedProduct(
-        ProductId(Identity("mug")), Name("Mug"), Price(Amount(BigDecimal(12)), Currency.EUR)
+        ProductId("mug"), Name("Mug"), Price(Amount(BigDecimal(12)), Currency.EUR)
     )
-    private val storedLamp = CartItem(ItemId(Identity("item-1")), lamp, Quantity(2))
+    private val storedLamp = CartItem(ItemId("item-1"), lamp, Quantity(2))
 
     @Test
     fun `the cart items should be the stored items only`() {
@@ -27,7 +27,7 @@ class ItemsTest : WithAssertions {
         val cartItems = items.cartItems()
         // Assert
         assertThat(cartItems).isEqualTo(CartItems(storedLamp))
-        assertThat(cartItems.itemIds()).containsExactly(ItemId(Identity("item-1")))
+        assertThat(cartItems.itemIds()).containsExactly(ItemId("item-1"))
     }
 
     @Test
@@ -35,7 +35,7 @@ class ItemsTest : WithAssertions {
         // Arrange
         val cartItems = CartItems(storedLamp)
         // Act
-        val item = cartItems.findBy(ItemId(Identity("item-1")))
+        val item = cartItems.findBy(ItemId("item-1"))
         // Assert
         assertThat(item).isEqualTo(storedLamp)
     }

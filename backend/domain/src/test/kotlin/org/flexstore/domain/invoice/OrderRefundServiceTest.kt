@@ -35,7 +35,7 @@ import org.flexstore.domain.user.administration.usersOfTheAdministration
 class OrderRefundServiceTest : WithAssertions {
 
     private val lampPrice = Price(Amount(BigDecimal(35)), Currency.EUR)
-    private val deskLamp = DefinedProduct(ProductId(Identity("desk-lamp")), Name("Desk lamp"), lampPrice)
+    private val deskLamp = DefinedProduct(ProductId("desk-lamp"), Name("Desk lamp"), lampPrice)
     private val janeId = UserId.ValidUserId("user-1")
     private val janeDoe = FullName(FirstName("Jane"), LastName("Doe"))
     private val jane = User.DefinedUser(janeId, janeDoe, Email("jane@example.com"), PlainPassword("password"))

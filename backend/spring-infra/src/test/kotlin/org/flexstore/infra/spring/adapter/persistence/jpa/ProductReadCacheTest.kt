@@ -22,10 +22,10 @@ import kotlin.test.assertNull
 // The cache of the reads of the product table, with the real adapter behind the Spring cache, without a database
 class ProductReadCacheTest {
 
-    private val lampId = ProductId(Identity("product-1"))
+    private val lampId = ProductId("product-1")
     private val price = Price(Amount(BigDecimal(35)), Currency.EUR)
     private val lampEntity = ProductEntity(
-        id = lampId.id.value,
+        id = lampId.value,
         sku = "HOM-1",
         category = Category.HOME.name,
         price = BigDecimal(35),
@@ -49,7 +49,7 @@ class ProductReadCacheTest {
         `when`(jpaProductRepository.findAll(any(Sort::class.java))).thenReturn(listOf(lampEntity))
         `when`(jpaProductRepository.findAllByCategory(Category.HOME.name, catalogOrder))
             .thenReturn(listOf(lampEntity))
-        `when`(jpaProductRepository.findById(lampId.id.value)).thenReturn(Optional.of(lampEntity))
+        `when`(jpaProductRepository.findById(lampId.value)).thenReturn(Optional.of(lampEntity))
         `when`(jpaProductRepository.save(any(ProductEntity::class.java))).thenAnswer { it.arguments[0] }
         context = AnnotationConfigApplicationContext()
         context.register(CacheConfig::class.java, PostgresProductRepositoryAdapter::class.java)
@@ -78,7 +78,7 @@ class ProductReadCacheTest {
         productRepository.findById(lampId)
         productRepository.findById(lampId)
         // Assert
-        verify(jpaProductRepository, times(1)).findById(lampId.id.value)
+        verify(jpaProductRepository, times(1)).findById(lampId.value)
     }
 
     @Test
@@ -93,7 +93,7 @@ class ProductReadCacheTest {
     @Test
     fun `a missing product should be read as missing`() {
         // Act
-        val product = productRepository.findById(ProductId(Identity("missing")))
+        val product = productRepository.findById(ProductId("missing"))
         // Assert
         assertNull(product)
     }
@@ -119,7 +119,7 @@ class ProductReadCacheTest {
         // Act
         productRepository.findById(lampId)
         // Assert
-        verify(jpaProductRepository, times(1)).findById(lampId.id.value)
+        verify(jpaProductRepository, times(1)).findById(lampId.value)
     }
 
     @Test

@@ -27,7 +27,7 @@ import java.math.BigDecimal
 class RemoveProductFromWishlistUseCaseTest : WithAssertions {
 
     private val deskLamp = DefinedProduct(
-        ProductId(Identity("desk-lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR)
+        ProductId("desk-lamp"), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR)
     )
     private val customer = UserId.ValidUserId("user-1")
     private val productRepository = InMemoryProductRepository().apply { save(deskLamp) }

@@ -18,8 +18,8 @@ import java.time.LocalDate
 
 class SalesDashboardTest : WithAssertions {
 
-    private val lamp = DefinedProduct(ProductId(Identity("lamp")), Name("Desk lamp"), euros(35))
-    private val chair = DefinedProduct(ProductId(Identity("chair")), Name("Chair"), euros(100))
+    private val lamp = DefinedProduct(ProductId("lamp"), Name("Desk lamp"), euros(35))
+    private val chair = DefinedProduct(ProductId("chair"), Name("Chair"), euros(100))
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val lastDay = SalesDay(LocalDate.parse("2026-10-31"))
     private val week = SalesPeriod(lastDay, DayCount(7))

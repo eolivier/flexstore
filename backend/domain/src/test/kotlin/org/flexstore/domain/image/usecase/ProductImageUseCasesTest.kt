@@ -18,7 +18,7 @@ import org.flexstore.domain.actor.unknownUserActor
 class ProductImageUseCasesTest : WithAssertions {
 
     private val price = Price(Amount(BigDecimal(35)), Currency.EUR)
-    private val deskLamp = DefinedProduct(ProductId(Identity("desk-lamp")), Name("Desk lamp"), price)
+    private val deskLamp = DefinedProduct(ProductId("desk-lamp"), Name("Desk lamp"), price)
     private val productRepository = InMemoryProductRepository().apply { save(deskLamp) }
     private val productImageRepository = InMemoryProductImageRepository()
 
@@ -88,7 +88,7 @@ class ProductImageUseCasesTest : WithAssertions {
     @Test
     fun `the image of an unknown product should be refused`() {
         // Arrange
-        val unknownProductImage = uploadedImageOf(1000, ProductId(Identity("unknown")))
+        val unknownProductImage = uploadedImageOf(1000, ProductId("unknown"))
         // Act
         val thrown = catchThrowable { productImageUseCases.add(administrator, unknownProductImage) }
         // Assert

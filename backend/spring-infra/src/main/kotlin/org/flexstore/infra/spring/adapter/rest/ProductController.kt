@@ -64,7 +64,7 @@ class ProductController(private val productUseCases: ProductUseCases,
         @PathVariable id: String,
         @RequestBody editedJsonProduct: EditedJsonProduct
     ): JsonProduct {
-        val editedProduct = mapper.toDomain(ProductId(Identity(id)), editedJsonProduct)
+        val editedProduct = mapper.toDomain(ProductId(id), editedJsonProduct)
         val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
         return mapper.toJson(productUseCases.updateProduct(actor, editedProduct))
     }
@@ -122,7 +122,7 @@ class ProductController(private val productUseCases: ProductUseCases,
         @PathVariable id: String,
         @RequestHeader(HttpHeaders.ACCEPT_LANGUAGE, defaultValue = "en") acceptLanguage: String
     ): JsonProduct {
-        val product = productUseCases.getProduct(actorResolutionService.visitor(), ProductId(Identity(id)))
+        val product = productUseCases.getProduct(actorResolutionService.visitor(), ProductId(id))
         return listOf(product).toJsonProducts(languageAcceptedIn(acceptLanguage)).single()
     }
 }

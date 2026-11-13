@@ -95,7 +95,7 @@ class PostgresOrderRepositoryAdapter(
             shippingCost = shipping.cost.amount.value,
             discountCode = (discount as? AppliedOrderDiscount)?.code?.value,
             discountAmount = discountAmount().amount.value,
-            legalPageId = (termsOfSale as? AcceptedTermsOfSale)?.termsOfSaleId?.value?.value,
+            legalPageId = (termsOfSale as? AcceptedTermsOfSale)?.termsOfSaleId?.value,
             deliveryAddress = addressesOfTheCustomer.rowOf(addresses.delivery),
             billingAddress = addressesOfTheCustomer.rowOf(addresses.billing),
             statusChanges = history.asList().mapIndexed { position, change -> change.toEntity(position) },
@@ -103,7 +103,7 @@ class PostgresOrderRepositoryAdapter(
                 OrderLineEntity(
                     id = Identity.nextId().value,
                     position = position,
-                    productId = line.productId.id.value,
+                    productId = line.productId.value,
                     productName = line.productName.value,
                     unitPrice = line.unitPrice.amount.value,
                     currency = line.unitPrice.currency.name,
@@ -126,7 +126,7 @@ class PostgresOrderRepositoryAdapter(
         val shippingMethod = ShippingMethod.valueOf(this.shippingMethod)
         val delivery = OrderDelivery(orderAddresses, shippingMethod)
         val termsOfSale = legalPageId
-            ?.let { id -> AcceptedTermsOfSale(LegalPageId(Identity(id))) }
+            ?.let { id -> AcceptedTermsOfSale(LegalPageId(id)) }
             ?: NoTermsOfSaleAccepted
         val checkout = Checkout(CartOwner.Customer(UserId.ValidUserId(userId)), delivery, termsOfSale)
         val orderLines = OrderLines(lines.map { it.toDomain() })
@@ -155,7 +155,7 @@ class PostgresOrderRepositoryAdapter(
         OrderStatusChange(OrderStatus.valueOf(status), StatusChangedAt(changedAt))
 
     private fun OrderLineEntity.toDomain(): OrderLine {
-        val orderedProduct = OrderedProduct(ProductId(Identity(productId)), Name(productName))
+        val orderedProduct = OrderedProduct(ProductId(productId), Name(productName))
         val unitPrice = Price(Amount(unitPrice), Currency.valueOf(currency))
         val pricing = ProductPricing(unitPrice, VatRate.valueOf(vatRate))
         return OrderLine(PricedProduct(orderedProduct, pricing), Quantity(quantity))

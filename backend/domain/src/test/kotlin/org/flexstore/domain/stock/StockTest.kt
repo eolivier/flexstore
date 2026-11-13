@@ -2,14 +2,13 @@ package org.flexstore.domain.stock
 
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.product.model.ProductId
-import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.sharedkernel.Quantity
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 
 class StockTest : WithAssertions {
 
-    private val deskLampId = ProductId(Identity("desk-lamp"))
+    private val deskLampId = ProductId("desk-lamp")
 
     @ParameterizedTest(name = "{0} units in stock cover {1} ordered: {2}")
     @CsvSource("3, 2, true", "3, 3, true", "3, 4, false", "0, 1, false")

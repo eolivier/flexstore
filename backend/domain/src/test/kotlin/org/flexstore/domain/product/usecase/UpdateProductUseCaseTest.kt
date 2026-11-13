@@ -159,7 +159,7 @@ class UpdateProductUseCaseTest : WithAssertions {
     @Test
     fun `should not edit an unknown product`() {
         // Arrange
-        val unknownProduct = tShirt.copy(productId = ProductId(Identity("unknown")))
+        val unknownProduct = tShirt.copy(productId = ProductId("unknown"))
         // Act
         val thrown = catchThrowable { useCase.unfold(UpdateProductRequest(administrator, unknownProduct)) }
         // Assert

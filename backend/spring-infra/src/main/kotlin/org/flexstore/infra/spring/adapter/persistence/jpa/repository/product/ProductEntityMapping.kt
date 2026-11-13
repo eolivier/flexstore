@@ -15,7 +15,7 @@ fun ProductEntity.toDomain(): DefinedProduct {
     val regularPrice = Price(Amount(price), Currency.valueOf(currency))
     val promotion = promotionOf(promotionPercentage, promotionStartsAt, promotionEndsAt)
     val pricing = ProductPricing(regularPrice, VatRate.valueOf(vatRate), promotion)
-    val productId = ProductId(Identity(id))
+    val productId = ProductId(id)
     return DefinedProduct(productId, Sku(sku), productTranslations, Category.valueOf(category), pricing)
 }
 

@@ -23,7 +23,7 @@ import java.time.Instant
 class SendOrderConfirmationEmailUseCaseTest : WithAssertions {
 
     private val lamp = DefinedProduct(
-        ProductId(Identity("lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR)
+        ProductId("lamp"), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR)
     )
     private val customer = User.DefinedUser(
         UserId.ValidUserId("user-1"),

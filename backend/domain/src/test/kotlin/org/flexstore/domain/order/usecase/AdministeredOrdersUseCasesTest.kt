@@ -23,7 +23,7 @@ import org.flexstore.domain.user.administration.usersOfTheAdministration
 class AdministeredOrdersUseCasesTest : WithAssertions {
 
     private val lampPrice = Price(Amount(BigDecimal(35)), Currency.EUR)
-    private val deskLamp = DefinedProduct(ProductId(Identity("desk-lamp")), Name("Desk lamp"), lampPrice)
+    private val deskLamp = DefinedProduct(ProductId("desk-lamp"), Name("Desk lamp"), lampPrice)
     private val janeDoe = FullName(FirstName("Jane"), LastName("Doe"))
     private val janeId = UserId.ValidUserId("user-1")
     private val jane = User.DefinedUser(janeId, janeDoe, Email("jane@example.com"), PlainPassword("password123"))

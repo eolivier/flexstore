@@ -43,7 +43,7 @@ class ChangeCartItemQuantityUseCase(
         val quantityStillThere = request.quantity.isZeroOrNegative() || item?.quantity != request.quantity
         val quantityNotApplied = item != null && quantityStillThere
         if (quantityNotApplied) {
-            throw CartUpdateFailed(ErrorMessage("Quantity of item ${request.itemId.id.value} was not changed."))
+            throw CartUpdateFailed(ErrorMessage("Quantity of item ${request.itemId.value} was not changed."))
         }
     }
 }

@@ -30,19 +30,19 @@ class PostgresCartRepositoryAdapter(
 
     override fun save(cart: Cart): Cart {
         val cartEntity = find(cart.owner) ?: cartRepo.save(newCartEntity(cart.owner))
-        val keptIds = cart.items.cartItems().itemIds().map { it.id.value }.toSet()
+        val keptIds = cart.items.cartItems().itemIds().map { it.value }.toSet()
         itemRepo.deleteAll(items(cartEntity).filterNot { it.id in keptIds })
         itemRepo.flush()
         cart.items.asList().forEach { item ->
             when (item) {
-                is CartItem -> itemRepo.findById(item.itemId.id.value).ifPresent {
+                is CartItem -> itemRepo.findById(item.itemId.value).ifPresent {
                     itemRepo.save(it.copy(quantity = item.quantity.value))
                 }
                 is DraftItem -> itemRepo.save(
                     CartItemEntity(
                         id = Identity.nextId().value,
                         cartId = cartEntity.id,
-                        product = productRepo.getReferenceById(item.product.productId.id.value),
+                        product = productRepo.getReferenceById(item.product.productId.value),
                         quantity = item.quantity.value
                     )
                 )
@@ -92,7 +92,7 @@ class PostgresCartRepositoryAdapter(
         itemRepo.findAllByCartId(cartEntity.id, Sort.by("createdAt", "id"))
 
     private fun CartItemEntity.toDomain() = CartItem(
-        itemId = ItemId(Identity(id)),
+        itemId = ItemId(id),
         product = product.toDomain(),
         quantity = Quantity(quantity)
     )

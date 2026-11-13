@@ -39,7 +39,7 @@ class UpdateProductUseCase(
 
     private fun productExistsCondition() = PreCondition<UpdateProductRequest> { request ->
         if (productRepository.productIsMissing(request.product.productId)) {
-            val message = ErrorMessage("Product with ID ${request.product.productId.id.value} does not exist.")
+            val message = ErrorMessage("Product with ID ${request.product.productId.value} does not exist.")
             throw ProductNotFoundException(message)
         }
     }

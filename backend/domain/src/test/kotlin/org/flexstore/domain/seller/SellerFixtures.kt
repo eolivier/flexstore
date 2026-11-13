@@ -1,6 +1,5 @@
 package org.flexstore.domain.seller
 
-import org.flexstore.domain.sharedkernel.Identity
 
 private val testSellerContact =
     SellerContact(SellerName("Flexstore SAS"), SellerAddress("1 rue de la Démo, 75001 Paris, France"))
@@ -19,4 +18,4 @@ val testSellerDetail =
     SellerDetail(testSellerContact, testSellerIdentifier, testSellerReach, testSellerIncorporation)
 
 // The seller of the tests
-val testSeller = Seller(SellerId(Identity("seller-1")), testSellerDetail)
+val testSeller = Seller(SellerId("seller-1"), testSellerDetail)

@@ -34,7 +34,7 @@ class ReadLoyaltyPointsUseCaseTest : WithAssertions {
     private val useCase = ReadLoyaltyPointsUseCase(orderRepository)
 
     private fun productPricedAt(amount: String) = DefinedProduct(
-        ProductId(Identity.nextId()), Name("Product"), Price(Amount(BigDecimal(amount)), Currency.EUR)
+        ProductId(Identity.nextId().value), Name("Product"), Price(Amount(BigDecimal(amount)), Currency.EUR)
     )
 
     private fun placeOrder(

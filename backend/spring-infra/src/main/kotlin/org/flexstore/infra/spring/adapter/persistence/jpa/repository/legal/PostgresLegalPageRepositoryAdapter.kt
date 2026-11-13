@@ -1,7 +1,6 @@
 package org.flexstore.infra.spring.adapter.persistence.jpa.repository.legal
 
 import org.flexstore.domain.legal.*
-import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.LegalPageEntity
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
@@ -19,7 +18,7 @@ class PostgresLegalPageRepositoryAdapter(private val jpaRepo: JpaLegalPageReposi
     override fun save(legalPage: LegalPage) {
         val nextVersion = jpaRepo.findFirstByKindOrderByVersionDesc(legalPage.kind.name).version + 1
         val legalPageEntity = LegalPageEntity(
-            legalPage.id.value.value,
+            legalPage.id.value,
             legalPage.kind.name,
             nextVersion,
             legalPage.text.value,
@@ -29,7 +28,7 @@ class PostgresLegalPageRepositoryAdapter(private val jpaRepo: JpaLegalPageReposi
     }
 
     private fun LegalPageEntity.toDomain(): LegalPage {
-        val legalPageId = LegalPageId(Identity(id))
+        val legalPageId = LegalPageId(id)
         return LegalPage(legalPageId, LegalPageKind.valueOf(kind), LegalText(text), PublishedAt(publishedAt))
     }
 }

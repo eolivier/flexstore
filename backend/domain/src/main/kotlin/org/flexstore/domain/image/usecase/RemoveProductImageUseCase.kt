@@ -29,13 +29,13 @@ class RemoveProductImageUseCase(
 
     private fun productHasImageCondition() = PreCondition<ProductImageRemoval> { (_, productId) ->
         if (productId !in productImageRepository.productsWithImage()) {
-            throw ProductImageNotFoundException(ErrorMessage("Product ${productId.id.value} has no image."))
+            throw ProductImageNotFoundException(ErrorMessage("Product ${productId.value} has no image."))
         }
     }
 
     private fun imageIsRemovedCondition() = PostCondition<ProductImageRemoval> { (_, productId) ->
         if (productId in productImageRepository.productsWithImage()) {
-            throw ProductImageStorageFailed(ErrorMessage("The image of ${productId.id.value} was not removed."))
+            throw ProductImageStorageFailed(ErrorMessage("The image of ${productId.value} was not removed."))
         }
     }
 }

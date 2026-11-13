@@ -2,7 +2,6 @@ package org.flexstore.domain.legal.usecase
 
 import org.flexstore.domain.actor.unknownUserActor
 import org.flexstore.domain.legal.*
-import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.sharedkernel.InstantProvider
 import org.flexstore.domain.actor.testAdministratorActor
 import org.flexstore.domain.actor.testCustomerActor
@@ -20,10 +19,10 @@ class LegalPageUseCasesTest : WithAssertions {
     private val firstPublication = PublishedAt(Instant.parse("2026-01-01T00:00:00Z"))
     private val unwrittenLegalNotice =
         LegalPage(
-            LegalPageId(Identity("legal-notice-1")), LegalPageKind.LEGAL_NOTICE, LegalText(""), firstPublication
+            LegalPageId("legal-notice-1"), LegalPageKind.LEGAL_NOTICE, LegalText(""), firstPublication
         )
     private val writtenTermsOfSale = LegalPage(
-        LegalPageId(Identity("terms-of-sale-1")), LegalPageKind.TERMS_OF_SALE,
+        LegalPageId("terms-of-sale-1"), LegalPageKind.TERMS_OF_SALE,
         LegalText("Article 1 - Objet"), firstPublication
     )
     private val legalPageRepository =

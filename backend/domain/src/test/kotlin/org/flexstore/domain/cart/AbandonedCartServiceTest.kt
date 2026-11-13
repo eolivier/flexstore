@@ -30,7 +30,7 @@ class AbandonedCartServiceTest : WithAssertions {
 
     private val leftAt = Instant.parse("2026-11-05T10:00:00Z")
     private val deskLamp = DefinedProduct(
-        ProductId(Identity("desk-lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR)
+        ProductId("desk-lamp"), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR)
     )
     private val oneDay = AbandonedCartDelay(24)
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))

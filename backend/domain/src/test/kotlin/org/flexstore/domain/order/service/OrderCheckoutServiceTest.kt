@@ -35,7 +35,7 @@ import java.time.Instant
 class OrderCheckoutServiceTest : WithAssertions {
 
     private val deskLampPrice = Price(Amount(BigDecimal(35)), Currency.EUR)
-    private val deskLamp = DefinedProduct(ProductId(Identity("desk-lamp")), Name("Desk lamp"), deskLampPrice)
+    private val deskLamp = DefinedProduct(ProductId("desk-lamp"), Name("Desk lamp"), deskLampPrice)
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val janeDoe = FullName(FirstName("Jane"), LastName("Doe"))
     private val janeEmail = Email("jane@example.com")

@@ -2,7 +2,6 @@ package org.flexstore.infra.spring.adapter.persistence.jpa.repository.review
 
 import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.review.*
-import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.user.model.*
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.ProductReviewEntity
 import org.springframework.stereotype.Repository
@@ -27,7 +26,7 @@ class PostgresReviewRepositoryAdapter(
 
     @Transactional(readOnly = true)
     override fun findAllAbout(productId: ProductId) =
-        Reviews(jpaRepo.findByProductId(productId.id.value).map { it.toDomain() }).newestFirst()
+        Reviews(jpaRepo.findByProductId(productId.value).map { it.toDomain() }).newestFirst()
 
     @Transactional(readOnly = true)
     override fun findAll() = Reviews(jpaRepo.findAll().map { it.toDomain() })
@@ -37,18 +36,18 @@ class PostgresReviewRepositoryAdapter(
 
     @Transactional(readOnly = true)
     override fun hasReviewed(customer: UserId.ValidUserId, productId: ProductId) =
-        jpaRepo.existsByUser_IdAndProductId(customer.value, productId.id.value)
+        jpaRepo.existsByUser_IdAndProductId(customer.value, productId.value)
 
     // The reviewer is the row of the customer, so that the review read back in the same request is named
     private fun Review.toEntity() = ProductReviewEntity(
-        reviewId.value, productId.id.value, userRepo.getReferenceById(reviewer.userId.value), rating.value,
+        reviewId.value, productId.value, userRepo.getReferenceById(reviewer.userId.value), rating.value,
         comment.value, reviewedAt.value
     )
 
     private fun ProductReviewEntity.toDomain(): Review {
         val fullName = FullName(FirstName(user.firstName), LastName(user.lastName))
         val reviewer = Reviewer(UserId.ValidUserId(user.id), ReviewerName.of(fullName))
-        val subject = ReviewSubject(ProductId(Identity(productId)), reviewer)
+        val subject = ReviewSubject(ProductId(productId), reviewer)
         return Review(
             ReviewStamp(ReviewId(id), ReviewedAt(reviewedAt)), subject,
             Opinion(Rating(rating), ReviewComment(comment))

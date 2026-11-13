@@ -22,7 +22,7 @@ import java.time.Instant
 class OrderStatusHistoryTest : WithAssertions {
 
     private val price = Price(Amount(BigDecimal(35)), Currency.EUR)
-    private val deskLamp = DefinedProduct(ProductId(Identity("desk-lamp")), Name("Desk lamp"), price)
+    private val deskLamp = DefinedProduct(ProductId("desk-lamp"), Name("Desk lamp"), price)
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val placedAt = Instant.parse("2026-10-24T10:00:00Z")
     private val paidAt = StatusChangedAt(Instant.parse("2026-10-24T10:03:00Z"))

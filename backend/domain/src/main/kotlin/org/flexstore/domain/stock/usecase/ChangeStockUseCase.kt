@@ -33,7 +33,7 @@ class ChangeStockUseCase(
 
     private fun productExistsCondition() = PreCondition<StockChange> { (_, stock) ->
         if (productRepository.productIsMissing(stock.productId)) {
-            val message = ErrorMessage("Product with ID ${stock.productId.id.value} does not exist.")
+            val message = ErrorMessage("Product with ID ${stock.productId.value} does not exist.")
             throw ProductNotFoundException(message)
         }
     }
@@ -46,7 +46,7 @@ class ChangeStockUseCase(
 
     private fun stockIsStoredCondition() = PostCondition<StockChange> { (_, stock) ->
         if (stockRepository.stockOf(stock.productId) != stock) {
-            throw StockChangeFailed(ErrorMessage("The stock of ${stock.productId.id.value} was not changed."))
+            throw StockChangeFailed(ErrorMessage("The stock of ${stock.productId.value} was not changed."))
         }
     }
 }

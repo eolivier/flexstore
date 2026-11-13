@@ -19,7 +19,7 @@ import java.time.Instant
 class IssueInvoiceUseCaseTest : WithAssertions {
 
     private val lampPrice = Price(Amount(BigDecimal(35)), Currency.EUR)
-    private val deskLamp = DefinedProduct(ProductId(Identity("desk-lamp")), Name("Desk lamp"), lampPrice)
+    private val deskLamp = DefinedProduct(ProductId("desk-lamp"), Name("Desk lamp"), lampPrice)
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val issuedAt = InvoiceDate(Instant.parse("2026-10-24T10:05:00Z"))
     private val orderRepository = InMemoryOrderRepository()

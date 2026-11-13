@@ -34,7 +34,7 @@ class ChangeStockAlertUseCase(
     private fun productExistsCondition() = PreCondition<StockAlertChange> { change ->
         val productId = change.stockAlert.productId
         if (productRepository.productIsMissing(productId)) {
-            throw ProductNotFoundException(ErrorMessage("Product with ID ${productId.id.value} does not exist."))
+            throw ProductNotFoundException(ErrorMessage("Product with ID ${productId.value} does not exist."))
         }
     }
 
@@ -49,7 +49,7 @@ class ChangeStockAlertUseCase(
     private fun stockAlertIsStoredCondition() = PostCondition<StockAlertChange> { change ->
         val stockAlert = change.stockAlert
         if (stockRepository.alertOf(stockAlert.productId) != stockAlert) {
-            val reason = "The alert threshold of ${stockAlert.productId.id.value} was not changed."
+            val reason = "The alert threshold of ${stockAlert.productId.value} was not changed."
             val message = ErrorMessage(reason)
             throw StockAlertChangeFailed(message)
         }

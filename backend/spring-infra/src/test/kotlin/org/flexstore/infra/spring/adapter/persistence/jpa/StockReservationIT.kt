@@ -2,7 +2,6 @@ package org.flexstore.infra.spring.adapter.persistence.jpa
 
 import org.assertj.core.api.Assertions.assertThat
 import org.flexstore.domain.product.model.ProductId
-import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.sharedkernel.Quantity
 import org.flexstore.domain.stock.*
 import org.flexstore.infra.spring.rest.RefilledStocks
@@ -24,7 +23,7 @@ class StockReservationIT {
     private lateinit var stockRepository: StockRepository
 
     // The Laptop of the catalog
-    private val laptopId = ProductId(Identity("6"))
+    private val laptopId = ProductId("6")
 
     private fun laptopStockOf(units: Int) = stockRepository.save(Stock(laptopId, StockQuantity(units)))
 

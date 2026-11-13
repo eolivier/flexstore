@@ -17,7 +17,7 @@ class ReadProductUseCaseTest {
     fun `should return the product with the given id`() {
         // Arrange
         val productRepository = mockk<ProductRepository>()
-        val productId = ProductId(Identity("1"))
+        val productId = ProductId("1")
         val product = DefinedProduct(productId, Name("Slim Jeans"), Price(Amount(BigDecimal(49)), Currency.EUR))
         every { productRepository.productIsMissing(productId) } returns false
         every { productRepository.findById(productId) } returns product
@@ -32,7 +32,7 @@ class ReadProductUseCaseTest {
     fun `should fail if the product does not exist`() {
         // Arrange
         val productRepository = mockk<ProductRepository>()
-        val productId = ProductId(Identity("unknown"))
+        val productId = ProductId("unknown")
         every { productRepository.productIsMissing(productId) } returns true
         // Act
         val reading = ProductReading(unknownUserActor, productId)

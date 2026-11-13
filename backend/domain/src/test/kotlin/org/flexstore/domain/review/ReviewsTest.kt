@@ -2,7 +2,6 @@ package org.flexstore.domain.review
 
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.product.model.ProductId
-import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.user.model.*
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
@@ -10,8 +9,8 @@ import java.time.Instant
 
 class ReviewsTest : WithAssertions {
 
-    private val lamp = ProductId(Identity("lamp"))
-    private val desk = ProductId(Identity("desk"))
+    private val lamp = ProductId("lamp")
+    private val desk = ProductId("desk")
     private val reviewer = Reviewer(UserId.ValidUserId("user-1"), ReviewerName("Marie D."))
 
     private fun review(id: String, productId: ProductId, rating: Int, at: String): Review {

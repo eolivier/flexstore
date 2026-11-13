@@ -6,7 +6,6 @@ import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.image.*
 import org.flexstore.domain.image.usecase.ProductImageUseCases
 import org.flexstore.domain.product.model.ProductId
-import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.user.model.UserId
 import org.flexstore.domain.user.model.of
 import org.springframework.http.CacheControl
@@ -32,7 +31,7 @@ class ProductImageController(
     @GetMapping("/api/product-images")
     fun getProductsWithImage(): List<String> {
         val productIds = productImageUseCases.getProductsWithImage(actorResolutionService.visitor())
-        return productIds.asList().map { it.id.value }
+        return productIds.asList().map { it.value }
     }
 
     // The browser keeps the image and asks again with its ETag: an image that did not change is not sent again
@@ -45,7 +44,7 @@ class ProductImageController(
     ): ResponseEntity<ByteArray> {
         val imageFormat = ImageFormat.valueOf(format.uppercase())
         val reader = actorResolutionService.visitor()
-        val productImage = productImageUseCases.getImage(reader, ProductId(Identity(productId)), imageFormat)
+        val productImage = productImageUseCases.getImage(reader, ProductId(productId), imageFormat)
         val content = productImage.content
         val eTag = "\"${content.bytes.hashCode().toUInt().toString(16)}\""
         if (request.checkNotModified(eTag)) return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build()
@@ -67,7 +66,7 @@ class ProductImageController(
         val imageType = ImageType.ofMediaType(image.contentType.orEmpty())
             ?: throw UnreadableImageException(ErrorMessage("The image must be a JPEG, a PNG or a WebP."))
         val content = ImageContent(ImageBytes(image.bytes), imageType)
-        val uploadedImage = UploadedImage(ProductId(Identity(productId)), content)
+        val uploadedImage = UploadedImage(ProductId(productId), content)
         val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
         productImageUseCases.add(actor, uploadedImage)
     }
@@ -77,6 +76,6 @@ class ProductImageController(
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun removeImage(@AuthenticationPrincipal editor: Jwt, @PathVariable productId: String) {
         val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
-        productImageUseCases.remove(actor, ProductId(Identity(productId)))
+        productImageUseCases.remove(actor, ProductId(productId))
     }
 }

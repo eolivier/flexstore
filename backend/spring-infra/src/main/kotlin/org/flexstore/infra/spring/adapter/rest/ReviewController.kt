@@ -6,7 +6,6 @@ import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.review.*
 import org.flexstore.domain.review.usecase.ReviewUseCases
-import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.user.model.UserId
 import org.flexstore.domain.user.model.of
 import org.flexstore.infra.spring.adapter.rest.json.*
@@ -61,5 +60,5 @@ class ReviewController(
     fun getRatings(): List<JsonRatingSummary> =
         reviewUseCases.getSummaries(actorResolutionService.visitor()).asList().map { JsonRatingSummary(it) }
 
-    private fun productId(id: String) = ProductId(Identity(id))
+    private fun productId(id: String) = ProductId(id)
 }

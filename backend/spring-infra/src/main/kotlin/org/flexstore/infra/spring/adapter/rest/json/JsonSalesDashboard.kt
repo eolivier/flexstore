@@ -47,7 +47,7 @@ data class JsonBestSeller(
     @JsonProperty("revenue") val revenue: BigDecimal
 ) {
     constructor(bestSeller: BestSeller) : this(
-        bestSeller.product.productId.id.value,
+        bestSeller.product.productId.value,
         bestSeller.product.productName.value,
         bestSeller.unitsSold.value,
         bestSeller.revenue.amount.value

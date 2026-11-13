@@ -54,10 +54,10 @@ class CartController(
         val owner = customer(jwt) ?: visitor(cartId) ?: CartOwner.Visitor(VisitorCartId.nextId())
         val quantity = Quantity(jsonItem.productQuantity)
         if (ItemId.isValid(jsonItem.itemId)) {
-            val itemId = ItemId(Identity(jsonItem.itemId!!))
+            val itemId = ItemId(jsonItem.itemId!!)
             cartUseCases.changeQuantity(ChangeCartItemQuantityRequest(actorOf(jwt), owner, itemId, quantity))
         } else {
-            val productId = ProductId(Identity(jsonItem.productId))
+            val productId = ProductId(jsonItem.productId)
             cartUseCases.addItem(AddItemToCartRequest(actorOf(jwt), owner, productId, quantity))
         }
         return JsonSaveItemResponse("ok", (owner as? CartOwner.Visitor)?.cartId?.value)

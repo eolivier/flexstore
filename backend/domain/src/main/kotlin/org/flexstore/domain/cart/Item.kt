@@ -120,7 +120,7 @@ data class DraftItem(
 
 data object NoItem : Item
 
-data class ItemId(val id: Identity) {
+data class ItemId(val value: String) {
     companion object {
         fun isValid(value: String?) = !value.isNullOrBlank()
     }

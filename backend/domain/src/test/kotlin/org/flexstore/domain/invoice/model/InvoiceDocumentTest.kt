@@ -18,7 +18,7 @@ import java.time.Instant
 class InvoiceDocumentTest : WithAssertions {
 
     private val lampPrice = Price(Amount(BigDecimal(35)), Currency.EUR)
-    private val deskLamp = DefinedProduct(ProductId(Identity("desk-lamp")), Name("Desk lamp"), lampPrice)
+    private val deskLamp = DefinedProduct(ProductId("desk-lamp"), Name("Desk lamp"), lampPrice)
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val placedAt = Instant.parse("2026-10-24T10:00:00Z")
     private val janeDoe = OrderCustomer(FullName(FirstName("Jane"), LastName("Doe")), Email("jane@example.com"))
@@ -125,7 +125,7 @@ class InvoiceDocumentTest : WithAssertions {
         val bookPricing = ProductPricing(Price(Amount(BigDecimal(20)), Currency.EUR), VatRate.REDUCED)
         val bookText = ProductText(Name("Cook book"), Description("Recipes"))
         val translations = ProductTranslations.inDefaultLanguage(bookText)
-        val bookId = ProductId(Identity("cook-book"))
+        val bookId = ProductId("cook-book")
         val cookBook = DefinedProduct(bookId, Sku.from("BOOK"), translations, Category.BOOKS, bookPricing)
         val delivery = OrderDelivery(homeOrderAddresses, ShippingMethod.EXPRESS)
         val orderStamp = OrderStamp(OrderId("46555c9f-4e92"), placedAt)
@@ -152,7 +152,7 @@ class InvoiceDocumentTest : WithAssertions {
         val bookPricing = ProductPricing(Price(Amount(BigDecimal(20)), Currency.EUR), VatRate.REDUCED)
         val bookText = ProductText(Name("Cook book"), Description("Recipes"))
         val translations = ProductTranslations.inDefaultLanguage(bookText)
-        val bookId = ProductId(Identity("cook-book"))
+        val bookId = ProductId("cook-book")
         val cookBook = DefinedProduct(bookId, Sku.from("BOOK"), translations, Category.BOOKS, bookPricing)
         val delivery = OrderDelivery(homeOrderAddresses, ShippingMethod.EXPRESS)
         val orderStamp = OrderStamp(OrderId("46555c9f-4e92"), placedAt)

@@ -98,7 +98,7 @@ data class JsonOrderLine(
         fun of(orderLine: OrderLine): JsonOrderLine {
             val unitPrice = orderLine.unitPrice.amount.value
             val linePrice = orderLine.linePrice().amount.value
-            val productId = orderLine.productId.id.value
+            val productId = orderLine.productId.value
             val productName = orderLine.productName.value
             return JsonOrderLine(productId, productName, unitPrice, orderLine.quantity.value, linePrice)
         }

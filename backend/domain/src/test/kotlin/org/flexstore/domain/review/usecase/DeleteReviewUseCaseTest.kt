@@ -3,7 +3,6 @@ package org.flexstore.domain.review.usecase
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.review.*
-import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.user.model.UserId
 import org.flexstore.infra.repository.InMemoryReviewRepository
 import org.junit.jupiter.api.Test
@@ -14,7 +13,7 @@ import org.flexstore.domain.actor.testCustomerActor
 
 class DeleteReviewUseCaseTest : WithAssertions {
 
-    private val lamp = ProductId(Identity("lamp"))
+    private val lamp = ProductId("lamp")
     private val customer = UserId.ValidUserId("user-1")
     private val reviewId = ReviewId("review-1")
     private val reviewRepository = InMemoryReviewRepository().apply {

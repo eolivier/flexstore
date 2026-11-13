@@ -30,9 +30,9 @@ import java.time.Instant
 class SmtpEmailSenderTest {
 
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
-    private val acceptedTermsOfSale = AcceptedTermsOfSale(LegalPageId(Identity("terms-of-sale-1")))
+    private val acceptedTermsOfSale = AcceptedTermsOfSale(LegalPageId("terms-of-sale-1"))
     private val lamp = DefinedProduct(
-        ProductId(Identity("lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR)
+        ProductId("lamp"), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR)
     )
     private val janeDoe = PrivateIndividual(FullName(FirstName("Jane"), LastName("Doe")))
     private val homeStreet = Street("12 rue des Lilas")

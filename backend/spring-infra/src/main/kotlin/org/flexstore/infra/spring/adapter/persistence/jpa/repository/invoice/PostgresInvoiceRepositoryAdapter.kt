@@ -24,7 +24,7 @@ class PostgresInvoiceRepositoryAdapter(private val jpaRepo: JpaInvoiceRepository
             number,
             invoiceIssue.orderId.value,
             invoiceIssue.issuedAt.value,
-            sellerId.value.value
+            sellerId.value
         )
         return jpaRepo.save(invoiceEntity).toDomain()
     }
@@ -34,7 +34,7 @@ class PostgresInvoiceRepositoryAdapter(private val jpaRepo: JpaInvoiceRepository
 
     private fun InvoiceEntity.toDomain(): Invoice {
         val invoiceIssue = InvoiceIssue(OrderId(customerOrderId), InvoiceDate(issuedAt))
-        return Invoice(InvoiceNumber(number), invoiceIssue, SellerId(Identity(sellerId)))
+        return Invoice(InvoiceNumber(number), invoiceIssue, SellerId(sellerId))
     }
 }
 

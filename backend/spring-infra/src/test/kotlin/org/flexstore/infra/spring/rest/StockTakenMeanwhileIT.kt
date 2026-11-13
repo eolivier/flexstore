@@ -2,7 +2,6 @@ package org.flexstore.infra.spring.rest
 
 import org.assertj.core.api.Assertions.assertThat
 import org.flexstore.domain.product.model.ProductId
-import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.sharedkernel.Quantity
 import org.flexstore.domain.stock.StockRepository
 import org.flexstore.domain.stock.StockReservation
@@ -82,7 +81,7 @@ class StockTakenMeanwhileIT {
         // Arrange
         addToCart(LAPTOP_ID)
         addToCart(HEADPHONES_ID)
-        val headphonesId = ProductId(Identity(HEADPHONES_ID))
+        val headphonesId = ProductId(HEADPHONES_ID)
         doReturn(StockReservation.NOT_COVERED).`when`(stockRepository).reserve(headphonesId, Quantity(1))
         // Act
         val response = mockMvc.perform(post("/api/orders")

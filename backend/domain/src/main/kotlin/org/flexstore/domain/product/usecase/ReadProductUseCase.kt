@@ -24,7 +24,7 @@ class ReadProductUseCase(
 
     private fun productExistsCondition() = PreCondition<ProductReading> { reading ->
         if (productRepository.productIsMissing(reading.productId)) {
-            val message = ErrorMessage("Product with ID ${reading.productId.id.value} does not exist.")
+            val message = ErrorMessage("Product with ID ${reading.productId.value} does not exist.")
             throw ProductNotFoundException(message)
         }
     }

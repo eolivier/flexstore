@@ -21,7 +21,7 @@ class ProposeSkuUseCaseTest : WithAssertions {
     fun `the SKU proposed should take the first number that no product has`() {
         // Arrange
         val price = Price(Amount(BigDecimal(30)), Currency.EUR)
-        val firstMug = DefinedProduct(ProductId(Identity("mug-1")), Name("Mug"), price)
+        val firstMug = DefinedProduct(ProductId("mug-1"), Name("Mug"), price)
         productRepository.save(firstMug.copy(sku = Sku("HOM-MUG-0001")))
         // Act
         val sku = useCase.unfold(SkuProposalRequest(administrator, SkuBasis(Category.HOME, Words.of("Mug"))))

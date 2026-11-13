@@ -38,16 +38,16 @@ class ProductTranslationIT {
     private val lamp = DefinedProduct(ProductId.nextId(), lampSku, translations, Category.HOME, price)
 
     // The Waterproof Jacket of the catalog
-    private val jacketId = ProductId(Identity("2"))
+    private val jacketId = ProductId("2")
 
     @AfterEach
     fun deleteLamp() {
-        jpaProductRepository.deleteById(lamp.productId.id.value)
+        jpaProductRepository.deleteById(lamp.productId.value)
         cacheManager.clearProductCache()
     }
 
     private fun storedFrenchRow(): ProductTranslationEntity {
-        val storedLamp = jpaProductRepository.findById(lamp.productId.id.value).orElseThrow()
+        val storedLamp = jpaProductRepository.findById(lamp.productId.value).orElseThrow()
         return storedLamp.translations.single { it.language == "fr" }
     }
 

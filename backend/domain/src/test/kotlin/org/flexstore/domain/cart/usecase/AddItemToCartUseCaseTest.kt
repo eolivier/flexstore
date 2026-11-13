@@ -22,7 +22,7 @@ import java.math.BigDecimal
 class AddItemToCartUseCaseTest : WithAssertions {
 
     private val product = DefinedProduct(
-        ProductId(Identity("product-1")), Name("Product1"), Price(Amount(BigDecimal(10)), Currency.EUR)
+        ProductId("product-1"), Name("Product1"), Price(Amount(BigDecimal(10)), Currency.EUR)
     )
     private val owner = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val cartRepository = InMemoryCartRepository()
@@ -61,7 +61,7 @@ class AddItemToCartUseCaseTest : WithAssertions {
     @Test
     fun `should not add a product missing from the catalog`() {
         // Arrange
-        val request = addItemRequest(owner, ProductId(Identity("unknown")), Quantity(1))
+        val request = addItemRequest(owner, ProductId("unknown"), Quantity(1))
         // Act
         val thrown = catchThrowable { useCase.unfold(request) }
         // Assert

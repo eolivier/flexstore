@@ -49,7 +49,7 @@ class AbandonedCartPersistenceIT {
     }
 
     private fun leaveCart() {
-        val product = productRepository.findById(ProductId(Identity(CATALOG_PRODUCT_ID)))!!
+        val product = productRepository.findById(ProductId(CATALOG_PRODUCT_ID))!!
         cartRepository.save(Cart(customer).add(product, Quantity(2)))
     }
 
@@ -76,7 +76,7 @@ class AbandonedCartPersistenceIT {
     @Test
     fun `a cart of a visitor should not be abandoned`() {
         // Arrange
-        val product = productRepository.findById(ProductId(Identity(CATALOG_PRODUCT_ID)))!!
+        val product = productRepository.findById(ProductId(CATALOG_PRODUCT_ID))!!
         cartRepository.save(Cart(CartOwner.Visitor(VisitorCartId.nextId())).add(product, Quantity(1)))
         // Act
         val abandonedCarts = cartRepository.abandonedCartsAt(limitInTheFuture)
@@ -107,5 +107,5 @@ class AbandonedCartPersistenceIT {
         assertThat(cartRepository.abandonedCartsAt(limitInTheFuture).asList()).hasSize(1)
     }
 
-    private fun productInCatalog() = productRepository.findById(ProductId(Identity(CATALOG_PRODUCT_ID)))!!
+    private fun productInCatalog() = productRepository.findById(ProductId(CATALOG_PRODUCT_ID))!!
 }

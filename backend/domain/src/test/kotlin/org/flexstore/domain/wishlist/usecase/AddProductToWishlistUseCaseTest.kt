@@ -24,7 +24,7 @@ import java.math.BigDecimal
 class AddProductToWishlistUseCaseTest : WithAssertions {
 
     private val deskLamp = DefinedProduct(
-        ProductId(Identity("desk-lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR)
+        ProductId("desk-lamp"), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR)
     )
     private val customer = UserId.ValidUserId("user-1")
     private val productRepository = InMemoryProductRepository().apply { save(deskLamp) }
@@ -54,7 +54,7 @@ class AddProductToWishlistUseCaseTest : WithAssertions {
     @Test
     fun `should not save a product missing from the catalog`() {
         // Arrange
-        val entry = WishlistEntry(actorResolutionService.actorOf(customer), ProductId(Identity("unknown")))
+        val entry = WishlistEntry(actorResolutionService.actorOf(customer), ProductId("unknown"))
         // Act
         val thrown = catchThrowable { useCase.unfold(entry) }
         // Assert

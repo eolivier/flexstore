@@ -29,7 +29,7 @@ import java.time.Instant
 class ReadReviewEligibilityUseCaseTest : WithAssertions {
 
     private val price = Price(Amount(BigDecimal(35)), Currency.EUR)
-    private val deskLamp = DefinedProduct(ProductId(Identity("desk-lamp")), Name("Desk lamp"), price)
+    private val deskLamp = DefinedProduct(ProductId("desk-lamp"), Name("Desk lamp"), price)
     private val customerId = UserId.ValidUserId("user-1")
     private val customer = CartOwner.Customer(customerId)
     private val reviewRepository = InMemoryReviewRepository()

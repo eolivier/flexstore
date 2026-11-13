@@ -10,7 +10,6 @@ import org.flexstore.domain.product.model.DefinedProduct
 import org.flexstore.domain.product.model.Language
 import org.flexstore.domain.product.model.PercentageOffPromotion
 import org.flexstore.domain.product.usecase.ProductUseCases
-import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.product.model.ProductId
 import org.ucop.domain.NominalException
 import org.ucop.domain.entity.Actor
@@ -84,7 +83,7 @@ class ProductTools(private val productUseCases: ProductUseCases, private val rea
         if (id.isBlank()) {
             throw MissingArgumentException("The id of the product is required.")
         }
-        val product = productUseCases.getProduct(reader, ProductId(Identity(id)))
+        val product = productUseCases.getProduct(reader, ProductId(id))
         return json.writerWithDefaultPrettyPrinter().writeValueAsString(productJson(product, language))
     }
 
@@ -102,7 +101,7 @@ class ProductTools(private val productUseCases: ProductUseCases, private val rea
     private fun productJson(product: DefinedProduct, language: Language): ObjectNode {
         val translation = product.translationIn(language)
         val productJson = json.createObjectNode()
-        productJson.put("id", product.productId.id.value)
+        productJson.put("id", product.productId.value)
         productJson.put("sku", product.sku.value)
         productJson.put("name", translation.name.value)
         productJson.put("description", translation.description.value)

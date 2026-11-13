@@ -18,15 +18,15 @@ class VatBreakdownsTest : WithAssertions {
 
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val lampPricing = ProductPricing(Price(Amount(BigDecimal(35)), Currency.EUR), VatRate.STANDARD)
-    private val deskLamp = productAt(ProductId(Identity("desk-lamp")), Name("Desk lamp"), lampPricing)
+    private val deskLamp = productAt(ProductId("desk-lamp"), Name("Desk lamp"), lampPricing)
     private val bookPricing = ProductPricing(Price(Amount(BigDecimal(20)), Currency.EUR), VatRate.REDUCED)
-    private val cookBook = productAt(ProductId(Identity("cook-book")), Name("Cook book"), bookPricing)
+    private val cookBook = productAt(ProductId("cook-book"), Name("Cook book"), bookPricing)
 
     private fun productAt(productId: ProductId, name: Name, pricing: ProductPricing): DefinedProduct {
         val translations = ProductTranslations.inDefaultLanguage(
             ProductText(name, Description("A product of the tests"))
         )
-        return DefinedProduct(productId, Sku.from(productId.id.value), translations, Category.HOME, pricing)
+        return DefinedProduct(productId, Sku.from(productId.value), translations, Category.HOME, pricing)
     }
 
     // Shipped by express (9,90 €), which is never free

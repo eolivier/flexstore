@@ -13,7 +13,6 @@ import org.flexstore.domain.order.model.OrderAddresses
 import org.flexstore.domain.order.model.OrderDelivery
 import org.flexstore.domain.order.model.ShippingMethod
 import org.flexstore.domain.order.model.TermsOfSaleAcceptance
-import org.flexstore.domain.sharedkernel.Identity
 
 // The addresses of an order to place: without billing address, the order is billed to the delivery address.
 // shippingMethod: STANDARD (when not given) or EXPRESS; discountCode: the discount code entered, if any;
@@ -27,7 +26,7 @@ data class JsonOrderAddresses @JsonCreator constructor(
 ) {
     fun toTermsOfSaleAcceptance(): TermsOfSaleAcceptance {
         val acceptedId = termsOfSaleId?.takeIf { it.isNotBlank() } ?: return NoTermsOfSaleAccepted
-        return AcceptedTermsOfSale(LegalPageId(Identity(acceptedId)))
+        return AcceptedTermsOfSale(LegalPageId(acceptedId))
     }
 
     fun toEnteredDiscountCode(): EnteredDiscountCode {

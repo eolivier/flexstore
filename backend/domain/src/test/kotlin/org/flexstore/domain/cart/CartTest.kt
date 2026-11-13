@@ -15,12 +15,12 @@ import java.math.BigDecimal
 class CartTest : WithAssertions {
 
     private val product1 = DefinedProduct(
-        ProductId(Identity("productId-1")), Name("Product1"), Price(Amount(BigDecimal(10)), Currency.EUR)
+        ProductId("productId-1"), Name("Product1"), Price(Amount(BigDecimal(10)), Currency.EUR)
     )
     private val product2 = DefinedProduct(
-        ProductId(Identity("productId-2")), Name("Product2"), Price(Amount(BigDecimal(11)), Currency.EUR)
+        ProductId("productId-2"), Name("Product2"), Price(Amount(BigDecimal(11)), Currency.EUR)
     )
-    private val item1 = CartItem(ItemId(Identity("item-1")), product1, Quantity(1))
+    private val item1 = CartItem(ItemId("item-1"), product1, Quantity(1))
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val visitor = CartOwner.Visitor(VisitorCartId.nextId())
 
@@ -95,7 +95,7 @@ class CartTest : WithAssertions {
         // Arrange
         val cart = Cart(customer, item1)
         // Act
-        val updatedCart = cart.changeQuantity(ItemId(Identity("unknown")), Quantity(5))
+        val updatedCart = cart.changeQuantity(ItemId("unknown"), Quantity(5))
         // Assert
         assertThat(updatedCart).isEqualTo(cart)
     }
@@ -114,7 +114,7 @@ class CartTest : WithAssertions {
     fun `merging should add the items of the other cart`() {
         // Arrange
         val customerCart = Cart(customer, item1)
-        val visitorCart = Cart(visitor, CartItem(ItemId(Identity("item-2")), product2, Quantity(2)))
+        val visitorCart = Cart(visitor, CartItem(ItemId("item-2"), product2, Quantity(2)))
         // Act
         val mergedCart = customerCart.mergeWith(visitorCart)
         // Assert
@@ -132,7 +132,7 @@ class CartTest : WithAssertions {
         // Arrange
         val customerCart = Cart(customer, item1.copy(quantity = Quantity(customerQuantity)))
         val visitorCart = Cart(
-            visitor, CartItem(ItemId(Identity("item-2")), product1, Quantity(visitorQuantity))
+            visitor, CartItem(ItemId("item-2"), product1, Quantity(visitorQuantity))
         )
         // Act
         val mergedCart = customerCart.mergeWith(visitorCart)

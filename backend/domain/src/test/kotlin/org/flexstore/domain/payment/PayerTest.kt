@@ -15,7 +15,7 @@ import java.time.Instant
 class PayerTest : WithAssertions {
 
     private val price = Price(Amount(BigDecimal(35)), Currency.EUR)
-    private val deskLamp = DefinedProduct(ProductId(Identity("desk-lamp")), Name("Desk lamp"), price)
+    private val deskLamp = DefinedProduct(ProductId("desk-lamp"), Name("Desk lamp"), price)
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val janeDoe = FullName(FirstName("Jane"), LastName("Doe"))
     private val johnSmith = FullName(FirstName("John"), LastName("Smith"))

@@ -20,7 +20,7 @@ import org.flexstore.domain.user.administration.usersOfTheAdministration
 class StockUseCasesTest : WithAssertions {
 
     private val price = Price(Amount(BigDecimal(35)), Currency.EUR)
-    private val deskLamp = DefinedProduct(ProductId(Identity("desk-lamp")), Name("Desk lamp"), price)
+    private val deskLamp = DefinedProduct(ProductId("desk-lamp"), Name("Desk lamp"), price)
     private val productRepository = InMemoryProductRepository().apply { save(deskLamp) }
     private val stockRepository = InMemoryStockRepository()
     private val changeStockUseCase = ChangeStockUseCase(stockRepository, productRepository)
@@ -60,7 +60,7 @@ class StockUseCasesTest : WithAssertions {
     @Test
     fun `the stock of an unknown product should not be given`() {
         // Arrange
-        val unknownProductStock = Stock(ProductId(Identity("unknown")), StockQuantity(3))
+        val unknownProductStock = Stock(ProductId("unknown"), StockQuantity(3))
         // Act
         val thrown = catchThrowable { stockUseCases.change(administratorActor, unknownProductStock) }
         // Assert

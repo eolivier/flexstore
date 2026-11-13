@@ -19,7 +19,7 @@ class OrderLineTest : WithAssertions {
         val period = PromotionPeriod(PromotionStart(Instant.EPOCH), PromotionEnd(Instant.MAX))
         val promotion = PercentageOffPromotion(Percentage(BigDecimal(25)), period)
         val pricing = ProductPricing(regularPrice, VatRate.STANDARD, promotion)
-        val deskLamp = DefinedProduct(ProductId(Identity("desk-lamp")), Name("Desk lamp"), regularPrice)
+        val deskLamp = DefinedProduct(ProductId("desk-lamp"), Name("Desk lamp"), regularPrice)
         val deskLampOnPromotion = deskLamp.copy(pricing = pricing)
         // Act
         val orderLine = OrderLine.of(deskLampOnPromotion, Quantity(2))

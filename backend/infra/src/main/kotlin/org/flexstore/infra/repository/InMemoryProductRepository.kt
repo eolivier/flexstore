@@ -13,7 +13,7 @@ class InMemoryProductRepository : ProductRepository {
     override fun save(product: Product): Product {
         val productSaved = when(product) {
             is DraftProduct -> {
-                val productId = ProductId(Identity(currentId.getAndIncrement().toString()))
+                val productId = ProductId(currentId.getAndIncrement().toString())
                 DefinedProduct(productId, product.sku, product.translations, product.category, product.price)
             }
             is DefinedProduct -> product
@@ -74,7 +74,7 @@ private val currentId = AtomicInteger(1)
 
 val clothes = listOf(
     DefinedProduct(
-        productId = ProductId(Identity(currentId.getAndIncrement().toString())),
+        productId = ProductId(currentId.getAndIncrement().toString()),
         sku = Sku("CLO-1"),
         name = Name("Organic Cotton T-shirt"),
         description = Description("Comfortable and eco-friendly"),
@@ -82,7 +82,7 @@ val clothes = listOf(
         price = Price(Amount(BigDecimal(25)), Currency.EUR),
     ),
     DefinedProduct(
-        productId = ProductId(Identity(currentId.getAndIncrement().toString())),
+        productId = ProductId(currentId.getAndIncrement().toString()),
         sku = Sku("CLO-2"),
         name = Name("Waterproof Jacket"),
         description = Description("Resists rain and wind"),
@@ -90,7 +90,7 @@ val clothes = listOf(
         price = Price(Amount(BigDecimal(79)), Currency.EUR),
     ),
     DefinedProduct(
-        productId = ProductId(Identity(currentId.getAndIncrement().toString())),
+        productId = ProductId(currentId.getAndIncrement().toString()),
         sku = Sku("CLO-3"),
         name = Name("Slim Jeans"),
         description = Description("Modern fit, stretch"),
@@ -101,7 +101,7 @@ val clothes = listOf(
 
 val electronics = listOf(
     DefinedProduct(
-        productId = ProductId(Identity(currentId.getAndIncrement().toString())),
+        productId = ProductId(currentId.getAndIncrement().toString()),
         sku = Sku("ELE-4"),
         name = Name("5G Smartphone"),
         description = Description("OLED display, 128 GB"),
@@ -109,7 +109,7 @@ val electronics = listOf(
         price = Price(Amount(BigDecimal(399)), Currency.EUR),
     ),
     DefinedProduct(
-        productId = ProductId(Identity(currentId.getAndIncrement().toString())),
+        productId = ProductId(currentId.getAndIncrement().toString()),
         sku = Sku("ELE-5"),
         name = Name("10\" Tablet"),
         description = Description("Ideal for multimedia"),
@@ -117,7 +117,7 @@ val electronics = listOf(
         price = Price(Amount(BigDecimal(249)), Currency.EUR),
     ),
     DefinedProduct(
-        productId = ProductId(Identity(currentId.getAndIncrement().toString())),
+        productId = ProductId(currentId.getAndIncrement().toString()),
         sku = Sku("ELE-6"),
         name = Name("Laptop"),
         description = Description("512 GB SSD, 16 GB RAM"),
@@ -128,7 +128,7 @@ val electronics = listOf(
 
 val accessories = listOf(
     DefinedProduct(
-        productId = ProductId(Identity(currentId.getAndIncrement().toString())),
+        productId = ProductId(currentId.getAndIncrement().toString()),
         sku = Sku("ACC-7"),
         name = Name("Smartwatch"),
         description = Description("Activity tracking and notifications"),
@@ -136,7 +136,7 @@ val accessories = listOf(
         price = Price(Amount(BigDecimal(99)), Currency.EUR),
     ),
     DefinedProduct(
-        productId = ProductId(Identity(currentId.getAndIncrement().toString())),
+        productId = ProductId(currentId.getAndIncrement().toString()),
         sku = Sku("ACC-8"),
         name = Name("Bluetooth Headphones"),
         description = Description("High-quality sound, 20h battery life"),
@@ -144,7 +144,7 @@ val accessories = listOf(
         price = Price(Amount(BigDecimal(59)), Currency.EUR),
     ),
     DefinedProduct(
-        productId = ProductId(Identity(currentId.getAndIncrement().toString())),
+        productId = ProductId(currentId.getAndIncrement().toString()),
         sku = Sku("ACC-9"),
         name = Name("Urban Backpack"),
         description = Description("Laptop compartment, modern design"),

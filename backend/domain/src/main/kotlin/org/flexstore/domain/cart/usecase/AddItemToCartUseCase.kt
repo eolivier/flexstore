@@ -36,7 +36,7 @@ class AddItemToCartUseCase(
 
     private fun catalogProduct(productId: ProductId): DefinedProduct =
         productRepository.findById(productId)
-            ?: throw ProductNotFoundException(ErrorMessage("Product ${productId.id.value} not found."))
+            ?: throw ProductNotFoundException(ErrorMessage("Product ${productId.value} not found."))
 
     // The actor, resolved before the use case runs, must be able to act when the cart is the one of a customer
     private fun ownerCanActCondition() = PreCondition<AddItemToCartRequest> { request ->
@@ -50,7 +50,7 @@ class AddItemToCartUseCase(
     private fun itemHasQuantityCondition() = PostCondition<AddItemToCartRequest> { request ->
         val item = cartRepository.load(request.owner).findBy(request.productId)
         if (item is CartItem && item.quantity == request.quantity) return@PostCondition
-        val message = ErrorMessage("Product ${request.productId.id.value} was not added to the cart.")
+        val message = ErrorMessage("Product ${request.productId.value} was not added to the cart.")
         throw CartUpdateFailed(message)
     }
 }

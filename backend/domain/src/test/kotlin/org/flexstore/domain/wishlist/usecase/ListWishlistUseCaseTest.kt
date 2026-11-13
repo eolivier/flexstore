@@ -27,10 +27,10 @@ import java.time.Instant
 class ListWishlistUseCaseTest : WithAssertions {
 
     private val deskLamp = DefinedProduct(
-        ProductId(Identity("desk-lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR)
+        ProductId("desk-lamp"), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR)
     )
     private val officeChair = DefinedProduct(
-        ProductId(Identity("office-chair")), Name("Office chair"), Price(Amount(BigDecimal(120)), Currency.EUR)
+        ProductId("office-chair"), Name("Office chair"), Price(Amount(BigDecimal(120)), Currency.EUR)
     )
     private val customer = UserId.ValidUserId("user-1")
     private val productRepository = InMemoryProductRepository().apply { save(deskLamp); save(officeChair) }

@@ -3,7 +3,6 @@ package org.flexstore.infra.spring.adapter.rest
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.domain.product.model.ProductId
-import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.stock.*
 import org.flexstore.domain.stock.usecase.StockAlertUseCases
 import org.flexstore.domain.user.model.UserId
@@ -36,7 +35,7 @@ class StockAlertController(
     @GetMapping("/api/admin/stocks/{productId}/alert")
     fun getStockAlert(@AuthenticationPrincipal reader: Jwt, @PathVariable productId: String): JsonStockAlert {
         val actor = actorResolutionService.actorOf(UserId.of(reader.subject))
-        return JsonStockAlert.of(stockAlertUseCases.alertOf(actor, ProductId(Identity(productId))))
+        return JsonStockAlert.of(stockAlertUseCases.alertOf(actor, ProductId(productId)))
     }
 
     @Operation(summary = "Give the number of units at or under which the administrators are warned")
@@ -46,7 +45,7 @@ class StockAlertController(
         @PathVariable productId: String,
         @RequestBody alertThreshold: JsonAlertThreshold
     ): JsonStockAlert {
-        val stockAlert = StockAlert(ProductId(Identity(productId)), AlertThreshold(alertThreshold.threshold))
+        val stockAlert = StockAlert(ProductId(productId), AlertThreshold(alertThreshold.threshold))
         val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
         return JsonStockAlert.of(stockAlertUseCases.change(actor, stockAlert))
     }

@@ -32,16 +32,16 @@ class OpenPdfInvoiceRendererTest {
     private val sellerIncorporation =
         SellerIncorporation(SellerLegalForm("SAS"), ShareCapital("10 000"), RegistryCity("Paris"))
     private val seller = Seller(
-        SellerId(Identity("seller-1")),
+        SellerId("seller-1"),
         SellerDetail(sellerContact, sellerIdentifier, sellerReach, sellerIncorporation)
     )
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
-    private val acceptedTermsOfSale = AcceptedTermsOfSale(LegalPageId(Identity("terms-of-sale-1")))
+    private val acceptedTermsOfSale = AcceptedTermsOfSale(LegalPageId("terms-of-sale-1"))
     private val placedAt = Instant.parse("2026-10-24T10:00:00Z")
 
     private fun invoiceDocument(): InvoiceDocument {
         val lamp = DefinedProduct(
-            ProductId(Identity("lamp")),
+            ProductId("lamp"),
             Name("Lampe été"),
             Price(Amount(BigDecimal(35)), Currency.EUR),
         )

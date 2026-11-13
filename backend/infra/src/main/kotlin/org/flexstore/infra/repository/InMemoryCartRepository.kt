@@ -19,7 +19,7 @@ class InMemoryCartRepository : CartRepository {
         val savedCart = cart.copy(items = Items(cart.items.asList().map {
             when (it) {
                 is DraftItem -> {
-                    val itemId = ItemId(Identity("item-" + counter.incrementAndGet()))
+                    val itemId = ItemId("item-" + counter.incrementAndGet())
                     CartItem(itemId, it.product, it.quantity)
                 }
                 else -> it

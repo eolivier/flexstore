@@ -13,9 +13,9 @@ import org.ucop.domain.PreConditionException
 enum class LegalPageKind { LEGAL_NOTICE, TERMS_OF_SALE, PRIVACY_POLICY }
 
 // One version of a legal page: each publication gives a new one, the ones before are kept
-data class LegalPageId(val value: Identity) {
+data class LegalPageId(val value: String) {
     companion object {
-        fun nextId() = LegalPageId(Identity.nextId())
+        fun nextId() = LegalPageId(Identity.nextId().value)
     }
 }
 

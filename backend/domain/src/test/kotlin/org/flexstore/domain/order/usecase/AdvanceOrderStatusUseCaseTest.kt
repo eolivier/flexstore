@@ -24,7 +24,7 @@ import java.time.Instant
 class AdvanceOrderStatusUseCaseTest : WithAssertions {
 
     private val price = Price(Amount(BigDecimal(35)), Currency.EUR)
-    private val deskLamp = DefinedProduct(ProductId(Identity("desk-lamp")), Name("Desk lamp"), price)
+    private val deskLamp = DefinedProduct(ProductId("desk-lamp"), Name("Desk lamp"), price)
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val orderId = OrderId("order-1")
     private val orderRepository = InMemoryOrderRepository()

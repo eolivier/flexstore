@@ -1,7 +1,6 @@
 package org.flexstore.infra.spring.adapter.persistence.jpa
 
 import org.flexstore.domain.seller.*
-import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.SellerEntity
 import org.flexstore.infra.spring.adapter.persistence.jpa.repository.seller.JpaSellerRepository
 import org.flexstore.infra.spring.adapter.persistence.jpa.repository.seller.PostgresSellerRepositoryAdapter
@@ -17,8 +16,8 @@ import java.util.function.Supplier
 // The cache of the reads of the seller table, with the real adapter behind the Spring cache, without a database
 class SellerReadCacheTest {
 
-    private val sellerId = SellerId(Identity("seller-1"))
-    private val sellerEntity = sellerEntity(sellerId.value.value, 1)
+    private val sellerId = SellerId("seller-1")
+    private val sellerEntity = sellerEntity(sellerId.value, 1)
     private val newSeller = Seller(
         sellerId,
         SellerDetail(
@@ -36,7 +35,7 @@ class SellerReadCacheTest {
     @BeforeEach
     fun startSpring() {
         `when`(jpaSellerRepository.findFirstByOrderByVersionDesc()).thenReturn(sellerEntity)
-        `when`(jpaSellerRepository.findById(sellerId.value.value)).thenReturn(Optional.of(sellerEntity))
+        `when`(jpaSellerRepository.findById(sellerId.value)).thenReturn(Optional.of(sellerEntity))
         context = AnnotationConfigApplicationContext()
         context.register(CacheConfig::class.java, PostgresSellerRepositoryAdapter::class.java)
         context.registerBean(JpaSellerRepository::class.java, Supplier { jpaSellerRepository })
@@ -64,7 +63,7 @@ class SellerReadCacheTest {
         sellerRepository.findBy(sellerId)
         sellerRepository.findBy(sellerId)
         // Assert
-        verify(jpaSellerRepository, times(1)).findById(sellerId.value.value)
+        verify(jpaSellerRepository, times(1)).findById(sellerId.value)
     }
 
     @Test
@@ -88,7 +87,7 @@ class SellerReadCacheTest {
         // Act
         sellerRepository.findBy(sellerId)
         // Assert
-        verify(jpaSellerRepository, times(1)).findById(sellerId.value.value)
+        verify(jpaSellerRepository, times(1)).findById(sellerId.value)
     }
 
     private fun sellerEntity(id: String, version: Int) = SellerEntity(

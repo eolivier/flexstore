@@ -4,7 +4,6 @@ import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.product.*
 import org.flexstore.domain.product.model.*
 import org.flexstore.domain.product.usecase.*
-import org.flexstore.domain.sharedkernel.Identity
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.infra.spring.adapter.mapping.ProductMapper
@@ -30,7 +29,7 @@ class AdminProductController(
     @Operation(summary = "Retrieve a product with its translations in every language, to edit it")
     @GetMapping("/{id}")
     fun getProduct(@PathVariable id: String): JsonAdminProduct =
-        mapper.toAdminJson(productUseCases.getProduct(actorResolutionService.visitor(), ProductId(Identity(id))))
+        mapper.toAdminJson(productUseCases.getProduct(actorResolutionService.visitor(), ProductId(id)))
 
     @Operation(summary = "Propose a SKU free in the catalog, from the category and the name of a product")
     @GetMapping("/sku-proposal")
