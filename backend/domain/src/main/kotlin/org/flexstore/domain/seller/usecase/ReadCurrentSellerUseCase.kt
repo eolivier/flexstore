@@ -1,14 +1,13 @@
 package org.flexstore.domain.seller.usecase
 
 import org.flexstore.domain.seller.*
-import org.flexstore.domain.user.repository.UserRepository
+import org.flexstore.domain.actor.isNotAdmin
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // An administrator reads the current seller: the one the next invoices will be issued with
 class ReadCurrentSellerUseCase(
-    private val sellerRepository: SellerRepository,
-    private val userRepository: UserRepository
+    private val sellerRepository: SellerRepository
 ) : QueryUseCase<SellerReading, Seller> {
 
     override fun getPreConditions(): PreConditions<SellerReading> =
@@ -18,12 +17,11 @@ class ReadCurrentSellerUseCase(
 
     override fun getPostConditions(): PostConditions<Seller> = PostConditions.none()
 
-    // The reader must be an existing user with the ADMIN role (read from the users, not from the request)
+    // The reader, resolved before the use case runs, must be an Admin
     private fun readerIsAdministratorCondition() = PreCondition<SellerReading> { reading ->
-        if (userRepository.isNotAdministrator(reading.reader)) {
-            throw SellerAdministrationForbiddenException(
-                ErrorMessage("Only an administrator can read the seller written on the invoices.")
-            )
+        if (reading.reader.isNotAdmin()) {
+            val message = ErrorMessage("Only an administrator can read the seller written on the invoices.")
+            throw SellerAdministrationForbiddenException(message)
         }
     }
 }

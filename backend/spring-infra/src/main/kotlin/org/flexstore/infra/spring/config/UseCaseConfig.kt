@@ -153,14 +153,12 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     }
 
     @Bean
-    open fun readAdministeredShopSettingsUseCase(shopSettingsRepository: ShopSettingsRepository,
-                                                 userRepository: UserRepository) =
-        ReadAdministeredShopSettingsUseCase(shopSettingsRepository, userRepository)
+    open fun readAdministeredShopSettingsUseCase(shopSettingsRepository: ShopSettingsRepository) =
+        ReadAdministeredShopSettingsUseCase(shopSettingsRepository)
 
     @Bean
-    open fun updateShopSettingsUseCase(shopSettingsRepository: ShopSettingsRepository,
-                                       userRepository: UserRepository) =
-        UpdateShopSettingsUseCase(shopSettingsRepository, userRepository)
+    open fun updateShopSettingsUseCase(shopSettingsRepository: ShopSettingsRepository) =
+        UpdateShopSettingsUseCase(shopSettingsRepository)
 
     @Bean
     open fun keepOrderAddressesUseCase(userRepository: UserRepository) =
@@ -453,12 +451,11 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     open fun readSellerUseCase(sellerRepository: SellerRepository) = ReadSellerUseCase(sellerRepository)
 
     @Bean
-    open fun readCurrentSellerUseCase(sellerRepository: SellerRepository, userRepository: UserRepository) =
-        ReadCurrentSellerUseCase(sellerRepository, userRepository)
+    open fun readCurrentSellerUseCase(sellerRepository: SellerRepository) =
+        ReadCurrentSellerUseCase(sellerRepository)
 
     @Bean
-    open fun updateSellerUseCase(sellerRepository: SellerRepository, userRepository: UserRepository) =
-        UpdateSellerUseCase(sellerRepository, userRepository)
+    open fun updateSellerUseCase(sellerRepository: SellerRepository) = UpdateSellerUseCase(sellerRepository)
 
     @Bean
     open fun readSocialNetworksUseCase(sellerRepository: SellerRepository) =

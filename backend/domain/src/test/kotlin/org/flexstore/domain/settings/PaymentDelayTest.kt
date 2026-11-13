@@ -2,13 +2,11 @@ package org.flexstore.domain.settings
 
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.settings.usecase.*
-import org.flexstore.domain.user.administration.testAdministrator
-import org.flexstore.domain.user.administration.usersOfTheAdministration
+import org.flexstore.domain.actor.testAdministratorActor
 import org.flexstore.infra.repository.InMemoryShopSettingsRepository
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
-import org.flexstore.domain.user.administration.testAdministrator
-import org.flexstore.domain.user.administration.usersOfTheAdministration
+import org.flexstore.domain.actor.testAdministratorActor
 
 class PaymentDelayTest : WithAssertions {
 
@@ -17,13 +15,12 @@ class PaymentDelayTest : WithAssertions {
     fun `a payment delay should be from 1 minute to 1 day`(minutes: Int, saved: Boolean) {
         // Arrange
         val shopSettingsRepository = InMemoryShopSettingsRepository()
-        val userRepository = usersOfTheAdministration()
-        val service = ShopSettingsAdministrationService(
-            ReadAdministeredShopSettingsUseCase(shopSettingsRepository, userRepository),
-            UpdateShopSettingsUseCase(shopSettingsRepository, userRepository)
+            val service = ShopSettingsAdministrationService(
+            ReadAdministeredShopSettingsUseCase(shopSettingsRepository),
+            UpdateShopSettingsUseCase(shopSettingsRepository)
         )
         // Act
-        val thrown = catchThrowable { service.changePaymentDelay(testAdministrator.id, PaymentDelay(minutes)) }
+        val thrown = catchThrowable { service.changePaymentDelay(testAdministratorActor, PaymentDelay(minutes)) }
         // Assert
         assertThat(thrown == null).isEqualTo(saved)
         assertThat(shopSettingsRepository.load().paymentDelay == PaymentDelay(minutes)).isEqualTo(saved)

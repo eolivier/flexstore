@@ -5,21 +5,19 @@ import org.flexstore.domain.settings.usecase.*
 import org.flexstore.domain.user.*
 import org.flexstore.infra.repository.InMemoryShopSettingsRepository
 import org.junit.jupiter.api.Test
-import org.flexstore.domain.user.administration.testAdministrator
-import org.flexstore.domain.user.administration.testCustomer
-import org.flexstore.domain.user.administration.unknownUser
-import org.flexstore.domain.user.administration.usersOfTheAdministration
+import org.flexstore.domain.actor.testAdministratorActor
+import org.flexstore.domain.actor.testCustomerActor
+import org.flexstore.domain.actor.unknownUserActor
 
 class ShopSettingsAdministrationServiceTest : WithAssertions {
 
     private val repository = InMemoryShopSettingsRepository()
-    private val userRepository = usersOfTheAdministration()
     private val readAdministeredShopSettingsUseCase =
-        ReadAdministeredShopSettingsUseCase(repository, userRepository)
-    private val updateShopSettingsUseCase = UpdateShopSettingsUseCase(repository, userRepository)
+        ReadAdministeredShopSettingsUseCase(repository)
+    private val updateShopSettingsUseCase = UpdateShopSettingsUseCase(repository)
     private val administration =
         ShopSettingsAdministrationService(readAdministeredShopSettingsUseCase, updateShopSettingsUseCase)
-    private val administrator = testAdministrator.id
+    private val administrator = testAdministratorActor
 
     @Test
     fun `the order confirmation email should be sent by default`() {
@@ -76,7 +74,7 @@ class ShopSettingsAdministrationServiceTest : WithAssertions {
     @Test
     fun `a customer should not change the abandoned cart reminder`() {
         // Act
-        val thrown = catchThrowable { administration.enableAbandonedCartReminder(testCustomer.id) }
+        val thrown = catchThrowable { administration.enableAbandonedCartReminder(testCustomerActor) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(ShopSettingsAdministrationForbiddenException::class.java)
     }
@@ -86,7 +84,7 @@ class ShopSettingsAdministrationServiceTest : WithAssertions {
         // Arrange
         val settingsBefore = repository.load()
         val settings = settingsBefore.withOrderConfirmationEmailDisabled()
-        val update = ShopSettingsUpdate(testCustomer.id, settings)
+        val update = ShopSettingsUpdate(testCustomerActor, settings)
         // Act
         val thrown = catchThrowable { updateShopSettingsUseCase.unfold(update) }
         // Assert
@@ -97,7 +95,7 @@ class ShopSettingsAdministrationServiceTest : WithAssertions {
     @Test
     fun `a customer should not read the settings of the shop`() {
         // Act
-        val thrown = catchThrowable { administration.getSettings(testCustomer.id) }
+        val thrown = catchThrowable { administration.getSettings(testCustomerActor) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(ShopSettingsAdministrationForbiddenException::class.java)
     }
@@ -105,7 +103,7 @@ class ShopSettingsAdministrationServiceTest : WithAssertions {
     @Test
     fun `an unknown user should not change the settings of the shop`() {
         // Act
-        val thrown = catchThrowable { administration.changePaymentDelay(unknownUser, PaymentDelay(30)) }
+        val thrown = catchThrowable { administration.changePaymentDelay(unknownUserActor, PaymentDelay(30)) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(ShopSettingsAdministrationForbiddenException::class.java)
     }

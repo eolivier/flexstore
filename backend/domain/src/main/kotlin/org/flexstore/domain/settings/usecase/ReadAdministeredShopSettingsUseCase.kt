@@ -1,15 +1,14 @@
 package org.flexstore.domain.settings.usecase
 
 import org.flexstore.domain.settings.*
-import org.flexstore.domain.user.repository.UserRepository
+import org.flexstore.domain.actor.isNotAdmin
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // An administrator reads the settings of the shop, to change them. The journeys of the shop read them with
 // ReadShopSettingsUseCase, without actor
 class ReadAdministeredShopSettingsUseCase(
-    private val shopSettingsRepository: ShopSettingsRepository,
-    private val userRepository: UserRepository
+    private val shopSettingsRepository: ShopSettingsRepository
 ) : QueryUseCase<ShopSettingsReading, ShopSettings> {
 
     override fun getPreConditions(): PreConditions<ShopSettingsReading> =
@@ -20,12 +19,11 @@ class ReadAdministeredShopSettingsUseCase(
 
     override fun getPostConditions(): PostConditions<ShopSettings> = PostConditions.none()
 
-    // The reader must be an existing user with the ADMIN role (read from the users, not from the request)
+    // The reader, resolved before the use case runs, must be an Admin
     private fun readerIsAdministratorCondition() = PreCondition<ShopSettingsReading> { reading ->
-        if (userRepository.isNotAdministrator(reading.reader)) {
-            throw ShopSettingsAdministrationForbiddenException(
-                ErrorMessage("Only an administrator can read the settings of the shop.")
-            )
+        if (reading.reader.isNotAdmin()) {
+            val message = ErrorMessage("Only an administrator can read the settings of the shop.")
+            throw ShopSettingsAdministrationForbiddenException(message)
         }
     }
 }

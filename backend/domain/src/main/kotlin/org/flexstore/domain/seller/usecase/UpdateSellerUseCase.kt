@@ -1,7 +1,7 @@
 package org.flexstore.domain.seller.usecase
 
 import org.flexstore.domain.seller.*
-import org.flexstore.domain.user.repository.UserRepository
+import org.flexstore.domain.actor.isNotAdmin
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
@@ -10,8 +10,7 @@ import org.ucop.domain.entity.*
 // form, its share capital and the city of its register are given; each social network is given as a web
 // address, or not at all. It becomes the current one
 class UpdateSellerUseCase(
-    private val sellerRepository: SellerRepository,
-    private val userRepository: UserRepository
+    private val sellerRepository: SellerRepository
 ) : UseCase<SellerUpdate> {
 
     override fun getPreConditions(): PreConditions<SellerUpdate> =
@@ -29,12 +28,11 @@ class UpdateSellerUseCase(
 
     override fun getPostConditions(): PostConditions<SellerUpdate> = PostConditions(sellerIsSavedCondition())
 
-    // The editor must be an existing user with the ADMIN role (read from the users, not from the request)
+    // The editor, resolved before the use case runs, must be an Admin
     private fun editorIsAdministratorCondition() = PreCondition<SellerUpdate> { update ->
-        if (userRepository.isNotAdministrator(update.editor)) {
-            throw SellerAdministrationForbiddenException(
-                ErrorMessage("Only an administrator can change the seller written on the invoices.")
-            )
+        if (update.editor.isNotAdmin()) {
+            val message = ErrorMessage("Only an administrator can change the seller written on the invoices.")
+            throw SellerAdministrationForbiddenException(message)
         }
     }
 

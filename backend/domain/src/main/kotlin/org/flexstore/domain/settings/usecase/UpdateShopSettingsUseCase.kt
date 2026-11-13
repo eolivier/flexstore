@@ -1,15 +1,14 @@
 package org.flexstore.domain.settings.usecase
 
 import org.flexstore.domain.settings.*
-import org.flexstore.domain.user.repository.UserRepository
+import org.flexstore.domain.actor.isNotAdmin
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // An administrator changes the settings of the shop: a payment delay from 1 minute to a day, a threshold of free
 // shipping of 0 or more
 class UpdateShopSettingsUseCase(
-    private val shopSettingsRepository: ShopSettingsRepository,
-    private val userRepository: UserRepository
+    private val shopSettingsRepository: ShopSettingsRepository
 ) : UseCase<ShopSettingsUpdate> {
 
     override fun getPreConditions(): PreConditions<ShopSettingsUpdate> = PreConditions(
@@ -23,12 +22,11 @@ class UpdateShopSettingsUseCase(
     override fun getPostConditions(): PostConditions<ShopSettingsUpdate> =
         PostConditions(settingsAreSavedCondition())
 
-    // The editor must be an existing user with the ADMIN role (read from the users, not from the request)
+    // The editor, resolved before the use case runs, must be an Admin
     private fun editorIsAdministratorCondition() = PreCondition<ShopSettingsUpdate> { update ->
-        if (userRepository.isNotAdministrator(update.editor)) {
-            throw ShopSettingsAdministrationForbiddenException(
-                ErrorMessage("Only an administrator can change the settings of the shop.")
-            )
+        if (update.editor.isNotAdmin()) {
+            val message = ErrorMessage("Only an administrator can change the settings of the shop.")
+            throw ShopSettingsAdministrationForbiddenException(message)
         }
     }
 
