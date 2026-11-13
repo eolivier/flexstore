@@ -27,7 +27,7 @@ class OrderTest : WithAssertions {
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val placedAt = Instant.parse("2026-10-24T10:00:00Z")
     private val checkout = Checkout(customer, homeOrderAddresses, acceptedTermsOfSale)
-    private val orderPlacement = OrderPlacement(OrderStamp(OrderId("order-1"), placedAt), checkout)
+    private val orderPlacement = OrderPlacement(OrderStamp(OrderId(Identity("order-1")), placedAt), checkout)
 
     @Test
     fun `should place an order with a line per cart item`() {
@@ -90,9 +90,9 @@ class OrderTest : WithAssertions {
     fun `orders should be sorted newest first`() {
         // Arrange
         val cart = Cart(customer).add(lamp, Quantity(1))
-        val olderOrderPlacement = OrderPlacement(OrderStamp(OrderId("older"), placedAt), checkout)
+        val olderOrderPlacement = OrderPlacement(OrderStamp(OrderId(Identity("older")), placedAt), checkout)
         val newerOrderPlacement = OrderPlacement(
-            OrderStamp(OrderId("newer"), placedAt.plusSeconds(60)), checkout
+            OrderStamp(OrderId(Identity("newer")), placedAt.plusSeconds(60)), checkout
         )
         val older = Order.place(olderOrderPlacement, cart)
         val newer = Order.place(newerOrderPlacement, cart)

@@ -117,7 +117,7 @@ class OrderConfirmationEmailIT {
         assertThat(content.subject.value)
             .isEqualTo("Flexstore - Confirmation de votre commande ${email.order.number()}")
         assertThat(content.body.value).contains(
-            "2 × Laptop : 1\u202F598,00 €", "https://flexstore.example/orders/${email.order.orderId.value}"
+            "2 × Laptop : 1\u202F598,00 €", "https://flexstore.example/orders/${email.order.orderId.id.value}"
         )
     }
 

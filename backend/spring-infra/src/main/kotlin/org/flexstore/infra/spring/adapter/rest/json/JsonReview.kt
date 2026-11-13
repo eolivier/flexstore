@@ -16,7 +16,7 @@ data class JsonReview(
     @JsonProperty("reviewedAt") val reviewedAt: String
 ) {
     constructor(review: Review) : this(
-        review.reviewId.value,
+        review.reviewId.id.value,
         review.productId.id.value,
         review.reviewer.name.value,
         review.rating.value,

@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.adapter.persistence.jpa.repository.twofactor
 
+import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.twofactor.TwoFactorChallengeRepository
 import org.flexstore.domain.twofactor.model.TwoFactorChallenge
 import org.flexstore.domain.twofactor.model.TwoFactorChallengeId
@@ -16,19 +17,19 @@ class PostgresTwoFactorChallengeRepositoryAdapter(private val jpaRepo: JpaTwoFac
     TwoFactorChallengeRepository {
 
     override fun save(challenge: TwoFactorChallenge) {
-        jpaRepo.save(TwoFactorChallengeEntity(challenge.id.value, challenge.userId.value, challenge.issuedAt))
+        jpaRepo.save(TwoFactorChallengeEntity(challenge.id.id.value, challenge.userId.value, challenge.issuedAt))
     }
 
     @Transactional(readOnly = true)
     override fun find(challengeId: TwoFactorChallengeId): TwoFactorChallengeLookup =
-        jpaRepo.findById(challengeId.value)
+        jpaRepo.findById(challengeId.id.value)
             .map<TwoFactorChallengeLookup> { TwoFactorChallengeLookup.Found(it.toDomain()) }
             .orElse(TwoFactorChallengeLookup.NotFound)
 
     override fun delete(challengeId: TwoFactorChallengeId) {
-        jpaRepo.deleteById(challengeId.value)
+        jpaRepo.deleteById(challengeId.id.value)
     }
 
     private fun TwoFactorChallengeEntity.toDomain() =
-        TwoFactorChallenge(TwoFactorChallengeId(id), UserId.ValidUserId(userId), issuedAt)
+        TwoFactorChallenge(TwoFactorChallengeId(Identity(id)), UserId.ValidUserId(userId), issuedAt)
 }

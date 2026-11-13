@@ -40,7 +40,7 @@ class InvoiceServiceTest : WithAssertions {
     private val janeDoe = FullName(FirstName("Jane"), LastName("Doe"))
     private val jane = User.DefinedUser(janeId, janeDoe, Email("jane@example.com"), PlainPassword("password"))
     private val customer = CartOwner.Customer(janeId)
-    private val orderId = OrderId("order-1")
+    private val orderId = OrderId(Identity("order-1"))
     private val placedAt = Instant.parse("2026-10-24T10:00:00Z")
     private val orderRepository = InMemoryOrderRepository()
     private val invoiceRepository = InMemoryInvoiceRepository()

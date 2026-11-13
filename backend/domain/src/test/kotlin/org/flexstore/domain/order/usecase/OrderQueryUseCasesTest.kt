@@ -51,9 +51,9 @@ class OrderQueryUseCasesTest : WithAssertions {
     @Test
     fun `should list the orders of the customer only, newest first`() {
         // Arrange
-        val older = placeOrder(OrderId("older"), customer, placedAt)
-        val newer = placeOrder(OrderId("newer"), customer, placedAt.plusSeconds(60))
-        placeOrder(OrderId("other"), otherCustomer, placedAt)
+        val older = placeOrder(OrderId(Identity("older")), customer, placedAt)
+        val newer = placeOrder(OrderId(Identity("newer")), customer, placedAt.plusSeconds(60))
+        placeOrder(OrderId(Identity("other")), otherCustomer, placedAt)
         // Act
         val page = listCustomerOrdersUseCase.unfold(readingOf(customer.userId, PageRequest.first()))
         // Assert
@@ -64,9 +64,10 @@ class OrderQueryUseCasesTest : WithAssertions {
     @Test
     fun `should read an order of the customer`() {
         // Arrange
-        val order = placeOrder(OrderId("order-1"), customer, placedAt)
+        val order = placeOrder(OrderId(Identity("order-1")), customer, placedAt)
         // Act
-        val readOrder = readCustomerOrderUseCase.unfold(CustomerOrderLookup(customer.userId, OrderId("order-1")))
+        val lookup = CustomerOrderLookup(customer.userId, OrderId(Identity("order-1")))
+        val readOrder = readCustomerOrderUseCase.unfold(lookup)
         // Assert
         assertThat(readOrder).isEqualTo(order)
     }
@@ -74,10 +75,10 @@ class OrderQueryUseCasesTest : WithAssertions {
     @Test
     fun `the order of another customer should not be found`() {
         // Arrange
-        placeOrder(OrderId("other"), otherCustomer, placedAt)
+        placeOrder(OrderId(Identity("other")), otherCustomer, placedAt)
         // Act
         val thrown = catchThrowable {
-            readCustomerOrderUseCase.unfold(CustomerOrderLookup(customer.userId, OrderId("other")))
+            readCustomerOrderUseCase.unfold(CustomerOrderLookup(customer.userId, OrderId(Identity("other"))))
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(OrderNotFoundException::class.java)
@@ -87,7 +88,7 @@ class OrderQueryUseCasesTest : WithAssertions {
     fun `an unknown order should not be found`() {
         // Act
         val thrown = catchThrowable {
-            readCustomerOrderUseCase.unfold(CustomerOrderLookup(customer.userId, OrderId("unknown")))
+            readCustomerOrderUseCase.unfold(CustomerOrderLookup(customer.userId, OrderId(Identity("unknown"))))
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(OrderNotFoundException::class.java)
@@ -96,9 +97,9 @@ class OrderQueryUseCasesTest : WithAssertions {
     @Test
     fun `any order should be read, whoever its customer`() {
         // Arrange
-        val order = placeOrder(OrderId("other"), otherCustomer, placedAt)
+        val order = placeOrder(OrderId(Identity("other")), otherCustomer, placedAt)
         // Act
-        val readOrder = readAnyOrderUseCase.unfold(OrderId("other"))
+        val readOrder = readAnyOrderUseCase.unfold(OrderId(Identity("other")))
         // Assert
         assertThat(readOrder).isEqualTo(order)
     }
@@ -106,8 +107,8 @@ class OrderQueryUseCasesTest : WithAssertions {
     @Test
     fun `the orders of all the customers should be listed, newest first`() {
         // Arrange
-        val older = placeOrder(OrderId("older"), customer, placedAt)
-        val newer = placeOrder(OrderId("newer"), otherCustomer, placedAt.plusSeconds(60))
+        val older = placeOrder(OrderId(Identity("older")), customer, placedAt)
+        val newer = placeOrder(OrderId(Identity("newer")), otherCustomer, placedAt.plusSeconds(60))
         // Act
         val orders = listAllOrdersUseCase.unfold(Unit)
         // Assert
@@ -127,8 +128,8 @@ class OrderQueryUseCasesTest : WithAssertions {
     @Test
     fun `an unknown customer should not read an order`() {
         // Arrange
-        placeOrder(OrderId("order-1"), customer, placedAt)
-        val lookup = CustomerOrderLookup(unknownCustomerId, OrderId("order-1"))
+        placeOrder(OrderId(Identity("order-1")), customer, placedAt)
+        val lookup = CustomerOrderLookup(unknownCustomerId, OrderId(Identity("order-1")))
         // Act
         val thrown = catchThrowable { readCustomerOrderUseCase.unfold(lookup) }
         // Assert
@@ -161,10 +162,10 @@ class OrderQueryUseCasesTest : WithAssertions {
     @Test
     fun `should list a page of the orders of the customer, newest first, with the total of their orders`() {
         // Arrange
-        val oldest = placeOrder(OrderId("oldest"), customer, placedAt)
-        val middle = placeOrder(OrderId("middle"), customer, placedAt.plusSeconds(60))
-        val newest = placeOrder(OrderId("newest"), customer, placedAt.plusSeconds(120))
-        placeOrder(OrderId("other"), otherCustomer, placedAt)
+        val oldest = placeOrder(OrderId(Identity("oldest")), customer, placedAt)
+        val middle = placeOrder(OrderId(Identity("middle")), customer, placedAt.plusSeconds(60))
+        val newest = placeOrder(OrderId(Identity("newest")), customer, placedAt.plusSeconds(120))
+        placeOrder(OrderId(Identity("other")), otherCustomer, placedAt)
         val firstPage = readingOf(customer.userId, PageRequest.of(0, 2))
         val secondPage = readingOf(customer.userId, PageRequest.of(1, 2))
         // Act

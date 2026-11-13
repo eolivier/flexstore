@@ -33,7 +33,7 @@ data class Reviews(private val reviews: List<Review>) {
 
     // The review with this id
     fun of(reviewId: ReviewId): Review = reviews.firstOrNull { it.reviewId == reviewId }
-        ?: throw ReviewNotFoundException(ErrorMessage("No review ${reviewId.value}."))
+        ?: throw ReviewNotFoundException(ErrorMessage("No review ${reviewId}."))
 
     // What the customers think of each product that has reviews
     fun summaries() = RatingSummaries(

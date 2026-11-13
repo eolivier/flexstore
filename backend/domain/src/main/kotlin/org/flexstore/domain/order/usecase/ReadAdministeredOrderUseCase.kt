@@ -38,7 +38,7 @@ class ReadAdministeredOrderUseCase(
     // not found, so that its existence is not revealed
     private fun orderIsReadableByTheReaderCondition() = PreCondition<AdministeredOrderReading> { reading ->
         if (orderIsMissingFor(reading)) {
-            throw OrderNotFoundException(ErrorMessage("Order ${reading.orderId.value} not found."))
+            throw OrderNotFoundException(ErrorMessage("Order ${reading.orderId} not found."))
         }
     }
 

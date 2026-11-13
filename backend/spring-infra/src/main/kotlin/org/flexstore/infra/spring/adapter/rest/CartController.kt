@@ -60,7 +60,7 @@ class CartController(
             val productId = ProductId(Identity(jsonItem.productId))
             cartUseCases.addItem(AddItemToCartRequest(actorOf(jwt), owner, productId, quantity))
         }
-        return JsonSaveItemResponse("ok", (owner as? CartOwner.Visitor)?.cartId?.value)
+        return JsonSaveItemResponse("ok", (owner as? CartOwner.Visitor)?.cartId?.id?.value)
     }
 
     @Operation(summary = "Merge the cart of the visitor (X-Cart-Id) into the cart of the signed-in customer")
@@ -82,5 +82,5 @@ class CartController(
 
     // An unknown or malformed id is ignored: the visitor gets a new cart
     private fun visitor(cartId: String?) =
-        if (VisitorCartId.isValid(cartId)) CartOwner.Visitor(VisitorCartId(cartId!!)) else null
+        if (VisitorCartId.isValid(cartId)) CartOwner.Visitor(VisitorCartId(Identity(cartId!!))) else null
 }

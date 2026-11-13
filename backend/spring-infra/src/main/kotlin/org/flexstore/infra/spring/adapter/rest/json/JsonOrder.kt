@@ -28,7 +28,7 @@ data class JsonOrder(
     @JsonProperty("tracking") val tracking: JsonOrderTracking?
 ) {
     constructor(order: Order) : this(
-        order.orderId.value,
+        order.orderId.id.value,
         order.placedAt.toString(),
         order.status.name,
         order.lines.asList().map { JsonOrderLine.of(it) },
@@ -47,7 +47,7 @@ data class JsonOrder(
 
     // The order seen by its customer, who is told by when to pay it
     constructor(order: Order, paymentDelay: PaymentDelay) : this(
-        order.orderId.value,
+        order.orderId.id.value,
         order.placedAt.toString(),
         order.status.name,
         order.lines.asList().map { JsonOrderLine.of(it) },

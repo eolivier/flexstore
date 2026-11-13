@@ -29,7 +29,7 @@ class PostgresPaymentRepositoryAdapter(
             outcome = providerCheckout.outcome.name
         )
         val storedPayment = jpaPaymentRepository.save(paymentEntity)
-        val orderEntity = jpaOrderRepository.findById(order.orderId.value).orElseThrow()
+        val orderEntity = jpaOrderRepository.findById(order.orderId.id.value).orElseThrow()
         val storedCreatedAt = orderEntity.createdAt
         val orderEntityWithPayment = orderEntity.copy(paymentId = storedPayment.id)
         jpaOrderRepository.save(orderEntityWithPayment.also { it.createdAt = storedCreatedAt })
@@ -37,20 +37,20 @@ class PostgresPaymentRepositoryAdapter(
 
     // An order whose payment never started was not paid
     override fun isCompleted(orderId: OrderId): Boolean {
-        val paymentId = jpaOrderRepository.findById(orderId.value).orElse(null)?.paymentId ?: return false
+        val paymentId = jpaOrderRepository.findById(orderId.id.value).orElse(null)?.paymentId ?: return false
         return paymentProvider.isPaid(jpaPaymentRepository.findById(paymentId).orElseThrow().providerReference)
     }
 
     // An order whose payment never started has nothing to stop
     override fun stop(orderId: OrderId) {
-        val paymentId = jpaOrderRepository.findById(orderId.value).orElse(null)?.paymentId ?: return
+        val paymentId = jpaOrderRepository.findById(orderId.id.value).orElse(null)?.paymentId ?: return
         paymentProvider.stop(jpaPaymentRepository.findById(paymentId).orElseThrow().providerReference)
     }
 
     // The refund is kept with its reference on the provider, in the payment; an order paid without payment
     // (none in practice) has nothing to refund
     override fun refund(orderId: OrderId) {
-        val paymentId = jpaOrderRepository.findById(orderId.value).orElse(null)?.paymentId ?: return
+        val paymentId = jpaOrderRepository.findById(orderId.id.value).orElse(null)?.paymentId ?: return
         val paymentEntity = jpaPaymentRepository.findById(paymentId).orElseThrow()
         val refundReference = paymentProvider.refund(paymentEntity.providerReference)
         val storedCreatedAt = paymentEntity.createdAt
@@ -60,7 +60,7 @@ class PostgresPaymentRepositoryAdapter(
 
     @Transactional(readOnly = true)
     override fun sessionOf(orderId: OrderId): PaymentSession? {
-        val paymentId = jpaOrderRepository.findById(orderId.value).orElse(null)?.paymentId ?: return null
+        val paymentId = jpaOrderRepository.findById(orderId.id.value).orElse(null)?.paymentId ?: return null
         val paymentEntity = jpaPaymentRepository.findById(paymentId).orElseThrow()
         val checkoutPage = CheckoutPage(paymentEntity.checkoutUrl)
         return PaymentSession(checkoutPage, PaymentOutcome.valueOf(paymentEntity.outcome))

@@ -47,9 +47,9 @@ class AdministeredOrdersUseCasesTest : WithAssertions {
     @Test
     fun `should read an order with the customer who placed it`() {
         // Arrange
-        val order = placeOrder(OrderId("order-1"), customer, placedAt)
+        val order = placeOrder(OrderId(Identity("order-1")), customer, placedAt)
         // Act
-        val reading = AdministeredOrderReading(testAdministratorActor, OrderId("order-1"))
+        val reading = AdministeredOrderReading(testAdministratorActor, OrderId(Identity("order-1")))
         val administeredOrder = readUseCase.unfold(reading)
         // Assert
         val janeAsCustomer = OrderCustomer(janeDoe, Email("jane@example.com"))
@@ -59,8 +59,8 @@ class AdministeredOrdersUseCasesTest : WithAssertions {
     @Test
     fun `should list the orders of all the customers with their customer, newest first`() {
         // Arrange
-        val older = placeOrder(OrderId("older"), customer, placedAt)
-        val newer = placeOrder(OrderId("newer"), formerCustomer, placedAt.plusSeconds(60))
+        val older = placeOrder(OrderId(Identity("older")), customer, placedAt)
+        val newer = placeOrder(OrderId(Identity("newer")), formerCustomer, placedAt.plusSeconds(60))
         // Act
         val reading = AdministeredOrdersReading(testAdministratorActor, PageRequest.first())
         val administeredOrders = listUseCase.unfold(reading)
@@ -75,9 +75,9 @@ class AdministeredOrdersUseCasesTest : WithAssertions {
     @Test
     fun `an order whose customer cannot be read should have an unknown customer`() {
         // Arrange
-        placeOrder(OrderId("order-1"), formerCustomer, placedAt)
+        placeOrder(OrderId(Identity("order-1")), formerCustomer, placedAt)
         // Act
-        val reading = AdministeredOrderReading(testAdministratorActor, OrderId("order-1"))
+        val reading = AdministeredOrderReading(testAdministratorActor, OrderId(Identity("order-1")))
         val administeredOrder = readUseCase.unfold(reading)
         // Assert
         assertThat(administeredOrder.customer).isEqualTo(OrderCustomer.unknown())
@@ -87,7 +87,7 @@ class AdministeredOrdersUseCasesTest : WithAssertions {
     fun `should report an unknown order`() {
         // Act
         val thrown = catchThrowable {
-            readUseCase.unfold(AdministeredOrderReading(testAdministratorActor, OrderId("unknown")))
+            readUseCase.unfold(AdministeredOrderReading(testAdministratorActor, OrderId(Identity("unknown"))))
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(OrderNotFoundException::class.java)
@@ -105,9 +105,9 @@ class AdministeredOrdersUseCasesTest : WithAssertions {
     @Test
     fun `a customer should read their own order with their name and email`() {
         // Arrange
-        val order = placeOrder(OrderId("order-1"), customer, placedAt)
+        val order = placeOrder(OrderId(Identity("order-1")), customer, placedAt)
         // Act
-        val administeredOrder = readUseCase.unfold(AdministeredOrderReading(janeActor, OrderId("order-1")))
+        val administeredOrder = readUseCase.unfold(AdministeredOrderReading(janeActor, OrderId(Identity("order-1"))))
         // Assert
         assertThat(administeredOrder)
             .isEqualTo(AdministeredOrder(order, OrderCustomer(janeDoe, Email("jane@example.com"))))
@@ -116,10 +116,10 @@ class AdministeredOrdersUseCasesTest : WithAssertions {
     @Test
     fun `the order of another customer should not be found`() {
         // Arrange
-        placeOrder(OrderId("order-1"), customer, placedAt)
+        placeOrder(OrderId(Identity("order-1")), customer, placedAt)
         // Act
         val thrown = catchThrowable {
-            readUseCase.unfold(AdministeredOrderReading(testCustomerActor, OrderId("order-1")))
+            readUseCase.unfold(AdministeredOrderReading(testCustomerActor, OrderId(Identity("order-1"))))
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(OrderNotFoundException::class.java)
@@ -128,10 +128,10 @@ class AdministeredOrdersUseCasesTest : WithAssertions {
     @Test
     fun `an unknown user should not find any order`() {
         // Arrange
-        placeOrder(OrderId("order-1"), customer, placedAt)
+        placeOrder(OrderId(Identity("order-1")), customer, placedAt)
         // Act
         val thrown = catchThrowable {
-            readUseCase.unfold(AdministeredOrderReading(unknownUserActor, OrderId("order-1")))
+            readUseCase.unfold(AdministeredOrderReading(unknownUserActor, OrderId(Identity("order-1"))))
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(OrderNotFoundException::class.java)
@@ -140,9 +140,9 @@ class AdministeredOrdersUseCasesTest : WithAssertions {
     @Test
     fun `should list a page of the orders, newest first, with the total of all the orders`() {
         // Arrange
-        placeOrder(OrderId("oldest"), customer, placedAt)
-        val middle = placeOrder(OrderId("middle"), customer, placedAt.plusSeconds(60))
-        val newest = placeOrder(OrderId("newest"), customer, placedAt.plusSeconds(120))
+        placeOrder(OrderId(Identity("oldest")), customer, placedAt)
+        val middle = placeOrder(OrderId(Identity("middle")), customer, placedAt.plusSeconds(60))
+        val newest = placeOrder(OrderId(Identity("newest")), customer, placedAt.plusSeconds(120))
         // Act
         val page = listUseCase.unfold(AdministeredOrdersReading(testAdministratorActor, PageRequest.of(0, 2)))
         // Assert
@@ -153,9 +153,9 @@ class AdministeredOrdersUseCasesTest : WithAssertions {
     @Test
     fun `should list the last page with the orders left`() {
         // Arrange
-        val oldest = placeOrder(OrderId("oldest"), customer, placedAt)
-        placeOrder(OrderId("middle"), customer, placedAt.plusSeconds(60))
-        placeOrder(OrderId("newest"), customer, placedAt.plusSeconds(120))
+        val oldest = placeOrder(OrderId(Identity("oldest")), customer, placedAt)
+        placeOrder(OrderId(Identity("middle")), customer, placedAt.plusSeconds(60))
+        placeOrder(OrderId(Identity("newest")), customer, placedAt.plusSeconds(120))
         // Act
         val page = listUseCase.unfold(AdministeredOrdersReading(testAdministratorActor, PageRequest.of(1, 2)))
         // Assert
@@ -166,7 +166,7 @@ class AdministeredOrdersUseCasesTest : WithAssertions {
     @Test
     fun `a page after the last one should be empty`() {
         // Arrange
-        placeOrder(OrderId("order-1"), customer, placedAt)
+        placeOrder(OrderId(Identity("order-1")), customer, placedAt)
         // Act
         val page = listUseCase.unfold(AdministeredOrdersReading(testAdministratorActor, PageRequest.of(5, 2)))
         // Assert

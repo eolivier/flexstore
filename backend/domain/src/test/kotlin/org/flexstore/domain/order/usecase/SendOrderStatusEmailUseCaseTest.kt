@@ -31,7 +31,7 @@ class SendOrderStatusEmailUseCaseTest : WithAssertions {
 
     private fun orderOf(customerId: UserId.ValidUserId, status: OrderStatus): Order {
         val customer = CartOwner.Customer(customerId)
-        val orderStamp = OrderStamp(OrderId("order-1"), Instant.parse("2026-10-24T10:00:00Z"))
+        val orderStamp = OrderStamp(OrderId(Identity("order-1")), Instant.parse("2026-10-24T10:00:00Z"))
         val checkout = Checkout(customer, homeOrderAddresses, acceptedTermsOfSale)
         val orderPlacement = OrderPlacement(orderStamp, checkout)
         val placedOrder = Order.place(orderPlacement, Cart(customer).add(deskLamp, Quantity(1)))

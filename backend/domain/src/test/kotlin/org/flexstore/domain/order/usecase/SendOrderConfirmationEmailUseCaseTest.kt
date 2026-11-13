@@ -33,7 +33,7 @@ class SendOrderConfirmationEmailUseCaseTest : WithAssertions {
     )
     private val owner = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val orderPlacement = OrderPlacement(
-        OrderStamp(OrderId("order-1"), Instant.parse("2026-10-24T10:00:00Z")),
+        OrderStamp(OrderId(Identity("order-1")), Instant.parse("2026-10-24T10:00:00Z")),
         Checkout(owner, homeOrderAddresses, acceptedTermsOfSale)
     )
     private val order = Order.place(orderPlacement, Cart(owner).add(lamp, Quantity(2)))

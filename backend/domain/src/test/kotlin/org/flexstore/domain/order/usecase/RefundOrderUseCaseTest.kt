@@ -26,7 +26,7 @@ class RefundOrderUseCaseTest : WithAssertions {
     private val price = Price(Amount(BigDecimal(35)), Currency.EUR)
     private val deskLamp = DefinedProduct(ProductId(Identity("desk-lamp")), Name("Desk lamp"), price)
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
-    private val orderId = OrderId("order-1")
+    private val orderId = OrderId(Identity("order-1"))
     private val orderRepository = InMemoryOrderRepository()
     // 8 units left once the order reserved 2
     private val stockRepository = InMemoryStockRepository().apply {
@@ -112,7 +112,7 @@ class RefundOrderUseCaseTest : WithAssertions {
     @Test
     fun `an unknown order should not be refunded`() {
         // Arrange
-        val orderRefund = OrderRefund(administrator, OrderId("unknown"), OrderStatus.PAID)
+        val orderRefund = OrderRefund(administrator, OrderId(Identity("unknown")), OrderStatus.PAID)
         // Act
         val thrown = catchThrowable { useCase.unfold(orderRefund) }
         // Assert

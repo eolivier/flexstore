@@ -44,7 +44,7 @@ class PostgresWishlistRepositoryAdapter(
         Products(jpaRepo.findAllByUser_Id(customer.value, WISHLIST_ORDER).map { it.product.toDomain() })
 
     private fun WishlistItem.toEntity() = WishlistItemEntity(
-        id = wishlistItemId.value,
+        id = wishlistItemId.id.value,
         user = userRepo.getReferenceById(customer.value),
         product = productRepo.getReferenceById(productId.id.value)
     )

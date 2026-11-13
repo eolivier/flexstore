@@ -20,7 +20,7 @@ class ReadPaymentUseCase(
 
     private fun paymentStartedCondition() = PreCondition<OrderId> { orderId ->
         if (paymentRepository.sessionIsMissingFor(orderId)) {
-            throw PaymentNotStartedException(ErrorMessage("No payment started for order ${orderId.value}."))
+            throw PaymentNotStartedException(ErrorMessage("No payment started for order ${orderId}."))
         }
     }
 }

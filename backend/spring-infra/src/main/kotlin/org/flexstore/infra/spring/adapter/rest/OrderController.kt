@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.adapter.rest
 
+import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.order.*
@@ -85,7 +86,7 @@ class OrderController(
     @Operation(summary = "Retrieve an order of the signed-in customer")
     @GetMapping("/{id}")
     fun getOrder(@AuthenticationPrincipal jwt: Jwt, @PathVariable id: String): JsonOrder {
-        val order = orderUseCases.getOrder(customer(jwt), OrderId(id))
+        val order = orderUseCases.getOrder(customer(jwt), OrderId(Identity(id)))
         return JsonOrder(order, orderUseCases.paymentDelay(actorOf(jwt)))
     }
 

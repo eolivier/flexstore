@@ -80,12 +80,12 @@ class PostgresCartRepositoryAdapter(
     private fun find(owner: CartOwner): CartEntity? = when (owner) {
         is CartOwner.Customer -> cartRepo.findByUserId(owner.userId.value)
         // A visitor id only maps to a visitor cart, never to the cart of a customer
-        is CartOwner.Visitor -> cartRepo.findById(owner.cartId.value).filter { it.userId == null }.orElse(null)
+        is CartOwner.Visitor -> cartRepo.findById(owner.cartId.id.value).filter { it.userId == null }.orElse(null)
     }
 
     private fun newCartEntity(owner: CartOwner) = when (owner) {
         is CartOwner.Customer -> CartEntity(id = Identity.nextId().value, userId = owner.userId.value)
-        is CartOwner.Visitor -> CartEntity(id = owner.cartId.value)
+        is CartOwner.Visitor -> CartEntity(id = owner.cartId.id.value)
     }
 
     private fun items(cartEntity: CartEntity) =

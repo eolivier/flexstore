@@ -97,7 +97,7 @@ data class DefinedProduct(
     private fun inDefaultLanguage(text: ProductText) =
         copy(translations = translations.updatedWith(ProductTranslation(Language.DEFAULT, text)))
 }
-data class ProductId(val id: Identity) {
+data class ProductId(override val id: Identity) : Identifiable() {
     companion object {
         fun nextId() = ProductId(Identity.nextId())
     }

@@ -14,7 +14,7 @@ class InMemoryPaymentRepository(private val outcome: PaymentOutcome) : PaymentRe
 
     override fun start(paymentRequest: PaymentRequest) {
         val orderId = paymentRequest.order.orderId
-        sessions[orderId] = PaymentSession(CheckoutPage("https://pay.example/${orderId.value}"), outcome)
+        sessions[orderId] = PaymentSession(CheckoutPage("https://pay.example/${orderId.id.value}"), outcome)
         payers[orderId] = paymentRequest.payer
     }
 
@@ -36,7 +36,7 @@ class InMemoryPaymentRepository(private val outcome: PaymentOutcome) : PaymentRe
 
     override fun stop(orderId: OrderId) {
         if (orderId in completedPayments) {
-            throw PaymentAlreadyCompletedException(ErrorMessage("Order ${orderId.value} is already paid."))
+            throw PaymentAlreadyCompletedException(ErrorMessage("Order ${orderId} is already paid."))
         }
         stoppedPayments.add(orderId)
     }
@@ -54,7 +54,7 @@ class InMemoryPaymentRepository(private val outcome: PaymentOutcome) : PaymentRe
 
     override fun refund(orderId: OrderId) {
         if (orderId in refusedRefunds) {
-            val message = ErrorMessage("The payment of ${orderId.value} cannot be refunded.")
+            val message = ErrorMessage("The payment of ${orderId} cannot be refunded.")
             throw PaymentRefundRefusedException(message)
         }
         refundedPayments.add(orderId)

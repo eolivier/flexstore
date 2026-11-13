@@ -8,9 +8,9 @@ import org.ucop.domain.entity.Actor
 import org.ucop.domain.PostConditionException
 import java.time.Instant
 
-data class WishlistItemId(val value: String) {
+data class WishlistItemId(override val id: Identity) : Identifiable() {
     companion object {
-        fun nextId() = WishlistItemId(Identity.nextId().value)
+        fun nextId() = WishlistItemId(Identity.nextId())
     }
 }
 

@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.adapter.payment
 
+import org.flexstore.domain.sharedkernel.Identity
 import com.stripe.net.Webhook
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.order.model.OrderId
@@ -32,7 +33,7 @@ class StripeWebhookTest : WithAssertions {
         // Act
         val paidOrder = stripeWebhook.paidOrderOf(payload, signatureOf(payload))
         // Assert
-        assertThat(paidOrder).isEqualTo(OrderId("order-1"))
+        assertThat(paidOrder).isEqualTo(OrderId(Identity("order-1")))
     }
 
     @ParameterizedTest(name = "a notification {0} with a payment {1} should confirm nothing")

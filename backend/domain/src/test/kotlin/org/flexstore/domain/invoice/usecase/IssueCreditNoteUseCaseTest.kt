@@ -48,37 +48,37 @@ class IssueCreditNoteUseCaseTest : WithAssertions {
     @Test
     fun `the refunded orders should get credit notes with the next numbers of their sequence`() {
         // Arrange
-        storeOrder(OrderId("order-1"), OrderStatus.REFUNDED)
-        storeOrder(OrderId("order-2"), OrderStatus.REFUNDED)
-        useCase.unfold(CreditNoteIssuance(administrator, CreditNoteIssue(OrderId("order-1"), refundedAt)))
+        storeOrder(OrderId(Identity("order-1")), OrderStatus.REFUNDED)
+        storeOrder(OrderId(Identity("order-2")), OrderStatus.REFUNDED)
+        useCase.unfold(CreditNoteIssuance(administrator, CreditNoteIssue(OrderId(Identity("order-1")), refundedAt)))
         // Act
-        useCase.unfold(CreditNoteIssuance(administrator, CreditNoteIssue(OrderId("order-2"), refundedAt)))
+        useCase.unfold(CreditNoteIssuance(administrator, CreditNoteIssue(OrderId(Identity("order-2")), refundedAt)))
         // Assert
-        val creditNote = creditNoteRepository.findBy(OrderId("order-2"))
-        val creditNoteIssue = CreditNoteIssue(OrderId("order-2"), refundedAt)
+        val creditNote = creditNoteRepository.findBy(OrderId(Identity("order-2")))
+        val creditNoteIssue = CreditNoteIssue(OrderId(Identity("order-2")), refundedAt)
         assertThat(creditNote).isEqualTo(CreditNote(CreditNoteNumber("AV-2026-000002"), creditNoteIssue))
     }
 
     @Test
     fun `an order not refunded should get no credit note`() {
         // Arrange
-        storeOrder(OrderId("order-1"), OrderStatus.PAID)
+        storeOrder(OrderId(Identity("order-1")), OrderStatus.PAID)
         // Act
         val thrown = catchThrowable {
-            useCase.unfold(CreditNoteIssuance(administrator, CreditNoteIssue(OrderId("order-1"), refundedAt)))
+            useCase.unfold(CreditNoteIssuance(administrator, CreditNoteIssue(OrderId(Identity("order-1")), refundedAt)))
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(OrderNotRefundedException::class.java)
-        assertThat(creditNoteRepository.creditNoteIsMissingFor(OrderId("order-1"))).isTrue()
+        assertThat(creditNoteRepository.creditNoteIsMissingFor(OrderId(Identity("order-1")))).isTrue()
     }
 
     @Test
     fun `a refunded order without invoice should get no credit note`() {
         // Arrange
-        storeOrder(OrderId("order-1"), OrderStatus.REFUNDED, invoiced = false)
+        storeOrder(OrderId(Identity("order-1")), OrderStatus.REFUNDED, invoiced = false)
         // Act
         val thrown = catchThrowable {
-            useCase.unfold(CreditNoteIssuance(administrator, CreditNoteIssue(OrderId("order-1"), refundedAt)))
+            useCase.unfold(CreditNoteIssuance(administrator, CreditNoteIssue(OrderId(Identity("order-1")), refundedAt)))
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(InvoiceNotFoundException::class.java)
@@ -87,11 +87,11 @@ class IssueCreditNoteUseCaseTest : WithAssertions {
     @Test
     fun `a refunded order should get one credit note`() {
         // Arrange
-        storeOrder(OrderId("order-1"), OrderStatus.REFUNDED)
-        useCase.unfold(CreditNoteIssuance(administrator, CreditNoteIssue(OrderId("order-1"), refundedAt)))
+        storeOrder(OrderId(Identity("order-1")), OrderStatus.REFUNDED)
+        useCase.unfold(CreditNoteIssuance(administrator, CreditNoteIssue(OrderId(Identity("order-1")), refundedAt)))
         // Act
         val thrown = catchThrowable {
-            useCase.unfold(CreditNoteIssuance(administrator, CreditNoteIssue(OrderId("order-1"), refundedAt)))
+            useCase.unfold(CreditNoteIssuance(administrator, CreditNoteIssue(OrderId(Identity("order-1")), refundedAt)))
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(CreditNoteAlreadyIssuedException::class.java)
@@ -100,7 +100,7 @@ class IssueCreditNoteUseCaseTest : WithAssertions {
     @Test
     fun `a customer should not issue a credit note`() {
         // Arrange
-        val creditNoteIssue = CreditNoteIssue(OrderId("order-1"), refundedAt)
+        val creditNoteIssue = CreditNoteIssue(OrderId(Identity("order-1")), refundedAt)
         // Act
         val thrown = catchThrowable { useCase.unfold(CreditNoteIssuance(testCustomerActor, creditNoteIssue)) }
         // Assert

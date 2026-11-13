@@ -21,7 +21,7 @@ class ReadCreditNoteUseCase(
 
     private fun creditNoteExistsCondition() = PreCondition<OrderId> { orderId ->
         if (creditNoteRepository.creditNoteIsMissingFor(orderId)) {
-            val message = ErrorMessage("Order ${orderId.value} has no credit note: it is not refunded.")
+            val message = ErrorMessage("Order ${orderId} has no credit note: it is not refunded.")
             throw CreditNoteNotFoundException(message)
         }
     }

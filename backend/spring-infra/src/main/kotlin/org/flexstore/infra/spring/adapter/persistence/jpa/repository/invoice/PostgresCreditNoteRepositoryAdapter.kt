@@ -18,8 +18,8 @@ class PostgresCreditNoteRepositoryAdapter(
 ) : CreditNoteRepository {
 
     override fun issue(creditNoteIssue: CreditNoteIssue): CreditNote {
-        val invoiceEntity = jpaInvoiceRepository.findByCustomerOrderId(creditNoteIssue.orderId.value)
-            ?: throw IllegalStateException("The order ${creditNoteIssue.orderId.value} has no invoice to cancel")
+        val invoiceEntity = jpaInvoiceRepository.findByCustomerOrderId(creditNoteIssue.orderId.id.value)
+            ?: throw IllegalStateException("The order ${creditNoteIssue.orderId} has no invoice to cancel")
         val year = creditNoteIssue.issuedAt.value.atZone(ZoneId.of("Europe/Paris")).year
         val rank = jpaRepo.nextRank(Identity.nextId().value, year)
         val number = "AV-$year-${rank.toString().padStart(RANK_DIGITS, '0')}"
@@ -29,7 +29,7 @@ class PostgresCreditNoteRepositoryAdapter(
 
     @Transactional(readOnly = true)
     override fun findBy(orderId: OrderId): CreditNote? {
-        val invoiceEntity = jpaInvoiceRepository.findByCustomerOrderId(orderId.value) ?: return null
+        val invoiceEntity = jpaInvoiceRepository.findByCustomerOrderId(orderId.id.value) ?: return null
         val number = invoiceEntity.creditNoteNumber ?: return null
         val issuedAt = invoiceEntity.creditNoteIssuedAt ?: return null
         return CreditNote(CreditNoteNumber(number), CreditNoteIssue(orderId, CreditNoteDate(issuedAt)))

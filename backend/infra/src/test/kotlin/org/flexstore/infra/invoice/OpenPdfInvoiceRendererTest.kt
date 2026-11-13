@@ -54,7 +54,7 @@ class OpenPdfInvoiceRendererTest {
         )
         val delivery = OrderDelivery(OrderAddresses.sameFor(home), ShippingMethod.EXPRESS)
         val placement = OrderPlacement(
-            OrderStamp(OrderId("46555c9f-4e92"), placedAt),
+            OrderStamp(OrderId(Identity("46555c9f-4e92")), placedAt),
             Checkout(customer, delivery, acceptedTermsOfSale),
         )
         val order = Order.place(placement, Cart(customer).add(lamp, Quantity(1)))

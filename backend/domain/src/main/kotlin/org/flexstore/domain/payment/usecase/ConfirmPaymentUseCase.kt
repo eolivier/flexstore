@@ -46,7 +46,7 @@ class ConfirmPaymentUseCase(
 
     private fun orderExistsCondition() = PreCondition<OrderId> { orderId ->
         if (orderRepository.orderIsMissing(orderId)) {
-            throw OrderNotFoundException(ErrorMessage("Order ${orderId.value} not found."))
+            throw OrderNotFoundException(ErrorMessage("Order ${orderId} not found."))
         }
     }
 
@@ -59,7 +59,7 @@ class ConfirmPaymentUseCase(
 
     private fun orderIsPaidCondition() = PostCondition<OrderId> { orderId ->
         if (orderRepository.findById(orderId)?.status != OrderStatus.PAID) {
-            throw PaymentConfirmationFailed(ErrorMessage("Order ${orderId.value} is not paid."))
+            throw PaymentConfirmationFailed(ErrorMessage("Order ${orderId} is not paid."))
         }
     }
 }

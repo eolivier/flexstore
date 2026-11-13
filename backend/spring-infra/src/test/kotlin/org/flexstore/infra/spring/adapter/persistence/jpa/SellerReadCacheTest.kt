@@ -18,7 +18,7 @@ import java.util.function.Supplier
 class SellerReadCacheTest {
 
     private val sellerId = SellerId(Identity("seller-1"))
-    private val sellerEntity = sellerEntity(sellerId.value.value, 1)
+    private val sellerEntity = sellerEntity(sellerId.id.value, 1)
     private val newSeller = Seller(
         sellerId,
         SellerDetail(
@@ -36,7 +36,7 @@ class SellerReadCacheTest {
     @BeforeEach
     fun startSpring() {
         `when`(jpaSellerRepository.findFirstByOrderByVersionDesc()).thenReturn(sellerEntity)
-        `when`(jpaSellerRepository.findById(sellerId.value.value)).thenReturn(Optional.of(sellerEntity))
+        `when`(jpaSellerRepository.findById(sellerId.id.value)).thenReturn(Optional.of(sellerEntity))
         context = AnnotationConfigApplicationContext()
         context.register(CacheConfig::class.java, PostgresSellerRepositoryAdapter::class.java)
         context.registerBean(JpaSellerRepository::class.java, Supplier { jpaSellerRepository })
@@ -64,7 +64,7 @@ class SellerReadCacheTest {
         sellerRepository.findBy(sellerId)
         sellerRepository.findBy(sellerId)
         // Assert
-        verify(jpaSellerRepository, times(1)).findById(sellerId.value.value)
+        verify(jpaSellerRepository, times(1)).findById(sellerId.id.value)
     }
 
     @Test
@@ -88,7 +88,7 @@ class SellerReadCacheTest {
         // Act
         sellerRepository.findBy(sellerId)
         // Assert
-        verify(jpaSellerRepository, times(1)).findById(sellerId.value.value)
+        verify(jpaSellerRepository, times(1)).findById(sellerId.id.value)
     }
 
     private fun sellerEntity(id: String, version: Int) = SellerEntity(
