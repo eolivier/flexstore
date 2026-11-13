@@ -12,7 +12,8 @@ const router = createRouter({
 
 // The snackbar is rendered in the body by Vuetify
 const body = () => document.body.textContent ?? '';
-const mountSnackbar = () => mount(AppSnackbar, { global: { plugins: [vuetify, router] }, attachTo: document.body });
+const global = { plugins: [vuetify, router] };
+const mountSnackbar = () => mount(AppSnackbar, { global, attachTo: document.body });
 
 describe('AppSnackbar', () => {
   beforeEach(() => {
