@@ -1,13 +1,13 @@
 package org.flexstore.domain.twofactor.model
 
 import org.flexstore.domain.sharedkernel.Identity
-import org.flexstore.domain.sharedkernel.IdentityBased
+import org.flexstore.domain.sharedkernel.Identifiable
 import org.flexstore.domain.sharedkernel.InstantProvider
 import org.flexstore.domain.user.model.UserId
 import java.time.Duration
 import java.time.Instant
 
-data class TwoFactorChallengeId(override val value: Identity) : IdentityBased {
+data class TwoFactorChallengeId(override val identity: Identity) : Identifiable() {
     companion object {
         fun nextId() = TwoFactorChallengeId(Identity.nextId())
     }

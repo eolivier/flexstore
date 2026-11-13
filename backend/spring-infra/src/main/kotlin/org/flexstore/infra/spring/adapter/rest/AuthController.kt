@@ -67,7 +67,7 @@ class AuthController(
         return when (val outcome = signInService.signIn(jsonLoginRequest.toLoginRequest())) {
             is SignInOutcome.SignedIn -> sessionOf(outcome.user)
             is SignInOutcome.TwoFactorChallengeRequired ->
-                JsonLoginResponse.twoFactorChallengeRequired(outcome.challengeId.asString())
+                JsonLoginResponse.twoFactorChallengeRequired(outcome.challengeId.toString())
         }
     }
 
@@ -97,7 +97,7 @@ class AuthController(
         return when (val outcome = signInService.signInWithGoogle(jsonGoogleLoginRequest.toGoogleIdToken())) {
             is SignInOutcome.SignedIn -> sessionOf(outcome.user)
             is SignInOutcome.TwoFactorChallengeRequired ->
-                JsonLoginResponse.twoFactorChallengeRequired(outcome.challengeId.asString())
+                JsonLoginResponse.twoFactorChallengeRequired(outcome.challengeId.toString())
         }
     }
 

@@ -25,7 +25,7 @@ class ReadProductImageUseCase(
 
     private fun imageExistsCondition() = PreCondition<ProductImageLookup> { lookup ->
         if (productImageRepository.imageIsMissing(lookup.productId, lookup.format)) {
-            val message = ErrorMessage("Product ${lookup.productId.asString()} has no image.")
+            val message = ErrorMessage("Product ${lookup.productId} has no image.")
             throw ProductImageNotFoundException(message)
         }
     }

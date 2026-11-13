@@ -10,7 +10,7 @@ data class JsonStock(
     @JsonProperty("quantity") val quantity: Int
 ) {
     companion object {
-        fun of(stock: Stock) = JsonStock(stock.productId.asString(), stock.quantity.value)
+        fun of(stock: Stock) = JsonStock(stock.productId.toString(), stock.quantity.value)
     }
 }
 
@@ -24,7 +24,7 @@ data class JsonStockAlert @JsonCreator constructor(
 ) {
     companion object {
         fun of(stockAlert: StockAlert) =
-            JsonStockAlert(stockAlert.productId.asString(), stockAlert.threshold.value)
+            JsonStockAlert(stockAlert.productId.toString(), stockAlert.threshold.value)
     }
 }
 
@@ -40,7 +40,7 @@ data class JsonLowStock(
     companion object {
         fun of(lowStock: LowStock): JsonLowStock {
             val (stock, threshold) = lowStock
-            return JsonLowStock(stock.productId.asString(), stock.quantity.value, threshold.value)
+            return JsonLowStock(stock.productId.toString(), stock.quantity.value, threshold.value)
         }
     }
 }

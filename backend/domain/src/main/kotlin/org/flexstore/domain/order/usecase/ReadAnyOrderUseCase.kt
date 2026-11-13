@@ -18,7 +18,7 @@ class ReadAnyOrderUseCase(private val orderRepository: OrderRepository) : QueryU
 
     private fun orderExistsCondition() = PreCondition<OrderId> { orderId ->
         if (orderRepository.orderIsMissing(orderId)) {
-            throw OrderNotFoundException(ErrorMessage("Order ${orderId.asString()} not found."))
+            throw OrderNotFoundException(ErrorMessage("Order ${orderId} not found."))
         }
     }
 }

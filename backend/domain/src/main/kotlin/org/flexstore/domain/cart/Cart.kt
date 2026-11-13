@@ -67,9 +67,9 @@ sealed interface CartOwner {
     data class Visitor(val cartId: VisitorCartId) : CartOwner
 }
 
-data class VisitorCartId(override val value: Identity) : IdentityBased {
+data class VisitorCartId(override val identity: Identity) : Identifiable() {
     init {
-        require(isValid(value.value)) { "A visitor cart id is a UUID: ${value.value}" }
+        require(isValid(identity.value)) { "A visitor cart id is a UUID: ${identity.value}" }
     }
 
     companion object {

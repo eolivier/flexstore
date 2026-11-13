@@ -92,7 +92,7 @@ class PlaceOrderUseCase(
 
     private fun orderIsStoredCondition() = PostCondition<OrderToPlace> { orderToPlace ->
         if (orderRepository.orderIsMissing(orderToPlace.orderId)) {
-            throw OrderPlacementFailed(ErrorMessage("Order ${orderToPlace.orderId.asString()} was not stored."))
+            throw OrderPlacementFailed(ErrorMessage("Order ${orderToPlace.orderId} was not stored."))
         }
     }
 }

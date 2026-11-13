@@ -37,7 +37,7 @@ class CorrectOrderTrackingUseCase(
 
     private fun orderExistsCondition() = PreCondition<OrderTrackingCorrection> { correction ->
         if (orderRepository.orderIsMissing(correction.orderId)) {
-            throw OrderNotFoundException(ErrorMessage("Order ${correction.orderId.asString()} not found."))
+            throw OrderNotFoundException(ErrorMessage("Order ${correction.orderId} not found."))
         }
     }
 
@@ -60,7 +60,7 @@ class CorrectOrderTrackingUseCase(
 
     private fun trackingIsKeptCondition() = PostCondition<OrderTrackingCorrection> { correction ->
         if (orderRepository.findById(correction.orderId)?.tracking != correction.tracking) {
-            val message = "The tracking of order ${correction.orderId.asString()} was not corrected."
+            val message = "The tracking of order ${correction.orderId} was not corrected."
             throw OrderTrackingChangeFailed(ErrorMessage(message))
         }
     }

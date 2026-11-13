@@ -2,7 +2,7 @@ package org.flexstore.domain.legal
 
 import java.time.Instant
 import org.flexstore.domain.sharedkernel.Identity
-import org.flexstore.domain.sharedkernel.IdentityBased
+import org.flexstore.domain.sharedkernel.Identifiable
 import org.flexstore.domain.sharedkernel.InstantProvider
 import org.ucop.domain.entity.Actor
 import org.ucop.domain.ErrorMessage
@@ -14,7 +14,7 @@ import org.ucop.domain.PreConditionException
 enum class LegalPageKind { LEGAL_NOTICE, TERMS_OF_SALE, PRIVACY_POLICY }
 
 // One version of a legal page: each publication gives a new one, the ones before are kept
-data class LegalPageId(override val value: Identity) : IdentityBased {
+data class LegalPageId(override val identity: Identity) : Identifiable() {
     companion object {
         fun nextId() = LegalPageId(Identity.nextId())
     }

@@ -19,7 +19,7 @@ class PostgresLegalPageRepositoryAdapter(private val jpaRepo: JpaLegalPageReposi
     override fun save(legalPage: LegalPage) {
         val nextVersion = jpaRepo.findFirstByKindOrderByVersionDesc(legalPage.kind.name).version + 1
         val legalPageEntity = LegalPageEntity(
-            legalPage.id.asString(),
+            legalPage.id.toString(),
             legalPage.kind.name,
             nextVersion,
             legalPage.text.value,

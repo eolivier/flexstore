@@ -34,7 +34,7 @@ class PostgresOrderRepositoryAdapter(
     // An order is placed once, then only its status and its tracking change: the stored rows of its lines are
     // kept, and the statuses it reaches are added to its stored history
     override fun save(order: Order): Order {
-        val storedOrder = jpaRepo.findById(order.orderId.asString()).orElse(null)
+        val storedOrder = jpaRepo.findById(order.orderId.toString()).orElse(null)
         val orderEntity = storedOrder?.withStatusOf(order) ?: order.toEntity()
         return jpaRepo.save(orderEntity).toDomain()
     }
@@ -56,10 +56,10 @@ class PostgresOrderRepositoryAdapter(
 
     @Transactional(readOnly = true)
     override fun findById(orderId: OrderId): Order? =
-        jpaRepo.findById(orderId.asString()).map { it.toDomain() }.orElse(null)
+        jpaRepo.findById(orderId.toString()).map { it.toDomain() }.orElse(null)
 
     @Transactional(readOnly = true)
-    override fun orderExists(orderId: OrderId): Boolean = jpaRepo.existsById(orderId.asString())
+    override fun orderExists(orderId: OrderId): Boolean = jpaRepo.existsById(orderId.toString())
 
     @Transactional(readOnly = true)
     override fun findAll() = Orders(jpaRepo.findAll().map { it.toDomain() })
@@ -87,7 +87,7 @@ class PostgresOrderRepositoryAdapter(
         val customerEntity = jpaUserRepository.findById(customer.value).orElseThrow()
         val addressesOfTheCustomer = customerEntity.addresses.map { it.address }
         return OrderEntity(
-            id = orderId.asString(),
+            id = orderId.toString(),
             userId = customer.value,
             status = status.name,
             placedAt = placedAt,
@@ -95,7 +95,7 @@ class PostgresOrderRepositoryAdapter(
             shippingCost = shipping.cost.amount.value,
             discountCode = (discount as? AppliedOrderDiscount)?.code?.value,
             discountAmount = discountAmount().amount.value,
-            legalPageId = (termsOfSale as? AcceptedTermsOfSale)?.termsOfSaleId?.value?.value,
+            legalPageId = (termsOfSale as? AcceptedTermsOfSale)?.termsOfSaleId?.toString(),
             deliveryAddress = addressesOfTheCustomer.rowOf(addresses.delivery),
             billingAddress = addressesOfTheCustomer.rowOf(addresses.billing),
             statusChanges = history.asList().mapIndexed { position, change -> change.toEntity(position) },
@@ -103,7 +103,7 @@ class PostgresOrderRepositoryAdapter(
                 OrderLineEntity(
                     id = Identity.nextId().value,
                     position = position,
-                    productId = line.productId.asString(),
+                    productId = line.productId.toString(),
                     productName = line.productName.value,
                     unitPrice = line.unitPrice.amount.value,
                     currency = line.unitPrice.currency.name,

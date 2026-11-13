@@ -28,13 +28,13 @@ class DeleteReviewUseCase(
 
     private fun reviewExistsCondition() = PreCondition<ReviewDeletion> { (_, reviewId) ->
         if (reviewRepository.reviewIsMissing(reviewId)) {
-            throw ReviewNotFoundException(ErrorMessage("The review ${reviewId.value} does not exist."))
+            throw ReviewNotFoundException(ErrorMessage("The review ${reviewId} does not exist."))
         }
     }
 
     private fun reviewIsGoneCondition() = PostCondition<ReviewDeletion> { (_, reviewId) ->
         if (reviewRepository.reviewExists(reviewId)) {
-            throw ReviewDeletionFailed(ErrorMessage("The review ${reviewId.value} was not deleted."))
+            throw ReviewDeletionFailed(ErrorMessage("The review ${reviewId} was not deleted."))
         }
     }
 }

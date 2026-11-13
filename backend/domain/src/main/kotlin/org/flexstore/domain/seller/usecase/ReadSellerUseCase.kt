@@ -25,7 +25,7 @@ class ReadSellerUseCase(
 
     private fun sellerExistsCondition() = PreCondition<SellerVersionReading> { reading ->
         if (sellerRepository.sellerIsMissing(reading.sellerId)) {
-            val message = ErrorMessage("Seller ${reading.sellerId.asString()} not found.")
+            val message = ErrorMessage("Seller ${reading.sellerId} not found.")
             throw SellerNotFoundException(message)
         }
     }

@@ -53,10 +53,12 @@ data class Identity(val value: String) {
         fun nextId() = Identity(java.util.UUID.randomUUID().toString())
     }
 }
-// An id value object: it wraps an Identity, and gives its text where the id leaves the domain (database, JSON)
-interface IdentityBased {
-    val value: Identity
-    fun asString() = value.value
+// An id value object: it wraps an Identity, and its text (toString) is the one of its identity, which is what the
+// database and the JSON store
+abstract class Identifiable {
+    abstract val identity: Identity
+
+    final override fun toString() = identity.value
 }
 
 enum class Currency(val symbol: String) {

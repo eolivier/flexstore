@@ -37,14 +37,14 @@ class AddProductToWishlistUseCase(
 
     private fun productExistsCondition() = PreCondition<WishlistEntry> { entry ->
         if (productRepository.productIsMissing(entry.productId)) {
-            val message = ErrorMessage("The product ${entry.productId.asString()} does not exist.")
+            val message = ErrorMessage("The product ${entry.productId} does not exist.")
             throw ProductNotFoundException(message)
         }
     }
 
     private fun productIsSavedCondition() = PostCondition<WishlistEntry> { entry ->
         if (wishlistRepository.doesNotContain(entry.customer.customerId(), entry.productId)) {
-            val message = ErrorMessage("Product ${entry.productId.asString()} was not saved to the wishlist.")
+            val message = ErrorMessage("Product ${entry.productId} was not saved to the wishlist.")
             throw WishlistUpdateFailed(message)
         }
     }

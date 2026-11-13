@@ -15,7 +15,7 @@ class PostgresProductImageRepositoryAdapter(private val jpaRepo: JpaProductImage
 
     // The row of the format is replaced: its id and its creation date are kept
     override fun save(productImage: ProductImage) {
-        val productId = productImage.productId.asString()
+        val productId = productImage.productId.toString()
         val storedImage = jpaRepo.findByProductIdAndFormat(productId, productImage.format.name)
         val content = productImage.content
         val imageEntity = ProductImageEntity(
@@ -30,13 +30,13 @@ class PostgresProductImageRepositoryAdapter(private val jpaRepo: JpaProductImage
 
     @Transactional(readOnly = true)
     override fun find(productId: ProductId, format: ImageFormat): ProductImage? =
-        jpaRepo.findByProductIdAndFormat(productId.asString(), format.name)?.toDomain()
+        jpaRepo.findByProductIdAndFormat(productId.toString(), format.name)?.toDomain()
 
     @Transactional(readOnly = true)
     override fun productsWithImage() = jpaRepo.findProductIds().map { ProductId(Identity(it)) }
 
     override fun deleteAllOf(productId: ProductId) {
-        jpaRepo.deleteAllByProductId(productId.asString())
+        jpaRepo.deleteAllByProductId(productId.toString())
     }
 
     private fun ProductImageEntity.toDomain(): ProductImage {

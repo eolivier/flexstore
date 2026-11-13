@@ -31,7 +31,7 @@ class VerifyPaymentUseCase(
     private fun orderOfTheCustomerCondition() = PreCondition<OrderPayment> { orderPayment ->
         val order = orderRepository.findById(orderPayment.orderId)
         if (order == null || order.belongsTo(orderPayment.customer.userId).not()) {
-            throw OrderNotFoundException(ErrorMessage("Order ${orderPayment.orderId.asString()} not found."))
+            throw OrderNotFoundException(ErrorMessage("Order ${orderPayment.orderId} not found."))
         }
     }
 }

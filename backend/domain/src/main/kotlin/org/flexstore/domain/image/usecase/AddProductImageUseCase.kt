@@ -41,7 +41,7 @@ class AddProductImageUseCase(
 
     private fun productExistsCondition() = PreCondition<ProductImageUpload> { (_, uploadedImage) ->
         if (productRepository.productIsMissing(uploadedImage.productId)) {
-            val message = ErrorMessage("Product with ID ${uploadedImage.productId.asString()} does not exist.")
+            val message = ErrorMessage("Product with ID ${uploadedImage.productId} does not exist.")
             throw ProductNotFoundException(message)
         }
     }
@@ -58,7 +58,7 @@ class AddProductImageUseCase(
         ImageFormat.entries.forEach { format ->
             val productImage = productImageRepository.find(uploadedImage.productId, format)
             if (productImage == null || format.refuses(productImage.content)) {
-                val reason = "The $format image of ${uploadedImage.productId.asString()} was not kept."
+                val reason = "The $format image of ${uploadedImage.productId} was not kept."
                 val message = ErrorMessage(reason)
                 throw ProductImageStorageFailed(message)
             }

@@ -5,7 +5,7 @@ import org.flexstore.domain.sharedkernel.ShopUrl
 // The page of the shop where the customer follows an order
 data class OrderPage(val url: String) {
     companion object {
-        fun of(shopUrl: ShopUrl, orderId: OrderId) = OrderPage(shopUrl.pageAt("orders/${orderId.asString()}"))
+        fun of(shopUrl: ShopUrl, orderId: OrderId) = OrderPage(shopUrl.pageAt("orders/${orderId}"))
     }
 }
 
@@ -13,6 +13,6 @@ data class OrderPage(val url: String) {
 data class OrderConfirmationPage(val url: String) {
     companion object {
         fun of(shopUrl: ShopUrl, orderId: OrderId) =
-            OrderConfirmationPage(shopUrl.pageAt("orders/${orderId.asString()}/confirmation"))
+            OrderConfirmationPage(shopUrl.pageAt("orders/${orderId}/confirmation"))
     }
 }

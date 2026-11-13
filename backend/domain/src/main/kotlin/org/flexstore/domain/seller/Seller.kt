@@ -1,14 +1,14 @@
 package org.flexstore.domain.seller
 
 import org.flexstore.domain.sharedkernel.Identity
-import org.flexstore.domain.sharedkernel.IdentityBased
+import org.flexstore.domain.sharedkernel.Identifiable
 import org.ucop.domain.entity.Actor
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.PostConditionException
 import org.ucop.domain.PreConditionException
 
 // One version of the seller: each edit gives a new one, so that an invoice keeps the seller of its issue
-data class SellerId(override val value: Identity) : IdentityBased {
+data class SellerId(override val identity: Identity) : Identifiable() {
     companion object {
         fun nextId() = SellerId(Identity.nextId())
     }

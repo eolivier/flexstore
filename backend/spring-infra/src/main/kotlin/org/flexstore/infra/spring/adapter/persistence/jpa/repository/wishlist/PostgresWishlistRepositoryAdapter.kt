@@ -32,20 +32,20 @@ class PostgresWishlistRepositoryAdapter(
     }
 
     override fun remove(customer: UserId.ValidUserId, productId: ProductId) {
-        jpaRepo.deleteByUser_IdAndProduct_Id(customer.value, productId.asString())
+        jpaRepo.deleteByUser_IdAndProduct_Id(customer.value, productId.toString())
     }
 
     @Transactional(readOnly = true)
     override fun contains(customer: UserId.ValidUserId, productId: ProductId) =
-        jpaRepo.existsByUser_IdAndProduct_Id(customer.value, productId.asString())
+        jpaRepo.existsByUser_IdAndProduct_Id(customer.value, productId.toString())
 
     @Transactional(readOnly = true)
     override fun findAllBy(customer: UserId.ValidUserId): Products =
         Products(jpaRepo.findAllByUser_Id(customer.value, WISHLIST_ORDER).map { it.product.toDomain() })
 
     private fun WishlistItem.toEntity() = WishlistItemEntity(
-        id = wishlistItemId.asString(),
+        id = wishlistItemId.toString(),
         user = userRepo.getReferenceById(customer.value),
-        product = productRepo.getReferenceById(productId.asString())
+        product = productRepo.getReferenceById(productId.toString())
     )
 }

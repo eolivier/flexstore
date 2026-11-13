@@ -32,7 +32,7 @@ class ProductImageController(
     @GetMapping("/api/product-images")
     fun getProductsWithImage(): List<String> {
         val productIds = productImageUseCases.getProductsWithImage(actorResolutionService.visitor())
-        return productIds.asList().map { it.asString() }
+        return productIds.asList().map { it.toString() }
     }
 
     // The browser keeps the image and asks again with its ETag: an image that did not change is not sent again

@@ -102,7 +102,7 @@ class ProductTools(private val productUseCases: ProductUseCases, private val rea
     private fun productJson(product: DefinedProduct, language: Language): ObjectNode {
         val translation = product.translationIn(language)
         val productJson = json.createObjectNode()
-        productJson.put("id", product.productId.asString())
+        productJson.put("id", product.productId.toString())
         productJson.put("sku", product.sku.value)
         productJson.put("name", translation.name.value)
         productJson.put("description", translation.description.value)

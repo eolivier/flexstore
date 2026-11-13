@@ -37,7 +37,7 @@ class MergeCartsUseCase(private val cartRepository: CartRepository) : UseCase<Me
 
     private fun visitorCartIsDeletedCondition() = PostCondition<MergeCartsRequest> { request ->
         if (cartRepository.load(request.visitor).hasItems()) {
-            val message = ErrorMessage("The visitor cart ${request.visitor.cartId.value} was not merged.")
+            val message = ErrorMessage("The visitor cart ${request.visitor.cartId} was not merged.")
             throw CartUpdateFailed(message)
         }
     }

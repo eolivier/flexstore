@@ -120,7 +120,7 @@ data class DraftItem(
 
 data object NoItem : Item
 
-data class ItemId(override val value: Identity) : IdentityBased {
+data class ItemId(override val identity: Identity) : Identifiable() {
     companion object {
         fun isValid(value: String?) = !value.isNullOrBlank()
     }
