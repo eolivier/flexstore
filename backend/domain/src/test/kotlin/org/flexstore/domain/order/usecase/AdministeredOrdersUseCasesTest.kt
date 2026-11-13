@@ -49,7 +49,8 @@ class AdministeredOrdersUseCasesTest : WithAssertions {
         // Arrange
         val order = placeOrder(OrderId("order-1"), customer, placedAt)
         // Act
-        val administeredOrder = readUseCase.unfold(AdministeredOrderReading(testAdministratorActor, OrderId("order-1")))
+        val reading = AdministeredOrderReading(testAdministratorActor, OrderId("order-1"))
+        val administeredOrder = readUseCase.unfold(reading)
         // Assert
         val janeAsCustomer = OrderCustomer(janeDoe, Email("jane@example.com"))
         assertThat(administeredOrder).isEqualTo(AdministeredOrder(order, janeAsCustomer))
@@ -76,7 +77,8 @@ class AdministeredOrdersUseCasesTest : WithAssertions {
         // Arrange
         placeOrder(OrderId("order-1"), formerCustomer, placedAt)
         // Act
-        val administeredOrder = readUseCase.unfold(AdministeredOrderReading(testAdministratorActor, OrderId("order-1")))
+        val reading = AdministeredOrderReading(testAdministratorActor, OrderId("order-1"))
+        val administeredOrder = readUseCase.unfold(reading)
         // Assert
         assertThat(administeredOrder.customer).isEqualTo(OrderCustomer.unknown())
     }
