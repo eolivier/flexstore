@@ -1,6 +1,6 @@
 # Physical data model
 
-The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V65**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
+The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V66**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
 
 ![Physical data model](database.png)
 
@@ -32,20 +32,11 @@ erDiagram
 
     user_token {
         id varchar(50) PK
-        type varchar(30) "EMAIL_VERIFICATION or PASSWORD_RESET"
-        token_hash varchar(64) UK "SHA-256 of the token of the link"
-        user_id varchar(50) FK "several verification links over time, only the last password reset link"
-        expires_at timestamptz
-        created_at timestamp
-        updated_at timestamp
-    }
-
-    refresh_session {
-        id varchar(50) PK
-        token_hash varchar(64) UK "SHA-256 of the refresh token"
-        user_id varchar(50) FK "a user may have several sessions"
-        expires_at timestamptz "7 days after the session is opened"
-        revoked_at timestamptz "nullable: set when the refresh token is used or the user signs out"
+        type varchar(30) "EMAIL_VERIFICATION, PASSWORD_RESET or REFRESH_SESSION"
+        token_hash varchar(64) UK "SHA-256 of the token of the link, or of the refresh token of the session"
+        user_id varchar(50) FK "several verification links over time, only the last password reset link, several sessions"
+        expires_at timestamptz "a session expires 7 days after it is opened"
+        revoked_at timestamptz "nullable: REFRESH_SESSION only, set when the refresh token is used or the user signs out"
         created_at timestamp
         updated_at timestamp
     }
@@ -299,7 +290,6 @@ erDiagram
 
     user ||--o{ user_token : "user_id (cascade)"
     user ||--o{ user_setting : "user_id (cascade)"
-    user ||--o{ refresh_session : "user_id (cascade)"
     user ||--o{ user_address : "user_id (cascade)"
     user_address }o--|| address : "address_id"
     user ||--o{ customer_order : "user_id (cascade)"
@@ -336,7 +326,7 @@ erDiagram
   - `language`: their preferred language (`EN` or `FR`); without a row, the page decides.
 - A `payment` has at most one refund: its reference on the payment provider is the nullable column `refund_provider_reference` (V64 merged the former `payment_refund` table into `payment`), empty while the payment is not refunded.
 - A wrong password for an existing account adds one to its `failed_sign_in_count` (a column of `user`, V63 merged the former `failed_sign_in` table into it). At the 5th failure in a row, the account becomes `LOCKED` and the count goes back to 0, so that it starts again when an administrator reactivates the account; a successful sign-in resets it too. An email that belongs to no account, and an account that cannot sign in already, are not counted.
-- A `refresh_session` is a session of a signed-in user: its refresh token renews their access token (15 minutes) once, then the session is revoked (`revoked_at`) and replaced by a new row. A revoked token that comes back revokes every open session of its user. Only the hash of the token is stored; deleting a user deletes their sessions.
+- A session of a signed-in user is a `user_token` of the type `REFRESH_SESSION` (V66 merged the former `refresh_session` table into `user_token`): its refresh token renews their access token (15 minutes) once, then the session is revoked (`revoked_at`) and replaced by a new row. A revoked token that comes back revokes every open session of its user. Only the hash of the token is stored; deleting a user deletes their sessions.
 - The carrier and the tracking number of the parcel of an order are given together by an administrator when the order is shipped, or corrected afterwards (`tracking_carrier` and `tracking_number`, a check forbids one without the other); the orders shipped before V45, or shipped without them, have none.
 - The `shop_page_content` rows are what the administrators write for the head of the shop pages: one row for each `page_type` (the key words, the description of the shop, the Google Analytics identifier), all created empty by V57. A new type is a new row, not a column. They are read by everyone, edited by the administrators, and kept in a cache that every edit evicts.
 - `user` is quoted in SQL (`"user"`), a reserved word; the orders are stored in `customer_order` for the same reason.
