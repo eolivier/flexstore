@@ -42,7 +42,7 @@
   <FormDialog v-model="open" :title="t('orderTracking.editTitle')">
     <TrackingFields v-model="tracking" />
     <template #actions>
-      <v-btn color="primary" :disabled="!isCompleteTracking(tracking)" data-test="save-tracking" @click="save">
+      <v-btn color="secondary" :disabled="!isCompleteTracking(tracking)" data-test="save-tracking" @click="save">
         {{ t('save') }}
       </v-btn>
     </template>
