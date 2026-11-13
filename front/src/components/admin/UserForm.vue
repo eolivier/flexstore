@@ -108,8 +108,8 @@
     <v-alert v-if="errorMessage" type="error" variant="tonal" density="compact" class="mb-4">
       {{ errorMessage }}
     </v-alert>
-    <FormActions class="mt-2" cancel-to="/admin/users" :loading="saving" :disabled="!valid">{{
-      submitLabel
-    }}</FormActions>
+    <FormActions class="mt-2" cancel-to="/admin/users" :loading="saving" :disabled="!valid">
+      <template v-if="submitLabel">{{ submitLabel }}</template>
+    </FormActions>
   </v-form>
 </template>
