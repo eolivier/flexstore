@@ -10,7 +10,7 @@ Conventions collected from the user's feedback on how requests become changes. F
 ## 1. One request, one kind of change
 
 Each request for a new feature gets its own pull request. A pull request does not mix kinds of change:
-- a **feature** (new behaviour, its tests and its documentation);
+- a **feature** (new behaviour, its tests and its documentation: `README.md` is updated with every feature, in the same pull request: Features section, API table, environment variables);
 - a **refactoring** (same behaviour, better code);
 - a **skill update** (`.claude/skills/...`).
 
