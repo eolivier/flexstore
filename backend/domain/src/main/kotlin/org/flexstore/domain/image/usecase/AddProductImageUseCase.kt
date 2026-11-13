@@ -3,7 +3,7 @@ package org.flexstore.domain.image.usecase
 import org.flexstore.domain.image.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.product.model.*
-import org.flexstore.domain.user.repository.UserRepository
+import org.flexstore.domain.actor.isNotAdmin
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
@@ -12,8 +12,7 @@ import org.ucop.domain.entity.*
 class AddProductImageUseCase(
     private val productImageRepository: ProductImageRepository,
     private val productRepository: ProductRepository,
-    private val imageResizerRepository: ImageResizerRepository,
-    private val userRepository: UserRepository
+    private val imageResizerRepository: ImageResizerRepository
 ) : UseCase<ProductImageUpload> {
 
     override fun getPreConditions(): PreConditions<ProductImageUpload> =
@@ -32,9 +31,9 @@ class AddProductImageUseCase(
     override fun getPostConditions(): PostConditions<ProductImageUpload> =
         PostConditions(eachFormatIsStoredWithinItsSizeCondition())
 
-    // The editor must be an existing user with the ADMIN role (read from the users, not from the request)
+    // The editor, resolved before the use case runs, must be an Admin
     private fun editorIsAdministratorCondition() = PreCondition<ProductImageUpload> { request ->
-        if (userRepository.isNotAdministrator(request.editor)) {
+        if (request.editor.isNotAdmin()) {
             throw ProductImageForbiddenException(ErrorMessage("Only an administrator can give the image of a product."))
         }
     }

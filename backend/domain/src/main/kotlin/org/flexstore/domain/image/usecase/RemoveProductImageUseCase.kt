@@ -1,14 +1,13 @@
 package org.flexstore.domain.image.usecase
 
 import org.flexstore.domain.image.*
-import org.flexstore.domain.user.repository.UserRepository
+import org.flexstore.domain.actor.isNotAdmin
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // An administrator removes the image of a product, in every format
 class RemoveProductImageUseCase(
-    private val productImageRepository: ProductImageRepository,
-    private val userRepository: UserRepository
+    private val productImageRepository: ProductImageRepository
 ) : UseCase<ProductImageRemoval> {
 
     override fun getPreConditions(): PreConditions<ProductImageRemoval> =
@@ -20,9 +19,9 @@ class RemoveProductImageUseCase(
     override fun getPostConditions(): PostConditions<ProductImageRemoval> =
         PostConditions(imageIsRemovedCondition())
 
-    // The editor must be an existing user with the ADMIN role (read from the users, not from the request)
+    // The editor, resolved before the use case runs, must be an Admin
     private fun editorIsAdministratorCondition() = PreCondition<ProductImageRemoval> { request ->
-        if (userRepository.isNotAdministrator(request.editor)) {
+        if (request.editor.isNotAdmin()) {
             throw ProductImageForbiddenException(ErrorMessage("Only an administrator can remove the image of a product."))
         }
     }

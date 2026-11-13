@@ -10,10 +10,9 @@ import org.flexstore.infra.repository.InMemoryProductRepository
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import org.flexstore.domain.user.*
-import org.flexstore.domain.user.administration.testAdministrator
-import org.flexstore.domain.user.administration.testCustomer
-import org.flexstore.domain.user.administration.unknownUser
-import org.flexstore.domain.user.administration.usersOfTheAdministration
+import org.flexstore.domain.actor.testAdministratorActor
+import org.flexstore.domain.actor.testCustomerActor
+import org.flexstore.domain.actor.unknownUserActor
 
 class ProductImageUseCasesTest : WithAssertions {
 
@@ -35,14 +34,11 @@ class ProductImageUseCasesTest : WithAssertions {
         override fun resize(content: ImageContent, format: ImageFormat) = content
     }
 
-    private val userRepository = usersOfTheAdministration()
-    private val administrator = testAdministrator.id
+    private val administrator = testAdministratorActor
 
     private fun productImageUseCases(imageResizerRepository: ImageResizerRepository) = ProductImageUseCases(
-        AddProductImageUseCase(
-            productImageRepository, productRepository, imageResizerRepository, userRepository
-        ),
-        RemoveProductImageUseCase(productImageRepository, userRepository),
+        AddProductImageUseCase(productImageRepository, productRepository, imageResizerRepository),
+        RemoveProductImageUseCase(productImageRepository),
         ReadProductImageUseCase(productImageRepository),
         ListProductsWithImageUseCase(productImageRepository)
     )
@@ -112,7 +108,7 @@ class ProductImageUseCasesTest : WithAssertions {
     @Test
     fun `a customer should not give the image of a product`() {
         // Act
-        val thrown = catchThrowable { productImageUseCases.add(testCustomer.id, uploadedImageOf(1000)) }
+        val thrown = catchThrowable { productImageUseCases.add(testCustomerActor, uploadedImageOf(1000)) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(ProductImageForbiddenException::class.java)
         assertThat(productImageRepository.productsWithImage()).doesNotContain(deskLamp.productId)
@@ -123,7 +119,7 @@ class ProductImageUseCasesTest : WithAssertions {
         // Arrange
         productImageUseCases.add(administrator, uploadedImageOf(1000))
         // Act
-        val thrown = catchThrowable { productImageUseCases.remove(unknownUser, deskLamp.productId) }
+        val thrown = catchThrowable { productImageUseCases.remove(unknownUserActor, deskLamp.productId) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(ProductImageForbiddenException::class.java)
     }

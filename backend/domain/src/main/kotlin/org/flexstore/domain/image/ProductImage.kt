@@ -1,7 +1,7 @@
 package org.flexstore.domain.image
 
 import org.flexstore.domain.product.model.ProductId
-import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.entity.Actor
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
 import org.ucop.domain.PostConditionException
@@ -58,10 +58,10 @@ data class UploadedImage(val productId: ProductId, val content: ImageContent) {
 
 // The bytes given are not an image of an accepted type
 // An administrator who gives the image of a product
-data class ProductImageUpload(val editor: UserId, val uploadedImage: UploadedImage)
+data class ProductImageUpload(val editor: Actor, val uploadedImage: UploadedImage)
 
 // An administrator who removes the image of a product
-data class ProductImageRemoval(val editor: UserId, val productId: ProductId)
+data class ProductImageRemoval(val editor: Actor, val productId: ProductId)
 
 data class ProductImageForbiddenException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)

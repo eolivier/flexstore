@@ -2,6 +2,7 @@ package org.flexstore.infra.spring.adapter.rest
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.image.*
 import org.flexstore.domain.image.usecase.ProductImageUseCases
 import org.flexstore.domain.product.model.ProductId
@@ -22,7 +23,10 @@ import org.ucop.domain.ErrorMessage
 // The images of the products: read by everyone, given by the administrators (ADMIN role, see SecurityConfig)
 @Tag(name = "Product images")
 @RestController
-class ProductImageController(private val productImageUseCases: ProductImageUseCases) {
+class ProductImageController(
+    private val productImageUseCases: ProductImageUseCases,
+    private val actorResolutionService: ActorResolutionService
+) {
 
     @Operation(summary = "Retrieve the ids of the products that have an image")
     @GetMapping("/api/product-images")
@@ -63,12 +67,15 @@ class ProductImageController(private val productImageUseCases: ProductImageUseCa
             ?: throw UnreadableImageException(ErrorMessage("The image must be a JPEG, a PNG or a WebP."))
         val content = ImageContent(ImageBytes(image.bytes), imageType)
         val uploadedImage = UploadedImage(ProductId(Identity(productId)), content)
-        productImageUseCases.add(UserId.of(editor.subject), uploadedImage)
+        val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
+        productImageUseCases.add(actor, uploadedImage)
     }
 
     @Operation(summary = "Remove the image of a product")
     @DeleteMapping("/api/admin/products/{productId}/image")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun removeImage(@AuthenticationPrincipal editor: Jwt, @PathVariable productId: String) =
-        productImageUseCases.remove(UserId.of(editor.subject), ProductId(Identity(productId)))
+    fun removeImage(@AuthenticationPrincipal editor: Jwt, @PathVariable productId: String) {
+        val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
+        productImageUseCases.remove(actor, ProductId(Identity(productId)))
+    }
 }
