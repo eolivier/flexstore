@@ -3,8 +3,8 @@ package org.flexstore.infra.spring.adapter.persistence.jpa
 import org.flexstore.domain.seller.*
 import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.SellerEntity
-import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaSellerRepository
-import org.flexstore.infra.spring.adapter.persistence.jpa.repository.PostgresSellerRepositoryAdapter
+import org.flexstore.infra.spring.adapter.persistence.jpa.repository.seller.JpaSellerRepository
+import org.flexstore.infra.spring.adapter.persistence.jpa.repository.seller.PostgresSellerRepositoryAdapter
 import org.flexstore.infra.spring.config.CacheConfig
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach

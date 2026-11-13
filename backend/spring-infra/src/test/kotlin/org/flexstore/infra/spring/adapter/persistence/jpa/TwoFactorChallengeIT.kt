@@ -7,7 +7,7 @@ import org.flexstore.domain.twofactor.model.TwoFactorChallengeId
 import org.flexstore.domain.twofactor.model.TwoFactorChallengeLookup
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.repository.UserRepository
-import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaUserRepository
+import org.flexstore.infra.spring.adapter.persistence.jpa.repository.user.JpaUserRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

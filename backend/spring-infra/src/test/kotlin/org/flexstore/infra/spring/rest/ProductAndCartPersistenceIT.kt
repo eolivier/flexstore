@@ -2,9 +2,9 @@ package org.flexstore.infra.spring.rest
 
 import org.flexstore.domain.cart.*
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaCartItemRepository
-import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaCartRepository
-import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaProductRepository
+import org.flexstore.infra.spring.adapter.persistence.jpa.repository.cart.JpaCartItemRepository
+import org.flexstore.infra.spring.adapter.persistence.jpa.repository.cart.JpaCartRepository
+import org.flexstore.infra.spring.adapter.persistence.jpa.repository.product.JpaProductRepository
 import org.flexstore.infra.spring.clearProductCache
 import org.springframework.cache.CacheManager
 import org.flexstore.infra.spring.adapter.rest.CART_ID_HEADER

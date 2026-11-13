@@ -2,8 +2,8 @@ package org.flexstore.infra.spring.adapter.persistence.jpa
 
 import org.flexstore.domain.pagecontent.*
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.ShopPageContentEntity
-import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaShopPageContentRepository
-import org.flexstore.infra.spring.adapter.persistence.jpa.repository.PostgresShopPageContentRepositoryAdapter
+import org.flexstore.infra.spring.adapter.persistence.jpa.repository.shop.JpaShopPageContentRepository
+import org.flexstore.infra.spring.adapter.persistence.jpa.repository.shop.*
 import org.flexstore.infra.spring.config.CacheConfig
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach

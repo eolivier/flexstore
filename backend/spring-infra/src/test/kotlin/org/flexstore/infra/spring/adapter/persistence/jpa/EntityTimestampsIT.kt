@@ -1,7 +1,7 @@
 package org.flexstore.infra.spring.adapter.persistence.jpa
 
 import org.flexstore.domain.product.model.*
-import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaProductRepository
+import org.flexstore.infra.spring.adapter.persistence.jpa.repository.product.JpaProductRepository
 import org.flexstore.infra.spring.clearProductCache
 import org.springframework.cache.CacheManager
 import jakarta.persistence.EntityManager

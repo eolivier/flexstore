@@ -6,7 +6,7 @@ import org.flexstore.domain.email.*
 import org.flexstore.domain.user.model.UserId
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.UserTokenEntity
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.UserTokenType
-import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaUserTokenRepository
+import org.flexstore.infra.spring.adapter.persistence.jpa.repository.usertoken.JpaUserTokenRepository
 import org.flexstore.infra.spring.adapter.persistence.jpa.hash
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
