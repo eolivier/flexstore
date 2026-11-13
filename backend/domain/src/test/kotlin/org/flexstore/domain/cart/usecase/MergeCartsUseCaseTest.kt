@@ -67,7 +67,7 @@ class MergeCartsUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(MergeCartsRequest(visitor, unknownCustomer)) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java)
         assertThat(cartRepository.load(visitor).hasItems()).isTrue()
     }
 
@@ -80,6 +80,6 @@ class MergeCartsUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(MergeCartsRequest(visitor, blockedCustomer)) }
         // Assert
-        assertThat(thrown).isInstanceOf(AccountRefusedException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(AccountRefusedException::class.java)
     }
 }

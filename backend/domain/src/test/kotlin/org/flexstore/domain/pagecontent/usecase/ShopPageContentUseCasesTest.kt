@@ -71,7 +71,7 @@ class ShopPageContentUseCasesTest : WithAssertions {
             shopPageContentUseCases.edit(customer.id, contentOf(META_KEY_WORDS, "shop"))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(ShopPageContentForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(ShopPageContentForbiddenException::class.java)
         assertThat(shopPageContentUseCases.contents().of(META_KEY_WORDS).text.isWritten()).isFalse()
     }
 
@@ -82,7 +82,7 @@ class ShopPageContentUseCasesTest : WithAssertions {
             shopPageContentUseCases.edit(ValidUserId("unknown"), contentOf(META_KEY_WORDS, "shop"))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(ShopPageContentForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(ShopPageContentForbiddenException::class.java)
     }
 
     @Test
@@ -92,7 +92,7 @@ class ShopPageContentUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { shopPageContentUseCases.edit(administrator.id, tooLongKeyWords) }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidShopPageContentException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(InvalidShopPageContentException::class.java)
     }
 
     @Test
@@ -115,7 +115,7 @@ class ShopPageContentUseCasesTest : WithAssertions {
             shopPageContentUseCases.edit(administrator.id, contentOf(GOOGLE_ANALYTICS_ID, identifier))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidShopPageContentException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(InvalidShopPageContentException::class.java)
     }
 
     @Test

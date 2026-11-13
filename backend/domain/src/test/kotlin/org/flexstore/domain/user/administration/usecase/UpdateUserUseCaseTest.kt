@@ -63,7 +63,7 @@ class UpdateUserUseCaseTest {
         // Act
         val thrown = catchThrowable { updateUserUseCase.unfold(updateUserRequest) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserUpdateForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserUpdateForbiddenException::class.java)
         assertThat(stored(john.id).fullName.value).isEqualTo("John Doe")
     }
 
@@ -74,7 +74,7 @@ class UpdateUserUseCaseTest {
         // Act
         val thrown = catchThrowable { updateUserUseCase.unfold(UpdateUserRequest(administrator.id, user)) }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidUserIdException::class.java).hasMessage("User ID @ is invalid.")
+        assertThat(thrown).hasCauseInstanceOf(InvalidUserIdException::class.java).hasMessage("User ID @ is invalid.")
     }
 
     @Test
@@ -85,7 +85,7 @@ class UpdateUserUseCaseTest {
         // Act
         val thrown = catchThrowable { updateUserUseCase.unfold(updateUserRequest) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java).hasMessage("User with ID unknown does not exist.")
+        assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java).hasMessage("User with ID unknown does not exist.")
     }
 
     @Test
@@ -95,7 +95,7 @@ class UpdateUserUseCaseTest {
         // Act
         val thrown = catchThrowable { updateUserUseCase.unfold(UpdateUserRequest(administrator.id, editedJohn)) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserAlreadyExists::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserAlreadyExists::class.java)
         assertThat(stored(john.id).email).isEqualTo(Email("john.doe@example.com"))
     }
 

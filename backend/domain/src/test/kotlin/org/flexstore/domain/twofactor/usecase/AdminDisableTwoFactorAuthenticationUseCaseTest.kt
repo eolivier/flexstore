@@ -50,7 +50,7 @@ class AdminDisableTwoFactorAuthenticationUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(AdminTwoFactorDisabling(jane.id, otherAdmin.id)) }
         // Assert
-        assertThat(thrown).isInstanceOf(TwoFactorAuthenticationForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(TwoFactorAuthenticationForbiddenException::class.java)
         assertThat(storedTwoFactorAuthenticationOf(otherAdmin.id)).isInstanceOf(
             TwoFactorAuthentication.Enabled::class.java
         )
@@ -68,7 +68,7 @@ class AdminDisableTwoFactorAuthenticationUseCaseTest : WithAssertions {
             useCase.unfold(AdminTwoFactorDisabling(selfAdministrator.id, selfAdministrator.id))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidTwoFactorAuthenticationChangeException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(InvalidTwoFactorAuthenticationChangeException::class.java)
         assertThat(storedTwoFactorAuthenticationOf(selfAdministrator.id)).isInstanceOf(
             TwoFactorAuthentication.Enabled::class.java
         )
@@ -81,7 +81,7 @@ class AdminDisableTwoFactorAuthenticationUseCaseTest : WithAssertions {
             useCase.unfold(AdminTwoFactorDisabling(administrator.id, UserId.ValidUserId("unknown")))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java)
     }
 
     @Test
@@ -97,6 +97,6 @@ class AdminDisableTwoFactorAuthenticationUseCaseTest : WithAssertions {
             useCase.unfold(AdminTwoFactorDisabling(administrator.id, adminWithoutTwoFactor.id))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(TwoFactorAuthenticationNotEnabledException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(TwoFactorAuthenticationNotEnabledException::class.java)
     }
 }

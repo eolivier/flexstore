@@ -24,7 +24,7 @@ class ReserveOrderStockUseCase(
             val refusedLines = reservations.filterValues { it.isNotCovered() }.keys
             if (refusedLines.isNotEmpty()) {
                 val productNames = refusedLines.joinToString { it.productName.value }
-                throw OutOfStockException(ErrorMessage("Not enough units in stock for: $productNames."))
+                throw StockReservationFailed(ErrorMessage("Not enough units in stock for: $productNames."))
             }
         }
         return NominalScenario(reserveStockStep)

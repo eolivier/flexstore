@@ -125,7 +125,7 @@ class OrderCheckoutServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { service.placeOrder(checkoutWithoutTerms) }
         // Assert
-        assertThat(thrown).isInstanceOf(TermsOfSaleNotAcceptedException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(TermsOfSaleNotAcceptedException::class.java)
         assertThat(storedOrders()).isEmpty()
     }
 
@@ -138,7 +138,7 @@ class OrderCheckoutServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { service.placeOrder(checkout) }
         // Assert
-        assertThat(thrown).isInstanceOf(OutdatedTermsOfSaleException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(OutdatedTermsOfSaleException::class.java)
         assertThat(storedOrders()).isEmpty()
     }
 
@@ -189,7 +189,7 @@ class OrderCheckoutServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { service.placeOrder(checkout, DiscountCodeEntered(PromoCode("SUMMER"))) }
         // Assert
-        assertThat(thrown).isInstanceOf(DiscountCodeExpiredException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(DiscountCodeExpiredException::class.java)
         assertThat(storedOrders()).isEmpty()
     }
 
@@ -202,7 +202,7 @@ class OrderCheckoutServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { service.placeOrder(checkout, DiscountCodeEntered(PromoCode("ONCE"))) }
         // Assert
-        assertThat(thrown).isInstanceOf(DiscountCodeUsedUpException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(DiscountCodeUsedUpException::class.java)
     }
 
     @Test
@@ -212,7 +212,7 @@ class OrderCheckoutServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { service.placeOrder(checkout, DiscountCodeEntered(PromoCode("NOPE"))) }
         // Assert
-        assertThat(thrown).isInstanceOf(DiscountCodeNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(DiscountCodeNotFoundException::class.java)
     }
 
     @Test
@@ -252,7 +252,7 @@ class OrderCheckoutServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { service.placeOrder(checkout) }
         // Assert
-        assertThat(thrown).isInstanceOf(EmptyCartException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(EmptyCartException::class.java)
         assertThat(storedOrders()).isEmpty()
     }
 
@@ -265,7 +265,7 @@ class OrderCheckoutServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { service.placeOrder(unknownCustomerCheckout) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java)
     }
 
     @Test
@@ -307,7 +307,7 @@ class OrderCheckoutServiceTest : WithAssertions {
         val thrown = catchThrowable { service.placeOrder(checkout) }
         // Assert
         assertThat(storedOrders().isEmpty()).isEqualTo(!placed)
-        if (!placed) assertThat(thrown).isInstanceOf(OrderRefusedException::class.java)
+        if (!placed) assertThat(thrown).hasCauseInstanceOf(OrderRefusedException::class.java)
     }
 
     @Test
@@ -317,7 +317,7 @@ class OrderCheckoutServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { service.placeOrder(checkout) }
         // Assert
-        assertThat(thrown).isInstanceOf(OutOfStockException::class.java).hasMessageContaining("Desk lamp")
+        assertThat(thrown).hasCauseInstanceOf(OutOfStockException::class.java).hasMessageContaining("Desk lamp")
         assertThat(storedOrders()).isEmpty()
     }
 
@@ -329,7 +329,7 @@ class OrderCheckoutServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { serviceWithStockTakenMeanwhile.placeOrder(checkout) }
         // Assert
-        assertThat(thrown).isInstanceOf(OutOfStockException::class.java).hasMessageContaining("Desk lamp")
+        assertThat(thrown).isInstanceOf(StockReservationFailed::class.java).hasMessageContaining("Desk lamp")
     }
 }
 

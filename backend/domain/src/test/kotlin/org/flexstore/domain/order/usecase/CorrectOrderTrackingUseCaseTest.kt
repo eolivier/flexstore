@@ -74,7 +74,7 @@ class CorrectOrderTrackingUseCaseTest : WithAssertions {
             useCase.unfold(OrderTrackingCorrection(administrator, orderId, correctedTracking))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(OrderTrackingCannotBeCorrectedException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(OrderTrackingCannotBeCorrectedException::class.java)
         assertThat(storedTracking()).isEqualTo(OrderTracking.None)
     }
 
@@ -88,7 +88,7 @@ class CorrectOrderTrackingUseCaseTest : WithAssertions {
             useCase.unfold(OrderTrackingCorrection(administrator, orderId, invalidTracking))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidOrderTrackingException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(InvalidOrderTrackingException::class.java)
         assertThat(storedTracking()).isEqualTo(firstTracking)
     }
 
@@ -99,7 +99,7 @@ class CorrectOrderTrackingUseCaseTest : WithAssertions {
             useCase.unfold(OrderTrackingCorrection(administrator, orderId, correctedTracking))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(OrderNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(OrderNotFoundException::class.java)
     }
 
     @Test
@@ -111,7 +111,7 @@ class CorrectOrderTrackingUseCaseTest : WithAssertions {
             useCase.unfold(OrderTrackingCorrection(testCustomer.id, orderId, correctedTracking))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(OrderAdministrationForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(OrderAdministrationForbiddenException::class.java)
         assertThat(storedTracking()).isEqualTo(firstTracking)
     }
 
@@ -124,6 +124,6 @@ class CorrectOrderTrackingUseCaseTest : WithAssertions {
             useCase.unfold(OrderTrackingCorrection(unknownUser, orderId, correctedTracking))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(OrderAdministrationForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(OrderAdministrationForbiddenException::class.java)
     }
 }

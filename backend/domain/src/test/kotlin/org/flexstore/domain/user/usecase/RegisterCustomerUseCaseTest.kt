@@ -138,7 +138,7 @@ class RegisterCustomerUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(registration) }
         // Assert
-        assertThat(thrown).isInstanceOf(IncompleteRegistrationException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(IncompleteRegistrationException::class.java)
         assertThat(userRepository.exists(jane.userId)).isFalse()
     }
 
@@ -147,7 +147,7 @@ class RegisterCustomerUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(jane.copy(password = PlainPassword("short"))) }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidPasswordException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(InvalidPasswordException::class.java)
     }
 
     @Test
@@ -157,7 +157,7 @@ class RegisterCustomerUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(jane.copy(userId = UserId.ValidUserId("jane-2"))) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserAlreadyExists::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserAlreadyExists::class.java)
     }
 
     @Test
@@ -184,7 +184,7 @@ class RegisterCustomerUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(jane.copy(customerType = noSiren)) }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidCompanyException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(InvalidCompanyException::class.java)
         assertThat(userRepository.exists(jane.userId)).isFalse()
     }
 }

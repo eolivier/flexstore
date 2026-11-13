@@ -27,7 +27,7 @@ class ListUsersUseCaseTest : WithAssertions {
         val reading = UsersReading(testCustomer.id, PageRequest.first())
         val thrown = catchThrowable { useCase.unfold(reading) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserReadingForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserReadingForbiddenException::class.java)
     }
 
     @Test

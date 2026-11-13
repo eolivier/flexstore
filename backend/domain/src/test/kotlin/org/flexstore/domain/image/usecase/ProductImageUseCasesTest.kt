@@ -73,7 +73,7 @@ class ProductImageUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { productImageUseCases.add(administrator, tooLargeImage) }
         // Assert
-        assertThat(thrown).isInstanceOf(ImageTooLargeException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(ImageTooLargeException::class.java)
     }
 
     @Test
@@ -94,7 +94,7 @@ class ProductImageUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { productImageUseCases.add(administrator, unknownProductImage) }
         // Assert
-        assertThat(thrown).isInstanceOf(ProductNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(ProductNotFoundException::class.java)
     }
 
     @Test
@@ -105,7 +105,7 @@ class ProductImageUseCasesTest : WithAssertions {
         productImageUseCases.remove(administrator, deskLamp.productId)
         // Assert
         val thrown = catchThrowable { productImageUseCases.getImage(deskLamp.productId, ImageFormat.SMALL) }
-        assertThat(thrown).isInstanceOf(ProductImageNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(ProductImageNotFoundException::class.java)
         assertThat(productImageUseCases.getProductsWithImage()).isEqualTo(ProductIds())
     }
 
@@ -114,7 +114,7 @@ class ProductImageUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { productImageUseCases.add(testCustomer.id, uploadedImageOf(1000)) }
         // Assert
-        assertThat(thrown).isInstanceOf(ProductImageForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(ProductImageForbiddenException::class.java)
         assertThat(productImageRepository.productsWithImage()).doesNotContain(deskLamp.productId)
     }
 
@@ -125,6 +125,6 @@ class ProductImageUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { productImageUseCases.remove(unknownUser, deskLamp.productId) }
         // Assert
-        assertThat(thrown).isInstanceOf(ProductImageForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(ProductImageForbiddenException::class.java)
     }
 }

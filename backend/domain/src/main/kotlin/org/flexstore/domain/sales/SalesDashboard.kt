@@ -8,7 +8,7 @@ import org.flexstore.domain.order.model.*
 import org.flexstore.domain.sharedkernel.Price
 import org.flexstore.domain.user.model.UserId
 import org.ucop.domain.ErrorMessage
-import org.ucop.domain.NominalException
+import org.ucop.domain.PreConditionException
 
 // The shop counts its days in its own time zone
 private val SHOP_ZONE: ZoneId = ZoneId.of("Europe/Paris")
@@ -98,5 +98,6 @@ data class SalesDashboard(
 data class SalesDashboardReading(val reader: UserId, val question: SalesQuestion)
 
 data class SalesDashboardForbiddenException(override val errorMessage: ErrorMessage) :
-    NominalException(errorMessage)
-data class InvalidSalesPeriodException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+    PreConditionException(errorMessage)
+data class InvalidSalesPeriodException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage)

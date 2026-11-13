@@ -1,7 +1,7 @@
 package org.flexstore.domain.user.model
 
 import org.ucop.domain.ErrorMessage
-import org.ucop.domain.NominalException
+import org.ucop.domain.PreConditionException
 
 // The token that Google gives to the browser of a person who signed in with their Google account
 data class GoogleIdToken(val value: String)
@@ -25,4 +25,4 @@ data class GoogleIdentity(val fullName: FullName, val email: Email) {
 // The token is not Google's, is not meant for this shop, has expired, or its email is not verified; or signing
 // in with Google is not set up
 data class InvalidGoogleIdTokenException(override val errorMessage: ErrorMessage) :
-    NominalException(errorMessage)
+    PreConditionException(errorMessage)

@@ -39,7 +39,7 @@ class DeleteUserUseCaseTest {
         // Act
         val thrown = catchThrowable { deleteUserUseCase.unfold(UserDeletion(administrator, userId)) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java)
     }
 
     @Test
@@ -62,7 +62,7 @@ class DeleteUserUseCaseTest {
         // Act
         val thrown = catchThrowable { deleteUserUseCase.unfold(UserDeletion(customer, userId)) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserDeletionForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserDeletionForbiddenException::class.java)
         verify(exactly = 0) { userRepository.delete(userId) }
     }
 }

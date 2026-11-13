@@ -57,7 +57,7 @@ class StartTwoFactorEnrollmentUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(TwoFactorEnrollmentStart(unknownCustomerId, secret)) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java)
     }
 
     @ParameterizedTest
@@ -68,7 +68,7 @@ class StartTwoFactorEnrollmentUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(TwoFactorEnrollmentStart(blockedCustomerId, secret)) }
         // Assert
-        assertThat(thrown).isInstanceOf(AccountRefusedException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(AccountRefusedException::class.java)
     }
 
     @Test
@@ -79,6 +79,6 @@ class StartTwoFactorEnrollmentUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(TwoFactorEnrollmentStart(administrator.id, secret)) }
         // Assert
-        assertThat(thrown).isInstanceOf(TwoFactorAuthenticationAlreadyEnabledException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(TwoFactorAuthenticationAlreadyEnabledException::class.java)
     }
 }

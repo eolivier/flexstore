@@ -74,7 +74,7 @@ class SellerSetupServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { sellerSetupService.complete(administrator, invalidSellerDetail) }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidSellerException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(InvalidSellerException::class.java)
         assertThat(shopSettingsRepository.load().isSellerNotSetUp()).isTrue()
     }
 
@@ -83,7 +83,7 @@ class SellerSetupServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { sellerSetupService.complete(testCustomer.id, testSellerDetail) }
         // Assert
-        assertThat(thrown).isInstanceOf(SellerAdministrationForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(SellerAdministrationForbiddenException::class.java)
         assertThat(shopSettingsRepository.load().isSellerNotSetUp()).isTrue()
     }
 
@@ -92,7 +92,7 @@ class SellerSetupServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { sellerSetupService.complete(unknownUser, testSellerDetail) }
         // Assert
-        assertThat(thrown).isInstanceOf(SellerAdministrationForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(SellerAdministrationForbiddenException::class.java)
         assertThat(shopSettingsRepository.load().isSellerNotSetUp()).isTrue()
     }
 

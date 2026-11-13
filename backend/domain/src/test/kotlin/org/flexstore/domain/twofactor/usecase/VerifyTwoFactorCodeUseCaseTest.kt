@@ -65,7 +65,7 @@ class VerifyTwoFactorCodeUseCaseTest : WithAssertions {
             useCase.unfold(TwoFactorCodeVerification(challengeId, secret.codeAt(Instant.now())))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(TwoFactorChallengeNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(TwoFactorChallengeNotFoundException::class.java)
     }
 
     @Test
@@ -77,7 +77,7 @@ class VerifyTwoFactorCodeUseCaseTest : WithAssertions {
             useCase.unfold(TwoFactorCodeVerification(challengeId, TwoFactorCode("000000")))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(TwoFactorCodeInvalidException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(TwoFactorCodeInvalidException::class.java)
     }
 
     @Test
@@ -87,7 +87,7 @@ class VerifyTwoFactorCodeUseCaseTest : WithAssertions {
         val verification = TwoFactorCodeVerification(unknownId, TwoFactorCode("123456"))
         val thrown = catchThrowable { useCase.unfold(verification) }
         // Assert
-        assertThat(thrown).isInstanceOf(TwoFactorChallengeNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(TwoFactorChallengeNotFoundException::class.java)
     }
 
     @Test
@@ -101,6 +101,6 @@ class VerifyTwoFactorCodeUseCaseTest : WithAssertions {
             useCase.unfold(TwoFactorCodeVerification(challengeId, secret.codeAt(issuedAt)))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(TwoFactorChallengeNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(TwoFactorChallengeNotFoundException::class.java)
     }
 }

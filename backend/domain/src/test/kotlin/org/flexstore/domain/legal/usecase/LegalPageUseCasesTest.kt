@@ -93,7 +93,7 @@ class LegalPageUseCasesTest : WithAssertions {
             legalPageUseCases.publish(customer.id, LegalPageKind.TERMS_OF_SALE, LegalText("Article 1 - Autre"))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(LegalPagePublicationForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(LegalPagePublicationForbiddenException::class.java)
         assertThat(legalPageUseCases.legalPage(LegalPageKind.TERMS_OF_SALE)).isEqualTo(writtenTermsOfSale)
     }
 
@@ -104,7 +104,7 @@ class LegalPageUseCasesTest : WithAssertions {
             legalPageUseCases.publish(ValidUserId("unknown"), LegalPageKind.LEGAL_NOTICE, LegalText("Mentions"))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(LegalPagePublicationForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(LegalPagePublicationForbiddenException::class.java)
     }
 
     @ParameterizedTest(name = "the text \"{0}\" is refused")
@@ -115,7 +115,7 @@ class LegalPageUseCasesTest : WithAssertions {
             legalPageUseCases.publish(administrator.id, LegalPageKind.TERMS_OF_SALE, LegalText(text))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidLegalPageException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(InvalidLegalPageException::class.java)
         assertThat(legalPageUseCases.legalPage(LegalPageKind.TERMS_OF_SALE)).isEqualTo(writtenTermsOfSale)
     }
 
@@ -128,7 +128,7 @@ class LegalPageUseCasesTest : WithAssertions {
             legalPageUseCases.publish(administrator.id, LegalPageKind.LEGAL_NOTICE, tooLongText)
         }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidLegalPageException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(InvalidLegalPageException::class.java)
     }
 
     @Test

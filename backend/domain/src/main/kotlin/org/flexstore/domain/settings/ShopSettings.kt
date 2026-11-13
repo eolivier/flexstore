@@ -4,6 +4,7 @@ import org.flexstore.domain.sharedkernel.*
 import java.math.BigDecimal
 
 import org.ucop.domain.NominalException
+import org.ucop.domain.PreConditionException
 import org.ucop.domain.ErrorMessage
 import java.time.Duration
 import org.flexstore.domain.user.model.UserId
@@ -144,10 +145,11 @@ data class ShopSettingsUpdate(val editor: UserId, val settings: ShopSettings)
 data class ShopSettingsReading(val reader: UserId)
 
 data class ShopSettingsAdministrationForbiddenException(override val errorMessage: ErrorMessage) :
-    NominalException(errorMessage)
+    PreConditionException(errorMessage)
 data class InvalidFreeShippingThresholdException(override val errorMessage: ErrorMessage) :
-    NominalException(errorMessage)
+    PreConditionException(errorMessage)
 data class InvalidAbandonedCartDelayException(override val errorMessage: ErrorMessage) :
-    NominalException(errorMessage)
-data class InvalidPaymentDelayException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+    PreConditionException(errorMessage)
+data class InvalidPaymentDelayException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage)
 data class ShopSettingsUpdateFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

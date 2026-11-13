@@ -49,7 +49,7 @@ class StockUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { stockUseCases.change(testAdministrator.id, negativeStock) }
         // Assert
-        assertThat(thrown).isInstanceOf(NegativeStockException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(NegativeStockException::class.java)
     }
 
     @Test
@@ -59,7 +59,7 @@ class StockUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { stockUseCases.change(testAdministrator.id, unknownProductStock) }
         // Assert
-        assertThat(thrown).isInstanceOf(ProductNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(ProductNotFoundException::class.java)
     }
 
     @Test
@@ -69,7 +69,7 @@ class StockUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { stockUseCases.change(testCustomer.id, stock) }
         // Assert
-        assertThat(thrown).isInstanceOf(StockChangeForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(StockChangeForbiddenException::class.java)
         assertThat(stockRepository.stockOf(deskLamp.productId)).isEqualTo(Stock.noneOf(deskLamp.productId))
     }
 
@@ -80,6 +80,6 @@ class StockUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { stockUseCases.change(unknownUser, stock) }
         // Assert
-        assertThat(thrown).isInstanceOf(StockChangeForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(StockChangeForbiddenException::class.java)
     }
 }

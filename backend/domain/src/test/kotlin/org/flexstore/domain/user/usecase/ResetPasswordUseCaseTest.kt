@@ -41,7 +41,7 @@ class ResetPasswordUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { resetPasswordUseCase.unfold(confirmation("another-password")) }
         // Assert
-        assertThat(thrown).isInstanceOf(PasswordResetLinkUnknownException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(PasswordResetLinkUnknownException::class.java)
     }
 
     @Test
@@ -51,7 +51,7 @@ class ResetPasswordUseCaseTest : WithAssertions {
             resetPasswordUseCase.unfold(confirmation("new-password", requestedAt + PasswordReset.VALIDITY))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(PasswordResetLinkExpiredException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(PasswordResetLinkExpiredException::class.java)
         assertThat(userRepository.passwordMatches(email, PlainPassword("old-password"))).isTrue()
     }
 
@@ -60,6 +60,6 @@ class ResetPasswordUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { resetPasswordUseCase.unfold(confirmation("short")) }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidPasswordException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(InvalidPasswordException::class.java)
     }
 }

@@ -68,7 +68,7 @@ class RemindAbandonedCartUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(AbandonedCartReminding(systemActor, unknownCustomer)) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java)
         assertThat(emailRepository.sentAbandonedCartReminderEmails()).isEmpty()
     }
 
@@ -84,7 +84,7 @@ class RemindAbandonedCartUseCaseTest : WithAssertions {
         val reminding = AbandonedCartReminding(systemActor, blockedCustomer)
         val thrown = catchThrowable { blockedUseCase.unfold(reminding) }
         // Assert
-        assertThat(thrown).isInstanceOf(AccountRefusedException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(AccountRefusedException::class.java)
         assertThat(emailRepository.sentAbandonedCartReminderEmails()).isEmpty()
     }
 

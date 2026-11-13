@@ -2,6 +2,7 @@ package org.flexstore.domain.user.service
 
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.usecase.*
+import org.ucop.domain.NominalException
 
 // Domain service: the sessions of the signed-in users. A refresh token works once: it is replaced by another one
 // at each use, and when a token that was already used comes back, every session of its user is ended before the
@@ -29,9 +30,11 @@ class UserSessionService(
         val next = RefreshSession.openedAt(current.userId, sessionMoment)
         try {
             rotateRefreshSessionUseCase.unfold(SessionRotation(presented, next, sessionMoment))
-        } catch (reuse: RefreshTokenReusedException) {
-            revokeAllRefreshSessionsUseCase.unfold(AllSessionsEnding(current.userId, sessionMoment))
-            throw reuse
+        } catch (refusal: NominalException) {
+            if (refusal.cause is RefreshTokenReusedException) {
+                revokeAllRefreshSessionsUseCase.unfold(AllSessionsEnding(current.userId, sessionMoment))
+            }
+            throw refusal
         }
         return SignedInSession(readAccountUseCase.unfold(current.userId), next)
     }

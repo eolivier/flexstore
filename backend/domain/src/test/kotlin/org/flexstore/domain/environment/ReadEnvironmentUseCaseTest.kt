@@ -67,6 +67,6 @@ class ReadEnvironmentUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(EnvironmentReading(testCustomer.id)) }
         // Assert
-        assertThat(thrown).isInstanceOf(EnvironmentAdministrationForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(EnvironmentAdministrationForbiddenException::class.java)
     }
 }

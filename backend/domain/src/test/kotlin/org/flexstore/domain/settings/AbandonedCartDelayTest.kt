@@ -38,7 +38,7 @@ class AbandonedCartDelayTest : WithAssertions {
             service.changeAbandonedCartDelay(testAdministrator.id, AbandonedCartDelay(0))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidAbandonedCartDelayException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(InvalidAbandonedCartDelayException::class.java)
     }
 
     @Test

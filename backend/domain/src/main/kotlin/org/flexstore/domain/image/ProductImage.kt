@@ -4,6 +4,7 @@ import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.user.model.UserId
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
+import org.ucop.domain.PreConditionException
 
 // The types of image that the shop accepts
 enum class ImageType(val mediaType: String) {
@@ -62,9 +63,9 @@ data class ProductImageUpload(val editor: UserId, val uploadedImage: UploadedIma
 data class ProductImageRemoval(val editor: UserId, val productId: ProductId)
 
 data class ProductImageForbiddenException(override val errorMessage: ErrorMessage) :
-    NominalException(errorMessage)
+    PreConditionException(errorMessage)
 data class UnreadableImageException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
-data class ImageTooLargeException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class ImageTooLargeException(override val errorMessage: ErrorMessage) : PreConditionException(errorMessage)
 data class ProductImageNotFoundException(override val errorMessage: ErrorMessage) :
-    NominalException(errorMessage)
+    PreConditionException(errorMessage)
 data class ProductImageStorageFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

@@ -64,7 +64,7 @@ class RemoveProductFromWishlistUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(entry) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java)
     }
 
     @ParameterizedTest
@@ -78,6 +78,6 @@ class RemoveProductFromWishlistUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(entry) }
         // Assert
-        assertThat(thrown).isInstanceOf(AccountRefusedException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(AccountRefusedException::class.java)
     }
 }

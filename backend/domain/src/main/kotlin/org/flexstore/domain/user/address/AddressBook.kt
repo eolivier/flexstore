@@ -3,6 +3,7 @@ package org.flexstore.domain.user.address
 import org.flexstore.domain.user.model.*
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
+import org.ucop.domain.PreConditionException
 
 // The place of an address among the addresses of a user (0 for the first one)
 data class AddressPosition(val value: Int)
@@ -21,6 +22,8 @@ data class AddressRemoval(val userAddress: UserAddress, val addressesBefore: Pos
     fun addressesAfter() = addressesBefore.withoutAt(userAddress.position)
 }
 
-data class AddressNotFoundException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
-data class IncompleteAddressException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class AddressNotFoundException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage)
+data class IncompleteAddressException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage)
 data class AddressChangeFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

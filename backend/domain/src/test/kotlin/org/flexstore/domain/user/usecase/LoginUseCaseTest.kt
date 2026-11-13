@@ -41,7 +41,7 @@ class LoginUseCaseTest {
         // Act
         val thrown = catchThrowable { loginUseCase.unfold(LoginRequest(unknownEmail, PlainPassword("password123"))) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserNotFoundByEmailException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserNotFoundByEmailException::class.java)
             .hasMessage("User with email nonexistent@example.com does not exist.")
     }
 
@@ -54,6 +54,6 @@ class LoginUseCaseTest {
         // Act
         val thrown = catchThrowable { loginUseCase.unfold(LoginRequest(email, incorrectPassword)) }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidCredentialsException::class.java).hasMessage("Invalid credentials.")
+        assertThat(thrown).hasCauseInstanceOf(InvalidCredentialsException::class.java).hasMessage("Invalid credentials.")
     }
 }

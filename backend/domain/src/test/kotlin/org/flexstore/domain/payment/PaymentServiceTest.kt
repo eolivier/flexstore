@@ -214,7 +214,7 @@ class PaymentServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { paidLater.verify(OrderPayment(otherCustomer, orderId)) }
         // Assert
-        assertThat(thrown).isInstanceOf(OrderNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(OrderNotFoundException::class.java)
     }
 
     @Test
@@ -237,7 +237,7 @@ class PaymentServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { paidAtOnce.pay(OrderPayment(customer, orderId)) }
         // Assert
-        assertThat(thrown).isInstanceOf(OrderAlreadyPaidException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(OrderAlreadyPaidException::class.java)
     }
 
     @Test
@@ -248,7 +248,7 @@ class PaymentServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { paidAtOnce.pay(OrderPayment(otherCustomer, orderId)) }
         // Assert
-        assertThat(thrown).isInstanceOf(OrderNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(OrderNotFoundException::class.java)
     }
 
     @Test
@@ -259,7 +259,7 @@ class PaymentServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { paidAtOnce.pay(OrderPayment(unknownCustomer, orderId)) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java)
     }
 
     @ParameterizedTest
@@ -272,6 +272,6 @@ class PaymentServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { paidAtOnce.pay(OrderPayment(blockedCustomer, orderId)) }
         // Assert
-        assertThat(thrown).isInstanceOf(AccountRefusedException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(AccountRefusedException::class.java)
     }
 }

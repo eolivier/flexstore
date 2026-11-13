@@ -2,7 +2,7 @@ package org.flexstore.domain.environment
 
 import org.flexstore.domain.user.model.UserId
 import org.ucop.domain.ErrorMessage
-import org.ucop.domain.NominalException
+import org.ucop.domain.PreConditionException
 
 data class VariableName(val value: String)
 
@@ -130,4 +130,4 @@ data class ExpectedVariables(private val variables: List<ExpectedVariable>) {
 data class EnvironmentReading(val reader: UserId)
 
 data class EnvironmentAdministrationForbiddenException(override val errorMessage: ErrorMessage) :
-    NominalException(errorMessage)
+    PreConditionException(errorMessage)

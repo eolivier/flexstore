@@ -46,7 +46,7 @@ class CreateUserUseCaseTest {
         // Act
         val thrown = catchThrowable { createUserUseCase.unfold(CreateUserRequest(creator.id, draftUser)) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserCreationForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserCreationForbiddenException::class.java)
         verify(exactly = 0) { userRepository.save(ofType<User.DraftUser>()) }
     }
 
@@ -58,7 +58,7 @@ class CreateUserUseCaseTest {
         // Act
         val thrown = catchThrowable { createUserUseCase.unfold(CreateUserRequest(unknownCreator, draftUser)) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserCreationForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserCreationForbiddenException::class.java)
     }
 
     @Test
@@ -69,7 +69,7 @@ class CreateUserUseCaseTest {
         // Act
         val thrown = catchThrowable { createUserUseCase.unfold(CreateUserRequest(administrator.id, user)) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserAlreadyExists::class.java).hasMessage("User with ID 123 already exists.")
+        assertThat(thrown).hasCauseInstanceOf(UserAlreadyExists::class.java).hasMessage("User with ID 123 already exists.")
     }
 
     @Test
@@ -107,7 +107,7 @@ class CreateUserUseCaseTest {
         // Act
         val thrown = catchThrowable { createUserUseCase.unfold(CreateUserRequest(administrator.id, draftUser)) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserAlreadyExists::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserAlreadyExists::class.java)
             .hasMessage("User with email john.doe@example.com already exists.")
     }
 
@@ -121,6 +121,6 @@ class CreateUserUseCaseTest {
         // Act
         val thrown = catchThrowable { createUserUseCase.unfold(createUserRequest) }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidPasswordException::class.java).hasMessage("Password must not be blank.")
+        assertThat(thrown).hasCauseInstanceOf(InvalidPasswordException::class.java).hasMessage("Password must not be blank.")
     }
 }

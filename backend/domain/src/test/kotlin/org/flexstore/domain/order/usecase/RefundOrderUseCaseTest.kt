@@ -77,7 +77,7 @@ class RefundOrderUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(OrderRefund(administrator, orderId, status)) }
         // Assert
-        assertThat(thrown).isInstanceOf(OrderNotRefundableException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(OrderNotRefundableException::class.java)
         assertThat(storedStatus()).isEqualTo(status)
         assertThat(paymentRepository.isRefunded(orderId)).isFalse()
     }
@@ -90,7 +90,7 @@ class RefundOrderUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(orderRefund) }
         // Assert
-        assertThat(thrown).isInstanceOf(OrderStatusChangedException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(OrderStatusChangedException::class.java)
         assertThat(storedStatus()).isEqualTo(OrderStatus.SHIPPED)
     }
 
@@ -114,7 +114,7 @@ class RefundOrderUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(orderRefund) }
         // Assert
-        assertThat(thrown).isInstanceOf(OrderNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(OrderNotFoundException::class.java)
     }
 
     @Test
@@ -122,6 +122,6 @@ class RefundOrderUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(OrderRefund(unknownUser, orderId, OrderStatus.PAID)) }
         // Assert
-        assertThat(thrown).isInstanceOf(OrderAdministrationForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(OrderAdministrationForbiddenException::class.java)
     }
 }

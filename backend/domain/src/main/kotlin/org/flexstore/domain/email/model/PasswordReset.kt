@@ -6,6 +6,7 @@ import org.flexstore.domain.sharedkernel.ShopUrl
 import org.flexstore.domain.user.model.*
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
+import org.ucop.domain.PreConditionException
 
 // The secret of a link and the moment from which it does not work any more
 data class ExpiringToken(val token: VerificationToken, val expiresAt: ExpirationDate) {
@@ -44,7 +45,7 @@ data class PasswordResetEmail(val user: User.DefinedUser, val reset: PasswordRes
 }
 
 data class PasswordResetLinkUnknownException(override val errorMessage: ErrorMessage) :
-    NominalException(errorMessage)
+    PreConditionException(errorMessage)
 data class PasswordResetLinkExpiredException(override val errorMessage: ErrorMessage) :
-    NominalException(errorMessage)
+    PreConditionException(errorMessage)
 data class PasswordResetFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

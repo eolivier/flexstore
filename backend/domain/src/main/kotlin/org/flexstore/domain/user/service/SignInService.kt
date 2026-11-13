@@ -12,6 +12,7 @@ import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.repository.GoogleIdentityVerifier
 import org.flexstore.domain.user.repository.UserRepository
 import org.flexstore.domain.user.usecase.*
+import org.ucop.domain.NominalException
 
 // Domain service: an account signs in. A wrong password, or a wrong two-factor code, is counted and locks the
 // account at the limit (see RecordFailedSignInUseCase); a successful sign-in starts the count again. The user
@@ -30,9 +31,11 @@ class SignInService(
         val loginUseCase = LoginUseCase(userRepository)
         try {
             loginUseCase.unfold(loginRequest)
-        } catch (wrongPassword: InvalidCredentialsException) {
-            recordFailedSignInUseCase.unfold(loginRequest.email)
-            throw wrongPassword
+        } catch (refusal: NominalException) {
+            if (refusal.cause is InvalidCredentialsException) {
+                recordFailedSignInUseCase.unfold(loginRequest.email)
+            }
+            throw refusal
         }
         return outcomeOf(loginUseCase.authenticatedUser as User.DefinedUser)
     }
@@ -60,9 +63,11 @@ class SignInService(
         val verifyTwoFactorCodeUseCase = VerifyTwoFactorCodeUseCase(twoFactorChallengeRepository, userRepository)
         try {
             verifyTwoFactorCodeUseCase.unfold(verification)
-        } catch (wrongCode: TwoFactorCodeInvalidException) {
-            recordFailedSignInUseCase.unfold(challengedEmail(verification.challengeId))
-            throw wrongCode
+        } catch (refusal: NominalException) {
+            if (refusal.cause is TwoFactorCodeInvalidException) {
+                recordFailedSignInUseCase.unfold(challengedEmail(verification.challengeId))
+            }
+            throw refusal
         }
         val user = verifyTwoFactorCodeUseCase.authenticatedUser
         resetFailedSignInsUseCase.unfold(user.id)

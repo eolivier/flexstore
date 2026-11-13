@@ -56,7 +56,7 @@ class ReadUserUseCase(private val userRepository: UserRepository) : UseCase<User
 
     private fun userRetrievedCondition() = PostCondition<UserReading> { (_, userId) ->
         if (retrievedUser is User.UndefinedUser) {
-            throw UserNotFoundException(ErrorMessage("User with ID ${userId.value} does not exist."))
+            throw UserRetrievalFailed(ErrorMessage("User with ID ${userId.value} does not exist."))
         }
     }
 }

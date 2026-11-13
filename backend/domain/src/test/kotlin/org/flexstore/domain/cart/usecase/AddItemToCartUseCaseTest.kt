@@ -57,7 +57,7 @@ class AddItemToCartUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(request) }
         // Assert
-        assertThat(thrown).isInstanceOf(ProductNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(ProductNotFoundException::class.java)
         assertThat(cartRepository.load(owner).items.asList()).isEmpty()
     }
 
@@ -90,7 +90,7 @@ class AddItemToCartUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(request) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java)
     }
 
     @Test
@@ -112,6 +112,6 @@ class AddItemToCartUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(request) }
         // Assert
-        assertThat(thrown).isInstanceOf(AccountRefusedException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(AccountRefusedException::class.java)
     }
 }

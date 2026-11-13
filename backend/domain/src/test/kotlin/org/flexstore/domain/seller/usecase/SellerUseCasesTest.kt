@@ -55,7 +55,7 @@ class SellerUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { sellerUseCases.update(administrator, sellerDetail) }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidSellerException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(InvalidSellerException::class.java)
         assertThat(sellerRepository.current()).isEqualTo(testSeller)
     }
 
@@ -66,7 +66,7 @@ class SellerUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { sellerUseCases.update(administrator, sellerDetail) }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidSellerException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(InvalidSellerException::class.java)
     }
 
     @ParameterizedTest(name = "the SIRET \"{0}\" is accepted")
@@ -90,7 +90,7 @@ class SellerUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { sellerUseCases.update(administrator, sellerDetail) }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidSellerException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(InvalidSellerException::class.java)
     }
 
     @ParameterizedTest(name = "the VAT number \"{0}\" is accepted")
@@ -114,7 +114,7 @@ class SellerUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { sellerUseCases.update(administrator, sellerDetail) }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidSellerException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(InvalidSellerException::class.java)
     }
 
     @ParameterizedTest(name = "the phone \"{0}\", the email \"{1}\" and the website \"{2}\" are refused")
@@ -135,7 +135,7 @@ class SellerUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { sellerUseCases.update(administrator, sellerDetail) }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidSellerException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(InvalidSellerException::class.java)
     }
 
     @ParameterizedTest(name = "the phone \"{0}\" and the website \"{1}\" are accepted")
@@ -163,7 +163,7 @@ class SellerUseCasesTest : WithAssertions {
             sellerUseCases.update(administrator, testSellerDetail.copy(incorporation = sellerIncorporation))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidSellerException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(InvalidSellerException::class.java)
     }
 
     @ParameterizedTest(name = "the address \"{0}\" of a social network is refused")
@@ -176,7 +176,7 @@ class SellerUseCasesTest : WithAssertions {
             sellerUseCases.update(administrator, testSellerDetail.copy(socialNetworks = socialNetworks))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidSellerException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(InvalidSellerException::class.java)
         assertThat(sellerRepository.current()).isEqualTo(testSeller)
     }
 
@@ -210,7 +210,7 @@ class SellerUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { sellerUseCases.update(testCustomer.id, testSellerDetail) }
         // Assert
-        assertThat(thrown).isInstanceOf(SellerAdministrationForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(SellerAdministrationForbiddenException::class.java)
         assertThat(sellerRepository.current()).isEqualTo(testSeller)
     }
 
@@ -219,7 +219,7 @@ class SellerUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { sellerUseCases.currentSeller(testCustomer.id) }
         // Assert
-        assertThat(thrown).isInstanceOf(SellerAdministrationForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(SellerAdministrationForbiddenException::class.java)
     }
 
     @Test
@@ -227,6 +227,6 @@ class SellerUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { sellerUseCases.update(unknownUser, testSellerDetail) }
         // Assert
-        assertThat(thrown).isInstanceOf(SellerAdministrationForbiddenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(SellerAdministrationForbiddenException::class.java)
     }
 }

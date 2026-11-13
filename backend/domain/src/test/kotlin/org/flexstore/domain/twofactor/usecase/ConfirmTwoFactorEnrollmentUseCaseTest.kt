@@ -47,7 +47,7 @@ class ConfirmTwoFactorEnrollmentUseCaseTest : WithAssertions {
             useCase.unfold(TwoFactorEnrollmentConfirmation(administrator.id, TwoFactorCode("000000")))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(TwoFactorCodeInvalidException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(TwoFactorCodeInvalidException::class.java)
         assertThat(storedTwoFactorAuthenticationOf(administrator.id)).isEqualTo(
             TwoFactorAuthentication.PendingConfirmation(secret)
         )
@@ -66,7 +66,7 @@ class ConfirmTwoFactorEnrollmentUseCaseTest : WithAssertions {
             useCase.unfold(TwoFactorEnrollmentConfirmation(other.id, secret.codeAt(Instant.now())))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(TwoFactorEnrollmentNotPendingException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(TwoFactorEnrollmentNotPendingException::class.java)
     }
 
     @Test
@@ -90,6 +90,6 @@ class ConfirmTwoFactorEnrollmentUseCaseTest : WithAssertions {
             useCase.unfold(TwoFactorEnrollmentConfirmation(unknownCustomerId, secret.codeAt(Instant.now())))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java)
     }
 }

@@ -5,6 +5,7 @@ import org.flexstore.domain.twofactor.model.TwoFactorAuthentication
 import org.flexstore.domain.twofactor.model.TwoFactorSecret
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
+import org.ucop.domain.PreConditionException
 import org.ucop.domain.entity.Actor
 
 sealed class User(open val id: UserId) {
@@ -126,12 +127,13 @@ enum class Role {
 }
 
 data class UserReadingForbiddenException(override val errorMessage: ErrorMessage) :
-    NominalException(errorMessage)
+    PreConditionException(errorMessage)
 data class UserDeletionForbiddenException(override val errorMessage: ErrorMessage) :
-    NominalException(errorMessage)
-data class UserUpdateForbiddenException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+    PreConditionException(errorMessage)
+data class UserUpdateForbiddenException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage)
 data class UserCreationForbiddenException(override val errorMessage: ErrorMessage) :
-    NominalException(errorMessage)
+    PreConditionException(errorMessage)
 data class InvalidRoleException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 
 sealed class Password {
@@ -143,16 +145,21 @@ data class PlainPassword(override val value: String) : Password()
 data class HashedPassword(override val value: String) : Password()
 
 // creation
-data class UserAlreadyExists(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class UserAlreadyExists(override val errorMessage: ErrorMessage) : PreConditionException(errorMessage)
 data class UserCreationFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
-data class InvalidPasswordException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class InvalidPasswordException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage)
 // read
-data class InvalidUserIdException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
-data class UserNotFoundException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class InvalidUserIdException(override val errorMessage: ErrorMessage) : PreConditionException(errorMessage)
+data class UserNotFoundException(override val errorMessage: ErrorMessage) : PreConditionException(errorMessage)
 data class UserRetrievalFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 // delete
 data class UserDeletionFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 // login
-data class InvalidCredentialsException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
-data class UserNotFoundByEmailException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class InvalidCredentialsException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage)
+// The user was not authenticated although the login preconditions held
+data class UserAuthenticationFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class UserNotFoundByEmailException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage)
 
