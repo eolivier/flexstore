@@ -1,11 +1,13 @@
 package org.flexstore.domain.cart.usecase
 
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.product.model.*
 import org.flexstore.domain.user.blockedCustomerId
 import org.flexstore.domain.user.customerWithStatus
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import org.flexstore.domain.cart.*
+import org.flexstore.domain.cart.actorOf
 import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.*
@@ -22,14 +24,18 @@ class ChangeCartItemQuantityUseCaseTest : WithAssertions {
     private val owner = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val cartRepository = InMemoryCartRepository()
     private val userRepository = customersWithIds("user-1", "user-2")
-    private val useCase = ChangeCartItemQuantityUseCase(cartRepository, userRepository)
+    private val actorResolutionService = ActorResolutionService(userRepository)
+
+    private fun changeQuantityRequest(owner: CartOwner, itemId: ItemId, quantity: Quantity) =
+        ChangeCartItemQuantityRequest(actorResolutionService.actorOf(owner), owner, itemId, quantity)
+    private val useCase = ChangeCartItemQuantityUseCase(cartRepository)
     private val savedCart = cartRepository.save(Cart(owner).add(product, Quantity(1)))
     private val itemId = savedCart.items.cartItems().itemIds().single()
 
     @Test
     fun `should change the quantity of the item`() {
         // Arrange
-        val request = ChangeCartItemQuantityRequest(owner, itemId, Quantity(4))
+        val request = changeQuantityRequest(owner, itemId, Quantity(4))
         // Act
         useCase.unfold(request)
         // Assert
@@ -39,7 +45,7 @@ class ChangeCartItemQuantityUseCaseTest : WithAssertions {
     @Test
     fun `a quantity of zero should remove the item`() {
         // Arrange
-        val request = ChangeCartItemQuantityRequest(owner, itemId, Quantity(0))
+        val request = changeQuantityRequest(owner, itemId, Quantity(0))
         // Act
         useCase.unfold(request)
         // Assert
@@ -49,9 +55,9 @@ class ChangeCartItemQuantityUseCaseTest : WithAssertions {
     @Test
     fun `an item already removed should be ignored`() {
         // Arrange
-        useCase.unfold(ChangeCartItemQuantityRequest(owner, itemId, Quantity(0)))
+        useCase.unfold(changeQuantityRequest(owner, itemId, Quantity(0)))
         // Act
-        useCase.unfold(ChangeCartItemQuantityRequest(owner, itemId, Quantity(5)))
+        useCase.unfold(changeQuantityRequest(owner, itemId, Quantity(5)))
         // Assert
         assertThat(cartRepository.load(owner).items.asList()).isEmpty()
     }
@@ -61,7 +67,7 @@ class ChangeCartItemQuantityUseCaseTest : WithAssertions {
         // Arrange
         val otherOwner = CartOwner.Customer(UserId.ValidUserId("user-2"))
         // Act
-        useCase.unfold(ChangeCartItemQuantityRequest(otherOwner, itemId, Quantity(0)))
+        useCase.unfold(changeQuantityRequest(otherOwner, itemId, Quantity(0)))
         // Assert
         assertThat(cartRepository.load(owner).findBy(itemId)?.quantity).isEqualTo(Quantity(1))
     }
@@ -69,7 +75,7 @@ class ChangeCartItemQuantityUseCaseTest : WithAssertions {
     @Test
     fun `an unknown customer should not change the quantity of an item`() {
         // Arrange
-        val request = ChangeCartItemQuantityRequest(CartOwner.Customer(unknownCustomerId), itemId, Quantity(3))
+        val request = changeQuantityRequest(CartOwner.Customer(unknownCustomerId), itemId, Quantity(3))
         // Act
         val thrown = catchThrowable { useCase.unfold(request) }
         // Assert
@@ -81,7 +87,7 @@ class ChangeCartItemQuantityUseCaseTest : WithAssertions {
     fun `a customer whose account is refused should not change the quantity of an item`(status: AccountStatus) {
         // Arrange
         userRepository.save(customerWithStatus(status))
-        val request = ChangeCartItemQuantityRequest(CartOwner.Customer(blockedCustomerId), itemId, Quantity(3))
+        val request = changeQuantityRequest(CartOwner.Customer(blockedCustomerId), itemId, Quantity(3))
         // Act
         val thrown = catchThrowable { useCase.unfold(request) }
         // Assert

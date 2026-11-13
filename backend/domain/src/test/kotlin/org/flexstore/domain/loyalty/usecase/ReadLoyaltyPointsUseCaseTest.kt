@@ -1,5 +1,6 @@
 package org.flexstore.domain.loyalty.usecase
 
+import org.flexstore.domain.actor.ActorResolutionService
 import java.math.BigDecimal
 import java.time.Instant
 import org.assertj.core.api.WithAssertions
@@ -28,7 +29,8 @@ class ReadLoyaltyPointsUseCaseTest : WithAssertions {
     private val customer = CartOwner.Customer(customerId)
     private val orderRepository = InMemoryOrderRepository()
     private val userRepository = customersWithIds(customerId.value)
-    private val useCase = ReadLoyaltyPointsUseCase(orderRepository, userRepository)
+    private val actorResolutionService = ActorResolutionService(userRepository)
+    private val useCase = ReadLoyaltyPointsUseCase(orderRepository)
 
     private fun productPricedAt(amount: String) = DefinedProduct(
         ProductId(Identity.nextId()), Name("Product"), Price(Amount(BigDecimal(amount)), Currency.EUR)
@@ -47,7 +49,7 @@ class ReadLoyaltyPointsUseCaseTest : WithAssertions {
         placeOrder(productPricedAt("35.00"), 2, OrderStatus.PAID)
         placeOrder(productPricedAt("19.99"), 1, OrderStatus.DELIVERED)
         // Act
-        val points = useCase.unfold(customerId)
+        val points = useCase.unfold(actorResolutionService.actorOf(customerId))
         // Assert: 70.00 (free shipping), then 19.99 + 5.00 of shipping = 24.99, without the cents
         assertThat(points).isEqualTo(LoyaltyPoints(70 + 24))
     }
@@ -58,7 +60,7 @@ class ReadLoyaltyPointsUseCaseTest : WithAssertions {
         // Arrange
         placeOrder(productPricedAt("50.00"), 1, status)
         // Act
-        val points = useCase.unfold(customerId)
+        val points = useCase.unfold(actorResolutionService.actorOf(customerId))
         // Assert
         assertThat(points).isEqualTo(LoyaltyPoints(0))
     }
@@ -66,7 +68,7 @@ class ReadLoyaltyPointsUseCaseTest : WithAssertions {
     @Test
     fun `a customer without any order should have no point`() {
         // Act
-        val points = useCase.unfold(customerId)
+        val points = useCase.unfold(actorResolutionService.actorOf(customerId))
         // Assert
         assertThat(points).isEqualTo(LoyaltyPoints(0))
     }
@@ -74,7 +76,7 @@ class ReadLoyaltyPointsUseCaseTest : WithAssertions {
     @Test
     fun `an unknown customer should not read their points`() {
         // Act
-        val thrown = catchThrowable { useCase.unfold(unknownCustomerId) }
+        val thrown = catchThrowable { useCase.unfold(actorResolutionService.actorOf(unknownCustomerId)) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java)
     }
@@ -85,7 +87,7 @@ class ReadLoyaltyPointsUseCaseTest : WithAssertions {
         // Arrange
         userRepository.save(customerWithStatus(status))
         // Act
-        val thrown = catchThrowable { useCase.unfold(blockedCustomerId) }
+        val thrown = catchThrowable { useCase.unfold(actorResolutionService.actorOf(blockedCustomerId)) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(AccountRefusedException::class.java)
     }

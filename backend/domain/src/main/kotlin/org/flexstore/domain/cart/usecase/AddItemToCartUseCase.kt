@@ -8,7 +8,12 @@ import org.ucop.domain.ErrorMessage
 import org.ucop.domain.PostConditionException
 import org.ucop.domain.entity.*
 
-data class AddItemToCartRequest(val actor: Actor, val owner: CartOwner, val productId: ProductId, val quantity: Quantity)
+data class AddItemToCartRequest(
+    val actor: Actor,
+    val owner: CartOwner,
+    val productId: ProductId,
+    val quantity: Quantity
+)
 
 class AddItemToCartUseCase(
     private val cartRepository: CartRepository,

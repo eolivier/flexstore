@@ -47,7 +47,8 @@ class OrderController(
     fun placeOrder(@AuthenticationPrincipal jwt: Jwt, @RequestBody addresses: JsonOrderAddresses): JsonOrder {
         val customer = CartOwner.Customer(customer(jwt))
         val checkout = Checkout(customer, addresses.toOrderDelivery(), addresses.toTermsOfSaleAcceptance())
-        val placedOrder = orderCheckoutService.placeOrder(actorOf(jwt), checkout, addresses.toEnteredDiscountCode())
+        val discountCode = addresses.toEnteredDiscountCode()
+        val placedOrder = orderCheckoutService.placeOrder(actorOf(jwt), checkout, discountCode)
         return JsonOrder(placedOrder, orderUseCases.paymentDelay())
     }
 

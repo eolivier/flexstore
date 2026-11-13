@@ -1,11 +1,13 @@
 package org.flexstore.domain.cart.usecase
 
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.product.model.*
 import org.flexstore.domain.user.blockedCustomerId
 import org.flexstore.domain.user.customerWithStatus
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import org.flexstore.domain.cart.*
+import org.flexstore.domain.cart.actorOf
 import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.*
@@ -24,12 +26,16 @@ class AddItemToCartUseCaseTest : WithAssertions {
     private val cartRepository = InMemoryCartRepository()
     private val productRepository = InMemoryProductRepository().apply { save(product) }
     private val userRepository = customersWithIds("user-1", "user-2")
-    private val useCase = AddItemToCartUseCase(cartRepository, productRepository, userRepository)
+    private val actorResolutionService = ActorResolutionService(userRepository)
+
+    private fun addItemRequest(owner: CartOwner, productId: ProductId, quantity: Quantity) =
+        AddItemToCartRequest(actorResolutionService.actorOf(owner), owner, productId, quantity)
+    private val useCase = AddItemToCartUseCase(cartRepository, productRepository)
 
     @Test
     fun `should add the catalog product to the cart`() {
         // Arrange
-        val request = AddItemToCartRequest(owner, product.productId, Quantity(2))
+        val request = addItemRequest(owner, product.productId, Quantity(2))
         // Act
         useCase.unfold(request)
         // Assert
@@ -41,9 +47,9 @@ class AddItemToCartUseCaseTest : WithAssertions {
     @Test
     fun `adding the product again should change the quantity of its item`() {
         // Arrange
-        useCase.unfold(AddItemToCartRequest(owner, product.productId, Quantity(1)))
+        useCase.unfold(addItemRequest(owner, product.productId, Quantity(1)))
         // Act
-        useCase.unfold(AddItemToCartRequest(owner, product.productId, Quantity(3)))
+        useCase.unfold(addItemRequest(owner, product.productId, Quantity(3)))
         // Assert
         assertThat(cartRepository.load(owner).items.asList()).hasSize(1)
         val cartItem = cartRepository.load(owner).findBy(product.productId) as CartItem
@@ -53,7 +59,7 @@ class AddItemToCartUseCaseTest : WithAssertions {
     @Test
     fun `should not add a product missing from the catalog`() {
         // Arrange
-        val request = AddItemToCartRequest(owner, ProductId(Identity("unknown")), Quantity(1))
+        val request = addItemRequest(owner, ProductId(Identity("unknown")), Quantity(1))
         // Act
         val thrown = catchThrowable { useCase.unfold(request) }
         // Assert
@@ -64,7 +70,7 @@ class AddItemToCartUseCaseTest : WithAssertions {
     @Test
     fun `should not add a product without a positive quantity`() {
         // Arrange
-        val request = AddItemToCartRequest(owner, product.productId, Quantity(0))
+        val request = addItemRequest(owner, product.productId, Quantity(0))
         // Act
         val thrown = catchThrowable { useCase.unfold(request) }
         // Assert
@@ -77,7 +83,7 @@ class AddItemToCartUseCaseTest : WithAssertions {
         // Arrange
         val otherOwner = CartOwner.Customer(UserId.ValidUserId("user-2"))
         // Act
-        useCase.unfold(AddItemToCartRequest(owner, product.productId, Quantity(1)))
+        useCase.unfold(addItemRequest(owner, product.productId, Quantity(1)))
         // Assert
         assertThat(cartRepository.load(otherOwner).items.asList()).isEmpty()
     }
@@ -86,7 +92,7 @@ class AddItemToCartUseCaseTest : WithAssertions {
     fun `an unknown customer should not add an item to a cart`() {
         // Arrange
         val unknownOwner = CartOwner.Customer(unknownCustomerId)
-        val request = AddItemToCartRequest(unknownOwner, product.productId, Quantity(1))
+        val request = addItemRequest(unknownOwner, product.productId, Quantity(1))
         // Act
         val thrown = catchThrowable { useCase.unfold(request) }
         // Assert
@@ -98,7 +104,7 @@ class AddItemToCartUseCaseTest : WithAssertions {
         // Arrange
         val visitor = CartOwner.Visitor(VisitorCartId.nextId())
         // Act
-        useCase.unfold(AddItemToCartRequest(visitor, product.productId, Quantity(1)))
+        useCase.unfold(addItemRequest(visitor, product.productId, Quantity(1)))
         // Assert
         assertThat(cartRepository.load(visitor).findBy(product.productId)).isInstanceOf(CartItem::class.java)
     }
@@ -108,7 +114,7 @@ class AddItemToCartUseCaseTest : WithAssertions {
     fun `a customer whose account is refused should not add an item to a cart`(status: AccountStatus) {
         // Arrange
         userRepository.save(customerWithStatus(status))
-        val request = AddItemToCartRequest(CartOwner.Customer(blockedCustomerId), product.productId, Quantity(1))
+        val request = addItemRequest(CartOwner.Customer(blockedCustomerId), product.productId, Quantity(1))
         // Act
         val thrown = catchThrowable { useCase.unfold(request) }
         // Assert

@@ -7,12 +7,16 @@ import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // A customer removes a product from their wishlist: a product not saved stays absent
-class RemoveProductFromWishlistUseCase(private val wishlistRepository: WishlistRepository) : UseCase<WishlistEntry> {
+class RemoveProductFromWishlistUseCase(
+    private val wishlistRepository: WishlistRepository
+) : UseCase<WishlistEntry> {
 
     override fun getPreConditions(): PreConditions<WishlistEntry> = PreConditions(customerCanActCondition())
 
     override fun getNominalScenario(): NominalScenario<WishlistEntry> =
-        NominalScenario(Step { entry -> wishlistRepository.remove(entry.customer.customerId(), entry.productId) })
+        NominalScenario(Step { entry ->
+            wishlistRepository.remove(entry.customer.customerId(), entry.productId)
+        })
 
     override fun getPostConditions(): PostConditions<WishlistEntry> = PostConditions(productIsRemovedCondition())
 

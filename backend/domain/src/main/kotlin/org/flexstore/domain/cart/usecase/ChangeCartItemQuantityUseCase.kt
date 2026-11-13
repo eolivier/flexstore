@@ -9,12 +9,14 @@ import org.ucop.domain.entity.*
 // ignored
 data class ChangeCartItemQuantityRequest(
     val actor: Actor,
-    val owner: CartOwner, 
+    val owner: CartOwner,
     val itemId: ItemId,
     val quantity: Quantity
 )
 
-class ChangeCartItemQuantityUseCase(private val cartRepository: CartRepository) : UseCase<ChangeCartItemQuantityRequest> {
+class ChangeCartItemQuantityUseCase(
+    private val cartRepository: CartRepository
+) : UseCase<ChangeCartItemQuantityRequest> {
 
     override fun getPreConditions(): PreConditions<ChangeCartItemQuantityRequest> =
         PreConditions(ownerCanActCondition())
