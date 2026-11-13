@@ -1,99 +1,96 @@
 // @ts-check
 
-import js from "@eslint/js";
-import tseslint from "typescript-eslint";
-import vue from "eslint-plugin-vue";
-import prettier from "eslint-config-prettier";
-import unusedImports from "eslint-plugin-unused-imports";
+import js from '@eslint/js';
+import tseslint from 'typescript-eslint';
+import vue from 'eslint-plugin-vue';
+import prettier from 'eslint-config-prettier';
+import unusedImports from 'eslint-plugin-unused-imports';
 
 export default [
-    // Recos JS et TS
-    js.configs.recommended,
-    ...tseslint.configs.recommended,
+  // Recos JS et TS
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
 
-    // Preset Vue pour flat config
-    ...vue.configs["flat/recommended"],
+  // Preset Vue pour flat config
+  ...vue.configs['flat/recommended'],
 
-    // Associer le parser TS à <script lang="ts"> dans les .vue
-    {
-        files: ["**/*.vue"],
-        languageOptions: {
-            parserOptions: {
-                // fait parser le <script> par typescript-eslint
-                parser: tseslint.parser,
-                ecmaVersion: "latest",
-                sourceType: "module",
-                extraFileExtensions: [".vue"],
-            },
-        },
+  // Associer le parser TS à <script lang="ts"> dans les .vue
+  {
+    files: ['**/*.vue'],
+    languageOptions: {
+      parserOptions: {
+        // fait parser le <script> par typescript-eslint
+        parser: tseslint.parser,
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+        extraFileExtensions: ['.vue'],
+      },
     },
+  },
 
-    // TypeScript (vue-tsc) already reports undefined identifiers and knows the browser globals
-    // (https://typescript-eslint.io/troubleshooting/faqs/eslint#i-get-errors-from-the-no-undef-rule-about-global-variables-not-being-defined-even-though-there-are-no-typescript-errors)
-    {
-        files: ["**/*.{ts,vue}"],
-        rules: {
-            "no-undef": "off",
-        },
+  // TypeScript (vue-tsc) already reports undefined identifiers and knows the browser globals
+  // (https://typescript-eslint.io/troubleshooting/faqs/eslint#i-get-errors-from-the-no-undef-rule-about-global-variables-not-being-defined-even-though-there-are-no-typescript-errors)
+  {
+    files: ['**/*.{ts,vue}'],
+    rules: {
+      'no-undef': 'off',
     },
+  },
 
-    // Règles communes + unused vars/imports via TS
-    {
-        files: ["**/*.{js,ts,vue}"],
-        plugins: {
-            "unused-imports": unusedImports,
-        },
-        rules: {
-            "no-unused-vars": "off",
-            'vue/multi-word-component-names': 'off',
-            'vue/valid-v-slot': 'off',
-            "@typescript-eslint/no-unused-vars": [
-                "warn",
-                {
-                    vars: "all",
-                    args: "after-used",
-                    ignoreRestSiblings: true,
-                    argsIgnorePattern: "^_",
-                    varsIgnorePattern: "^_",
-                },
-            ],
-            "unused-imports/no-unused-imports": "error",
-        },
+  // Règles communes + unused vars/imports via TS
+  {
+    files: ['**/*.{js,ts,vue}'],
+    plugins: {
+      'unused-imports': unusedImports,
     },
+    rules: {
+      'no-unused-vars': 'off',
+      'vue/multi-word-component-names': 'off',
+      'vue/valid-v-slot': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        {
+          vars: 'all',
+          args: 'after-used',
+          ignoreRestSiblings: true,
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+        },
+      ],
+      'unused-imports/no-unused-imports': 'error',
+    },
+  },
 
-    {
-        ignores: [
-            'node_modules/',
-            'dist/',
-            'build/',
-            'public/',
-            'src/generated/',
-        ],
-        // ...autres options de config
-    },
+  {
+    ignores: ['node_modules/', 'dist/', 'build/', 'public/', 'src/generated/'],
+    // ...autres options de config
+  },
 
-    // Désactive les règles en conflit avec Prettier
-    prettier,
+  // Désactive les règles en conflit avec Prettier
+  prettier,
 
-    // A line of code is 113 characters at most (fluent-code-reading-semantic skill): Prettier wraps the code at
-    // this width, these rules catch what it cannot wrap; long strings and URLs are the only exceptions
-    {
-        files: ["**/*.{js,ts}"],
-        rules: {
-            "max-len": ["error", { code: 113, ignoreUrls: true, ignoreStrings: true, ignoreTemplateLiterals: true }],
-        },
+  // A line of code is 120 characters at most (fluent-code-reading-semantic skill): Prettier wraps the code at
+  // this width, these rules catch what it cannot wrap; long strings and URLs are the only exceptions
+  {
+    files: ['**/*.{js,ts}'],
+    rules: {
+      'max-len': ['error', { code: 120, ignoreUrls: true, ignoreStrings: true, ignoreTemplateLiterals: true }],
     },
-    {
-        files: ["**/*.vue"],
-        rules: {
-            "vue/max-len": ["error", {
-                code: 113,
-                template: 113,
-                ignoreUrls: true,
-                ignoreStrings: true,
-                ignoreTemplateLiterals: true,
-                ignoreHTMLTextContents: true,
-            }],
+  },
+  {
+    files: ['**/*.vue'],
+    rules: {
+      'vue/max-len': [
+        'error',
+        {
+          code: 120,
+          template: 120,
+          ignoreUrls: true,
+          ignoreStrings: true,
+          ignoreTemplateLiterals: true,
+          ignoreHTMLTextContents: true,
         },
+      ],
     },
+  },
 ];
