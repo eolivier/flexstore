@@ -20,7 +20,7 @@ class ReadProductUseCaseTest {
         val productId = ProductId(Identity("1"))
         val product = DefinedProduct(productId, Name("Slim Jeans"), Price(Amount(BigDecimal(49)), Currency.EUR))
         every { productRepository.productIsMissing(productId) } returns false
-        every { productRepository.findById(productId) } returns product
+        every { productRepository.get(productId) } returns product
         // Act
         val reading = ProductReading(unknownUserActor, productId)
         val readProduct = ReadProductUseCase(productRepository).unfold(reading)
