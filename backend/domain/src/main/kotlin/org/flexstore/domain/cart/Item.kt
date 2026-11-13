@@ -125,5 +125,3 @@ data class ItemId(val id: Identity) {
         fun isValid(value: String?) = !value.isNullOrBlank()
     }
 }
-
-class UnknownItemException(message : String) : Exception(message)
