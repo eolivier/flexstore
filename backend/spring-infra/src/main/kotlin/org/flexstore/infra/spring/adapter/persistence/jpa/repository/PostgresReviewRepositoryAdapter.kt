@@ -5,16 +5,8 @@ import org.flexstore.domain.review.*
 import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.user.model.*
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.ProductReviewEntity
-import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
-
-@Repository
-interface JpaProductReviewRepository : JpaRepository<ProductReviewEntity, String> {
-    fun findByProductId(productId: String): List<ProductReviewEntity>
-
-    fun existsByUser_IdAndProductId(userId: String, productId: String): Boolean
-}
 
 // The reviews, kept in PostgreSQL; the reviewer is named from the account of the customer when it is read
 @Repository

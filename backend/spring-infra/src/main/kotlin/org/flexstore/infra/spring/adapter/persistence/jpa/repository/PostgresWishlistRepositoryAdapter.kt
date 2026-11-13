@@ -8,18 +8,8 @@ import org.flexstore.domain.wishlist.WishlistRepository
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.WishlistItemEntity
 import org.flexstore.infra.spring.adapter.persistence.jpa.toDomain
 import org.springframework.data.domain.Sort
-import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
-
-@Repository
-interface JpaWishlistItemRepository : JpaRepository<WishlistItemEntity, String> {
-    fun findAllByUser_Id(userId: String, sort: Sort): List<WishlistItemEntity>
-
-    fun existsByUser_IdAndProduct_Id(userId: String, productId: String): Boolean
-
-    fun deleteByUser_IdAndProduct_Id(userId: String, productId: String)
-}
 
 // Newest first
 private val WISHLIST_ORDER = Sort.by(Sort.Direction.DESC, "createdAt").and(Sort.by("id"))
