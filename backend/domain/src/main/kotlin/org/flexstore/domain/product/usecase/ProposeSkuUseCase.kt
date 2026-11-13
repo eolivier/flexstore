@@ -2,15 +2,14 @@ package org.flexstore.domain.product.usecase
 
 import org.flexstore.domain.product.*
 import org.flexstore.domain.product.model.*
-import org.flexstore.domain.user.repository.UserRepository
+import org.flexstore.domain.actor.isNotAdmin
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // Proposes a SKU to an administrator for a product: the first SKU proposed for it (see SkuBasis.proposals) that
 // no product of the catalog has. The answer is checked after: a well-formed SKU, free in the catalog
 class ProposeSkuUseCase(
-    private val productRepository: ProductRepository,
-    private val userRepository: UserRepository
+    private val productRepository: ProductRepository
 ) : QueryUseCase<SkuProposalRequest, Sku> {
 
     override fun getPreConditions(): PreConditions<SkuProposalRequest> =
@@ -23,9 +22,9 @@ class ProposeSkuUseCase(
     override fun getPostConditions(): PostConditions<Sku> =
         PostConditions(proposalIsWellFormedCondition(), proposalIsFreeCondition())
 
-    // The requester must be an existing user with the ADMIN role (read from the users, not from the request)
+    // The requester, resolved before the use case runs, must be an Admin
     private fun requesterIsAdministratorCondition() = PreCondition<SkuProposalRequest> { request ->
-        if (userRepository.isNotAdministrator(request.requester)) {
+        if (request.requester.isNotAdmin()) {
             throw ProductAdministrationForbiddenException(ErrorMessage("Only an administrator can ask for a SKU."))
         }
     }

@@ -10,10 +10,9 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import java.math.BigDecimal
 import org.flexstore.domain.user.*
-import org.flexstore.domain.user.administration.testAdministrator
-import org.flexstore.domain.user.administration.testCustomer
-import org.flexstore.domain.user.administration.unknownUser
-import org.flexstore.domain.user.administration.usersOfTheAdministration
+import org.flexstore.domain.actor.testAdministratorActor
+import org.flexstore.domain.actor.testCustomerActor
+import org.flexstore.domain.actor.unknownUserActor
 
 // 33 characters, one more than a SKU may have
 private const val TOO_LONG_SKU = "A23456789-123456789-123456789-123"
@@ -21,13 +20,12 @@ private const val TOO_LONG_SKU = "A23456789-123456789-123456789-123"
 class CreateProductUseCaseTest : WithAssertions {
 
     private val productRepository = InMemoryProductRepository()
-    private val userRepository = usersOfTheAdministration()
-    private val administrator = testAdministrator.id
-    private val useCase = CreateProductUseCase(productRepository, userRepository)
+    private val administrator = testAdministratorActor
+    private val useCase = CreateProductUseCase(productRepository)
     private val readProductUseCase = ReadProductUseCase(productRepository)
-    private val updateProductUseCase = UpdateProductUseCase(productRepository, userRepository)
+    private val updateProductUseCase = UpdateProductUseCase(productRepository)
     private val listProductsUseCase = ListProductsUseCase(productRepository)
-    private val proposeSkuUseCase = ProposeSkuUseCase(productRepository, userRepository)
+    private val proposeSkuUseCase = ProposeSkuUseCase(productRepository)
     private val productUseCases = ProductUseCases(
         useCase,
         readProductUseCase,
@@ -129,7 +127,7 @@ class CreateProductUseCaseTest : WithAssertions {
     @Test
     fun `a customer should not create a product`() {
         // Arrange
-        val request = CreateProductRequest(testCustomer.id, ProductId.nextId(), lamp)
+        val request = CreateProductRequest(testCustomerActor, ProductId.nextId(), lamp)
         // Act
         val thrown = catchThrowable { useCase.unfold(request) }
         // Assert
@@ -140,7 +138,7 @@ class CreateProductUseCaseTest : WithAssertions {
     @Test
     fun `an unknown user should not create a product`() {
         // Arrange
-        val request = CreateProductRequest(unknownUser, ProductId.nextId(), lamp)
+        val request = CreateProductRequest(unknownUserActor, ProductId.nextId(), lamp)
         // Act
         val thrown = catchThrowable { useCase.unfold(request) }
         // Assert

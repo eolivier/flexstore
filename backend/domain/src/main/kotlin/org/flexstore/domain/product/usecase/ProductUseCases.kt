@@ -2,7 +2,7 @@ package org.flexstore.domain.product.usecase
 
 import org.flexstore.domain.product.*
 import org.flexstore.domain.product.model.*
-import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.entity.Actor
 
 // The use cases of the products of the catalog
 class ProductUseCases(private val createProductUseCase: CreateProductUseCase,
@@ -13,13 +13,13 @@ class ProductUseCases(private val createProductUseCase: CreateProductUseCase,
 
     // The use cases are shared by all the requests: the created product is read back with its id, not kept by
     // the use case
-    fun createProduct(creator: UserId, draftProduct: DraftProduct): DefinedProduct {
+    fun createProduct(creator: Actor, draftProduct: DraftProduct): DefinedProduct {
         val productId = ProductId.nextId()
         createProductUseCase.unfold(CreateProductRequest(creator, productId, draftProduct))
         return readProductUseCase.unfold(productId)
     }
 
-    fun updateProduct(editor: UserId, product: DefinedProduct): DefinedProduct {
+    fun updateProduct(editor: Actor, product: DefinedProduct): DefinedProduct {
         updateProductUseCase.unfold(UpdateProductRequest(editor, product))
         return readProductUseCase.unfold(product.productId)
     }
@@ -28,6 +28,6 @@ class ProductUseCases(private val createProductUseCase: CreateProductUseCase,
 
     fun getProduct(productId: ProductId) = readProductUseCase.unfold(productId)
 
-    fun proposeSkuFor(requester: UserId, skuBasis: SkuBasis) =
+    fun proposeSkuFor(requester: Actor, skuBasis: SkuBasis) =
         proposeSkuUseCase.unfold(SkuProposalRequest(requester, skuBasis))
 }

@@ -32,7 +32,6 @@ import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.sharedkernel.Name
 import org.flexstore.domain.sharedkernel.Price
 import org.flexstore.domain.sharedkernel.VatRate
-import org.flexstore.domain.user.repository.UserRepository
 
 val deskLampId = ProductId(Identity("desk-lamp"))
 val readingLampId = ProductId(Identity("reading-lamp"))
@@ -71,12 +70,11 @@ fun productUseCasesOf(vararg products: DefinedProduct): ProductUseCases {
     every { productRepository.findAll() } returns products.toList()
     every { productRepository.findById(any()) } answers { products.firstOrNull { it.productId == firstArg() } }
     every { productRepository.productIsMissing(any()) } answers { products.none { it.productId == firstArg() } }
-    val userRepository = mockk<UserRepository>()
     return ProductUseCases(
-        CreateProductUseCase(productRepository, userRepository),
+        CreateProductUseCase(productRepository),
         ReadProductUseCase(productRepository),
         ListProductsUseCase(productRepository),
-        UpdateProductUseCase(productRepository, userRepository),
-        ProposeSkuUseCase(productRepository, userRepository)
+        UpdateProductUseCase(productRepository),
+        ProposeSkuUseCase(productRepository)
     )
 }
