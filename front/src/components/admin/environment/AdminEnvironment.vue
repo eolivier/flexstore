@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import LoadError from '@/components/layout/LoadError.vue';
   import AdminBreadcrumbs from '@/components/admin/AdminBreadcrumbs.vue';
   import { computed, onMounted } from 'vue';
   import { useI18n } from 'vue-i18n';
@@ -22,7 +23,7 @@
     <h1 class="text-h4 font-weight-bold mb-1">{{ t('environment.title') }}</h1>
     <p class="text-body-2 text-medium-emphasis mb-8">{{ t('environment.subtitle') }}</p>
 
-    <v-alert v-if="environmentStore.loadError" type="error" variant="tonal">{{ t('environment.loadError') }}</v-alert>
+    <LoadError v-if="environmentStore.loadError" :message="t('environment.loadError')" />
     <v-skeleton-loader v-else-if="!environmentStore.loaded" type="table" class="rounded-xl" />
     <template v-else>
       <v-alert v-if="missingCount > 0" type="error" variant="tonal" class="mb-4">

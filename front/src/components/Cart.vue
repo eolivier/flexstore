@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import EmptyState from '@/components/layout/EmptyState.vue';
   import { computed, onMounted } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useRouter } from 'vue-router';
@@ -53,14 +54,17 @@
         <v-col cols="12" md="4"><v-skeleton-loader type="article" class="rounded-xl" /></v-col>
       </v-row>
 
-      <v-card v-else-if="items.length === 0" key="empty" class="pa-10 text-center">
-        <v-icon icon="mdi-cart-outline" size="56" class="text-medium-emphasis mb-3" />
-        <h2 class="text-h6 font-weight-bold mb-1">{{ t('cart.empty') }}</h2>
-        <p class="text-body-2 text-medium-emphasis mb-6">{{ t('cart.emptyText') }}</p>
+      <EmptyState
+        v-else-if="items.length === 0"
+        key="empty"
+        icon="mdi-cart-outline"
+        :message="t('cart.empty')"
+        :description="t('cart.emptyText')"
+      >
         <v-btn to="/products" color="secondary" size="large" append-icon="mdi-arrow-right">
           {{ t('home.heroButton') }}
         </v-btn>
-      </v-card>
+      </EmptyState>
 
       <v-row v-else key="lines">
         <v-col cols="12" md="8">

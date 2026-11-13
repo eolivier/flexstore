@@ -84,7 +84,7 @@ export default {
     bestSellers: 'Meilleures ventes',
     product: 'Produit',
     unitsSold: 'Unités vendues',
-    noSale: 'Aucune vente sur cette période.',
-    error: "Les ventes n'ont pas pu être chargées.",
+    empty: 'Aucune vente sur cette période.',
+    loadError: "Les ventes n'ont pas pu être chargées.",
   },
 };

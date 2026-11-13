@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import LoadError from '@/components/layout/LoadError.vue';
   import AdminBreadcrumbs from '@/components/admin/AdminBreadcrumbs.vue';
   import ConfirmDialog from '@/components/ConfirmDialog.vue';
   import { computed, onMounted, ref } from 'vue';
@@ -48,9 +49,7 @@
     <AdminBreadcrumbs />
     <h1 class="text-h4 font-weight-bold mb-6">{{ t('discountCodes.title') }}</h1>
     <NewDiscountCodeForm />
-    <v-alert v-if="discountCodesStore.loadError" type="error" variant="tonal" class="mb-4">
-      {{ t('discountCodes.loadError') }}
-    </v-alert>
+    <LoadError v-if="discountCodesStore.loadError" :message="t('discountCodes.loadError')" class="mb-4" />
     <v-alert v-if="deletionFailed" type="error" variant="tonal" class="mb-4">
       {{ t('discountCodes.deletionError') }}
     </v-alert>
@@ -58,7 +57,7 @@
       :headers="headers"
       :items="discountCodesStore.discountCodes"
       :loading="discountCodesStore.loading"
-      :no-data-text="t('discountCodes.none')"
+      :no-data-text="t('discountCodes.empty')"
       item-value="code"
     >
       <template #item.code="{ item }">

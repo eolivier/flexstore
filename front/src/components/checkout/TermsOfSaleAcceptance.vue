@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import LoadError from '@/components/layout/LoadError.vue';
   import { computed, onMounted, ref, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useLegalPagesStore } from '@/stores/legalPages.store';
@@ -31,6 +32,6 @@
     <router-link to="/terms-of-sale" target="_blank" class="text-body-2">
       {{ t('checkout.termsOfSale.read') }}
     </router-link>
-    <p v-if="loadError" class="text-error text-body-2 mt-2">{{ t('checkout.termsOfSale.loadError') }}</p>
+    <LoadError v-if="loadError" :message="t('checkout.termsOfSale.loadError')" density="compact" class="mt-2" />
   </div>
 </template>

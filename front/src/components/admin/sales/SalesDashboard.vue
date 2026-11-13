@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import LoadError from '@/components/layout/LoadError.vue';
   import AdminBreadcrumbs from '@/components/admin/AdminBreadcrumbs.vue';
   import { onMounted } from 'vue';
   import { useI18n } from 'vue-i18n';
@@ -38,9 +39,7 @@
     </div>
     <p class="text-body-2 text-medium-emphasis mb-6">{{ t('salesDashboard.subtitle') }}</p>
 
-    <v-alert v-if="salesDashboardStore.loadError" type="error" variant="tonal">
-      {{ t('salesDashboard.error') }}
-    </v-alert>
+    <LoadError v-if="salesDashboardStore.loadError" :message="t('salesDashboard.loadError')" />
     <v-skeleton-loader v-else-if="!salesDashboardStore.dashboard" type="card, card" />
     <div v-else class="d-flex flex-column ga-6" :class="{ 'opacity-60': salesDashboardStore.loading }">
       <SalesFigures :dashboard="salesDashboardStore.dashboard" />

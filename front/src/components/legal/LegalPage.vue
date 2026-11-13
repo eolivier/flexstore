@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import LoadError from '@/components/layout/LoadError.vue';
   import { computed, onServerPrefetch, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useLegalPagesStore, type LegalPageKind } from '@/stores/legalPages.store';
@@ -29,9 +30,7 @@
   <v-container class="py-10">
     <h1 class="text-h4 font-weight-bold mb-2">{{ t(`legalPages.${kind}.title`) }}</h1>
 
-    <v-alert v-if="legalPagesStore.loadErrors[kind]" type="error" variant="tonal">{{
-      t('legalPages.loadError')
-    }}</v-alert>
+    <LoadError v-if="legalPagesStore.loadErrors[kind]" :message="t('legalPages.loadError')" />
 
     <v-skeleton-loader v-else-if="!legalPage" type="paragraph" />
 

@@ -15,6 +15,7 @@ export default {
   pagination: {
     label: 'Pages',
   },
+  retry: 'Réessayer',
   cancel: 'Annuler',
   save: 'Enregistrer',
   confirm: 'Confirmer',
