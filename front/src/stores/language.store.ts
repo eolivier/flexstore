@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 import { useAuthStore } from '@/stores/auth.store';
 import { isShopLanguage, type ShopLanguage } from '@/utils/language';
+import { jsonRequest } from '@/utils/jsonRequest';
 
 // NONE: the account holds no language yet
 export type AccountLanguage = ShopLanguage | 'none';
@@ -34,11 +35,7 @@ export const useLanguageStore = defineStore('language', () => {
   async function choose(language: ShopLanguage): Promise<void> {
     if (!authStore.isAuthenticated) return;
     await authStore
-      .authFetch('/api/language', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ language: language.toUpperCase() }),
-      })
+      .authFetch('/api/language', jsonRequest('PUT', { language: language.toUpperCase() }))
       .catch(() => null);
   }
 

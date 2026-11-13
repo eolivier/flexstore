@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { useAuthStore } from '@/stores/auth.store';
+import { jsonRequest } from '@/utils/jsonRequest';
 
 export interface ShopSettings {
   orderConfirmationEmail: 'ENABLED' | 'DISABLED';
@@ -68,11 +69,7 @@ export const useSettingsStore = defineStore('settings', () => {
   // Returns whether the change was saved
   async function changeAbandonedCartDelay(hours: number): Promise<boolean> {
     const response = await authStore
-      .authFetch('/api/admin/settings/abandoned-cart-delay', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ hours }),
-      })
+      .authFetch('/api/admin/settings/abandoned-cart-delay', jsonRequest('PUT', { hours }))
       .catch(() => null);
     if (!response?.ok) return false;
     settings.value = await response.json();
@@ -82,11 +79,7 @@ export const useSettingsStore = defineStore('settings', () => {
   // Returns whether the change was saved
   async function changePaymentDelay(minutes: number): Promise<boolean> {
     const response = await authStore
-      .authFetch('/api/admin/settings/payment-delay', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ minutes }),
-      })
+      .authFetch('/api/admin/settings/payment-delay', jsonRequest('PUT', { minutes }))
       .catch(() => null);
     if (!response?.ok) return false;
     settings.value = await response.json();
@@ -96,11 +89,7 @@ export const useSettingsStore = defineStore('settings', () => {
   // Returns whether the change was saved
   async function changeFreeShippingThreshold(amount: number): Promise<boolean> {
     const response = await authStore
-      .authFetch('/api/admin/settings/free-shipping-threshold', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount }),
-      })
+      .authFetch('/api/admin/settings/free-shipping-threshold', jsonRequest('PUT', { amount }))
       .catch(() => null);
     if (!response?.ok) return false;
     settings.value = await response.json();

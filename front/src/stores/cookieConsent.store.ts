@@ -9,6 +9,7 @@ import {
   rememberCookieChoice,
   storedCookieChoice,
 } from '@/utils/cookieConsent';
+import { jsonRequest } from '@/utils/jsonRequest';
 
 const choiceOfAccount: Record<string, CookieChoice> = { ACCEPTED: 'accepted', REFUSED: 'refused' };
 const accountOfChoice: Record<string, string> = { accepted: 'ACCEPTED', refused: 'REFUSED' };
@@ -33,11 +34,7 @@ export const useCookieConsentStore = defineStore('cookieConsent', () => {
   // Returns whether the account recorded the choice
   async function recordInAccount(newChoice: CookieChoice): Promise<boolean> {
     const response = await authStore
-      .authFetch('/api/cookie-consent', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ choice: accountOfChoice[newChoice] }),
-      })
+      .authFetch('/api/cookie-consent', jsonRequest('PUT', { choice: accountOfChoice[newChoice] }))
       .catch(() => null);
     return response?.ok === true;
   }

@@ -4,6 +4,7 @@ import i18n from '@/plugins/i18n';
 import type { AdminProduct, Product, ProductCreation, ProductInput, ProductSave } from '@/models/product';
 import { getAllProducts } from '@/services/product.service';
 import { useAuthStore } from './auth.store';
+import { jsonRequest } from '@/utils/jsonRequest';
 
 export const useProductsStore = defineStore('products', () => {
   const products = ref<Product[]>([]);
@@ -48,11 +49,7 @@ export const useProductsStore = defineStore('products', () => {
   // Creates (POST) or edits (PUT) the product; 409: another product has its SKU
   async function saveProduct(url: string, method: string, product: ProductInput): Promise<ProductCreation> {
     try {
-      const response = await useAuthStore().authFetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(product),
-      });
+      const response = await useAuthStore().authFetch(url, jsonRequest(method, product));
       if (response.status === 409) return { outcome: 'skuAlreadyUsed' };
       if (!response.ok) {
         console.error('Error when saving product', await response.text());

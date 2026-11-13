@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { JsonShopPageContentTypeEnum, type JsonShopPageContents } from '@/generated';
 import { shopPageContentApi } from '@/api';
 import { useAuthStore } from '@/stores/auth.store';
+import { jsonRequest } from '@/utils/jsonRequest';
 
 // The types of content, in the order of the administration screen
 export type ShopPageContentType = JsonShopPageContentTypeEnum;
@@ -52,11 +53,7 @@ export const useShopPageContentStore = defineStore('shopPageContent', () => {
 
   async function editContent(type: ShopPageContentType, text: string): Promise<ShopPageContentEdit> {
     const response = await authStore
-      .authFetch(`/api/admin/shop-page-contents/${pathOf(type)}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text }),
-      })
+      .authFetch(`/api/admin/shop-page-contents/${pathOf(type)}`, jsonRequest('PUT', { text }))
       .catch(() => null);
     if (response?.status === 400) return 'invalid';
     if (!response?.ok) return 'failed';

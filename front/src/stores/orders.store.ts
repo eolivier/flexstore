@@ -10,6 +10,7 @@ import type {
 import { useAuthStore } from '@/stores/auth.store';
 import { useCartStore } from '@/stores/cart.store';
 import { pageQuery, totalCountOf } from '@/utils/pagination';
+import { jsonRequest } from '@/utils/jsonRequest';
 
 // started: the customer opens the checkout page of the payment provider
 export type PaymentStart =
@@ -97,11 +98,7 @@ export const useOrdersStore = defineStore('orders', () => {
   // the terms of sale they read
   async function placeOrder(addresses: JsonOrderAddresses): Promise<OrderPlacement> {
     try {
-      const response = await authStore.authFetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(addresses),
-      });
+      const response = await authStore.authFetch('/api/orders', jsonRequest('POST', addresses));
       if (response.status === 400) return refusalOf((await response.json().catch(() => null)) ?? {});
       if (response.status === 403) return { status: 'refused' };
       if (response.status === 409) return conflictOf((await response.json().catch(() => null)) ?? {});

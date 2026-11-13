@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import type { JsonLowStock, JsonStockAlert } from '@/generated';
 import { useAuthStore } from './auth.store';
+import { jsonRequest } from '@/utils/jsonRequest';
 
 // The alerts on the stocks, for the administrators: the products whose stock reached their threshold, and the
 // threshold of each product
@@ -29,11 +30,7 @@ export const useStockAlertsStore = defineStore('stockAlerts', () => {
   // Returns whether the threshold was changed
   async function changeThreshold(productId: string, threshold: number): Promise<boolean> {
     const response = await authStore
-      .authFetch(`/api/admin/stocks/${encodeURIComponent(productId)}/alert`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ threshold }),
-      })
+      .authFetch(`/api/admin/stocks/${encodeURIComponent(productId)}/alert`, jsonRequest('PUT', { threshold }))
       .catch(() => null);
     return response?.ok ?? false;
   }

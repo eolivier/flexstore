@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import type { PostalAddress } from '@/models/account';
 import type { JsonPostalAddress } from '@/generated';
 import { useAuthStore } from './auth.store';
+import { jsonRequest } from '@/utils/jsonRequest';
 
 // incomplete: the address misses its recipient, street, city or country
 export type AddressEdition = 'saved' | 'incomplete' | 'error';
@@ -45,11 +46,7 @@ export const useAddressBookStore = defineStore('addressBook', () => {
 
   async function addAddress(address: PostalAddress): Promise<AddressEdition> {
     const response = await authStore
-      .authFetch('/api/accounts/me/addresses', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(address),
-      })
+      .authFetch('/api/accounts/me/addresses', jsonRequest('POST', address))
       .catch(() => null);
     if (response?.status === 400) return 'incomplete';
     if (!response?.ok) return 'error';
@@ -59,11 +56,7 @@ export const useAddressBookStore = defineStore('addressBook', () => {
 
   async function changeAddress(position: number, address: PostalAddress): Promise<AddressEdition> {
     const response = await authStore
-      .authFetch(`/api/accounts/me/addresses/${position}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(address),
-      })
+      .authFetch(`/api/accounts/me/addresses/${position}`, jsonRequest('PUT', address))
       .catch(() => null);
     if (response?.status === 400) return 'incomplete';
     if (!response?.ok) return 'error';

@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { computed, ref, watch } from 'vue';
 import { useAuthStore } from '@/stores/auth.store';
 import { type AccountGuidedTour, guidedTourOfAccount } from '@/utils/guidedTour';
+import { jsonRequest } from '@/utils/jsonRequest';
 
 // The guided tour of the shop, shown to a signed-in customer until they hide it ("Do not show again") or
 // until they skip it (it comes back at their next sign-in then). Hiding it is a preference of their account,
@@ -21,11 +22,7 @@ export const useGuidedTourStore = defineStore('guidedTour', () => {
 
   async function recordInAccount(guidedTour: 'shown' | 'hidden'): Promise<void> {
     const response = await authStore
-      .authFetch('/api/guided-tour', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guidedTour: guidedTour.toUpperCase() }),
-      })
+      .authFetch('/api/guided-tour', jsonRequest('PUT', { guidedTour: guidedTour.toUpperCase() }))
       .catch(() => null);
     if (response?.ok) accountGuidedTour.value = guidedTour;
   }

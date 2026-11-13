@@ -3,6 +3,7 @@ import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 import { useAuthStore } from '@/stores/auth.store';
 import { useLoadingStore } from '@/stores/loading.store';
+import { jsonRequest } from '@/utils/jsonRequest';
 
 // Id of the cart of a visitor, created by the server on the first item
 const CART_ID_KEY = 'flexstore.cartId';
@@ -60,13 +61,7 @@ export const useCartStore = defineStore('cart', () => {
   // Returns whether the item was saved
   async function saveItem(item: Item): Promise<boolean> {
     try {
-      const response = await cartFetch('/api/cart/save', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(item),
-      });
+      const response = await cartFetch('/api/cart/save', jsonRequest('POST', item));
       if (!response.ok) {
         console.error('Failed to save cart item');
         return false;

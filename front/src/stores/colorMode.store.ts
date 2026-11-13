@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 import { useAuthStore } from '@/stores/auth.store';
 import { type ColorMode, hasRememberedColorMode, initialColorMode, rememberColorMode } from '@/utils/colorMode';
+import { jsonRequest } from '@/utils/jsonRequest';
 
 // NONE: the account holds no mode yet
 export type AccountColorMode = ColorMode | 'none';
@@ -20,11 +21,7 @@ export const useColorModeStore = defineStore('colorMode', () => {
 
   async function recordInAccount(colorMode: ColorMode): Promise<boolean> {
     const response = await authStore
-      .authFetch('/api/color-mode', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ colorMode: accountOfColorMode[colorMode] }),
-      })
+      .authFetch('/api/color-mode', jsonRequest('PUT', { colorMode: accountOfColorMode[colorMode] }))
       .catch(() => null);
     return response?.ok === true;
   }
