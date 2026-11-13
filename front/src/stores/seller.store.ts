@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { useAuthStore } from '@/stores/auth.store';
 import type { SocialNetworkUrls } from '@/utils/socialNetworks';
+import { jsonRequest } from '@/utils/jsonRequest';
 
 // The seller written on the invoices: the address on one line, the SIRET (14 digits), the intra-community VAT
 // number of the shop, how the customers reach it, and how it is incorporated: its legal form, its share capital
@@ -48,13 +49,7 @@ export const useSellerStore = defineStore('seller', () => {
   const completeSetup = (givenSeller: Seller) => saveSeller('/api/admin/seller/setup', givenSeller);
 
   async function saveSeller(path: string, editedSeller: Seller): Promise<SellerUpdate> {
-    const response = await authStore
-      .authFetch(path, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editedSeller),
-      })
-      .catch(() => null);
+    const response = await authStore.authFetch(path, jsonRequest('PUT', editedSeller)).catch(() => null);
     if (response?.status === 400) return 'invalid';
     if (!response?.ok) return 'failed';
     seller.value = await response.json();

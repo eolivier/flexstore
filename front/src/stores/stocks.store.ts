@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import type { JsonStock } from '@/generated';
 import { useAuthStore } from './auth.store';
 import { stocksApi } from '@/api';
+import { jsonRequest } from '@/utils/jsonRequest';
 
 // The stocks of the products: a product without stock has none
 export const useStocksStore = defineStore('stocks', () => {
@@ -27,11 +28,7 @@ export const useStocksStore = defineStore('stocks', () => {
   // For the administrators; returns whether the stock was changed
   async function changeStock(productId: string, quantity: number): Promise<boolean> {
     const response = await authStore
-      .authFetch(`/api/admin/stocks/${encodeURIComponent(productId)}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ quantity }),
-      })
+      .authFetch(`/api/admin/stocks/${encodeURIComponent(productId)}`, jsonRequest('PUT', { quantity }))
       .catch(() => null);
     if (!response?.ok) return false;
     const jsonStock: JsonStock = await response.json();

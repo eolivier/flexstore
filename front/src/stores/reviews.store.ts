@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import type { JsonRatingSummary, JsonReview, JsonReviewEligibility } from '@/generated';
 import { reviewsApi } from '@/api';
 import { useAuthStore } from './auth.store';
+import { jsonRequest } from '@/utils/jsonRequest';
 
 // Whether the signed-in customer may review the product being read
 export type ReviewEligibility = JsonReviewEligibility['eligibility'];
@@ -62,11 +63,10 @@ export const useReviewsStore = defineStore('reviews', () => {
   // For a signed-in customer who bought the product; the reviews and the ratings are read again once added
   async function addReview(productId: string, rating: number, comment: string): Promise<ReviewOutcome> {
     const response = await authStore
-      .authFetch(`/api/products/${encodeURIComponent(productId)}/reviews`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rating, comment }),
-      })
+      .authFetch(
+        `/api/products/${encodeURIComponent(productId)}/reviews`,
+        jsonRequest('POST', { rating, comment })
+      )
       .catch(() => null);
     if (!response) return 'error';
     if (!response.ok) return OUTCOME_OF_STATUS[response.status] ?? 'error';

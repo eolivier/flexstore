@@ -4,6 +4,7 @@ import type { AccountStatus, User } from '@/models/user';
 import type { ExpressAccountRegistration } from '@/models/account';
 import { useLoadingStore } from '@/stores/loading.store';
 import { shareWhilePending } from '@/utils/shareWhilePending';
+import { jsonRequest } from '@/utils/jsonRequest';
 
 export type PasswordChange = 'changed' | 'wrongPassword' | 'error';
 // signedIn: the account is created and the customer is signed in; invalidCompany: the company was refused (400)
@@ -108,13 +109,7 @@ export const useAuthStore = defineStore('auth', () => {
     refusedStatus.value = null;
     pendingChallengeId.value = null;
     try {
-      const response = await loadingStore.track(
-        fetch(`${apiUrl}${path}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(credentials),
-        })
-      );
+      const response = await loadingStore.track(fetch(`${apiUrl}${path}`, jsonRequest('POST', credentials)));
 
       if (response.ok) {
         const result: JsonLoginResponse = await response.json();
@@ -151,11 +146,10 @@ export const useAuthStore = defineStore('auth', () => {
     if (!pendingChallengeId.value) return 'error';
     try {
       const response = await loadingStore.track(
-        fetch(`${apiUrl}/api/users/login/two-factor-authentication`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ challengeId: pendingChallengeId.value, code }),
-        })
+        fetch(
+          `${apiUrl}/api/users/login/two-factor-authentication`,
+          jsonRequest('POST', { challengeId: pendingChallengeId.value, code })
+        )
       );
       if (!response.ok) return response.status === 401 ? 'invalidCode' : 'error';
       const session: LoginResponse = await response.json();
@@ -177,11 +171,7 @@ export const useAuthStore = defineStore('auth', () => {
   async function register(registration: ExpressAccountRegistration): Promise<Registration> {
     try {
       const response = await loadingStore.track(
-        fetch(`${apiUrl}/api/accounts`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(registration),
-        })
+        fetch(`${apiUrl}/api/accounts`, jsonRequest('POST', registration))
       );
       if (response.status === 409) return 'emailUsed';
       if (response.status === 400) return 'invalidCompany';
@@ -207,11 +197,7 @@ export const useAuthStore = defineStore('auth', () => {
     if (!refreshToken.value || !currentUser.value) return false;
     try {
       const response = await loadingStore.track(
-        fetch(`${apiUrl}/api/users/refresh`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ refreshToken: refreshToken.value }),
-        })
+        fetch(`${apiUrl}/api/users/refresh`, jsonRequest('POST', { refreshToken: refreshToken.value }))
       );
       if (!response.ok) return false;
       const renewed: RefreshedSession = await response.json();
@@ -247,11 +233,10 @@ export const useAuthStore = defineStore('auth', () => {
   async function changePassword(currentPassword: string, newPassword: string): Promise<PasswordChange> {
     if (!currentUser.value) return 'error';
     try {
-      const response = await authFetch(`/api/users/${currentUser.value.id}/password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ currentPassword, newPassword }),
-      });
+      const response = await authFetch(
+        `/api/users/${currentUser.value.id}/password`,
+        jsonRequest('POST', { currentPassword, newPassword })
+      );
       if (response.ok) return 'changed';
       if (response.status === 400) return 'wrongPassword';
       return 'error';
@@ -265,9 +250,12 @@ export const useAuthStore = defineStore('auth', () => {
   async function startTwoFactorEnrollment(): Promise<TwoFactorEnrollment | null> {
     if (!currentUser.value) return null;
     try {
-      const response = await authFetch(`/api/users/${currentUser.value.id}/two-factor-authentication/enrollment`, {
-        method: 'POST',
-      });
+      const response = await authFetch(
+        `/api/users/${currentUser.value.id}/two-factor-authentication/enrollment`,
+        {
+          method: 'POST',
+        }
+      );
       return response.ok ? await response.json() : null;
     } catch (error) {
       console.error('Two-factor enrollment error:', error);
@@ -281,7 +269,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const response = await authFetch(
         `/api/users/${currentUser.value.id}/two-factor-authentication/confirmation`,
-        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code }) }
+        jsonRequest('POST', { code })
       );
       if (response.ok) {
         currentUser.value = { ...currentUser.value, twoFactorEnabled: true };
@@ -298,11 +286,10 @@ export const useAuthStore = defineStore('auth', () => {
   async function disableTwoFactorAuthentication(currentPassword: string): Promise<TwoFactorDisabling> {
     if (!currentUser.value) return 'error';
     try {
-      const response = await authFetch(`/api/users/${currentUser.value.id}/two-factor-authentication`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ currentPassword }),
-      });
+      const response = await authFetch(
+        `/api/users/${currentUser.value.id}/two-factor-authentication`,
+        jsonRequest('DELETE', { currentPassword })
+      );
       if (response.ok) {
         currentUser.value = { ...currentUser.value, twoFactorEnabled: false };
         return 'disabled';
@@ -334,11 +321,7 @@ export const useAuthStore = defineStore('auth', () => {
   // Tells the back end to end the session; the user is signed out here whatever its answer
   async function endSessionOnServer(endedRefreshToken: string) {
     try {
-      await fetch(`${apiUrl}/api/users/logout`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refreshToken: endedRefreshToken }),
-      });
+      await fetch(`${apiUrl}/api/users/logout`, jsonRequest('POST', { refreshToken: endedRefreshToken }));
     } catch (error) {
       console.error('Logout error:', error);
     }

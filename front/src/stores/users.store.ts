@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import type { AccountStatus, User } from '@/models/user';
 import { pageQuery, totalCountOf } from '@/utils/pagination';
 import { useAuthStore } from './auth.store';
+import { jsonRequest } from '@/utils/jsonRequest';
 
 // The fields of a user an administrator edits: the password is changed by a separate operation
 export type EditedUser = Pick<User, 'firstName' | 'lastName' | 'email'> & { role: NonNullable<User['role']> };
@@ -39,11 +40,7 @@ export const useUsersStore = defineStore('users', () => {
   // Returns whether the user was created
   async function addUser(user: Omit<User, 'id'>): Promise<boolean> {
     try {
-      const response = await authStore.authFetch('/api/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(user),
-      });
+      const response = await authStore.authFetch('/api/users', jsonRequest('POST', user));
       if (!response.ok) {
         console.error('Error when creating user', await response.text());
         return false;
@@ -76,11 +73,7 @@ export const useUsersStore = defineStore('users', () => {
 
   async function updateUser(id: string, editedUser: EditedUser): Promise<UserEdition> {
     const response = await authStore
-      .authFetch(`/api/users/${encodeURIComponent(id)}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editedUser),
-      })
+      .authFetch(`/api/users/${encodeURIComponent(id)}`, jsonRequest('PUT', editedUser))
       .catch(() => null);
     if (response?.status === 409) return 'emailUsed';
     if (!response?.ok) return 'error';
@@ -92,11 +85,7 @@ export const useUsersStore = defineStore('users', () => {
   // Returns whether it changed
   async function changeStatus(id: string, status: AccountStatus): Promise<boolean> {
     const response = await authStore
-      .authFetch(`/api/users/${encodeURIComponent(id)}/status`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status }),
-      })
+      .authFetch(`/api/users/${encodeURIComponent(id)}/status`, jsonRequest('PUT', { status }))
       .catch(() => null);
     if (!response?.ok) return false;
     await fetchUsers();

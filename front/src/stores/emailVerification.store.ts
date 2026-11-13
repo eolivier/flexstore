@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { useAuthStore } from './auth.store';
 import { useLoadingStore } from './loading.store';
+import { jsonRequest } from '@/utils/jsonRequest';
 
 // verified: the account is active; expired: the link is older than 1 hour; unknown: wrong or already used link
 export type EmailVerification = 'verified' | 'expired' | 'unknown' | 'error';
@@ -13,11 +14,7 @@ export const useEmailVerificationStore = defineStore('emailVerification', () => 
   async function verifyEmail(token: string): Promise<EmailVerification> {
     try {
       const response = await useLoadingStore().track(
-        fetch(`${apiUrl}/api/accounts/email-verification`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token }),
-        })
+        fetch(`${apiUrl}/api/accounts/email-verification`, jsonRequest('POST', { token }))
       );
       if (response.ok) {
         useAuthStore().markEmailVerified();
