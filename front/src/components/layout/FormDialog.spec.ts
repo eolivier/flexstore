@@ -1,18 +1,19 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { mount } from '@vue/test-utils';
+import { mount, type VueWrapper } from '@vue/test-utils';
 import FormDialog from '@/components/layout/FormDialog.vue';
 import { vuetify, i18n } from '@/test/setup';
 
-let mounted: ReturnType<typeof mountDialog> | undefined;
+let mounted: VueWrapper | undefined;
 
-function mountDialog(slots = {}) {
-  mounted = mount(FormDialog, {
+function mountDialog(slots = {}): VueWrapper {
+  const wrapper = mount(FormDialog, {
     props: { modelValue: true, title: 'Disable it', text: 'Are you sure?' },
     slots,
     global: { plugins: [vuetify, i18n] },
     attachTo: document.body,
   });
-  return mounted;
+  mounted = wrapper;
+  return wrapper;
 }
 
 const dialogText = () => document.body.textContent ?? '';
