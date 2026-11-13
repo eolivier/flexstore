@@ -25,6 +25,7 @@ import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.usecase.*
 import com.fasterxml.jackson.databind.JsonMappingException
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -62,7 +63,7 @@ class RestExceptionHandler {
     private fun answerFor(ex: Exception): ResponseEntity<Map<String, String>> {
         return when (ex) {
             is UserAlreadyExists -> ResponseEntity
-                .status(409)
+                .status(HttpStatus.CONFLICT.value())
                 .body(mapOf("error" to (ex.message ?: "User already exists")))
             // Same answer for an unknown email and a wrong password, so that the login does not reveal which
             // accounts exist
@@ -101,7 +102,7 @@ class RestExceptionHandler {
             is LegalPageReadingForbiddenException, is ProductImageReadingForbiddenException,
             is ShopSettingsReadingForbiddenException, is ShopPageContentReadingForbiddenException,
             is ProductReadingForbiddenException, is StockReadingForbiddenException -> ResponseEntity
-                .status(403)
+                .status(HttpStatus.FORBIDDEN.value())
                 .body(mapOf("error" to (ex.message ?: "Forbidden")))
             // The code is wrong, or the sign-in challenge is unknown or older than its validity
             is TwoFactorCodeInvalidException, is TwoFactorChallengeNotFoundException -> ResponseEntity
