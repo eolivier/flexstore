@@ -39,7 +39,7 @@ class ReadCustomerOrderUseCase(
 
     private fun orderOfTheCustomerExistsCondition() = PreCondition<CustomerOrderLookup> { lookup ->
         if (orderIsMissingFor(lookup)) {
-            throw OrderNotFoundException(ErrorMessage("Order ${lookup.orderId.value} not found."))
+            throw OrderNotFoundException(ErrorMessage("Order ${lookup.orderId.asString()} not found."))
         }
     }
 }

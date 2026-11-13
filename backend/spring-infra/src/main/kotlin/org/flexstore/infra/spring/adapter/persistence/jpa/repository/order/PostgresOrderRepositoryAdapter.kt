@@ -34,7 +34,7 @@ class PostgresOrderRepositoryAdapter(
     // An order is placed once, then only its status and its tracking change: the stored rows of its lines are
     // kept, and the statuses it reaches are added to its stored history
     override fun save(order: Order): Order {
-        val storedOrder = jpaRepo.findById(order.orderId.value).orElse(null)
+        val storedOrder = jpaRepo.findById(order.orderId.asString()).orElse(null)
         val orderEntity = storedOrder?.withStatusOf(order) ?: order.toEntity()
         return jpaRepo.save(orderEntity).toDomain()
     }
@@ -56,10 +56,10 @@ class PostgresOrderRepositoryAdapter(
 
     @Transactional(readOnly = true)
     override fun findById(orderId: OrderId): Order? =
-        jpaRepo.findById(orderId.value).map { it.toDomain() }.orElse(null)
+        jpaRepo.findById(orderId.asString()).map { it.toDomain() }.orElse(null)
 
     @Transactional(readOnly = true)
-    override fun orderExists(orderId: OrderId): Boolean = jpaRepo.existsById(orderId.value)
+    override fun orderExists(orderId: OrderId): Boolean = jpaRepo.existsById(orderId.asString())
 
     @Transactional(readOnly = true)
     override fun findAll() = Orders(jpaRepo.findAll().map { it.toDomain() })
@@ -87,7 +87,7 @@ class PostgresOrderRepositoryAdapter(
         val customerEntity = jpaUserRepository.findById(customer.value).orElseThrow()
         val addressesOfTheCustomer = customerEntity.addresses.map { it.address }
         return OrderEntity(
-            id = orderId.value,
+            id = orderId.asString(),
             userId = customer.value,
             status = status.name,
             placedAt = placedAt,
@@ -121,7 +121,7 @@ class PostgresOrderRepositoryAdapter(
     }
 
     private fun OrderEntity.toDomain(): Order {
-        val orderStamp = OrderStamp(OrderId(id), placedAt)
+        val orderStamp = OrderStamp(OrderId(Identity(id)), placedAt)
         val orderAddresses = OrderAddresses(deliveryAddress.toDomain(), billingAddress.toDomain())
         val shippingMethod = ShippingMethod.valueOf(this.shippingMethod)
         val delivery = OrderDelivery(orderAddresses, shippingMethod)

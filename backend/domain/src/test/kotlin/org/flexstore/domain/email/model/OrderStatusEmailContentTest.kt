@@ -19,7 +19,7 @@ class OrderStatusEmailContentTest : WithAssertions {
     private val lampPrice = Price(Amount(BigDecimal(35)), Currency.EUR)
     private val deskLamp = DefinedProduct(ProductId(Identity("desk-lamp")), Name("Desk lamp"), lampPrice)
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
-    private val orderStamp = OrderStamp(OrderId("46555c9f-4e92"), Instant.parse("2026-10-24T10:00:00Z"))
+    private val orderStamp = OrderStamp(OrderId(Identity("46555c9f-4e92")), Instant.parse("2026-10-24T10:00:00Z"))
     private val checkout = Checkout(customer, homeOrderAddresses, acceptedTermsOfSale)
     private val orderPlacement = OrderPlacement(orderStamp, checkout)
     private val placedOrder = Order.place(orderPlacement, Cart(customer).add(deskLamp, Quantity(1)))

@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.adapter.rest
 
+import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.cart.CartOwner
 import org.flexstore.domain.order.model.OrderId
 import org.flexstore.domain.payment.OrderPayment
@@ -29,7 +30,7 @@ class PaymentController(
     @ResponseStatus(HttpStatus.CREATED)
     fun pay(@AuthenticationPrincipal jwt: Jwt, @PathVariable orderId: String): JsonPaymentSession {
         val customer = CartOwner.Customer(UserId.ValidUserId(jwt.subject))
-        val paymentSession = paymentService.pay(OrderPayment(customer, OrderId(orderId)))
+        val paymentSession = paymentService.pay(OrderPayment(customer, OrderId(Identity(orderId))))
         return JsonPaymentSession.of(paymentSession)
     }
 
@@ -40,7 +41,7 @@ class PaymentController(
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun verify(@AuthenticationPrincipal jwt: Jwt, @PathVariable orderId: String) {
         val customer = CartOwner.Customer(UserId.ValidUserId(jwt.subject))
-        paymentService.verify(OrderPayment(customer, OrderId(orderId)))
+        paymentService.verify(OrderPayment(customer, OrderId(Identity(orderId))))
     }
 
     // Called by Stripe, not by the front: the signature of the notification authenticates it

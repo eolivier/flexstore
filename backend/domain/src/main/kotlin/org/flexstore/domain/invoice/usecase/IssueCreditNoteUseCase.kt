@@ -39,7 +39,7 @@ class IssueCreditNoteUseCase(
     private fun orderIsRefundedCondition() = PreCondition<CreditNoteIssuance> { (_, creditNoteIssue) ->
         val orderId = creditNoteIssue.orderId
         if (orderRepository.findById(orderId)?.isRefunded() != true) {
-            val message = ErrorMessage("Order ${orderId.value} is not refunded: no credit note.")
+            val message = ErrorMessage("Order ${orderId.asString()} is not refunded: no credit note.")
             throw OrderNotRefundedException(message)
         }
     }
@@ -48,14 +48,14 @@ class IssueCreditNoteUseCase(
     private fun orderIsInvoicedCondition() = PreCondition<CreditNoteIssuance> { (_, creditNoteIssue) ->
         val orderId = creditNoteIssue.orderId
         if (invoiceRepository.invoiceIsMissingFor(orderId)) {
-            throw InvoiceNotFoundException(ErrorMessage("Order ${orderId.value} has no invoice to cancel."))
+            throw InvoiceNotFoundException(ErrorMessage("Order ${orderId.asString()} has no invoice to cancel."))
         }
     }
 
     private fun creditNoteIsNotIssuedCondition() = PreCondition<CreditNoteIssuance> { (_, creditNoteIssue) ->
         val orderId = creditNoteIssue.orderId
         if (creditNoteRepository.creditNoteExistsFor(orderId)) {
-            val message = ErrorMessage("The credit note of order ${orderId.value} is already issued.")
+            val message = ErrorMessage("The credit note of order ${orderId.asString()} is already issued.")
             throw CreditNoteAlreadyIssuedException(message)
         }
     }
@@ -63,7 +63,7 @@ class IssueCreditNoteUseCase(
     private fun creditNoteIsIssuedCondition() = PostCondition<CreditNoteIssuance> { (_, creditNoteIssue) ->
         val orderId = creditNoteIssue.orderId
         if (creditNoteRepository.creditNoteIsMissingFor(orderId)) {
-            val message = ErrorMessage("The credit note of order ${orderId.value} was not issued.")
+            val message = ErrorMessage("The credit note of order ${orderId.asString()} was not issued.")
             throw CreditNoteIssueFailed(message)
         }
     }

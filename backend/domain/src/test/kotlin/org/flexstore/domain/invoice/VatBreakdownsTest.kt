@@ -32,7 +32,7 @@ class VatBreakdownsTest : WithAssertions {
     // Shipped by express (9,90 €), which is never free
     private fun orderOf(cart: Cart): Order {
         val delivery = OrderDelivery(homeOrderAddresses, ShippingMethod.EXPRESS)
-        val orderStamp = OrderStamp(OrderId("order-1"), Instant.parse("2026-10-24T10:00:00Z"))
+        val orderStamp = OrderStamp(OrderId(Identity("order-1")), Instant.parse("2026-10-24T10:00:00Z"))
         return Order.place(OrderPlacement(orderStamp, Checkout(customer, delivery, acceptedTermsOfSale)), cart)
     }
 

@@ -21,7 +21,7 @@ class OrderTrackingTest : WithAssertions {
         ProductId(Identity("desk-lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR)
     )
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
-    private val orderStamp = OrderStamp(OrderId("order-1"), Instant.parse("2026-10-24T10:00:00Z"))
+    private val orderStamp = OrderStamp(OrderId(Identity("order-1")), Instant.parse("2026-10-24T10:00:00Z"))
     private val checkout = Checkout(customer, homeOrderAddresses, acceptedTermsOfSale)
     private val placedOrder = Order.place(
         OrderPlacement(orderStamp, checkout), Cart(customer).add(deskLamp, Quantity(1))

@@ -30,7 +30,8 @@ class OrderStatusHistoryTest : WithAssertions {
 
     private fun placedOrder(): Order {
         val orderPlacement = OrderPlacement(
-            OrderStamp(OrderId("order-1"), placedAt), Checkout(customer, homeOrderAddresses, acceptedTermsOfSale)
+            OrderStamp(OrderId(Identity("order-1")), placedAt),
+            Checkout(customer, homeOrderAddresses, acceptedTermsOfSale)
         )
         return Order.place(orderPlacement, Cart(customer).add(deskLamp, Quantity(1)))
     }

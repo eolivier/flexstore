@@ -31,7 +31,7 @@ class CreditNoteDocumentTest : WithAssertions {
     private val lampPrice = Price(Amount(BigDecimal(35)), Currency.EUR)
     private val deskLamp = DefinedProduct(ProductId(Identity("desk-lamp")), Name("Desk lamp"), lampPrice)
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
-    private val orderId = OrderId("46555c9f-4e92")
+    private val orderId = OrderId(Identity("46555c9f-4e92"))
     private val placedAt = Instant.parse("2026-10-24T10:00:00Z")
     private val janeDoe = OrderCustomer(FullName(FirstName("Jane"), LastName("Doe")), Email("jane@example.com"))
     private val invoice = Invoice(

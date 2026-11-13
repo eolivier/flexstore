@@ -1,5 +1,6 @@
 package org.flexstore.domain.order.model
 
+import org.flexstore.domain.sharedkernel.Identity
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.sharedkernel.ShopUrl
 import org.junit.jupiter.api.Test
@@ -7,7 +8,7 @@ import org.junit.jupiter.api.Test
 class OrderPagesTest : WithAssertions {
 
     private val shopUrl = ShopUrl("https://flexstore.example/")
-    private val orderId = OrderId("order-1")
+    private val orderId = OrderId(Identity("order-1"))
 
     @Test
     fun `the page of an order should be a page of the shop`() {

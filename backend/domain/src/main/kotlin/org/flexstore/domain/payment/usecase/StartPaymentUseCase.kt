@@ -42,7 +42,7 @@ class StartPaymentUseCase(
     private fun orderOfTheCustomerCondition() = PreCondition<OrderPayment> { orderPayment ->
         val order = orderRepository.findById(orderPayment.orderId)
         if (order == null || order.belongsTo(orderPayment.customer.userId).not()) {
-            throw OrderNotFoundException(ErrorMessage("Order ${orderPayment.orderId.value} not found."))
+            throw OrderNotFoundException(ErrorMessage("Order ${orderPayment.orderId.asString()} not found."))
         }
     }
 
@@ -65,7 +65,7 @@ class StartPaymentUseCase(
     private fun sessionIsKeptCondition() = PostCondition<OrderPayment> { orderPayment ->
         val orderId = orderPayment.orderId
         if (paymentRepository.sessionIsMissingFor(orderId)) {
-            val message = ErrorMessage("The payment of order ${orderId.value} did not start.")
+            val message = ErrorMessage("The payment of order ${orderId.asString()} did not start.")
             throw OrderPaymentStartedException(message)
         }
     }

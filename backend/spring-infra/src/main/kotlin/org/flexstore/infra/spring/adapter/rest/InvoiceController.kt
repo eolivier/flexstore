@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.adapter.rest
 
+import org.flexstore.domain.sharedkernel.Identity
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.domain.actor.ActorResolutionService
@@ -30,7 +31,7 @@ class InvoiceController(
     @Operation(summary = "Download the invoice of a paid order of the signed-in customer (PDF)")
     @GetMapping("/api/orders/{id}/invoice", produces = [MediaType.APPLICATION_PDF_VALUE])
     fun getInvoice(@AuthenticationPrincipal jwt: Jwt, @PathVariable id: String): ResponseEntity<ByteArray> {
-        val invoicePdf = invoiceService.invoice(actorOf(jwt), OrderId(id))
+        val invoicePdf = invoiceService.invoice(actorOf(jwt), OrderId(Identity(id)))
         return pdfResponse(invoicePdf, "facture", id)
     }
 
@@ -40,14 +41,14 @@ class InvoiceController(
         @AuthenticationPrincipal reader: Jwt,
         @PathVariable id: String
     ): ResponseEntity<ByteArray> {
-        val invoicePdf = invoiceService.invoice(actorOf(reader), OrderId(id))
+        val invoicePdf = invoiceService.invoice(actorOf(reader), OrderId(Identity(id)))
         return pdfResponse(invoicePdf, "facture", id)
     }
 
     @Operation(summary = "Download the credit note of a refunded order of the signed-in customer (PDF)")
     @GetMapping("/api/orders/{id}/credit-note", produces = [MediaType.APPLICATION_PDF_VALUE])
     fun getCreditNote(@AuthenticationPrincipal jwt: Jwt, @PathVariable id: String): ResponseEntity<ByteArray> {
-        val creditNotePdf = invoiceService.creditNote(actorOf(jwt), OrderId(id))
+        val creditNotePdf = invoiceService.creditNote(actorOf(jwt), OrderId(Identity(id)))
         return pdfResponse(creditNotePdf, "avoir", id)
     }
 
@@ -57,7 +58,7 @@ class InvoiceController(
         @AuthenticationPrincipal reader: Jwt,
         @PathVariable id: String
     ): ResponseEntity<ByteArray> {
-        val creditNotePdf = invoiceService.creditNote(actorOf(reader), OrderId(id))
+        val creditNotePdf = invoiceService.creditNote(actorOf(reader), OrderId(Identity(id)))
         return pdfResponse(creditNotePdf, "avoir", id)
     }
 

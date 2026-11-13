@@ -30,20 +30,20 @@ class IssueInvoiceUseCase(
     private fun orderIsPaidCondition() = PreCondition<InvoiceIssue> { invoiceIssue ->
         val orderId = invoiceIssue.orderId
         if (orderRepository.orderIsMissing(orderId) || orderRepository.findById(orderId)!!.isNotPaid()) {
-            throw OrderNotPaidException(ErrorMessage("Order ${orderId.value} is not paid: no invoice."))
+            throw OrderNotPaidException(ErrorMessage("Order ${orderId.asString()} is not paid: no invoice."))
         }
     }
 
     private fun invoiceIsNotIssuedCondition() = PreCondition<InvoiceIssue> { invoiceIssue ->
         if (invoiceRepository.invoiceExistsFor(invoiceIssue.orderId)) {
-            val message = ErrorMessage("The invoice of order ${invoiceIssue.orderId.value} is already issued.")
+            val message = ErrorMessage("The invoice of order ${invoiceIssue.orderId.asString()} is already issued.")
             throw InvoiceAlreadyIssuedException(message)
         }
     }
 
     private fun invoiceIsIssuedCondition() = PostCondition<InvoiceIssue> { invoiceIssue ->
         if (invoiceRepository.invoiceIsMissingFor(invoiceIssue.orderId)) {
-            val message = ErrorMessage("The invoice of order ${invoiceIssue.orderId.value} was not issued.")
+            val message = ErrorMessage("The invoice of order ${invoiceIssue.orderId.asString()} was not issued.")
             throw InvoiceIssueFailed(message)
         }
     }

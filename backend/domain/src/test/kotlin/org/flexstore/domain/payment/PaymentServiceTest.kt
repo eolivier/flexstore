@@ -34,7 +34,7 @@ class PaymentServiceTest : WithAssertions {
     private val janeDoe = FullName(FirstName("Jane"), LastName("Doe"))
     private val email = Email("jane@example.com")
     private val definedUser = User.DefinedUser(customer.userId, janeDoe, email, PlainPassword("pwd"))
-    private val orderId = OrderId("order-1")
+    private val orderId = OrderId(Identity("order-1"))
     private val orderRepository = InMemoryOrderRepository()
     private val deskLampStock = Stock(deskLamp.productId, StockQuantity(5))
     private val stockRepository = InMemoryStockRepository().apply { save(deskLampStock) }

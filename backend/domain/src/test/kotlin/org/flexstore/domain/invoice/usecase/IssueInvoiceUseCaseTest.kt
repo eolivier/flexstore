@@ -37,47 +37,47 @@ class IssueInvoiceUseCaseTest : WithAssertions {
     @Test
     fun `the paid orders should be invoiced with the next numbers of the sequence`() {
         // Arrange
-        storeOrder(OrderId("order-1"), OrderStatus.PAID)
-        storeOrder(OrderId("order-2"), OrderStatus.PAID)
-        useCase.unfold(InvoiceIssue(OrderId("order-1"), issuedAt))
+        storeOrder(OrderId(Identity("order-1")), OrderStatus.PAID)
+        storeOrder(OrderId(Identity("order-2")), OrderStatus.PAID)
+        useCase.unfold(InvoiceIssue(OrderId(Identity("order-1")), issuedAt))
         // Act
-        useCase.unfold(InvoiceIssue(OrderId("order-2"), issuedAt))
+        useCase.unfold(InvoiceIssue(OrderId(Identity("order-2")), issuedAt))
         // Assert
-        val invoice = invoiceRepository.findBy(OrderId("order-2"))
-        val invoiceIssue = InvoiceIssue(OrderId("order-2"), issuedAt)
+        val invoice = invoiceRepository.findBy(OrderId(Identity("order-2")))
+        val invoiceIssue = InvoiceIssue(OrderId(Identity("order-2")), issuedAt)
         assertThat(invoice).isEqualTo(Invoice(InvoiceNumber("2026-000002"), invoiceIssue, testSeller.id))
     }
 
     @Test
     fun `an order should be invoiced with the current seller`() {
         // Arrange
-        storeOrder(OrderId("order-1"), OrderStatus.PAID)
+        storeOrder(OrderId(Identity("order-1")), OrderStatus.PAID)
         val currentSeller = Seller(SellerId.nextId(), testSellerDetail)
         sellerRepository.save(currentSeller)
         // Act
-        useCase.unfold(InvoiceIssue(OrderId("order-1"), issuedAt))
+        useCase.unfold(InvoiceIssue(OrderId(Identity("order-1")), issuedAt))
         // Assert
-        assertThat(invoiceRepository.findBy(OrderId("order-1"))?.sellerId).isEqualTo(currentSeller.id)
+        assertThat(invoiceRepository.findBy(OrderId(Identity("order-1")))?.sellerId).isEqualTo(currentSeller.id)
     }
 
     @Test
     fun `an order not paid should not be invoiced`() {
         // Arrange
-        storeOrder(OrderId("order-1"), OrderStatus.AWAITING_PAYMENT)
+        storeOrder(OrderId(Identity("order-1")), OrderStatus.AWAITING_PAYMENT)
         // Act
-        val thrown = catchThrowable { useCase.unfold(InvoiceIssue(OrderId("order-1"), issuedAt)) }
+        val thrown = catchThrowable { useCase.unfold(InvoiceIssue(OrderId(Identity("order-1")), issuedAt)) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(OrderNotPaidException::class.java)
-        assertThat(invoiceRepository.invoiceIsMissingFor(OrderId("order-1"))).isTrue()
+        assertThat(invoiceRepository.invoiceIsMissingFor(OrderId(Identity("order-1")))).isTrue()
     }
 
     @Test
     fun `an order should be invoiced once`() {
         // Arrange
-        storeOrder(OrderId("order-1"), OrderStatus.PAID)
-        useCase.unfold(InvoiceIssue(OrderId("order-1"), issuedAt))
+        storeOrder(OrderId(Identity("order-1")), OrderStatus.PAID)
+        useCase.unfold(InvoiceIssue(OrderId(Identity("order-1")), issuedAt))
         // Act
-        val thrown = catchThrowable { useCase.unfold(InvoiceIssue(OrderId("order-1"), issuedAt)) }
+        val thrown = catchThrowable { useCase.unfold(InvoiceIssue(OrderId(Identity("order-1")), issuedAt)) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(InvoiceAlreadyIssuedException::class.java)
     }

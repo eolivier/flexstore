@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.adapter.payment
 
+import org.flexstore.domain.sharedkernel.Identity
 import com.stripe.exception.SignatureVerificationException
 import com.stripe.model.checkout.Session
 import com.stripe.net.Webhook
@@ -17,7 +18,7 @@ class StripeWebhook(private val webhookSecret: String) {
         }
         if (event.type != "checkout.session.completed") return null
         val session = event.dataObjectDeserializer.deserializeUnsafe() as Session
-        return if (session.paymentStatus == "paid") OrderId(session.clientReferenceId) else null
+        return if (session.paymentStatus == "paid") OrderId(Identity(session.clientReferenceId)) else null
     }
 }
 

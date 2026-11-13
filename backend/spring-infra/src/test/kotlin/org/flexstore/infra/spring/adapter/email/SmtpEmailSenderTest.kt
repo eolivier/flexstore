@@ -40,7 +40,7 @@ class SmtpEmailSenderTest {
     private val homeLocation = Location(StreetAddress(homeStreet), Locality(homeTown, Country("France")))
     private val homeAddresses = OrderAddresses.sameFor(PostalAddress(janeDoe, homeLocation))
     private val checkout = Checkout(customer, homeAddresses, acceptedTermsOfSale)
-    private val orderStamp = OrderStamp(OrderId("c5f7326c-0000"), Instant.parse("2026-10-24T10:00:00Z"))
+    private val orderStamp = OrderStamp(OrderId(Identity("c5f7326c-0000")), Instant.parse("2026-10-24T10:00:00Z"))
     private val orderPlacement = OrderPlacement(orderStamp, checkout)
     private val order = Order.place(orderPlacement, Cart(customer).add(lamp, Quantity(1)))
     private val email = OrderConfirmationEmail(

@@ -46,7 +46,7 @@ class AdvanceOrderStatusUseCase(
 
     private fun orderExistsCondition() = PreCondition<OrderStatusAdvance> { orderStatusAdvance ->
         if (orderRepository.orderIsMissing(orderStatusAdvance.orderId)) {
-            throw OrderNotFoundException(ErrorMessage("Order ${orderStatusAdvance.orderId.value} not found."))
+            throw OrderNotFoundException(ErrorMessage("Order ${orderStatusAdvance.orderId.asString()} not found."))
         }
     }
 
@@ -86,7 +86,7 @@ class AdvanceOrderStatusUseCase(
         val tracking = orderStatusAdvance.tracking
         val storedTracking = orderRepository.findById(orderStatusAdvance.orderId)?.tracking
         if (tracking.isGiven() && storedTracking != tracking) {
-            val message = "The tracking of order ${orderStatusAdvance.orderId.value} was not kept."
+            val message = "The tracking of order ${orderStatusAdvance.orderId.asString()} was not kept."
             throw OrderTrackingChangeFailed(ErrorMessage(message))
         }
     }
@@ -95,7 +95,7 @@ class AdvanceOrderStatusUseCase(
         val expectedStatus = orderStatusAdvance.currentStatus.next()
         val storedStatus = orderRepository.findById(orderStatusAdvance.orderId)?.status
         if (storedStatus != expectedStatus) {
-            val orderId = orderStatusAdvance.orderId.value
+            val orderId = orderStatusAdvance.orderId.asString()
             val message = "Order $orderId is $storedStatus instead of $expectedStatus."
             throw OrderStatusAdvanceFailed(ErrorMessage(message))
         }

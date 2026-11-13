@@ -56,7 +56,7 @@ class CancelUnpaidOrderUseCase(
 
     private fun orderExistsCondition() = PreCondition<UnpaidOrderCancellation> { cancellation ->
         if (orderRepository.orderIsMissing(cancellation.orderId)) {
-            throw OrderNotFoundException(ErrorMessage("Order ${cancellation.orderId.value} not found."))
+            throw OrderNotFoundException(ErrorMessage("Order ${cancellation.orderId.asString()} not found."))
         }
     }
 
@@ -79,7 +79,7 @@ class CancelUnpaidOrderUseCase(
 
     private fun orderIsCancelledCondition() = PostCondition<UnpaidOrderCancellation> { cancellation ->
         if (orderRepository.findById(cancellation.orderId)?.isCancelled() != true) {
-            val message = ErrorMessage("Order ${cancellation.orderId.value} was not cancelled.")
+            val message = ErrorMessage("Order ${cancellation.orderId.asString()} was not cancelled.")
             throw OrderCancellationFailed(message)
         }
     }

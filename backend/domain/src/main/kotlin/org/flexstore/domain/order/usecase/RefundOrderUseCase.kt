@@ -56,7 +56,7 @@ class RefundOrderUseCase(
 
     private fun orderExistsCondition() = PreCondition<OrderRefund> { orderRefund ->
         if (orderRepository.orderIsMissing(orderRefund.orderId)) {
-            throw OrderNotFoundException(ErrorMessage("Order ${orderRefund.orderId.value} not found."))
+            throw OrderNotFoundException(ErrorMessage("Order ${orderRefund.orderId.asString()} not found."))
         }
     }
 
@@ -78,7 +78,7 @@ class RefundOrderUseCase(
 
     private fun orderIsRefundedCondition() = PostCondition<OrderRefund> { orderRefund ->
         if (orderRepository.findById(orderRefund.orderId)?.isRefunded() != true) {
-            val message = ErrorMessage("Order ${orderRefund.orderId.value} was not refunded.")
+            val message = ErrorMessage("Order ${orderRefund.orderId.asString()} was not refunded.")
             throw OrderRefundFailed(message)
         }
     }
