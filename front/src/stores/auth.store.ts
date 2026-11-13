@@ -5,6 +5,7 @@ import type { ExpressAccountRegistration } from '@/models/account';
 import { useLoadingStore } from '@/stores/loading.store';
 import { shareWhilePending } from '@/utils/shareWhilePending';
 import { jsonRequest } from '@/utils/jsonRequest';
+import { logFailure } from '@/utils/logFailure';
 
 export type PasswordChange = 'changed' | 'wrongPassword' | 'error';
 // signedIn: the account is created and the customer is signed in; invalidCompany: the company was refused (400)
@@ -136,7 +137,7 @@ export const useAuthStore = defineStore('auth', () => {
       }
     } catch (error) {
       loginError.value = 'An error occurred during login';
-      console.error('Login error:', error);
+      logFailure('log in', error);
       return 'error';
     }
   }
@@ -157,7 +158,7 @@ export const useAuthStore = defineStore('auth', () => {
       pendingChallengeId.value = null;
       return 'signedIn';
     } catch (error) {
-      console.error('Two-factor verification error:', error);
+      logFailure('verify the two-factor code', error);
       return 'error';
     }
   }
@@ -170,16 +171,14 @@ export const useAuthStore = defineStore('auth', () => {
   // Creates the account of a customer, then signs them in
   async function register(registration: ExpressAccountRegistration): Promise<Registration> {
     try {
-      const response = await loadingStore.track(
-        fetch(`${apiUrl}/api/accounts`, jsonRequest('POST', registration))
-      );
+      const response = await loadingStore.track(fetch(`${apiUrl}/api/accounts`, jsonRequest('POST', registration)));
       if (response.status === 409) return 'emailUsed';
       if (response.status === 400) return 'invalidCompany';
       if (!response.ok) return 'error';
       const outcome = await login(registration.email, registration.password);
       return outcome === 'signedIn' ? 'signedIn' : 'error';
     } catch (error) {
-      console.error('Registration error:', error);
+      logFailure('register', error);
       return 'error';
     }
   }
@@ -206,7 +205,7 @@ export const useAuthStore = defineStore('auth', () => {
       writeSession({ ...renewed, user: currentUser.value });
       return true;
     } catch (error) {
-      console.error('Session renewal error:', error);
+      logFailure('renew the session', error);
       return false;
     }
   }
@@ -241,7 +240,7 @@ export const useAuthStore = defineStore('auth', () => {
       if (response.status === 400) return 'wrongPassword';
       return 'error';
     } catch (error) {
-      console.error('Change password error:', error);
+      logFailure('change the password', error);
       return 'error';
     }
   }
@@ -250,15 +249,12 @@ export const useAuthStore = defineStore('auth', () => {
   async function startTwoFactorEnrollment(): Promise<TwoFactorEnrollment | null> {
     if (!currentUser.value) return null;
     try {
-      const response = await authFetch(
-        `/api/users/${currentUser.value.id}/two-factor-authentication/enrollment`,
-        {
-          method: 'POST',
-        }
-      );
+      const response = await authFetch(`/api/users/${currentUser.value.id}/two-factor-authentication/enrollment`, {
+        method: 'POST',
+      });
       return response.ok ? await response.json() : null;
     } catch (error) {
-      console.error('Two-factor enrollment error:', error);
+      logFailure('start the two-factor enrollment', error);
       return null;
     }
   }
@@ -277,7 +273,7 @@ export const useAuthStore = defineStore('auth', () => {
       }
       return response.status === 401 ? 'invalidCode' : 'error';
     } catch (error) {
-      console.error('Two-factor confirmation error:', error);
+      logFailure('confirm the two-factor enrollment', error);
       return 'error';
     }
   }
@@ -296,7 +292,7 @@ export const useAuthStore = defineStore('auth', () => {
       }
       return response.status === 400 ? 'wrongPassword' : 'error';
     } catch (error) {
-      console.error('Two-factor disabling error:', error);
+      logFailure('disable the two-factor authentication', error);
       return 'error';
     }
   }
@@ -323,7 +319,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       await fetch(`${apiUrl}/api/users/logout`, jsonRequest('POST', { refreshToken: endedRefreshToken }));
     } catch (error) {
-      console.error('Logout error:', error);
+      logFailure('log out', error);
     }
   }
 

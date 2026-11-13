@@ -4,6 +4,7 @@ import { ref, watch } from 'vue';
 import { useAuthStore } from '@/stores/auth.store';
 import { useLoadingStore } from '@/stores/loading.store';
 import { jsonRequest } from '@/utils/jsonRequest';
+import { logFailure } from '@/utils/logFailure';
 
 // Id of the cart of a visitor, created by the server on the first item
 const CART_ID_KEY = 'flexstore.cartId';
@@ -54,7 +55,7 @@ export const useCartStore = defineStore('cart', () => {
     if (response.ok) {
       cartItems.value = await response.json();
     } else {
-      console.error('Failed to load cart items');
+      logFailure('load the cart items');
     }
   }
 
@@ -63,7 +64,7 @@ export const useCartStore = defineStore('cart', () => {
     try {
       const response = await cartFetch('/api/cart/save', jsonRequest('POST', item));
       if (!response.ok) {
-        console.error('Failed to save cart item');
+        logFailure('save the cart item');
         return false;
       }
       const savedCart: { cartId?: string | null } = await response.json();
@@ -74,7 +75,7 @@ export const useCartStore = defineStore('cart', () => {
       await fetchCartItems();
       return true;
     } catch (error) {
-      console.error('Failed to save cart item', error);
+      logFailure('save the cart item', error);
       return false;
     }
   }
@@ -98,14 +99,14 @@ export const useCartStore = defineStore('cart', () => {
         headers: { [CART_ID_HEADER]: cartId },
       });
       if (!response.ok) {
-        console.error('Failed to merge the visitor cart');
+        logFailure('merge the visitor cart');
         return;
       }
       writeCartId(null);
       await fetchCartItems();
       accountItemsMerged.value = visitorLines > 0 && (cartItems.value?.items.length ?? 0) > visitorLines;
     } catch (error) {
-      console.error('Failed to merge the visitor cart', error);
+      logFailure('merge the visitor cart', error);
     }
   }
 

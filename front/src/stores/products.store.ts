@@ -5,6 +5,7 @@ import type { AdminProduct, Product, ProductCreation, ProductInput, ProductSave 
 import { getAllProducts } from '@/services/product.service';
 import { useAuthStore } from './auth.store';
 import { jsonRequest } from '@/utils/jsonRequest';
+import { logFailure } from '@/utils/logFailure';
 
 export const useProductsStore = defineStore('products', () => {
   const products = ref<Product[]>([]);
@@ -36,7 +37,7 @@ export const useProductsStore = defineStore('products', () => {
       if (!response.ok) return null;
       return await response.json();
     } catch (e) {
-      console.error('Error when reading product', e);
+      logFailure('read the product', e);
       return null;
     }
   }
@@ -52,14 +53,14 @@ export const useProductsStore = defineStore('products', () => {
       const response = await useAuthStore().authFetch(url, jsonRequest(method, product));
       if (response.status === 409) return { outcome: 'skuAlreadyUsed' };
       if (!response.ok) {
-        console.error('Error when saving product', await response.text());
+        logFailure('save the product', await response.text());
         return { outcome: 'failed' };
       }
       const savedProduct: Product = await response.json();
       await fetchProducts();
       return { outcome: 'saved', productId: savedProduct.id ?? '' };
     } catch (e) {
-      console.error('Error when saving product', e);
+      logFailure('save the product', e);
       return { outcome: 'failed' };
     }
   }

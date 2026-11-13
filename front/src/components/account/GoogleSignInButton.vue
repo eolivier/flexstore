@@ -2,6 +2,7 @@
   import { onMounted, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { googleClientId, googleSignInIsAvailable, loadGoogleIdentity } from '@/utils/googleIdentity';
+  import { logFailure } from '@/utils/logFailure';
 
   // The ID token that Google gave once the person chose their account
   const emit = defineEmits<{ credential: [idToken: string] }>();
@@ -29,7 +30,7 @@
         locale: locale.value,
       });
     } catch (error) {
-      console.error('Google sign-in error:', error);
+      logFailure('sign in with Google', error);
       failed.value = true;
     }
   });
@@ -43,8 +44,6 @@
       <v-divider />
     </div>
     <div ref="buttonContainer" class="d-flex justify-center" data-testid="google-sign-in-button" />
-    <v-alert v-if="failed" type="warning" density="compact" class="mt-2">{{
-      t('login.googleUnavailable')
-    }}</v-alert>
+    <v-alert v-if="failed" type="warning" density="compact" class="mt-2">{{ t('login.googleUnavailable') }}</v-alert>
   </div>
 </template>

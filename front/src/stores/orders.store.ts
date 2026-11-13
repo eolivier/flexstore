@@ -11,6 +11,7 @@ import { useAuthStore } from '@/stores/auth.store';
 import { useCartStore } from '@/stores/cart.store';
 import { pageQuery, totalCountOf } from '@/utils/pagination';
 import { jsonRequest } from '@/utils/jsonRequest';
+import { logFailure } from '@/utils/logFailure';
 
 // started: the customer opens the checkout page of the payment provider
 export type PaymentStart =
@@ -61,7 +62,7 @@ export const useOrdersStore = defineStore('orders', () => {
         loadError.value = true;
       }
     } catch (error) {
-      console.error('Failed to load the orders', error);
+      logFailure('load the orders', error);
       loadError.value = true;
     }
   }
@@ -74,7 +75,7 @@ export const useOrdersStore = defineStore('orders', () => {
       if (!response.ok) return { status: 'error' };
       return { status: 'found', order: await response.json() };
     } catch (error) {
-      console.error('Failed to load the order', error);
+      logFailure('load the order', error);
       return { status: 'error' };
     }
   }
@@ -109,7 +110,7 @@ export const useOrdersStore = defineStore('orders', () => {
       const order: JsonOrder = await response.json();
       return { status: 'placed', order };
     } catch (error) {
-      console.error('Failed to place the order', error);
+      logFailure('place the order', error);
       return { status: 'error' };
     }
   }
@@ -142,7 +143,7 @@ export const useOrdersStore = defineStore('orders', () => {
       const paymentSession: JsonPaymentSession = await response.json();
       return { status: 'started', checkoutUrl: paymentSession.checkoutUrl };
     } catch (error) {
-      console.error('Failed to start the payment', error);
+      logFailure('start the payment', error);
       return { status: 'error' };
     }
   }
@@ -155,7 +156,7 @@ export const useOrdersStore = defineStore('orders', () => {
         method: 'POST',
       });
     } catch (error) {
-      console.error('Failed to verify the payment', error);
+      logFailure('verify the payment', error);
     }
   }
 
