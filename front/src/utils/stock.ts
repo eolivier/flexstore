@@ -1,5 +1,5 @@
 // At most this many units: a few left
-export const FEW_UNITS = 5;
+const FEW_UNITS = 5;
 
 export type StockState = 'outOfStock' | 'fewLeft' | 'inStock';
 
