@@ -666,3 +666,39 @@ Details:
 - **The variant is typed in the request** (a sealed interface, section 8): not a string, a flag or a nullable field per variant.
 - **The repository follows**: one `save` taking the variant and one read returning the whole concept, rather than a pair of methods per attribute.
 - **The REST endpoints may stay one per attribute**: only the domain use cases are grouped; the adapters translate each endpoint to the variant of the request.
+
+## 17. A file groups a concept with the small types around it: no file per tiny class
+
+A Kotlin file of the domain holds **one concept and the small types that only exist around it**: its collection wrapper, its count, its identifier or small value objects, its exceptions, the variants of a sealed interface, the intermediate classes that only it uses. The file is named after the concept.
+
+A type gets **a file of its own** only when:
+- it is **large**, about 100 lines or more, so that it would drown the rest of the file; or
+- it is **used on its own by other concepts** (an identifier such as `OrderId`, a value object of the shared kernel): a reader looks for it by its name, not through another concept.
+
+Avoid (one file per tiny class):
+
+```
+model/BestSellerCount.kt    (3 lines)
+model/BestSeller.kt         (3 lines)
+model/BestSellers.kt        (6 lines)
+```
+
+Prefer:
+
+```kotlin
+// model/BestSeller.kt
+data class BestSellerCount(val value: Int)
+
+// A product sold: the units of it sold, and what they brought
+data class BestSeller(val product: OrderedProduct, val unitsSold: Quantity, val revenue: Price)
+
+// The products sold the most, the best first
+data class BestSellers(private val bestSellers: List<BestSeller>) { ... }
+```
+
+Why: a package of one file per tiny class is hard to read at a glance and forces the reader to open many files to follow one concept; grouping keeps the concept, its collection and its small value objects together, and the thresholds of section 4 (3 or more model files) count these grouped files.
+
+Details:
+- **The exceptions of a functional package** may share one file (`OrderExceptions.kt`) rather than one file each.
+- **The use cases stay one per file**, each with its own request when it has one: a use case is a journey, not a small type around a concept.
+- **When a grouped type grows** (or another concept starts using it on its own), move it to its own file.
