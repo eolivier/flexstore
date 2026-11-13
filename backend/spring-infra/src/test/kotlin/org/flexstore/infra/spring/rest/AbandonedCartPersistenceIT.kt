@@ -6,8 +6,8 @@ import org.flexstore.domain.product.ProductRepository
 import org.flexstore.domain.product.model.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.UserId
-import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaCartItemRepository
-import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaCartRepository
+import org.flexstore.infra.spring.adapter.persistence.jpa.repository.cart.JpaCartItemRepository
+import org.flexstore.infra.spring.adapter.persistence.jpa.repository.cart.JpaCartRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

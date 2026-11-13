@@ -7,10 +7,10 @@ import org.flexstore.domain.sharedkernel.Quantity
 import org.flexstore.domain.stock.StockRepository
 import org.flexstore.domain.stock.StockReservation
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.UserEntity
-import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaCartItemRepository
-import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaCartRepository
-import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaOrderRepository
-import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaUserRepository
+import org.flexstore.infra.spring.adapter.persistence.jpa.repository.cart.JpaCartItemRepository
+import org.flexstore.infra.spring.adapter.persistence.jpa.repository.cart.JpaCartRepository
+import org.flexstore.infra.spring.adapter.persistence.jpa.repository.order.JpaOrderRepository
+import org.flexstore.infra.spring.adapter.persistence.jpa.repository.user.JpaUserRepository
 import org.flexstore.infra.spring.security.asUser
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach

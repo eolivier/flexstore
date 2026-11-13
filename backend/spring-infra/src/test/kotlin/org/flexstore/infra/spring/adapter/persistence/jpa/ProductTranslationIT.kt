@@ -5,7 +5,7 @@ import org.flexstore.domain.product.*
 import org.flexstore.domain.product.model.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.ProductTranslationEntity
-import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaProductRepository
+import org.flexstore.infra.spring.adapter.persistence.jpa.repository.product.JpaProductRepository
 import org.flexstore.infra.spring.clearProductCache
 import org.springframework.cache.CacheManager
 import org.junit.jupiter.api.AfterEach

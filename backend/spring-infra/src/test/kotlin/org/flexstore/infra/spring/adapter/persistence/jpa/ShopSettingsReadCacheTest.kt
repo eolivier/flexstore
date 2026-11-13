@@ -4,8 +4,8 @@ import org.flexstore.domain.settings.ShopSettings
 import org.flexstore.domain.settings.ShopSettingsRepository
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.SHOP_SETTINGS_ID
 import org.flexstore.infra.spring.adapter.persistence.jpa.entity.ShopSettingsEntity
-import org.flexstore.infra.spring.adapter.persistence.jpa.repository.JpaShopSettingsRepository
-import org.flexstore.infra.spring.adapter.persistence.jpa.repository.PostgresShopSettingsRepositoryAdapter
+import org.flexstore.infra.spring.adapter.persistence.jpa.repository.shop.JpaShopSettingsRepository
+import org.flexstore.infra.spring.adapter.persistence.jpa.repository.shop.PostgresShopSettingsRepositoryAdapter
 import org.flexstore.infra.spring.config.CacheConfig
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
