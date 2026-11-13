@@ -21,7 +21,7 @@ class ReadCustomerOrderUseCase(
         PreConditions(customerCanActCondition(), orderOfTheCustomerExistsCondition())
 
     override fun getNominalQuery() = NominalQuery<CustomerOrderLookup, Order> { lookup ->
-        orderRepository.findById(lookup.orderId)!!
+        orderRepository.get(lookup.orderId)
     }
 
     override fun getPostConditions(): PostConditions<Order> = PostConditions.none()
@@ -35,7 +35,7 @@ class ReadCustomerOrderUseCase(
     // Unknown, or an order of another customer
     private fun orderIsMissingFor(lookup: CustomerOrderLookup) =
         orderRepository.orderIsMissing(lookup.orderId) ||
-            orderRepository.findById(lookup.orderId)!!.doesNotBelongTo(lookup.customer)
+            orderRepository.get(lookup.orderId).doesNotBelongTo(lookup.customer)
 
     private fun orderOfTheCustomerExistsCondition() = PreCondition<CustomerOrderLookup> { lookup ->
         if (orderIsMissingFor(lookup)) {

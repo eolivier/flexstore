@@ -18,7 +18,7 @@ class ReadProductImageUseCase(
         PreConditions(readerCanReadCondition(), imageExistsCondition())
 
     override fun getNominalQuery() = NominalQuery<ProductImageLookup, ProductImage> { lookup ->
-        productImageRepository.find(lookup.productId, lookup.format)!!
+        productImageRepository.get(lookup.productId, lookup.format)
     }
 
     override fun getPostConditions(): PostConditions<ProductImage> = PostConditions.none()

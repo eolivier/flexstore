@@ -29,7 +29,7 @@ class IssueInvoiceUseCase(
 
     private fun orderIsPaidCondition() = PreCondition<InvoiceIssue> { invoiceIssue ->
         val orderId = invoiceIssue.orderId
-        if (orderRepository.orderIsMissing(orderId) || orderRepository.findById(orderId)!!.isNotPaid()) {
+        if (orderRepository.orderIsMissing(orderId) || orderRepository.get(orderId).isNotPaid()) {
             throw OrderNotPaidException(ErrorMessage("Order ${orderId} is not paid: no invoice."))
         }
     }

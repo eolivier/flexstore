@@ -13,6 +13,9 @@ interface OrderRepository {
 
     fun findById(orderId: OrderId): Order?
 
+    // The order, which a precondition has checked to exist
+    fun get(orderId: OrderId): Order = findById(orderId) ?: throw IllegalStateException("Order $orderId is missing.")
+
     fun orderExists(orderId: OrderId): Boolean
 
     fun orderIsMissing(orderId: OrderId): Boolean = !orderExists(orderId)

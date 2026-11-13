@@ -11,6 +11,9 @@ interface ProductRepository {
     fun save(product: Product): Product
     fun findAll(): List<Product>
     fun findById(productId: ProductId): DefinedProduct?
+    // The product, which a precondition has checked to exist
+    fun get(productId: ProductId): DefinedProduct =
+        findById(productId) ?: throw IllegalStateException("Product $productId is missing.")
     fun findAllBy(category: Category): List<Product>
     fun exists(product: Product): Boolean
     fun notExists(product: Product): Boolean

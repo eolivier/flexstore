@@ -21,6 +21,9 @@ interface EmailRepository {
 
     fun save(verification: EmailVerification)
     fun findBy(token: VerificationToken): EmailVerification?
+    // The verification, which a precondition has checked to exist
+    fun get(token: VerificationToken): EmailVerification =
+        findBy(token) ?: throw IllegalStateException("Unknown verification token.")
     fun isUnknown(token: VerificationToken): Boolean = findBy(token) == null
     // The links of the user expire at the given date, unless they already expired before
     fun expireAllVerificationsOf(userId: UserId, expiration: ExpirationDate)

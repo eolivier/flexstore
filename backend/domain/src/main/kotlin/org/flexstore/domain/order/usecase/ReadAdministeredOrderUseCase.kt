@@ -19,7 +19,7 @@ class ReadAdministeredOrderUseCase(
         PreConditions(orderIsReadableByTheReaderCondition())
 
     override fun getNominalQuery() = NominalQuery<AdministeredOrderReading, AdministeredOrder> { (_, orderId) ->
-        val order = orderRepository.findById(orderId)!!
+        val order = orderRepository.get(orderId)
         AdministeredOrder(order, customerOf(order))
     }
 
@@ -30,7 +30,7 @@ class ReadAdministeredOrderUseCase(
     private fun orderIsMissingFor(reading: AdministeredOrderReading): Boolean {
         val (reader, orderId) = reading
         if (orderRepository.orderIsMissing(orderId)) return true
-        val order = orderRepository.findById(orderId)!!
+        val order = orderRepository.get(orderId)
         return reader.isNotAdmin() && !reader.isTheUser(order.customer)
     }
 

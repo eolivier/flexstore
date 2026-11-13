@@ -14,7 +14,7 @@ class ReadCreditNoteUseCase(
     override fun getPreConditions(): PreConditions<OrderId> = PreConditions(creditNoteExistsCondition())
 
     override fun getNominalQuery() = NominalQuery<OrderId, CreditNote> { orderId ->
-        creditNoteRepository.findBy(orderId)!!
+        creditNoteRepository.get(orderId)
     }
 
     override fun getPostConditions(): PostConditions<CreditNote> = PostConditions.none()

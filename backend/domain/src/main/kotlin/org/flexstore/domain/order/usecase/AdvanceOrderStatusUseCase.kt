@@ -26,7 +26,7 @@ class AdvanceOrderStatusUseCase(
 
     override fun getNominalScenario(): NominalScenario<OrderStatusAdvance> {
         val advanceStep = Step<OrderStatusAdvance> { orderStatusAdvance ->
-            val order = orderRepository.findById(orderStatusAdvance.orderId)!!
+            val order = orderRepository.get(orderStatusAdvance.orderId)
             val advancedOrder = order.advancedAt(StatusChangedAt.now())
             orderRepository.save(advancedOrder.withTracking(orderStatusAdvance.tracking))
         }
@@ -52,7 +52,7 @@ class AdvanceOrderStatusUseCase(
 
     // Another administrator may have changed the status in the meantime
     private fun initialStatusIsCurrentCondition() = PreCondition<OrderStatusAdvance> { orderStatusAdvance ->
-        val order = orderRepository.findById(orderStatusAdvance.orderId)!!
+        val order = orderRepository.get(orderStatusAdvance.orderId)
         if (order.status != orderStatusAdvance.currentStatus) {
             val message = "Order ${order.number()} is ${order.status}, not ${orderStatusAdvance.currentStatus}."
             throw OrderStatusChangedException(ErrorMessage(message))

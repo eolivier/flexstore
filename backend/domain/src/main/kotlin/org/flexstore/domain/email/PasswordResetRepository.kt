@@ -8,6 +8,9 @@ import org.flexstore.domain.user.model.UserId
 interface PasswordResetRepository {
     fun save(reset: PasswordReset)
     fun findBy(token: VerificationToken): PasswordReset?
+    // The password reset, which a precondition has checked to exist
+    fun get(token: VerificationToken): PasswordReset =
+        findBy(token) ?: throw IllegalStateException("Unknown password reset token.")
     fun isUnknown(token: VerificationToken): Boolean = findBy(token) == null
 
     fun isKnown(token: VerificationToken): Boolean = !isUnknown(token)

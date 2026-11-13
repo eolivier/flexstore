@@ -11,7 +11,7 @@ class ReadAnyOrderUseCase(private val orderRepository: OrderRepository) : QueryU
     override fun getPreConditions(): PreConditions<OrderId> = PreConditions(orderExistsCondition())
 
     override fun getNominalQuery() = NominalQuery<OrderId, Order> { orderId ->
-        orderRepository.findById(orderId)!!
+        orderRepository.get(orderId)
     }
 
     override fun getPostConditions(): PostConditions<Order> = PostConditions.none()

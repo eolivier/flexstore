@@ -37,7 +37,7 @@ class ResetPasswordUseCase(
 
     // Only called once the link is known
     private fun reset(confirmation: PasswordResetConfirmation) =
-        passwordResetRepository.findBy(confirmation.chosenPassword.token)!!
+        passwordResetRepository.get(confirmation.chosenPassword.token)
 
     private fun linkIsKnownCondition() = PreCondition<PasswordResetConfirmation> { confirmation ->
         if (passwordResetRepository.isUnknown(confirmation.chosenPassword.token)) {

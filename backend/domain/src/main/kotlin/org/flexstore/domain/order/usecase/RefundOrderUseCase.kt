@@ -44,7 +44,7 @@ class RefundOrderUseCase(
     override fun getPostConditions(): PostConditions<OrderRefund> = PostConditions(orderIsRefundedCondition())
 
     // Only called once the order is known
-    private fun order(orderRefund: OrderRefund) = orderRepository.findById(orderRefund.orderId)!!
+    private fun order(orderRefund: OrderRefund) = orderRepository.get(orderRefund.orderId)
 
     // The editor must be an Admin, resolved before the use case runs
     private fun editorIsAdministratorCondition() = PreCondition<OrderRefund> { request ->

@@ -7,6 +7,10 @@ interface DiscountCodeRepository {
 
     fun findBy(code: PromoCode): DiscountCode?
 
+    // The discount code, which a precondition has checked to exist
+    fun get(code: PromoCode): DiscountCode =
+        findBy(code) ?: throw IllegalStateException("Discount code $code is missing.")
+
     // Newest first
     fun findAll(): DiscountCodes
 

@@ -23,7 +23,7 @@ class StartPaymentUseCase(
 
     override fun getNominalScenario(): NominalScenario<OrderPayment> {
         val startStep = Step<OrderPayment> { orderPayment ->
-            val order = orderRepository.findById(orderPayment.orderId)!!
+            val order = orderRepository.get(orderPayment.orderId)
             val customer = userRepository.findById(orderPayment.customer.userId) as User.DefinedUser
             paymentRepository.start(PaymentRequest(order, Payer.of(customer, order)))
         }
@@ -47,7 +47,7 @@ class StartPaymentUseCase(
     }
 
     private fun orderAwaitsPaymentCondition() = PreCondition<OrderPayment> { orderPayment ->
-        val order = orderRepository.findById(orderPayment.orderId)!!
+        val order = orderRepository.get(orderPayment.orderId)
         if (order.isPaid()) {
             throw OrderAlreadyPaidException(ErrorMessage("Order ${order.number()} is already paid."))
         }
@@ -55,7 +55,7 @@ class StartPaymentUseCase(
 
     // Not paid in time: the customer orders again
     private fun orderIsNotCancelledCondition() = PreCondition<OrderPayment> { orderPayment ->
-        val order = orderRepository.findById(orderPayment.orderId)!!
+        val order = orderRepository.get(orderPayment.orderId)
         if (order.isCancelled()) {
             val message = ErrorMessage("Order ${order.number()} was cancelled: it was not paid in time.")
             throw OrderCancelledException(message)

@@ -7,6 +7,10 @@ interface SellerRepository {
 
     fun findBy(sellerId: SellerId): Seller?
 
+    // The seller, which a precondition has checked to exist
+    fun get(sellerId: SellerId): Seller =
+        findBy(sellerId) ?: throw IllegalStateException("Seller $sellerId is missing.")
+
     // Adds a version of the seller, which becomes the current one
     fun save(seller: Seller)
 

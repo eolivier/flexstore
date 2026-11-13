@@ -10,6 +10,10 @@ interface PaymentRepository {
 
     fun sessionOf(orderId: OrderId): PaymentSession?
 
+    // The session, which a precondition has checked to exist
+    fun getSessionOf(orderId: OrderId): PaymentSession =
+        sessionOf(orderId) ?: throw IllegalStateException("No payment session for $orderId.")
+
     fun sessionExistsFor(orderId: OrderId) = sessionOf(orderId) != null
 
     fun sessionIsMissingFor(orderId: OrderId) = !sessionExistsFor(orderId)

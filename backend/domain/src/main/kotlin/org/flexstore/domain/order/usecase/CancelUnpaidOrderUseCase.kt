@@ -43,7 +43,7 @@ class CancelUnpaidOrderUseCase(
         PostConditions(orderIsCancelledCondition())
 
     // Only called once the order is known
-    private fun order(cancellation: UnpaidOrderCancellation) = orderRepository.findById(cancellation.orderId)!!
+    private fun order(cancellation: UnpaidOrderCancellation) = orderRepository.get(cancellation.orderId)
 
     // Only an Admin or the system cancels the orders that a scheduler finds late
     private fun actorCanRunScheduledUseCasesCondition() = PreCondition<UnpaidOrderCancellation> { cancellation ->

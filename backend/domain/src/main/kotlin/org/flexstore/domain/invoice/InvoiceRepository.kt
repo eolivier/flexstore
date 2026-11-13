@@ -17,6 +17,9 @@ interface InvoiceRepository {
 
     fun findBy(orderId: OrderId): Invoice?
 
+    // The invoice, which a precondition has checked to exist
+    fun get(orderId: OrderId): Invoice = findBy(orderId) ?: throw IllegalStateException("No invoice for $orderId.")
+
     fun invoiceExistsFor(orderId: OrderId) = findBy(orderId) != null
 
     fun invoiceIsMissingFor(orderId: OrderId) = !invoiceExistsFor(orderId)
@@ -29,6 +32,10 @@ interface CreditNoteRepository {
     fun issue(creditNoteIssue: CreditNoteIssue): CreditNote
 
     fun findBy(orderId: OrderId): CreditNote?
+
+    // The credit note, which a precondition has checked to exist
+    fun get(orderId: OrderId): CreditNote =
+        findBy(orderId) ?: throw IllegalStateException("No credit note for $orderId.")
 
     fun creditNoteExistsFor(orderId: OrderId) = findBy(orderId) != null
 

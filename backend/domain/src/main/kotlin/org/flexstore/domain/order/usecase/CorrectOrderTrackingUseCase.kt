@@ -20,7 +20,7 @@ class CorrectOrderTrackingUseCase(
 
     override fun getNominalScenario(): NominalScenario<OrderTrackingCorrection> =
         NominalScenario(Step { correction ->
-            val order = orderRepository.findById(correction.orderId)!!
+            val order = orderRepository.get(correction.orderId)
             orderRepository.save(order.withTracking(correction.tracking))
         })
 
@@ -42,7 +42,7 @@ class CorrectOrderTrackingUseCase(
     }
 
     private fun orderAllowsTheCorrectionCondition() = PreCondition<OrderTrackingCorrection> { correction ->
-        val order = orderRepository.findById(correction.orderId)!!
+        val order = orderRepository.get(correction.orderId)
         if (order.status.refusesTrackingCorrection()) {
             val message = "The tracking of order ${order.number()} is corrected once it is shipped, " +
                 "not when it is ${order.status}."
