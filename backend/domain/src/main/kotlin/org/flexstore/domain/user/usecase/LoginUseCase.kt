@@ -21,6 +21,7 @@ class LoginUseCase(
         // password
         return PreConditions(
             userExistsByEmailCondition(),
+            userIsNotTheSystemCondition(),
             passwordMatchesCondition(),
             accountAllowsSignInCondition()
         )
@@ -48,6 +49,14 @@ class LoginUseCase(
         if (user is User.UndefinedUser) {
             val message = ErrorMessage("User with email ${request.email.value} does not exist.")
             throw UserNotFoundByEmailException(message)
+        }
+    }
+
+    // The system user runs the scheduled use cases: nobody signs in with it, whatever the password
+    private fun userIsNotTheSystemCondition() = PreCondition<LoginRequest> { request ->
+        val user = userRepository.findByEmail(request.email) as User.DefinedUser
+        if (user.isSystem()) {
+            throw SystemSignInForbiddenException(ErrorMessage("The system user cannot sign in."))
         }
     }
 

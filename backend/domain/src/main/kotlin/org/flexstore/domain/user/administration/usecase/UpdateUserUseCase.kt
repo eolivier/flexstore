@@ -16,6 +16,7 @@ class UpdateUserUseCase(private val userRepository: UserRepository) : UseCase<Up
         editorIsAdministratorCondition(),
         isValidUserIdCondition(),
         userDoExistCondition(),
+        roleIsNotSystemCondition(),
         emailIsNotUsedByAnotherUserCondition()
     )
 
@@ -51,6 +52,17 @@ class UpdateUserUseCase(private val userRepository: UserRepository) : UseCase<Up
     private fun editorIsAdministratorCondition() = PreCondition<UpdateUserRequest> { request ->
         if (userRepository.isNotAdministrator(request.editor)) {
             throw UserUpdateForbiddenException(ErrorMessage("Only an administrator can edit a user."))
+        }
+    }
+
+    // The system user cannot be edited, and no other user becomes the system
+    private fun roleIsNotSystemCondition() = PreCondition<UpdateUserRequest> { request ->
+        val user = request.user
+        val storedUser = userRepository.findById(user.id)
+        val editsTheSystem = storedUser is User.DefinedUser && storedUser.isSystem()
+        val givesTheSystemRole = user is User.DefinedUser && user.isSystem()
+        if (editsTheSystem || givesTheSystemRole) {
+            throw SystemRoleForbiddenException(ErrorMessage("The system user cannot be edited nor given."))
         }
     }
 

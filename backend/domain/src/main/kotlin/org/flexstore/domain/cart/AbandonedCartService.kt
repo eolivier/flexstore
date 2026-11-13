@@ -1,14 +1,16 @@
 package org.flexstore.domain.cart
 
-import org.flexstore.domain.actor.SystemActor
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.cart.usecase.*
 import org.flexstore.domain.settings.usecase.ReadShopSettingsUseCase
 import org.flexstore.domain.sharedkernel.InstantProvider
 import org.ucop.domain.isNotNominal
 
-// Domain service: when the shop settings turn the reminder on, the customers who left their cart for the delay
+// Domain service, run by the system user: when the shop settings turn the reminder on, the customers who left
+// their cart for the delay
 // of the settings are reminded of it by email. Called regularly by the infrastructure
 class AbandonedCartService(
+    private val actorResolutionService: ActorResolutionService,
     private val readShopSettingsUseCase: ReadShopSettingsUseCase,
     private val listAbandonedCartsUseCase: ListAbandonedCartsUseCase,
     private val remindAbandonedCartUseCase: RemindAbandonedCartUseCase
@@ -19,7 +21,7 @@ class AbandonedCartService(
         val shopSettings = readShopSettingsUseCase.unfold(Unit)
         if (shopSettings.sendsAbandonedCartReminder()) {
             val limit = AbandonmentLimit.of(shopSettings.abandonedCartDelay, InstantProvider.now())
-            val reading = AbandonedCartsReading(SystemActor(), limit)
+            val reading = AbandonedCartsReading(actorResolutionService.system(), limit)
             val abandonedCarts = listAbandonedCartsUseCase.unfold(reading).asList()
             return AbandonedCarts(abandonedCarts.filter { cart -> isReminded(cart) })
         }
@@ -28,7 +30,7 @@ class AbandonedCartService(
 
     private fun isReminded(cart: Cart): Boolean {
         val customer = cart.owner as? CartOwner.Customer ?: return false
-        val reminding = AbandonedCartReminding(SystemActor(), customer)
+        val reminding = AbandonedCartReminding(actorResolutionService.system(), customer)
         return runCatching { remindAbandonedCartUseCase.unfold(reminding) }
             .onFailure { failure -> if (failure.stopsTheRun()) throw failure }
             .isSuccess

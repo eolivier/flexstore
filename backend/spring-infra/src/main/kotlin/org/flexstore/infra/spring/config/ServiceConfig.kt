@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.config
 
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.payment.*
 import org.flexstore.domain.payment.usecase.*
 import org.flexstore.domain.cart.*
@@ -99,16 +100,23 @@ open class ServiceConfig {
         PasswordResetService(requestPasswordResetUseCase, resetPasswordUseCase)
 
     @Bean
-    open fun unpaidOrderService(readShopSettingsUseCase: ReadShopSettingsUseCase,
+    open fun unpaidOrderService(actorResolutionService: ActorResolutionService,
+                                readShopSettingsUseCase: ReadShopSettingsUseCase,
                                 listAllOrdersUseCase: ListAllOrdersUseCase,
                                 cancelUnpaidOrderUseCase: CancelUnpaidOrderUseCase) =
-        UnpaidOrderService(readShopSettingsUseCase, listAllOrdersUseCase, cancelUnpaidOrderUseCase)
+        UnpaidOrderService(
+            actorResolutionService, readShopSettingsUseCase, listAllOrdersUseCase, cancelUnpaidOrderUseCase
+        )
 
     @Bean
-    open fun abandonedCartService(readShopSettingsUseCase: ReadShopSettingsUseCase,
+    open fun abandonedCartService(actorResolutionService: ActorResolutionService,
+                                  readShopSettingsUseCase: ReadShopSettingsUseCase,
                                   listAbandonedCartsUseCase: ListAbandonedCartsUseCase,
                                   remindAbandonedCartUseCase: RemindAbandonedCartUseCase) =
-        AbandonedCartService(readShopSettingsUseCase, listAbandonedCartsUseCase, remindAbandonedCartUseCase)
+        AbandonedCartService(
+            actorResolutionService, readShopSettingsUseCase,
+            listAbandonedCartsUseCase, remindAbandonedCartUseCase
+        )
 
     @Bean
     open fun addressBookService(readAccountUseCase: ReadAccountUseCase, addressUseCases: AddressUseCases) =

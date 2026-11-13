@@ -39,6 +39,18 @@ class CreateUserUseCaseTest {
     }
 
     @Test
+    fun `should refuse to give the SYSTEM role to a new user`() {
+        // Arrange
+        existing(administrator)
+        val systemDraftUser = draftUser.copy(role = Role.SYSTEM)
+        // Act
+        val request = CreateUserRequest(administrator.id, systemDraftUser)
+        val thrown = catchThrowable { createUserUseCase.unfold(request) }
+        // Assert
+        assertThat(thrown).hasCauseInstanceOf(SystemRoleForbiddenException::class.java)
+    }
+
+    @Test
     fun `should refuse a creator who is not an administrator`() {
         // Arrange
         val creator = administrator.copy(role = Role.USER)

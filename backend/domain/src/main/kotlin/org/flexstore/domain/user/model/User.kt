@@ -46,6 +46,8 @@ sealed class User(open val id: UserId) {
 
         fun isAdministrator() = role == Role.ADMIN
 
+        fun isSystem() = role.isSystem()
+
         fun isNotAdministrator() = role != Role.ADMIN
 
         // A new enrollment is generated, kept pending until the first code confirms it
@@ -102,6 +104,11 @@ sealed class UserId(open val value: String) {
     companion object
 }
 
+// The system user, created by the migration V62: it runs the scheduled use cases
+object SystemUser {
+    val id = UserId.ValidUserId("system")
+}
+
 fun UserId.Companion.isValid(value: String) = value.isNotEmpty()
 
 fun UserId.Companion.nextId(): UserId = UserId.ValidUserId(Identity.nextId().value)
@@ -115,9 +122,14 @@ fun UserId.Companion.of(value: String): UserId {
 
 data class Email(val value: String)
 
-// ADMIN can manage the users and the products
+// ADMIN can manage the users and the products. SYSTEM is the user that runs the scheduled use cases: nobody
+// signs in with it, nobody gives it to a user
 enum class Role {
-    USER, ADMIN;
+    USER, ADMIN, SYSTEM;
+
+    fun isSystem() = this == SYSTEM
+
+    fun isNotSystem() = !isSystem()
 
     companion object {
         // The role given by name; a user without a given role is a USER
@@ -134,6 +146,10 @@ data class UserDeletionForbiddenException(override val errorMessage: ErrorMessag
 data class UserUpdateForbiddenException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
 data class UserCreationForbiddenException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage)
+data class SystemSignInForbiddenException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage)
+data class SystemRoleForbiddenException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
 data class InvalidRoleException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 

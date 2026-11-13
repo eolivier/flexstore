@@ -67,7 +67,7 @@ class RestExceptionHandler {
             // Same answer for an unknown email and a wrong password, so that the login does not reveal which
             // accounts exist
             is InvalidCredentialsException, is UserNotFoundByEmailException, is InvalidGoogleIdTokenException,
-            is UserSignInException, is UserGoogleAuthenticationException ->
+            is UserSignInException, is UserGoogleAuthenticationException, is SystemSignInForbiddenException ->
                 ResponseEntity
                     .status(401)
                     .body(mapOf("error" to "Invalid credentials."))
@@ -87,7 +87,7 @@ class RestExceptionHandler {
             is OrderRefusedException -> ResponseEntity
                 .status(403)
                 .body(mapOf("error" to (ex.message ?: "Order refused"), "status" to ex.status.name))
-            is UserCreationForbiddenException, is UserUpdateForbiddenException,
+            is UserCreationForbiddenException, is UserUpdateForbiddenException, is SystemRoleForbiddenException,
             is UserReadingForbiddenException, is UserDeletionForbiddenException,
             is LegalPagePublicationForbiddenException, is StockAlertForbiddenException,
             is SellerAdministrationForbiddenException, is ShopSettingsAdministrationForbiddenException,
