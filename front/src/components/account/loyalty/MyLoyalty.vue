@@ -4,10 +4,7 @@
   import { onMounted } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useLoyaltyStore } from '@/stores/loyalty.store';
-
-  function placedOn(placedAt: string, locale: string): string {
-    return new Date(placedAt).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' });
-  }
+  import { formatDate } from '@/utils/date';
 
   // The loyalty points of the signed-in customer: 1 point for each euro or dollar spent
   const { t, locale } = useI18n();
@@ -51,7 +48,7 @@
           :key="purchase.orderNumber"
           data-testid="loyalty-purchase"
           :title="t('loyalty.purchase', { number: purchase.orderNumber })"
-          :subtitle="placedOn(purchase.placedAt, locale)"
+          :subtitle="formatDate(purchase.placedAt, locale)"
         >
           <template #append>
             <span class="font-weight-bold">+ {{ t('loyalty.points', purchase.points) }}</span>

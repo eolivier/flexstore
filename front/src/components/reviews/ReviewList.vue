@@ -2,6 +2,7 @@
   import EmptyState from '@/components/layout/EmptyState.vue';
   import { useI18n } from 'vue-i18n';
   import type { JsonReview } from '@/generated';
+  import { formatDate } from '@/utils/date';
 
   // The reviews of a product, newest first; deletable: an administrator sees a button to delete each one
   defineProps<{ reviews: JsonReview[]; deletable?: boolean }>();
@@ -9,7 +10,7 @@
 
   const { t, locale } = useI18n();
 
-  const dateOf = (review: JsonReview) => new Date(review.reviewedAt).toLocaleDateString(locale.value);
+  const dateOf = (review: JsonReview) => formatDate(review.reviewedAt, locale.value);
 </script>
 
 <template>
