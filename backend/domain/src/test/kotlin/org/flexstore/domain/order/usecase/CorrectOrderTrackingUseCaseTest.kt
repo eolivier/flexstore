@@ -1,6 +1,9 @@
 package org.flexstore.domain.order.usecase
 
 import org.assertj.core.api.WithAssertions
+import org.flexstore.domain.actor.unknownUserActor
+import org.flexstore.domain.actor.testCustomerActor
+import org.flexstore.domain.actor.testAdministratorActor
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.order.model.*
@@ -15,10 +18,6 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import java.math.BigDecimal
 import java.time.Instant
-import org.flexstore.domain.user.administration.testAdministrator
-import org.flexstore.domain.user.administration.testCustomer
-import org.flexstore.domain.user.administration.unknownUser
-import org.flexstore.domain.user.administration.usersOfTheAdministration
 
 class CorrectOrderTrackingUseCaseTest : WithAssertions {
 
@@ -27,8 +26,8 @@ class CorrectOrderTrackingUseCaseTest : WithAssertions {
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val orderId = OrderId("order-1")
     private val orderRepository = InMemoryOrderRepository()
-    private val administrator = testAdministrator.id
-    private val useCase = CorrectOrderTrackingUseCase(orderRepository, usersOfTheAdministration())
+    private val administrator = testAdministratorActor
+    private val useCase = CorrectOrderTrackingUseCase(orderRepository)
     private val firstTracking = OrderTracking.Given(Carrier.COLISSIMO, TrackingNumber("6A111"))
     private val correctedTracking = OrderTracking.Given(Carrier.UPS, TrackingNumber("1Z222"))
 
@@ -108,7 +107,7 @@ class CorrectOrderTrackingUseCaseTest : WithAssertions {
         storeOrder(OrderStatus.SHIPPED, firstTracking)
         // Act
         val thrown = catchThrowable {
-            useCase.unfold(OrderTrackingCorrection(testCustomer.id, orderId, correctedTracking))
+            useCase.unfold(OrderTrackingCorrection(testCustomerActor, orderId, correctedTracking))
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(OrderAdministrationForbiddenException::class.java)
@@ -121,7 +120,7 @@ class CorrectOrderTrackingUseCaseTest : WithAssertions {
         storeOrder(OrderStatus.SHIPPED, firstTracking)
         // Act
         val thrown = catchThrowable {
-            useCase.unfold(OrderTrackingCorrection(unknownUser, orderId, correctedTracking))
+            useCase.unfold(OrderTrackingCorrection(unknownUserActor, orderId, correctedTracking))
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(OrderAdministrationForbiddenException::class.java)

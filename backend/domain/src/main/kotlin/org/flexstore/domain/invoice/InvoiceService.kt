@@ -14,7 +14,7 @@ import org.flexstore.domain.order.*
 import org.flexstore.domain.order.model.*
 import org.flexstore.domain.order.usecase.ReadAdministeredOrderUseCase
 import org.flexstore.domain.seller.usecase.*
-import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.entity.Actor
 
 // The use cases that give the document of an invoice or of a credit note
 data class InvoiceUseCases(
@@ -32,15 +32,15 @@ class InvoiceService(
     private val readAdministeredOrderUseCase: ReadAdministeredOrderUseCase
 ) {
     // The invoice of an order of another customer is reported as not found, as the order itself
-    fun invoice(reader: UserId, orderId: OrderId): InvoicePdf =
+    fun invoice(reader: Actor, orderId: OrderId): InvoicePdf =
         render(invoiceDocumentOf(orderOf(reader, orderId)))
 
     // The credit note of an order of another customer is reported as not found, as the order itself
-    fun creditNote(reader: UserId, orderId: OrderId): InvoicePdf =
+    fun creditNote(reader: Actor, orderId: OrderId): InvoicePdf =
         render(creditNoteDocumentOf(orderOf(reader, orderId)))
 
     // Any order for an administrator, their own ones for a customer
-    private fun orderOf(reader: UserId, orderId: OrderId) =
+    private fun orderOf(reader: Actor, orderId: OrderId) =
         readAdministeredOrderUseCase.unfold(AdministeredOrderReading(reader, orderId))
 
     private fun invoiceDocumentOf(administeredOrder: AdministeredOrder): InvoiceDocument {

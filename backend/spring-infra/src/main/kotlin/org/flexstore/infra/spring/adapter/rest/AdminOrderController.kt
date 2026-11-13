@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.adapter.rest
 
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.invoice.OrderRefundService
 import org.flexstore.domain.order.*
 import org.flexstore.domain.order.model.*
@@ -29,7 +30,8 @@ import org.springframework.security.oauth2.jwt.Jwt
 @RequestMapping("/api/admin/orders")
 class AdminOrderController(
     private val orderAdministrationService: OrderAdministrationService,
-    private val orderRefundService: OrderRefundService
+    private val orderRefundService: OrderRefundService,
+    private val actorResolutionService: ActorResolutionService
 ) {
 
     @Operation(
@@ -44,14 +46,14 @@ class AdminOrderController(
         @RequestParam(defaultValue = "${PageSize.DEFAULT}") size: Int
     ): ResponseEntity<List<JsonAdminOrder>> {
         val pageRequest = PageRequest.of(page, size)
-        val orders = orderAdministrationService.getAllOrders(UserId.of(reader.subject), pageRequest)
+        val orders = orderAdministrationService.getAllOrders(actorOf(reader), pageRequest)
         return pagedBody(orders.content.asList().map { JsonAdminOrder(it) }, orders.total)
     }
 
     @Operation(summary = "Retrieve any order, with its customer")
     @GetMapping("/{orderId}")
     fun getOrder(@AuthenticationPrincipal reader: Jwt, @PathVariable orderId: String): JsonAdminOrder =
-        JsonAdminOrder(orderAdministrationService.getOrder(UserId.of(reader.subject), OrderId(orderId)))
+        JsonAdminOrder(orderAdministrationService.getOrder(actorOf(reader), OrderId(orderId)))
 
     @Operation(
         summary = "Move an order to the next status of its life cycle: PROCESSING, SHIPPED, then DELIVERED; " +
@@ -63,7 +65,7 @@ class AdminOrderController(
         @PathVariable orderId: String,
         @RequestBody statusAdvance: JsonOrderStatusAdvance
     ): JsonAdminOrder {
-        val orderStatusAdvance = statusAdvance.toOrderStatusAdvance(UserId.of(editor.subject), OrderId(orderId))
+        val orderStatusAdvance = statusAdvance.toOrderStatusAdvance(actorOf(editor), OrderId(orderId))
         val advancedOrder = orderAdministrationService.advance(orderStatusAdvance)
         return JsonAdminOrder(advancedOrder)
     }
@@ -75,9 +77,7 @@ class AdminOrderController(
         @PathVariable orderId: String,
         @RequestBody trackingCorrection: JsonOrderTrackingCorrection
     ): JsonAdminOrder {
-        val correction = trackingCorrection.toOrderTrackingCorrection(
-            UserId.of(editor.subject), OrderId(orderId)
-        )
+        val correction = trackingCorrection.toOrderTrackingCorrection(actorOf(editor), OrderId(orderId))
         val correctedOrder = orderAdministrationService.correctTracking(correction)
         return JsonAdminOrder(correctedOrder)
     }
@@ -95,8 +95,10 @@ class AdminOrderController(
         @PathVariable orderId: String,
         @RequestBody orderRefund: JsonOrderRefund
     ): JsonAdminOrder {
-        val refund = orderRefund.toOrderRefund(UserId.of(editor.subject), OrderId(orderId))
+        val refund = orderRefund.toOrderRefund(actorOf(editor), OrderId(orderId))
         val refundedOrder = orderRefundService.refund(refund)
         return JsonAdminOrder(refundedOrder)
     }
+
+    private fun actorOf(jwt: Jwt) = actorResolutionService.actorOf(UserId.of(jwt.subject))
 }

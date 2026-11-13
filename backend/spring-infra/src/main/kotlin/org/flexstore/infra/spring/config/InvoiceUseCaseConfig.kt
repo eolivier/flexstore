@@ -25,9 +25,8 @@ open class InvoiceUseCaseConfig {
     @Bean
     open fun issueCreditNoteUseCase(orderRepository: OrderRepository,
                                     invoiceRepository: InvoiceRepository,
-                                    creditNoteRepository: CreditNoteRepository,
-                                    userRepository: UserRepository) =
-        IssueCreditNoteUseCase(orderRepository, invoiceRepository, creditNoteRepository, userRepository)
+                                    creditNoteRepository: CreditNoteRepository) =
+        IssueCreditNoteUseCase(orderRepository, invoiceRepository, creditNoteRepository)
 
     @Bean
     open fun readCreditNoteUseCase(creditNoteRepository: CreditNoteRepository) =

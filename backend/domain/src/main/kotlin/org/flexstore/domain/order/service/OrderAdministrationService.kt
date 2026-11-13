@@ -5,7 +5,7 @@ import org.flexstore.domain.order.usecase.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.sharedkernel.Page
 import org.flexstore.domain.sharedkernel.PageRequest
-import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.entity.Actor
 
 // Domain service: the administrators follow the orders of all the customers, with the customer of each one,
 // move them along their life cycle, and correct the tracking of a parcel. An order moved is read back, then
@@ -18,10 +18,10 @@ class OrderAdministrationService(
     private val correctOrderTrackingUseCase: CorrectOrderTrackingUseCase,
     private val sendOrderStatusEmailUseCase: SendOrderStatusEmailUseCase
 ) {
-    fun getAllOrders(reader: UserId, pageRequest: PageRequest): Page<AdministeredOrders> =
+    fun getAllOrders(reader: Actor, pageRequest: PageRequest): Page<AdministeredOrders> =
         listAdministeredOrdersUseCase.unfold(AdministeredOrdersReading(reader, pageRequest))
 
-    fun getOrder(reader: UserId, orderId: OrderId): AdministeredOrder =
+    fun getOrder(reader: Actor, orderId: OrderId): AdministeredOrder =
         readAdministeredOrderUseCase.unfold(AdministeredOrderReading(reader, orderId))
 
     fun advance(orderStatusAdvance: OrderStatusAdvance): AdministeredOrder {

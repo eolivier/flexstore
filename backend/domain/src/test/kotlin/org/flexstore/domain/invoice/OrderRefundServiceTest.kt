@@ -1,6 +1,8 @@
 package org.flexstore.domain.invoice
 
 import org.flexstore.domain.invoice.model.*
+import org.flexstore.domain.actor.testCustomerActor
+import org.flexstore.domain.actor.testAdministratorActor
 import org.flexstore.domain.invoice.model.CreditNote
 import org.flexstore.domain.invoice.model.CreditNoteDate
 import org.flexstore.domain.invoice.model.CreditNoteIssue
@@ -28,8 +30,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.time.Instant
-import org.flexstore.domain.user.administration.testAdministrator
-import org.flexstore.domain.user.administration.testCustomer
 import org.flexstore.domain.user.administration.usersOfTheAdministration
 
 class OrderRefundServiceTest : WithAssertions {
@@ -51,11 +51,11 @@ class OrderRefundServiceTest : WithAssertions {
     private val invoiceRepository = InMemoryInvoiceRepository()
     private val creditNoteRepository = InMemoryCreditNoteRepository()
     private val userRepository = usersOfTheAdministration().apply { save(jane) }
-    private val administrator = testAdministrator.id
+    private val administrator = testAdministratorActor
     private val emailRepository = InMemoryEmailRepository()
     private val service = OrderRefundService(
-        RefundOrderUseCase(orderRepository, stockRepository, paymentRepository, userRepository),
-        IssueCreditNoteUseCase(orderRepository, invoiceRepository, creditNoteRepository, userRepository),
+        RefundOrderUseCase(orderRepository, stockRepository, paymentRepository),
+        IssueCreditNoteUseCase(orderRepository, invoiceRepository, creditNoteRepository),
         RefundedOrderUseCases(
             ReadAdministeredOrderUseCase(orderRepository, userRepository),
             SendOrderStatusEmailUseCase(userRepository, emailRepository)
@@ -121,7 +121,7 @@ class OrderRefundServiceTest : WithAssertions {
         // Arrange
         storePaidOrder()
         // Act
-        val thrown = catchThrowable { service.refund(OrderRefund(testCustomer.id, orderId, OrderStatus.PAID)) }
+        val thrown = catchThrowable { service.refund(OrderRefund(testCustomerActor, orderId, OrderStatus.PAID)) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(OrderAdministrationForbiddenException::class.java)
         assertThat(orderRepository.findById(orderId)?.status).isEqualTo(OrderStatus.PAID)

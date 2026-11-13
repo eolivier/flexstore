@@ -2,14 +2,13 @@ package org.flexstore.domain.order.usecase
 
 import org.flexstore.domain.order.*
 import org.flexstore.domain.order.model.*
-import org.flexstore.domain.user.repository.UserRepository
+import org.flexstore.domain.actor.isNotAdmin
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // An administrator corrects the carrier and the tracking number of an order, while it is shipped or delivered
 class CorrectOrderTrackingUseCase(
-    private val orderRepository: OrderRepository,
-    private val userRepository: UserRepository
+    private val orderRepository: OrderRepository
 ) : UseCase<OrderTrackingCorrection> {
 
     override fun getPreConditions(): PreConditions<OrderTrackingCorrection> = PreConditions(
@@ -28,9 +27,9 @@ class CorrectOrderTrackingUseCase(
     override fun getPostConditions(): PostConditions<OrderTrackingCorrection> =
         PostConditions(trackingIsKeptCondition())
 
-    // The editor must be an existing user with the ADMIN role (read from the users, not from the request)
+    // The editor must be an Admin, resolved before the use case runs
     private fun editorIsAdministratorCondition() = PreCondition<OrderTrackingCorrection> { correction ->
-        if (userRepository.isNotAdministrator(correction.editor)) {
+        if (correction.editor.isNotAdmin()) {
             val message = ErrorMessage("Only an administrator can correct the tracking of an order.")
             throw OrderAdministrationForbiddenException(message)
         }

@@ -2,6 +2,7 @@ package org.flexstore.infra.spring.adapter.rest
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.invoice.model.InvoicePdf
 import org.flexstore.domain.invoice.InvoiceService
 import org.flexstore.domain.order.model.OrderId
@@ -21,12 +22,15 @@ import org.flexstore.domain.user.model.of
 // customer, or for the administrators (ADMIN role, see SecurityConfig)
 @Tag(name = "Invoices")
 @RestController
-class InvoiceController(private val invoiceService: InvoiceService) {
+class InvoiceController(
+    private val invoiceService: InvoiceService,
+    private val actorResolutionService: ActorResolutionService
+) {
 
     @Operation(summary = "Download the invoice of a paid order of the signed-in customer (PDF)")
     @GetMapping("/api/orders/{id}/invoice", produces = [MediaType.APPLICATION_PDF_VALUE])
     fun getInvoice(@AuthenticationPrincipal jwt: Jwt, @PathVariable id: String): ResponseEntity<ByteArray> {
-        val invoicePdf = invoiceService.invoice(UserId.of(jwt.subject), OrderId(id))
+        val invoicePdf = invoiceService.invoice(actorOf(jwt), OrderId(id))
         return pdfResponse(invoicePdf, "facture", id)
     }
 
@@ -36,14 +40,14 @@ class InvoiceController(private val invoiceService: InvoiceService) {
         @AuthenticationPrincipal reader: Jwt,
         @PathVariable id: String
     ): ResponseEntity<ByteArray> {
-        val invoicePdf = invoiceService.invoice(UserId.of(reader.subject), OrderId(id))
+        val invoicePdf = invoiceService.invoice(actorOf(reader), OrderId(id))
         return pdfResponse(invoicePdf, "facture", id)
     }
 
     @Operation(summary = "Download the credit note of a refunded order of the signed-in customer (PDF)")
     @GetMapping("/api/orders/{id}/credit-note", produces = [MediaType.APPLICATION_PDF_VALUE])
     fun getCreditNote(@AuthenticationPrincipal jwt: Jwt, @PathVariable id: String): ResponseEntity<ByteArray> {
-        val creditNotePdf = invoiceService.creditNote(UserId.of(jwt.subject), OrderId(id))
+        val creditNotePdf = invoiceService.creditNote(actorOf(jwt), OrderId(id))
         return pdfResponse(creditNotePdf, "avoir", id)
     }
 
@@ -53,9 +57,11 @@ class InvoiceController(private val invoiceService: InvoiceService) {
         @AuthenticationPrincipal reader: Jwt,
         @PathVariable id: String
     ): ResponseEntity<ByteArray> {
-        val creditNotePdf = invoiceService.creditNote(UserId.of(reader.subject), OrderId(id))
+        val creditNotePdf = invoiceService.creditNote(actorOf(reader), OrderId(id))
         return pdfResponse(creditNotePdf, "avoir", id)
     }
+
+    private fun actorOf(jwt: Jwt) = actorResolutionService.actorOf(UserId.of(jwt.subject))
 
     // Saved by the browser as facture-<number of the order>.pdf, or avoir-<number of the order>.pdf
     private fun pdfResponse(pdf: InvoicePdf, documentName: String, orderId: String): ResponseEntity<ByteArray> {

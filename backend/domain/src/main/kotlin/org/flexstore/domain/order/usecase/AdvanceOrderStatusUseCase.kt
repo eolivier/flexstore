@@ -2,7 +2,7 @@ package org.flexstore.domain.order.usecase
 
 import org.flexstore.domain.order.*
 import org.flexstore.domain.order.model.*
-import org.flexstore.domain.user.repository.UserRepository
+import org.flexstore.domain.actor.isNotAdmin
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
@@ -12,8 +12,7 @@ import org.ucop.domain.entity.*
 // and it has a next one. The final status is checked after: the order has the next status of the initial one
 // The moment of the change is read from InstantProvider
 class AdvanceOrderStatusUseCase(
-    private val orderRepository: OrderRepository,
-    private val userRepository: UserRepository
+    private val orderRepository: OrderRepository
 ) : UseCase<OrderStatusAdvance> {
 
     override fun getPreConditions(): PreConditions<OrderStatusAdvance> = PreConditions(
@@ -37,9 +36,9 @@ class AdvanceOrderStatusUseCase(
     override fun getPostConditions(): PostConditions<OrderStatusAdvance> =
         PostConditions(finalStatusIsNextCondition(), trackingIsKeptCondition())
 
-    // The editor must be an existing user with the ADMIN role (read from the users, not from the request)
+    // The editor must be an Admin, resolved before the use case runs
     private fun editorIsAdministratorCondition() = PreCondition<OrderStatusAdvance> { request ->
-        if (userRepository.isNotAdministrator(request.editor)) {
+        if (request.editor.isNotAdmin()) {
             val message = ErrorMessage("Only an administrator can move an order along its life cycle.")
             throw OrderAdministrationForbiddenException(message)
         }

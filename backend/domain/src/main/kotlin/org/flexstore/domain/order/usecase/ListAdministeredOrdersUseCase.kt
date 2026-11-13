@@ -3,6 +3,7 @@ package org.flexstore.domain.order.usecase
 import org.flexstore.domain.order.*
 import org.flexstore.domain.order.model.*
 import org.flexstore.domain.sharedkernel.Page
+import org.flexstore.domain.actor.isNotAdmin
 import org.flexstore.domain.user.repository.UserRepository
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
@@ -30,9 +31,9 @@ class ListAdministeredOrdersUseCase(
 
     override fun getPostConditions(): PostConditions<Page<AdministeredOrders>> = PostConditions.none()
 
-    // The reader must be an existing user with the ADMIN role (read from the users, not from the request)
+    // The reader, resolved before the use case runs, must be an Admin
     private fun readerIsAdministratorCondition() = PreCondition<AdministeredOrdersReading> { request ->
-        if (userRepository.isNotAdministrator(request.reader)) {
+        if (request.reader.isNotAdmin()) {
             val message = ErrorMessage("Only an administrator can read the orders of all the customers.")
             throw OrderAdministrationForbiddenException(message)
         }

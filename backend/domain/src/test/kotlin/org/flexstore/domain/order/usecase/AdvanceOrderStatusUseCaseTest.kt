@@ -1,6 +1,9 @@
 package org.flexstore.domain.order.usecase
 
 import org.assertj.core.api.WithAssertions
+import org.flexstore.domain.actor.unknownUserActor
+import org.flexstore.domain.actor.testCustomerActor
+import org.flexstore.domain.actor.testAdministratorActor
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.order.model.*
@@ -17,9 +20,6 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import java.math.BigDecimal
 import java.time.Instant
-import org.flexstore.domain.user.administration.testAdministrator
-import org.flexstore.domain.user.administration.testCustomer
-import org.flexstore.domain.user.administration.usersOfTheAdministration
 
 class AdvanceOrderStatusUseCaseTest : WithAssertions {
 
@@ -29,8 +29,8 @@ class AdvanceOrderStatusUseCaseTest : WithAssertions {
     private val orderId = OrderId("order-1")
     private val orderRepository = InMemoryOrderRepository()
     private val now = Instant.parse("2026-10-25T09:30:00Z")
-    private val administrator = testAdministrator.id
-    private val useCase = AdvanceOrderStatusUseCase(orderRepository, usersOfTheAdministration())
+    private val administrator = testAdministratorActor
+    private val useCase = AdvanceOrderStatusUseCase(orderRepository)
 
     // The status changes at a known moment
     @BeforeEach
@@ -112,7 +112,7 @@ class AdvanceOrderStatusUseCaseTest : WithAssertions {
     @Test
     fun `a customer should not move an order along its life cycle`() {
         // Arrange
-        val orderStatusAdvance = OrderStatusAdvance(testCustomer.id, orderId, OrderStatus.PAID)
+        val orderStatusAdvance = OrderStatusAdvance(testCustomerActor, orderId, OrderStatus.PAID)
         // Act
         val thrown = catchThrowable { useCase.unfold(orderStatusAdvance) }
         // Assert

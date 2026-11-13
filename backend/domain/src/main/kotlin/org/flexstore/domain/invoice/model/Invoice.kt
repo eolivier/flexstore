@@ -4,7 +4,7 @@ import java.time.Instant
 import org.flexstore.domain.order.model.OrderId
 import org.flexstore.domain.seller.*
 import org.flexstore.domain.sharedkernel.InstantProvider
-import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.entity.Actor
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.PostConditionException
 import org.ucop.domain.PreConditionException
@@ -64,7 +64,7 @@ data class InvoiceAlreadyIssuedException(override val errorMessage: ErrorMessage
     PreConditionException(errorMessage)
 data class OrderNotPaidException(override val errorMessage: ErrorMessage) : PreConditionException(errorMessage)
 // An administrator who issues the credit note of an order they refunded
-data class CreditNoteIssuance(val issuer: UserId, val creditNoteIssue: CreditNoteIssue)
+data class CreditNoteIssuance(val issuer: Actor, val creditNoteIssue: CreditNoteIssue)
 
 data class CreditNoteForbiddenException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)

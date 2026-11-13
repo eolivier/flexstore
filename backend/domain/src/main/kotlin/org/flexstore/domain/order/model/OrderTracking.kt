@@ -1,6 +1,6 @@
 package org.flexstore.domain.order.model
 
-import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.entity.Actor
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.PostConditionException
 import org.ucop.domain.PreConditionException
@@ -101,7 +101,7 @@ sealed interface OrderTracking {
 
 // An administrator corrects the carrier and the tracking number of an order shipped
 data class OrderTrackingCorrection(
-    val editor: UserId,
+    val editor: Actor,
     val orderId: OrderId,
     val tracking: OrderTracking.Given
 )

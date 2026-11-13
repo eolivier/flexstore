@@ -4,7 +4,7 @@ import org.flexstore.domain.order.*
 import org.flexstore.domain.order.model.*
 import org.flexstore.domain.payment.PaymentRepository
 import org.flexstore.domain.stock.StockRepository
-import org.flexstore.domain.user.repository.UserRepository
+import org.flexstore.domain.actor.isNotAdmin
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
@@ -15,8 +15,7 @@ import org.ucop.domain.entity.*
 class RefundOrderUseCase(
     private val orderRepository: OrderRepository,
     private val stockRepository: StockRepository,
-    private val paymentRepository: PaymentRepository,
-    private val userRepository: UserRepository
+    private val paymentRepository: PaymentRepository
 ) : UseCase<OrderRefund> {
 
     override fun getPreConditions(): PreConditions<OrderRefund> = PreConditions(
@@ -47,9 +46,9 @@ class RefundOrderUseCase(
     // Only called once the order is known
     private fun order(orderRefund: OrderRefund) = orderRepository.findById(orderRefund.orderId)!!
 
-    // The editor must be an existing user with the ADMIN role (read from the users, not from the request)
+    // The editor must be an Admin, resolved before the use case runs
     private fun editorIsAdministratorCondition() = PreCondition<OrderRefund> { request ->
-        if (userRepository.isNotAdministrator(request.editor)) {
+        if (request.editor.isNotAdmin()) {
             val message = ErrorMessage("Only an administrator can cancel and refund an order.")
             throw OrderAdministrationForbiddenException(message)
         }

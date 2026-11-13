@@ -1,6 +1,9 @@
 package org.flexstore.domain.invoice.usecase
 
 import org.assertj.core.api.WithAssertions
+import org.flexstore.domain.actor.unknownUserActor
+import org.flexstore.domain.actor.testCustomerActor
+import org.flexstore.domain.actor.testAdministratorActor
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.invoice.*
 import org.flexstore.domain.invoice.model.*
@@ -16,8 +19,6 @@ import org.flexstore.domain.user.*
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.time.Instant
-import org.flexstore.domain.user.administration.testAdministrator
-import org.flexstore.domain.user.administration.testCustomer
 import org.flexstore.domain.user.administration.usersOfTheAdministration
 
 class IssueCreditNoteUseCaseTest : WithAssertions {
@@ -30,10 +31,10 @@ class IssueCreditNoteUseCaseTest : WithAssertions {
     private val orderRepository = InMemoryOrderRepository()
     private val invoiceRepository = InMemoryInvoiceRepository()
     private val creditNoteRepository = InMemoryCreditNoteRepository()
-    private val administrator = testAdministrator.id
+    private val administrator = testAdministratorActor
     private val userRepository = usersOfTheAdministration()
     private val useCase =
-        IssueCreditNoteUseCase(orderRepository, invoiceRepository, creditNoteRepository, userRepository)
+        IssueCreditNoteUseCase(orderRepository, invoiceRepository, creditNoteRepository)
 
     // An order with the given status, invoiced when it was paid
     private fun storeOrder(orderId: OrderId, status: OrderStatus, invoiced: Boolean = true) {
@@ -101,7 +102,7 @@ class IssueCreditNoteUseCaseTest : WithAssertions {
         // Arrange
         val creditNoteIssue = CreditNoteIssue(OrderId("order-1"), refundedAt)
         // Act
-        val thrown = catchThrowable { useCase.unfold(CreditNoteIssuance(testCustomer.id, creditNoteIssue)) }
+        val thrown = catchThrowable { useCase.unfold(CreditNoteIssuance(testCustomerActor, creditNoteIssue)) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(CreditNoteForbiddenException::class.java)
     }
