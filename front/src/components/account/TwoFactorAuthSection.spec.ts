@@ -4,6 +4,7 @@ import { createPinia, setActivePinia } from 'pinia';
 import TwoFactorAuthSection from './TwoFactorAuthSection.vue';
 import { useAuthStore } from '@/stores/auth.store';
 import { vuetify, i18n } from '@/test/setup';
+import { useSnackbar } from '@/composables/useSnackbar';
 
 // The rendering of the QR code itself is the library's concern: a fast, deterministic stub keeps this test
 // focused on the enrollment flow
@@ -99,7 +100,7 @@ describe('TwoFactorAuthSection.vue', () => {
     await flushPromises();
     // Assert
     expect(useAuthStore().currentUser?.twoFactorEnabled).toBe(true);
-    expect(document.body.textContent).toContain('Two-factor authentication is now enabled.');
+    expect(useSnackbar().message.value?.text).toBe('Two-factor authentication is now enabled.');
   });
 
   it('disables two-factor authentication with the current password', async () => {
@@ -118,6 +119,6 @@ describe('TwoFactorAuthSection.vue', () => {
     await flushPromises();
     // Assert
     expect(useAuthStore().currentUser?.twoFactorEnabled).toBe(false);
-    expect(document.body.textContent).toContain('Two-factor authentication is now disabled.');
+    expect(useSnackbar().message.value?.text).toBe('Two-factor authentication is now disabled.');
   });
 });
