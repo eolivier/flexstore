@@ -1,6 +1,6 @@
 ---
 name: fluent-code-reading-semantic
-description: Principles that make code read like the business language - wrapping collections in their own class, naming boolean methods affirmatively (no `!is`: `isNotAdmin()`, defined as `!isAdmin()`, rather than `!is Admin`), no negated condition before an else (swap the branches), naming a condition with a method (a deadline that is reached rather than a comparison of dates), naming variables after their type, intermediate variables, strong types rather than nullable ones, no nullable type marker (`?`) in declarations, no magic number, one or two arguments per method, lines of 113 characters at most, singular or plural names, no repeated names, no null arguments, beans declared step by step (repository, use case, service). Use before writing, changing or reviewing domain or application code (entities, value objects, aggregates, use cases), in any language.
+description: Principles that make code read like the business language - wrapping collections in their own class, naming boolean methods affirmatively (no `!is`: `isNotAdmin()`, defined as `!isAdmin()`, rather than `!is Admin`), no negated condition before an else (swap the branches), no nested if (cumulate the conditions with &&, one guard clause per rule), the negated twin of a question rather than a ! (hasNotPaidFor), naming a condition with a method (a deadline that is reached rather than a comparison of dates), naming variables after their type, intermediate variables, strong types rather than nullable ones, no nullable type marker (`?`) in declarations, no magic number, one or two arguments per method, lines of 113 characters at most, singular or plural names, no repeated names, no null arguments, beans declared step by step (repository, use case, service). Use before writing, changing or reviewing domain or application code (entities, value objects, aggregates, use cases), in any language.
 ---
 
 # Fluent code reading semantic
@@ -61,6 +61,21 @@ if (quantity.isZeroOrNegative()) { ... }
 ```
 
 Why: a condition reads as the rule it expresses ("if the quantity is zero or negative"); a `!` is easy to miss when reading and doubles the effort to understand the condition.
+
+The same goes for a question about a collection or a repository: a `!` is never written in front of a call in a condition, the class gets the negated twin of the question, named after the case (`hasPaidFor` / `hasNotPaidFor`), defined as the negation of the affirmative one (the only `!` is in that definition).
+
+Avoid:
+
+```kotlin
+if (!orders.hasPaidFor(productId)) { throw ReviewNotAllowedException(...) }
+```
+
+Prefer:
+
+```kotlin
+// in Orders: fun hasNotPaidFor(productId: ProductId) = !hasPaidFor(productId)
+if (orders.hasNotPaidFor(productId)) { throw ReviewNotAllowedException(...) }
+```
 
 Details:
 - Each predicate and its opposite may both exist (`isPositive()` / `isZeroOrNegative()`, `exists()` / `notExists()`), so that every caller uses the affirmative form of what it means.
@@ -621,3 +636,37 @@ Details:
 - **In tests**, a literal number is tolerated: the value is part of the example (`Quantity(3)`, `Price(Amount(BigDecimal(35)), Currency.EUR)`); name it only when the same number must stay consistent across several lines.
 - The same applies to TypeScript and Vue (`const MAX_PAYMENT_DELAY_MINUTES = 24 * 60`).
 
+## 19. Do not nest `if`: cumulate the conditions, one guard clause per rule
+
+An `if` is not written inside another `if` to check a second condition: the two conditions are cumulated with `&&` in one `if`, and the rules that refuse for different reasons are separate guard clauses, one after the other. A nested `if` (with an `else` on the outer one) makes the reader follow two levels to know what refuses what.
+
+Avoid:
+
+```kotlin
+if (customer.isAtLeastCustomer()) {
+    if (customer.cannotAct()) {
+        throw AccountRefusedException(customer.status, message)
+    }
+} else {
+    throw UserNotFoundException(ErrorMessage("User not found."))
+}
+```
+
+Prefer:
+
+```kotlin
+if (customer.isNotAtLeastCustomer()) {
+    throw UserNotFoundException(ErrorMessage("User not found."))
+}
+if (customer.isAtLeastCustomer() && customer.cannotAct()) {
+    val message = ErrorMessage("The account ${customer.userId.value} is ${customer.status}: it cannot act.")
+    throw AccountRefusedException(customer.status, message)
+}
+```
+
+Why: each `if` states one rule, which reads on its own ("not at least a customer: user not found", "at least a customer who cannot act: account refused"); the order of the guard clauses is the order of the checks, and no `else` has to be matched with its `if`.
+
+Details:
+- Two conditions that lead to the same outcome are one `if (conditionA && conditionB)`; two that lead to different outcomes are two guard clauses.
+- A condition that needs the first one to be true (a smart cast, a value that exists) stays in the same `if`, after it: `if (isAtLeastCustomer() && cannotAct())`.
+- When the cumulated condition gets long, name it with a method (principle 3) rather than nesting.
