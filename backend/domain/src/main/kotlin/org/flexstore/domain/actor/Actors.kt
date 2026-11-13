@@ -50,14 +50,11 @@ fun Actor.isCustomer() = isAtLeastCustomer() && isNotAdmin()
 
 fun Actor.isVisitor() = this is Visitor && !isAtLeastCustomer()
 
-// A visitor, or higher: a customer or an admin is one too
-fun Actor.isAtLeastVisitor() = this is Visitor
+// A visitor, or higher: a customer or an admin is one too, and so is the system, which stands above every role.
+// What the preconditions of the public reads ask of their reader
+fun Actor.isAtLeastVisitor() = this is Visitor || isSystem()
 
-// What the preconditions of the public reads ask of their reader: what the shop shows to everybody is read by a
-// visitor or higher, and by the system (a scheduler, a service)
-fun Actor.canReadPublicContent() = isAtLeastVisitor() || isSystem()
-
-fun Actor.cannotReadPublicContent() = !canReadPublicContent()
+fun Actor.isNotAtLeastVisitor() = !isAtLeastVisitor()
 
 // The user behind a customer or an admin, for a use case whose precondition checked that its actor is one
 fun Actor.customerId(): UserId.ValidUserId =

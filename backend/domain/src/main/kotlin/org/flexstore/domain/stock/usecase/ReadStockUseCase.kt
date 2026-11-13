@@ -1,6 +1,6 @@
 package org.flexstore.domain.stock.usecase
 
-import org.flexstore.domain.actor.cannotReadPublicContent
+import org.flexstore.domain.actor.isNotAtLeastVisitor
 import org.ucop.domain.ErrorMessage
 import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.stock.*
@@ -22,7 +22,7 @@ class ReadStockUseCase(private val stockRepository: StockRepository) : QueryUseC
 
     // The reader, resolved before the use case runs, is a visitor or higher, or the system
     private fun readerCanReadCondition() = PreCondition<StockReading> { reading ->
-        if (reading.reader.cannotReadPublicContent()) {
+        if (reading.reader.isNotAtLeastVisitor()) {
             val message = ErrorMessage("Only a visitor, a user or the system can read the stocks.")
             throw StockReadingForbiddenException(message)
         }

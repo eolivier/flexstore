@@ -42,27 +42,19 @@ class ActorsTest : WithAssertions {
     }
 
     @Test
-    fun `an admin, a customer and a visitor should be at least a visitor`() {
+    fun `every actor, the system included, should be at least a visitor`() {
         // Act
         val atLeastVisitors = actors.filter { it.isAtLeastVisitor() }
         // Assert
-        assertThat(atLeastVisitors).containsExactly(admin, customer, visitor)
+        assertThat(atLeastVisitors).containsExactlyElementsOf(actors)
     }
 
     @Test
-    fun `every actor should read the public content, the system included`() {
-        // Act
-        val readers = actors.filter { it.canReadPublicContent() }
-        // Assert
-        assertThat(readers).containsExactlyElementsOf(actors)
-    }
-
-    @Test
-    fun `an actor unknown to the shop should not read the public content`() {
+    fun `an actor unknown to the shop should not be at least a visitor`() {
         // Arrange
         val stranger = Actor(Name("Stranger"))
         // Act - Assert
-        assertThat(stranger.cannotReadPublicContent()).isTrue()
+        assertThat(stranger.isNotAtLeastVisitor()).isTrue()
     }
 
     @Test

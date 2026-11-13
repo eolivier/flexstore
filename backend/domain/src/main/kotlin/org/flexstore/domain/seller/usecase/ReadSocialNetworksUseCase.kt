@@ -1,6 +1,6 @@
 package org.flexstore.domain.seller.usecase
 
-import org.flexstore.domain.actor.cannotReadPublicContent
+import org.flexstore.domain.actor.isNotAtLeastVisitor
 import org.ucop.domain.ErrorMessage
 import org.flexstore.domain.seller.*
 import org.ucop.domain.entity.*
@@ -20,7 +20,7 @@ class ReadSocialNetworksUseCase(private val sellerRepository: SellerRepository) 
 
     // The reader, resolved before the use case runs, is a visitor or higher, or the system
     private fun readerCanReadCondition() = PreCondition<SocialNetworksReading> { reading ->
-        if (reading.reader.cannotReadPublicContent()) {
+        if (reading.reader.isNotAtLeastVisitor()) {
             val message = ErrorMessage("Only a visitor, a user or the system can read the social networks of the seller.")
             throw SellerReadingForbiddenException(message)
         }

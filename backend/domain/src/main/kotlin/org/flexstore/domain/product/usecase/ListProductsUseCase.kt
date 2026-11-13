@@ -1,6 +1,6 @@
 package org.flexstore.domain.product.usecase
 
-import org.flexstore.domain.actor.cannotReadPublicContent
+import org.flexstore.domain.actor.isNotAtLeastVisitor
 import org.ucop.domain.ErrorMessage
 import org.flexstore.domain.product.*
 import org.flexstore.domain.product.model.*
@@ -17,7 +17,7 @@ class ListProductsUseCase(private val productRepository: ProductRepository) : Qu
 
     // The reader, resolved before the use case runs, is a visitor or higher, or the system
     private fun readerCanReadCondition() = PreCondition<Actor> { reader ->
-        if (reader.cannotReadPublicContent()) {
+        if (reader.isNotAtLeastVisitor()) {
             throw ProductReadingForbiddenException(ErrorMessage("Only a visitor, a user or the system can read the catalog."))
         }
     }
