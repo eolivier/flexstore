@@ -59,12 +59,12 @@ enum class Currency(val symbol: String) {
 
 data class Name(val value: String) {
     init {
-        require(value.isNotBlank()) { "Name must not ne empty nor null" }
+        require(value.isNotBlank()) { "Name must not be empty nor null" }
     }
 }
 
 data class Description(val value: String) {
     init {
-        require(value.isNotBlank()) { "Description must not ne empty nor null" }
+        require(value.isNotBlank()) { "Description must not be empty nor null" }
     }
 }
