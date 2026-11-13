@@ -4,7 +4,7 @@ import org.flexstore.domain.invoice.*
 import org.flexstore.domain.invoice.model.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.order.model.*
-import org.flexstore.domain.user.repository.UserRepository
+import org.flexstore.domain.actor.isNotAdmin
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
@@ -13,8 +13,7 @@ import org.ucop.domain.entity.*
 class IssueCreditNoteUseCase(
     private val orderRepository: OrderRepository,
     private val invoiceRepository: InvoiceRepository,
-    private val creditNoteRepository: CreditNoteRepository,
-    private val userRepository: UserRepository
+    private val creditNoteRepository: CreditNoteRepository
 ) : UseCase<CreditNoteIssuance> {
 
     override fun getPreConditions(): PreConditions<CreditNoteIssuance> = PreConditions(
@@ -30,9 +29,9 @@ class IssueCreditNoteUseCase(
     override fun getPostConditions(): PostConditions<CreditNoteIssuance> =
         PostConditions(creditNoteIsIssuedCondition())
 
-    // The issuer must be an existing user with the ADMIN role (read from the users, not from the request)
+    // The issuer must be an Admin, resolved before the use case runs
     private fun issuerIsAdministratorCondition() = PreCondition<CreditNoteIssuance> { request ->
-        if (userRepository.isNotAdministrator(request.issuer)) {
+        if (request.issuer.isNotAdmin()) {
             throw CreditNoteForbiddenException(ErrorMessage("Only an administrator can issue a credit note."))
         }
     }

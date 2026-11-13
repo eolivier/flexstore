@@ -1,6 +1,9 @@
 package org.flexstore.domain.order.usecase
 
 import org.assertj.core.api.WithAssertions
+import org.flexstore.domain.actor.unknownUserActor
+import org.flexstore.domain.actor.testCustomerActor
+import org.flexstore.domain.actor.testAdministratorActor
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.order.model.*
@@ -17,9 +20,6 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import java.math.BigDecimal
 import java.time.Instant
-import org.flexstore.domain.user.administration.testAdministrator
-import org.flexstore.domain.user.administration.unknownUser
-import org.flexstore.domain.user.administration.usersOfTheAdministration
 
 class RefundOrderUseCaseTest : WithAssertions {
 
@@ -33,9 +33,9 @@ class RefundOrderUseCaseTest : WithAssertions {
         save(Stock(deskLamp.productId, StockQuantity(8)))
     }
     private val paymentRepository = InMemoryPaymentRepository(PaymentOutcome.PAID)
-    private val administrator = testAdministrator.id
+    private val administrator = testAdministratorActor
     private val useCase =
-        RefundOrderUseCase(orderRepository, stockRepository, paymentRepository, usersOfTheAdministration())
+        RefundOrderUseCase(orderRepository, stockRepository, paymentRepository)
 
     private fun storeOrder(status: OrderStatus) {
         val cart = Cart(customer).add(deskLamp, Quantity(2))
@@ -122,7 +122,7 @@ class RefundOrderUseCaseTest : WithAssertions {
     @Test
     fun `an unknown user should not refund an order`() {
         // Act
-        val thrown = catchThrowable { useCase.unfold(OrderRefund(unknownUser, orderId, OrderStatus.PAID)) }
+        val thrown = catchThrowable { useCase.unfold(OrderRefund(unknownUserActor, orderId, OrderStatus.PAID)) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(OrderAdministrationForbiddenException::class.java)
     }

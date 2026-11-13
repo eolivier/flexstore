@@ -60,9 +60,8 @@ open class OrderUseCaseConfig {
     open fun refundOrderUseCase(
         orderRepository: OrderRepository,
         stockRepository: StockRepository,
-        paymentRepository: PaymentRepository,
-        userRepository: UserRepository
-    ) = RefundOrderUseCase(orderRepository, stockRepository, paymentRepository, userRepository)
+        paymentRepository: PaymentRepository
+    ) = RefundOrderUseCase(orderRepository, stockRepository, paymentRepository)
 
     @Bean
     open fun sendOrderStatusEmailUseCase(userRepository: UserRepository, emailRepository: EmailRepository) =
@@ -77,12 +76,12 @@ open class OrderUseCaseConfig {
         ReadAdministeredOrderUseCase(orderRepository, userRepository)
 
     @Bean
-    open fun advanceOrderStatusUseCase(orderRepository: OrderRepository, userRepository: UserRepository) =
-        AdvanceOrderStatusUseCase(orderRepository, userRepository)
+    open fun advanceOrderStatusUseCase(orderRepository: OrderRepository) =
+        AdvanceOrderStatusUseCase(orderRepository)
 
     @Bean
-    open fun correctOrderTrackingUseCase(orderRepository: OrderRepository, userRepository: UserRepository) =
-        CorrectOrderTrackingUseCase(orderRepository, userRepository)
+    open fun correctOrderTrackingUseCase(orderRepository: OrderRepository) =
+        CorrectOrderTrackingUseCase(orderRepository)
 
     @Bean
     open fun cancelUnpaidOrderUseCase(orderRepository: OrderRepository,

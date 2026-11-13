@@ -283,20 +283,20 @@ data class OrderStatusHistory(private val changes: List<OrderStatusChange>) {
 // An order to move to the next status of its life cycle, from the status it has when the administrator sees
 // it; moving a processed order to shipped may give the tracking of its parcel
 data class OrderStatusAdvance(
-    val editor: UserId,
+    val editor: Actor,
     val orderId: OrderId,
     val currentStatus: OrderStatus,
     val tracking: OrderTracking = OrderTracking.None
 )
 
 // An order that an administrator cancels and refunds, from the status it has when the administrator sees it
-data class OrderRefund(val editor: UserId, val orderId: OrderId, val currentStatus: OrderStatus)
+data class OrderRefund(val editor: Actor, val orderId: OrderId, val currentStatus: OrderStatus)
 
 // An administrator who reads the orders of all the customers
-data class AdministeredOrdersReading(val reader: UserId, val pageRequest: PageRequest)
+data class AdministeredOrdersReading(val reader: Actor, val pageRequest: PageRequest)
 
 // A user who reads an order with its customer: an administrator, or the customer of the order
-data class AdministeredOrderReading(val reader: UserId, val orderId: OrderId)
+data class AdministeredOrderReading(val reader: Actor, val orderId: OrderId)
 
 // A product as ordered: its id and its name when the order was placed
 data class OrderedProduct(val productId: ProductId, val productName: Name)
