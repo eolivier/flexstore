@@ -1,0 +1,53 @@
+export default {
+  users: {
+    loading: 'Chargement des utilisateurs…',
+    title: 'Utilisateurs',
+    delete: 'Supprimer',
+    count: 'Aucun utilisateur | 1 utilisateur | {n} utilisateurs',
+    deleted: "L'utilisateur a été supprimé.",
+    deleteError: "L'utilisateur n'a pas pu être supprimé.",
+    edit: 'Modifier {name}',
+  },
+  createUser: {
+    firstName: 'Prénom',
+    lastName: 'Nom',
+    email: "Email de l'utilisateur",
+    password: 'Mot de passe',
+    label: 'Créer utilisateur',
+    mandatoryField: 'Champ obligatoire',
+    invalidEmail: "Format d'email invalide",
+    passwordTooShort: 'Le mot de passe doit contenir au moins 8 caractères',
+    success: "L'utilisateur {name} a été créé.",
+    error: "L'utilisateur n'a pas pu être créé (l'email est peut-être déjà utilisé).",
+    showPassword: 'Afficher le mot de passe',
+    role: 'Rôle',
+    roles: {
+      USER: { label: 'Utilisateur', text: 'Achète et suit ses commandes.' },
+      ADMIN: { label: 'Administrateur', text: 'Gère aussi les utilisateurs, les produits et les paramètres.' },
+      SYSTEM: { label: 'Système', text: 'Exécute les tâches planifiées. Personne ne se connecte avec.' },
+    },
+  },
+  editUser: {
+    title: "Modifier l'utilisateur",
+    saved: "L'utilisateur a été enregistré.",
+    emailUsed: 'Cet email est déjà utilisé par un autre utilisateur.',
+    error: "L'utilisateur n'a pas pu être enregistré.",
+    loadError: "L'utilisateur n'a pas pu être chargé.",
+    passwordNote: "Le mot de passe ne se modifie pas ici : c'est une opération à part.",
+    status: 'Statut du compte',
+    statusHint: 'Un compte suspendu, verrouillé ou désactivé ne peut ni se connecter ni commander.',
+    ownStatus: 'Vous ne pouvez pas changer le statut de votre propre compte.',
+    twoFactorEnabledText: "L'authentification à deux facteurs est activée sur ce compte.",
+    twoFactorOwnAccountHint:
+      "Vous ne pouvez pas désactiver ainsi l'authentification à deux facteurs de votre propre compte.",
+    twoFactorDisable: 'Désactiver',
+    twoFactorDisableTitle: "Désactiver l'authentification à deux facteurs",
+    twoFactorDisableText:
+      "L'utilisateur se connectera alors avec son mot de passe uniquement. Cela ne nécessite pas son mot de " +
+      'passe actuel.',
+    twoFactorDisableConfirm: 'Désactiver',
+    twoFactorDisabled: "L'authentification à deux facteurs a été désactivée.",
+    twoFactorDisableError: "L'authentification à deux facteurs n'a pas pu être désactivée.",
+  },
+  confirmUserDeletion: 'Voulez-vous vraiment supprimer cet utilisateur ?',
+};
