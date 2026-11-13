@@ -1,6 +1,6 @@
 ---
 name: fluent-code-reading-semantic
-description: Principles that make code read like the business language - wrapping collections in their own class, naming boolean methods affirmatively (no `!is`: `isNotAdmin()`, defined as `!isAdmin()`, rather than `!is Admin`), no negated condition before an else (swap the branches), no nested if (cumulate the conditions with &&, one guard clause per rule), the negated twin of a question rather than a ! (hasNotPaidFor), naming a condition with a method (a deadline that is reached rather than a comparison of dates), naming variables after their type, intermediate variables, strong types rather than nullable ones, no nullable type marker (`?`) in declarations, no magic number, one or two arguments per method, lines of 113 characters at most (shortened by extracting a variable, never by wrapping an instruction), singular or plural names, no repeated names, no null arguments, beans declared step by step (repository, use case, service). Use before writing, changing or reviewing domain or application code (entities, value objects, aggregates, use cases), in any language.
+description: Principles that make code read like the business language - wrapping collections in their own class, naming boolean methods affirmatively (no `!is`: `isNotAdmin()`, defined as `!isAdmin()`, rather than `!is Admin`), no negated condition before an else (swap the branches), no nested if (cumulate the conditions with &&, one guard clause per rule), the negated twin of a question rather than a ! (hasNotPaidFor), naming a condition with a method (a deadline that is reached rather than a comparison of dates), naming variables after their type, intermediate variables, strong types rather than nullable ones, no nullable type marker (`?`) in declarations, no magic number, one or two arguments per method, lines of 120 characters at most (shortened by extracting a variable, never by wrapping an instruction), singular or plural names, no repeated names, no null arguments, beans declared step by step (repository, use case, service). Use before writing, changing or reviewing domain or application code (entities, value objects, aggregates, use cases), in any language.
 ---
 
 # Fluent code reading semantic
@@ -351,9 +351,9 @@ Details:
 - A class may still have more properties than that, built from such intermediate classes; the rule bounds what each call has to pass.
 - An existing signature with more arguments is pointed out in reviews, and changed when the code is changed anyway; a JPA entity or a JSON class mapping each column or field keeps one property per column.
 
-## 11. A line of code is 113 characters at most
+## 11. A line of code is 120 characters at most
 
-No line of code is longer than 113 characters, indentation included. A line that would be longer is split by introducing intermediate variables named after what they hold (principle 8), not by wrapping the arguments of a single expression over several lines.
+No line of code is longer than 120 characters, indentation included. A line that would be longer is split by introducing intermediate variables named after what they hold (principle 8), not by wrapping the arguments of a single expression over several lines.
 
 Avoid:
 
