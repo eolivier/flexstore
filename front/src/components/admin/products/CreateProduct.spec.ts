@@ -80,7 +80,7 @@ describe('CreateProduct.vue', () => {
     expect(imageInit.method).toBe('PUT');
     const [, stockInit] = callTo('/api/admin/stocks/p-9')!;
     expect(JSON.parse(stockInit.body)).toEqual({ quantity: 7 });
-    expect(document.body.textContent).toContain('The product Desk lamp has been created.');
+    expect(useSnackbar().message.value?.text).toBe('The product Desk lamp has been created.');
   });
 
   it('creates the product at the standard rate of VAT, unless another one is chosen', async () => {
