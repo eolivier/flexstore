@@ -22,7 +22,7 @@ data class JsonDiscountCode(
         discountCode.code.value,
         reductionTypeOf(discountCode.reduction),
         reductionValueOf(discountCode.reduction),
-        discountCode.offer.validity.expiresAt.value.toString(),
+        discountCode.offer.validity.expiresAt.value.asJsonText(),
         discountCode.offer.validity.usageLimit.value,
         discountCode.uses.value
     )

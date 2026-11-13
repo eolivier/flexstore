@@ -25,7 +25,7 @@ data class JsonOrderStatusChange(
     @JsonProperty("changedAt") val changedAt: String
 ) {
     constructor(statusChange: OrderStatusChange) :
-        this(statusChange.status.name, statusChange.changedAt.value.toString())
+        this(statusChange.status.name, statusChange.changedAt.value.asJsonText())
 }
 
 // The customer who placed an order: empty fields when their account cannot be read any more

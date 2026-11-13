@@ -22,7 +22,7 @@ data class JsonCookieConsent(
         }
 
         private fun given(cookieConsent: CookieConsent.Given) =
-            JsonCookieConsent(cookieConsent.choice.name, cookieConsent.expiry.value.toString())
+            JsonCookieConsent(cookieConsent.choice.name, cookieConsent.expiry.value.asJsonText())
     }
 }
 

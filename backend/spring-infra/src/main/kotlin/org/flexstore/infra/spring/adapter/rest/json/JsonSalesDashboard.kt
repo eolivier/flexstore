@@ -18,8 +18,8 @@ data class JsonSalesDashboard(
     @JsonProperty("bestSellers") val bestSellers: List<JsonBestSeller>
 ) {
     constructor(dashboard: SalesDashboard) : this(
-        dashboard.period.firstDay.value.toString(),
-        dashboard.period.lastDay.value.toString(),
+        dashboard.period.firstDay.value.asJsonText(),
+        dashboard.period.lastDay.value.asJsonText(),
         dashboard.revenue.currency.symbol,
         dashboard.revenue.amount.value,
         dashboard.orderCount.value,
@@ -35,7 +35,7 @@ data class JsonDailySales(
     @JsonProperty("revenue") val revenue: BigDecimal
 ) {
     constructor(dailySales: DailySales) : this(
-        dailySales.day.value.toString(), dailySales.orderCount.value, dailySales.revenue.amount.value
+        dailySales.day.value.asJsonText(), dailySales.orderCount.value, dailySales.revenue.amount.value
     )
 }
 

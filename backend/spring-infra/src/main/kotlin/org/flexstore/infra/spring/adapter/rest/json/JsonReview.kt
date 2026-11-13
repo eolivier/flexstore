@@ -21,7 +21,7 @@ data class JsonReview(
         review.reviewer.name.value,
         review.rating.value,
         review.comment.value,
-        review.reviewedAt.value.toString()
+        review.reviewedAt.value.asJsonText()
     )
 }
 
