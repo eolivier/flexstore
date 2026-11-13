@@ -43,8 +43,8 @@ open class OrderUseCaseConfig {
         ReserveOrderStockUseCase(orderRepository, stockRepository)
 
     @Bean
-    open fun listCustomerOrdersUseCase(orderRepository: OrderRepository, userRepository: UserRepository) =
-        ListCustomerOrdersUseCase(orderRepository, userRepository)
+    open fun listCustomerOrdersUseCase(orderRepository: OrderRepository) =
+        ListCustomerOrdersUseCase(orderRepository)
 
     @Bean
     open fun listAllOrdersUseCase(orderRepository: OrderRepository) = ListAllOrdersUseCase(orderRepository)

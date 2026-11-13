@@ -92,6 +92,8 @@ data class Order(
 
     fun isAwaitingPayment() = status == OrderStatus.AWAITING_PAYMENT
 
+    fun isNotAwaitingPayment() = !isAwaitingPayment()
+
     fun isCancelled() = status == OrderStatus.CANCELLED
 
     fun isPaid() = status.isPaid()
@@ -440,6 +442,8 @@ data class PaymentTimeLimit(val paymentDelay: PaymentDelay, val checkedAt: Insta
     // The order still awaits its payment, and its payment deadline is reached
     fun isExceededFor(order: Order) =
         order.isAwaitingPayment() && order.paymentDeadline(paymentDelay).isReachedAt(checkedAt)
+
+    fun isNotExceededFor(order: Order) = !isExceededFor(order)
 }
 
 // The moment an order must be paid by: its placement plus the payment delay

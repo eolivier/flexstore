@@ -1,5 +1,6 @@
 package org.flexstore.domain.order.usecase
 
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.order.model.*
 import org.flexstore.domain.product.model.*
 import org.flexstore.domain.user.blockedCustomerId
@@ -29,10 +30,14 @@ class OrderQueryUseCasesTest : WithAssertions {
     private val placedAt = Instant.parse("2026-10-24T10:00:00Z")
     private val orderRepository = InMemoryOrderRepository()
     private val userRepository = customersWithIds("user-1", "user-2")
-    private val listCustomerOrdersUseCase = ListCustomerOrdersUseCase(orderRepository, userRepository)
+    private val actorResolutionService = ActorResolutionService(userRepository)
+    private val listCustomerOrdersUseCase = ListCustomerOrdersUseCase(orderRepository)
     private val readCustomerOrderUseCase = ReadCustomerOrderUseCase(orderRepository, userRepository)
     private val readAnyOrderUseCase = ReadAnyOrderUseCase(orderRepository)
     private val listAllOrdersUseCase = ListAllOrdersUseCase(orderRepository)
+
+    private fun readingOf(userId: UserId, pageRequest: PageRequest) =
+        CustomerOrdersReading(actorResolutionService.actorOf(userId), pageRequest)
 
     private fun placeOrder(orderId: OrderId, customer: CartOwner.Customer, placedAt: Instant): Order {
         val orderStamp = OrderStamp(orderId, placedAt)
@@ -50,7 +55,7 @@ class OrderQueryUseCasesTest : WithAssertions {
         val newer = placeOrder(OrderId("newer"), customer, placedAt.plusSeconds(60))
         placeOrder(OrderId("other"), otherCustomer, placedAt)
         // Act
-        val page = listCustomerOrdersUseCase.unfold(CustomerOrdersReading(customer.userId, PageRequest.first()))
+        val page = listCustomerOrdersUseCase.unfold(readingOf(customer.userId, PageRequest.first()))
         // Assert
         assertThat(page.content.asList()).containsExactly(newer, older)
         assertThat(page.total).isEqualTo(TotalCount(2))
@@ -112,7 +117,7 @@ class OrderQueryUseCasesTest : WithAssertions {
     @Test
     fun `an unknown customer should not list orders`() {
         // Arrange
-        val reading = CustomerOrdersReading(unknownCustomerId, PageRequest.of(0, 2))
+        val reading = readingOf(unknownCustomerId, PageRequest.of(0, 2))
         // Act
         val thrown = catchThrowable { listCustomerOrdersUseCase.unfold(reading) }
         // Assert
@@ -135,7 +140,7 @@ class OrderQueryUseCasesTest : WithAssertions {
     fun `a customer whose account is refused should not list orders`(status: AccountStatus) {
         // Arrange
         userRepository.save(customerWithStatus(status))
-        val reading = CustomerOrdersReading(blockedCustomerId, PageRequest.of(0, 2))
+        val reading = readingOf(blockedCustomerId, PageRequest.of(0, 2))
         // Act
         val thrown = catchThrowable { listCustomerOrdersUseCase.unfold(reading) }
         // Assert
@@ -146,7 +151,7 @@ class OrderQueryUseCasesTest : WithAssertions {
     fun `a customer whose email is not verified yet should list orders`() {
         // Arrange
         userRepository.save(customerWithStatus(AccountStatus.PENDING_VERIFICATION))
-        val reading = CustomerOrdersReading(blockedCustomerId, PageRequest.of(0, 2))
+        val reading = readingOf(blockedCustomerId, PageRequest.of(0, 2))
         // Act
         val page = listCustomerOrdersUseCase.unfold(reading)
         // Assert
@@ -160,8 +165,8 @@ class OrderQueryUseCasesTest : WithAssertions {
         val middle = placeOrder(OrderId("middle"), customer, placedAt.plusSeconds(60))
         val newest = placeOrder(OrderId("newest"), customer, placedAt.plusSeconds(120))
         placeOrder(OrderId("other"), otherCustomer, placedAt)
-        val firstPage = CustomerOrdersReading(customer.userId, PageRequest.of(0, 2))
-        val secondPage = CustomerOrdersReading(customer.userId, PageRequest.of(1, 2))
+        val firstPage = readingOf(customer.userId, PageRequest.of(0, 2))
+        val secondPage = readingOf(customer.userId, PageRequest.of(1, 2))
         // Act
         val first = listCustomerOrdersUseCase.unfold(firstPage)
         val second = listCustomerOrdersUseCase.unfold(secondPage)

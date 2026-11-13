@@ -57,7 +57,7 @@ class AddProductImageUseCase(
         val uploadedImage = upload.uploadedImage
         ImageFormat.entries.forEach { format ->
             val productImage = productImageRepository.find(uploadedImage.productId, format)
-            if (productImage == null || !format.accepts(productImage.content)) {
+            if (productImage == null || format.refuses(productImage.content)) {
                 val reason = "The $format image of ${uploadedImage.productId.id.value} was not kept."
                 val message = ErrorMessage(reason)
                 throw ProductImageStorageFailed(message)

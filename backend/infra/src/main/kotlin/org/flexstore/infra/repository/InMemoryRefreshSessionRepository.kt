@@ -12,7 +12,7 @@ class InMemoryRefreshSessionRepository : RefreshSessionRepository {
         sessions[session.refreshToken] = session
     }
 
-    override fun isUnknown(token: RefreshToken): Boolean = !sessions.containsKey(token)
+    override fun isKnown(token: RefreshToken): Boolean = sessions.containsKey(token)
 
     override fun get(token: RefreshToken): RefreshSession = sessions.getValue(token)
 

@@ -20,10 +20,13 @@ class ActorResolutionService(private val userRepository: UserRepository) {
     fun actorOf(userId: UserId): Actor {
         if (userRepository.notExists(userId)) return Visitor()
         val user = userRepository.findById(userId)
-        if (user !is User.DefinedUser) return Visitor()
+        return if (user is User.DefinedUser) actorOf(user) else Visitor()
+    }
+
+    private fun actorOf(user: User.DefinedUser): Actor {
         if (user.isSystem()) return SystemActor()
         val name = Name(user.fullName.value)
-        val validUserId = UserId.ValidUserId(userId.value)
+        val validUserId = UserId.ValidUserId(user.id.value)
         return if (user.isAdministrator()) Admin(validUserId, name, user.status)
         else Customer(validUserId, name, user.status)
     }

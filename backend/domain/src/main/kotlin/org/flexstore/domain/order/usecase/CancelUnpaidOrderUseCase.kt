@@ -62,7 +62,7 @@ class CancelUnpaidOrderUseCase(
 
     private fun orderAwaitsPaymentCondition() = PreCondition<UnpaidOrderCancellation> { cancellation ->
         val order = order(cancellation)
-        if (!order.isAwaitingPayment()) {
+        if (order.isNotAwaitingPayment()) {
             val orderNumber = order.number()
             val message = ErrorMessage("Order $orderNumber is ${order.status}: it does not await its payment.")
             throw OrderNotAwaitingPaymentException(message)
@@ -71,7 +71,7 @@ class CancelUnpaidOrderUseCase(
 
     private fun timeLimitIsExceededCondition() = PreCondition<UnpaidOrderCancellation> { cancellation ->
         val order = order(cancellation)
-        if (!cancellation.timeLimit.isExceededFor(order)) {
+        if (cancellation.timeLimit.isNotExceededFor(order)) {
             val message = ErrorMessage("Order ${order.number()} can still be paid.")
             throw PaymentTimeLimitNotExceededException(message)
         }

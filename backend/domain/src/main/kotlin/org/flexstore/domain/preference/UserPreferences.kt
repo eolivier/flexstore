@@ -19,6 +19,8 @@ data class UserPreferences(
         is UserPreference.GuidedTour ->
             guidedTour == GuidedTourPreference.Chosen(preference.guidedTourDisplay)
     }
+
+    fun doNotContain(preference: UserPreference) = !contain(preference)
 }
 
 // One preference a customer chooses

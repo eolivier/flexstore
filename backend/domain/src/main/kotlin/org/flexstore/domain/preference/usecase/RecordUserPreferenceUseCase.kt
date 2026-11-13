@@ -31,7 +31,7 @@ class RecordUserPreferenceUseCase(
     }
 
     private fun preferenceIsStoredCondition() = PostCondition<UserPreferenceChoice> { choice ->
-        if (!userPreferenceRepository.preferencesOf(choice.customer).contain(choice.preference)) {
+        if (userPreferenceRepository.preferencesOf(choice.customer).doNotContain(choice.preference)) {
             throw UserPreferenceRecordFailed(ErrorMessage("The preference was not recorded."))
         }
     }

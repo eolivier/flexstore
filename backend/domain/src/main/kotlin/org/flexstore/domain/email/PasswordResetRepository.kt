@@ -10,6 +10,8 @@ interface PasswordResetRepository {
     fun findBy(token: VerificationToken): PasswordReset?
     fun isUnknown(token: VerificationToken): Boolean = findBy(token) == null
 
+    fun isKnown(token: VerificationToken): Boolean = !isUnknown(token)
+
     // A new link replaces the previous ones, and a link used to choose a password cannot be used again
     fun deleteAllOf(userId: UserId)
 }

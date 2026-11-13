@@ -29,11 +29,12 @@ class OrderStatusEmailContent(email: OrderStatusEmail, shopUrl: ShopUrl) : Email
     // Only a shipped order that was given a carrier and a tracking number, with the tracking page of the carrier
     // when it has one
     private fun StringBuilder.appendTrackingOf(tracking: OrderTracking) {
-        if (order.status != OrderStatus.SHIPPED || tracking !is OrderTracking.Given) return
-        appendLine("Transporteur : ${tracking.carrier.displayName().value}")
-        appendLine("Numéro de suivi : ${tracking.trackingNumber.value}")
-        if (tracking.hasTrackingPage()) appendLine("Suivre le colis : ${tracking.trackingPage().value}")
-        appendLine()
+        if (order.status == OrderStatus.SHIPPED && tracking is OrderTracking.Given) {
+            appendLine("Transporteur : ${tracking.carrier.displayName().value}")
+            appendLine("Numéro de suivi : ${tracking.trackingNumber.value}")
+            if (tracking.hasTrackingPage()) appendLine("Suivre le colis : ${tracking.trackingPage().value}")
+            appendLine()
+        }
     }
 
     override val body = EmailBody(buildString {
