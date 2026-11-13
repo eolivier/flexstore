@@ -8,7 +8,7 @@ and a Vue 3 shop front end. See `README.md` for the features, the environment va
 ```
 backend/
   domain/        # Pure Kotlin: entities, value objects, use cases, ports, errors. No framework.
-  infra/         # Framework-free infrastructure (in-memory repositories, not used by the app)
+  infra/         # Framework-free infrastructure (in-memory repositories; only the 2FA one is used by the app)
   spring-infra/  # Spring adapters (REST controllers, JPA), OpenAPI spec
   migrations/    # Flyway SQL migrations
   mcp/           # MCP server that exposes the products, calls the domain (served by spring-infra at /mcp)
