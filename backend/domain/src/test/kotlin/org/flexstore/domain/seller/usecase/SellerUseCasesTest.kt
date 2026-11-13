@@ -8,21 +8,19 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.ValueSource
 import org.junit.jupiter.api.Test
-import org.flexstore.domain.user.administration.testAdministrator
-import org.flexstore.domain.user.administration.testCustomer
-import org.flexstore.domain.user.administration.unknownUser
-import org.flexstore.domain.user.administration.usersOfTheAdministration
+import org.flexstore.domain.actor.testAdministratorActor
+import org.flexstore.domain.actor.testCustomerActor
+import org.flexstore.domain.actor.unknownUserActor
 
 class SellerUseCasesTest : WithAssertions {
 
     private val sellerRepository = InMemorySellerRepository(testSeller)
-    private val userRepository = usersOfTheAdministration()
-    private val readCurrentSellerUseCase = ReadCurrentSellerUseCase(sellerRepository, userRepository)
-    private val updateSellerUseCase = UpdateSellerUseCase(sellerRepository, userRepository)
+    private val readCurrentSellerUseCase = ReadCurrentSellerUseCase(sellerRepository)
+    private val updateSellerUseCase = UpdateSellerUseCase(sellerRepository)
     private val readSocialNetworksUseCase = ReadSocialNetworksUseCase(sellerRepository)
     private val sellerUseCases =
         SellerUseCases(readCurrentSellerUseCase, updateSellerUseCase, readSocialNetworksUseCase)
-    private val administrator = testAdministrator.id
+    private val administrator = testAdministratorActor
     private val contact = testSellerDetail.contact
     private val identifier = testSellerDetail.identifier
 
@@ -208,7 +206,7 @@ class SellerUseCasesTest : WithAssertions {
     @Test
     fun `a customer should not change the seller`() {
         // Act
-        val thrown = catchThrowable { sellerUseCases.update(testCustomer.id, testSellerDetail) }
+        val thrown = catchThrowable { sellerUseCases.update(testCustomerActor, testSellerDetail) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(SellerAdministrationForbiddenException::class.java)
         assertThat(sellerRepository.current()).isEqualTo(testSeller)
@@ -217,7 +215,7 @@ class SellerUseCasesTest : WithAssertions {
     @Test
     fun `a customer should not read the seller`() {
         // Act
-        val thrown = catchThrowable { sellerUseCases.currentSeller(testCustomer.id) }
+        val thrown = catchThrowable { sellerUseCases.currentSeller(testCustomerActor) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(SellerAdministrationForbiddenException::class.java)
     }
@@ -225,7 +223,7 @@ class SellerUseCasesTest : WithAssertions {
     @Test
     fun `an unknown user should not change the seller`() {
         // Act
-        val thrown = catchThrowable { sellerUseCases.update(unknownUser, testSellerDetail) }
+        val thrown = catchThrowable { sellerUseCases.update(unknownUserActor, testSellerDetail) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(SellerAdministrationForbiddenException::class.java)
     }

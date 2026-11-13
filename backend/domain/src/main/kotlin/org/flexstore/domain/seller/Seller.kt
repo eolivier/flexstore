@@ -1,7 +1,7 @@
 package org.flexstore.domain.seller
 
 import org.flexstore.domain.sharedkernel.Identity
-import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.entity.Actor
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.PostConditionException
 import org.ucop.domain.PreConditionException
@@ -177,13 +177,13 @@ data class SellerDetail(
 data class Seller(val id: SellerId, val detail: SellerDetail)
 
 // An administrator who gives a new version of the seller
-data class SellerUpdate(val editor: UserId, val seller: Seller)
+data class SellerUpdate(val editor: Actor, val seller: Seller)
 
 // Anyone who reads the social networks of the current seller
 data object SocialNetworksReading
 
 // An administrator who reads the current seller
-data class SellerReading(val reader: UserId)
+data class SellerReading(val reader: Actor)
 
 data class SellerAdministrationForbiddenException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)

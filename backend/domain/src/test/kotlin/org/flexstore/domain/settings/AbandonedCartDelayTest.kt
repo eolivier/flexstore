@@ -2,8 +2,7 @@ package org.flexstore.domain.settings
 
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.settings.usecase.*
-import org.flexstore.domain.user.administration.testAdministrator
-import org.flexstore.domain.user.administration.usersOfTheAdministration
+import org.flexstore.domain.actor.testAdministratorActor
 import org.flexstore.infra.repository.InMemoryShopSettingsRepository
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -12,10 +11,9 @@ import org.junit.jupiter.params.provider.CsvSource
 class AbandonedCartDelayTest : WithAssertions {
 
     private val shopSettingsRepository = InMemoryShopSettingsRepository()
-    private val userRepository = usersOfTheAdministration()
     private val service = ShopSettingsAdministrationService(
-        ReadAdministeredShopSettingsUseCase(shopSettingsRepository, userRepository),
-        UpdateShopSettingsUseCase(shopSettingsRepository, userRepository)
+        ReadAdministeredShopSettingsUseCase(shopSettingsRepository),
+        UpdateShopSettingsUseCase(shopSettingsRepository)
     )
 
     @ParameterizedTest(name = "a delay of {0} hours is saved: {1}")
@@ -23,7 +21,7 @@ class AbandonedCartDelayTest : WithAssertions {
     fun `an abandoned cart delay should be from 1 hour to 30 days`(hours: Int, saved: Boolean) {
         // Act
         val thrown = catchThrowable {
-            service.changeAbandonedCartDelay(testAdministrator.id, AbandonedCartDelay(hours))
+            service.changeAbandonedCartDelay(testAdministratorActor, AbandonedCartDelay(hours))
         }
         // Assert
         assertThat(thrown == null).isEqualTo(saved)
@@ -35,7 +33,7 @@ class AbandonedCartDelayTest : WithAssertions {
     fun `an invalid abandoned cart delay should be refused with its own error`() {
         // Act
         val thrown = catchThrowable {
-            service.changeAbandonedCartDelay(testAdministrator.id, AbandonedCartDelay(0))
+            service.changeAbandonedCartDelay(testAdministratorActor, AbandonedCartDelay(0))
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(InvalidAbandonedCartDelayException::class.java)
@@ -44,7 +42,7 @@ class AbandonedCartDelayTest : WithAssertions {
     @Test
     fun `the abandoned cart delay should be one day by default`() {
         // Act
-        val settings = service.getSettings(testAdministrator.id)
+        val settings = service.getSettings(testAdministratorActor)
         // Assert
         assertThat(settings.abandonedCartDelay).isEqualTo(AbandonedCartDelay(24))
     }

@@ -7,7 +7,7 @@ import org.ucop.domain.PostConditionException
 import org.ucop.domain.PreConditionException
 import org.ucop.domain.ErrorMessage
 import java.time.Duration
-import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.entity.Actor
 
 enum class Activation { ENABLED, DISABLED }
 
@@ -139,10 +139,10 @@ data class ShopSettings(
 }
 
 // An administrator who changes the settings of the shop
-data class ShopSettingsUpdate(val editor: UserId, val settings: ShopSettings)
+data class ShopSettingsUpdate(val editor: Actor, val settings: ShopSettings)
 
 // An administrator who reads the settings of the shop, to change them
-data class ShopSettingsReading(val reader: UserId)
+data class ShopSettingsReading(val reader: Actor)
 
 data class ShopSettingsAdministrationForbiddenException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)

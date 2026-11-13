@@ -9,27 +9,25 @@ import org.flexstore.domain.user.*
 import org.flexstore.infra.repository.InMemorySellerRepository
 import org.flexstore.infra.repository.InMemoryShopSettingsRepository
 import org.junit.jupiter.api.Test
-import org.flexstore.domain.user.administration.testAdministrator
-import org.flexstore.domain.user.administration.testCustomer
-import org.flexstore.domain.user.administration.unknownUser
-import org.flexstore.domain.user.administration.usersOfTheAdministration
+import org.flexstore.domain.actor.testAdministratorActor
+import org.flexstore.domain.actor.testCustomerActor
+import org.flexstore.domain.actor.unknownUserActor
 
 class SellerSetupServiceTest : WithAssertions {
 
     private val sellerRepository = InMemorySellerRepository(testSeller)
     private val shopSettingsRepository = InMemoryShopSettingsRepository()
-    private val userRepository = usersOfTheAdministration()
     private val sellerUseCases = SellerUseCases(
-        ReadCurrentSellerUseCase(sellerRepository, userRepository),
-        UpdateSellerUseCase(sellerRepository, userRepository),
+        ReadCurrentSellerUseCase(sellerRepository),
+        UpdateSellerUseCase(sellerRepository),
         ReadSocialNetworksUseCase(sellerRepository)
     )
     private val shopSettingsAdministrationService = ShopSettingsAdministrationService(
-        ReadAdministeredShopSettingsUseCase(shopSettingsRepository, userRepository),
-        UpdateShopSettingsUseCase(shopSettingsRepository, userRepository)
+        ReadAdministeredShopSettingsUseCase(shopSettingsRepository),
+        UpdateShopSettingsUseCase(shopSettingsRepository)
     )
     private val sellerSetupService = SellerSetupService(sellerUseCases, shopSettingsAdministrationService)
-    private val administrator = testAdministrator.id
+    private val administrator = testAdministratorActor
     private val invalidSellerDetail = testSellerDetail.copy(
         contact = SellerContact(SellerName(""), testSellerDetail.contact.address)
     )
@@ -81,7 +79,7 @@ class SellerSetupServiceTest : WithAssertions {
     @Test
     fun `a customer should not complete the setup`() {
         // Act
-        val thrown = catchThrowable { sellerSetupService.complete(testCustomer.id, testSellerDetail) }
+        val thrown = catchThrowable { sellerSetupService.complete(testCustomerActor, testSellerDetail) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(SellerAdministrationForbiddenException::class.java)
         assertThat(shopSettingsRepository.load().isSellerNotSetUp()).isTrue()
@@ -90,7 +88,7 @@ class SellerSetupServiceTest : WithAssertions {
     @Test
     fun `an unknown user should not complete the setup`() {
         // Act
-        val thrown = catchThrowable { sellerSetupService.complete(unknownUser, testSellerDetail) }
+        val thrown = catchThrowable { sellerSetupService.complete(unknownUserActor, testSellerDetail) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(SellerAdministrationForbiddenException::class.java)
         assertThat(shopSettingsRepository.load().isSellerNotSetUp()).isTrue()
