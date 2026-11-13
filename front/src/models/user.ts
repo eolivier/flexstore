@@ -4,7 +4,8 @@ export interface User {
   lastName: string;
   email: string;
   password?: string;
-  role?: 'USER' | 'ADMIN';
+  // SYSTEM runs the scheduled use cases: it is listed but never edited
+  role?: 'USER' | 'ADMIN' | 'SYSTEM';
   status?: AccountStatus;
   // Restricted to an ADMIN account in this iteration
   twoFactorEnabled?: boolean;

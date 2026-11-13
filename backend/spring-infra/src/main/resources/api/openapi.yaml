@@ -2395,7 +2395,7 @@ components:
           type: string
         role:
           type: string
-          enum: [USER, ADMIN]
+          enum: [USER, ADMIN, SYSTEM]
         status:
           type: string
           enum: [PENDING_VERIFICATION, ACTIVE, SUSPENDED, LOCKED, DISABLED]

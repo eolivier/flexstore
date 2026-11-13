@@ -1116,7 +1116,8 @@ export interface JsonUser {
 
 export const JsonUserRoleEnum = {
     User: 'USER',
-    Admin: 'ADMIN'
+    Admin: 'ADMIN',
+    System: 'SYSTEM'
 } as const;
 
 export type JsonUserRoleEnum = typeof JsonUserRoleEnum[keyof typeof JsonUserRoleEnum];

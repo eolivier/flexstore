@@ -907,6 +907,7 @@ export default {
       roles: {
         USER: { label: 'User', text: 'Shops and follows their orders.' },
         ADMIN: { label: 'Administrator', text: 'Also manages the users, the products and the settings.' },
+        SYSTEM: { label: 'System', text: 'Runs the scheduled tasks. Nobody signs in with it.' },
       },
     },
     passwordReset: {
@@ -1976,6 +1977,7 @@ export default {
       roles: {
         USER: { label: 'Utilisateur', text: 'Achète et suit ses commandes.' },
         ADMIN: { label: 'Administrateur', text: 'Gère aussi les utilisateurs, les produits et les paramètres.' },
+        SYSTEM: { label: 'Système', text: 'Exécute les tâches planifiées. Personne ne se connecte avec.' },
       },
     },
     passwordReset: {
