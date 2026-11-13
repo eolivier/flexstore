@@ -9,7 +9,6 @@
   import { useAddToCart } from '@/composables/useAddToCart';
   import ProductCard from './ProductCard.vue';
   import QuantityStepper from '@/components/cart/QuantityStepper.vue';
-  import CartSnackbar from '@/components/cart/CartSnackbar.vue';
   import { categoryInfo, shopCategories } from './categories';
   import ProductPrice from './ProductPrice.vue';
   import { useStocksStore } from '@/stores/stocks.store';
@@ -39,7 +38,7 @@
   stocksStore.fetchStocks();
   useProductImagesStore().fetchProductsWithImage();
   if (authStore.isAuthenticated) useWishlistStore().fetchWishlist();
-  const { addingProductId, feedback, addToCart } = useAddToCart();
+  const { addingProductId, addToCart } = useAddToCart();
 
   const product = ref<Product | null>(null);
   const loading = ref(true);
@@ -240,7 +239,6 @@
       </section>
     </template>
 
-    <CartSnackbar v-model="feedback" />
   </v-container>
 </template>
 

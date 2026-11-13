@@ -14,12 +14,14 @@
   import { accountLinksOf, adminLinks, shopLinks } from './navigation';
   import { useAuthStore } from '@/stores/auth.store';
   import { useCartStore } from '@/stores/cart.store';
+  import { useSnackbar } from '@/composables/useSnackbar';
 
   const { t } = useI18n();
   const route = useRoute();
   const router = useRouter();
   const authStore = useAuthStore();
   const cartStore = useCartStore();
+  const snackbar = useSnackbar();
 
   const drawer = ref(false);
 
@@ -33,6 +35,19 @@
     () => route.fullPath,
     () => {
       drawer.value = false;
+    }
+  );
+
+  // The store only tells that the items were merged: the message is shown once, then the flag is reset
+  watch(
+    () => cartStore.accountItemsMerged,
+    (merged) => {
+      if (!merged) return;
+      snackbar.success(t('cart.accountItemsMerged'), {
+        icon: 'mdi-cart-check',
+        action: { text: t('products.viewCart'), to: '/cart' },
+      });
+      cartStore.accountItemsMerged = false;
     }
   );
 
@@ -177,14 +192,6 @@
       </div>
     </template>
   </v-navigation-drawer>
-
-  <v-snackbar v-model="cartStore.accountItemsMerged" color="primary" timeout="5000" location="bottom right">
-    <v-icon icon="mdi-cart-check" class="mr-2" />
-    {{ t('cart.accountItemsMerged') }}
-    <template #actions>
-      <v-btn to="/cart" variant="text" color="secondary">{{ t('products.viewCart') }}</v-btn>
-    </template>
-  </v-snackbar>
 </template>
 
 <style scoped>

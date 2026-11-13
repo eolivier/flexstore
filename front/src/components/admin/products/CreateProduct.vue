@@ -6,9 +6,9 @@
   import ProductFields from './ProductFields.vue';
   import NewProductImageField from './NewProductImageField.vue';
   import StockField from './StockField.vue';
-  import ProductCreationSnackbar, { type ProductCreationFeedback } from './ProductCreationSnackbar.vue';
   import { DEFAULT_LANGUAGE, type VatRate } from '@/models/product';
   import { useProductCreation } from '@/composables/useProductCreation';
+  import { useSnackbar } from '@/composables/useSnackbar';
   import { emptyTexts, translationsOf } from '@/utils/productTranslations';
   import { normalizedSku } from '@/utils/sku';
   import { emptyPromotion, promotionOf } from '@/utils/promotion';
@@ -26,10 +26,10 @@
   const valid = ref(false);
   const saving = ref(false);
   const formRef = ref<{ resetValidation: () => void } | null>(null);
-  const feedback = ref<ProductCreationFeedback>({ show: false, color: 'primary', text: '', editLink: '' });
 
   const { createProduct } = useProductCreation();
   const { t } = useI18n();
+  const snackbar = useSnackbar();
 
   const submitForm = async () => {
     if (!valid.value || price.value === null) return;
@@ -49,13 +49,20 @@
     skuAlreadyUsed.value = creation.outcome === 'skuAlreadyUsed';
     if (creation.outcome === 'skuAlreadyUsed') return;
     if (creation.outcome === 'failed') {
-      feedback.value = { show: true, color: 'error', text: t('createProduct.error'), editLink: '' };
+      snackbar.error(t('createProduct.error'));
       return;
     }
-    const partly = creation.outcome === 'partlyCreated';
-    const text = t(partly ? 'createProduct.partlyCreated' : 'createProduct.success', { name });
-    const editLink = partly ? `/admin/products/${creation.productId}/edit` : '';
-    feedback.value = { show: true, color: partly ? 'warning' : 'primary', text, editLink };
+    if (creation.outcome === 'partlyCreated') {
+      // Stays open: the administrator is told where to finish the product
+      snackbar.warning(t('createProduct.partlyCreated', { name }), {
+        persistent: true,
+        action: { text: t('createProduct.finish'), to: `/admin/products/${creation.productId}/edit` },
+      });
+    } else {
+      snackbar.success(t('createProduct.success', { name }), {
+        action: { text: t('nav.products'), to: '/admin/products' },
+      });
+    }
     resetForm();
   };
 
@@ -96,7 +103,6 @@
         <FormActions class="mt-2" cancel-to="/admin/products" :loading="saving" :disabled="!valid">{{ t('createProduct.submit') }}</FormActions>
       </v-form>
     </v-card>
-    <ProductCreationSnackbar v-model="feedback" />
   </v-container>
 </template>
 

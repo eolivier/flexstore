@@ -3,6 +3,7 @@
   import AdminBreadcrumbs from '@/components/admin/AdminBreadcrumbs.vue';
   import { onMounted, ref, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
+  import { useSnackbar } from '@/composables/useSnackbar';
   import { useProductsStore } from '@/stores/products.store.ts';
   import type { ProductTexts, VatRate } from '@/models/product';
   import { textsOf, translationsOf } from '@/utils/productTranslations';
@@ -32,6 +33,7 @@
   const DEFAULT_ALERT_THRESHOLD = 5;
 
   const { t } = useI18n();
+  const snackbar = useSnackbar();
   const productsStore = useProductsStore();
   const stocksStore = useStocksStore();
   const stockAlertsStore = useStockAlertsStore();
@@ -84,6 +86,9 @@
     // A SKU already used is said by its field
     saved.value = skuAlreadyUsed.value ? null : thresholdSaved;
     saving.value = false;
+    if (saved.value) {
+      snackbar.success(t('editProduct.saved'), { action: { text: t('nav.products'), to: '/admin/products' } });
+    }
   }
 
   // A SKU typed again may be free
@@ -122,18 +127,6 @@
         <FormActions class="mt-2" cancel-to="/admin/products" :loading="saving" :disabled="!valid" />
       </v-form>
     </v-card>
-    <v-snackbar
-      :model-value="saved === true"
-      color="primary"
-      timeout="3000"
-      location="bottom right"
-      @update:model-value="saved = null"
-    >
-      {{ t('editProduct.saved') }}
-      <template #actions>
-        <v-btn to="/admin/products" variant="text" color="secondary">{{ t('nav.products') }}</v-btn>
-      </template>
-    </v-snackbar>
   </v-container>
 </template>
 
