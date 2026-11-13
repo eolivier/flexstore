@@ -21,6 +21,7 @@ How to apply:
 - **A request arriving while another is in progress**: finish or park the current work (commit on its branch), then handle the new request on its own branch.
 - **If changes were mixed by mistake**, split them before opening the pull requests (one branch per kind) rather than asking the reviewer to untangle them.
 - **A request too large for one pull request** is split into steps, each its own pull request.
+- **Pushing is never asked**: the branch of each request is pushed, and its pull request opened, without asking the user for permission, whatever the branch name (`refactor/...`, `chore/...`, `feature/...`, `fix/...`). The only reason to stop and ask is a limit of this skill (more than 10 open pull requests) or a request that cannot be done without an answer.
 
 ## 2. Up to 10 requests in a row, reviewed later
 
