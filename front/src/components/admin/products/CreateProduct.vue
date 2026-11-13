@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import FormActions from '@/components/form/FormActions.vue';
   import AdminBreadcrumbs from '@/components/admin/AdminBreadcrumbs.vue';
   import { nextTick, ref, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
@@ -92,21 +93,7 @@
           :sku-already-used="skuAlreadyUsed"
         />
         <StockField v-model="stock" />
-        <div class="d-flex ga-3 mt-2">
-          <v-btn to="/admin/products" variant="outlined" color="primary" size="large" class="flex-grow-1">{{
-            t('createProduct.cancel')
-          }}</v-btn>
-          <v-btn
-            type="submit"
-            color="primary"
-            size="large"
-            class="flex-grow-1"
-            :loading="saving"
-            :disabled="!valid"
-          >
-            {{ t('createProduct.submit') }}
-          </v-btn>
-        </div>
+        <FormActions class="mt-2" cancel-to="/admin/products" :loading="saving" :disabled="!valid">{{ t('createProduct.submit') }}</FormActions>
       </v-form>
     </v-card>
     <ProductCreationSnackbar v-model="feedback" />

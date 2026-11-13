@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import FormActions from '@/components/form/FormActions.vue';
   import AdminBreadcrumbs from '@/components/admin/AdminBreadcrumbs.vue';
   import { computed, nextTick, onMounted, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
@@ -107,20 +108,7 @@
         >
           {{ t(`editUser.${edition}`) }}
         </v-alert>
-        <div class="d-flex ga-3">
-          <v-btn to="/admin/users" variant="outlined" color="primary" size="large" class="flex-grow-1">{{
-            t('editUser.cancel')
-          }}</v-btn>
-          <v-btn
-            type="submit"
-            color="primary"
-            size="large"
-            class="flex-grow-1"
-            :loading="saving"
-            :disabled="!valid"
-            >{{ t('editUser.save') }}</v-btn
-          >
-        </div>
+        <FormActions class="mt-2" cancel-to="/admin/users" :loading="saving" :disabled="!valid" />
       </v-form>
     </v-card>
     <v-snackbar

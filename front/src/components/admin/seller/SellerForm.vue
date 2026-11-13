@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import FormActions from '@/components/form/FormActions.vue';
   import { computed, reactive, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useSellerStore, type Seller, type SellerUpdate } from '@/stores/seller.store';
@@ -121,10 +122,12 @@
       <span v-if="update === 'saved'" class="text-body-2 text-success">{{ t('seller.saved') }}</span>
       <span v-else-if="update === 'invalid'" class="text-body-2 text-error">{{ t('seller.invalid') }}</span>
       <span v-else-if="update === 'failed'" class="text-body-2 text-error">{{ t('seller.saveError') }}</span>
-      <v-btn variant="text" :disabled="!modified || saving" @click="cancel">{{ t('seller.cancel') }}</v-btn>
-      <v-btn type="submit" color="secondary" :loading="saving" :disabled="valid === false">{{
-        t('seller.save')
-      }}</v-btn>
+      <FormActions
+        :loading="saving"
+        :disabled="valid === false"
+        :cancel-disabled="!modified"
+        @cancel="cancel"
+      />
     </div>
   </v-form>
 </template>

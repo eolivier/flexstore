@@ -45,7 +45,7 @@
       <div class="d-flex justify-end ga-2">
         <v-btn variant="text" @click="open = false">{{ t('cancel') }}</v-btn>
         <v-btn color="primary" :disabled="!isCompleteTracking(tracking)" data-test="save-tracking" @click="save">
-          {{ t('orderTracking.save') }}
+          {{ t('save') }}
         </v-btn>
       </div>
     </v-card>

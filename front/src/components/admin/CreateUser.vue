@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import FormActions from '@/components/form/FormActions.vue';
   import AdminBreadcrumbs from '@/components/admin/AdminBreadcrumbs.vue';
   import { useUsersStore } from '@/stores/users.store.ts';
   import { nextTick, ref } from 'vue';
@@ -82,21 +83,7 @@
           class="mb-4"
         />
         <UserRoleField v-model="role" />
-        <div class="d-flex ga-3">
-          <v-btn to="/admin/users" variant="outlined" color="primary" size="large" class="flex-grow-1">{{
-            t('createUser.cancel')
-          }}</v-btn>
-          <v-btn
-            type="submit"
-            color="primary"
-            size="large"
-            class="flex-grow-1"
-            :loading="saving"
-            :disabled="!valid"
-          >
-            {{ t('createUser.label') }}
-          </v-btn>
-        </div>
+        <FormActions class="mt-2" cancel-to="/admin/users" :loading="saving" :disabled="!valid">{{ t('createUser.label') }}</FormActions>
       </v-form>
     </v-card>
     <v-snackbar

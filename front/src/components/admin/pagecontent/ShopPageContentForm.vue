@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import FormActions from '@/components/form/FormActions.vue';
   import { computed, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import {
@@ -59,9 +60,11 @@
       class="mb-2"
     />
     <div class="d-flex align-center ga-4 mt-2">
-      <v-btn type="submit" color="secondary" :loading="saving" :disabled="valid === false || !modified">{{
-        t('shopPageContent.save')
-      }}</v-btn>
+      <FormActions
+        :cancellable="false"
+        :loading="saving"
+        :disabled="valid === false || !modified"
+      />
       <span v-if="edit === 'saved'" class="text-body-2 text-success">{{ t('shopPageContent.saved') }}</span>
       <span v-else-if="edit === 'invalid'" class="text-body-2 text-error">{{
         t('shopPageContent.invalid')

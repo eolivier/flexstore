@@ -34,7 +34,7 @@
         t('editUser.twoFactorDisableError')
       }}</v-alert>
       <div class="d-flex justify-end ga-2">
-        <v-btn variant="text" @click="open = false">{{ t('editUser.cancel') }}</v-btn>
+        <v-btn variant="text" @click="open = false">{{ t('cancel') }}</v-btn>
         <v-btn color="error" :loading="loading" @click="confirm">{{ t('editUser.twoFactorDisableConfirm') }}</v-btn>
       </div>
     </v-card>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import FormActions from '@/components/form/FormActions.vue';
   import { ref, watch } from 'vue';
   import SettingTitle from './SettingTitle.vue';
   import { useI18n } from 'vue-i18n';
@@ -50,9 +51,7 @@
           density="compact"
           class="amount-field"
         />
-        <v-btn type="submit" color="secondary" :loading="saving" :disabled="!valid">{{
-          t('settings.save')
-        }}</v-btn>
+        <FormActions :cancellable="false" :loading="saving" :disabled="!valid" />
       </v-form>
       <p v-if="saved === false" class="text-body-2 text-error">{{ t('settings.saveError') }}</p>
       <p v-else-if="saved" class="text-body-2 text-success">{{ t('settings.saved') }}</p>
