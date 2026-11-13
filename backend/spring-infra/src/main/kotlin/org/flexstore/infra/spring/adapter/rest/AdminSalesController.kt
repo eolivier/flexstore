@@ -3,6 +3,7 @@ package org.flexstore.infra.spring.adapter.rest
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.domain.sales.DayCount
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.sales.SalesDashboardReading
 import org.flexstore.domain.sales.SalesQuestion
 import org.flexstore.domain.sales.usecase.ReadSalesDashboardUseCase
@@ -18,7 +19,10 @@ import org.springframework.security.oauth2.jwt.Jwt
 @Tag(name = "Administration")
 @RestController
 @RequestMapping("/api/admin/sales-dashboard")
-class AdminSalesController(private val readSalesDashboardUseCase: ReadSalesDashboardUseCase) {
+class AdminSalesController(
+    private val readSalesDashboardUseCase: ReadSalesDashboardUseCase,
+    private val actorResolutionService: ActorResolutionService
+) {
 
     @Operation(summary = "Retrieve the revenue, the orders per day and the best sellers of the last 7, 30 or 90 days")
     @GetMapping
@@ -27,7 +31,8 @@ class AdminSalesController(private val readSalesDashboardUseCase: ReadSalesDashb
         @RequestParam(defaultValue = "30") days: Int
     ): JsonSalesDashboard {
         val question = SalesQuestion(DayCount(days), InstantProvider.now())
-        val salesDashboardReading = SalesDashboardReading(UserId.of(reader.subject), question)
+        val actor = actorResolutionService.actorOf(UserId.of(reader.subject))
+        val salesDashboardReading = SalesDashboardReading(actor, question)
         return JsonSalesDashboard(readSalesDashboardUseCase.unfold(salesDashboardReading))
     }
 }
