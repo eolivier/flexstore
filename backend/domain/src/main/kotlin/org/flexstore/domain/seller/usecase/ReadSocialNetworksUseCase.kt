@@ -21,7 +21,7 @@ class ReadSocialNetworksUseCase(private val sellerRepository: SellerRepository) 
     // The reader, resolved before the use case runs, is a visitor or higher, or the system
     private fun readerCanReadCondition() = PreCondition<SocialNetworksReading> { reading ->
         if (reading.reader.isNotAtLeastVisitor()) {
-            val message = ErrorMessage("Only a visitor, a user or the system can read the social networks of the seller.")
+            val message = ErrorMessage("The reader must be at least a visitor to read the social networks of the seller.")
             throw SellerReadingForbiddenException(message)
         }
     }

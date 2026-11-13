@@ -26,7 +26,7 @@ class ListProductReviewsUseCase(
     // The reader, resolved before the use case runs, is a visitor or higher, or the system
     private fun readerCanReadCondition() = PreCondition<ProductReviewsReading> { reading ->
         if (reading.reader.isNotAtLeastVisitor()) {
-            val message = ErrorMessage("Only a visitor, a user or the system can read the reviews.")
+            val message = ErrorMessage("The reader must be at least a visitor to read the reviews.")
             throw ReviewReadingForbiddenException(message)
         }
     }

@@ -23,7 +23,7 @@ class ReadStockUseCase(private val stockRepository: StockRepository) : QueryUseC
     // The reader, resolved before the use case runs, is a visitor or higher, or the system
     private fun readerCanReadCondition() = PreCondition<StockReading> { reading ->
         if (reading.reader.isNotAtLeastVisitor()) {
-            val message = ErrorMessage("Only a visitor, a user or the system can read the stocks.")
+            val message = ErrorMessage("The reader must be at least a visitor to read the stocks.")
             throw StockReadingForbiddenException(message)
         }
     }

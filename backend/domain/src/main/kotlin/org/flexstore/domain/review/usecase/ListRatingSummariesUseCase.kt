@@ -20,7 +20,8 @@ class ListRatingSummariesUseCase(
     // The reader, resolved before the use case runs, is a visitor or higher, or the system
     private fun readerCanReadCondition() = PreCondition<Actor> { reader ->
         if (reader.isNotAtLeastVisitor()) {
-            throw ReviewReadingForbiddenException(ErrorMessage("Only a visitor, a user or the system can read the ratings of the products."))
+            val message = ErrorMessage("The reader must be at least a visitor to read the ratings of the products.")
+            throw ReviewReadingForbiddenException(message)
         }
     }
 }
