@@ -1,6 +1,6 @@
 # Physical data model
 
-The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V62**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
+The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V63**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
 
 ![Physical data model](database.png)
 
@@ -25,14 +25,7 @@ erDiagram
         company_name varchar(255) "nullable: the company the customer buys for, null for a customer who buys for themselves"
         company_siren varchar(9) "nullable: 9 digits, filled with company_name"
         company_vat_number varchar(30) "nullable: intra-community VAT number, FR + key + SIREN for a French company"
-        created_at timestamp
-        updated_at timestamp
-    }
-
-    failed_sign_in {
-        id varchar(50) PK
-        user_id varchar(50) FK,UK "at most one row per account, only while the count is above 0"
-        attempt_count int "failed sign-ins in a row, 1 to 4: at the 5th the account is locked and the row deleted"
+        failed_sign_in_count int "failed sign-ins in a row, 0 to 4: at the 5th the account is locked and the count starts again"
         created_at timestamp
         updated_at timestamp
     }
@@ -320,7 +313,6 @@ erDiagram
 
     user ||--o{ user_token : "user_id (cascade)"
     user ||--o{ user_setting : "user_id (cascade)"
-    user ||--o| failed_sign_in : "user_id (cascade)"
     user ||--o{ refresh_session : "user_id (cascade)"
     user ||--o{ user_address : "user_id (cascade)"
     user_address }o--|| address : "address_id"
@@ -358,7 +350,7 @@ erDiagram
   - `cookie_choice`: their choice about the preference cookies (`ACCEPTED` or `REFUSED`), valid until `expires_at` (6 months after the choice, then the customer is asked again; `expires_at` is filled for this setting only). A visitor who is not signed in keeps theirs in their browser; at sign-in it is recorded here and removed from the browser;
   - `color_mode`: their display mode (`LIGHT` or `DARK`); without a row, their browser decides. A visitor who is not signed in keeps theirs in their browser (when they accepted the preference cookies);
   - `language`: their preferred language (`EN` or `FR`); without a row, the page decides.
-- A wrong password for an existing account adds one to its `failed_sign_in` row (created by the first failure). At the 5th failure in a row, the account becomes `LOCKED` and the row is deleted, so that the count starts again when an administrator reactivates the account; a successful sign-in deletes the row too. An email that belongs to no account, and an account that cannot sign in already, are not counted.
+- A wrong password for an existing account adds one to its `failed_sign_in_count` (a column of `user`, V63 merged the former `failed_sign_in` table into it). At the 5th failure in a row, the account becomes `LOCKED` and the count goes back to 0, so that it starts again when an administrator reactivates the account; a successful sign-in resets it too. An email that belongs to no account, and an account that cannot sign in already, are not counted.
 - A `refresh_session` is a session of a signed-in user: its refresh token renews their access token (15 minutes) once, then the session is revoked (`revoked_at`) and replaced by a new row. A revoked token that comes back revokes every open session of its user. Only the hash of the token is stored; deleting a user deletes their sessions.
 - The carrier and the tracking number of the parcel of an order are given together by an administrator when the order is shipped, or corrected afterwards (`tracking_carrier` and `tracking_number`, a check forbids one without the other); the orders shipped before V45, or shipped without them, have none.
 - The `shop_page_content` rows are what the administrators write for the head of the shop pages: one row for each `page_type` (the key words, the description of the shop, the Google Analytics identifier), all created empty by V57. A new type is a new row, not a column. They are read by everyone, edited by the administrators, and kept in a cache that every edit evicts.
