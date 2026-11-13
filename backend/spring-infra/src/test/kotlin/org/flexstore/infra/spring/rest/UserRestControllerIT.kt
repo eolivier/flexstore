@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.rest
 
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.repository.*
@@ -52,6 +53,11 @@ class UserRestControllerIT {
 
     @Autowired
     private lateinit var userRepository: UserRepository
+
+    @Autowired
+    private lateinit var actorResolutionService: ActorResolutionService
+
+    private fun administrator() = actorResolutionService.actorOf(UserId.of(ADMIN_ACCOUNT_ID))
 
     @AfterEach
     fun cleanUp() {
@@ -124,7 +130,7 @@ class UserRestControllerIT {
     fun `should not create user with an already used email`() {
         // Arrange
         val draftJsonUser = DraftJsonUser("Draft", "User", DRAFT_USER_EMAIL, "testpassword")
-        userService.createUser(CreateUserRequest(UserId.of(ADMIN_ACCOUNT_ID), draftJsonUser.toUser()))
+        userService.createUser(CreateUserRequest(administrator(), draftJsonUser.toUser()))
         // Act - Assert
         mockMvc.perform(
             post("/api/users").with(asAdmin())
@@ -137,7 +143,7 @@ class UserRestControllerIT {
     @Test
     fun `should return user by id`() {
         // Arrange
-        userService.createUser(CreateUserRequest(UserId.of(ADMIN_ACCOUNT_ID), createJsonUser().toUser()))
+        userService.createUser(CreateUserRequest(administrator(), createJsonUser().toUser()))
         // Act - Assert
         mockMvc.perform(get("/api/users/$USER_ID").with(asAdmin()))
             .andExpect(status().isOk)
@@ -151,7 +157,7 @@ class UserRestControllerIT {
     @Test
     fun `an administrator should edit the name, the email and the role of a user`() {
         // Arrange
-        userService.createUser(CreateUserRequest(UserId.of(ADMIN_ACCOUNT_ID), createJsonUser().toUser()))
+        userService.createUser(CreateUserRequest(administrator(), createJsonUser().toUser()))
         val editedUser = EditedJsonUser("Jane", "Doe", "jane.doe@example.com", "ADMIN")
         // Act
         val response = mockMvc.perform(
@@ -168,7 +174,7 @@ class UserRestControllerIT {
     @Test
     fun `an edit should keep the password, even if one is sent`() {
         // Arrange
-        userService.createUser(CreateUserRequest(UserId.of(ADMIN_ACCOUNT_ID), createJsonUser().toUser()))
+        userService.createUser(CreateUserRequest(administrator(), createJsonUser().toUser()))
         val editedUserWithPassword = """{"firstName": "Jane", "lastName": "Doe", "email": "jane.doe@example.com", "password": "another-password"}"""
         // Act
         mockMvc.perform(
@@ -181,7 +187,7 @@ class UserRestControllerIT {
     @Test
     fun `should refuse an edit by a token that is not the one of an administrator in the users`() {
         // Arrange
-        userService.createUser(CreateUserRequest(UserId.of(ADMIN_ACCOUNT_ID), createJsonUser().toUser()))
+        userService.createUser(CreateUserRequest(administrator(), createJsonUser().toUser()))
         val editedUser = EditedJsonUser("Jane", "Doe", "jane.doe@example.com", "USER")
         // Act
         val response = mockMvc.perform(
@@ -189,13 +195,13 @@ class UserRestControllerIT {
         )
         // Assert
         response.andExpect(status().isForbidden)
-        assertThat((userService.readUser(UserId.of(ADMIN_ACCOUNT_ID), UserId.of(USER_ID)) as User.DefinedUser).fullName.value).isEqualTo("John Doe")
+        assertThat((userService.readUser(administrator(), UserId.of(USER_ID)) as User.DefinedUser).fullName.value).isEqualTo("John Doe")
     }
 
     @Test
     fun `should refuse the email of another user`() {
         // Arrange
-        userService.createUser(CreateUserRequest(UserId.of(ADMIN_ACCOUNT_ID), createJsonUser().toUser()))
+        userService.createUser(CreateUserRequest(administrator(), createJsonUser().toUser()))
         val editedUser = EditedJsonUser("John", "Doe", "admin@flexstore.com", "USER")
         // Act
         val response = mockMvc.perform(
@@ -208,7 +214,7 @@ class UserRestControllerIT {
     @Test
     fun `should change password with the current password`() {
         // Arrange
-        userService.createUser(CreateUserRequest(UserId.of(ADMIN_ACCOUNT_ID), createJsonUser().toUser()))
+        userService.createUser(CreateUserRequest(administrator(), createJsonUser().toUser()))
         val request = """{"currentPassword": "testpassword", "newPassword": "new-password"}"""
         // Act
         mockMvc.perform(
@@ -225,7 +231,7 @@ class UserRestControllerIT {
     @Test
     fun `should not change password with a wrong current password`() {
         // Arrange
-        userService.createUser(CreateUserRequest(UserId.of(ADMIN_ACCOUNT_ID), createJsonUser().toUser()))
+        userService.createUser(CreateUserRequest(administrator(), createJsonUser().toUser()))
         val request = """{"currentPassword": "wrong-password", "newPassword": "new-password"}"""
         // Act - Assert
         mockMvc.perform(
@@ -241,7 +247,7 @@ class UserRestControllerIT {
     fun `should delete user`() {
         // Arrange
         val jsonUser = createJsonUser()
-        userService.createUser(CreateUserRequest(UserId.of(ADMIN_ACCOUNT_ID), jsonUser.toUser()))
+        userService.createUser(CreateUserRequest(administrator(), jsonUser.toUser()))
         // Act - Assert
         mockMvc.perform(delete("/api/users/$USER_ID").with(asAdmin()))
             .andExpect(status().isNoContent)
@@ -251,7 +257,7 @@ class UserRestControllerIT {
     fun `should login with valid credentials`() {
         // Arrange
         val jsonUser = createJsonUser()
-        userService.createUser(CreateUserRequest(UserId.of(ADMIN_ACCOUNT_ID), jsonUser.toUser()))
+        userService.createUser(CreateUserRequest(administrator(), jsonUser.toUser()))
         val loginRequest = """{"email": "john.doe@example.com", "password": "testpassword"}"""
         // Act - Assert
         mockMvc.perform(

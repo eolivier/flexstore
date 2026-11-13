@@ -4,12 +4,13 @@ import kotlin.reflect.KClass
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.repository.*
+import org.flexstore.domain.actor.isNotAdmin
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
 import org.ucop.domain.entity.*
 
 // An administrator who deletes a user
-data class UserDeletion(val editor: UserId, val userId: UserId)
+data class UserDeletion(val editor: Actor, val userId: UserId)
 
 class DeleteUserUseCase(private val userRepository: UserRepository) : UseCase<UserDeletion> {
 
@@ -34,9 +35,9 @@ class DeleteUserUseCase(private val userRepository: UserRepository) : UseCase<Us
         return emptyMap()
     }
 
-    // The editor must be an existing user with the ADMIN role (read from the users, not from the request)
+    // The editor, resolved before the use case runs, must be an Admin
     private fun editorIsAdministratorCondition() = PreCondition<UserDeletion> { deletion ->
-        if (userRepository.isNotAdministrator(deletion.editor)) {
+        if (deletion.editor.isNotAdmin()) {
             throw UserDeletionForbiddenException(ErrorMessage("Only an administrator can delete a user."))
         }
     }

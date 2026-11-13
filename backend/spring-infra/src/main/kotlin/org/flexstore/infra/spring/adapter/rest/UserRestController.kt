@@ -62,7 +62,8 @@ class UserRestController(
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun createUser(@AuthenticationPrincipal creator: Jwt, @RequestBody draftJsonUser: DraftJsonUser): JsonUser {
-        val createUserRequest = CreateUserRequest(UserId.of(creator.subject), draftJsonUser.toUser())
+        val actor = actorResolutionService.actorOf(UserId.of(creator.subject))
+        val createUserRequest = CreateUserRequest(actor, draftJsonUser.toUser())
         return userService.createUser(createUserRequest).toJsonUser()
     }
     @Operation(
@@ -86,7 +87,8 @@ class UserRestController(
         @RequestParam(defaultValue = "${PageNumber.FIRST}") page: Int,
         @RequestParam(defaultValue = "${PageSize.DEFAULT}") size: Int
     ): ResponseEntity<List<JsonUser>> {
-        val users = userService.readAllUsers(UserId.of(reader.subject), PageRequest.of(page, size))
+        val actor = actorResolutionService.actorOf(UserId.of(reader.subject))
+        val users = userService.readAllUsers(actor, PageRequest.of(page, size))
         return pagedBody(users.content.asList().toJsonUsers(), users.total)
     }
 
@@ -103,8 +105,8 @@ class UserRestController(
     )
     @GetMapping("/{id}")
     fun getUser(@AuthenticationPrincipal reader: Jwt, @PathVariable id: String): JsonUser {
-        val userId = ValidUserId(id)
-        return userService.readUser(UserId.of(reader.subject), userId).toJsonUser()
+        val actor = actorResolutionService.actorOf(UserId.of(reader.subject))
+        return userService.readUser(actor, ValidUserId(id)).toJsonUser()
     }
 
     @Operation(summary = "Update a user by ID",
@@ -122,9 +124,9 @@ class UserRestController(
         @PathVariable id: String,
         @RequestBody editedUser: EditedJsonUser
     ): JsonUser {
-        val editorId = UserId.of(editor.subject)
-        userService.updateUser(UpdateUserRequest(editorId, editedUser.toUser(id)))
-        return userService.readUser(editorId, UserId.of(id)).toJsonUser()
+        val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
+        userService.updateUser(UpdateUserRequest(actor, editedUser.toUser(id)))
+        return userService.readUser(actor, UserId.of(id)).toJsonUser()
     }
 
     @Operation(summary = "Change the status of an account: ACTIVE, SUSPENDED, LOCKED or DISABLED (administrator only)")
@@ -135,8 +137,8 @@ class UserRestController(
         @PathVariable id: String,
         @RequestBody status: JsonAccountStatus
     ): JsonUser {
-        val editorId = UserId.of(editor.subject)
-        val accountStatusChange = AccountStatusChange(editorId, UserId.of(id), status.toAccountStatus())
+        val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
+        val accountStatusChange = AccountStatusChange(actor, UserId.of(id), status.toAccountStatus())
         return userService.changeAccountStatus(accountStatusChange).toJsonUser()
     }
 
@@ -151,8 +153,8 @@ class UserRestController(
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteUser(@AuthenticationPrincipal editor: Jwt, @PathVariable id: String) {
-        val userId = ValidUserId(id)
-        userService.deleteUser(UserId.of(editor.subject), userId)
+        val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
+        userService.deleteUser(actor, ValidUserId(id))
     }
 
     @Operation(summary = "Change the password of a user",
@@ -333,10 +335,9 @@ class UserRestController(
         @AuthenticationPrincipal editor: Jwt,
         @PathVariable id: String
     ): JsonUser {
-        val editorId = UserId.of(editor.subject)
-        val actor = actorResolutionService.actorOf(editorId)
+        val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
         twoFactorAuthenticationService.disableForUser(actor, UserId.of(id))
-        return userService.readUser(editorId, UserId.of(id)).toJsonUser()
+        return userService.readUser(actor, UserId.of(id)).toJsonUser()
     }
 
     private fun sessionOf(user: User.DefinedUser): JsonLoginResponse {

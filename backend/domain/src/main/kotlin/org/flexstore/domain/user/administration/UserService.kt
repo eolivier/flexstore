@@ -3,6 +3,7 @@ package org.flexstore.domain.user.administration
 import org.flexstore.domain.sharedkernel.Page
 import org.flexstore.domain.sharedkernel.PageRequest
 import org.flexstore.domain.user.model.*
+import org.ucop.domain.entity.Actor
 import org.flexstore.domain.user.repository.UserRepository
 import org.flexstore.domain.user.usecase.*
 import org.flexstore.domain.user.administration.usecase.AccountStatusChange
@@ -28,7 +29,7 @@ class UserService(
         return createUserUseCase.createdUser
     }
 
-    fun readUser(reader: UserId, userId: UserId): User {
+    fun readUser(reader: Actor, userId: UserId): User {
         val readUserUseCase = ReadUserUseCase(userRepository)
         readUserUseCase.unfold(UserReading(reader, userId))
         return readUserUseCase.retrievedUser
@@ -44,11 +45,11 @@ class UserService(
         return readUser(change.editor, change.userId)
     }
 
-    fun deleteUser(editor: UserId, userId: UserId) {
+    fun deleteUser(editor: Actor, userId: UserId) {
         DeleteUserUseCase(userRepository).unfold(UserDeletion(editor, userId))
     }
 
-    fun readAllUsers(reader: UserId, pageRequest: PageRequest): Page<Users> =
+    fun readAllUsers(reader: Actor, pageRequest: PageRequest): Page<Users> =
         ListUsersUseCase(userRepository).unfold(UsersReading(reader, pageRequest))
 
     fun changePassword(changePasswordRequest: ChangePasswordRequest) {

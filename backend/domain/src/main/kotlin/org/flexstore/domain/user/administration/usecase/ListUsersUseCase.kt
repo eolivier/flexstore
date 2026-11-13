@@ -5,11 +5,12 @@ import org.flexstore.domain.sharedkernel.PageRequest
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.repository.*
+import org.flexstore.domain.actor.isNotAdmin
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // An administrator who reads a page of the users
-data class UsersReading(val reader: UserId, val pageRequest: PageRequest)
+data class UsersReading(val reader: Actor, val pageRequest: PageRequest)
 
 // An administrator reads a page of the users of the shop, customers and administrators
 class ListUsersUseCase(private val userRepository: UserRepository) : QueryUseCase<UsersReading, Page<Users>> {
@@ -23,9 +24,9 @@ class ListUsersUseCase(private val userRepository: UserRepository) : QueryUseCas
 
     override fun getPostConditions(): PostConditions<Page<Users>> = PostConditions.none()
 
-    // The reader must be an existing user with the ADMIN role (read from the users, not from the request)
+    // The reader, resolved before the use case runs, must be an Admin
     private fun readerIsAdministratorCondition() = PreCondition<UsersReading> { reading ->
-        if (userRepository.isNotAdministrator(reading.reader)) {
+        if (reading.reader.isNotAdmin()) {
             throw UserReadingForbiddenException(ErrorMessage("Only an administrator can read the users."))
         }
     }

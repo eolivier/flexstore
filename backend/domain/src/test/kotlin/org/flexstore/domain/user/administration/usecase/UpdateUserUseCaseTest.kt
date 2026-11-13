@@ -1,5 +1,6 @@
 package org.flexstore.domain.user.administration.usecase
 
+import org.flexstore.domain.actor.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.twofactor.model.TwoFactorAuthentication
 import org.flexstore.domain.twofactor.model.TwoFactorSecret
@@ -21,6 +22,7 @@ class UpdateUserUseCaseTest {
 
     private val userRepository = InMemoryUserRepository()
     private val updateUserUseCase = UpdateUserUseCase(userRepository)
+    private val actorResolutionService = ActorResolutionService(userRepository)
     private val administrator = DefinedUser(ValidUserId("admin-1"), FullName(FirstName("Admin"), LastName("Flexstore")), Email("admin@example.com"), PlainPassword("admin-password"), Role.ADMIN)
     private val simpleUser = DefinedUser(ValidUserId("user-1"), FullName(FirstName("Simple"), LastName("User")), Email("simple@example.com"), PlainPassword("user-password"))
     private val john = DefinedUser(ValidUserId("123"), FullName(FirstName("John"), LastName("Doe")), Email("john.doe@example.com"), PlainPassword("password123"))
@@ -36,7 +38,7 @@ class UpdateUserUseCaseTest {
         // Arrange
         val editedJohn = john.copy(fullName = FullName(FirstName("Jane"), LastName("Doe")), email = Email("jane.doe@example.com"), role = Role.ADMIN)
         // Act
-        updateUserUseCase.unfold(UpdateUserRequest(administrator.id, editedJohn))
+        updateUserUseCase.unfold(UpdateUserRequest(actorResolutionService.actorOf(administrator.id), editedJohn))
         // Assert
         val storedJohn = stored(john.id)
         assertThat(storedJohn.fullName.value).isEqualTo("Jane Doe")
@@ -49,7 +51,7 @@ class UpdateUserUseCaseTest {
         // Arrange
         val editedJohn = john.copy(fullName = FullName(FirstName("Jane"), LastName("Doe")), password = PlainPassword("another-password"))
         // Act
-        updateUserUseCase.unfold(UpdateUserRequest(administrator.id, editedJohn))
+        updateUserUseCase.unfold(UpdateUserRequest(actorResolutionService.actorOf(administrator.id), editedJohn))
         // Assert
         assertThat(userRepository.passwordMatches(john.email, PlainPassword("password123"))).isTrue()
     }
@@ -59,7 +61,7 @@ class UpdateUserUseCaseTest {
     fun `should refuse an editor who is not an administrator`(editorId: String) {
         // Arrange
         val editedJohn = john.copy(fullName = FullName(FirstName("Jane"), LastName("Doe")))
-        val updateUserRequest = UpdateUserRequest(ValidUserId(editorId), editedJohn)
+        val updateUserRequest = UpdateUserRequest(actorResolutionService.actorOf(ValidUserId(editorId)), editedJohn)
         // Act
         val thrown = catchThrowable { updateUserUseCase.unfold(updateUserRequest) }
         // Assert
@@ -72,7 +74,7 @@ class UpdateUserUseCaseTest {
         // Arrange
         val user = john.copy(id = InvalidUserId("@"))
         // Act
-        val thrown = catchThrowable { updateUserUseCase.unfold(UpdateUserRequest(administrator.id, user)) }
+        val thrown = catchThrowable { updateUserUseCase.unfold(UpdateUserRequest(actorResolutionService.actorOf(administrator.id), user)) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(InvalidUserIdException::class.java).hasMessage("User ID @ is invalid.")
     }
@@ -81,7 +83,7 @@ class UpdateUserUseCaseTest {
     fun `should fail to update if user does not exist`() {
         // Arrange
         val unknownUser = john.copy(id = ValidUserId("unknown"))
-        val updateUserRequest = UpdateUserRequest(administrator.id, unknownUser)
+        val updateUserRequest = UpdateUserRequest(actorResolutionService.actorOf(administrator.id), unknownUser)
         // Act
         val thrown = catchThrowable { updateUserUseCase.unfold(updateUserRequest) }
         // Assert
@@ -93,7 +95,7 @@ class UpdateUserUseCaseTest {
         // Arrange
         val editedJohn = john.copy(email = simpleUser.email)
         // Act
-        val thrown = catchThrowable { updateUserUseCase.unfold(UpdateUserRequest(administrator.id, editedJohn)) }
+        val thrown = catchThrowable { updateUserUseCase.unfold(UpdateUserRequest(actorResolutionService.actorOf(administrator.id), editedJohn)) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(UserAlreadyExists::class.java)
         assertThat(stored(john.id).email).isEqualTo(Email("john.doe@example.com"))
@@ -106,7 +108,7 @@ class UpdateUserUseCaseTest {
         RegisterCustomerUseCase(userRepository).unfold(registration)
         val editedCustomer = DefinedUser(registration.userId, FullName(FirstName("Janet"), LastName("Doe")), registration.email, PlainPassword(""))
         // Act
-        updateUserUseCase.unfold(UpdateUserRequest(administrator.id, editedCustomer))
+        updateUserUseCase.unfold(UpdateUserRequest(actorResolutionService.actorOf(administrator.id), editedCustomer))
         // Assert
         val storedCustomer = stored(registration.userId)
         assertThat(storedCustomer.fullName.firstName).isEqualTo(FirstName("Janet"))
@@ -126,7 +128,7 @@ class UpdateUserUseCaseTest {
         userRepository.save(adminWithTwoFactor)
         val editedAdmin = adminWithTwoFactor.copy(fullName = FullName(FirstName("Renamed"), LastName("Admin")))
         // Act
-        updateUserUseCase.unfold(UpdateUserRequest(administrator.id, editedAdmin))
+        updateUserUseCase.unfold(UpdateUserRequest(actorResolutionService.actorOf(administrator.id), editedAdmin))
         // Assert
         assertThat(stored(adminWithTwoFactor.id).twoFactorAuthentication).isEqualTo(
             TwoFactorAuthentication.Enabled(secret)
