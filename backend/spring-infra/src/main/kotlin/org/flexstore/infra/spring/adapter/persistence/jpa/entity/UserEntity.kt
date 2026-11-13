@@ -51,5 +51,10 @@ data class UserEntity(
     val companySiren: String? = null,
 
     @Column(name = "company_vat_number")
-    val companyVatNumber: String? = null
+    val companyVatNumber: String? = null,
+
+    // The failed sign-ins in a row, 0 for none. Written by the failed sign-in adapter only (updatable = false):
+    // saving the user never overwrites it
+    @Column(name = "failed_sign_in_count", nullable = false, updatable = false)
+    val failedSignInCount: Int = 0
 ) : TimestampedEntity()
