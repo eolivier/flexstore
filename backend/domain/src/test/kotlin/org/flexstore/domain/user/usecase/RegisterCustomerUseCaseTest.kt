@@ -129,7 +129,7 @@ class RegisterCustomerUseCaseTest : WithAssertions {
         // Act
         useCase.unfold(withoutComplement)
         // Assert
-        assertThat(stored().postalAddresses.asList().single().location.complement).isNull()
+        assertThat(stored().postalAddresses.asList().single().location.complement).isEqualTo(AddressComplement.none())
     }
 
     @ParameterizedTest(name = "a registration without {0} should be refused")

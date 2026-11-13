@@ -8,7 +8,14 @@ data class PhoneNumber(val value: String) {
 data class Street(val value: String)
 
 // Building, floor, apartment...
-data class AddressComplement(val value: String)
+data class AddressComplement(val value: String) {
+    fun isGiven() = value.isNotBlank()
+
+    companion object {
+        // An address without complement
+        fun none() = AddressComplement("")
+    }
+}
 
 data class PostalCode(val value: String)
 
@@ -72,9 +79,9 @@ data class LegalEntity(val company: Company, val contact: FullName) : Recipient 
 }
 
 // The street of an address, with its complement (building, floor...) when there is one
-data class StreetAddress(val street: Street, val complement: AddressComplement?) {
+data class StreetAddress(val street: Street, val complement: AddressComplement) {
     // An address without complement
-    constructor(street: Street) : this(street, null)
+    constructor(street: Street) : this(street, AddressComplement.none())
 }
 
 // The town of an address: its postal code and its city

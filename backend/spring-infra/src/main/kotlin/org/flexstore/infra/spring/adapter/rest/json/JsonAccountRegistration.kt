@@ -83,7 +83,7 @@ data class JsonPostalAddress @JsonCreator constructor(
                 companyName = legalEntity?.company?.name?.value,
                 vatNumber = legalEntity?.company?.vatNumber?.value?.ifEmpty { null },
                 street = location.street.value,
-                complement = location.complement?.value,
+                complement = if (location.complement.isGiven()) location.complement.value else null,
                 postalCode = location.postalCode.value,
                 city = location.city.value,
                 country = location.country.value
@@ -92,7 +92,7 @@ data class JsonPostalAddress @JsonCreator constructor(
     }
 
     fun toPostalAddress(): PostalAddress {
-        val addressComplement = complement?.trim()?.ifEmpty { null }?.let { AddressComplement(it) }
+        val addressComplement = AddressComplement(complement.orEmpty().trim())
         val streetAddress = StreetAddress(Street(street.trim()), addressComplement)
         val town = Town(PostalCode(postalCode.trim()), City(city.trim()))
         val location = Location(streetAddress, Locality(town, Country(country.trim())))
