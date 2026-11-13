@@ -22,30 +22,51 @@ This repo is meant to be a learning vehicle and a ready-to-fork base for real pr
 
 **Shop** (FR/EN)
 - Home page: categories, a selection of products, the shop values and commitments
-- Catalog: product cards, category filter (clothing, electronics, accessories), sort by name or price
-- Product detail: description, quantity, add to cart, products of the same category
+- Catalog: product cards, category filter (clothing, electronics, accessories), sort by name or price; the products are translated into French and English
+- Product detail: description, quantity, add to cart, save to the wishlist, products of the same category
 - Reviews and ratings: a signed-in customer who bought and paid for a product rates it from 1 to 5 stars and comments it, once per product (the form is offered to them only; the others are told why); the reviews (named by the first name and the initial of the last name) and the average rating are shown on the product page, the average rating on the catalog cards; an administrator deletes a review from the product page, which the rating no longer counts and which the customer may write again
 - Cart: quantity per line, remove, total, item count badge in the header; one cart per visitor and per customer, merged at sign-in
+- Product images: the administrators give the image of a product (JPEG, PNG or WebP, 2 MB at most), kept in the database resized as JPEG in two formats, large (1600 px, 500 KB at most) for the page of the product and small (400 px, 60 KB at most) for the catalog and the cart; the category icon stays for the products without image
+- Stock: the number of units of each product is shown in the catalog (out of stock, a few left); an order asking for more than the stock is refused; the units of an order are reserved until it is paid, and go back to the stock when it is cancelled or refunded; the administrators give the stock of each product and its alert threshold (5 by default), and see the products whose stock is at or under it
+- Public pages in French and English (`/fr/...`, `/en/...`, each linking to its other version), pre-rendered for the search engines; the legal notice, the terms of sale and the privacy policy are written by the administrators (see Administration); the accounts of the shop on the social networks (Facebook, Instagram, X, TikTok, YouTube, Twitch) are shown when the seller gave them
 
 **Orders** (sign-in required)
-- Place an order from the cart, on a checkout page: the customer chooses the delivery address and the billing address (the same by default) among their addresses or enters another one (with its recipient, the customer by default, maybe a company), which is added to their addresses; the order refers to both addresses and keeps the name and the price of the products, and awaits its payment
-- Product images: the administrators give the image of a product (JPEG, PNG or WebP, 2 MB at most), kept in the database resized as JPEG in two formats, large (1600 px, 500 KB at most) for the page of the product and small (400 px, 60 KB at most) for the catalog and the cart; the category icon stays for the products without image
-- Stock: the number of units of each product is shown in the catalog (out of stock, a few left); an order asking for more than the stock is refused, a paid order takes its units out; the administrators give the stock of each product
+- Checkout page: the customer chooses the delivery address and the billing address (the same by default) among their addresses or enters another one (with its recipient, the customer by default, maybe a company), which is added to their addresses; they choose the shipping method (standard 4.90 €, express 9.90 €; the standard shipping is free from a threshold of items, 50 € by default), may enter a discount code and must accept the current version of the terms of sale (if they are published again meanwhile, the customer reads them again)
+- Discount codes: an administrator gives a code (3 to 30 upper-case letters and digits) that takes a percentage or an amount off the items of an order, with an expiry date and a usage limit; the checkout previews what the code takes off; the orders that used a code keep their discount, even when the code is deleted
+- Place an order from the cart: the order refers to both addresses, keeps the name and the price of the products, the shipping, the discount and the accepted terms of sale, and awaits its payment
+- Pay an order with Stripe Checkout (the card is entered on the page of Stripe, never on the shop), or with a simulated payment without a Stripe key; when the customer comes back from Stripe, the shop asks Stripe whether the order was paid, in case its notification did not arrive; once paid, the cart is emptied, the invoice is issued and a confirmation email is sent to the customer (can be turned off in the administration settings)
+- Unpaid orders: an order not paid within the payment delay (10 minutes by default, set in the settings) is cancelled by a task that runs every minute, and its units go back to the stock
 - Abandoned cart reminder: when an administrator turns it on in the settings (off by default), a customer who left items in their cart for the chosen delay (1 hour to 30 days, 24 hours by default) gets one email that lists them and leads back to the cart; the cart is reminded again only after it changes and is left again. A visitor has no email and is never reminded; the carts that exist when the reminder is introduced are not reminded until their customer changes them. A task checks the carts every 5 minutes
-- Pay an order with Stripe Checkout (the card is entered on the page of Stripe, never on the shop), or with a simulated payment without a Stripe key; once paid, the cart is emptied and a confirmation email is sent to the customer (can be turned off in the administration settings)
-- Orders page: the customer's orders, newest first, with their status and total
+- Orders page: the customer's orders, newest first, with their status (awaiting payment, paid, processing, shipped, delivered, cancelled, refunded) and total
 - Pages: the orders of the customer, the orders of all the customers and the users (administration) are read a page at a time (`GET /api/orders`, `GET /api/admin/orders`, `GET /api/users`, with the query parameters `page`, from 0, and `size`, 20 by default and 100 at most: a larger size is brought back to 100); the answer stays an array and gives the number of items of the whole list in the header `X-Total-Count`. The filters of the administration orders apply to the orders of the page shown. The catalog and the other administration lists are not paginated
-- Order detail: date, status, lines (product, unit price, quantity, total) and order total; shown right after the order is placed
+- Order detail: date, status, lines (product, unit price, quantity, total), shipping, discount and order total; shown right after the order is placed
 - Order tracking: when an administrator ships an order (the next status of a processed order), they can give the carrier (Colissimo, Chronopost, UPS, DHL, FedEx or another) and the tracking number, together or not at all; the customer sees them on the order detail, with a link to the tracking page of the carrier when it has one, and in the email that tells them the order is shipped; an administrator can correct them while the order is shipped or delivered
+- Invoices and credit notes: a paid order is invoiced once, with the next number of the sequence and the seller of the shop; the customer downloads the invoice (PDF) from the order detail; when an administrator refunds an order, a credit note that cancels the invoice is issued and downloaded the same way
+- Refund: an administrator cancels a paid or processing order (not yet shipped): the payment is refunded (Stripe), the units go back to the stock, the credit note is issued and the customer is told by email
 
-**Account and administration** (sign-in required)
+**Account** (sign-in required)
 - Create an account in express mode (first name, last name, email, password) or with more details (phone number, postal address, which can also be given later; a customer who buys for their company ticks *I am a company* and gives its name, its SIREN and, optionally, its intra-community VAT number, which must match the SIREN for a French company: the address is then sent to the company, for their attention, and the invoices carry its name and VAT number): the account waits for the verification of the email (`PENDING_VERIFICATION`), the customer is signed in at once and can order
 - Verify the email with the link received by email (valid for 1 hour): the account becomes `ACTIVE`; a new link can be asked for from the profile
-- Sign in, sign out, profile, change password; the session is renewed with a refresh token (see Authentication); brute-force protection: after 5 failed sign-ins in a row (a wrong password for an existing account), the account is locked (`LOCKED`) until an administrator reactivates it; a successful sign-in starts the count again; a wrong password and an unknown email still get the same answer
-- Cookies: a banner asks the visitor at their first visit to accept or refuse the preference cookies (the light or dark mode kept for the next visits); the essential cookies (sign-in, cart) need no consent; the customer changes their choice in their account (profile page), and refusing forgets the stored preferences. A visitor keeps their choice in the browser (`localStorage`); a signed-in customer has it in the database (`user_setting`, `GET` and `PUT /api/cookie-consent`) for 6 months, after which they are asked again; at sign-in, the choice of the browser is recorded in their account and removed from the browser
-- My addresses: see, edit and remove the postal addresses of the account; the orders keep the address they were sent to
-- Sales dashboard (`ADMIN` role): revenue, number of orders and average basket, orders per day (bars) and the 5 best sellers, over the last 7, 30 or 90 days; only the paid orders count (not the awaiting, cancelled or refunded ones), on the day they were placed in Paris time
-- Administration (`ADMIN` role): users (list with their role, create with a role, edit first name/last name/email/role, change the status of the account (active, suspended, locked, disabled), delete), products (list, create, edit name/description/category/price, and a promotion: a percentage off the price, the regular price shown struck through), orders (list the orders of all the customers, move each one to its next status: paid, processing, shipped, delivered; the payment moves an order awaiting it), settings (order confirmation email on/off, abandoned cart reminder on/off and its delay), environment (which environment variables of the back end are defined: the plain ones with their value, the passwords, keys and secrets only as defined or not, never with their value)
+- Sign in with the password or with Google, sign out, profile, change password; forgotten password: a link sent by email (valid for 1 hour, usable once) lets the customer choose a new one, and the answer is the same whether the email has an account or not
+- Two-factor authentication (TOTP, with an authenticator app): a customer or an administrator turns it on from their profile (QR code, then the first code to confirm) and off with their password; once on, the sign-in asks for the code after the password; an administrator can turn it off for another account that lost its device
+- Sessions and brute-force protection: the session is renewed with a refresh token (see Authentication); after 5 failed sign-ins in a row (a wrong password or a wrong code for an existing account), the account is locked (`LOCKED`) until an administrator reactivates it; a successful sign-in starts the count again; a wrong password and an unknown email still get the same answer
+- Cookies: a banner asks the visitor at their first visit to accept or refuse the preference cookies (the light or dark mode and the language kept for the next visits); the essential cookies (sign-in, cart) need no consent; the customer changes their choice in their account (profile page), and refusing forgets the stored preferences. A visitor keeps their choice in the browser (`localStorage`); a signed-in customer has it in the database (`user_setting`, `GET` and `PUT /api/cookie-consent`) for 6 months, after which they are asked again; at sign-in, the choice of the browser is recorded in their account and removed from the browser
+- My preferences: the display mode (light or dark) and the language of a signed-in customer are kept in their account (`/api/color-mode`, `/api/language`) and found again on every device
+- My addresses: see, add, edit and remove the postal addresses of the account; the orders keep the address they were sent to
+- Wishlist: a customer saves products to find them again later (once per product, newest first)
+- Loyalty: one point for each whole euro or dollar of the paid orders of the customer, shown on their account
+
+**Administration** (`ADMIN` role)
+- Sales dashboard: revenue, number of orders and average basket, orders per day (bars) and the 5 best sellers, over the last 7, 30 or 90 days; only the paid orders count (not the awaiting, cancelled or refunded ones), on the day they were placed in Paris time
+- Users: list with their role, create with a role, edit first name/last name/email/role, change the status of the account (active, suspended, locked, disabled), delete, turn off their two-factor authentication
+- Products: list, create (a free SKU is proposed from the category and the name), edit name/description/category/price in each language, and a promotion: a percentage off the price, the regular price shown struck through; images and stocks (see Shop)
+- Orders: list the orders of all the customers, move each one to its next status (paid, processing, shipped, delivered; the payment moves an order awaiting it), give or correct the tracking, refund, download the invoice and the credit note of any order
+- Discount codes: give and delete (see Orders)
+- Seller: the company that sells and is written on the invoices (name, address, SIRET, SIREN, VAT number, legal form, share capital, registry, contact, social networks); a setup assistant asks for it until the shop is set up
+- Legal pages: write the legal notice, the terms of sale and the privacy policy; each publication is a new version, the ones before are kept
+- Shop page content: the key words and the description of the pages for the search engines, and the Google Analytics id
+- Settings: order confirmation email on/off, payment delay, free shipping threshold, abandoned cart reminder on/off and its delay
+- Environment: which environment variables of the back end are defined: the plain ones with their value, the passwords, keys and secrets only as defined or not, never with their value
 
 ---
 
@@ -207,9 +228,11 @@ npm run gen:api
 | `PUT` / `DELETE` | `/api/admin/products/{id}/image` | `ADMIN` | Give (multipart `image`, 2 MB at most, `413` larger, `415` not an image) or remove the image of a product |
 | `GET` | `/api/stocks`, `/api/stocks/{productId}` | public | The stocks of the products (`0` for a product without stock) |
 | `PUT` | `/api/admin/stocks/{productId}` | `ADMIN` | Give the stock of a product, `{ quantity }` (`400` negative, `404` unknown product) |
-| `GET` | `/api/admin/settings` | `ADMIN` | Settings of the shop (`orderConfirmationEmail`: `ENABLED` / `DISABLED`) |
+| `GET` | `/api/admin/settings` | `ADMIN` | Settings of the shop (order confirmation email, abandoned cart reminder and delay, payment delay, free shipping threshold, seller setup) |
 | `POST` | `/api/admin/settings/order-confirmation-email/enable` | `ADMIN` | Send a confirmation email when an order is placed |
 | `POST` | `/api/admin/settings/order-confirmation-email/disable` | `ADMIN` | Stop sending the order confirmation email |
+| `POST` | `/api/admin/settings/abandoned-cart-reminder/enable`, `.../disable` | `ADMIN` | Turn the abandoned cart reminder on or off |
+| `PUT` | `/api/admin/settings/abandoned-cart-delay`, `/payment-delay`, `/free-shipping-threshold` | `ADMIN` | Change the delay before a reminder (1 hour to 30 days), the payment delay (1 minute to 1 day), the free shipping threshold |
 | `GET` | `/api/admin/environment` | `ADMIN` | The environment variables of the shop with their `sensitivity` (`PLAIN` / `SECRET`), their `necessity` (`REQUIRED` / `OPTIONAL`) and their `status` (`DEFINED` / `UNDEFINED`: defined when neither null, empty nor blank); the `value` is given for a defined `PLAIN` variable only, never for a `SECRET` |
 | `POST` | `/api/accounts` | public | Create the account of a customer, status `PENDING_VERIFICATION` and send a verification link valid for 1 hour (`409` if the email is used, `422` if a field is missing or the password is too short) |
 | `GET` | `/api/accounts/me` | signed in | The account of the signed-in user, with their phone number and postal addresses |
@@ -229,6 +252,46 @@ npm run gen:api
 | `POST` | `/api/users` | `ADMIN` | Create a user, with its `role` (`USER` by default, or `ADMIN`); `409` if the email is already used |
 | `PUT` | `/api/users/{id}` | `ADMIN` | Edit a user: first name, last name, email and role (`409` if the email is used by another user); the password is not changed by an edit |
 | `DELETE` | `/api/users/{id}` | `ADMIN` | Delete a user |
+| `POST` | `/api/accounts/me/addresses` | signed in | Add an address at the end of the addresses |
+| `POST` | `/api/password-reset-requests` | public | Send a link to choose a new password (valid for 1 hour); the same answer whether the email has an account or not |
+| `POST` | `/api/password-resets` | public | Choose a new password with the token of the link (usable once) |
+| `POST` | `/api/users/login/two-factor-authentication` | public | Complete a sign-in challenged for its second factor with the code of the authenticator app |
+| `POST` | `/api/users/{id}/two-factor-authentication/enrollment` | the user `{id}` | Start the enrollment: a pending secret and the link of its QR code |
+| `POST` | `/api/users/{id}/two-factor-authentication/confirmation` | the user `{id}` | Confirm the enrollment with the first code: two-factor authentication is on |
+| `DELETE` | `/api/users/{id}/two-factor-authentication` | the user `{id}` | Turn it off with the current password |
+| `PUT` | `/api/users/{id}/two-factor-authentication` | `ADMIN` | Turn it off for another account, without a password |
+| `GET` / `PUT` | `/api/color-mode`, `/api/language` | signed in | The display mode and the preferred language of the customer (`NONE` when never chosen) |
+| `GET` / `PUT` | `/api/cookie-consent` | signed in | The cookie consent of the customer, kept 6 months |
+| `GET` | `/api/admin/products/{id}` | `ADMIN` | A product with its translations in every language, to edit it |
+| `GET` | `/api/admin/products/sku-proposal` | `ADMIN` | A SKU free in the catalog, from the category and the name |
+| `GET` / `POST` | `/api/products/{id}/reviews` | public / signed in | The reviews of a product / add one (a customer who paid for the product, once) |
+| `GET` | `/api/products/{id}/review-eligibility` | signed in | Whether the customer may review the product, and why not |
+| `GET` | `/api/product-ratings` | public | The average rating of each reviewed product |
+| `DELETE` | `/api/admin/reviews/{id}` | `ADMIN` | Delete a review |
+| `GET` | `/api/wishlist` | signed in | The products saved to the wishlist, newest first |
+| `PUT` / `DELETE` | `/api/wishlist/{productId}` | signed in | Save a product to the wishlist / remove it |
+| `GET` | `/api/loyalty` | signed in | The loyalty points of the customer |
+| `GET` | `/api/orders/shipping-options` | signed in | The shipping methods with their cost for the cart |
+| `GET` | `/api/orders/discount-preview` | signed in | What a discount code takes off the cart (`404` unknown code, `410` expired or used up) |
+| `POST` | `/api/orders/{id}/payment/verification` | signed in | Ask the payment provider whether the order was paid, and pay it here if so |
+| `GET` | `/api/orders/{id}/invoice`, `/api/orders/{id}/credit-note` | signed in | The invoice of a paid order, the credit note of a refunded one (PDF) |
+| `GET` | `/api/admin/orders`, `/api/admin/orders/{id}` | `ADMIN` | The orders of all the customers (paginated), one order |
+| `POST` | `/api/admin/orders/{id}/status/advance` | `ADMIN` | Move an order to its next status, with the carrier and tracking number when shipping it |
+| `PUT` | `/api/admin/orders/{id}/tracking` | `ADMIN` | Correct the tracking of a shipped or delivered order |
+| `POST` | `/api/admin/orders/{id}/refund` | `ADMIN` | Cancel a paid order not yet shipped, refund its payment, put its units back in stock, issue its credit note (`409` not refundable, `502` the provider refused) |
+| `GET` | `/api/admin/orders/{id}/invoice`, `/api/admin/orders/{id}/credit-note` | `ADMIN` | The invoice and the credit note of any order (PDF) |
+| `GET` / `POST` | `/api/admin/discount-codes` | `ADMIN` | List / give a discount code (`400` invalid, `409` already given) |
+| `DELETE` | `/api/admin/discount-codes/{code}` | `ADMIN` | Delete a discount code |
+| `GET` | `/api/admin/stocks/low` | `ADMIN` | The stocks at or under the alert threshold of their product |
+| `GET` / `PUT` | `/api/admin/stocks/{productId}/alert` | `ADMIN` | The alert threshold of a product (5 by default) / change it |
+| `GET` / `PUT` | `/api/admin/seller` | `ADMIN` | The seller written on the next invoices / change it |
+| `PUT` | `/api/admin/seller/setup` | `ADMIN` | Finish the setup assistant: save the seller and turn the seller setup on |
+| `GET` | `/api/social-networks` | public | The accounts of the shop on the social networks |
+| `GET` | `/api/legal-pages/{kind}` | public | The current version of a legal page (`legal-notice`, `terms-of-sale`, `privacy-policy`) |
+| `PUT` | `/api/admin/legal-pages/{kind}` | `ADMIN` | Publish a new version of a legal page |
+| `GET` | `/api/shop-page-contents` | public | The key words, the description and the Google Analytics id |
+| `PUT` | `/api/admin/shop-page-contents/{type}` | `ADMIN` | Write one of these contents |
+| `GET` | `/api/admin/sales-dashboard` | `ADMIN` | Revenue, orders, average basket, orders per day and best sellers |
 
 Passwords are hashed with bcrypt and never returned by the API.
 
