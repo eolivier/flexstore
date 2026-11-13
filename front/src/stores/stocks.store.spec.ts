@@ -20,7 +20,7 @@ describe('stocks.store', () => {
   it.each([
     { productId: 'p-1', expected: 4 },
     { productId: 'p-2', expected: 0 },
-  ])('the stock of $productId is $expected once loaded', async ({ productId, expected }) => {
+  ])('the stock of $productId should be $expected once loaded', async ({ productId, expected }) => {
     // Arrange
     const store = useStocksStore();
     // Act
@@ -29,14 +29,14 @@ describe('stocks.store', () => {
     expect(store.quantityOf(productId)).toBe(expected);
   });
 
-  it('knows no stock before they are loaded', () => {
+  it('should know no stock before they are loaded', () => {
     // Act
     const quantity = useStocksStore().quantityOf('p-1');
     // Assert
     expect(quantity).toBeNull();
   });
 
-  it('keeps the stock given by an administrator', async () => {
+  it('should keep the stock given by an administrator', async () => {
     // Arrange
     const jsonStock = { productId: 'p-1', quantity: 9 };
     mockFetch.mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve(jsonStock) });

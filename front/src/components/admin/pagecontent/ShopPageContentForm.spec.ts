@@ -19,21 +19,21 @@ describe('ShopPageContentForm.vue', () => {
     mockFetch.mockReset();
   });
 
-  it('shows the current text of the content', () => {
+  it('should show the current text of the content', () => {
     // Act
     const wrapper = mountForm('META_KEY_WORDS', 'shop, demo');
     // Assert
     expect((wrapper.find('textarea').element as HTMLTextAreaElement).value).toBe('shop, demo');
   });
 
-  it('disables the save button while the text is unchanged', () => {
+  it('should disable the save button while the text is unchanged', () => {
     // Act
     const wrapper = mountForm('META_KEY_WORDS', 'shop, demo');
     // Assert
     expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeDefined();
   });
 
-  it('enables the save button once the text is edited', async () => {
+  it('should enable the save button once the text is edited', async () => {
     // Arrange
     const wrapper = mountForm('META_KEY_WORDS', 'shop, demo');
     // Act
@@ -42,7 +42,7 @@ describe('ShopPageContentForm.vue', () => {
     expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeUndefined();
   });
 
-  it('disables the save button again when the text goes back to the saved one', async () => {
+  it('should disable the save button again when the text goes back to the saved one', async () => {
     // Arrange
     const wrapper = mountForm('META_KEY_WORDS', 'shop, demo');
     await wrapper.find('textarea').setValue('shop, new');
@@ -52,7 +52,7 @@ describe('ShopPageContentForm.vue', () => {
     expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeDefined();
   });
 
-  it('saves the edited text', async () => {
+  it('should save the edited text', async () => {
     // Arrange
     const edited = { contents: [{ type: 'META_KEY_WORDS', text: 'shop, new' }] };
     mockFetch.mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve(edited) });
@@ -68,7 +68,7 @@ describe('ShopPageContentForm.vue', () => {
     expect(wrapper.text()).toContain('Saved: the visitors now read this content.');
   });
 
-  it('clears a content with an empty text', async () => {
+  it('should clear a content with an empty text', async () => {
     // Arrange
     mockFetch.mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve({ contents: [] }) });
     const wrapper = mountForm('META_SHOP_DESCRIPTION', 'Demo shop');
@@ -81,7 +81,7 @@ describe('ShopPageContentForm.vue', () => {
     expect(JSON.parse(mockFetch.mock.calls[0][1].body)).toEqual({ text: '' });
   });
 
-  it.each(['G-123 456', 'G-1;alert(1)'])('does not save the identifier %s', async (identifier) => {
+  it.each(['G-123 456', 'G-1;alert(1)'])('should not save the identifier %s', async (identifier) => {
     // Arrange
     const wrapper = mountForm('GOOGLE_ANALYTICS_ID', '');
     await wrapper.find('textarea').setValue(identifier);
@@ -94,7 +94,7 @@ describe('ShopPageContentForm.vue', () => {
     expect(wrapper.text()).toContain('Letters, digits and hyphens only');
   });
 
-  it('tells when the shop refuses the content', async () => {
+  it('should tell when the shop refuses the content', async () => {
     // Arrange
     mockFetch.mockResolvedValueOnce({ ok: false, status: 400 });
     const wrapper = mountForm('META_KEY_WORDS', 'shop');

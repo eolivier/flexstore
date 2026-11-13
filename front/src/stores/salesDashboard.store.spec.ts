@@ -13,7 +13,7 @@ describe('salesDashboard.store', () => {
     mockFetch.mockReset();
   });
 
-  it('reads the sales of the last 30 days by default', async () => {
+  it('should read the sales of the last 30 days by default', async () => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve(dashboard) });
     const store = useSalesDashboardStore();
@@ -24,7 +24,7 @@ describe('salesDashboard.store', () => {
     expect(store.dashboard).toEqual(dashboard);
   });
 
-  it('reads the sales again over the period chosen', async () => {
+  it('should read the sales again over the period chosen', async () => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve(dashboard) });
     const store = useSalesDashboardStore();
@@ -35,7 +35,7 @@ describe('salesDashboard.store', () => {
     expect(store.days).toBe(7);
   });
 
-  it('tells when the sales could not be loaded', async () => {
+  it('should tell when the sales could not be loaded', async () => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: false, status: 500 });
     const store = useSalesDashboardStore();

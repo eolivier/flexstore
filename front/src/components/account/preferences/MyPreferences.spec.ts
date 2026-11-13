@@ -25,7 +25,7 @@ describe('MyPreferences.vue', () => {
   it.each([
     { defaultTheme: 'flexstoreDark', checked: true },
     { defaultTheme: 'flexstoreLight', checked: false },
-  ])('in the theme $defaultTheme, the dark mode switch is checked: $checked', ({ defaultTheme, checked }) => {
+  ])('in the theme $defaultTheme, the dark mode switch should be checked: $checked', ({ defaultTheme, checked }) => {
     // Act
     const { wrapper } = mountPreferences(defaultTheme);
     // Assert
@@ -33,7 +33,7 @@ describe('MyPreferences.vue', () => {
     expect(input.element.checked).toBe(checked);
   });
 
-  it('switching the dark mode on changes the theme to the dark one', async () => {
+  it('switching the dark mode on should change the theme to the dark one', async () => {
     // Arrange
     const { wrapper, vuetify } = mountPreferences('flexstoreLight');
     // Act
@@ -42,7 +42,7 @@ describe('MyPreferences.vue', () => {
     expect(vuetify.theme.global.name.value).toBe('flexstoreDark');
   });
 
-  it('choosing a language switches the shop to it', async () => {
+  it('choosing a language should switch the shop to it', async () => {
     // Arrange
     i18n.global.locale.value = 'en';
     const { wrapper } = mountPreferences('flexstoreLight');
@@ -54,14 +54,14 @@ describe('MyPreferences.vue', () => {
     i18n.global.locale.value = 'en';
   });
 
-  it('shows the cookie settings', () => {
+  it('should show the cookie settings', () => {
     // Act
     const { wrapper } = mountPreferences('flexstoreLight');
     // Assert
     expect(wrapper.findComponent({ name: 'CookieSettings' }).exists()).toBe(true);
   });
 
-  it('offers to show the guided tour', () => {
+  it('should offer to show the guided tour', () => {
     // Act
     const { wrapper } = mountPreferences('flexstoreLight');
     // Assert

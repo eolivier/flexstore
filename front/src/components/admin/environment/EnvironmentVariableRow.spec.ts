@@ -13,7 +13,7 @@ function mountRow(variable: JsonEnvironmentVariable) {
 }
 
 describe('EnvironmentVariableRow.vue', () => {
-  it('shows the value of a defined plain variable', () => {
+  it('should show the value of a defined plain variable', () => {
     // Arrange
     const frontUrl: JsonEnvironmentVariable = {
       name: 'FLEXSTORE_FRONT_URL',
@@ -29,7 +29,7 @@ describe('EnvironmentVariableRow.vue', () => {
     expect(wrapper.text()).toContain('https://shop.example.com');
   });
 
-  it('says that a secret is defined without showing anything of it', () => {
+  it('should say that a secret is defined without showing anything of it', () => {
     // Arrange
     const jwtSecret: JsonEnvironmentVariable = {
       name: 'FLEXSTORE_JWT_SECRET',
@@ -44,7 +44,7 @@ describe('EnvironmentVariableRow.vue', () => {
     expect(wrapper.text()).toContain('Hidden');
   });
 
-  it('says that a variable is not defined', () => {
+  it('should say that a variable is not defined', () => {
     // Arrange
     const stripeKey: JsonEnvironmentVariable = {
       name: 'FLEXSTORE_STRIPE_SECRET_KEY',

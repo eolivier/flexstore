@@ -62,7 +62,7 @@ describe('colorMode.store, signed in', () => {
     { stored: 'LIGHT', expected: 'light' },
     { stored: 'DARK', expected: 'dark' },
     { stored: 'NONE', expected: 'none' },
-  ])('the account holding $stored gives the mode $expected', async ({ stored, expected }) => {
+  ])('the account holding $stored should give the mode $expected', async ({ stored, expected }) => {
     // Arrange
     answer(200, { colorMode: stored });
     // Act

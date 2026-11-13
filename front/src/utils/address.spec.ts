@@ -55,7 +55,7 @@ describe('formatAddress', () => {
       },
       expected: 'Acme, 3 place du Marché, 69001 Lyon, France',
     },
-  ])('$address reads "$expected"', ({ address, expected }) => {
+  ])('$address should read "$expected"', ({ address, expected }) => {
     // Act
     const line = formatAddress(address);
     // Assert

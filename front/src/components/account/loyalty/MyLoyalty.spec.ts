@@ -27,7 +27,7 @@ describe('MyLoyalty.vue', () => {
     signIn();
   });
 
-  it('shows the balance of points of the customer', async () => {
+  it('should show the balance of points of the customer', async () => {
     // Arrange
     mockFetch.mockResolvedValue({
       ok: true,
@@ -40,7 +40,7 @@ describe('MyLoyalty.vue', () => {
     expect(wrapper.get('[data-testid="loyalty-balance"]').text()).toBe('89 points');
   });
 
-  it('tells when the customer has no purchase yet', async () => {
+  it('should tell when the customer has no purchase yet', async () => {
     // Arrange
     mockFetch.mockResolvedValue({
       ok: true,
@@ -53,7 +53,7 @@ describe('MyLoyalty.vue', () => {
     expect(wrapper.find('[data-testid="loyalty-empty"]').exists()).toBe(true);
   });
 
-  it('shows a line with the points of each purchase', async () => {
+  it('should show a line with the points of each purchase', async () => {
     // Arrange
     const purchases = [
       { orderNumber: 'AAAA1111', placedAt: '2026-10-24T10:00:00Z', points: 24 },
@@ -75,7 +75,7 @@ describe('MyLoyalty.vue', () => {
     expect(wrapper.get('[data-testid="loyalty-balance"]').text()).toBe('25 points');
   });
 
-  it('reports an error when the points could not be loaded', async () => {
+  it('should report an error when the points could not be loaded', async () => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: false, status: 500 });
     // Act

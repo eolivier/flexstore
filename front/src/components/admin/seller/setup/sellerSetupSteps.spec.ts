@@ -26,7 +26,7 @@ const flexstore: Seller = {
 
 describe('isStepComplete', () => {
   it.each(['identity', 'registration', 'contact', 'socialNetworks', 'summary'] as SellerSetupStep[])(
-    'the %s step is complete for a well written seller',
+    'the %s step should be complete for a well written seller',
     (step) => {
       // Act
       const complete = isStepComplete(step, flexstore);
@@ -47,7 +47,7 @@ describe('isStepComplete', () => {
     { step: 'contact', field: 'email', value: 'contact' },
     { step: 'contact', field: 'website', value: 'flexstore' },
   ] as { step: SellerSetupStep; field: keyof Seller; value: string }[])(
-    'the $step step is incomplete with a $field of "$value"',
+    'the $step step should be incomplete with a $field of "$value"',
     ({ step, field, value }) => {
       // Arrange
       const seller = { ...flexstore, [field]: value };
@@ -58,7 +58,7 @@ describe('isStepComplete', () => {
     }
   );
 
-  it('the social networks step is complete when none is given', () => {
+  it('the social networks step should be complete when none is given', () => {
     // Arrange
     const seller = { ...flexstore, socialNetworks: noSocialNetworkUrls() };
     // Act
@@ -68,7 +68,7 @@ describe('isStepComplete', () => {
   });
 
   it.each(['facebook', 'https://', 'face book.com'])(
-    'the social networks step is incomplete with the address "%s"',
+    'the social networks step should be incomplete with the address "%s"',
     (address) => {
       // Arrange
       const seller = { ...flexstore, socialNetworks: { ...flexstore.socialNetworks, tiktok: address } };
@@ -79,7 +79,7 @@ describe('isStepComplete', () => {
     }
   );
 
-  it('the summary is incomplete when a field of any step is wrong', () => {
+  it('the summary should be incomplete when a field of any step is wrong', () => {
     // Arrange
     const seller = { ...flexstore, phone: '' };
     // Act

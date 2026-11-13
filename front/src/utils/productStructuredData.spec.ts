@@ -20,8 +20,11 @@ const page = (overrides: Partial<ProductPage> = {}): ProductPage => ({
 });
 
 describe('productStructuredData', () => {
-  it('describes the product with the price to pay, its availability and its rating', () => {
-    expect(productStructuredData(page())).toEqual({
+  it('should describe the product with the price to pay, its availability and its rating', () => {
+    // Act
+    const data = productStructuredData(page());
+    // Assert
+    expect(data).toEqual({
       '@context': 'https://schema.org',
       '@type': 'Product',
       name: 'Slim Jeans',
@@ -40,15 +43,17 @@ describe('productStructuredData', () => {
     });
   });
 
-  it('says out of stock for a product that has no unit left', () => {
+  it('should say out of stock for a product that has no unit left', () => {
+    // Act
     const data = productStructuredData(page({ inStock: false })) as { offers: { availability: string } };
-
+    // Assert
     expect(data.offers.availability).toBe('https://schema.org/OutOfStock');
   });
 
-  it('leaves out what is unknown: the image, the availability and the rating', () => {
+  it('should leave out what is unknown: the image, the availability and the rating', () => {
+    // Act
     const data = productStructuredData(page({ imageUrl: null, inStock: null, rating: null }));
-
+    // Assert
     expect(data).not.toHaveProperty('image');
     expect(data).not.toHaveProperty('aggregateRating');
     expect(data).not.toHaveProperty('offers.availability');

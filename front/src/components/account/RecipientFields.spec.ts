@@ -21,7 +21,7 @@ function mountFields(recipient: Recipient, purpose: 'delivery' | 'billing') {
 }
 
 describe('RecipientFields.vue', () => {
-  it('a person is entered by their first name and last name', () => {
+  it('a person should be entered by their first name and last name', () => {
     // Act
     const wrapper = mountFields({ ...janeDoe }, 'delivery');
     // Assert
@@ -29,7 +29,7 @@ describe('RecipientFields.vue', () => {
     expect(wrapper.text()).not.toContain('Company name');
   });
 
-  it('ticking "I am a company" makes the recipient a company', async () => {
+  it('ticking "I am a company" should make the recipient a company', async () => {
     // Arrange
     const recipient = { ...janeDoe };
     const wrapper = mountFields(recipient, 'delivery');
@@ -45,7 +45,7 @@ describe('RecipientFields.vue', () => {
     { purpose: 'delivery' as const, namesAsked: true },
     { purpose: 'billing' as const, namesAsked: false },
   ])(
-    'the names of the contact of a company are asked for a $purpose: $namesAsked',
+    'the names of the contact of a company should be asked for a $purpose: $namesAsked',
     ({ purpose, namesAsked }) => {
       // Act
       const wrapper = mountFields({ ...acme }, purpose);

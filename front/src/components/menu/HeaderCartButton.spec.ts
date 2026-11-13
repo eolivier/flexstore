@@ -29,14 +29,14 @@ describe('HeaderCartButton.vue', () => {
     vi.useRealTimers();
   });
 
-  it('shows the number of products in the cart', () => {
+  it('should show the number of products in the cart', () => {
     // Act
     const wrapper = mountCartButton(3);
     // Assert
     expect(wrapper.find('.v-badge__badge').text()).toBe('3');
   });
 
-  it('magnifies when a product is added', async () => {
+  it('should magnify when a product is added', async () => {
     // Arrange
     const wrapper = mountCartButton(1);
     // Act
@@ -46,7 +46,7 @@ describe('HeaderCartButton.vue', () => {
     expect(wrapper.find('.cart-badge').classes()).toContain('magnified');
   });
 
-  it('does not magnify when a product is removed', async () => {
+  it('should not magnify when a product is removed', async () => {
     // Arrange
     const wrapper = mountCartButton(2);
     // Act
@@ -56,7 +56,7 @@ describe('HeaderCartButton.vue', () => {
     expect(wrapper.find('.cart-badge').classes()).not.toContain('magnified');
   });
 
-  it('stops magnifying at the end of the animation', async () => {
+  it('should stop magnifying at the end of the animation', async () => {
     // Arrange
     const wrapper = mountCartButton(1);
     await wrapper.setProps({ count: 2 });

@@ -19,7 +19,7 @@ function routerSpeaking(language: ShopLanguage) {
 }
 
 describe('localizeRouter', () => {
-  it('gives the link to a translated page the address of the language of the page', () => {
+  it('should give the link to a translated page the address of the language of the page', () => {
     // Arrange
     const router = routerSpeaking('en');
     // Act
@@ -28,7 +28,7 @@ describe('localizeRouter', () => {
     expect(link.fullPath).toBe('/en/about?from=menu');
   });
 
-  it('keeps the address of a page that is not translated', () => {
+  it('should keep the address of a page that is not translated', () => {
     // Arrange
     const router = routerSpeaking('en');
     // Act
@@ -37,7 +37,7 @@ describe('localizeRouter', () => {
     expect(link.path).toBe('/cart');
   });
 
-  it('keeps an address that already says its language', () => {
+  it('should keep an address that already says its language', () => {
     // Arrange
     const router = routerSpeaking('fr');
     // Act
@@ -46,7 +46,7 @@ describe('localizeRouter', () => {
     expect(link.path).toBe('/en/about');
   });
 
-  it('navigates to the address of the language of the page', async () => {
+  it('should navigate to the address of the language of the page', async () => {
     // Arrange
     const router = routerSpeaking('en');
     // Act

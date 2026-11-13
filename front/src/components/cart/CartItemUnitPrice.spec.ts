@@ -19,7 +19,7 @@ function mountUnitPrice(item: Item) {
 }
 
 describe('CartItemUnitPrice.vue', () => {
-  it('an item without promotion shows its unit price, not struck through', () => {
+  it('an item without promotion should show its unit price, not struck through', () => {
     // Act
     const wrapper = mountUnitPrice({ ...lamp, promotionPercentage: null });
     // Assert
@@ -27,7 +27,7 @@ describe('CartItemUnitPrice.vue', () => {
     expect(wrapper.find('s').exists()).toBe(false);
   });
 
-  it('an item on promotion shows its price to pay, its regular price struck through and the percentage off', () => {
+  it('an item on promotion should show its price to pay, its regular price struck through and the percentage off', () => {
     // Act
     const wrapper = mountUnitPrice({ ...lamp, productPrice: 30, promotionPercentage: 25 });
     // Assert

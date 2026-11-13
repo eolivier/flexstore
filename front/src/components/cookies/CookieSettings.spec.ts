@@ -14,7 +14,7 @@ describe('CookieSettings.vue', () => {
     setActivePinia(createPinia());
   });
 
-  it('keeps the essential cookies on, whatever the customer chose', () => {
+  it('should keep the essential cookies on, whatever the customer chose', () => {
     // Act
     const wrapper = mountSettings();
     // Assert
@@ -26,7 +26,7 @@ describe('CookieSettings.vue', () => {
     { choice: 'accepted', checked: true },
     { choice: 'refused', checked: false },
     { choice: 'undecided', checked: false },
-  ] as const)('with the choice "$choice", the preferences are on: $checked', ({ choice, checked }) => {
+  ] as const)('with the choice "$choice", the preferences should be on: $checked', ({ choice, checked }) => {
     // Arrange
     rememberCookieChoice(choice);
     // Act
@@ -35,7 +35,7 @@ describe('CookieSettings.vue', () => {
     expect((preferencesSwitch(wrapper).element as HTMLInputElement).checked).toBe(checked);
   });
 
-  it('turning the preferences on remembers the acceptance', async () => {
+  it('turning the preferences on should remember the acceptance', async () => {
     // Arrange
     rememberCookieChoice('refused');
     const wrapper = mountSettings();
@@ -45,7 +45,7 @@ describe('CookieSettings.vue', () => {
     expect(storedCookieChoice()).toBe('accepted');
   });
 
-  it('turning the preferences off remembers the refusal', async () => {
+  it('turning the preferences off should remember the refusal', async () => {
     // Arrange
     rememberCookieChoice('accepted');
     const wrapper = mountSettings();

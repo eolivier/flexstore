@@ -14,7 +14,7 @@ describe('CookieBanner.vue', () => {
     setActivePinia(createPinia());
   });
 
-  it('asks the customer who has not chosen yet', () => {
+  it('should ask the customer who has not chosen yet', () => {
     // Act
     const wrapper = mountBanner();
     // Assert
@@ -23,7 +23,7 @@ describe('CookieBanner.vue', () => {
     expect(buttonLabelled(wrapper, 'Refuse')).toBeDefined();
   });
 
-  it.each(['accepted', 'refused'] as const)('does not ask again a customer who %s', (choice) => {
+  it.each(['accepted', 'refused'] as const)('should not ask again a customer who %s', (choice) => {
     // Arrange
     rememberCookieChoice(choice);
     // Act
@@ -35,7 +35,7 @@ describe('CookieBanner.vue', () => {
   it.each([
     { label: 'Accept', choice: 'accepted' },
     { label: 'Refuse', choice: 'refused' },
-  ])('the button "$label" remembers the choice "$choice" and closes the banner', async ({ label, choice }) => {
+  ])('the button "$label" should remember the choice "$choice" and close the banner', async ({ label, choice }) => {
     // Arrange
     const wrapper = mountBanner();
     // Act

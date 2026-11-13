@@ -4,10 +4,13 @@ import { aboutFeatureGroups } from '@/components/about/aboutFeatures';
 
 describe('the features presented on the About page', () => {
   for (const language of ['en', 'fr'] as const) {
-    it(`have a title and a text for every group and feature in ${language}`, () => {
+    it(`should have a title and a text for every group and feature in ${language}`, () => {
+      // Arrange
       const features = messages[language].about.features as Record<string, Record<string, unknown>>;
-
-      for (const group of aboutFeatureGroups) {
+      // Act
+      const groups = aboutFeatureGroups;
+      // Assert
+      for (const group of groups) {
         expect(features[group.key].title).toBeTruthy();
         expect(features[group.key].subtitle).toBeTruthy();
         for (const feature of group.features) {

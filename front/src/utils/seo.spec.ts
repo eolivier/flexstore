@@ -5,47 +5,66 @@ describe('seo', () => {
   afterEach(() => vi.unstubAllEnvs());
 
   describe('siteUrl', () => {
-    it('is the configured address without its final slash', () => {
+    it('should be the configured address without its final slash', () => {
+      // Arrange
       vi.stubEnv('VITE_SITE_URL', 'https://shop.example/');
-
-      expect(siteUrl()).toBe('https://shop.example');
+      // Act
+      const url = siteUrl();
+      // Assert
+      expect(url).toBe('https://shop.example');
     });
 
-    it('is the address of the current page when none is configured', () => {
+    it('should be the address of the current page when none is configured', () => {
+      // Arrange
       vi.stubEnv('VITE_SITE_URL', '');
-
-      expect(siteUrl()).toBe(window.location.origin);
+      // Act
+      const url = siteUrl();
+      // Assert
+      expect(url).toBe(window.location.origin);
     });
   });
 
   describe('canonicalUrl', () => {
-    it('drops the query, the fragment and the final slash of the page', () => {
+    it('should drop the query, the fragment and the final slash of the page', () => {
+      // Arrange
       vi.stubEnv('VITE_SITE_URL', 'https://shop.example');
-
-      expect(canonicalUrl('/products/?q=jeans#top')).toBe('https://shop.example/products');
+      // Act
+      const url = canonicalUrl('/products/?q=jeans#top');
+      // Assert
+      expect(url).toBe('https://shop.example/products');
     });
 
-    it('keeps a slash for the home page', () => {
+    it('should keep a slash for the home page', () => {
+      // Arrange
       vi.stubEnv('VITE_SITE_URL', 'https://shop.example');
-
-      expect(canonicalUrl('/')).toBe('https://shop.example/');
+      // Act
+      const url = canonicalUrl('/');
+      // Assert
+      expect(url).toBe('https://shop.example/');
     });
   });
 
-  it('puts the name of the shop after the title of a page', () => {
-    expect(pageTitle('Clothing')).toBe('Clothing | Flexstore');
+  it('should put the name of the shop after the title of a page', () => {
+    // Act
+    const title = pageTitle('Clothing');
+    // Assert
+    expect(title).toBe('Clothing | Flexstore');
   });
 
   describe('shortDescription', () => {
-    it('keeps a short text on one line', () => {
-      expect(shortDescription('  Soft\n  cotton  ')).toBe('Soft cotton');
+    it('should keep a short text on one line', () => {
+      // Act
+      const description = shortDescription('  Soft\n  cotton  ');
+      // Assert
+      expect(description).toBe('Soft cotton');
     });
 
-    it('cuts a long text at a word', () => {
+    it('should cut a long text at a word', () => {
+      // Arrange
       const long = 'word '.repeat(60);
-
+      // Act
       const description = shortDescription(long);
-
+      // Assert
       expect(description.length).toBeLessThanOrEqual(160);
       expect(description.endsWith('word…')).toBe(true);
     });

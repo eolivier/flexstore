@@ -35,7 +35,7 @@ describe('cookieConsent', () => {
     { choice: 'accepted', allowed: true },
     { choice: 'refused', allowed: false },
     { choice: 'undecided', allowed: false },
-  ] as const)('with the choice "$choice", the preferences are accepted: $allowed', ({ choice, allowed }) => {
+  ] as const)('with the choice "$choice", the preferences should be accepted: $allowed', ({ choice, allowed }) => {
     // Arrange
     rememberCookieChoice(choice);
     // Act

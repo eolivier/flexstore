@@ -59,7 +59,7 @@ describe('CreateProduct.vue', () => {
     mockFetch.mockReset();
   });
 
-  it('the cancel button goes back to the list of products', () => {
+  it('the cancel button should go back to the list of products', () => {
     // Act
     const wrapper = mount(CreateProduct, { global: { plugins: [vuetify, i18n, router] } });
     // Assert
@@ -67,7 +67,7 @@ describe('CreateProduct.vue', () => {
     expect(cancel.attributes('href')).toBe('/admin/products');
   });
 
-  it('creates the product, then gives it its image and its stock', async () => {
+  it('should create the product, then give it its image and its stock', async () => {
     // Arrange
     respond();
     const wrapper = mount(CreateProduct, { global: { plugins: [vuetify, i18n, router] } });
@@ -83,7 +83,7 @@ describe('CreateProduct.vue', () => {
     expect(useSnackbar().message.value?.text).toBe('The product Desk lamp has been created.');
   });
 
-  it('creates the product at the standard rate of VAT, unless another one is chosen', async () => {
+  it('should create the product at the standard rate of VAT, unless another one is chosen', async () => {
     // Arrange
     respond();
     const wrapper = mount(CreateProduct, { global: { plugins: [vuetify, i18n, router] } });
@@ -98,7 +98,7 @@ describe('CreateProduct.vue', () => {
     expect(JSON.parse(productInit.body).vatRate).toBe('STANDARD');
   });
 
-  it('says that the product is created, but that its image could not be saved', async () => {
+  it('should say that the product is created, but that its image could not be saved', async () => {
     // Arrange
     respond(false);
     const wrapper = mount(CreateProduct, { global: { plugins: [vuetify, i18n, router] } });

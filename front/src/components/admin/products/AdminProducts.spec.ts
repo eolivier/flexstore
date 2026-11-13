@@ -59,7 +59,7 @@ describe('AdminProducts.vue', () => {
     vi.mocked(getAllProducts).mockResolvedValue(products);
   });
 
-  it('lists the products of the catalog with their price', async () => {
+  it('should list the products of the catalog with their price', async () => {
     // Act
     const wrapper = await mountAdminProducts();
     // Assert
@@ -71,14 +71,14 @@ describe('AdminProducts.vue', () => {
   it.each([
     { name: 'Organic T-shirt', expectedLink: '/admin/products/p-1/edit' },
     { name: 'Smartwatch', expectedLink: '/admin/products/p-2/edit' },
-  ])('links $name to its edition', async ({ name, expectedLink }) => {
+  ])('should link $name to its edition', async ({ name, expectedLink }) => {
     // Act
     const wrapper = await mountAdminProducts();
     // Assert
     expect(wrapper.find(`a[aria-label="Edit ${name}"]`).attributes('href')).toBe(expectedLink);
   });
 
-  it('shows the stock of each product', async () => {
+  it('should show the stock of each product', async () => {
     // Act
     const wrapper = await mountAdminProducts();
     // Assert
@@ -87,7 +87,7 @@ describe('AdminProducts.vue', () => {
     expect(rows.find((row) => row.includes('Smartwatch'))).toMatch(/42$/);
   });
 
-  it('filters the products by name or description', async () => {
+  it('should filter the products by name or description', async () => {
     // Arrange
     const wrapper = await mountAdminProducts();
     // Act
@@ -99,7 +99,7 @@ describe('AdminProducts.vue', () => {
     expect(wrapper.text()).toContain('1 product');
   });
 
-  it('tells when no product matches the filters', async () => {
+  it('should tell when no product matches the filters', async () => {
     // Arrange
     const wrapper = await mountAdminProducts();
     // Act

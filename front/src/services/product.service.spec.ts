@@ -31,7 +31,7 @@ describe('getProduct', () => {
     vi.mocked(productsApi.getProduct).mockReset();
   });
 
-  it('returns the product', async () => {
+  it('should return the product', async () => {
     // Arrange
     vi.mocked(productsApi.getProduct).mockResolvedValue({ data: jeans } as never);
     // Act
@@ -40,7 +40,7 @@ describe('getProduct', () => {
     expect(product).toEqual(jeans);
   });
 
-  it('asks the product in the language given only', async () => {
+  it('should ask the product in the language given only', async () => {
     // Arrange
     vi.mocked(productsApi.getProduct).mockResolvedValue({ data: jeans } as never);
     // Act
@@ -49,7 +49,7 @@ describe('getProduct', () => {
     expect(productsApi.getProduct).toHaveBeenCalledWith('3', 'fr');
   });
 
-  it('returns null when the product does not exist', async () => {
+  it('should return null when the product does not exist', async () => {
     // Arrange
     vi.mocked(productsApi.getProduct).mockRejectedValue(httpError(404));
     // Act
@@ -58,7 +58,7 @@ describe('getProduct', () => {
     expect(product).toBeNull();
   });
 
-  it('rethrows other errors', async () => {
+  it('should rethrow other errors', async () => {
     // Arrange
     vi.mocked(productsApi.getProduct).mockRejectedValue(httpError(500));
     // Act

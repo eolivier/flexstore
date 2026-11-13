@@ -46,7 +46,7 @@ describe('users.store', () => {
     { status: 200, expected: 'saved' },
     { status: 409, expected: 'emailUsed' },
     { status: 403, expected: 'error' },
-  ])('an edit answered $status is $expected', async ({ status, expected }) => {
+  ])('an edit answered $status should be $expected', async ({ status, expected }) => {
     // Arrange
     respondWith({
       'PUT /api/users/u-1': { status, body: jane },

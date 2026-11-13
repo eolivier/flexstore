@@ -31,7 +31,7 @@ describe('pagination', () => {
     { total: 20, pages: 1 },
     { total: 21, pages: 2 },
     { total: 100, pages: 5 },
-  ])('a list of $total items has $pages pages', ({ total, pages }) => {
+  ])('a list of $total items should have $pages pages', ({ total, pages }) => {
     // Act
     const pageCount = pageCountOf(total);
     // Assert

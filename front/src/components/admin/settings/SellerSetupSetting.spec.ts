@@ -29,28 +29,28 @@ describe('SellerSetupSetting.vue', () => {
   it.each([
     { sellerSetup: 'ENABLED' as const, checked: true },
     { sellerSetup: 'DISABLED' as const, checked: false },
-  ])('the switch is $checked when the seller setup is $sellerSetup', ({ sellerSetup, checked }) => {
+  ])('the switch should be $checked when the seller setup is $sellerSetup', ({ sellerSetup, checked }) => {
     // Act
     const wrapper = mountSetting(sellerSetup);
     // Assert
     expect(switchOf(wrapper).checked).toBe(checked);
   });
 
-  it.each(['ENABLED' as const, 'DISABLED' as const])('the switch cannot be changed when it is %s', (sellerSetup) => {
+  it.each(['ENABLED' as const, 'DISABLED' as const])('the switch should not be changed when it is %s', (sellerSetup) => {
     // Act
     const wrapper = mountSetting(sellerSetup);
     // Assert
     expect(switchOf(wrapper).disabled).toBe(true);
   });
 
-  it('offers the assistant while the seller setup is off', () => {
+  it('should offer the assistant while the seller setup is off', () => {
     // Act
     const wrapper = mountSetting('DISABLED');
     // Assert
     expect(wrapper.find('.setup-link').exists()).toBe(true);
   });
 
-  it('does not offer the assistant once the seller setup is on', () => {
+  it('should not offer the assistant once the seller setup is on', () => {
     // Act
     const wrapper = mountSetting('ENABLED');
     // Assert

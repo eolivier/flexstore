@@ -8,14 +8,14 @@ describe('slugOf', () => {
     ['Écharpe à carreaux', 'echarpe-a-carreaux'],
     ['  --Slim   Jeans--  ', 'slim-jeans'],
     ['', ''],
-  ])('%s becomes %s', (name, slug) => {
+  ])('%s should become %s', (name, slug) => {
     // Act
     const result = slugOf(name);
     // Assert
     expect(result).toBe(slug);
   });
 
-  it('cuts a long name at a word', () => {
+  it('should cut a long name at a word', () => {
     // Arrange
     const name = 'extraordinarily '.repeat(10);
     // Act
@@ -27,14 +27,14 @@ describe('slugOf', () => {
 });
 
 describe('productPath', () => {
-  it('puts the id, then the slug of the name', () => {
+  it('should put the id, then the slug of the name', () => {
     // Act
     const path = productPath({ id: 'jeans-1', name: 'Slim Jeans' });
     // Assert
     expect(path).toBe('/products/jeans-1/slim-jeans');
   });
 
-  it('is the id alone for a product without a name', () => {
+  it('should be the id alone for a product without a name', () => {
     // Act
     const path = productPath({ id: 'jeans-1' });
     // Assert

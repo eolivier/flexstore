@@ -23,7 +23,7 @@ describe('adminOrders.store', () => {
     mockFetch.mockReset();
   });
 
-  it('loads the orders of all the customers', async () => {
+  it('should load the orders of all the customers', async () => {
     // Arrange
     respondWith(200, [twoLinesOrder]);
     const store = useAdminOrdersStore();
@@ -33,7 +33,7 @@ describe('adminOrders.store', () => {
     expect(store.orders).toEqual([twoLinesOrder]);
   });
 
-  it('moves an order from the status shown to the next one', async () => {
+  it('should move an order from the status shown to the next one', async () => {
     // Arrange
     respondWith(200, [twoLinesOrder]);
     const store = useAdminOrdersStore();
@@ -52,7 +52,7 @@ describe('adminOrders.store', () => {
   it.each([
     { status: 409, expected: 'statusChanged' },
     { status: 500, expected: 'error' },
-  ])('a move answered $status is $expected', async ({ status, expected }) => {
+  ])('a move answered $status should be $expected', async ({ status, expected }) => {
     // Arrange
     respondWith(status);
     const store = useAdminOrdersStore();
@@ -62,7 +62,7 @@ describe('adminOrders.store', () => {
     expect(statusAdvance).toBe(expected);
   });
 
-  it('loads the page asked of the orders and the number of all the orders', async () => {
+  it('should load the page asked of the orders and the number of all the orders', async () => {
     // Arrange
     respondWith(200, [twoLinesOrder], { 'X-Total-Count': '41' });
     const store = useAdminOrdersStore();
@@ -74,7 +74,7 @@ describe('adminOrders.store', () => {
     expect(store.total).toBe(41);
   });
 
-  it('reloads the page shown when the status of an order changed in the meantime', async () => {
+  it('should reload the page shown when the status of an order changed in the meantime', async () => {
     // Arrange
     respondWith(200, [twoLinesOrder], { 'X-Total-Count': '41' });
     const store = useAdminOrdersStore();

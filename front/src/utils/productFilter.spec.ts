@@ -26,7 +26,7 @@ describe('matchesFilter', () => {
     { filter: { ...noFilter, stockState: 'outOfStock' as const }, stock: 0, matches: true },
     { filter: { ...noFilter, stockState: 'inStock' as const }, stock: 6, matches: true },
     { filter: { ...noFilter, stockState: 'inStock' as const }, stock: null, matches: false },
-  ])('$filter with a stock of $stock matches: $matches', ({ filter, stock, matches }) => {
+  ])('$filter with a stock of $stock should match: $matches', ({ filter, stock, matches }) => {
     // Act
     const matched = matchesFilter(jacket, stock, filter);
     // Assert

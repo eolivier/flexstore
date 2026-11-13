@@ -4,7 +4,7 @@ import { robotsTxtWithSitemap, sitemapXml } from './sitemap';
 const about = { paths: { fr: '/about', en: '/en/about' } };
 
 describe('sitemapXml', () => {
-  it('lists the page in each language, each one with the addresses of both (hreflang)', () => {
+  it('should list the page in each language, each one with the addresses of both (hreflang)', () => {
     // Act
     const sitemap = sitemapXml('https://shop.example', [about]);
     // Assert
@@ -31,7 +31,7 @@ describe('sitemapXml', () => {
     );
   });
 
-  it('gives the canonical address of a page, without the final slash', () => {
+  it('should give the canonical address of a page, without the final slash', () => {
     // Act
     const sitemap = sitemapXml('https://shop.example', [{ paths: { fr: '/', en: '/en' } }]);
     // Assert
@@ -39,14 +39,14 @@ describe('sitemapXml', () => {
     expect(sitemap).toContain('<loc>https://shop.example/en</loc>');
   });
 
-  it('lists a page once', () => {
+  it('should list a page once', () => {
     // Act
     const sitemap = sitemapXml('https://shop.example', [about, about]);
     // Assert
     expect(sitemap.match(/<loc>/g)).toHaveLength(2);
   });
 
-  it('escapes the characters that XML reserves', () => {
+  it('should escape the characters that XML reserves', () => {
     // Act
     const sitemap = sitemapXml('https://shop.example', [
       { paths: { fr: '/products/1/sel&poivre', en: '/en/products/1/salt&pepper' } },
@@ -58,7 +58,7 @@ describe('sitemapXml', () => {
 });
 
 describe('robotsTxtWithSitemap', () => {
-  it('ends robots.txt with the address of the sitemap', () => {
+  it('should end robots.txt with the address of the sitemap', () => {
     // Act
     const robotsTxt = robotsTxtWithSitemap('User-agent: *\nDisallow: /admin\n', 'https://shop.example');
     // Assert

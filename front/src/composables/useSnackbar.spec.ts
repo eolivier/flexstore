@@ -6,7 +6,7 @@ describe('useSnackbar', () => {
     useSnackbar().close();
   });
 
-  it('shows a success in the primary color for 3 seconds', () => {
+  it('should show a success in the primary color for 3 seconds', () => {
     // Arrange
     const snackbar = useSnackbar();
     // Act
@@ -16,7 +16,7 @@ describe('useSnackbar', () => {
     expect(snackbar.message.value).toMatchObject({ text: 'Saved', color: 'primary', timeout: 3000 });
   });
 
-  it('shows an error in the error color for 3 seconds', () => {
+  it('should show an error in the error color for 3 seconds', () => {
     // Arrange
     const snackbar = useSnackbar();
     // Act
@@ -25,7 +25,7 @@ describe('useSnackbar', () => {
     expect(snackbar.message.value).toMatchObject({ text: 'Not saved', color: 'error', timeout: 3000 });
   });
 
-  it('keeps a persistent message open until it is closed', () => {
+  it('should keep a persistent message open until it is closed', () => {
     // Arrange
     const snackbar = useSnackbar();
     // Act
@@ -34,7 +34,7 @@ describe('useSnackbar', () => {
     expect(snackbar.message.value).toMatchObject({ color: 'warning', timeout: -1 });
   });
 
-  it('carries the action and the icon of the message', () => {
+  it('should carry the action and the icon of the message', () => {
     // Arrange
     const snackbar = useSnackbar();
     const action = { text: 'View', to: '/cart' };
@@ -44,7 +44,7 @@ describe('useSnackbar', () => {
     expect(snackbar.message.value).toMatchObject({ action, icon: 'mdi-cart-check' });
   });
 
-  it('replaces the previous message with a new one', () => {
+  it('should replace the previous message with a new one', () => {
     // Arrange
     const snackbar = useSnackbar();
     snackbar.success('First');
@@ -56,7 +56,7 @@ describe('useSnackbar', () => {
     expect(snackbar.message.value?.id).not.toBe(firstId);
   });
 
-  it('closes the message', () => {
+  it('should close the message', () => {
     // Arrange
     const snackbar = useSnackbar();
     snackbar.success('Saved');

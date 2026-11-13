@@ -54,7 +54,7 @@ describe('AddressBook.vue', () => {
     document.body.innerHTML = '';
   });
 
-  it('shows the addresses of the user', async () => {
+  it('should show the addresses of the user', async () => {
     // Arrange
     respondWith([home, office]);
     // Act
@@ -64,7 +64,7 @@ describe('AddressBook.vue', () => {
     expect(wrapper.text()).toContain('Jane Doe, 3 place du Marché, 69001 Lyon, France');
   });
 
-  it('tells a user without address where they come from', async () => {
+  it('should tell a user without address where they come from', async () => {
     // Arrange
     respondWith([]);
     // Act
@@ -73,7 +73,7 @@ describe('AddressBook.vue', () => {
     expect(wrapper.text()).toContain('No address yet');
   });
 
-  it('offers to add an address next to the title, and from the empty state', async () => {
+  it('should offer to add an address next to the title, and from the empty state', async () => {
     // Arrange
     respondWith([]);
     // Act
@@ -82,7 +82,7 @@ describe('AddressBook.vue', () => {
     expect(buttonNamed('Add an address')).toHaveLength(2);
   });
 
-  it('offers to add an address next to the title when there are already some', async () => {
+  it('should offer to add an address next to the title when there are already some', async () => {
     // Arrange
     respondWith([home, office]);
     // Act
@@ -91,7 +91,7 @@ describe('AddressBook.vue', () => {
     expect(buttonNamed('Add an address')).toHaveLength(1);
   });
 
-  it('adds a new address, at the end of the addresses', async () => {
+  it('should add a new address, at the end of the addresses', async () => {
     // Arrange
     respondWith([home, office], [home, office, workshop], 201);
     const wrapper = await mountAddressBook();
@@ -107,7 +107,7 @@ describe('AddressBook.vue', () => {
     expect(wrapper.text()).toContain('Marseille');
   });
 
-  it('asks for confirmation before removing an address', async () => {
+  it('should ask for confirmation before removing an address', async () => {
     // Arrange
     respondWith([home, office]);
     await mountAddressBook();
@@ -119,7 +119,7 @@ describe('AddressBook.vue', () => {
     expect(mockFetch.mock.calls.some(([, init]) => init?.method === 'DELETE')).toBe(false);
   });
 
-  it('removes an address once confirmed', async () => {
+  it('should remove an address once confirmed', async () => {
     // Arrange
     respondWith([home, office], [office]);
     const wrapper = await mountAddressBook();
@@ -135,7 +135,7 @@ describe('AddressBook.vue', () => {
     expect(wrapper.text()).not.toContain('12 rue des Lilas');
   });
 
-  it('saves an edited address at its place', async () => {
+  it('should save an edited address at its place', async () => {
     // Arrange
     const moved = { ...office, street: '8 avenue Foch' };
     respondWith([home, office], [home, moved]);

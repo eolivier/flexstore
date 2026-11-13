@@ -23,7 +23,7 @@ describe('FooterSocialNetworks.vue', () => {
     mockGetSocialNetworks.mockReset();
   });
 
-  it('shows nothing when the shop has no social network', async () => {
+  it('should show nothing when the shop has no social network', async () => {
     // Arrange
     mockGetSocialNetworks.mockResolvedValueOnce({ data: noSocialNetworkUrls() });
     // Act
@@ -32,7 +32,7 @@ describe('FooterSocialNetworks.vue', () => {
     expect(networksShown(wrapper)).toEqual([]);
   });
 
-  it('shows only the social networks the shop gave, in the usual order', async () => {
+  it('should show only the social networks the shop gave, in the usual order', async () => {
     // Arrange
     const socialNetworkUrls = {
       ...noSocialNetworkUrls(),
@@ -47,7 +47,7 @@ describe('FooterSocialNetworks.vue', () => {
     expect(networksShown(wrapper)).toEqual(['facebook', 'twitch']);
   });
 
-  it('opens an address given without scheme on the web, in a new tab', async () => {
+  it('should open an address given without scheme on the web, in a new tab', async () => {
     // Arrange
     mockGetSocialNetworks.mockResolvedValueOnce({ data: { ...noSocialNetworkUrls(), x: 'x.com/flexstore' } });
     // Act
@@ -60,7 +60,7 @@ describe('FooterSocialNetworks.vue', () => {
     expect(link.attributes('aria-label')).toBe('X');
   });
 
-  it('shows nothing when the shop cannot be reached', async () => {
+  it('should show nothing when the shop cannot be reached', async () => {
     // Arrange
     mockGetSocialNetworks.mockRejectedValueOnce(new Error('network'));
     // Act

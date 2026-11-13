@@ -10,7 +10,7 @@ describe('sku', () => {
   });
 
   it.each(['A', 'CLO-1', 'tshirt-organic-m', ' MUG-12 ', 'A23456789-123456789-123456789-12'])(
-    '"%s" is well formed',
+    '"%s" should be well formed',
     (typedSku) => {
       // Act
       const wellFormed = isWellFormedSku(typedSku);
@@ -20,7 +20,7 @@ describe('sku', () => {
   );
 
   it.each(['', 'T SHIRT', 'T--SHIRT', '-SHIRT', 'SHIRT-', 'CAFÉ', 'A23456789-123456789-123456789-123'])(
-    '"%s" is malformed',
+    '"%s" should be malformed',
     (typedSku) => {
       // Act
       const wellFormed = isWellFormedSku(typedSku);

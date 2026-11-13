@@ -11,7 +11,7 @@ const router = createRouter({
 });
 
 describe('OrderSummaryCard.vue', () => {
-  it('summarises the order and links to its detail', () => {
+  it('should summarise the order and link to its detail', () => {
     // Act
     const wrapper = mount(OrderSummaryCard, {
       props: { order: twoLinesOrder },

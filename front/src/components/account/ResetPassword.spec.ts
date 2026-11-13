@@ -32,7 +32,7 @@ describe('ResetPassword.vue', () => {
     mockFetch.mockReset();
   });
 
-  it('a link without token is invalid, without asking the server', async () => {
+  it('a link without token should be invalid, without asking the server', async () => {
     // Act
     const wrapper = await openLink({});
     // Assert
@@ -40,7 +40,7 @@ describe('ResetPassword.vue', () => {
     expect(mockFetch).not.toHaveBeenCalled();
   });
 
-  it('the new password is sent with the token of the link', async () => {
+  it('the new password should be sent with the token of the link', async () => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: true, status: 204 });
     const wrapper = await openLink({ token: 'the-token' });
@@ -57,7 +57,7 @@ describe('ResetPassword.vue', () => {
   it.each([
     { status: 410, expected: 'Link expired' },
     { status: 404, expected: 'Invalid link' },
-  ])('a link answered $status shows "$expected" and offers a new link', async ({ status, expected }) => {
+  ])('a link answered $status should show "$expected" and offer a new link', async ({ status, expected }) => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: false, status });
     const wrapper = await openLink({ token: 'the-token' });

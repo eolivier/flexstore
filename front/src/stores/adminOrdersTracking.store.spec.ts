@@ -20,7 +20,7 @@ describe('adminOrders.store, tracking', () => {
     mockFetch.mockReset();
   });
 
-  it('ships an order with its carrier and its tracking number, without the spaces around the number', async () => {
+  it('should ship an order with its carrier and its tracking number, without the spaces around the number', async () => {
     // Arrange
     respondWith(200, shippedOrder);
     const store = useAdminOrdersStore();
@@ -35,7 +35,7 @@ describe('adminOrders.store, tracking', () => {
     });
   });
 
-  it('ships an order without tracking by sending only its status', async () => {
+  it('should ship an order without tracking by sending only its status', async () => {
     // Arrange
     respondWith(200, shippedOrder);
     const store = useAdminOrdersStore();
@@ -46,7 +46,7 @@ describe('adminOrders.store, tracking', () => {
     expect(JSON.parse(init.body)).toEqual({ currentStatus: 'PROCESSING' });
   });
 
-  it('corrects the tracking of an order', async () => {
+  it('should correct the tracking of an order', async () => {
     // Arrange
     respondWith(200, shippedOrder);
     const store = useAdminOrdersStore();
@@ -64,7 +64,7 @@ describe('adminOrders.store, tracking', () => {
     { status: 409, expected: 'notCorrectable' },
     { status: 400, expected: 'invalid' },
     { status: 500, expected: 'error' },
-  ])('tells a correction answered $status: $expected', async ({ status, expected }) => {
+  ])('should tell a correction answered $status: $expected', async ({ status, expected }) => {
     // Arrange
     respondWith(status);
     const store = useAdminOrdersStore();

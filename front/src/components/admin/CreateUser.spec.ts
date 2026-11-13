@@ -53,7 +53,7 @@ describe('CreateUser.vue', () => {
     { chosenRole: 'USER' as const, expectedRole: 'USER' },
     { chosenRole: 'ADMIN' as const, expectedRole: 'ADMIN' },
   ])(
-    'creates the user with the role $expectedRole (role chosen: $chosenRole)',
+    'should create the user with the role $expectedRole (role chosen: $chosenRole)',
     async ({ chosenRole, expectedRole }) => {
       // Act
       await fillAndSubmit(chosenRole);
@@ -68,7 +68,7 @@ describe('CreateUser.vue', () => {
     }
   );
 
-  it('the cancel button goes back to the list of users', () => {
+  it('the cancel button should go back to the list of users', () => {
     // Act
     const wrapper = mount(CreateUser, { global: { plugins: [vuetify, i18n, router] } });
     // Assert

@@ -25,7 +25,7 @@ describe('PaymentCountdown.vue', () => {
     vi.useRealTimers();
   });
 
-  it('shows the time left to pay', () => {
+  it('should show the time left to pay', () => {
     // Act
     const wrapper = mountCountdown();
     // Assert
@@ -33,7 +33,7 @@ describe('PaymentCountdown.vue', () => {
     expect(wrapper.text()).toContain('After that, the order is cancelled');
   });
 
-  it('counts the time left down every second', async () => {
+  it('should count the time left down every second', async () => {
     // Arrange
     const wrapper = mountCountdown();
     // Act
@@ -42,7 +42,7 @@ describe('PaymentCountdown.vue', () => {
     expect(wrapper.find('.countdown').text()).toBe('08:55');
   });
 
-  it('tells the page once the time to pay is over', async () => {
+  it('should tell the page once the time to pay is over', async () => {
     // Arrange
     const wrapper = mountCountdown();
     // Act

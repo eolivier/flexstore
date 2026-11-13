@@ -27,7 +27,7 @@ describe('order utils', () => {
     vi.unstubAllEnvs();
   });
 
-  it('the order number is the beginning of the id, in capitals', () => {
+  it('the order number should be the beginning of the id, in capitals', () => {
     // Act
     const number = orderNumber(order);
     // Assert
@@ -37,7 +37,7 @@ describe('order utils', () => {
   it.each([
     { locale: 'fr', expected: '24 octobre 2026' },
     { locale: 'en', expected: 'October 24, 2026' },
-  ])('the order date in $locale is "$expected"', ({ locale, expected }) => {
+  ])('the order date in $locale should be "$expected"', ({ locale, expected }) => {
     // Act
     const date = placedOn(order, locale);
     // Assert
@@ -50,7 +50,7 @@ describe('order utils', () => {
     { now: '2026-10-24T08:09:30Z', expected: '2:00:30' },
     { now: '2026-10-24T10:10:00Z', expected: null },
     { now: '2026-10-24T10:11:00Z', expected: null },
-  ])('at $now, the time left to pay is $expected', ({ now, expected }) => {
+  ])('at $now, the time left to pay should be $expected', ({ now, expected }) => {
     // Arrange
     const awaitingOrder: JsonOrder = {
       ...order,
@@ -63,7 +63,7 @@ describe('order utils', () => {
     expect(timeLeft).toBe(expected);
   });
 
-  it('an order without payment deadline has no time left to show', () => {
+  it('an order without payment deadline should have no time left to show', () => {
     // Act
     const timeLeft = timeLeftToPay(order, new Date('2026-10-24T10:00:00Z'));
     // Assert
@@ -74,7 +74,7 @@ describe('order utils', () => {
     { currentStatus: 'PROCESSING', expected: ['current', 'upcoming', 'upcoming'] },
     { currentStatus: 'SHIPPED', expected: ['done', 'current', 'upcoming'] },
     { currentStatus: 'DELIVERED', expected: ['done', 'done', 'current'] },
-  ] as const)('an order $currentStatus has the steps $expected', ({ currentStatus, expected }) => {
+  ] as const)('an order $currentStatus should have the steps $expected', ({ currentStatus, expected }) => {
     // Act
     const states = (['PROCESSING', 'SHIPPED', 'DELIVERED'] as const).map((step) =>
       orderStepState(step, currentStatus)
@@ -83,7 +83,7 @@ describe('order utils', () => {
     expect(states).toEqual(expected);
   });
 
-  it('the item count adds up the quantities of the lines', () => {
+  it('the item count should add up the quantities of the lines', () => {
     // Act
     const itemsCount = orderItemsCount(twoLinesOrder);
     // Assert
@@ -94,7 +94,7 @@ describe('order utils', () => {
     { status: 'PROCESSING' as const, next: 'SHIPPED', hasNext: true },
     { status: 'SHIPPED' as const, next: 'DELIVERED', hasNext: true },
     { status: 'DELIVERED' as const, next: 'DELIVERED', hasNext: false },
-  ])('an order $status is followed by $next (has a next status: $hasNext)', ({ status, next, hasNext }) => {
+  ])('an order $status should be followed by $next (has a next status: $hasNext)', ({ status, next, hasNext }) => {
     // Act
     const following = [nextStatus(status), hasNextStatus(status)];
     // Assert

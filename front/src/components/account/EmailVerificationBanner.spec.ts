@@ -32,14 +32,14 @@ describe('EmailVerificationBanner.vue', () => {
   it.each([
     { status: 'PENDING_VERIFICATION', shown: true },
     { status: 'ACTIVE', shown: false },
-  ])('the banner is shown=$shown for an account $status', async ({ status, shown }) => {
+  ])('the banner should be shown=$shown for an account $status', async ({ status, shown }) => {
     // Act
     const wrapper = await signedInWithStatus(status);
     // Assert
     expect(wrapper.text().includes('Verify your email address')).toBe(shown);
   });
 
-  it('a pending customer can ask for a new link', async () => {
+  it('a pending customer should be able to ask for a new link', async () => {
     // Arrange
     const wrapper = await signedInWithStatus('PENDING_VERIFICATION');
     mockFetch.mockResolvedValueOnce({ ok: true, status: 204 });

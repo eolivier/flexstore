@@ -11,7 +11,7 @@ describe('OrderStatusSteps.vue', () => {
     { status: 'SHIPPED' as const, currentLabel: 'Shipped', doneCount: 3 },
     { status: 'DELIVERED' as const, currentLabel: 'Delivered', doneCount: 4 },
   ])(
-    'highlights $currentLabel as the current step of an order $status',
+    'should highlight $currentLabel as the current step of an order $status',
     ({ status, currentLabel, doneCount }) => {
       // Act
       const wrapper = mount(OrderStatusSteps, {
@@ -30,7 +30,7 @@ describe('OrderStatusSteps.vue', () => {
   it.each([
     { status: 'PROCESSING' as const, visibleLabel: 'Processing' },
     { status: 'SHIPPED' as const, visibleLabel: 'Shipped' },
-  ])('in the compact layout, only the current step $visibleLabel is labelled', ({ status, visibleLabel }) => {
+  ])('in the compact layout, only the current step $visibleLabel should be labelled', ({ status, visibleLabel }) => {
     // Act
     const wrapper = mount(OrderStatusSteps, {
       props: { status, layout: 'compact' },
@@ -46,7 +46,7 @@ describe('OrderStatusSteps.vue', () => {
     expect(wrapper.find('[aria-current="step"]').classes()).toContain('step--current');
   });
 
-  it('shows a cancelled order as cancelled, without its steps', () => {
+  it('should show a cancelled order as cancelled, without its steps', () => {
     // Act
     const wrapper = mount(OrderStatusSteps, {
       props: { status: 'CANCELLED' as const },

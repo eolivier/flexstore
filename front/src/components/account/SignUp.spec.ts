@@ -83,7 +83,7 @@ describe('SignUp.vue', () => {
     );
   });
 
-  it('sends only the names, the email and the password of an express registration', async () => {
+  it('should send only the names, the email and the password of an express registration', async () => {
     // Arrange
     const { wrapper } = await mountSignUp();
     // Act
@@ -97,14 +97,14 @@ describe('SignUp.vue', () => {
     });
   });
 
-  it('does not ask for the phone number and the address at first', async () => {
+  it('should not ask for the phone number and the address at first', async () => {
     // Act
     const { wrapper } = await mountSignUp();
     // Assert
     expect(wrapper.find('[data-test="sign-up-details"]').exists()).toBe(false);
   });
 
-  it('asks for the phone number and the address once the customer wants to give them', async () => {
+  it('should ask for the phone number and the address once the customer wants to give them', async () => {
     // Arrange
     const { wrapper } = await mountSignUp();
     // Act
@@ -113,7 +113,7 @@ describe('SignUp.vue', () => {
     expect(wrapper.find('input[type="tel"]').exists()).toBe(true);
   });
 
-  it('signs the customer of an express registration in', async () => {
+  it('should sign the customer of an express registration in', async () => {
     // Arrange
     const { wrapper, router } = await mountSignUp();
     // Act
@@ -122,7 +122,7 @@ describe('SignUp.vue', () => {
     expect(router.currentRoute.value.path).toBe('/user-profile');
   });
 
-  it('sends the names, the email, the password, the phone number and the postal address', async () => {
+  it('should send the names, the email, the password, the phone number and the postal address', async () => {
     // Arrange
     const { wrapper } = await mountSignUp();
     // Act
@@ -153,7 +153,7 @@ describe('SignUp.vue', () => {
     { redirect: '/cart', expectedPath: '/cart' },
     { redirect: undefined, expectedPath: '/user-profile' },
   ])(
-    'once signed in, the customer goes to $expectedPath (redirect: $redirect)',
+    'once signed in, the customer should go to $expectedPath (redirect: $redirect)',
     async ({ redirect, expectedPath }) => {
       // Arrange
       const { wrapper, router } = await mountSignUp(redirect);
@@ -164,7 +164,7 @@ describe('SignUp.vue', () => {
     }
   );
 
-  it('reports an email already used', async () => {
+  it('should report an email already used', async () => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: false, status: 409 });
     const { wrapper } = await mountSignUp();
@@ -174,7 +174,7 @@ describe('SignUp.vue', () => {
     expect(wrapper.text()).toContain('An account already exists with this email.');
   });
 
-  it('shows the fields of the company once the customer says they are a company', async () => {
+  it('should show the fields of the company once the customer says they are a company', async () => {
     // Arrange
     const { wrapper } = await mountSignUp();
     await wrapper.get('[data-test="give-details"] input').setValue(true);
@@ -186,7 +186,7 @@ describe('SignUp.vue', () => {
     expect(wrapper.find('[data-test="siren"]').exists()).toBe(true);
   });
 
-  it('sends the company, its address sent to it for the attention of the customer', async () => {
+  it('should send the company, its address sent to it for the attention of the customer', async () => {
     // Arrange
     const { wrapper } = await mountSignUp();
     await wrapper.get('[data-test="give-details"] input').setValue(true);
@@ -203,7 +203,7 @@ describe('SignUp.vue', () => {
     expect(registration.postalAddress.companyName).toBe('Acme');
   });
 
-  it('reports a company refused', async () => {
+  it('should report a company refused', async () => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: false, status: 400 });
     const { wrapper } = await mountSignUp();
@@ -213,7 +213,7 @@ describe('SignUp.vue', () => {
     expect(wrapper.text()).toContain('The company was refused: check its SIREN and its VAT number.');
   });
 
-  it('links to the login, keeping where to go back', async () => {
+  it('should link to the login, keeping where to go back', async () => {
     // Act
     const { wrapper } = await mountSignUp('/cart');
     // Assert

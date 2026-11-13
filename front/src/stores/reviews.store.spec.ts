@@ -20,7 +20,7 @@ describe('reviews.store', () => {
     getReviews.mockResolvedValue({ data: [] });
   });
 
-  it('knows the rating of a reviewed product only', async () => {
+  it('should know the rating of a reviewed product only', async () => {
     // Arrange
     const store = useReviewsStore();
     // Act
@@ -30,7 +30,7 @@ describe('reviews.store', () => {
     expect(store.ratingOf('p-2')).toBeNull();
   });
 
-  it('reads the reviews and the ratings again once a review is added', async () => {
+  it('should read the reviews and the ratings again once a review is added', async () => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: true, status: 201 });
     const store = useReviewsStore();
@@ -47,7 +47,7 @@ describe('reviews.store', () => {
     { status: 403, expected: 'notBought' },
     { status: 409, expected: 'alreadyReviewed' },
     { status: 500, expected: 'error' },
-  ])('a $status answer reads $expected', async ({ status, expected }) => {
+  ])('a $status answer should read $expected', async ({ status, expected }) => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: false, status });
     const store = useReviewsStore();
@@ -57,7 +57,7 @@ describe('reviews.store', () => {
     expect(outcome).toBe(expected);
   });
 
-  it('deletes a review for an administrator, and reads the ratings again', async () => {
+  it('should delete a review for an administrator, and read the ratings again', async () => {
     // Arrange
     getReviews.mockResolvedValue({ data: [{ id: 'r-1' }, { id: 'r-2' }] });
     mockFetch.mockResolvedValue({ ok: true, status: 204 });
@@ -71,7 +71,7 @@ describe('reviews.store', () => {
     expect(getRatings).toHaveBeenCalled();
   });
 
-  it('keeps the review that could not be deleted', async () => {
+  it('should keep the review that could not be deleted', async () => {
     // Arrange
     getReviews.mockResolvedValue({ data: [{ id: 'r-1' }] });
     mockFetch.mockResolvedValue({ ok: false, status: 403 });
@@ -85,7 +85,7 @@ describe('reviews.store', () => {
   });
 
   it.each(['CAN_REVIEW', 'NOT_BOUGHT', 'ALREADY_REVIEWED'])(
-    'knows whether the customer may review the product: %s',
+    'should know whether the customer may review the product: %s',
     async (eligibility) => {
       // Arrange
       mockFetch.mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve({ eligibility }) });
@@ -97,7 +97,7 @@ describe('reviews.store', () => {
     }
   );
 
-  it('offers no form when the eligibility could not be read', async () => {
+  it('should offer no form when the eligibility could not be read', async () => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: false, status: 401 });
     const store = useReviewsStore();
@@ -107,7 +107,7 @@ describe('reviews.store', () => {
     expect(store.eligibility).toBeNull();
   });
 
-  it('knows the product reviewed once the review is added', async () => {
+  it('should know the product reviewed once the review is added', async () => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: true, status: 201 });
     const store = useReviewsStore();

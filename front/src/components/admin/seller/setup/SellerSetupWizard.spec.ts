@@ -60,7 +60,7 @@ describe('SellerSetupWizard.vue', () => {
     mockPush.mockReset();
   });
 
-  it('opens on the company step, filled with the current seller', async () => {
+  it('should open on the company step, filled with the current seller', async () => {
     // Act
     const wrapper = await mountWizard();
     // Assert
@@ -68,7 +68,7 @@ describe('SellerSetupWizard.vue', () => {
     expect(values).toEqual([flexstore.name, flexstore.address, flexstore.legalForm, flexstore.shareCapital]);
   });
 
-  it('cannot go to the next step while a field of the step is wrong', async () => {
+  it('should not go to the next step while a field of the step is wrong', async () => {
     // Arrange
     const wrapper = await mountWizard();
     // Act
@@ -77,7 +77,7 @@ describe('SellerSetupWizard.vue', () => {
     expect(buttonLabelled(wrapper, 'Next')?.attributes('disabled')).toBeDefined();
   });
 
-  it('asks the social networks on the step after the contact, filled with the current ones', async () => {
+  it('should ask the social networks on the step after the contact, filled with the current ones', async () => {
     // Arrange
     const wrapper = await mountWizard();
     // Act
@@ -89,7 +89,7 @@ describe('SellerSetupWizard.vue', () => {
     expect(values).toEqual(Object.values(flexstore.socialNetworks));
   });
 
-  it('cannot go past the social networks while an address is not a web address', async () => {
+  it('should not go past the social networks while an address is not a web address', async () => {
     // Arrange
     const wrapper = await mountWizard();
     await buttonLabelled(wrapper, 'Next')?.trigger('click');
@@ -101,7 +101,7 @@ describe('SellerSetupWizard.vue', () => {
     expect(buttonLabelled(wrapper, 'Next')?.attributes('disabled')).toBeDefined();
   });
 
-  it('finishing the setup saves the seller through the setup assistant, then opens the administration', async () => {
+  it('finishing the setup should save the seller through the setup assistant, then open the administration', async () => {
     // Arrange
     const wrapper = await mountWizard();
     await buttonLabelled(wrapper, 'Next')?.trigger('click');
@@ -118,7 +118,7 @@ describe('SellerSetupWizard.vue', () => {
     expect(mockPush).toHaveBeenCalledWith('/admin');
   });
 
-  it('stays on the assistant when the shop refuses the seller', async () => {
+  it('should stay on the assistant when the shop refuses the seller', async () => {
     // Arrange
     const wrapper = await mountWizard();
     await buttonLabelled(wrapper, 'Next')?.trigger('click');

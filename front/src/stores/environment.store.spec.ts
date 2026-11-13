@@ -16,7 +16,7 @@ describe('environment.store', () => {
     mockFetch.mockReset();
   });
 
-  it('reads the environment variables', async () => {
+  it('should read the environment variables', async () => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve(variables) });
     const store = useEnvironmentStore();
@@ -28,7 +28,7 @@ describe('environment.store', () => {
     expect(store.loaded).toBe(true);
   });
 
-  it('tells when the environment could not be loaded', async () => {
+  it('should tell when the environment could not be loaded', async () => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: false, status: 500 });
     const store = useEnvironmentStore();

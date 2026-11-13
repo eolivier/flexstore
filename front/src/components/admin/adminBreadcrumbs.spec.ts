@@ -2,35 +2,35 @@ import { describe, expect, it } from 'vitest';
 import { adminBreadcrumbsOf } from './adminBreadcrumbs';
 
 describe('adminBreadcrumbs', () => {
-  it('the home of the administration is the only step on its page', () => {
+  it('the home of the administration should be the only step on its page', () => {
     // Act
     const breadcrumbs = adminBreadcrumbsOf('/admin');
     // Assert
     expect(breadcrumbs).toEqual([{ label: 'nav.admin' }]);
   });
 
-  it('a list goes back to the home of the administration', () => {
+  it('a list should go back to the home of the administration', () => {
     // Act
     const breadcrumbs = adminBreadcrumbsOf('/admin/orders');
     // Assert
     expect(breadcrumbs).toEqual([{ label: 'nav.admin', to: '/admin' }, { label: 'nav.adminOrders' }]);
   });
 
-  it('the seller goes back to the home of the administration', () => {
+  it('the seller should go back to the home of the administration', () => {
     // Act
     const breadcrumbs = adminBreadcrumbsOf('/admin/seller');
     // Assert
     expect(breadcrumbs).toEqual([{ label: 'nav.admin', to: '/admin' }, { label: 'nav.seller' }]);
   });
 
-  it('the legal pages go back to the home of the administration', () => {
+  it('the legal pages should go back to the home of the administration', () => {
     // Act
     const breadcrumbs = adminBreadcrumbsOf('/admin/legal-pages');
     // Assert
     expect(breadcrumbs).toEqual([{ label: 'nav.admin', to: '/admin' }, { label: 'nav.legalPages' }]);
   });
 
-  it('the detail of an order goes through the list of the orders', () => {
+  it('the detail of an order should go through the list of the orders', () => {
     // Act
     const breadcrumbs = adminBreadcrumbsOf('/admin/orders/46555c9f');
     // Assert
@@ -44,7 +44,7 @@ describe('adminBreadcrumbs', () => {
   it.each([
     { path: '/admin/products/p-1/edit', label: 'editProduct.title' },
     { path: '/admin/create-product', label: 'nav.createProduct' },
-  ])('the page $path goes through the list of the products', ({ path, label }) => {
+  ])('the page $path should go through the list of the products', ({ path, label }) => {
     // Act
     const breadcrumbs = adminBreadcrumbsOf(path);
     // Assert
@@ -58,7 +58,7 @@ describe('adminBreadcrumbs', () => {
   it.each([
     { path: '/admin/users/u-1/edit', label: 'editUser.title' },
     { path: '/admin/create-user', label: 'nav.createUser' },
-  ])('the page $path goes through the list of the users', ({ path, label }) => {
+  ])('the page $path should go through the list of the users', ({ path, label }) => {
     // Act
     const breadcrumbs = adminBreadcrumbsOf(path);
     // Assert
@@ -69,14 +69,14 @@ describe('adminBreadcrumbs', () => {
     ]);
   });
 
-  it('a page outside the administration has no trail', () => {
+  it('a page outside the administration should have no trail', () => {
     // Act
     const breadcrumbs = adminBreadcrumbsOf('/products/');
     // Assert
     expect(breadcrumbs).toEqual([]);
   });
 
-  it('the sales go back to the home of the administration', () => {
+  it('the sales should go back to the home of the administration', () => {
     // Act
     const breadcrumbs = adminBreadcrumbsOf('/admin/sales');
     // Assert

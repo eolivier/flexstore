@@ -24,7 +24,7 @@ describe('EditTrackingButton.vue', () => {
     document.body.innerHTML = '';
   });
 
-  it('starts from the tracking of the order', async () => {
+  it('should start from the tracking of the order', async () => {
     // Act
     await openDialogOf(current);
     // Assert
@@ -33,7 +33,7 @@ describe('EditTrackingButton.vue', () => {
     expect(saveButton().disabled).toBe(false);
   });
 
-  it('saves the tracking as it was left', async () => {
+  it('should save the tracking as it was left', async () => {
     // Arrange
     const wrapper = await openDialogOf(current);
     // Act
@@ -43,7 +43,7 @@ describe('EditTrackingButton.vue', () => {
     expect(wrapper.emitted('correct')).toEqual([[{ carrier: 'COLISSIMO', trackingNumber: '6A111' }]]);
   });
 
-  it('cannot save before a carrier and a number are given, for an order shipped without tracking', async () => {
+  it('should not save before a carrier and a number are given, for an order shipped without tracking', async () => {
     // Act
     await openDialogOf(null);
     // Assert

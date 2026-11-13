@@ -42,7 +42,7 @@ describe('PayOrderButton.vue', () => {
     vi.mocked(openExternalPage).mockReset();
   });
 
-  it('opens the checkout page of the payment provider', async () => {
+  it('should open the checkout page of the payment provider', async () => {
     // Arrange
     respondWith(201);
     // Act
@@ -51,7 +51,7 @@ describe('PayOrderButton.vue', () => {
     expect(openExternalPage).toHaveBeenCalledWith('https://checkout.stripe.com/c/pay/cs_1');
   });
 
-  it('tells the customer when the payment could not start', async () => {
+  it('should tell the customer when the payment could not start', async () => {
     // Arrange
     respondWith(500);
     // Act

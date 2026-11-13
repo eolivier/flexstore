@@ -8,7 +8,7 @@ describe('company', () => {
     { siren: '12345678', expected: false },
     { siren: '12345678A', expected: false },
     { siren: '', expected: false },
-  ])('the SIREN "$siren" is valid: $expected', ({ siren, expected }) => {
+  ])('the SIREN "$siren" should be valid: $expected', ({ siren, expected }) => {
     // Act
     const valid = isValidSiren(siren);
     // Assert
@@ -22,7 +22,7 @@ describe('company', () => {
     { vatNumber: 'DE123456789', expected: true },
     { vatNumber: 'FR32987654321', expected: false },
     { vatNumber: '123456789', expected: false },
-  ])('the VAT number "$vatNumber" of the SIREN 123456789 is valid: $expected', ({ vatNumber, expected }) => {
+  ])('the VAT number "$vatNumber" of the SIREN 123456789 should be valid: $expected', ({ vatNumber, expected }) => {
     // Act
     const valid = isValidVatNumber(vatNumber, '123456789');
     // Assert

@@ -28,7 +28,7 @@ describe('settings.store', () => {
   it.each([
     { intent: 'disableOrderConfirmationEmail' as const, path: 'disable', activation: 'DISABLED' },
     { intent: 'enableOrderConfirmationEmail' as const, path: 'enable', activation: 'ENABLED' },
-  ])('$intent posts to /$path and keeps the saved settings', async ({ intent, path, activation }) => {
+  ])('$intent should post to /$path and keep the saved settings', async ({ intent, path, activation }) => {
     // Arrange
     answer(200, { orderConfirmationEmail: activation });
     const store = useSettingsStore();

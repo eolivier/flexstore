@@ -23,7 +23,7 @@ describe('ShipOrderDialog.vue', () => {
     document.body.innerHTML = '';
   });
 
-  it('asks for the carrier and the tracking number', async () => {
+  it('should ask for the carrier and the tracking number', async () => {
     // Act
     await mountOpenDialog();
     // Assert
@@ -32,14 +32,14 @@ describe('ShipOrderDialog.vue', () => {
     expect(document.querySelector('[data-test="tracking-number"]')).not.toBeNull();
   });
 
-  it('does not ship with an incomplete tracking', async () => {
+  it('should not ship with an incomplete tracking', async () => {
     // Act
     await mountOpenDialog();
     // Assert
     expect(buttonLabelled('Ship').disabled).toBe(true);
   });
 
-  it('ships with the tracking once it is complete', async () => {
+  it('should ship with the tracking once it is complete', async () => {
     // Arrange
     const wrapper = await mountOpenDialog();
     wrapper
@@ -53,7 +53,7 @@ describe('ShipOrderDialog.vue', () => {
     expect(wrapper.emitted('confirm')).toEqual([[{ carrier: 'UPS', trackingNumber: '1Z999' }]]);
   });
 
-  it('ships without tracking when the administrator has none', async () => {
+  it('should ship without tracking when the administrator has none', async () => {
     // Arrange
     const wrapper = await mountOpenDialog();
     // Act

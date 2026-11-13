@@ -19,7 +19,7 @@ describe('AdvanceOrderStatusButton.vue', () => {
     document.body.innerHTML = '';
   });
 
-  it('moves a paid order at once, without asking for a tracking', async () => {
+  it('should move a paid order at once, without asking for a tracking', async () => {
     // Arrange
     const wrapper = mountButton('PAID');
     // Act
@@ -28,7 +28,7 @@ describe('AdvanceOrderStatusButton.vue', () => {
     expect(wrapper.emitted('advance')).toEqual([[{ ...twoLinesOrder, status: 'PAID' }, NO_TRACKING]]);
   });
 
-  it('asks for the tracking before it ships a processed order', async () => {
+  it('should ask for the tracking before it ships a processed order', async () => {
     // Arrange
     const wrapper = mountButton('PROCESSING');
     // Act

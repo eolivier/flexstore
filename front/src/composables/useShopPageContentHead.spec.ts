@@ -53,36 +53,40 @@ describe('useShopPageContentHead', () => {
     document.head.querySelectorAll('script, meta[name="keywords"]').forEach((tag) => tag.remove());
   });
 
-  it('puts the key words of the shop in the head', async () => {
+  it('should put the key words of the shop in the head', async () => {
+    // Arrange
     getShopPageContents.mockResolvedValue(contentsOf('shop, demo', ''));
-
+    // Act
     await openPage('refused');
-
+    // Assert
     await vi.waitFor(() => expect(keyWords()).toBe('shop, demo'));
   });
 
-  it('loads Google Analytics for a visitor who accepted the cookies', async () => {
+  it('should load Google Analytics for a visitor who accepted the cookies', async () => {
+    // Arrange
     getShopPageContents.mockResolvedValue(contentsOf('', 'G-ABC123'));
-
+    // Act
     await openPage('accepted');
-
+    // Assert
     await vi.waitFor(() => expect(analyticsScript()?.getAttribute('src')).toContain('id=G-ABC123'));
   });
 
-  it('does not load Google Analytics for a visitor who refused the cookies', async () => {
+  it('should not load Google Analytics for a visitor who refused the cookies', async () => {
+    // Arrange
     getShopPageContents.mockResolvedValue(contentsOf('', 'G-ABC123'));
-
+    // Act
     await openPage('refused');
-
+    // Assert
     expect(useShopPageContentStore().textOf('GOOGLE_ANALYTICS_ID')).toBe('G-ABC123');
     expect(analyticsScript()).toBeNull();
   });
 
-  it('does not load Google Analytics for an identifier that is not written as such', async () => {
+  it('should not load Google Analytics for an identifier that is not written as such', async () => {
+    // Arrange
     getShopPageContents.mockResolvedValue(contentsOf('', "G-1');alert(1);('"));
-
+    // Act
     await openPage('accepted');
-
+    // Assert
     expect(analyticsScript()).toBeNull();
   });
 });

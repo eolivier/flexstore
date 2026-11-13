@@ -20,14 +20,14 @@ describe('RefundOrderButton.vue', () => {
     { status: 'AWAITING_PAYMENT' as const, shown: false },
     { status: 'SHIPPED' as const, shown: false },
     { status: 'REFUNDED' as const, shown: false },
-  ])('an order $status offers the refund: $shown', ({ status, shown }) => {
+  ])('an order $status should offer the refund: $shown', ({ status, shown }) => {
     // Act
     const wrapper = mountRefundOrderButton(status);
     // Assert
     expect(wrapper.text().includes('Cancel and refund')).toBe(shown);
   });
 
-  it('refunds the order once the administrator confirms it', async () => {
+  it('should refund the order once the administrator confirms it', async () => {
     // Arrange
     const wrapper = mountRefundOrderButton('PAID');
     await wrapper.find('button').trigger('click');

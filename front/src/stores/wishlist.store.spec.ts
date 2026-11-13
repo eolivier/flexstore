@@ -41,7 +41,7 @@ describe('wishlist.store', () => {
     sessionStorage.clear();
   });
 
-  it('loads the products saved by the customer', async () => {
+  it('should load the products saved by the customer', async () => {
     // Arrange
     respondToFetch([deskLamp, officeChair]);
     const store = useWishlistStore();
@@ -53,7 +53,7 @@ describe('wishlist.store', () => {
     expect(store.isSaved('unknown')).toBe(false);
   });
 
-  it('reports an error when the wishlist could not be loaded', async () => {
+  it('should report an error when the wishlist could not be loaded', async () => {
     // Arrange
     respondToFetch(null, false);
     const store = useWishlistStore();
@@ -63,7 +63,7 @@ describe('wishlist.store', () => {
     expect(store.loadError).toBe(true);
   });
 
-  it('saves a product not saved yet', async () => {
+  it('should save a product not saved yet', async () => {
     // Arrange
     respondToFetch([]);
     const store = useWishlistStore();
@@ -77,7 +77,7 @@ describe('wishlist.store', () => {
     expect(init.method).toBe('PUT');
   });
 
-  it('removes a saved product', async () => {
+  it('should remove a saved product', async () => {
     // Arrange
     respondToFetch([deskLamp]);
     const store = useWishlistStore();
@@ -92,7 +92,7 @@ describe('wishlist.store', () => {
     expect(init.method).toBe('DELETE');
   });
 
-  it('keeps the product saved when the removal fails', async () => {
+  it('should keep the product saved when the removal fails', async () => {
     // Arrange
     respondToFetch([deskLamp]);
     const store = useWishlistStore();
@@ -105,7 +105,7 @@ describe('wishlist.store', () => {
     expect(store.isSaved('p-1')).toBe(true);
   });
 
-  it('toggles a product in, then out of the wishlist', async () => {
+  it('should toggle a product in, then out of the wishlist', async () => {
     // Arrange
     respondToFetch([]);
     const store = useWishlistStore();
@@ -118,7 +118,7 @@ describe('wishlist.store', () => {
     expect(store.isSaved('p-1')).toBe(false);
   });
 
-  it('loads the wishlist of the customer at sign-in, and forgets it at sign-out', async () => {
+  it('should load the wishlist of the customer at sign-in, and forget it at sign-out', async () => {
     // Arrange
     mockFetch.mockImplementation((url: string) => {
       if (url.endsWith('/api/users/login')) {

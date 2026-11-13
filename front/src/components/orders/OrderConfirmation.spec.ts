@@ -47,7 +47,7 @@ describe('OrderConfirmation.vue', () => {
     mockFetch.mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve(order) });
   });
 
-  it('thanks the customer and shows the order number, item count and total', async () => {
+  it('should thank the customer and show the order number, item count and total', async () => {
     // Act
     const wrapper = await mountConfirmation();
     // Assert
@@ -57,7 +57,7 @@ describe('OrderConfirmation.vue', () => {
     expect(wrapper.text()).toContain('458.00 €');
   });
 
-  it('links the order number and the button to the order detail, told that the customer just paid', async () => {
+  it('should link the order number and the button to the order detail, told that the customer just paid', async () => {
     // Act
     const wrapper = await mountConfirmation();
     // Assert
@@ -65,7 +65,7 @@ describe('OrderConfirmation.vue', () => {
     expect(detailLinks.map((link) => link.text())).toEqual(['46555C9F', 'See the order details']);
   });
 
-  it('waits for the confirmation of a payment, then shows the order as paid', async () => {
+  it('should wait for the confirmation of a payment, then show the order as paid', async () => {
     // Arrange
     vi.useFakeTimers();
     const awaitingPayment = { ...order, status: 'AWAITING_PAYMENT' };
@@ -86,7 +86,7 @@ describe('OrderConfirmation.vue', () => {
     vi.useRealTimers();
   });
 
-  it('asks the shop to verify the payment with the provider when the order awaits it', async () => {
+  it('should ask the shop to verify the payment with the provider when the order awaits it', async () => {
     // Arrange
     mockFetch.mockImplementation((url: string) =>
       Promise.resolve(
@@ -102,7 +102,7 @@ describe('OrderConfirmation.vue', () => {
     expect(mockFetch.mock.calls.filter(([url]) => String(url).endsWith(verification))).toHaveLength(1);
   });
 
-  it('does not verify the payment of an order already paid', async () => {
+  it('should not verify the payment of an order already paid', async () => {
     // Act
     await mountConfirmation();
     // Assert

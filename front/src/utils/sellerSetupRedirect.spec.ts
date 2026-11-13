@@ -21,7 +21,7 @@ describe('sellerSetupIsPendingFor', () => {
     mockFetch.mockReset();
   });
 
-  it('is pending for a page of the administration while the seller setup is off', async () => {
+  it('should be pending for a page of the administration while the seller setup is off', async () => {
     // Arrange
     useSettingsStore().settings = settings;
     // Act
@@ -30,7 +30,7 @@ describe('sellerSetupIsPendingFor', () => {
     expect(pending).toBe(true);
   });
 
-  it('is not pending once the seller setup is on', async () => {
+  it('should not be pending once the seller setup is on', async () => {
     // Arrange
     useSettingsStore().settings = { ...settings, sellerSetup: 'ENABLED' };
     // Act
@@ -39,7 +39,7 @@ describe('sellerSetupIsPendingFor', () => {
     expect(pending).toBe(false);
   });
 
-  it('is not pending for the assistant itself', async () => {
+  it('should not be pending for the assistant itself', async () => {
     // Arrange
     useSettingsStore().settings = settings;
     // Act
@@ -48,7 +48,7 @@ describe('sellerSetupIsPendingFor', () => {
     expect(pending).toBe(false);
   });
 
-  it('reads the settings when they are not loaded yet', async () => {
+  it('should read the settings when they are not loaded yet', async () => {
     // Arrange
     mockFetch.mockResolvedValueOnce({ ok: true, status: 200, json: async () => settings });
     // Act
@@ -57,7 +57,7 @@ describe('sellerSetupIsPendingFor', () => {
     expect(pending).toBe(true);
   });
 
-  it('keeps the administration open when the settings cannot be read', async () => {
+  it('should keep the administration open when the settings cannot be read', async () => {
     // Arrange
     mockFetch.mockRejectedValueOnce(new Error('offline'));
     // Act

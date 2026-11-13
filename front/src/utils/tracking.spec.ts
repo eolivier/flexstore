@@ -11,7 +11,7 @@ import {
 
 describe('tracking', () => {
   it.each(['6A12345678901', '1Z999AA10123456784', 'AB-123-CD', '7', '  6A123  '])(
-    'the tracking number "%s" is valid',
+    'the tracking number "%s" should be valid',
     (typedNumber) => {
       // Act
       const valid = isValidTrackingNumber(typedNumber);
@@ -21,7 +21,7 @@ describe('tracking', () => {
   );
 
   it.each(['', '   ', 'AB 123', 'AB_123', 'AB#123', 'é1234'])(
-    'the tracking number "%s" is invalid',
+    'the tracking number "%s" should be invalid',
     (typedNumber) => {
       // Act
       const valid = isValidTrackingNumber(typedNumber);
@@ -33,7 +33,7 @@ describe('tracking', () => {
   it.each([
     { length: 40, valid: true },
     { length: 41, valid: false },
-  ])('a tracking number of $length characters is valid: $valid', ({ length, valid }) => {
+  ])('a tracking number of $length characters should be valid: $valid', ({ length, valid }) => {
     // Act
     const isValid = isValidTrackingNumber('A'.repeat(length));
     // Assert
@@ -46,21 +46,21 @@ describe('tracking', () => {
     { carrier: 'UPS', trackingNumber: '', complete: false },
     { carrier: 'PIGEON', trackingNumber: '1Z999', complete: false },
     { carrier: 'UPS', trackingNumber: '1Z 999', complete: false },
-  ])('the tracking $carrier / "$trackingNumber" is complete: $complete', (tracking) => {
+  ])('the tracking $carrier / "$trackingNumber" should be complete: $complete', (tracking) => {
     // Act
     const complete = isCompleteTracking(tracking);
     // Assert
     expect(complete).toBe(tracking.complete);
   });
 
-  it('no tracking is given by the empty carrier and number', () => {
+  it('no tracking should be given by the empty carrier and number', () => {
     // Act
     const given = hasTracking(NO_TRACKING);
     // Assert
     expect(given).toBe(false);
   });
 
-  it('a tracking is sent with its number trimmed', () => {
+  it('a tracking should be sent with its number trimmed', () => {
     // Act
     const sent = trackingToSend({ carrier: 'UPS', trackingNumber: ' 1Z999 ' });
     // Assert
@@ -71,7 +71,7 @@ describe('tracking', () => {
     { status: 'PROCESSING', shippedNext: true },
     { status: 'PAID', shippedNext: false },
     { status: 'SHIPPED', shippedNext: false },
-  ])('the status $status gives the tracking next: $shippedNext', ({ status, shippedNext }) => {
+  ])('the status $status should give the tracking next: $shippedNext', ({ status, shippedNext }) => {
     // Act
     const next = isShippedNext(status);
     // Assert
@@ -84,7 +84,7 @@ describe('tracking', () => {
     { status: 'PROCESSING', allowed: false },
     { status: 'REFUNDED', allowed: false },
     { status: 'CANCELLED', allowed: false },
-  ])('the tracking of an order $status may be corrected: $allowed', ({ status, allowed }) => {
+  ])('the tracking of an order $status should be correctable: $allowed', ({ status, allowed }) => {
     // Act
     const correctable = allowsTrackingCorrection(status);
     // Assert

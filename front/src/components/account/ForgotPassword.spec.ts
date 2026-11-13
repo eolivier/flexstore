@@ -25,14 +25,14 @@ describe('ForgotPassword.vue', () => {
     mockFetch.mockReset();
   });
 
-  it('the email typed on the login page is filled in', async () => {
+  it('the email typed on the login page should be filled in', async () => {
     // Act
     const wrapper = await openPage({ email: 'jane@example.com' });
     // Assert
     expect((wrapper.find('input[type=email]').element as HTMLInputElement).value).toBe('jane@example.com');
   });
 
-  it('a sent request says that a link was sent if the email has an account', async () => {
+  it('a sent request should say that a link was sent if the email has an account', async () => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: true, status: 204 });
     const wrapper = await openPage({ email: 'jane@example.com' });

@@ -2,14 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { accountLinksOf } from './navigation';
 
 describe('navigation', () => {
-  it('a visitor who is not signed in has no link to an account', () => {
+  it('a visitor who is not signed in should have no link to an account', () => {
     // Act
     const links = accountLinksOf(false);
     // Assert
     expect(links).toEqual([]);
   });
 
-  it('a signed-in customer has the links to their profile, orders, addresses, wishlist, loyalty and preferences', () => {
+  it('a signed-in customer should have the links to their profile, orders, addresses, wishlist, loyalty and preferences', () => {
     // Act
     const links = accountLinksOf(true);
     // Assert

@@ -19,7 +19,7 @@ async function choose(wrapper: ReturnType<typeof mountImageField>, file: File) {
 }
 
 describe('NewProductImageField.vue', () => {
-  it('keeps the image chosen, to give it to the product once created', async () => {
+  it('should keep the image chosen, to give it to the product once created', async () => {
     // Arrange
     const wrapper = mountImageField();
     const photo = new File(['photo'], 'lamp.jpg', { type: 'image/jpeg' });
@@ -35,7 +35,7 @@ describe('NewProductImageField.vue', () => {
       file: new File([new Uint8Array(2 * 1024 * 1024 + 1)], 'huge.png', { type: 'image/png' }),
       error: 'larger than 2 MB',
     },
-  ])('refuses $file.name', async ({ file, error }) => {
+  ])('should refuse $file.name', async ({ file, error }) => {
     // Arrange
     const wrapper = mountImageField();
     // Act
@@ -45,7 +45,7 @@ describe('NewProductImageField.vue', () => {
     expect(wrapper.emitted('update:modelValue')).toBeUndefined();
   });
 
-  it('shows the image chosen', () => {
+  it('should show the image chosen', () => {
     // Act
     const photo = new File(['photo'], 'lamp.jpg', { type: 'image/jpeg' });
     const wrapper = mount(NewProductImageField, {

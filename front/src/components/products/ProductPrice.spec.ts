@@ -18,7 +18,7 @@ function mountPrice(product: typeof lamp & { promotionPercentage?: number | null
 }
 
 describe('ProductPrice.vue', () => {
-  it('a product without promotion shows its price, not struck through', () => {
+  it('a product without promotion should show its price, not struck through', () => {
     // Act
     const wrapper = mountPrice({ ...lamp, promotionPercentage: null, currentPrice: 40 });
     // Assert
@@ -26,7 +26,7 @@ describe('ProductPrice.vue', () => {
     expect(wrapper.find('s').exists()).toBe(false);
   });
 
-  it('a product on promotion shows its price to pay, its regular price struck through and the percentage off', () => {
+  it('a product on promotion should show its price to pay, its regular price struck through and the percentage off', () => {
     // Act
     const wrapper = mountPrice({ ...lamp, promotionPercentage: 25, currentPrice: 30 });
     // Assert
