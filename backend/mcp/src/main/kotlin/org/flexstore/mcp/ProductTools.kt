@@ -13,6 +13,7 @@ import org.flexstore.domain.product.usecase.ProductUseCases
 import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.product.model.ProductId
 import org.ucop.domain.NominalException
+import org.ucop.domain.entity.Actor
 
 private const val LIST_PRODUCTS = "list_products"
 private const val GET_PRODUCT = "get_product"
@@ -21,8 +22,8 @@ private const val ID = "id"
 
 // The tools that expose the products of the catalog to an MCP client, in the types of the MCP Java SDK that
 // serves the protocol. They call the use cases of the domain: the answer of a tool is a text, the product in
-// JSON, or the reason why the domain refuses to give it
-class ProductTools(private val productUseCases: ProductUseCases) {
+// JSON, or the reason why the domain refuses to give it. The client is not signed in: the reader is a visitor
+class ProductTools(private val productUseCases: ProductUseCases, private val reader: Actor) {
     private val json = ObjectMapper()
 
     fun specifications(): List<SyncToolSpecification> =
@@ -71,7 +72,7 @@ class ProductTools(private val productUseCases: ProductUseCases) {
 
     private fun listProducts(language: Language): String {
         val productsJson = json.createArrayNode()
-        productUseCases.getProducts().asList().forEach { product ->
+        productUseCases.getProducts(reader).asList().forEach { product ->
             productsJson.add(productJson(product as DefinedProduct, language))
         }
         return json.writerWithDefaultPrettyPrinter().writeValueAsString(productsJson)
@@ -81,7 +82,7 @@ class ProductTools(private val productUseCases: ProductUseCases) {
         if (id.isBlank()) {
             throw MissingArgumentException("The id of the product is required.")
         }
-        val product = productUseCases.getProduct(ProductId(Identity(id)))
+        val product = productUseCases.getProduct(reader, ProductId(Identity(id)))
         return json.writerWithDefaultPrettyPrinter().writeValueAsString(productJson(product, language))
     }
 

@@ -4,12 +4,13 @@ import kotlin.reflect.KClass
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.repository.*
+import org.flexstore.domain.actor.isNotAdmin
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
 import org.ucop.domain.entity.*
 
 // A user is created by an administrator: the creator is the authenticated user who asks for it
-data class CreateUserRequest(val creator: UserId, val user: User)
+data class CreateUserRequest(val creator: Actor, val user: User)
 
 class CreateUserUseCase(
     private val userRepository: UserRepository
@@ -45,9 +46,9 @@ class CreateUserUseCase(
         return emptyMap()
     }
 
-    // The creator must be an existing user with the ADMIN role (read from the users, not from the request)
+    // The creator, resolved before the use case runs, must be an Admin
     private fun creatorIsAdministratorCondition() = PreCondition<CreateUserRequest> { request ->
-        if (userRepository.isNotAdministrator(request.creator)) {
+        if (request.creator.isNotAdmin()) {
             throw UserCreationForbiddenException(ErrorMessage("Only an administrator can create a user."))
         }
     }

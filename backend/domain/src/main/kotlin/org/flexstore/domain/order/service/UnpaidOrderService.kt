@@ -19,7 +19,7 @@ class UnpaidOrderService(
 
     // The orders cancelled; an order whose payment has just completed is left as it is
     fun cancelLateOrders(): Orders {
-        val paymentDelay = readShopSettingsUseCase.unfold(Unit).paymentDelay
+        val paymentDelay = readShopSettingsUseCase.unfold(actorResolutionService.system()).paymentDelay
         val timeLimit = PaymentTimeLimit(paymentDelay, InstantProvider.now())
         val lateOrders = unpaidOrderUseCases.allOrders().latePaymentsAt(timeLimit).asList()
         val cancelledOrders = lateOrders.filter { order ->

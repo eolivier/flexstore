@@ -1,26 +1,23 @@
 package org.flexstore.domain.cart.usecase
 
 import org.flexstore.domain.cart.*
-import org.flexstore.domain.user.repository.UserRepository
 import org.ucop.domain.entity.*
 
 // The cart of a customer or of a visitor, empty when they have none yet
-class ReadCartUseCase(
-    private val cartRepository: CartRepository,
-    private val userRepository: UserRepository
-) : QueryUseCase<CartOwner, Cart> {
+data class CartReading(val reader: Actor, val owner: CartOwner)
 
-    override fun getPreConditions(): PreConditions<CartOwner> = PreConditions(ownerCanActCondition())
+class ReadCartUseCase(private val cartRepository: CartRepository) : QueryUseCase<CartReading, Cart> {
 
-    override fun getNominalQuery() = NominalQuery<CartOwner, Cart> { owner -> cartRepository.load(owner) }
+    override fun getPreConditions(): PreConditions<CartReading> = PreConditions(ownerCanActCondition())
+
+    override fun getNominalQuery() = NominalQuery<CartReading, Cart> { reading ->
+        cartRepository.load(reading.owner)
+    }
 
     override fun getPostConditions(): PostConditions<Cart> = PostConditions.none()
 
-    // A customer owner must be an existing user whose account is not suspended, locked or disabled
-    // (read from the users, not from the request); a visitor has none
-    private fun ownerCanActCondition() = PreCondition<CartOwner> { owner ->
-        if (owner is CartOwner.Customer) {
-            userRepository.verifyCustomerCanAct(owner.userId)
-        }
+    // The reader, resolved before the use case runs, must be able to act when the cart is the one of a customer
+    private fun ownerCanActCondition() = PreCondition<CartReading> { reading ->
+        reading.reader.verifyCanUseCartOf(reading.owner)
     }
 }

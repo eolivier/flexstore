@@ -17,11 +17,14 @@ import org.springframework.security.oauth2.jwt.Jwt
 @Tag(name = "Seller")
 @RestController
 @RequestMapping("/api/social-networks")
-class SocialNetworksController(private val sellerUseCases: SellerUseCases) {
+class SocialNetworksController(
+    private val sellerUseCases: SellerUseCases,
+    private val actorResolutionService: ActorResolutionService
+) {
 
     @Operation(summary = "Retrieve the accounts of the shop on the social networks; empty where it has none")
     @GetMapping
-    fun getSocialNetworks() = JsonSocialNetworks(sellerUseCases.socialNetworks())
+    fun getSocialNetworks() = JsonSocialNetworks(sellerUseCases.socialNetworks(actorResolutionService.visitor()))
 }
 
 // The seller written on the invoices, for the administrators (ADMIN role, see SecurityConfig, checked again by

@@ -1,19 +1,21 @@
 package org.flexstore.domain.image.usecase
 
+import org.flexstore.domain.actor.isNotAtLeastVisitor
 import org.flexstore.domain.image.*
 import org.flexstore.domain.product.model.ProductId
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // The image of a product looked for, in one of its formats
-data class ProductImageLookup(val productId: ProductId, val format: ImageFormat)
+data class ProductImageLookup(val reader: Actor, val productId: ProductId, val format: ImageFormat)
 
 // The image of a product, in the format asked
 class ReadProductImageUseCase(
     private val productImageRepository: ProductImageRepository
 ) : QueryUseCase<ProductImageLookup, ProductImage> {
 
-    override fun getPreConditions(): PreConditions<ProductImageLookup> = PreConditions(imageExistsCondition())
+    override fun getPreConditions(): PreConditions<ProductImageLookup> =
+        PreConditions(readerCanReadCondition(), imageExistsCondition())
 
     override fun getNominalQuery() = NominalQuery<ProductImageLookup, ProductImage> { lookup ->
         productImageRepository.find(lookup.productId, lookup.format)!!
@@ -23,7 +25,16 @@ class ReadProductImageUseCase(
 
     private fun imageExistsCondition() = PreCondition<ProductImageLookup> { lookup ->
         if (productImageRepository.imageIsMissing(lookup.productId, lookup.format)) {
-            throw ProductImageNotFoundException(ErrorMessage("Product ${lookup.productId.id.value} has no image."))
+            val message = ErrorMessage("Product ${lookup.productId.id.value} has no image.")
+            throw ProductImageNotFoundException(message)
+        }
+    }
+
+    // The reader, resolved before the use case runs, is a visitor or higher, or the system
+    private fun readerCanReadCondition() = PreCondition<ProductImageLookup> { lookup ->
+        if (lookup.reader.isNotAtLeastVisitor()) {
+            val message = ErrorMessage("The reader must be at least a visitor to read the images of the products.")
+            throw ProductImageReadingForbiddenException(message)
         }
     }
 }

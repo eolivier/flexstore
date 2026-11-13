@@ -153,3 +153,7 @@ data class ReviewAlreadyWrittenException(override val errorMessage: ErrorMessage
 data class ReviewNotFoundException(override val errorMessage: ErrorMessage) : PreConditionException(errorMessage)
 data class ReviewAdditionFailed(override val errorMessage: ErrorMessage) : PostConditionException(errorMessage)
 data class ReviewDeletionFailed(override val errorMessage: ErrorMessage) : PostConditionException(errorMessage)
+
+// A public read refused: its reader is neither a visitor, nor a user, nor the system
+data class ReviewReadingForbiddenException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage)

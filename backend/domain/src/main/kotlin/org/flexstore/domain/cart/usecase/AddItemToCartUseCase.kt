@@ -4,17 +4,20 @@ import org.flexstore.domain.cart.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.product.model.*
 import org.flexstore.domain.sharedkernel.*
-import org.flexstore.domain.user.repository.UserRepository
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.PostConditionException
 import org.ucop.domain.entity.*
 
-data class AddItemToCartRequest(val owner: CartOwner, val productId: ProductId, val quantity: Quantity)
+data class AddItemToCartRequest(
+    val actor: Actor,
+    val owner: CartOwner,
+    val productId: ProductId,
+    val quantity: Quantity
+)
 
 class AddItemToCartUseCase(
     private val cartRepository: CartRepository,
-    private val productRepository: ProductRepository,
-    private val userRepository: UserRepository
+    private val productRepository: ProductRepository
 ) : UseCase<AddItemToCartRequest> {
 
     override fun getPreConditions(): PreConditions<AddItemToCartRequest> =
@@ -35,13 +38,9 @@ class AddItemToCartUseCase(
         productRepository.findById(productId)
             ?: throw ProductNotFoundException(ErrorMessage("Product ${productId.id.value} not found."))
 
-    // A customer owner must be an existing user whose account is not suspended, locked or disabled
-    // (read from the users, not from the request); a visitor has none
+    // The actor, resolved before the use case runs, must be able to act when the cart is the one of a customer
     private fun ownerCanActCondition() = PreCondition<AddItemToCartRequest> { request ->
-        val owner = request.owner
-        if (owner is CartOwner.Customer) {
-            userRepository.verifyCustomerCanAct(owner.userId)
-        }
+        request.actor.verifyCanUseCartOf(request.owner)
     }
 
     private fun productExistsCondition() = PreCondition<AddItemToCartRequest> { request ->

@@ -3,12 +3,13 @@ package org.flexstore.domain.user.administration.usecase
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.repository.*
+import org.flexstore.domain.actor.isNotAdmin
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // A user is edited by an administrator (the editor): name, email and role. The password is changed by a separate
 // operation
-data class UpdateUserRequest(val editor: UserId, val user: User)
+data class UpdateUserRequest(val editor: Actor, val user: User)
 
 class UpdateUserUseCase(private val userRepository: UserRepository) : UseCase<UpdateUserRequest> {
 
@@ -48,9 +49,9 @@ class UpdateUserUseCase(private val userRepository: UserRepository) : UseCase<Up
         }
     }
 
-    // The editor must be an existing user with the ADMIN role (read from the users, not from the request)
+    // The editor, resolved before the use case runs, must be an Admin
     private fun editorIsAdministratorCondition() = PreCondition<UpdateUserRequest> { request ->
-        if (userRepository.isNotAdministrator(request.editor)) {
+        if (request.editor.isNotAdmin()) {
             throw UserUpdateForbiddenException(ErrorMessage("Only an administrator can edit a user."))
         }
     }

@@ -1,5 +1,6 @@
 package org.flexstore.domain.order.service
 
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.order.model.*
 import org.flexstore.domain.order.usecase.*
 import org.flexstore.domain.product.model.*
@@ -42,6 +43,8 @@ class OrderCheckoutServiceTest : WithAssertions {
     private val cartRepository = InMemoryCartRepository()
     private val orderRepository = InMemoryOrderRepository()
     private val userRepository = InMemoryUserRepository().apply { save(definedUser) }
+    private val actorResolutionService = ActorResolutionService(userRepository)
+    private val customerActor get() = actorResolutionService.actorOf(customer.userId)
     private val deskLampStock = Stock(deskLamp.productId, StockQuantity(10))
     private val stockRepository = InMemoryStockRepository().apply { save(deskLampStock) }
     private val shopSettingsRepository = InMemoryShopSettingsRepository()
@@ -68,7 +71,7 @@ class OrderCheckoutServiceTest : WithAssertions {
             ReserveOrderStockUseCase(orderRepository, stockRepository)
         )
         val checkoutQueryUseCases = CheckoutQueryUseCases(
-            ReadCartUseCase(cartRepository, userRepository),
+            ReadCartUseCase(cartRepository),
             ReadShopSettingsUseCase(shopSettingsRepository),
             ReadCustomerOrderUseCase(orderRepository, userRepository)
         )
@@ -100,7 +103,7 @@ class OrderCheckoutServiceTest : WithAssertions {
         // Arrange
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
         // Act
-        val order = service.placeOrder(checkout)
+        val order = service.placeOrder(customerActor, checkout)
         // Assert
         assertThat(storedOrders()).containsExactly(order)
         assertThat(order.lines.asList()).containsExactly(OrderLine.of(deskLamp, Quantity(2)))
@@ -112,7 +115,7 @@ class OrderCheckoutServiceTest : WithAssertions {
         // Arrange
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(1)))
         // Act
-        val order = service.placeOrder(checkout)
+        val order = service.placeOrder(customerActor, checkout)
         // Assert
         assertThat(order.termsOfSale).isEqualTo(AcceptedTermsOfSale(currentTermsOfSaleId))
     }
@@ -123,7 +126,7 @@ class OrderCheckoutServiceTest : WithAssertions {
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(1)))
         val checkoutWithoutTerms = Checkout(customer, homeOrderAddresses, NoTermsOfSaleAccepted)
         // Act
-        val thrown = catchThrowable { service.placeOrder(checkoutWithoutTerms) }
+        val thrown = catchThrowable { service.placeOrder(customerActor, checkoutWithoutTerms) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(TermsOfSaleNotAcceptedException::class.java)
         assertThat(storedOrders()).isEmpty()
@@ -136,7 +139,7 @@ class OrderCheckoutServiceTest : WithAssertions {
         val newTermsOfSale = currentTermsOfSale.copy(id = LegalPageId.nextId(), text = LegalText("Article 1 - Objet modifié"))
         legalPageRepository.save(newTermsOfSale)
         // Act
-        val thrown = catchThrowable { service.placeOrder(checkout) }
+        val thrown = catchThrowable { service.placeOrder(customerActor, checkout) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(OutdatedTermsOfSaleException::class.java)
         assertThat(storedOrders()).isEmpty()
@@ -148,7 +151,7 @@ class OrderCheckoutServiceTest : WithAssertions {
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(1)))
         val expressDelivery = OrderDelivery(homeOrderAddresses, ShippingMethod.EXPRESS)
         // Act
-        val order = service.placeOrder(Checkout(customer, expressDelivery, acceptedTermsOfSale))
+        val order = service.placeOrder(customerActor, Checkout(customer, expressDelivery, acceptedTermsOfSale))
         // Assert
         val expressCost = Price(Amount(BigDecimal("9.90")), Currency.EUR)
         assertThat(order.shipping).isEqualTo(OrderShipping(ShippingMethod.EXPRESS, expressCost))
@@ -162,7 +165,7 @@ class OrderCheckoutServiceTest : WithAssertions {
         shopSettingsRepository.save(ShopSettings.byDefault().withFreeShippingThreshold(threshold))
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(1)))
         // Act
-        val order = service.placeOrder(checkout)
+        val order = service.placeOrder(customerActor, checkout)
         // Assert
         assertThat(order.shipping.cost).isEqualTo(Price(Amount(BigDecimal.ZERO), Currency.EUR))
     }
@@ -173,7 +176,7 @@ class OrderCheckoutServiceTest : WithAssertions {
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
         giveDiscountCode("WELCOME10", placedAt.plusSeconds(3600), usageLimit = 5)
         // Act
-        val order = service.placeOrder(checkout, DiscountCodeEntered(PromoCode("WELCOME10")))
+        val order = service.placeOrder(customerActor, checkout, DiscountCodeEntered(PromoCode("WELCOME10")))
         // Assert
         val sevenEuros = Price(Amount(BigDecimal("7.00")), Currency.EUR)
         assertThat(order.discount).isEqualTo(AppliedOrderDiscount(PromoCode("WELCOME10"), sevenEuros))
@@ -187,7 +190,8 @@ class OrderCheckoutServiceTest : WithAssertions {
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
         giveDiscountCode("SUMMER", placedAt, usageLimit = 5)
         // Act
-        val thrown = catchThrowable { service.placeOrder(checkout, DiscountCodeEntered(PromoCode("SUMMER"))) }
+        val enteredCode = DiscountCodeEntered(PromoCode("SUMMER"))
+        val thrown = catchThrowable { service.placeOrder(customerActor, checkout, enteredCode) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(DiscountCodeExpiredException::class.java)
         assertThat(storedOrders()).isEmpty()
@@ -198,9 +202,10 @@ class OrderCheckoutServiceTest : WithAssertions {
         // Arrange
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(1)))
         giveDiscountCode("ONCE", placedAt.plusSeconds(3600), usageLimit = 1)
-        service.placeOrder(checkout, DiscountCodeEntered(PromoCode("ONCE")))
+        service.placeOrder(customerActor, checkout, DiscountCodeEntered(PromoCode("ONCE")))
         // Act
-        val thrown = catchThrowable { service.placeOrder(checkout, DiscountCodeEntered(PromoCode("ONCE"))) }
+        val enteredCode = DiscountCodeEntered(PromoCode("ONCE"))
+        val thrown = catchThrowable { service.placeOrder(customerActor, checkout, enteredCode) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(DiscountCodeUsedUpException::class.java)
     }
@@ -210,7 +215,8 @@ class OrderCheckoutServiceTest : WithAssertions {
         // Arrange
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(1)))
         // Act
-        val thrown = catchThrowable { service.placeOrder(checkout, DiscountCodeEntered(PromoCode("NOPE"))) }
+        val enteredCode = DiscountCodeEntered(PromoCode("NOPE"))
+        val thrown = catchThrowable { service.placeOrder(customerActor, checkout, enteredCode) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(DiscountCodeNotFoundException::class.java)
     }
@@ -221,7 +227,7 @@ class OrderCheckoutServiceTest : WithAssertions {
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
         giveDiscountCode("WELCOME10", placedAt.plusSeconds(3600), usageLimit = 5)
         // Act
-        val discountPreview = service.previewDiscount(customer, PromoCode("WELCOME10"))
+        val discountPreview = service.previewDiscount(customerActor, PromoCode("WELCOME10"))
         // Assert
         val sevenEuros = Price(Amount(BigDecimal("7.00")), Currency.EUR)
         assertThat(discountPreview).isEqualTo(DiscountPreview(PromoCode("WELCOME10"), sevenEuros))
@@ -232,7 +238,7 @@ class OrderCheckoutServiceTest : WithAssertions {
         // Arrange
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
         // Act
-        service.placeOrder(checkout)
+        service.placeOrder(customerActor, checkout)
         // Assert
         assertThat(stockRepository.stockOf(deskLamp.productId).quantity).isEqualTo(StockQuantity(8))
     }
@@ -242,7 +248,7 @@ class OrderCheckoutServiceTest : WithAssertions {
         // Arrange
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
         // Act
-        service.placeOrder(checkout)
+        service.placeOrder(customerActor, checkout)
         // Assert
         assertThat(cartRepository.load(customer).hasItems()).isTrue()
     }
@@ -250,7 +256,7 @@ class OrderCheckoutServiceTest : WithAssertions {
     @Test
     fun `should not place an order from an empty cart`() {
         // Act
-        val thrown = catchThrowable { service.placeOrder(checkout) }
+        val thrown = catchThrowable { service.placeOrder(customerActor, checkout) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(EmptyCartException::class.java)
         assertThat(storedOrders()).isEmpty()
@@ -263,7 +269,8 @@ class OrderCheckoutServiceTest : WithAssertions {
         cartRepository.save(Cart(unknownCustomer).add(deskLamp, Quantity(2)))
         val unknownCustomerCheckout = Checkout(unknownCustomer, homeOrderAddresses, acceptedTermsOfSale)
         // Act
-        val thrown = catchThrowable { service.placeOrder(unknownCustomerCheckout) }
+        val unknownActor = actorResolutionService.actorOf(unknownCustomer.userId)
+        val thrown = catchThrowable { service.placeOrder(unknownActor, unknownCustomerCheckout) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java)
     }
@@ -275,7 +282,7 @@ class OrderCheckoutServiceTest : WithAssertions {
         val officeBilling = OrderAddresses(homeAddress, officeAddress)
         val billedToTheOffice = Checkout(customer, officeBilling, acceptedTermsOfSale)
         // Act
-        service.placeOrder(billedToTheOffice)
+        service.placeOrder(customerActor, billedToTheOffice)
         // Assert
         assertThat(postalAddressesOfTheDefinedUser()).containsExactly(homeAddress, officeAddress)
     }
@@ -286,7 +293,7 @@ class OrderCheckoutServiceTest : WithAssertions {
         userRepository.save(definedUser.copy(postalAddresses = PostalAddresses(homeAddress)))
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
         // Act
-        service.placeOrder(checkout)
+        service.placeOrder(customerActor, checkout)
         // Assert
         assertThat(postalAddressesOfTheDefinedUser()).containsExactly(homeAddress)
     }
@@ -304,7 +311,7 @@ class OrderCheckoutServiceTest : WithAssertions {
         userRepository.save(definedUser.copy(status = status))
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
         // Act
-        val thrown = catchThrowable { service.placeOrder(checkout) }
+        val thrown = catchThrowable { service.placeOrder(customerActor, checkout) }
         // Assert
         assertThat(storedOrders().isEmpty()).isEqualTo(!placed)
         if (!placed) assertThat(thrown).hasCauseInstanceOf(OrderRefusedException::class.java)
@@ -315,7 +322,7 @@ class OrderCheckoutServiceTest : WithAssertions {
         // Arrange
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(11)))
         // Act
-        val thrown = catchThrowable { service.placeOrder(checkout) }
+        val thrown = catchThrowable { service.placeOrder(customerActor, checkout) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(OutOfStockException::class.java).hasMessageContaining("Desk lamp")
         assertThat(storedOrders()).isEmpty()
@@ -327,7 +334,7 @@ class OrderCheckoutServiceTest : WithAssertions {
         cartRepository.save(Cart(customer).add(deskLamp, Quantity(2)))
         val serviceWithStockTakenMeanwhile = checkoutServiceWith(StockTakenMeanwhile(stockRepository))
         // Act
-        val thrown = catchThrowable { serviceWithStockTakenMeanwhile.placeOrder(checkout) }
+        val thrown = catchThrowable { serviceWithStockTakenMeanwhile.placeOrder(customerActor, checkout) }
         // Assert
         assertThat(thrown).isInstanceOf(StockReservationFailed::class.java).hasMessageContaining("Desk lamp")
     }

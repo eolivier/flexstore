@@ -50,6 +50,12 @@ fun Actor.isCustomer() = isAtLeastCustomer() && isNotAdmin()
 
 fun Actor.isVisitor() = this is Visitor && !isAtLeastCustomer()
 
+// A visitor, or higher: a customer or an admin is one too, and so is the system, which stands above every role.
+// What the preconditions of the public reads ask of their reader
+fun Actor.isAtLeastVisitor() = this is Visitor || isSystem()
+
+fun Actor.isNotAtLeastVisitor() = !isAtLeastVisitor()
+
 // The user behind a customer or an admin, for a use case whose precondition checked that its actor is one
 fun Actor.customerId(): UserId.ValidUserId =
     if (isAtLeastCustomer()) userId else throw IllegalStateException("The actor is not at least a customer.")

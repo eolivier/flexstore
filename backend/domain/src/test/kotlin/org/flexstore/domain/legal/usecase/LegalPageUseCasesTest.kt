@@ -1,5 +1,6 @@
 package org.flexstore.domain.legal.usecase
 
+import org.flexstore.domain.actor.unknownUserActor
 import org.flexstore.domain.legal.*
 import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.sharedkernel.InstantProvider
@@ -38,7 +39,7 @@ class LegalPageUseCasesTest : WithAssertions {
     @Test
     fun `a legal page not written yet should be read with an empty text`() {
         // Act
-        val legalNotice = legalPageUseCases.legalPage(LegalPageKind.LEGAL_NOTICE)
+        val legalNotice = legalPageUseCases.legalPage(unknownUserActor, LegalPageKind.LEGAL_NOTICE)
         // Assert
         assertThat(legalNotice.isWritten()).isFalse()
     }
@@ -46,7 +47,7 @@ class LegalPageUseCasesTest : WithAssertions {
     @Test
     fun `each kind of legal page should be read on its own`() {
         // Act
-        val termsOfSale = legalPageUseCases.legalPage(LegalPageKind.TERMS_OF_SALE)
+        val termsOfSale = legalPageUseCases.legalPage(unknownUserActor, LegalPageKind.TERMS_OF_SALE)
         // Assert
         assertThat(termsOfSale).isEqualTo(writtenTermsOfSale)
     }
@@ -72,7 +73,8 @@ class LegalPageUseCasesTest : WithAssertions {
         legalPageUseCases.publish(administrator, LegalPageKind.TERMS_OF_SALE, legalText)
         // Assert
         assertThat(legalPageRepository.findBy(writtenTermsOfSale.id)).isEqualTo(writtenTermsOfSale)
-        assertThat(legalPageUseCases.legalPage(LegalPageKind.LEGAL_NOTICE)).isEqualTo(unwrittenLegalNotice)
+        val legalPage = legalPageUseCases.legalPage(unknownUserActor, LegalPageKind.LEGAL_NOTICE)
+        assertThat(legalPage).isEqualTo(unwrittenLegalNotice)
     }
 
     @Test
@@ -83,7 +85,8 @@ class LegalPageUseCasesTest : WithAssertions {
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(LegalPagePublicationForbiddenException::class.java)
-        assertThat(legalPageUseCases.legalPage(LegalPageKind.TERMS_OF_SALE)).isEqualTo(writtenTermsOfSale)
+        val legalPage = legalPageUseCases.legalPage(unknownUserActor, LegalPageKind.TERMS_OF_SALE)
+        assertThat(legalPage).isEqualTo(writtenTermsOfSale)
     }
 
     @Test
@@ -105,7 +108,8 @@ class LegalPageUseCasesTest : WithAssertions {
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(InvalidLegalPageException::class.java)
-        assertThat(legalPageUseCases.legalPage(LegalPageKind.TERMS_OF_SALE)).isEqualTo(writtenTermsOfSale)
+        val legalPage = legalPageUseCases.legalPage(unknownUserActor, LegalPageKind.TERMS_OF_SALE)
+        assertThat(legalPage).isEqualTo(writtenTermsOfSale)
     }
 
     @Test

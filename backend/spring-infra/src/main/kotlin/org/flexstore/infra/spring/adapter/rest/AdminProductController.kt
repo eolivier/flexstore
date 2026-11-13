@@ -30,7 +30,7 @@ class AdminProductController(
     @Operation(summary = "Retrieve a product with its translations in every language, to edit it")
     @GetMapping("/{id}")
     fun getProduct(@PathVariable id: String): JsonAdminProduct =
-        mapper.toAdminJson(productUseCases.getProduct(ProductId(Identity(id))))
+        mapper.toAdminJson(productUseCases.getProduct(actorResolutionService.visitor(), ProductId(Identity(id))))
 
     @Operation(summary = "Propose a SKU free in the catalog, from the category and the name of a product")
     @GetMapping("/sku-proposal")

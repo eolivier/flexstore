@@ -6,14 +6,17 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.modelcontextprotocol.common.McpTransportContext
 import io.modelcontextprotocol.spec.McpSchema.CallToolRequest
 import io.modelcontextprotocol.spec.McpSchema.TextContent
+import io.mockk.mockk
 import kotlin.test.Test
+import org.flexstore.domain.actor.ActorResolutionService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
 class ProductToolsTest {
     private val json = ObjectMapper()
-    private val productTools = ProductTools(productUseCasesOf(deskLamp, readingLamp))
+    private val visitor = ActorResolutionService(mockk()).visitor()
+    private val productTools = ProductTools(productUseCasesOf(deskLamp, readingLamp), visitor)
 
     private fun arguments(text: String): Map<String, Any> =
         json.convertValue(json.readTree(text), object : TypeReference<Map<String, Any>>() {})

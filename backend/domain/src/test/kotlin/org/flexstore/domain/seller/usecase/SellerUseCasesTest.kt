@@ -1,5 +1,6 @@
 package org.flexstore.domain.seller.usecase
 
+import org.flexstore.domain.actor.unknownUserActor
 import org.flexstore.domain.seller.*
 import org.flexstore.domain.user.*
 import org.assertj.core.api.WithAssertions
@@ -197,7 +198,7 @@ class SellerUseCasesTest : WithAssertions {
         val socialNetworks = SocialNetworks.of(mapOf(SocialNetwork.INSTAGRAM to instagramUrl))
         sellerUseCases.update(administrator, testSellerDetail.copy(socialNetworks = socialNetworks))
         // Act
-        val readSocialNetworks = sellerUseCases.socialNetworks()
+        val readSocialNetworks = sellerUseCases.socialNetworks(unknownUserActor)
         // Assert
         assertThat(readSocialNetworks.urlOf(SocialNetwork.INSTAGRAM)).isEqualTo(instagramUrl)
         assertThat(readSocialNetworks.urlOf(SocialNetwork.TWITCH).isNotGiven()).isTrue()

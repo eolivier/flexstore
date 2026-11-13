@@ -61,3 +61,7 @@ data class InvalidShopPageContentException(override val errorMessage: ErrorMessa
     PreConditionException(errorMessage)
 data class ShopPageContentChangeFailed(override val errorMessage: ErrorMessage) :
     PostConditionException(errorMessage)
+
+// A public read refused: its reader is neither a visitor, nor a user, nor the system
+data class ShopPageContentReadingForbiddenException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage)

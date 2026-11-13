@@ -14,6 +14,9 @@ class ActorResolutionService(private val userRepository: UserRepository) {
     // The system user, who runs the scheduled use cases
     fun system(): Actor = actorOf(SystemUser.id)
 
+    // Who is not signed in: a Visitor
+    fun visitor(): Actor = Visitor()
+
     fun actorOf(userId: UserId): Actor {
         if (userRepository.notExists(userId)) return Visitor()
         val user = userRepository.findById(userId)

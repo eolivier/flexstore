@@ -3,11 +3,13 @@ package org.flexstore.domain.user.administration.usecase
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.repository.*
+import org.flexstore.domain.actor.isNotAdmin
+import org.flexstore.domain.actor.isTheUser
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // An administrator (the editor) activates, suspends, locks or disables the account of another user
-data class AccountStatusChange(val editor: UserId, val userId: UserId, val status: AccountStatus)
+data class AccountStatusChange(val editor: Actor, val userId: UserId, val status: AccountStatus)
 
 class ChangeAccountStatusUseCase(private val userRepository: UserRepository) : UseCase<AccountStatusChange> {
 
@@ -25,9 +27,9 @@ class ChangeAccountStatusUseCase(private val userRepository: UserRepository) : U
 
     private fun user(userId: UserId) = userRepository.findById(userId) as User.DefinedUser
 
-    // The editor must be an existing user with the ADMIN role (read from the users, not from the request)
+    // The editor, resolved before the use case runs, must be an Admin
     private fun editorIsAdministratorCondition() = PreCondition<AccountStatusChange> { change ->
-        if (userRepository.isNotAdministrator(change.editor)) {
+        if (change.editor.isNotAdmin()) {
             val message = ErrorMessage("Only an administrator can change the status of an account.")
             throw UserUpdateForbiddenException(message)
         }
@@ -41,7 +43,7 @@ class ChangeAccountStatusUseCase(private val userRepository: UserRepository) : U
 
     // An administrator cannot lock themselves out
     private fun accountIsNotTheEditorsCondition() = PreCondition<AccountStatusChange> { change ->
-        if (change.userId == change.editor) {
+        if (change.editor.isTheUser(change.userId)) {
             val message = ErrorMessage("An administrator cannot change the status of their own account.")
             throw InvalidStatusChangeException(message)
         }

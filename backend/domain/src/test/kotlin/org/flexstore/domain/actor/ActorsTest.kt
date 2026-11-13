@@ -5,6 +5,7 @@ import org.flexstore.domain.sharedkernel.Name
 import org.flexstore.domain.user.model.AccountStatus
 import org.flexstore.domain.user.model.UserId.ValidUserId
 import org.junit.jupiter.api.Test
+import org.ucop.domain.entity.Actor
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 
@@ -38,6 +39,22 @@ class ActorsTest : WithAssertions {
         val atLeastCustomers = actors.filter { it.isAtLeastCustomer() }
         // Assert
         assertThat(atLeastCustomers).containsExactly(admin, customer)
+    }
+
+    @Test
+    fun `every actor, the system included, should be at least a visitor`() {
+        // Act
+        val atLeastVisitors = actors.filter { it.isAtLeastVisitor() }
+        // Assert
+        assertThat(atLeastVisitors).containsExactlyElementsOf(actors)
+    }
+
+    @Test
+    fun `an actor unknown to the shop should not be at least a visitor`() {
+        // Arrange
+        val stranger = Actor(Name("Stranger"))
+        // Act - Assert
+        assertThat(stranger.isNotAtLeastVisitor()).isTrue()
     }
 
     @Test

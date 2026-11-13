@@ -1,5 +1,6 @@
 package org.flexstore.domain.wishlist.usecase
 
+import org.flexstore.domain.actor.ActorResolutionService
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.product.*
 import org.flexstore.domain.product.model.*
@@ -32,7 +33,8 @@ class RemoveProductFromWishlistUseCaseTest : WithAssertions {
     private val productRepository = InMemoryProductRepository().apply { save(deskLamp) }
     private val wishlistRepository = InMemoryWishlistRepository(productRepository)
     private val userRepository = customersWithIds(customer.value)
-    private val useCase = RemoveProductFromWishlistUseCase(wishlistRepository, userRepository)
+    private val actorResolutionService = ActorResolutionService(userRepository)
+    private val useCase = RemoveProductFromWishlistUseCase(wishlistRepository)
 
     private fun saveToWishlist() {
         val wishlistItem = WishlistItem(WishlistItemId.nextId(), customer, deskLamp.productId, SavedAt.now())
@@ -44,7 +46,7 @@ class RemoveProductFromWishlistUseCaseTest : WithAssertions {
         // Arrange
         saveToWishlist()
         // Act
-        useCase.unfold(WishlistEntry(customer, deskLamp.productId))
+        useCase.unfold(WishlistEntry(actorResolutionService.actorOf(customer), deskLamp.productId))
         // Assert
         assertThat(wishlistRepository.contains(customer, deskLamp.productId)).isFalse()
     }
@@ -52,7 +54,7 @@ class RemoveProductFromWishlistUseCaseTest : WithAssertions {
     @Test
     fun `removing a product not saved should leave the wishlist as it is`() {
         // Act
-        useCase.unfold(WishlistEntry(customer, deskLamp.productId))
+        useCase.unfold(WishlistEntry(actorResolutionService.actorOf(customer), deskLamp.productId))
         // Assert
         assertThat(wishlistRepository.findAllBy(customer).asList()).isEmpty()
     }
@@ -60,7 +62,7 @@ class RemoveProductFromWishlistUseCaseTest : WithAssertions {
     @Test
     fun `an unknown customer should not remove a product from a wishlist`() {
         // Arrange
-        val entry = WishlistEntry(unknownCustomerId, deskLamp.productId)
+        val entry = WishlistEntry(actorResolutionService.actorOf(unknownCustomerId), deskLamp.productId)
         // Act
         val thrown = catchThrowable { useCase.unfold(entry) }
         // Assert
@@ -74,7 +76,7 @@ class RemoveProductFromWishlistUseCaseTest : WithAssertions {
     ) {
         // Arrange
         userRepository.save(customerWithStatus(status))
-        val entry = WishlistEntry(blockedCustomerId, deskLamp.productId)
+        val entry = WishlistEntry(actorResolutionService.actorOf(blockedCustomerId), deskLamp.productId)
         // Act
         val thrown = catchThrowable { useCase.unfold(entry) }
         // Assert

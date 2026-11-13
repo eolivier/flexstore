@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.adapter.rest
 
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.order.model.*
@@ -29,7 +30,8 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/orders")
 class OrderController(
     private val orderUseCases: OrderUseCases,
-    private val orderCheckoutService: OrderCheckoutService
+    private val orderCheckoutService: OrderCheckoutService,
+    private val actorResolutionService: ActorResolutionService
 ) {
 
     @Operation(
@@ -45,8 +47,9 @@ class OrderController(
     fun placeOrder(@AuthenticationPrincipal jwt: Jwt, @RequestBody addresses: JsonOrderAddresses): JsonOrder {
         val customer = CartOwner.Customer(customer(jwt))
         val checkout = Checkout(customer, addresses.toOrderDelivery(), addresses.toTermsOfSaleAcceptance())
-        val placedOrder = orderCheckoutService.placeOrder(checkout, addresses.toEnteredDiscountCode())
-        return JsonOrder(placedOrder, orderUseCases.paymentDelay())
+        val discountCode = addresses.toEnteredDiscountCode()
+        val placedOrder = orderCheckoutService.placeOrder(actorOf(jwt), checkout, discountCode)
+        return JsonOrder(placedOrder, orderUseCases.paymentDelay(actorOf(jwt)))
     }
 
     @Operation(summary = "Retrieve the shipping methods, with their cost for the cart of the signed-in customer")
@@ -59,8 +62,7 @@ class OrderController(
     @Operation(summary = "Retrieve what a discount code takes off the cart of the signed-in customer")
     @GetMapping("/discount-preview")
     fun previewDiscount(@AuthenticationPrincipal jwt: Jwt, @RequestParam code: String): JsonDiscountPreview {
-        val customer = CartOwner.Customer(customer(jwt))
-        val discountPreview = orderCheckoutService.previewDiscount(customer, PromoCode.from(code))
+        val discountPreview = orderCheckoutService.previewDiscount(actorOf(jwt), PromoCode.from(code))
         return JsonDiscountPreview(discountPreview)
     }
 
@@ -75,7 +77,7 @@ class OrderController(
         @RequestParam(defaultValue = "${PageNumber.FIRST}") page: Int,
         @RequestParam(defaultValue = "${PageSize.DEFAULT}") size: Int
     ): ResponseEntity<List<JsonOrder>> {
-        val paymentDelay = orderUseCases.paymentDelay()
+        val paymentDelay = orderUseCases.paymentDelay(actorOf(jwt))
         val orders = orderUseCases.getOrders(customer(jwt), PageRequest.of(page, size))
         return pagedBody(orders.content.asList().map { JsonOrder(it, paymentDelay) }, orders.total)
     }
@@ -84,8 +86,10 @@ class OrderController(
     @GetMapping("/{id}")
     fun getOrder(@AuthenticationPrincipal jwt: Jwt, @PathVariable id: String): JsonOrder {
         val order = orderUseCases.getOrder(customer(jwt), OrderId(id))
-        return JsonOrder(order, orderUseCases.paymentDelay())
+        return JsonOrder(order, orderUseCases.paymentDelay(actorOf(jwt)))
     }
 
     private fun customer(jwt: Jwt) = UserId.ValidUserId(jwt.subject)
+
+    private fun actorOf(jwt: Jwt) = actorResolutionService.actorOf(customer(jwt))
 }

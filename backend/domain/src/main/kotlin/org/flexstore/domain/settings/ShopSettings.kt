@@ -154,3 +154,7 @@ data class InvalidPaymentDelayException(override val errorMessage: ErrorMessage)
     PreConditionException(errorMessage)
 data class ShopSettingsUpdateFailed(override val errorMessage: ErrorMessage) :
     PostConditionException(errorMessage)
+
+// A public read refused: its reader is neither a visitor, nor a user, nor the system
+data class ShopSettingsReadingForbiddenException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage)

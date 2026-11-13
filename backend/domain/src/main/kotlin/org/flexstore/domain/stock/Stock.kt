@@ -120,3 +120,7 @@ data class StockAlertForbiddenException(override val errorMessage: ErrorMessage)
     PreConditionException(errorMessage)
 data class StockAlertChangeFailed(override val errorMessage: ErrorMessage) : PostConditionException(errorMessage)
 data class StockChangeFailed(override val errorMessage: ErrorMessage) : PostConditionException(errorMessage)
+
+// A public read refused: its reader is neither a visitor, nor a user, nor the system
+data class StockReadingForbiddenException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage)

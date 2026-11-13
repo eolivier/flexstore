@@ -31,7 +31,7 @@ class ProductImageController(
     @Operation(summary = "Retrieve the ids of the products that have an image")
     @GetMapping("/api/product-images")
     fun getProductsWithImage(): List<String> {
-        val productIds = productImageUseCases.getProductsWithImage()
+        val productIds = productImageUseCases.getProductsWithImage(actorResolutionService.visitor())
         return productIds.asList().map { it.id.value }
     }
 
@@ -44,7 +44,8 @@ class ProductImageController(
         request: WebRequest
     ): ResponseEntity<ByteArray> {
         val imageFormat = ImageFormat.valueOf(format.uppercase())
-        val productImage = productImageUseCases.getImage(ProductId(Identity(productId)), imageFormat)
+        val reader = actorResolutionService.visitor()
+        val productImage = productImageUseCases.getImage(reader, ProductId(Identity(productId)), imageFormat)
         val content = productImage.content
         val eTag = "\"${content.bytes.hashCode().toUInt().toString(16)}\""
         if (request.checkNotModified(eTag)) return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build()

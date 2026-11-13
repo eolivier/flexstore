@@ -25,13 +25,17 @@ private val legalPageKinds = mapOf(
 @Tag(name = "Legal pages")
 @RestController
 @RequestMapping("/api/legal-pages")
-class LegalPageController(private val legalPageUseCases: LegalPageUseCases) {
+class LegalPageController(
+    private val legalPageUseCases: LegalPageUseCases,
+    private val actorResolutionService: ActorResolutionService
+) {
 
     @Operation(summary = "Retrieve the current version of a legal page: legal-notice, terms-of-sale or privacy-policy")
     @GetMapping("/{kind}")
     fun getLegalPage(@PathVariable kind: String): ResponseEntity<JsonLegalPage> {
         val legalPageKind = legalPageKinds[kind] ?: return ResponseEntity.notFound().build()
-        return ResponseEntity.ok(JsonLegalPage(legalPageUseCases.legalPage(legalPageKind)))
+        val legalPage = legalPageUseCases.legalPage(actorResolutionService.visitor(), legalPageKind)
+        return ResponseEntity.ok(JsonLegalPage(legalPage))
     }
 }
 

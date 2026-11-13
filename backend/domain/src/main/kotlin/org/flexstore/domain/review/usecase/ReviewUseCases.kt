@@ -14,9 +14,10 @@ class ReviewUseCases(
 ) {
     fun add(submission: ReviewSubmission) = addReviewUseCase.unfold(submission)
 
-    fun getAbout(productId: ProductId) = listProductReviewsUseCase.unfold(productId)
+    fun getAbout(reader: Actor, productId: ProductId) =
+        listProductReviewsUseCase.unfold(ProductReviewsReading(reader, productId))
 
-    fun getSummaries() = listRatingSummariesUseCase.unfold(Unit)
+    fun getSummaries(reader: Actor) = listRatingSummariesUseCase.unfold(reader)
 
     fun delete(editor: Actor, reviewId: ReviewId) = deleteReviewUseCase.unfold(ReviewDeletion(editor, reviewId))
 

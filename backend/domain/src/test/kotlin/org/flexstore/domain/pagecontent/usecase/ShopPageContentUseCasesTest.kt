@@ -1,5 +1,6 @@
 package org.flexstore.domain.pagecontent.usecase
 
+import org.flexstore.domain.actor.unknownUserActor
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.pagecontent.*
 import org.flexstore.domain.pagecontent.ShopPageContentType.*
@@ -26,7 +27,7 @@ class ShopPageContentUseCasesTest : WithAssertions {
     @Test
     fun `a content never written should be read empty`() {
         // Act
-        val contents = shopPageContentUseCases.contents()
+        val contents = shopPageContentUseCases.contents(unknownUserActor)
         // Assert
         assertThat(contents.of(META_KEY_WORDS).text).isEqualTo(ShopPageContentText.empty())
     }
@@ -60,7 +61,8 @@ class ShopPageContentUseCasesTest : WithAssertions {
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(ShopPageContentForbiddenException::class.java)
-        assertThat(shopPageContentUseCases.contents().of(META_KEY_WORDS).text.isWritten()).isFalse()
+        val keyWords = shopPageContentUseCases.contents(unknownUserActor).of(META_KEY_WORDS)
+        assertThat(keyWords.text.isWritten()).isFalse()
     }
 
     @Test

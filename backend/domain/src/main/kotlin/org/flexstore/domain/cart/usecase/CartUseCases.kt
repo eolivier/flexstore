@@ -1,6 +1,7 @@
 package org.flexstore.domain.cart.usecase
 
 import org.flexstore.domain.cart.*
+import org.ucop.domain.entity.Actor
 
 // The use cases of the carts
 class CartUseCases(private val addItemToCartUseCase: AddItemToCartUseCase,
@@ -12,7 +13,7 @@ class CartUseCases(private val addItemToCartUseCase: AddItemToCartUseCase,
 
     fun changeQuantity(request: ChangeCartItemQuantityRequest) = changeCartItemQuantityUseCase.unfold(request)
 
-    fun getCart(owner: CartOwner) = readCartUseCase.unfold(owner)
+    fun getCart(reader: Actor, owner: CartOwner) = readCartUseCase.unfold(CartReading(reader, owner))
 
     fun mergeCarts(request: MergeCartsRequest) = mergeCartsUseCase.unfold(request)
 }

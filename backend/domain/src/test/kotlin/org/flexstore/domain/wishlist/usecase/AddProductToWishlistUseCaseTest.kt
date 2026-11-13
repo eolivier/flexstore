@@ -1,5 +1,6 @@
 package org.flexstore.domain.wishlist.usecase
 
+import org.flexstore.domain.actor.ActorResolutionService
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.product.*
 import org.flexstore.domain.product.model.*
@@ -29,12 +30,13 @@ class AddProductToWishlistUseCaseTest : WithAssertions {
     private val productRepository = InMemoryProductRepository().apply { save(deskLamp) }
     private val wishlistRepository = InMemoryWishlistRepository(productRepository)
     private val userRepository = customersWithIds(customer.value, "user-2")
-    private val useCase = AddProductToWishlistUseCase(wishlistRepository, productRepository, userRepository)
+    private val actorResolutionService = ActorResolutionService(userRepository)
+    private val useCase = AddProductToWishlistUseCase(wishlistRepository, productRepository)
 
     @Test
     fun `should save the product to the wishlist of the customer`() {
         // Act
-        useCase.unfold(WishlistEntry(customer, deskLamp.productId))
+        useCase.unfold(WishlistEntry(actorResolutionService.actorOf(customer), deskLamp.productId))
         // Assert
         assertThat(wishlistRepository.contains(customer, deskLamp.productId)).isTrue()
     }
@@ -42,9 +44,9 @@ class AddProductToWishlistUseCaseTest : WithAssertions {
     @Test
     fun `saving the product again should leave the wishlist as it is`() {
         // Arrange
-        useCase.unfold(WishlistEntry(customer, deskLamp.productId))
+        useCase.unfold(WishlistEntry(actorResolutionService.actorOf(customer), deskLamp.productId))
         // Act
-        useCase.unfold(WishlistEntry(customer, deskLamp.productId))
+        useCase.unfold(WishlistEntry(actorResolutionService.actorOf(customer), deskLamp.productId))
         // Assert
         assertThat(wishlistRepository.findAllBy(customer).asList()).hasSize(1)
     }
@@ -52,7 +54,7 @@ class AddProductToWishlistUseCaseTest : WithAssertions {
     @Test
     fun `should not save a product missing from the catalog`() {
         // Arrange
-        val entry = WishlistEntry(customer, ProductId(Identity("unknown")))
+        val entry = WishlistEntry(actorResolutionService.actorOf(customer), ProductId(Identity("unknown")))
         // Act
         val thrown = catchThrowable { useCase.unfold(entry) }
         // Assert
@@ -65,7 +67,7 @@ class AddProductToWishlistUseCaseTest : WithAssertions {
         // Arrange
         val otherCustomer = UserId.ValidUserId("user-2")
         // Act
-        useCase.unfold(WishlistEntry(customer, deskLamp.productId))
+        useCase.unfold(WishlistEntry(actorResolutionService.actorOf(customer), deskLamp.productId))
         // Assert
         assertThat(wishlistRepository.contains(otherCustomer, deskLamp.productId)).isFalse()
     }
@@ -73,7 +75,7 @@ class AddProductToWishlistUseCaseTest : WithAssertions {
     @Test
     fun `an unknown customer should not save a product to a wishlist`() {
         // Arrange
-        val entry = WishlistEntry(unknownCustomerId, deskLamp.productId)
+        val entry = WishlistEntry(actorResolutionService.actorOf(unknownCustomerId), deskLamp.productId)
         // Act
         val thrown = catchThrowable { useCase.unfold(entry) }
         // Assert
@@ -87,7 +89,7 @@ class AddProductToWishlistUseCaseTest : WithAssertions {
     ) {
         // Arrange
         userRepository.save(customerWithStatus(status))
-        val entry = WishlistEntry(blockedCustomerId, deskLamp.productId)
+        val entry = WishlistEntry(actorResolutionService.actorOf(blockedCustomerId), deskLamp.productId)
         // Act
         val thrown = catchThrowable { useCase.unfold(entry) }
         // Assert

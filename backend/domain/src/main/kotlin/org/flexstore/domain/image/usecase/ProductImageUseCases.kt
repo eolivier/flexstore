@@ -17,8 +17,8 @@ class ProductImageUseCases(
     fun remove(editor: Actor, productId: ProductId) =
         removeProductImageUseCase.unfold(ProductImageRemoval(editor, productId))
 
-    fun getImage(productId: ProductId, format: ImageFormat) =
-        readProductImageUseCase.unfold(ProductImageLookup(productId, format))
+    fun getImage(reader: Actor, productId: ProductId, format: ImageFormat) =
+        readProductImageUseCase.unfold(ProductImageLookup(reader, productId, format))
 
-    fun getProductsWithImage() = listProductsWithImageUseCase.unfold(Unit)
+    fun getProductsWithImage(reader: Actor) = listProductsWithImageUseCase.unfold(reader)
 }

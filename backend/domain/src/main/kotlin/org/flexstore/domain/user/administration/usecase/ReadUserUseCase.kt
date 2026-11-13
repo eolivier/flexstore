@@ -5,12 +5,13 @@ import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.model.User.DefinedUser
 import org.flexstore.domain.user.repository.*
+import org.flexstore.domain.actor.isNotAdmin
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
 import org.ucop.domain.entity.*
 
 // An administrator who reads a user
-data class UserReading(val reader: UserId, val userId: UserId)
+data class UserReading(val reader: Actor, val userId: UserId)
 
 class ReadUserUseCase(private val userRepository: UserRepository) : UseCase<UserReading> {
 
@@ -35,9 +36,9 @@ class ReadUserUseCase(private val userRepository: UserRepository) : UseCase<User
         return emptyMap()
     }
 
-    // The reader must be an existing user with the ADMIN role (read from the users, not from the request)
+    // The reader, resolved before the use case runs, must be an Admin
     private fun readerIsAdministratorCondition() = PreCondition<UserReading> { reading ->
-        if (userRepository.isNotAdministrator(reading.reader)) {
+        if (reading.reader.isNotAdmin()) {
             throw UserReadingForbiddenException(ErrorMessage("Only an administrator can read a user."))
         }
     }

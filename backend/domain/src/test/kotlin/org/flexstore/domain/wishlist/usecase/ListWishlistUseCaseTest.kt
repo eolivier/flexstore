@@ -1,5 +1,6 @@
 package org.flexstore.domain.wishlist.usecase
 
+import org.flexstore.domain.actor.ActorResolutionService
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.product.*
 import org.flexstore.domain.product.model.*
@@ -35,7 +36,8 @@ class ListWishlistUseCaseTest : WithAssertions {
     private val productRepository = InMemoryProductRepository().apply { save(deskLamp); save(officeChair) }
     private val wishlistRepository = InMemoryWishlistRepository(productRepository)
     private val userRepository = customersWithIds(customer.value)
-    private val useCase = ListWishlistUseCase(wishlistRepository, userRepository)
+    private val actorResolutionService = ActorResolutionService(userRepository)
+    private val useCase = ListWishlistUseCase(wishlistRepository)
 
     private fun saveToWishlist(product: DefinedProduct, savedAt: Instant) {
         val wishlistItem = WishlistItem(WishlistItemId.nextId(), customer, product.productId, SavedAt(savedAt))
@@ -48,7 +50,7 @@ class ListWishlistUseCaseTest : WithAssertions {
         saveToWishlist(deskLamp, Instant.parse("2026-01-01T10:00:00Z"))
         saveToWishlist(officeChair, Instant.parse("2026-01-02T10:00:00Z"))
         // Act
-        val wishlist = useCase.unfold(customer)
+        val wishlist = useCase.unfold(actorResolutionService.actorOf(customer))
         // Assert
         assertThat(wishlist.asList()).containsExactly(officeChair, deskLamp)
     }
@@ -56,7 +58,7 @@ class ListWishlistUseCaseTest : WithAssertions {
     @Test
     fun `a customer without any saved product should have an empty wishlist`() {
         // Act
-        val wishlist = useCase.unfold(customer)
+        val wishlist = useCase.unfold(actorResolutionService.actorOf(customer))
         // Assert
         assertThat(wishlist.asList()).isEmpty()
     }
@@ -64,7 +66,7 @@ class ListWishlistUseCaseTest : WithAssertions {
     @Test
     fun `an unknown customer should not list their wishlist`() {
         // Act
-        val thrown = catchThrowable { useCase.unfold(unknownCustomerId) }
+        val thrown = catchThrowable { useCase.unfold(actorResolutionService.actorOf(unknownCustomerId)) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java)
     }
@@ -75,7 +77,7 @@ class ListWishlistUseCaseTest : WithAssertions {
         // Arrange
         userRepository.save(customerWithStatus(status))
         // Act
-        val thrown = catchThrowable { useCase.unfold(blockedCustomerId) }
+        val thrown = catchThrowable { useCase.unfold(actorResolutionService.actorOf(blockedCustomerId)) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(AccountRefusedException::class.java)
     }

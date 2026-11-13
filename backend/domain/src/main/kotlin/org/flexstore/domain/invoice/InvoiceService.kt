@@ -1,6 +1,8 @@
 package org.flexstore.domain.invoice
 
+import org.flexstore.domain.actor.SystemActor
 import org.flexstore.domain.invoice.model.*
+import org.flexstore.domain.seller.usecase.SellerVersionReading
 import org.flexstore.domain.invoice.model.BillingDocument
 import org.flexstore.domain.invoice.model.CreditNoteDocument
 import org.flexstore.domain.invoice.model.InvoiceDocument
@@ -43,7 +45,8 @@ class InvoiceService(
 
     private fun invoiceDocumentOf(administeredOrder: AdministeredOrder): InvoiceDocument {
         val invoice = invoiceUseCases.readInvoiceUseCase.unfold(administeredOrder.order.orderId)
-        val seller = invoiceUseCases.readSellerUseCase.unfold(invoice.sellerId)
+        val sellerReading = SellerVersionReading(SystemActor(), invoice.sellerId)
+        val seller = invoiceUseCases.readSellerUseCase.unfold(sellerReading)
         return InvoiceDocument(invoice, InvoicedSale(administeredOrder, seller))
     }
 

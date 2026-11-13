@@ -60,3 +60,7 @@ data class InvalidLegalPageException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
 data class LegalPagePublicationFailed(override val errorMessage: ErrorMessage) :
     PostConditionException(errorMessage)
+
+// A public read refused: its reader is neither a visitor, nor a user, nor the system
+data class LegalPageReadingForbiddenException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage)

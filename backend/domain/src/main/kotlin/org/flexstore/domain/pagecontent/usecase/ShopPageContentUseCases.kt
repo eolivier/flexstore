@@ -9,10 +9,10 @@ class ShopPageContentUseCases(
     private val readShopPageContentUseCase: ReadShopPageContentUseCase,
     private val editShopPageContentUseCase: EditShopPageContentUseCase
 ) {
-    fun contents() = readShopPageContentUseCase.unfold(Unit)
+    fun contents(reader: Actor) = readShopPageContentUseCase.unfold(reader)
 
     fun edit(editor: Actor, content: ShopPageContent): ShopPageContents {
         editShopPageContentUseCase.unfold(ShopPageContentChange(editor, content))
-        return contents()
+        return contents(editor)
     }
 }

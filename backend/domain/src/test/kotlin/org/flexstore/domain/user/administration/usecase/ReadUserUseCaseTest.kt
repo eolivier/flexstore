@@ -1,5 +1,6 @@
 package org.flexstore.domain.user.administration.usecase
 
+import org.flexstore.domain.actor.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
@@ -15,10 +16,7 @@ import org.flexstore.domain.user.repository.*
 
 class ReadUserUseCaseTest {
 
-    private val administrator = ValidUserId("admin-1")
-    private val userRepository = mockk<UserRepository> {
-        every { isNotAdministrator(administrator) } returns false
-    }
+    private val userRepository = mockk<UserRepository>()
     private val readUserUseCase = ReadUserUseCase(userRepository)
     private val userId = ValidUserId("123")
 
@@ -29,7 +27,7 @@ class ReadUserUseCaseTest {
         every { userRepository.findById(userId) } returns user
         every { userRepository.notExists(userId) } returns false
         // Act
-        readUserUseCase.unfold(UserReading(administrator, userId))
+        readUserUseCase.unfold(UserReading(testAdministratorActor, userId))
         // Assert
         assertThat(readUserUseCase.retrievedUser).isEqualTo(user)
     }
@@ -39,7 +37,8 @@ class ReadUserUseCaseTest {
         // Arrange
         val invalidUserId = InvalidUserId("@")
         // Act
-        val thrown = catchThrowable { readUserUseCase.unfold(UserReading(administrator, invalidUserId)) }
+        val reading = UserReading(testAdministratorActor, invalidUserId)
+        val thrown = catchThrowable { readUserUseCase.unfold(reading) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(InvalidUserIdException::class.java).hasMessage("User ID @ is invalid.")
         verify(exactly = 0) { userRepository.exists(invalidUserId) }
@@ -50,7 +49,7 @@ class ReadUserUseCaseTest {
         // Arrange
         every { userRepository.notExists(userId) } returns true
         // Act
-        val thrown = catchThrowable { readUserUseCase.unfold(UserReading(administrator, userId)) }
+        val thrown = catchThrowable { readUserUseCase.unfold(UserReading(testAdministratorActor, userId)) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java).hasMessage("User with ID 123 does not exist.")
     }
@@ -58,10 +57,8 @@ class ReadUserUseCaseTest {
     @Test
     fun `a customer should not read a user`() {
         // Arrange
-        val customer = ValidUserId("customer-1")
-        every { userRepository.isNotAdministrator(customer) } returns true
         // Act
-        val thrown = catchThrowable { readUserUseCase.unfold(UserReading(customer, userId)) }
+        val thrown = catchThrowable { readUserUseCase.unfold(UserReading(testCustomerActor, userId)) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(UserReadingForbiddenException::class.java)
         verify(exactly = 0) { userRepository.findById(userId) }
