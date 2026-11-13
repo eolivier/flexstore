@@ -1,5 +1,7 @@
 package org.flexstore.domain.twofactor.usecase
 
+import org.flexstore.domain.actor.customerId
+import org.flexstore.domain.actor.verifyCanAct
 import org.flexstore.domain.twofactor.model.TwoFactorAuthenticationNotEnabledException
 import org.flexstore.domain.twofactor.model.TwoFactorAuthentication
 import org.flexstore.domain.user.repository.UserRepository
@@ -10,7 +12,10 @@ import org.flexstore.domain.user.usecase.InvalidCurrentPasswordException
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
-data class TwoFactorDisabling(val userId: UserId, val currentPassword: PlainPassword)
+data class TwoFactorDisabling(val customer: Actor, val currentPassword: PlainPassword) {
+
+    fun userId() = customer.customerId()
+}
 
 // The customer or administrator disables their own two-factor authentication, confirmed with their current
 // password: a code could be stolen or unavailable (a changed phone), while the password is always what
@@ -26,22 +31,21 @@ class DisableTwoFactorAuthenticationUseCase(private val userRepository: UserRepo
 
     override fun getNominalScenario(): NominalScenario<TwoFactorDisabling> =
         NominalScenario(Step { disabling ->
-            userRepository.save(definedUser(disabling.userId).withTwoFactorAuthenticationDisabled())
+            userRepository.save(definedUser(disabling.userId()).withTwoFactorAuthenticationDisabled())
         })
 
     override fun getPostConditions(): PostConditions<TwoFactorDisabling> = PostConditions.none()
 
     private fun definedUser(userId: UserId) = userRepository.findById(userId) as User.DefinedUser
 
-    // The user must be an existing user whose account is not suspended, locked or disabled (read from the
-    // users, not from the request)
+    // The customer, resolved before the use case runs, must be a customer or an admin who can act
     private fun customerCanActCondition() = PreCondition<TwoFactorDisabling> { disabling ->
-        userRepository.verifyCustomerCanAct(disabling.userId)
+        disabling.customer.verifyCanAct()
     }
 
     private fun twoFactorAuthenticationIsEnabledOrPendingCondition() =
         PreCondition<TwoFactorDisabling> { disabling ->
-            if (definedUser(disabling.userId).twoFactorAuthentication is TwoFactorAuthentication.Disabled) {
+            if (definedUser(disabling.userId()).twoFactorAuthentication is TwoFactorAuthentication.Disabled) {
                 throw TwoFactorAuthenticationNotEnabledException(
                     ErrorMessage("Two-factor authentication is not enabled.")
                 )
@@ -49,7 +53,7 @@ class DisableTwoFactorAuthenticationUseCase(private val userRepository: UserRepo
         }
 
     private fun currentPasswordMatchesCondition() = PreCondition<TwoFactorDisabling> { disabling ->
-        val email = definedUser(disabling.userId).email
+        val email = definedUser(disabling.userId()).email
         if (userRepository.passwordDoesNotMatch(email, disabling.currentPassword)) {
             throw InvalidCurrentPasswordException(ErrorMessage("The current password is wrong."))
         }

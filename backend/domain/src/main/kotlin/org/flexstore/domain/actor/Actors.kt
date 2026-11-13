@@ -67,6 +67,9 @@ fun Actor.verifyCanAct() {
     }
 }
 
+// Whether the actor is the account of this user, to tell a user from the others they act on
+fun Actor.isTheUser(userId: UserId) = this is Customer && this.userId == userId
+
 // The system itself, which runs the scheduled use cases. It is not a user: the domain services that the
 // schedulers call instantiate it (internal constructor), so that no request and no user id can resolve to it.
 class SystemActor internal constructor() : Actor(Name("System"))

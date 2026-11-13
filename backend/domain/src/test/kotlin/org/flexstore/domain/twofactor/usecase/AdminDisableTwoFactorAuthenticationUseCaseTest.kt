@@ -1,6 +1,7 @@
 package org.flexstore.domain.twofactor.usecase
 
 import org.assertj.core.api.WithAssertions
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.twofactor.model.InvalidTwoFactorAuthenticationChangeException
 import org.flexstore.domain.twofactor.model.TwoFactorAuthenticationForbiddenException
 import org.flexstore.domain.twofactor.model.TwoFactorAuthenticationNotEnabledException
@@ -14,6 +15,7 @@ class AdminDisableTwoFactorAuthenticationUseCaseTest : WithAssertions {
 
     private val userRepository = InMemoryUserRepository()
     private val useCase = AdminDisableTwoFactorAuthenticationUseCase(userRepository)
+    private val actorResolutionService = ActorResolutionService(userRepository)
     private val administrator = User.DefinedUser(
         UserId.ValidUserId("admin-1"), FullName(FirstName("Admin"), LastName("Flexstore")),
         Email("admin@example.com"), PlainPassword("admin-password"), Role.ADMIN
@@ -28,13 +30,15 @@ class AdminDisableTwoFactorAuthenticationUseCaseTest : WithAssertions {
         listOf(administrator, otherAdmin).forEach { userRepository.save(it) }
     }
 
+    private fun actorOf(user: User.DefinedUser) = actorResolutionService.actorOf(user.id)
+
     private fun storedTwoFactorAuthenticationOf(userId: UserId) =
         (userRepository.findById(userId) as User.DefinedUser).twoFactorAuthentication
 
     @Test
     fun `an administrator should disable the two-factor authentication of another user`() {
         // Act
-        useCase.unfold(AdminTwoFactorDisabling(administrator.id, otherAdmin.id))
+        useCase.unfold(AdminTwoFactorDisabling(actorOf(administrator), otherAdmin.id))
         // Assert
         assertThat(storedTwoFactorAuthenticationOf(otherAdmin.id)).isEqualTo(TwoFactorAuthentication.Disabled)
     }
@@ -48,7 +52,7 @@ class AdminDisableTwoFactorAuthenticationUseCaseTest : WithAssertions {
         )
         userRepository.save(jane)
         // Act
-        val thrown = catchThrowable { useCase.unfold(AdminTwoFactorDisabling(jane.id, otherAdmin.id)) }
+        val thrown = catchThrowable { useCase.unfold(AdminTwoFactorDisabling(actorOf(jane), otherAdmin.id)) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(TwoFactorAuthenticationForbiddenException::class.java)
         assertThat(storedTwoFactorAuthenticationOf(otherAdmin.id)).isInstanceOf(
@@ -65,7 +69,7 @@ class AdminDisableTwoFactorAuthenticationUseCaseTest : WithAssertions {
         userRepository.save(selfAdministrator)
         // Act
         val thrown = catchThrowable {
-            useCase.unfold(AdminTwoFactorDisabling(selfAdministrator.id, selfAdministrator.id))
+            useCase.unfold(AdminTwoFactorDisabling(actorOf(selfAdministrator), selfAdministrator.id))
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(InvalidTwoFactorAuthenticationChangeException::class.java)
@@ -78,7 +82,7 @@ class AdminDisableTwoFactorAuthenticationUseCaseTest : WithAssertions {
     fun `the two-factor authentication of an unknown user should not be disabled`() {
         // Act
         val thrown = catchThrowable {
-            useCase.unfold(AdminTwoFactorDisabling(administrator.id, UserId.ValidUserId("unknown")))
+            useCase.unfold(AdminTwoFactorDisabling(actorOf(administrator), UserId.ValidUserId("unknown")))
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java)
@@ -94,7 +98,7 @@ class AdminDisableTwoFactorAuthenticationUseCaseTest : WithAssertions {
         userRepository.save(adminWithoutTwoFactor)
         // Act
         val thrown = catchThrowable {
-            useCase.unfold(AdminTwoFactorDisabling(administrator.id, adminWithoutTwoFactor.id))
+            useCase.unfold(AdminTwoFactorDisabling(actorOf(administrator), adminWithoutTwoFactor.id))
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(TwoFactorAuthenticationNotEnabledException::class.java)

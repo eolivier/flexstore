@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.adapter.rest
 
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.twofactor.TwoFactorAuthenticationService
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
@@ -50,7 +51,8 @@ class UserRestController(
     private val signInService: SignInService,
     private val userSessionService: UserSessionService,
     private val jwtTokenService: JwtTokenService,
-    private val twoFactorAuthenticationService: TwoFactorAuthenticationService
+    private val twoFactorAuthenticationService: TwoFactorAuthenticationService,
+    private val actorResolutionService: ActorResolutionService
 ) {
 
     @Operation(summary = "Create a user")
@@ -276,8 +278,10 @@ class UserRestController(
         ]
     )
     @PostMapping("/{id}/two-factor-authentication/enrollment")
-    fun startTwoFactorEnrollment(@PathVariable id: String): JsonTwoFactorEnrollment =
-        JsonTwoFactorEnrollment.of(twoFactorAuthenticationService.startEnrollment(UserId.of(id)))
+    fun startTwoFactorEnrollment(@PathVariable id: String): JsonTwoFactorEnrollment {
+        val customer = actorResolutionService.actorOf(UserId.of(id))
+        return JsonTwoFactorEnrollment.of(twoFactorAuthenticationService.startEnrollment(customer))
+    }
 
     @Operation(summary = "Confirm the enrollment with the first code of the authenticator app",
         responses = [
@@ -290,7 +294,8 @@ class UserRestController(
     @PostMapping("/{id}/two-factor-authentication/confirmation")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun confirmTwoFactorEnrollment(@PathVariable id: String, @RequestBody code: JsonTwoFactorCode) {
-        twoFactorAuthenticationService.confirmEnrollment(UserId.of(id), code.toTwoFactorCode())
+        val customer = actorResolutionService.actorOf(UserId.of(id))
+        twoFactorAuthenticationService.confirmEnrollment(customer, code.toTwoFactorCode())
     }
 
     @Operation(summary = "Disable two-factor authentication, confirmed with the current password",
@@ -307,7 +312,8 @@ class UserRestController(
         @PathVariable id: String,
         @RequestBody request: JsonTwoFactorDisableRequest
     ) {
-        twoFactorAuthenticationService.disable(UserId.of(id), request.toPlainPassword())
+        val customer = actorResolutionService.actorOf(UserId.of(id))
+        twoFactorAuthenticationService.disable(customer, request.toPlainPassword())
     }
 
     @Operation(
@@ -328,7 +334,8 @@ class UserRestController(
         @PathVariable id: String
     ): JsonUser {
         val editorId = UserId.of(editor.subject)
-        twoFactorAuthenticationService.disableForUser(editorId, UserId.of(id))
+        val actor = actorResolutionService.actorOf(editorId)
+        twoFactorAuthenticationService.disableForUser(actor, UserId.of(id))
         return userService.readUser(editorId, UserId.of(id)).toJsonUser()
     }
 
