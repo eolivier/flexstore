@@ -83,6 +83,6 @@ class OrderAddressesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { Order.place(orderPlacement, cart) }
         // Assert
-        assertThat(thrown).hasCauseInstanceOf(IncompleteOrderAddressException::class.java)
+        assertThat(thrown).isInstanceOf(IncompleteOrderAddressException::class.java)
     }
 }

@@ -76,7 +76,7 @@ class OrderTrackingTest : WithAssertions {
         // Act
         val thrown = catchThrowable { Carrier.from("pigeon") }
         // Assert
-        assertThat(thrown).hasCauseInstanceOf(InvalidOrderTrackingException::class.java)
+        assertThat(thrown).isInstanceOf(InvalidOrderTrackingException::class.java)
     }
 
     @ParameterizedTest
@@ -128,7 +128,7 @@ class OrderTrackingTest : WithAssertions {
         // Act
         val thrown = catchThrowable { OrderTracking.typed(typedCarrier, typedNumber) }
         // Assert
-        assertThat(thrown).hasCauseInstanceOf(InvalidOrderTrackingException::class.java)
+        assertThat(thrown).isInstanceOf(InvalidOrderTrackingException::class.java)
     }
 
     @Test

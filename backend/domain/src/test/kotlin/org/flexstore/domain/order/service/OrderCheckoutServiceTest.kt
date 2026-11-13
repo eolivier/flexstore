@@ -329,7 +329,7 @@ class OrderCheckoutServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { serviceWithStockTakenMeanwhile.placeOrder(checkout) }
         // Assert
-        assertThat(thrown).hasCauseInstanceOf(OutOfStockException::class.java).hasMessageContaining("Desk lamp")
+        assertThat(thrown).isInstanceOf(StockReservationFailed::class.java).hasMessageContaining("Desk lamp")
     }
 }
 

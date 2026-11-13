@@ -53,6 +53,6 @@ class ReviewsTest : WithAssertions {
         // Act
         val thrown = catchThrowable { Reviews().of(ReviewId("missing")) }
         // Assert
-        assertThat(thrown).hasCauseInstanceOf(ReviewNotFoundException::class.java)
+        assertThat(thrown).isInstanceOf(ReviewNotFoundException::class.java)
     }
 }
