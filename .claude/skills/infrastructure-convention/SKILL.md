@@ -121,6 +121,18 @@ adapter/persistence/jpa/PostalAddressMapping.kt
 
 Why: the package tree tells first that the code stores data, then with which technology, so that two technologies can live side by side without mixing; once the package grows, the entities (what is stored) and the repositories (how it is read and written) are found at a glance.
 
+Inside `repository`, the files are grouped by **sub-domain**, one package per sub-domain, from **11 files** as well (the same threshold as above, so that a handful of repositories stays flat): the Spring Data interface and the adapter of a concept go together, and so do the repositories of the concepts that belong to the same sub-domain.
+
+```
+adapter/persistence/jpa/repository/cart/JpaCartRepository.kt, JpaCartItemRepository.kt, PostgresCartRepositoryAdapter.kt
+adapter/persistence/jpa/repository/order/JpaOrderRepository.kt, PostgresOrderRepositoryAdapter.kt
+adapter/persistence/jpa/repository/product/JpaProductRepository.kt, PostgresProductRepositoryAdapter.kt, ProductEntityMapping.kt
+```
+
+A Spring Data interface used by adapters of several sub-domains stays with the sub-domain of its entity (`usertoken` for `JpaUserTokenRepository`). One class per file, named after its class: the interface `JpaProductReviewRepository` is in `JpaProductReviewRepository.kt`, never in the file of its adapter, and every adapter is named `Postgres<X>RepositoryAdapter`.
+
+Why: dozens of classes at the same level hide which repositories go together; one package per sub-domain follows the sub-domains of the domain.
+
 Details:
 - Count the files of the `jpa` (or `jdbc`) package itself, sub-packages excluded. Create the two sub-packages when the 11th file arrives, and move the files back up if fewer than 11 remain.
 - The other adapters keep their own package (`adapter.rest`, `adapter.email`, `adapter.payment`): `persistence` only holds what reads and writes the database.
