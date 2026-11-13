@@ -1,9 +1,9 @@
 package org.flexstore.domain.loyalty.usecase
 
-import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.entity.Actor
 
 // The use cases of the loyalty programme
 class LoyaltyUseCases(private val readLoyaltyPointsUseCase: ReadLoyaltyPointsUseCase) {
 
-    fun getPoints(customer: UserId.ValidUserId) = readLoyaltyPointsUseCase.unfold(customer)
+    fun getPoints(customer: Actor) = readLoyaltyPointsUseCase.unfold(customer)
 }

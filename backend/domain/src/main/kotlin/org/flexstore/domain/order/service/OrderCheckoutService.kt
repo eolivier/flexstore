@@ -3,6 +3,8 @@ package org.flexstore.domain.order.service
 import org.flexstore.domain.order.model.*
 import org.flexstore.domain.order.usecase.*
 import org.flexstore.domain.cart.CartOwner
+import org.flexstore.domain.actor.customerId
+import org.flexstore.domain.cart.usecase.CartReading
 import org.flexstore.domain.cart.usecase.ReadCartUseCase
 import org.flexstore.domain.discount.*
 import org.flexstore.domain.discount.usecase.CheckoutDiscountUseCases
@@ -10,6 +12,7 @@ import org.flexstore.domain.order.*
 import org.flexstore.domain.settings.usecase.ReadShopSettingsUseCase
 import org.flexstore.domain.sharedkernel.InstantProvider
 import java.time.Instant
+import org.ucop.domain.entity.Actor
 
 // The use cases that place an order, in the order of the checkout
 data class OrderPlacementUseCases(
@@ -36,14 +39,14 @@ class OrderCheckoutService(
     private val checkoutDiscountUseCases: CheckoutDiscountUseCases
 ) {
     // Without discount code
-    fun placeOrder(checkout: Checkout) = placeOrder(checkout, NoDiscountCodeEntered)
+    fun placeOrder(customer: Actor, checkout: Checkout) = placeOrder(customer, checkout, NoDiscountCodeEntered)
 
-    fun placeOrder(checkout: Checkout, enteredDiscountCode: EnteredDiscountCode): Order {
+    fun placeOrder(customer: Actor, checkout: Checkout, enteredDiscountCode: EnteredDiscountCode): Order {
         val orderStamp = OrderStamp(OrderId.nextId(), InstantProvider.now())
         val orderPlacement = OrderPlacement(orderStamp, checkout)
         orderPlacementUseCases.keepOrderAddressesUseCase.unfold(orderPlacement)
         val discountChoice = discountChoiceOf(enteredDiscountCode, orderStamp)
-        val orderToPlace = OrderToPlace(orderPlacement, contentOf(checkout, discountChoice))
+        val orderToPlace = OrderToPlace(orderPlacement, contentOf(customer, checkout, discountChoice))
         orderPlacementUseCases.placeOrderUseCase.unfold(orderToPlace)
         if (discountChoice is WithDiscountCode) {
             checkoutDiscountUseCases.useDiscountCodeUseCase.unfold(discountChoice.discountCode.code)
@@ -54,9 +57,10 @@ class OrderCheckoutService(
     }
 
     // What the discount code entered takes off the cart of the customer, before they order
-    fun previewDiscount(customer: CartOwner.Customer, code: PromoCode): DiscountPreview {
+    fun previewDiscount(customer: Actor, code: PromoCode): DiscountPreview {
         val discountCode = usableDiscountCode(code, InstantProvider.now())
-        val itemsPrice = checkoutQueryUseCases.readCartUseCase.unfold(customer).items.totalPrice()
+        val cartReading = CartReading(customer, CartOwner.Customer(customer.customerId()))
+        val itemsPrice = checkoutQueryUseCases.readCartUseCase.unfold(cartReading).items.totalPrice()
         return DiscountPreview(discountCode.code, discountCode.reduction.amountOff(itemsPrice))
     }
 
@@ -76,8 +80,8 @@ class OrderCheckoutService(
 
     // The cart of the customer, and the terms of the shop: its threshold of free shipping, the discount code
     // chosen
-    private fun contentOf(checkout: Checkout, discountChoice: DiscountChoice): OrderContent {
-        val cart = checkoutQueryUseCases.readCartUseCase.unfold(checkout.customer)
+    private fun contentOf(customer: Actor, checkout: Checkout, discountChoice: DiscountChoice): OrderContent {
+        val cart = checkoutQueryUseCases.readCartUseCase.unfold(CartReading(customer, checkout.customer))
         val shopSettings = checkoutQueryUseCases.readShopSettingsUseCase.unfold(Unit)
         return OrderContent(cart, OrderTerms(shopSettings.freeShippingThreshold, discountChoice))
     }

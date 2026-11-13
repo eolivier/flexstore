@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.adapter.rest
 
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.cart.usecase.*
 import org.flexstore.domain.product.*
@@ -27,7 +28,10 @@ const val CART_ID_HEADER = "X-Cart-Id"
 @Tag(name = "Cart")
 @RestController
 @RequestMapping("/api/cart")
-class CartController(private val cartUseCases: CartUseCases) {
+class CartController(
+    private val cartUseCases: CartUseCases,
+    private val actorResolutionService: ActorResolutionService
+) {
 
     @Operation(summary = "Retrieve the items of the cart of the customer or of the visitor")
     @GetMapping("/cart-items")
@@ -36,7 +40,7 @@ class CartController(private val cartUseCases: CartUseCases) {
         @RequestHeader(CART_ID_HEADER, required = false) cartId: String?
     ): JsonCartItems {
         val owner = customer(jwt) ?: visitor(cartId) ?: return JsonCartItems(emptyList(), BigDecimal.ZERO, "€")
-        return cartUseCases.getCart(owner).items.toJsonCartItems()
+        return cartUseCases.getCart(actorOf(jwt), owner).items.toJsonCartItems()
     }
 
     @Operation(summary = "Add an item to the cart, or change the quantity of an item (0 removes it)",
@@ -51,9 +55,10 @@ class CartController(private val cartUseCases: CartUseCases) {
         val quantity = Quantity(jsonItem.productQuantity)
         if (ItemId.isValid(jsonItem.itemId)) {
             val itemId = ItemId(Identity(jsonItem.itemId!!))
-            cartUseCases.changeQuantity(ChangeCartItemQuantityRequest(owner, itemId, quantity))
+            cartUseCases.changeQuantity(ChangeCartItemQuantityRequest(actorOf(jwt), owner, itemId, quantity))
         } else {
-            cartUseCases.addItem(AddItemToCartRequest(owner, ProductId(Identity(jsonItem.productId)), quantity))
+            val productId = ProductId(Identity(jsonItem.productId))
+            cartUseCases.addItem(AddItemToCartRequest(actorOf(jwt), owner, productId, quantity))
         }
         return JsonSaveItemResponse("ok", (owner as? CartOwner.Visitor)?.cartId?.value)
     }
@@ -66,8 +71,12 @@ class CartController(private val cartUseCases: CartUseCases) {
         @RequestHeader(CART_ID_HEADER, required = false) cartId: String?
     ) {
         val visitor = visitor(cartId) ?: return
-        cartUseCases.mergeCarts(MergeCartsRequest(visitor, customer(jwt)!!))
+        cartUseCases.mergeCarts(MergeCartsRequest(visitor, actorOf(jwt)))
     }
+
+    // The customer of the token, or a visitor when there is none
+    private fun actorOf(jwt: Jwt?) =
+        jwt?.let { actorResolutionService.actorOf(UserId.of(it.subject)) } ?: actorResolutionService.visitor()
 
     private fun customer(jwt: Jwt?) = jwt?.let { CartOwner.Customer(UserId.ValidUserId(it.subject)) }
 

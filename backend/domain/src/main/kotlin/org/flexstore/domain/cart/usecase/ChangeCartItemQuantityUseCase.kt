@@ -2,18 +2,19 @@ package org.flexstore.domain.cart.usecase
 
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.sharedkernel.*
-import org.flexstore.domain.user.repository.UserRepository
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // A quantity of zero or less removes the item; an item of another cart is unknown to the owner's cart, hence
 // ignored
-data class ChangeCartItemQuantityRequest(val owner: CartOwner, val itemId: ItemId, val quantity: Quantity)
+data class ChangeCartItemQuantityRequest(
+    val actor: Actor,
+    val owner: CartOwner, 
+    val itemId: ItemId,
+    val quantity: Quantity
+)
 
-class ChangeCartItemQuantityUseCase(
-    private val cartRepository: CartRepository,
-    private val userRepository: UserRepository
-) : UseCase<ChangeCartItemQuantityRequest> {
+class ChangeCartItemQuantityUseCase(private val cartRepository: CartRepository) : UseCase<ChangeCartItemQuantityRequest> {
 
     override fun getPreConditions(): PreConditions<ChangeCartItemQuantityRequest> =
         PreConditions(ownerCanActCondition())
@@ -29,13 +30,9 @@ class ChangeCartItemQuantityUseCase(
     override fun getPostConditions(): PostConditions<ChangeCartItemQuantityRequest> =
         PostConditions(quantityChangedCondition())
 
-    // A customer owner must be an existing user whose account is not suspended, locked or disabled
-    // (read from the users, not from the request); a visitor has none
+    // The actor, resolved before the use case runs, must be able to act when the cart is the one of a customer
     private fun ownerCanActCondition() = PreCondition<ChangeCartItemQuantityRequest> { request ->
-        val owner = request.owner
-        if (owner is CartOwner.Customer) {
-            userRepository.verifyCustomerCanAct(owner.userId)
-        }
+        request.actor.verifyCanUseCartOf(request.owner)
     }
 
     private fun quantityChangedCondition() = PostCondition<ChangeCartItemQuantityRequest> { request ->

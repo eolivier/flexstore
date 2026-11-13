@@ -78,26 +78,23 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
 
     @Bean
     open fun addItemToCartUseCase(cartRepository: CartRepository,
-                                  productRepository: ProductRepository,
-                                  userRepository: UserRepository): AddItemToCartUseCase {
-        return AddItemToCartUseCase(cartRepository, productRepository, userRepository)
+                                  productRepository: ProductRepository): AddItemToCartUseCase {
+        return AddItemToCartUseCase(cartRepository, productRepository)
     }
 
     @Bean
-    open fun changeCartItemQuantityUseCase(cartRepository: CartRepository,
-                                           userRepository: UserRepository): ChangeCartItemQuantityUseCase {
-        return ChangeCartItemQuantityUseCase(cartRepository, userRepository)
+    open fun changeCartItemQuantityUseCase(cartRepository: CartRepository): ChangeCartItemQuantityUseCase {
+        return ChangeCartItemQuantityUseCase(cartRepository)
     }
 
     @Bean
-    open fun readCartUseCase(cartRepository: CartRepository, userRepository: UserRepository): ReadCartUseCase {
-        return ReadCartUseCase(cartRepository, userRepository)
+    open fun readCartUseCase(cartRepository: CartRepository): ReadCartUseCase {
+        return ReadCartUseCase(cartRepository)
     }
 
     @Bean
-    open fun mergeCartsUseCase(cartRepository: CartRepository,
-                               userRepository: UserRepository): MergeCartsUseCase {
-        return MergeCartsUseCase(cartRepository, userRepository)
+    open fun mergeCartsUseCase(cartRepository: CartRepository): MergeCartsUseCase {
+        return MergeCartsUseCase(cartRepository)
     }
 
     @Bean
@@ -610,8 +607,8 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     ) = UserPreferenceUseCases(readUserPreferenceUseCase, recordUserPreferenceUseCase)
 
     @Bean
-    open fun readLoyaltyPointsUseCase(orderRepository: OrderRepository, userRepository: UserRepository) =
-        ReadLoyaltyPointsUseCase(orderRepository, userRepository)
+    open fun readLoyaltyPointsUseCase(orderRepository: OrderRepository) =
+        ReadLoyaltyPointsUseCase(orderRepository)
 
     @Bean
     open fun loyaltyUseCases(readLoyaltyPointsUseCase: ReadLoyaltyPointsUseCase) =
@@ -668,19 +665,16 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
     @Bean
     open fun addProductToWishlistUseCase(
         wishlistRepository: WishlistRepository,
-        productRepository: ProductRepository,
-        userRepository: UserRepository
-    ) = AddProductToWishlistUseCase(wishlistRepository, productRepository, userRepository)
+        productRepository: ProductRepository
+    ) = AddProductToWishlistUseCase(wishlistRepository, productRepository)
 
     @Bean
-    open fun removeProductFromWishlistUseCase(
-        wishlistRepository: WishlistRepository,
-        userRepository: UserRepository
-    ) = RemoveProductFromWishlistUseCase(wishlistRepository, userRepository)
+    open fun removeProductFromWishlistUseCase(wishlistRepository: WishlistRepository) =
+        RemoveProductFromWishlistUseCase(wishlistRepository)
 
     @Bean
-    open fun listWishlistUseCase(wishlistRepository: WishlistRepository, userRepository: UserRepository) =
-        ListWishlistUseCase(wishlistRepository, userRepository)
+    open fun listWishlistUseCase(wishlistRepository: WishlistRepository) =
+        ListWishlistUseCase(wishlistRepository)
 
     @Bean
     open fun wishlistUseCases(
