@@ -3,12 +3,11 @@ package org.flexstore.domain.legal.usecase
 import org.flexstore.domain.legal.*
 import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.sharedkernel.InstantProvider
-import org.flexstore.domain.user.model.*
-import org.flexstore.domain.user.model.User.DefinedUser
-import org.flexstore.domain.user.model.UserId.ValidUserId
+import org.flexstore.domain.actor.testAdministratorActor
+import org.flexstore.domain.actor.testCustomerActor
+import org.flexstore.domain.actor.unknownUserActor
 import org.assertj.core.api.WithAssertions
 import org.flexstore.infra.repository.InMemoryLegalPageRepository
-import org.flexstore.infra.repository.InMemoryUserRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -26,20 +25,10 @@ class LegalPageUseCasesTest : WithAssertions {
     )
     private val legalPageRepository =
         InMemoryLegalPageRepository(listOf(unwrittenLegalNotice, writtenTermsOfSale))
-    private val administrator = userOf("admin-1", Role.ADMIN)
-    private val customer = userOf("customer-1", Role.USER)
-    private val userRepository = InMemoryUserRepository().apply {
-        save(administrator)
-        save(customer)
-    }
+    private val administrator = testAdministratorActor
     private val readLegalPageUseCase = ReadLegalPageUseCase(legalPageRepository)
     private val legalPageUseCases =
-        LegalPageUseCases(readLegalPageUseCase, PublishLegalPageUseCase(legalPageRepository, userRepository))
-
-    private fun userOf(id: String, role: Role) = DefinedUser(
-        ValidUserId(id), FullName(FirstName("Jane"), LastName("Doe")), Email("$id@flexstore.fr"),
-        HashedPassword("hashed"), role
-    )
+        LegalPageUseCases(readLegalPageUseCase, PublishLegalPageUseCase(legalPageRepository))
 
     @AfterEach
     fun resetClock() {
@@ -69,7 +58,7 @@ class LegalPageUseCasesTest : WithAssertions {
         InstantProvider.fixAt(now)
         val legalText = LegalText("Flexstore SAS, 1 rue de la Démo, 75001 Paris")
         // Act
-        val legalNotice = legalPageUseCases.publish(administrator.id, LegalPageKind.LEGAL_NOTICE, legalText)
+        val legalNotice = legalPageUseCases.publish(administrator, LegalPageKind.LEGAL_NOTICE, legalText)
         // Assert
         assertThat(legalNotice.text).isEqualTo(legalText)
         assertThat(legalNotice.publishedAt).isEqualTo(PublishedAt(now))
@@ -80,7 +69,7 @@ class LegalPageUseCasesTest : WithAssertions {
     fun `publishing a legal page should keep its previous version and leave the other page as it was`() {
         // Act
         val legalText = LegalText("Article 1 - Objet et champ")
-        legalPageUseCases.publish(administrator.id, LegalPageKind.TERMS_OF_SALE, legalText)
+        legalPageUseCases.publish(administrator, LegalPageKind.TERMS_OF_SALE, legalText)
         // Assert
         assertThat(legalPageRepository.findBy(writtenTermsOfSale.id)).isEqualTo(writtenTermsOfSale)
         assertThat(legalPageUseCases.legalPage(LegalPageKind.LEGAL_NOTICE)).isEqualTo(unwrittenLegalNotice)
@@ -90,7 +79,7 @@ class LegalPageUseCasesTest : WithAssertions {
     fun `a customer should not publish a legal page`() {
         // Act
         val thrown = catchThrowable {
-            legalPageUseCases.publish(customer.id, LegalPageKind.TERMS_OF_SALE, LegalText("Article 1 - Autre"))
+            legalPageUseCases.publish(testCustomerActor, LegalPageKind.TERMS_OF_SALE, LegalText("Article 1 - Autre"))
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(LegalPagePublicationForbiddenException::class.java)
@@ -101,7 +90,7 @@ class LegalPageUseCasesTest : WithAssertions {
     fun `an unknown user should not publish a legal page`() {
         // Act
         val thrown = catchThrowable {
-            legalPageUseCases.publish(ValidUserId("unknown"), LegalPageKind.LEGAL_NOTICE, LegalText("Mentions"))
+            legalPageUseCases.publish(unknownUserActor, LegalPageKind.LEGAL_NOTICE, LegalText("Mentions"))
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(LegalPagePublicationForbiddenException::class.java)
@@ -112,7 +101,7 @@ class LegalPageUseCasesTest : WithAssertions {
     fun `a legal page without text should be refused`(text: String) {
         // Act
         val thrown = catchThrowable {
-            legalPageUseCases.publish(administrator.id, LegalPageKind.TERMS_OF_SALE, LegalText(text))
+            legalPageUseCases.publish(administrator, LegalPageKind.TERMS_OF_SALE, LegalText(text))
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(InvalidLegalPageException::class.java)
@@ -125,7 +114,7 @@ class LegalPageUseCasesTest : WithAssertions {
         val tooLongText = LegalText("a".repeat(50_001))
         // Act
         val thrown = catchThrowable {
-            legalPageUseCases.publish(administrator.id, LegalPageKind.LEGAL_NOTICE, tooLongText)
+            legalPageUseCases.publish(administrator, LegalPageKind.LEGAL_NOTICE, tooLongText)
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(InvalidLegalPageException::class.java)
@@ -136,7 +125,7 @@ class LegalPageUseCasesTest : WithAssertions {
         // Arrange
         val longestText = LegalText("a".repeat(50_000))
         // Act
-        val legalNotice = legalPageUseCases.publish(administrator.id, LegalPageKind.LEGAL_NOTICE, longestText)
+        val legalNotice = legalPageUseCases.publish(administrator, LegalPageKind.LEGAL_NOTICE, longestText)
         // Assert
         assertThat(legalNotice.text).isEqualTo(longestText)
     }

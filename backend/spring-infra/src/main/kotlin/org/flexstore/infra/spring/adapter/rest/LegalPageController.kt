@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.adapter.rest
 
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.legal.LegalPageKind
 import org.flexstore.domain.legal.usecase.LegalPageUseCases
 import org.flexstore.domain.user.model.UserId
@@ -38,7 +39,10 @@ class LegalPageController(private val legalPageUseCases: LegalPageUseCases) {
 @Tag(name = "Administration")
 @RestController
 @RequestMapping("/api/admin/legal-pages")
-class AdminLegalPageController(private val legalPageUseCases: LegalPageUseCases) {
+class AdminLegalPageController(
+    private val legalPageUseCases: LegalPageUseCases,
+    private val actorResolutionService: ActorResolutionService
+) {
 
     @Operation(summary = "Publish a new version of a legal page: legal-notice, terms-of-sale or privacy-policy")
     @PutMapping("/{kind}")
@@ -48,8 +52,8 @@ class AdminLegalPageController(private val legalPageUseCases: LegalPageUseCases)
         @RequestBody legalText: JsonLegalText
     ): ResponseEntity<JsonLegalPage> {
         val legalPageKind = legalPageKinds[kind] ?: return ResponseEntity.notFound().build()
-        val publisherId = UserId.of(publisher.subject)
-        val legalPage = legalPageUseCases.publish(publisherId, legalPageKind, legalText.toLegalText())
+        val actor = actorResolutionService.actorOf(UserId.of(publisher.subject))
+        val legalPage = legalPageUseCases.publish(actor, legalPageKind, legalText.toLegalText())
         return ResponseEntity.ok(JsonLegalPage(legalPage))
     }
 }
