@@ -641,8 +641,8 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         ReadEnvironmentUseCase(environmentRepository, userRepository)
 
     @Bean
-    open fun readSalesDashboardUseCase(orderRepository: OrderRepository, userRepository: UserRepository) =
-        ReadSalesDashboardUseCase(orderRepository, userRepository)
+    open fun readSalesDashboardUseCase(orderRepository: OrderRepository) =
+        ReadSalesDashboardUseCase(orderRepository)
 
     @Bean
     open fun startTwoFactorEnrollmentUseCase(userRepository: UserRepository) =

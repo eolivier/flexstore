@@ -8,14 +8,13 @@ import org.flexstore.infra.repository.InMemoryOrderRepository
 import org.flexstore.domain.user.*
 import org.junit.jupiter.api.Test
 import java.time.Instant
-import org.flexstore.domain.user.administration.testAdministrator
-import org.flexstore.domain.user.administration.testCustomer
-import org.flexstore.domain.user.administration.usersOfTheAdministration
+import org.flexstore.domain.actor.testAdministratorActor
+import org.flexstore.domain.actor.testCustomerActor
 
 class ReadSalesDashboardUseCaseTest : WithAssertions {
 
-    private val administrator = testAdministrator.id
-    private val useCase = ReadSalesDashboardUseCase(InMemoryOrderRepository(), usersOfTheAdministration())
+    private val administrator = testAdministratorActor
+    private val useCase = ReadSalesDashboardUseCase(InMemoryOrderRepository())
     private val now = Instant.parse("2026-10-31T10:00:00Z")
 
     @Test
@@ -40,7 +39,7 @@ class ReadSalesDashboardUseCaseTest : WithAssertions {
     @Test
     fun `a customer should not read the sales of the shop`() {
         // Arrange
-        val salesDashboardReading = SalesDashboardReading(testCustomer.id, SalesQuestion(DayCount(30), now))
+        val salesDashboardReading = SalesDashboardReading(testCustomerActor, SalesQuestion(DayCount(30), now))
         // Act
         val thrown = catchThrowable { useCase.unfold(salesDashboardReading) }
         // Assert

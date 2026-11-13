@@ -6,7 +6,7 @@ import java.time.ZoneId
 import org.flexstore.domain.order.*
 import org.flexstore.domain.order.model.*
 import org.flexstore.domain.sharedkernel.Price
-import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.entity.Actor
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.PreConditionException
 
@@ -95,7 +95,7 @@ data class SalesDashboard(
 }
 
 // An administrator who reads the sales of the shop
-data class SalesDashboardReading(val reader: UserId, val question: SalesQuestion)
+data class SalesDashboardReading(val reader: Actor, val question: SalesQuestion)
 
 data class SalesDashboardForbiddenException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
