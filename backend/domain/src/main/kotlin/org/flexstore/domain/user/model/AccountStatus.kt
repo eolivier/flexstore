@@ -1,7 +1,6 @@
 package org.flexstore.domain.user.model
 
 import org.ucop.domain.ErrorMessage
-import org.ucop.domain.NominalException
 import org.ucop.domain.PreConditionException
 
 // The status of the account of a user. A customer who creates their account waits for the verification of their
@@ -32,5 +31,6 @@ data class AccountSignInRefusedException(val status: AccountStatus, override val
     PreConditionException(errorMessage)
 // The account of the user who runs a use case is suspended, locked or disabled: the user cannot act
 data class AccountRefusedException(val status: AccountStatus, override val errorMessage: ErrorMessage) :
-    NominalException(errorMessage)
-data class InvalidStatusChangeException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+    PreConditionException(errorMessage)
+data class InvalidStatusChangeException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage)

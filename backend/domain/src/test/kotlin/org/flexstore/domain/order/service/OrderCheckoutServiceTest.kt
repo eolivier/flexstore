@@ -252,7 +252,7 @@ class OrderCheckoutServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { service.placeOrder(checkout) }
         // Assert
-        assertThat(thrown).isInstanceOf(EmptyCartException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(EmptyCartException::class.java)
         assertThat(storedOrders()).isEmpty()
     }
 
@@ -265,7 +265,7 @@ class OrderCheckoutServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { service.placeOrder(unknownCustomerCheckout) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java)
     }
 
     @Test
@@ -317,7 +317,7 @@ class OrderCheckoutServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { service.placeOrder(checkout) }
         // Assert
-        assertThat(thrown).isInstanceOf(OutOfStockException::class.java).hasMessageContaining("Desk lamp")
+        assertThat(thrown).hasCauseInstanceOf(OutOfStockException::class.java).hasMessageContaining("Desk lamp")
         assertThat(storedOrders()).isEmpty()
     }
 
@@ -329,7 +329,7 @@ class OrderCheckoutServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { serviceWithStockTakenMeanwhile.placeOrder(checkout) }
         // Assert
-        assertThat(thrown).isInstanceOf(OutOfStockException::class.java).hasMessageContaining("Desk lamp")
+        assertThat(thrown).hasCauseInstanceOf(OutOfStockException::class.java).hasMessageContaining("Desk lamp")
     }
 }
 

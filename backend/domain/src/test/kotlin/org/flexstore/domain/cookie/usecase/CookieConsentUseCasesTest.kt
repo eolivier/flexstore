@@ -100,7 +100,7 @@ class CookieConsentUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { cookieConsentUseCases.record(unknownUser, CookieChoice.ACCEPTED) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java)
     }
 
     @Test
@@ -108,6 +108,6 @@ class CookieConsentUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { cookieConsentUseCases.consentOf(ValidUserId("unknown")) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java)
     }
 }

@@ -77,7 +77,7 @@ class StockAlertUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { stockAlertUseCases.change(administratorActor, unknownAlert) }
         // Assert
-        assertThat(thrown).isInstanceOf(ProductNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(ProductNotFoundException::class.java)
     }
 
     @Test

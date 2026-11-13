@@ -110,7 +110,7 @@ class OrderQueryUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { listCustomerOrdersUseCase.unfold(reading) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java)
     }
 
     @Test
@@ -121,7 +121,7 @@ class OrderQueryUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { readCustomerOrderUseCase.unfold(lookup) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java)
     }
 
     @ParameterizedTest
@@ -133,7 +133,7 @@ class OrderQueryUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { listCustomerOrdersUseCase.unfold(reading) }
         // Assert
-        assertThat(thrown).isInstanceOf(AccountRefusedException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(AccountRefusedException::class.java)
     }
 
     @Test

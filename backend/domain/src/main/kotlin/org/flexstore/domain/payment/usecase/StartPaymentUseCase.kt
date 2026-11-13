@@ -66,7 +66,7 @@ class StartPaymentUseCase(
         val orderId = orderPayment.orderId
         if (paymentRepository.sessionIsMissingFor(orderId)) {
             val message = ErrorMessage("The payment of order ${orderId.value} did not start.")
-            throw PaymentNotStartedException(message)
+            throw PaymentStartFailed(message)
         }
     }
 }

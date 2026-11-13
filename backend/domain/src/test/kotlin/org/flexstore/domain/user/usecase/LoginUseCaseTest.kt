@@ -54,6 +54,6 @@ class LoginUseCaseTest {
         // Act
         val thrown = catchThrowable { loginUseCase.unfold(LoginRequest(email, incorrectPassword)) }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidCredentialsException::class.java).hasMessage("Invalid credentials.")
+        assertThat(thrown).hasCauseInstanceOf(InvalidCredentialsException::class.java).hasMessage("Invalid credentials.")
     }
 }

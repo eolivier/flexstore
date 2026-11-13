@@ -85,7 +85,7 @@ class UpdateUserUseCaseTest {
         // Act
         val thrown = catchThrowable { updateUserUseCase.unfold(updateUserRequest) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java).hasMessage("User with ID unknown does not exist.")
+        assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java).hasMessage("User with ID unknown does not exist.")
     }
 
     @Test

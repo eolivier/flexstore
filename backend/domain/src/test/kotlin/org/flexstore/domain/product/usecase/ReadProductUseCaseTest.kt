@@ -35,6 +35,6 @@ class ReadProductUseCaseTest {
         // Act
         val thrown = catchThrowable { ReadProductUseCase(productRepository).unfold(productId) }
         // Assert
-        assertThat(thrown).isInstanceOf(ProductNotFoundException::class.java).hasMessage("Product with ID unknown does not exist.")
+        assertThat(thrown).hasCauseInstanceOf(ProductNotFoundException::class.java).hasMessage("Product with ID unknown does not exist.")
     }
 }

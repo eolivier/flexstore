@@ -13,6 +13,7 @@ import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 import org.springframework.web.filter.OncePerRequestFilter
+import org.ucop.domain.NominalException
 
 // A token stays valid until it expires, even after its account is deleted, suspended, locked or disabled. This
 // filter runs before the authorization of the request: the token of such an account is replaced by an anonymous
@@ -35,8 +36,8 @@ class AccountAuthorizationFilter(private val readAccountUseCase: ReadAccountUseC
     private fun accountCannotAct(subject: String) = try {
         val account: Account = readAccountUseCase.unfold(UserId.of(subject))
         account.status.refusesSignIn()
-    } catch (unknownUser: UserNotFoundException) {
-        true
+    } catch (refusal: NominalException) {
+        if (refusal.cause is UserNotFoundException) true else throw refusal
     }
 
     private fun anonymous() = AnonymousAuthenticationToken(

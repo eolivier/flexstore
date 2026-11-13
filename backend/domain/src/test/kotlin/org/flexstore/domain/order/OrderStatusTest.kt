@@ -32,6 +32,6 @@ class OrderStatusTest : WithAssertions {
         // Act
         val thrown = catchThrowable { OrderStatus.DELIVERED.next() }
         // Assert
-        assertThat(thrown).isInstanceOf(OrderStatusCannotAdvanceException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(OrderStatusCannotAdvanceException::class.java)
     }
 }

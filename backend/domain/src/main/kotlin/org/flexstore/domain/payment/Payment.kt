@@ -30,5 +30,8 @@ data class PaymentAlreadyCompletedException(override val errorMessage: ErrorMess
 // reachable...)
 data class PaymentRefundRefusedException(override val errorMessage: ErrorMessage) :
     NominalException(errorMessage)
-data class PaymentNotStartedException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+// The payment of an order did not start although the preconditions held
+data class PaymentStartFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class PaymentNotStartedException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage)
 data class PaymentConfirmationFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

@@ -48,7 +48,7 @@ class DeleteReviewUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(ReviewDeletion(administrator, ReviewId("missing"))) }
         // Assert
-        assertThat(thrown).isInstanceOf(ReviewNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(ReviewNotFoundException::class.java)
     }
 
     @Test

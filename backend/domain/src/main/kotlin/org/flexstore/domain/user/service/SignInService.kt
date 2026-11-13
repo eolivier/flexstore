@@ -31,9 +31,11 @@ class SignInService(
         val loginUseCase = LoginUseCase(userRepository)
         try {
             loginUseCase.unfold(loginRequest)
-        } catch (wrongPassword: InvalidCredentialsException) {
-            recordFailedSignInUseCase.unfold(loginRequest.email)
-            throw wrongPassword
+        } catch (refusal: NominalException) {
+            if (refusal.cause is InvalidCredentialsException) {
+                recordFailedSignInUseCase.unfold(loginRequest.email)
+            }
+            throw refusal
         }
         return outcomeOf(loginUseCase.authenticatedUser as User.DefinedUser)
     }

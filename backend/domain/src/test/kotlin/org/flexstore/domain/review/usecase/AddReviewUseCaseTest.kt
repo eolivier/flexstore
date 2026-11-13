@@ -120,7 +120,7 @@ class AddReviewUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(submission(sturdy, ProductId(Identity("unknown")))) }
         // Assert
-        assertThat(thrown).isInstanceOf(ProductNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(ProductNotFoundException::class.java)
     }
 
     @Test
@@ -132,7 +132,7 @@ class AddReviewUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(ReviewSubmission(stamp, draft)) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java)
     }
 
     @ParameterizedTest
@@ -146,6 +146,6 @@ class AddReviewUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(ReviewSubmission(stamp, draft)) }
         // Assert
-        assertThat(thrown).isInstanceOf(AccountRefusedException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(AccountRefusedException::class.java)
     }
 }

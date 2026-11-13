@@ -124,7 +124,7 @@ class SignInServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { signInService.signIn(LoginRequest(janeEmail, wrongPassword)) }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidCredentialsException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(InvalidCredentialsException::class.java)
     }
 
     @Test

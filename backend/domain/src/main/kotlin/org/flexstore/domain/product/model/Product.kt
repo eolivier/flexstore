@@ -113,10 +113,12 @@ data class SkuProposalRequest(val requester: UserId, val skuBasis: SkuBasis)
 
 data class ProductAdministrationForbiddenException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
-data class InvalidPromotionException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class InvalidPromotionException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage)
 data class ProductAlreadyExists(override val errorMessage: ErrorMessage) : PreConditionException(errorMessage)
 data class ProductCreationFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
-data class InvalidSkuException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class InvalidSkuException(override val errorMessage: ErrorMessage) : PreConditionException(errorMessage)
 data class SkuProposalFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
-data class SkuAlreadyUsedException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
-data class ProductNotFoundException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class SkuAlreadyUsedException(override val errorMessage: ErrorMessage) : PreConditionException(errorMessage)
+data class ProductNotFoundException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage)

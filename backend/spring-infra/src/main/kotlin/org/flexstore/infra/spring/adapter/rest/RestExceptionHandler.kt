@@ -50,13 +50,24 @@ class RestExceptionHandler {
             is PostConditionException -> cause
             else -> nominal
         }
+        return answerFor(ex)
+    }
+
+    // A precondition not met that reaches the adapter without a use case around it (an invalid value read in
+    // a request body, a rule of the model): answered for itself
+    @ExceptionHandler(PreConditionException::class)
+    fun handlePreConditionException(precondition: PreConditionException): ResponseEntity<Map<String, String>> =
+        answerFor(precondition)
+
+    private fun answerFor(ex: Exception): ResponseEntity<Map<String, String>> {
         return when (ex) {
             is UserAlreadyExists -> ResponseEntity
                 .status(409)
                 .body(mapOf("error" to (ex.message ?: "User already exists")))
             // Same answer for an unknown email and a wrong password, so that the login does not reveal which
             // accounts exist
-            is InvalidCredentialsException, is UserNotFoundByEmailException, is InvalidGoogleIdTokenException ->
+            is InvalidCredentialsException, is UserNotFoundByEmailException, is InvalidGoogleIdTokenException,
+            is UserAuthenticationFailed ->
                 ResponseEntity
                     .status(401)
                     .body(mapOf("error" to "Invalid credentials."))
@@ -182,7 +193,7 @@ class RestExceptionHandler {
                 .status(409)
                 .body(mapOf("error" to (ex.message ?: "Terms of sale changed"), "reason" to OUTDATED_TERMS))
             // Not 422, which tells the front that the cart is empty
-            is OutOfStockException -> ResponseEntity
+            is OutOfStockException, is StockReservationFailed -> ResponseEntity
                 .status(409)
                 .body(mapOf("error" to (ex.message ?: "Not enough units in stock")))
             is NegativeStockException -> ResponseEntity

@@ -59,7 +59,7 @@ class StockUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { stockUseCases.change(testAdministrator.id, unknownProductStock) }
         // Assert
-        assertThat(thrown).isInstanceOf(ProductNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(ProductNotFoundException::class.java)
     }
 
     @Test

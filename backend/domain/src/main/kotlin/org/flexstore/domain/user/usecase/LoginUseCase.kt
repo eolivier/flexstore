@@ -67,7 +67,7 @@ class LoginUseCase(
 
     private fun userAuthenticatedCondition() = PostCondition<LoginRequest> { request ->
         if (authenticatedUser is User.UndefinedUser) {
-            throw InvalidCredentialsException(ErrorMessage("User authentication failed."))
+            throw UserAuthenticationFailed(ErrorMessage("User authentication failed."))
         }
     }
 }

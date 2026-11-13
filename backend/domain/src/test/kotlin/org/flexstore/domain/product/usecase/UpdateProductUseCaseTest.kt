@@ -108,7 +108,7 @@ class UpdateProductUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(UpdateProductRequest(administrator, tShirtWithJacketSku)) }
         // Assert
-        assertThat(thrown).isInstanceOf(SkuAlreadyUsedException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(SkuAlreadyUsedException::class.java)
         assertThat(productRepository.findById(tShirt.productId)?.sku).isEqualTo(tShirt.sku)
     }
 
@@ -120,7 +120,7 @@ class UpdateProductUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(request) }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidSkuException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(InvalidSkuException::class.java)
         assertThat(productRepository.findById(tShirt.productId)?.sku).isEqualTo(tShirt.sku)
     }
 
@@ -134,7 +134,7 @@ class UpdateProductUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(request) }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidPromotionException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(InvalidPromotionException::class.java)
         assertThat(productRepository.findById(tShirt.productId)).isEqualTo(tShirt)
     }
 
@@ -148,7 +148,7 @@ class UpdateProductUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(request) }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidPromotionException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(InvalidPromotionException::class.java)
         assertThat(productRepository.findById(tShirt.productId)).isEqualTo(tShirt)
     }
 
@@ -159,7 +159,7 @@ class UpdateProductUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(UpdateProductRequest(administrator, unknownProduct)) }
         // Assert
-        assertThat(thrown).isInstanceOf(ProductNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(ProductNotFoundException::class.java)
         assertThat(productRepository.findById(unknownProduct.productId)).isNull()
     }
 

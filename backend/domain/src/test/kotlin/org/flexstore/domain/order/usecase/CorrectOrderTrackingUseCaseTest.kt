@@ -88,7 +88,7 @@ class CorrectOrderTrackingUseCaseTest : WithAssertions {
             useCase.unfold(OrderTrackingCorrection(administrator, orderId, invalidTracking))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidOrderTrackingException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(InvalidOrderTrackingException::class.java)
         assertThat(storedTracking()).isEqualTo(firstTracking)
     }
 

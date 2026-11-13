@@ -83,7 +83,7 @@ class AdvanceOrderStatusUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(OrderStatusAdvance(administrator, orderId, status)) }
         // Assert
-        assertThat(thrown).isInstanceOf(OrderStatusCannotAdvanceException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(OrderStatusCannotAdvanceException::class.java)
         assertThat(storedStatus()).isEqualTo(status)
     }
 
@@ -153,7 +153,7 @@ class AdvanceOrderStatusUseCaseTest : WithAssertions {
             useCase.unfold(OrderStatusAdvance(administrator, orderId, status, tracking))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidOrderTrackingException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(InvalidOrderTrackingException::class.java)
         assertThat(storedStatus()).isEqualTo(status)
     }
 
@@ -167,7 +167,7 @@ class AdvanceOrderStatusUseCaseTest : WithAssertions {
             useCase.unfold(OrderStatusAdvance(administrator, orderId, OrderStatus.PROCESSING, tracking))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidOrderTrackingException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(InvalidOrderTrackingException::class.java)
         assertThat(storedStatus()).isEqualTo(OrderStatus.PROCESSING)
     }
 }

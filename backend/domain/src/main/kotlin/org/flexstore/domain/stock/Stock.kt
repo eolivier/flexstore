@@ -110,7 +110,9 @@ data class StockChange(val editor: UserId, val stock: Stock)
 
 data class StockChangeForbiddenException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
-data class OutOfStockException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+// The units of an order could not all be reserved, although the stock covered them when it was placed
+data class StockReservationFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
+data class OutOfStockException(override val errorMessage: ErrorMessage) : PreConditionException(errorMessage)
 data class NegativeStockException(override val errorMessage: ErrorMessage) : PreConditionException(errorMessage)
 data class NegativeAlertThresholdException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)

@@ -1,7 +1,6 @@
 package org.flexstore.domain.twofactor.model
 
 import org.ucop.domain.ErrorMessage
-import org.ucop.domain.NominalException
 import org.ucop.domain.PreConditionException
 
 data class TwoFactorAuthenticationAlreadyEnabledException(override val errorMessage: ErrorMessage) :
@@ -11,7 +10,7 @@ data class TwoFactorAuthenticationNotEnabledException(override val errorMessage:
     PreConditionException(errorMessage)
 
 data class TwoFactorEnrollmentNotPendingException(override val errorMessage: ErrorMessage) :
-    NominalException(errorMessage)
+    PreConditionException(errorMessage)
 
 // An administrator must be the one disabling the two-factor authentication of another user; the account
 // concerned disables their own through the self-service operation instead
@@ -29,4 +28,4 @@ data class TwoFactorCodeInvalidException(override val errorMessage: ErrorMessage
 
 // The reference of the sign-in challenge is unknown, already used, or older than its validity
 data class TwoFactorChallengeNotFoundException(override val errorMessage: ErrorMessage) :
-    NominalException(errorMessage)
+    PreConditionException(errorMessage)

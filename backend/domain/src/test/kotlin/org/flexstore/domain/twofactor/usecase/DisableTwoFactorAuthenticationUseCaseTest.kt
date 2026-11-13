@@ -88,6 +88,6 @@ class DisableTwoFactorAuthenticationUseCaseTest : WithAssertions {
             useCase.unfold(TwoFactorDisabling(unknownCustomerId, PlainPassword("password123")))
         }
         // Assert
-        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java)
     }
 }

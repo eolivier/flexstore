@@ -64,7 +64,7 @@ class UserSessionServiceTest : WithAssertions {
         // Act
         val thrown = catchThrowable { service.open(ValidUserId("unknown")) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java)
     }
 
     @Test

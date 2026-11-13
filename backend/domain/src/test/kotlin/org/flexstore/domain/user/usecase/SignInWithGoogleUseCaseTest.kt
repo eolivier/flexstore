@@ -85,7 +85,7 @@ class SignInWithGoogleUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { signInWithGoogleUseCase.unfold(idToken) }
         // Assert
-        assertThat(thrown).isInstanceOf(InvalidGoogleIdTokenException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(InvalidGoogleIdTokenException::class.java)
         assertThat(accountsOfJane()).isEmpty()
     }
 }

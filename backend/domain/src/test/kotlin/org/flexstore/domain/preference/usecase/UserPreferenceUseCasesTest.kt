@@ -86,7 +86,7 @@ class UserPreferenceUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { userPreferenceUseCases.record(unknownUser, DisplayMode(ColorMode.DARK)) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java)
     }
 
     @Test
@@ -94,6 +94,6 @@ class UserPreferenceUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { userPreferenceUseCases.preferencesOf(ValidUserId("unknown")) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java)
     }
 }

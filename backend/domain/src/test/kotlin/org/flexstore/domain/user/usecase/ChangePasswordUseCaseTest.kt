@@ -73,6 +73,6 @@ class ChangePasswordUseCaseTest {
         // Act
         val thrown = catchThrowable { ChangePasswordUseCase(userRepository).unfold(changePasswordRequest) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java).hasMessage("User with ID 123 does not exist.")
+        assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java).hasMessage("User with ID 123 does not exist.")
     }
 }

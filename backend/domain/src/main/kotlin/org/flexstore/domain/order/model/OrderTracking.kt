@@ -107,7 +107,7 @@ data class OrderTrackingCorrection(
 )
 
 data class InvalidOrderTrackingException(override val errorMessage: ErrorMessage) :
-    NominalException(errorMessage)
+    PreConditionException(errorMessage)
 data class OrderTrackingCannotBeCorrectedException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
 data class OrderTrackingChangeFailed(override val errorMessage: ErrorMessage) : NominalException(errorMessage)

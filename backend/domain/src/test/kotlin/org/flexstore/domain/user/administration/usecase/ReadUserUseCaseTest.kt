@@ -52,7 +52,7 @@ class ReadUserUseCaseTest {
         // Act
         val thrown = catchThrowable { readUserUseCase.unfold(UserReading(administrator, userId)) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java).hasMessage("User with ID 123 does not exist.")
+        assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java).hasMessage("User with ID 123 does not exist.")
     }
 
     @Test

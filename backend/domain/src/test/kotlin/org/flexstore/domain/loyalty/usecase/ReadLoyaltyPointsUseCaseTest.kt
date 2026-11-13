@@ -76,7 +76,7 @@ class ReadLoyaltyPointsUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(unknownCustomerId) }
         // Assert
-        assertThat(thrown).isInstanceOf(UserNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java)
     }
 
     @ParameterizedTest
@@ -87,6 +87,6 @@ class ReadLoyaltyPointsUseCaseTest : WithAssertions {
         // Act
         val thrown = catchThrowable { useCase.unfold(blockedCustomerId) }
         // Assert
-        assertThat(thrown).isInstanceOf(AccountRefusedException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(AccountRefusedException::class.java)
     }
 }

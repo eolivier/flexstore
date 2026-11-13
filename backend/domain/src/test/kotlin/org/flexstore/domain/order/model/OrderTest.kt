@@ -79,7 +79,7 @@ class OrderTest : WithAssertions {
         // Act
         val thrown = catchThrowable { Order.place(orderPlacement, cart) }
         // Assert
-        assertThat(thrown).isInstanceOf(EmptyCartException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(EmptyCartException::class.java)
     }
 
     @Test

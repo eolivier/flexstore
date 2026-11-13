@@ -94,7 +94,7 @@ class ProductImageUseCasesTest : WithAssertions {
         // Act
         val thrown = catchThrowable { productImageUseCases.add(administrator, unknownProductImage) }
         // Assert
-        assertThat(thrown).isInstanceOf(ProductNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(ProductNotFoundException::class.java)
     }
 
     @Test
