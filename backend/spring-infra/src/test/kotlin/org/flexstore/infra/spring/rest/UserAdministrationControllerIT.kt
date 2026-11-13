@@ -40,7 +40,7 @@ private const val DRAFT_USER_EMAIL = "draft.user@example.com"
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
-class UserRestControllerIT {
+class UserAdministrationControllerIT {
 
     @Autowired
     private lateinit var mockMvc: MockMvc
@@ -238,41 +238,6 @@ class UserRestControllerIT {
     }
 
     @Test
-    fun `should change password with the current password`() {
-        // Arrange
-        userService.createUser(CreateUserRequest(administrator(), createJsonUser().toUser()))
-        val request = """{"currentPassword": "testpassword", "newPassword": "new-password"}"""
-        // Act
-        mockMvc.perform(
-            post("/api/users/$USER_ID/password").with(asUser(USER_ID))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(request)
-        )
-            .andExpect(status().isNoContent)
-        // Assert
-        assertThat(userRepository.passwordMatches(Email("john.doe@example.com"), PlainPassword("new-password")))
-            .isTrue()
-        assertThat(userRepository.passwordMatches(Email("john.doe@example.com"), PlainPassword("testpassword")))
-            .isFalse()
-    }
-
-    @Test
-    fun `should not change password with a wrong current password`() {
-        // Arrange
-        userService.createUser(CreateUserRequest(administrator(), createJsonUser().toUser()))
-        val request = """{"currentPassword": "wrong-password", "newPassword": "new-password"}"""
-        // Act - Assert
-        mockMvc.perform(
-            post("/api/users/$USER_ID/password").with(asUser(USER_ID))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(request)
-        )
-            .andExpect(status().isBadRequest)
-        assertThat(userRepository.passwordMatches(Email("john.doe@example.com"), PlainPassword("testpassword")))
-            .isTrue()
-    }
-
-    @Test
     fun `should delete user`() {
         // Arrange
         val jsonUser = createJsonUser()
@@ -280,26 +245,6 @@ class UserRestControllerIT {
         // Act - Assert
         mockMvc.perform(delete("/api/users/$USER_ID").with(asAdmin()))
             .andExpect(status().isNoContent)
-    }
-
-    @Test
-    fun `should login with valid credentials`() {
-        // Arrange
-        val jsonUser = createJsonUser()
-        userService.createUser(CreateUserRequest(administrator(), jsonUser.toUser()))
-        val loginRequest = """{"email": "john.doe@example.com", "password": "testpassword"}"""
-        // Act - Assert
-        mockMvc.perform(
-            post("/api/users/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(loginRequest)
-        )
-            .andExpect(status().isOk)
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-    }
-
-    private fun createJsonUser(): DefinedJsonUser {
-        return DefinedJsonUser(USER_ID,"John", "Doe", "john.doe@example.com", "testpassword")
     }
 
     @Test
@@ -311,4 +256,9 @@ class UserRestControllerIT {
             .andExpect(header().exists("X-Total-Count"))
             .andExpect(jsonPath("$.length()").value(1))
     }
+
+    private fun createJsonUser(): DefinedJsonUser {
+        return DefinedJsonUser(USER_ID,"John", "Doe", "john.doe@example.com", "testpassword")
+    }
 }
+
