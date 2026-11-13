@@ -51,9 +51,8 @@ class ChangeAccountStatusUseCase(private val userRepository: UserRepository) : U
 
     private fun statusCanBeChosenCondition() = PreCondition<AccountStatusChange> { change ->
         if (change.status.cannotBeChosenByAnAdministrator()) {
-            val message = ErrorMessage(
-                "The status ${change.status} is given by the verification of the email only."
-            )
+            val reason = "The status ${change.status} is given by the verification of the email only."
+            val message = ErrorMessage(reason)
             throw InvalidStatusChangeException(message)
         }
     }

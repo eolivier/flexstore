@@ -31,9 +31,8 @@ class CorrectOrderTrackingUseCase(
     // The editor must be an existing user with the ADMIN role (read from the users, not from the request)
     private fun editorIsAdministratorCondition() = PreCondition<OrderTrackingCorrection> { correction ->
         if (userRepository.isNotAdministrator(correction.editor)) {
-            throw OrderAdministrationForbiddenException(
-                ErrorMessage("Only an administrator can correct the tracking of an order.")
-            )
+            val message = ErrorMessage("Only an administrator can correct the tracking of an order.")
+            throw OrderAdministrationForbiddenException(message)
         }
     }
 

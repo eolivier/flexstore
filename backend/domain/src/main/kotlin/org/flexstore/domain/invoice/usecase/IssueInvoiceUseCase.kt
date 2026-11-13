@@ -43,9 +43,8 @@ class IssueInvoiceUseCase(
 
     private fun invoiceIsIssuedCondition() = PostCondition<InvoiceIssue> { invoiceIssue ->
         if (invoiceRepository.invoiceIsMissingFor(invoiceIssue.orderId)) {
-            throw InvoiceIssueFailed(
-                ErrorMessage("The invoice of order ${invoiceIssue.orderId.value} was not issued.")
-            )
+            val message = ErrorMessage("The invoice of order ${invoiceIssue.orderId.value} was not issued.")
+            throw InvoiceIssueFailed(message)
         }
     }
 }

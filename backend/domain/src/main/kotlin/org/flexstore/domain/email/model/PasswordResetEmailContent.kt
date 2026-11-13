@@ -5,8 +5,8 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-private val TIME_FORMAT = DateTimeFormatter.ofPattern("HH'h'mm", Locale.FRANCE)
-    .withZone(ZoneId.of("Europe/Paris"))
+private val PARIS = ZoneId.of("Europe/Paris")
+private val TIME_FORMAT = DateTimeFormatter.ofPattern("HH'h'mm", Locale.FRANCE).withZone(PARIS)
 
 // The wording of the email with the link to choose a new password (in French, the language of the shop)
 class PasswordResetEmailContent(email: PasswordResetEmail, shopUrl: ShopUrl) : EmailContent {

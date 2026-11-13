@@ -40,9 +40,8 @@ class IssueCreditNoteUseCase(
     private fun orderIsRefundedCondition() = PreCondition<CreditNoteIssuance> { (_, creditNoteIssue) ->
         val orderId = creditNoteIssue.orderId
         if (orderRepository.findById(orderId)?.isRefunded() != true) {
-            throw OrderNotRefundedException(
-                ErrorMessage("Order ${orderId.value} is not refunded: no credit note.")
-            )
+            val message = ErrorMessage("Order ${orderId.value} is not refunded: no credit note.")
+            throw OrderNotRefundedException(message)
         }
     }
 

@@ -277,9 +277,9 @@ class RestExceptionHandler {
         val causeMessage = ex.mostSpecificCause.message.orEmpty()
         val missingParameter = MISSING_PARAMETER.find(causeMessage)?.groupValues?.get(1)
         val field = (path + listOfNotNull(missingParameter)).joinToString(".")
-        val error = if (
-            field.isEmpty()
-        ) "The request is malformed." else "The field $field is missing or malformed."
+        val malformed = "The request is malformed."
+        val fieldMalformed = "The field $field is missing or malformed."
+        val error = if (field.isEmpty()) malformed else fieldMalformed
         logger.warn("Unreadable request body: {} ({})", error, causeMessage.lineSequence().first())
         return ResponseEntity.status(400).body(mapOf("error" to error, "reason" to MALFORMED_REQUEST))
     }

@@ -37,9 +37,8 @@ class AddProductToWishlistUseCase(
 
     private fun productExistsCondition() = PreCondition<WishlistEntry> { entry ->
         if (productRepository.productIsMissing(entry.productId)) {
-            throw ProductNotFoundException(
-                ErrorMessage("The product ${entry.productId.id.value} does not exist.")
-            )
+            val message = ErrorMessage("The product ${entry.productId.id.value} does not exist.")
+            throw ProductNotFoundException(message)
         }
     }
 

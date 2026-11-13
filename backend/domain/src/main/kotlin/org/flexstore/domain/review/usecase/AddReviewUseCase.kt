@@ -61,9 +61,8 @@ class AddReviewUseCase(
     private fun productExistsCondition() = PreCondition<ReviewSubmission> { submission ->
         val productId = submission.draft.productOpinion.productId
         if (productRepository.productIsMissing(productId)) {
-            throw ProductNotFoundException(
-                ErrorMessage("The product ${productId.id.value} does not exist.")
-            )
+            val message = ErrorMessage("The product ${productId.id.value} does not exist.")
+            throw ProductNotFoundException(message)
         }
     }
 
@@ -84,9 +83,8 @@ class AddReviewUseCase(
 
     private fun reviewIsStoredCondition() = PostCondition<ReviewSubmission> { submission ->
         if (!reviewRepository.reviewExists(submission.stamp.reviewId)) {
-            throw ReviewAdditionFailed(
-                ErrorMessage("The review ${submission.stamp.reviewId.value} was not stored.")
-            )
+            val message = ErrorMessage("The review ${submission.stamp.reviewId.value} was not stored.")
+            throw ReviewAdditionFailed(message)
         }
     }
 }

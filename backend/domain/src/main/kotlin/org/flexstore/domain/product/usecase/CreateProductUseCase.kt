@@ -51,9 +51,8 @@ class CreateProductUseCase(
     // The creator, resolved before the use case runs, must be an Admin
     private fun creatorIsAdministratorCondition() = PreCondition<CreateProductRequest> { request ->
         if (request.creator.isNotAdmin()) {
-            throw ProductAdministrationForbiddenException(
-                ErrorMessage("Only an administrator can create a product.")
-            )
+            val message = ErrorMessage("Only an administrator can create a product.")
+            throw ProductAdministrationForbiddenException(message)
         }
     }
 

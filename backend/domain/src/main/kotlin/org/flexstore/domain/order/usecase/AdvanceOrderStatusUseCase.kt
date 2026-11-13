@@ -40,9 +40,8 @@ class AdvanceOrderStatusUseCase(
     // The editor must be an existing user with the ADMIN role (read from the users, not from the request)
     private fun editorIsAdministratorCondition() = PreCondition<OrderStatusAdvance> { request ->
         if (userRepository.isNotAdministrator(request.editor)) {
-            throw OrderAdministrationForbiddenException(
-                ErrorMessage("Only an administrator can move an order along its life cycle.")
-            )
+            val message = ErrorMessage("Only an administrator can move an order along its life cycle.")
+            throw OrderAdministrationForbiddenException(message)
         }
     }
 

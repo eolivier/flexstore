@@ -40,9 +40,8 @@ class AdminDisableTwoFactorAuthenticationUseCase(private val userRepository: Use
     // The editor, resolved before the use case runs, must be an Admin
     private fun editorIsAdministratorCondition() = PreCondition<AdminTwoFactorDisabling> { disabling ->
         if (disabling.editor.isNotAdmin()) {
-            val message = ErrorMessage(
-                "Only an administrator can disable the two-factor authentication of a user."
-            )
+            val reason = "Only an administrator can disable the two-factor authentication of a user."
+            val message = ErrorMessage(reason)
             throw TwoFactorAuthenticationForbiddenException(message)
         }
     }
@@ -57,9 +56,9 @@ class AdminDisableTwoFactorAuthenticationUseCase(private val userRepository: Use
     // through the dedicated self-service operation, instead of this administration one
     private fun accountIsNotTheEditorsCondition() = PreCondition<AdminTwoFactorDisabling> { disabling ->
         if (disabling.editor.isTheUser(disabling.userId)) {
-            val message = ErrorMessage(
-                "An administrator cannot disable the two-factor authentication of their own account this way."
-            )
+            val reason = "An administrator cannot disable the two-factor authentication of their own account " +
+                "this way."
+            val message = ErrorMessage(reason)
             throw InvalidTwoFactorAuthenticationChangeException(message)
         }
     }
@@ -67,9 +66,8 @@ class AdminDisableTwoFactorAuthenticationUseCase(private val userRepository: Use
     private fun twoFactorAuthenticationIsEnabledOrPendingCondition() =
         PreCondition<AdminTwoFactorDisabling> { disabling ->
             if (user(disabling.userId).twoFactorAuthentication is TwoFactorAuthentication.Disabled) {
-                throw TwoFactorAuthenticationNotEnabledException(
-                    ErrorMessage("Two-factor authentication is not enabled.")
-                )
+                val message = ErrorMessage("Two-factor authentication is not enabled.")
+                throw TwoFactorAuthenticationNotEnabledException(message)
             }
         }
 }

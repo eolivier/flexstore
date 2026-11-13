@@ -32,9 +32,8 @@ class UpdateShopSettingsUseCase(
 
     private fun paymentDelayIsValidCondition() = PreCondition<ShopSettingsUpdate> { (_, settings) ->
         if (settings.paymentDelay.isInvalid()) {
-            val message = ErrorMessage(
-                "The payment delay must be from 1 to ${PaymentDelay.MAX_MINUTES} minutes."
-            )
+            val reason = "The payment delay must be from 1 to ${PaymentDelay.MAX_MINUTES} minutes."
+            val message = ErrorMessage(reason)
             throw InvalidPaymentDelayException(message)
         }
     }

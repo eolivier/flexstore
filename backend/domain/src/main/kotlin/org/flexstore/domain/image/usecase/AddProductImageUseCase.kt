@@ -34,9 +34,8 @@ class AddProductImageUseCase(
     // The editor, resolved before the use case runs, must be an Admin
     private fun editorIsAdministratorCondition() = PreCondition<ProductImageUpload> { request ->
         if (request.editor.isNotAdmin()) {
-            throw ProductImageForbiddenException(
-                ErrorMessage("Only an administrator can give the image of a product.")
-            )
+            val message = ErrorMessage("Only an administrator can give the image of a product.")
+            throw ProductImageForbiddenException(message)
         }
     }
 
@@ -59,9 +58,8 @@ class AddProductImageUseCase(
         ImageFormat.entries.forEach { format ->
             val productImage = productImageRepository.find(uploadedImage.productId, format)
             if (productImage == null || !format.accepts(productImage.content)) {
-                val message = ErrorMessage(
-                    "The $format image of ${uploadedImage.productId.id.value} was not kept."
-                )
+                val reason = "The $format image of ${uploadedImage.productId.id.value} was not kept."
+                val message = ErrorMessage(reason)
                 throw ProductImageStorageFailed(message)
             }
         }

@@ -122,10 +122,10 @@ class PostgresOrderRepositoryAdapter(
     }
 
     // The domain keeps the addresses of an order among the addresses of its customer
-    private fun List<AddressEntity>.rowOf(address: PostalAddress) =
-        firstOrNull { it.toDomain() == address } ?: throw IllegalStateException(
-            "The address of the order is not an address of its customer"
-        )
+    private fun List<AddressEntity>.rowOf(address: PostalAddress): AddressEntity {
+        val message = "The address of the order is not an address of its customer"
+        return firstOrNull { it.toDomain() == address } ?: throw IllegalStateException(message)
+    }
 
     private fun OrderEntity.toDomain(): Order {
         val orderStamp = OrderStamp(OrderId(id), placedAt)

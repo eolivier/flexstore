@@ -26,9 +26,8 @@ class ChangeStockAlertUseCase(
     // The editor, resolved before the use case runs, must be an Admin
     private fun editorIsAdministratorCondition() = PreCondition<StockAlertChange> { change ->
         if (change.editor.isNotAdmin()) {
-            throw StockAlertForbiddenException(
-                ErrorMessage("Only an administrator can change the alert threshold of a product.")
-            )
+            val message = ErrorMessage("Only an administrator can change the alert threshold of a product.")
+            throw StockAlertForbiddenException(message)
         }
     }
 
@@ -50,9 +49,8 @@ class ChangeStockAlertUseCase(
     private fun stockAlertIsStoredCondition() = PostCondition<StockAlertChange> { change ->
         val stockAlert = change.stockAlert
         if (stockRepository.alertOf(stockAlert.productId) != stockAlert) {
-            val message = ErrorMessage(
-                "The alert threshold of ${stockAlert.productId.id.value} was not changed."
-            )
+            val reason = "The alert threshold of ${stockAlert.productId.id.value} was not changed."
+            val message = ErrorMessage(reason)
             throw StockAlertChangeFailed(message)
         }
     }

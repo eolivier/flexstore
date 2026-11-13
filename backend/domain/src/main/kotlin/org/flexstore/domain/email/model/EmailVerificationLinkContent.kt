@@ -4,8 +4,8 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-private val TIME_FORMAT = DateTimeFormatter.ofPattern("HH'h'mm", Locale.FRANCE)
-    .withZone(ZoneId.of("Europe/Paris"))
+private val PARIS = ZoneId.of("Europe/Paris")
+private val TIME_FORMAT = DateTimeFormatter.ofPattern("HH'h'mm", Locale.FRANCE).withZone(PARIS)
 
 // The wording of the email with the verification link (in French, the language of the shop)
 class EmailVerificationLinkContent(link: EmailVerificationLink) : EmailContent {
@@ -18,9 +18,8 @@ class EmailVerificationLinkContent(link: EmailVerificationLink) : EmailContent {
     override val body = EmailBody(buildString {
         appendLine("Bonjour ${link.customerName.value},")
         appendLine()
-        appendLine(
-            "Merci d'avoir créé votre compte Flexstore. Confirmez votre adresse email en ouvrant ce lien :"
-        )
+        val confirmation = "Confirmez votre adresse email en ouvrant ce lien :"
+        appendLine("Merci d'avoir créé votre compte Flexstore. $confirmation")
         appendLine()
         appendLine(link.link().value)
         appendLine()

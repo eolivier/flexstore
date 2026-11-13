@@ -33,9 +33,8 @@ class ProductTools(private val productUseCases: ProductUseCases, private val rea
         val languageCode = arguments.getOrDefault(LANGUAGE, Language.DEFAULT.name).toString()
         val languages = Language.entries.filter { it.name.equals(languageCode, ignoreCase = true) }
         if (languages.isEmpty()) {
-            return ToolOutcome.Refused(
-                "The language $languageCode is not supported: use one of ${languageCodes()}.",
-            )
+            val message = "The language $languageCode is not supported: use one of ${languageCodes()}."
+            return ToolOutcome.Refused(message)
         } else if (toolName == LIST_PRODUCTS) {
             return answering { listProducts(languages.single()) }
         } else {
@@ -50,8 +49,8 @@ class ProductTools(private val productUseCases: ProductUseCases, private val rea
     }
 
     private fun getProductSpecification(): SyncToolSpecification {
-        val properties =
-            languageProperty() + (ID to textProperty("The id of the product, as given by $LIST_PRODUCTS"))
+        val idProperty = textProperty("The id of the product, as given by $LIST_PRODUCTS")
+        val properties = languageProperty() + (ID to idProperty)
         val inputSchema = inputSchemaOf(properties, listOf(ID))
         return specificationOf(GET_PRODUCT, "Gives a product of the Flexstore shop from its id", inputSchema)
     }
