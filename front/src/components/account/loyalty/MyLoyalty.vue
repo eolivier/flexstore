@@ -3,8 +3,12 @@
   import { useI18n } from 'vue-i18n';
   import { useLoyaltyStore } from '@/stores/loyalty.store';
 
+  function placedOn(placedAt: string, locale: string): string {
+    return new Date(placedAt).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
   // The loyalty points of the signed-in customer: 1 point for each euro or dollar spent
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const loyaltyStore = useLoyaltyStore();
 
   onMounted(() => {
@@ -30,6 +34,30 @@
         {{ t('loyalty.points', loyaltyStore.points) }}
       </p>
       <p class="text-body-2 text-medium-emphasis mt-4">{{ t('loyalty.rule') }}</p>
+    </v-card>
+
+    <v-card v-if="!loyaltyStore.loadError && !loyaltyStore.loading" class="mt-6">
+      <v-card-title>{{ t('loyalty.history') }}</v-card-title>
+      <p
+        v-if="loyaltyStore.purchases.length === 0"
+        class="px-4 pb-4 text-medium-emphasis"
+        data-testid="loyalty-empty"
+      >
+        {{ t('loyalty.empty') }}
+      </p>
+      <v-list v-else lines="one">
+        <v-list-item
+          v-for="purchase in loyaltyStore.purchases"
+          :key="purchase.orderNumber"
+          data-testid="loyalty-purchase"
+          :title="t('loyalty.purchase', { number: purchase.orderNumber })"
+          :subtitle="placedOn(purchase.placedAt, locale)"
+        >
+          <template #append>
+            <span class="font-weight-bold">+ {{ t('loyalty.points', purchase.points) }}</span>
+          </template>
+        </v-list-item>
+      </v-list>
     </v-card>
   </v-container>
 </template>

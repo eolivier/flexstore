@@ -4,10 +4,10 @@ All URIs are relative to *http://localhost:8080*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
-|[**getLoyaltyPoints**](#getloyaltypoints) | **GET** /api/loyalty | Retrieve the loyalty points of the signed-in customer, one for each whole euro or dollar of their paid orders|
+|[**getLoyaltyStatement**](#getloyaltystatement) | **GET** /api/loyalty | Retrieve the loyalty statement of the signed-in customer, a line for each paid order with its points (one for each whole euro or dollar), and the total|
 
-# **getLoyaltyPoints**
-> JsonLoyaltyPoints getLoyaltyPoints()
+# **getLoyaltyStatement**
+> JsonLoyaltyStatement getLoyaltyStatement()
 
 
 ### Example
@@ -21,7 +21,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new LoyaltyApi(configuration);
 
-const { status, data } = await apiInstance.getLoyaltyPoints();
+const { status, data } = await apiInstance.getLoyaltyStatement();
 ```
 
 ### Parameters
@@ -30,7 +30,7 @@ This endpoint does not have any parameters.
 
 ### Return type
 
-**JsonLoyaltyPoints**
+**JsonLoyaltyStatement**
 
 ### Authorization
 
@@ -45,7 +45,7 @@ This endpoint does not have any parameters.
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | The loyalty points of the customer |  -  |
+|**200** | The loyalty statement of the customer |  -  |
 |**401** | Not signed in |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
