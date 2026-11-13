@@ -1,6 +1,6 @@
 # Physical data model
 
-The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V63**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
+The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V64**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
 
 ![Physical data model](database.png)
 
@@ -108,14 +108,7 @@ erDiagram
         provider_reference varchar(255) UK "id of the Stripe Checkout session"
         checkout_url text
         outcome varchar(10) "PENDING or PAID"
-        created_at timestamp
-        updated_at timestamp
-    }
-
-    payment_refund {
-        id varchar(50) PK
-        payment_id varchar(50) FK,UK "at most one refund per payment"
-        provider_reference varchar(255) UK "id of the Stripe refund"
+        refund_provider_reference varchar(255) UK "nullable: id of the Stripe refund, at most one refund per payment"
         created_at timestamp
         updated_at timestamp
     }
@@ -321,7 +314,6 @@ erDiagram
     customer_order }o--|| address : "billing_address_id"
     customer_order }o--o| payment : "payment_id"
     customer_order }o--o| legal_page : "legal_page_id"
-    payment_refund |o--|| payment : "payment_id (cascade)"
     customer_order ||--|{ customer_order_line : "customer_order_id (cascade)"
     invoice |o--|| customer_order : "customer_order_id"
     invoice }o--|| seller : "seller_id"
@@ -350,6 +342,7 @@ erDiagram
   - `cookie_choice`: their choice about the preference cookies (`ACCEPTED` or `REFUSED`), valid until `expires_at` (6 months after the choice, then the customer is asked again; `expires_at` is filled for this setting only). A visitor who is not signed in keeps theirs in their browser; at sign-in it is recorded here and removed from the browser;
   - `color_mode`: their display mode (`LIGHT` or `DARK`); without a row, their browser decides. A visitor who is not signed in keeps theirs in their browser (when they accepted the preference cookies);
   - `language`: their preferred language (`EN` or `FR`); without a row, the page decides.
+- A `payment` has at most one refund: its reference on the payment provider is the nullable column `refund_provider_reference` (V64 merged the former `payment_refund` table into `payment`), empty while the payment is not refunded.
 - A wrong password for an existing account adds one to its `failed_sign_in_count` (a column of `user`, V63 merged the former `failed_sign_in` table into it). At the 5th failure in a row, the account becomes `LOCKED` and the count goes back to 0, so that it starts again when an administrator reactivates the account; a successful sign-in resets it too. An email that belongs to no account, and an account that cannot sign in already, are not counted.
 - A `refresh_session` is a session of a signed-in user: its refresh token renews their access token (15 minutes) once, then the session is revoked (`revoked_at`) and replaced by a new row. A revoked token that comes back revokes every open session of its user. Only the hash of the token is stored; deleting a user deletes their sessions.
 - The carrier and the tracking number of the parcel of an order are given together by an administrator when the order is shipped, or corrected afterwards (`tracking_carrier` and `tracking_number`, a check forbids one without the other); the orders shipped before V45, or shipped without them, have none.
