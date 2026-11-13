@@ -10,12 +10,13 @@ class StockUseCases(
     private val readStockUseCase: ReadStockUseCase,
     private val changeStockUseCase: ChangeStockUseCase
 ) {
-    fun getStocks() = listStocksUseCase.unfold(Unit)
+    fun getStocks(reader: Actor) = listStocksUseCase.unfold(reader)
 
-    fun getStock(productId: ProductId) = readStockUseCase.unfold(productId)
+    fun getStock(reader: Actor, productId: ProductId) =
+        readStockUseCase.unfold(StockReading(reader, productId))
 
     fun change(editor: Actor, stock: Stock): Stock {
         changeStockUseCase.unfold(StockChange(editor, stock))
-        return readStockUseCase.unfold(stock.productId)
+        return readStockUseCase.unfold(StockReading(editor, stock.productId))
     }
 }

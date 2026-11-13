@@ -25,11 +25,14 @@ private val shopPageContentTypes = mapOf(
 @Tag(name = "Shop page content")
 @RestController
 @RequestMapping("/api/shop-page-contents")
-class ShopPageContentController(private val shopPageContentUseCases: ShopPageContentUseCases) {
+class ShopPageContentController(
+    private val shopPageContentUseCases: ShopPageContentUseCases,
+    private val actorResolutionService: ActorResolutionService
+) {
 
     @Operation(summary = "Retrieve the content of the shop pages: key words, description, Google Analytics id")
     @GetMapping
-    fun getContents() = JsonShopPageContents(shopPageContentUseCases.contents())
+    fun getContents() = JsonShopPageContents(shopPageContentUseCases.contents(actorResolutionService.visitor()))
 }
 
 // The contents of the shop pages edited by the administrators (ADMIN role, see SecurityConfig, checked again by

@@ -180,7 +180,7 @@ data class Seller(val id: SellerId, val detail: SellerDetail)
 data class SellerUpdate(val editor: Actor, val seller: Seller)
 
 // Anyone who reads the social networks of the current seller
-data object SocialNetworksReading
+data class SocialNetworksReading(val reader: Actor)
 
 // An administrator who reads the current seller
 data class SellerReading(val reader: Actor)
@@ -197,3 +197,7 @@ private val SHARE_CAPITAL = Regex("[0-9][0-9 ]*")
 private val PHONE = Regex("\\+?[0-9][0-9 .()-]{5,19}")
 private val EMAIL = Regex("[^\\s@]+@[^\\s@]+\\.[^\\s@]+")
 private val WEBSITE = Regex("(https?://)?[^\\s/.]+(\\.[^\\s/.]+)+(/\\S*)?")
+
+// A public read refused: its reader is neither a visitor, nor a user, nor the system
+data class SellerReadingForbiddenException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage)

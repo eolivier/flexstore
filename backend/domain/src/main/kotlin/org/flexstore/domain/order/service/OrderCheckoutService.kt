@@ -82,7 +82,7 @@ class OrderCheckoutService(
     // chosen
     private fun contentOf(customer: Actor, checkout: Checkout, discountChoice: DiscountChoice): OrderContent {
         val cart = checkoutQueryUseCases.readCartUseCase.unfold(CartReading(customer, checkout.customer))
-        val shopSettings = checkoutQueryUseCases.readShopSettingsUseCase.unfold(Unit)
+        val shopSettings = checkoutQueryUseCases.readShopSettingsUseCase.unfold(customer)
         return OrderContent(cart, OrderTerms(shopSettings.freeShippingThreshold, discountChoice))
     }
 }

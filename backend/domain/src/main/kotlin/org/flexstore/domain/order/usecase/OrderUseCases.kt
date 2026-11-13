@@ -1,5 +1,6 @@
 package org.flexstore.domain.order.usecase
 
+import org.ucop.domain.entity.Actor
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.order.*
 import org.flexstore.domain.order.model.*
@@ -26,7 +27,7 @@ class OrderUseCases(
     fun getAnyOrder(orderId: OrderId) = orderQueryUseCases.readAnyOrderUseCase.unfold(orderId)
 
     // The delay of the shop settings, which gives the payment deadline of an order
-    fun paymentDelay() = readShopSettingsUseCase.unfold(Unit).paymentDelay
+    fun paymentDelay(reader: Actor) = readShopSettingsUseCase.unfold(reader).paymentDelay
 
     // The shipping methods the customer chooses from, at their cost for their cart
     fun shippingOptionsFor(customer: CartOwner.Customer) = proposeShippingOptionsUseCase.unfold(customer)

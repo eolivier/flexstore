@@ -27,7 +27,7 @@ class ReviewController(
     @Operation(summary = "Retrieve the reviews of a product, newest first")
     @GetMapping("/products/{id}/reviews")
     fun getReviews(@PathVariable id: String): List<JsonReview> =
-        reviewUseCases.getAbout(productId(id)).asList().map { JsonReview(it) }
+        reviewUseCases.getAbout(actorResolutionService.visitor(), productId(id)).asList().map { JsonReview(it) }
 
     @Operation(summary = "Review a product bought by the signed-in customer: a rating from 1 to 5 and a comment")
     @PostMapping("/products/{id}/reviews")
@@ -42,7 +42,7 @@ class ReviewController(
         val customer = actorResolutionService.actorOf(UserId.of(jwt.subject))
         val productOpinion = ProductOpinion(productId, newReview.toOpinion())
         reviewUseCases.add(ReviewSubmission(stamp, ReviewDraft(customer, productOpinion)))
-        return JsonReview(reviewUseCases.getAbout(productId).of(stamp.reviewId))
+        return JsonReview(reviewUseCases.getAbout(customer, productId).of(stamp.reviewId))
     }
 
     @Operation(summary = "Tell whether the signed-in customer may review a product: bought, not reviewed yet")
@@ -59,7 +59,7 @@ class ReviewController(
     @Operation(summary = "Retrieve what the customers think of each product that has reviews")
     @GetMapping("/product-ratings")
     fun getRatings(): List<JsonRatingSummary> =
-        reviewUseCases.getSummaries().asList().map { JsonRatingSummary(it) }
+        reviewUseCases.getSummaries(actorResolutionService.visitor()).asList().map { JsonRatingSummary(it) }
 
     private fun productId(id: String) = ProductId(Identity(id))
 }

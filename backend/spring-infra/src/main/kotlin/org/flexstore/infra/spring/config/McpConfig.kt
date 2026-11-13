@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.config
 
+import org.flexstore.domain.actor.ActorResolutionService
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.modelcontextprotocol.json.jackson2.JacksonMcpJsonMapper
 import io.modelcontextprotocol.server.McpServer
@@ -25,7 +26,8 @@ private const val SERVER_VERSION = "1.0.0"
 open class McpConfig {
 
     @Bean
-    open fun productTools(productUseCases: ProductUseCases) = ProductTools(productUseCases)
+    open fun productTools(productUseCases: ProductUseCases, actorResolutionService: ActorResolutionService) =
+        ProductTools(productUseCases, actorResolutionService.visitor())
 
     @Bean
     open fun mcpTransport(): WebMvcStatelessServerTransport {

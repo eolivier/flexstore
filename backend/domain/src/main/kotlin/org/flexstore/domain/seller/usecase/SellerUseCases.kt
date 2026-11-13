@@ -11,7 +11,7 @@ class SellerUseCases(
     private val updateSellerUseCase: UpdateSellerUseCase,
     private val readSocialNetworksUseCase: ReadSocialNetworksUseCase
 ) {
-    fun socialNetworks() = readSocialNetworksUseCase.unfold(SocialNetworksReading)
+    fun socialNetworks(reader: Actor) = readSocialNetworksUseCase.unfold(SocialNetworksReading(reader))
 
     fun currentSeller(reader: Actor) = readCurrentSellerUseCase.unfold(SellerReading(reader))
 

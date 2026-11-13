@@ -71,3 +71,7 @@ data class ProductImageNotFoundException(override val errorMessage: ErrorMessage
     PreConditionException(errorMessage)
 data class ProductImageStorageFailed(override val errorMessage: ErrorMessage) :
     PostConditionException(errorMessage)
+
+// A public read refused: its reader is neither a visitor, nor a user, nor the system
+data class ProductImageReadingForbiddenException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage)

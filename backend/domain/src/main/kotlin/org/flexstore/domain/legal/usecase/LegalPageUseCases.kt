@@ -9,11 +9,12 @@ class LegalPageUseCases(
     private val readLegalPageUseCase: ReadLegalPageUseCase,
     private val publishLegalPageUseCase: PublishLegalPageUseCase
 ) {
-    fun legalPage(kind: LegalPageKind) = readLegalPageUseCase.unfold(kind)
+    fun legalPage(reader: Actor, kind: LegalPageKind) =
+        readLegalPageUseCase.unfold(LegalPageReading(reader, kind))
 
     fun publish(publisher: Actor, kind: LegalPageKind, text: LegalText): LegalPage {
         val legalPage = LegalPage(LegalPageId.nextId(), kind, text, PublishedAt.now())
         publishLegalPageUseCase.unfold(LegalPagePublication(publisher, legalPage))
-        return readLegalPageUseCase.unfold(kind)
+        return readLegalPageUseCase.unfold(LegalPageReading(publisher, kind))
     }
 }

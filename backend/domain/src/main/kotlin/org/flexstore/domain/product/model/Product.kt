@@ -122,3 +122,7 @@ data class SkuProposalFailed(override val errorMessage: ErrorMessage) : PostCond
 data class SkuAlreadyUsedException(override val errorMessage: ErrorMessage) : PreConditionException(errorMessage)
 data class ProductNotFoundException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
+
+// A public read refused: its reader is neither a visitor, nor a user, nor the system
+data class ProductReadingForbiddenException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage)

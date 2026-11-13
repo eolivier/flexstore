@@ -49,7 +49,7 @@ class OrderController(
         val checkout = Checkout(customer, addresses.toOrderDelivery(), addresses.toTermsOfSaleAcceptance())
         val discountCode = addresses.toEnteredDiscountCode()
         val placedOrder = orderCheckoutService.placeOrder(actorOf(jwt), checkout, discountCode)
-        return JsonOrder(placedOrder, orderUseCases.paymentDelay())
+        return JsonOrder(placedOrder, orderUseCases.paymentDelay(actorOf(jwt)))
     }
 
     @Operation(summary = "Retrieve the shipping methods, with their cost for the cart of the signed-in customer")
@@ -77,7 +77,7 @@ class OrderController(
         @RequestParam(defaultValue = "${PageNumber.FIRST}") page: Int,
         @RequestParam(defaultValue = "${PageSize.DEFAULT}") size: Int
     ): ResponseEntity<List<JsonOrder>> {
-        val paymentDelay = orderUseCases.paymentDelay()
+        val paymentDelay = orderUseCases.paymentDelay(actorOf(jwt))
         val orders = orderUseCases.getOrders(customer(jwt), PageRequest.of(page, size))
         return pagedBody(orders.content.asList().map { JsonOrder(it, paymentDelay) }, orders.total)
     }
@@ -86,7 +86,7 @@ class OrderController(
     @GetMapping("/{id}")
     fun getOrder(@AuthenticationPrincipal jwt: Jwt, @PathVariable id: String): JsonOrder {
         val order = orderUseCases.getOrder(customer(jwt), OrderId(id))
-        return JsonOrder(order, orderUseCases.paymentDelay())
+        return JsonOrder(order, orderUseCases.paymentDelay(actorOf(jwt)))
     }
 
     private fun customer(jwt: Jwt) = UserId.ValidUserId(jwt.subject)

@@ -25,12 +25,12 @@ class StockController(
 
     @Operation(summary = "Retrieve the stocks of the products (a product without stock has none)")
     @GetMapping("/api/stocks")
-    fun getStocks(): List<JsonStock> = stockUseCases.getStocks().asList().map { JsonStock.of(it) }
+    fun getStocks(): List<JsonStock> = stockUseCases.getStocks(actorResolutionService.visitor()).asList().map { JsonStock.of(it) }
 
     @Operation(summary = "Retrieve the stock of a product (0 when it was never given)")
     @GetMapping("/api/stocks/{productId}")
     fun getStock(@PathVariable productId: String): JsonStock =
-        JsonStock.of(stockUseCases.getStock(ProductId(Identity(productId))))
+        JsonStock.of(stockUseCases.getStock(actorResolutionService.visitor(), ProductId(Identity(productId))))
 
     @Operation(summary = "Give the number of units of a product that the shop has (administrator)")
     @PutMapping("/api/admin/stocks/{productId}")

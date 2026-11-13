@@ -17,10 +17,11 @@ class AbandonedCartService(
 
     // The carts whose customer was reminded; a customer who cannot be reminded is left aside
     fun remindAbandonedCarts(): AbandonedCarts {
-        val shopSettings = readShopSettingsUseCase.unfold(Unit)
+        val system = actorResolutionService.system()
+        val shopSettings = readShopSettingsUseCase.unfold(system)
         if (shopSettings.sendsAbandonedCartReminder()) {
             val limit = AbandonmentLimit.of(shopSettings.abandonedCartDelay, InstantProvider.now())
-            val abandonedCarts = abandonedCartUseCases.leftSince(actorResolutionService.system(), limit).asList()
+            val abandonedCarts = abandonedCartUseCases.leftSince(system, limit).asList()
             return AbandonedCarts(abandonedCarts.filter { cart -> isReminded(cart) })
         }
         return AbandonedCarts()

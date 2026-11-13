@@ -16,17 +16,18 @@ class ProductUseCases(private val createProductUseCase: CreateProductUseCase,
     fun createProduct(creator: Actor, draftProduct: DraftProduct): DefinedProduct {
         val productId = ProductId.nextId()
         createProductUseCase.unfold(CreateProductRequest(creator, productId, draftProduct))
-        return readProductUseCase.unfold(productId)
+        return readProductUseCase.unfold(ProductReading(creator, productId))
     }
 
     fun updateProduct(editor: Actor, product: DefinedProduct): DefinedProduct {
         updateProductUseCase.unfold(UpdateProductRequest(editor, product))
-        return readProductUseCase.unfold(product.productId)
+        return readProductUseCase.unfold(ProductReading(editor, product.productId))
     }
 
-    fun getProducts() = listProductsUseCase.unfold(Unit)
+    fun getProducts(reader: Actor) = listProductsUseCase.unfold(reader)
 
-    fun getProduct(productId: ProductId) = readProductUseCase.unfold(productId)
+    fun getProduct(reader: Actor, productId: ProductId) =
+        readProductUseCase.unfold(ProductReading(reader, productId))
 
     fun proposeSkuFor(requester: Actor, skuBasis: SkuBasis) =
         proposeSkuUseCase.unfold(SkuProposalRequest(requester, skuBasis))
