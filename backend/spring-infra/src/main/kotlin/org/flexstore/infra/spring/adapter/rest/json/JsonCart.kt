@@ -34,8 +34,8 @@ data class JsonCartItem @JsonCreator constructor(
     @JsonProperty("promotionPercentage") val promotionPercentage: BigDecimal?
 ) {
     constructor(cartItem: CartItem) : this(
-        cartItem.itemId.toString(),
-        cartItem.product.productId.toString(),
+        cartItem.itemId.identity.value,
+        cartItem.product.productId.identity.value,
         cartItem.product.name.value,
         cartItem.product.description.value,
         cartItem.product.category.name,

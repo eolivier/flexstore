@@ -43,7 +43,7 @@ class StripePaymentProvider(private val secretKey: String, private val shopUrl: 
         val confirmationPage = OrderConfirmationPage.of(shopUrl, order.orderId)
         val params = SessionCreateParams.builder()
             .setMode(SessionCreateParams.Mode.PAYMENT)
-            .setClientReferenceId(order.orderId.toString())
+            .setClientReferenceId(order.orderId.identity.value)
             .setCustomer(stripeCustomerOf(paymentRequest.payer).id)
             .setSuccessUrl(confirmationPage.url)
             .setCancelUrl(orderPage.url)

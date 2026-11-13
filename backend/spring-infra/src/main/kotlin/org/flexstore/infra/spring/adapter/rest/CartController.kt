@@ -60,7 +60,7 @@ class CartController(
             val productId = ProductId(Identity(jsonItem.productId))
             cartUseCases.addItem(AddItemToCartRequest(actorOf(jwt), owner, productId, quantity))
         }
-        return JsonSaveItemResponse("ok", (owner as? CartOwner.Visitor)?.cartId?.toString())
+        return JsonSaveItemResponse("ok", (owner as? CartOwner.Visitor)?.cartId?.identity?.value)
     }
 
     @Operation(summary = "Merge the cart of the visitor (X-Cart-Id) into the cart of the signed-in customer")

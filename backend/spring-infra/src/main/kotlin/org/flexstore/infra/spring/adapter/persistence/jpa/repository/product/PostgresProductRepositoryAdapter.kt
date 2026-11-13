@@ -42,10 +42,10 @@ class PostgresProductRepositoryAdapter(
     @Transactional(readOnly = true)
     override fun findAll(): List<Product> = jpaRepo.findAll(CATALOG_ORDER).map { it.toDomain() }
 
-    @Cacheable(PRODUCTS_CACHE, key = "'id:' + #p0.toString()")
+    @Cacheable(PRODUCTS_CACHE, key = "'id:' + #p0.identity.value")
     @Transactional(readOnly = true)
     override fun findById(productId: ProductId): DefinedProduct? =
-        jpaRepo.findById(productId.toString()).map { it.toDomain() }.orElse(null)
+        jpaRepo.findById(productId.identity.value).map { it.toDomain() }.orElse(null)
 
     @Cacheable(PRODUCTS_CACHE, key = "'category:' + #p0.name")
     @Transactional(readOnly = true)
@@ -63,17 +63,17 @@ class PostgresProductRepositoryAdapter(
             product.price.amount.value,
             product.price.currency.name
         )
-        is DefinedProduct -> jpaRepo.existsById(product.productId.toString())
+        is DefinedProduct -> jpaRepo.existsById(product.productId.identity.value)
     }
 
     override fun notExists(product: Product): Boolean = !exists(product)
 
     @Transactional(readOnly = true)
-    override fun productExists(productId: ProductId): Boolean = jpaRepo.existsById(productId.toString())
+    override fun productExists(productId: ProductId): Boolean = jpaRepo.existsById(productId.identity.value)
 
     @Transactional(readOnly = true)
     override fun skuIsUsedByAnotherProduct(product: DefinedProduct): Boolean =
-        jpaRepo.existsBySkuAndIdNot(product.sku.value, product.productId.toString())
+        jpaRepo.existsBySkuAndIdNot(product.sku.value, product.productId.identity.value)
 
     @Transactional(readOnly = true)
     override fun skuIsFree(sku: Sku): Boolean = !jpaRepo.existsBySku(sku.value)
@@ -92,7 +92,7 @@ class PostgresProductRepositoryAdapter(
     )
 
     private fun DefinedProduct.toEntity() = ProductEntity(
-        id = productId.toString(),
+        id = productId.identity.value,
         sku = sku.value,
         category = category.name,
         price = price.amount.value,
@@ -107,7 +107,7 @@ class PostgresProductRepositoryAdapter(
     // The stored row of a language keeps its id and its creation date, so that a product is translated at most
     // once per language; the other languages get new rows
     private fun translationEntities(product: DefinedProduct): List<ProductTranslationEntity> {
-        val storedProduct = jpaRepo.findById(product.productId.toString())
+        val storedProduct = jpaRepo.findById(product.productId.identity.value)
         val storedTranslations = storedProduct.map { it.translations }.orElse(emptyList())
         return product.translations.asList().map { translation ->
             val language = translation.language.name.lowercase()

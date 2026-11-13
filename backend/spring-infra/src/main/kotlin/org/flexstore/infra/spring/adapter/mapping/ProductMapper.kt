@@ -41,7 +41,7 @@ class ProductMapper {
 
     // Every translation of the product, which the administrator edits
     fun toAdminJson(product: DefinedProduct) = JsonAdminProduct(
-        product.productId.toString(),
+        product.productId.identity.value,
         product.sku.value,
         product.category.name,
         product.price.amount.value,
@@ -66,7 +66,7 @@ fun <E> List<E>.toJsonProducts(language: Language): List<JsonProduct> {
 private fun DefinedProduct.toJson(language: Language): JsonProduct {
     val translation = translationIn(language)
     return JsonProduct(
-        productId.toString(),
+        productId.identity.value,
         sku.value,
         translation.name.value,
         translation.description.value,

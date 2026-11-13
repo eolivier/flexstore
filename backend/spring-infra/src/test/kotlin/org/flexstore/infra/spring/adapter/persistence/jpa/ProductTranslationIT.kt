@@ -42,12 +42,12 @@ class ProductTranslationIT {
 
     @AfterEach
     fun deleteLamp() {
-        jpaProductRepository.deleteById(lamp.productId.toString())
+        jpaProductRepository.deleteById(lamp.productId.identity.value)
         cacheManager.clearProductCache()
     }
 
     private fun storedFrenchRow(): ProductTranslationEntity {
-        val storedLamp = jpaProductRepository.findById(lamp.productId.toString()).orElseThrow()
+        val storedLamp = jpaProductRepository.findById(lamp.productId.identity.value).orElseThrow()
         return storedLamp.translations.single { it.language == "fr" }
     }
 

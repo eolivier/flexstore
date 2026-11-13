@@ -22,15 +22,15 @@ class PostgresInvoiceRepositoryAdapter(private val jpaRepo: JpaInvoiceRepository
         val invoiceEntity = InvoiceEntity(
             Identity.nextId().value,
             number,
-            invoiceIssue.orderId.toString(),
+            invoiceIssue.orderId.identity.value,
             invoiceIssue.issuedAt.value,
-            sellerId.toString()
+            sellerId.identity.value
         )
         return jpaRepo.save(invoiceEntity).toDomain()
     }
 
     @Transactional(readOnly = true)
-    override fun findBy(orderId: OrderId): Invoice? = jpaRepo.findByCustomerOrderId(orderId.toString())?.toDomain()
+    override fun findBy(orderId: OrderId): Invoice? = jpaRepo.findByCustomerOrderId(orderId.identity.value)?.toDomain()
 
     private fun InvoiceEntity.toDomain(): Invoice {
         val invoiceIssue = InvoiceIssue(OrderId(Identity(customerOrderId)), InvoiceDate(issuedAt))

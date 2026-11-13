@@ -22,27 +22,27 @@ class PostgresReviewRepositoryAdapter(
     }
 
     override fun delete(reviewId: ReviewId) {
-        jpaRepo.deleteById(reviewId.toString())
+        jpaRepo.deleteById(reviewId.identity.value)
     }
 
     @Transactional(readOnly = true)
     override fun findAllAbout(productId: ProductId) =
-        Reviews(jpaRepo.findByProductId(productId.toString()).map { it.toDomain() }).newestFirst()
+        Reviews(jpaRepo.findByProductId(productId.identity.value).map { it.toDomain() }).newestFirst()
 
     @Transactional(readOnly = true)
     override fun findAll() = Reviews(jpaRepo.findAll().map { it.toDomain() })
 
     @Transactional(readOnly = true)
-    override fun reviewExists(reviewId: ReviewId) = jpaRepo.existsById(reviewId.toString())
+    override fun reviewExists(reviewId: ReviewId) = jpaRepo.existsById(reviewId.identity.value)
 
     @Transactional(readOnly = true)
     override fun hasReviewed(customer: UserId.ValidUserId, productId: ProductId) =
-        jpaRepo.existsByUser_IdAndProductId(customer.value, productId.toString())
+        jpaRepo.existsByUser_IdAndProductId(customer.value, productId.identity.value)
 
     // The reviewer is the row of the customer, so that the review read back in the same request is named
     private fun Review.toEntity() = ProductReviewEntity(
-        reviewId.toString(), productId.toString(), userRepo.getReferenceById(reviewer.userId.value), rating.value,
-        comment.value, reviewedAt.value
+        reviewId.identity.value, productId.identity.value, userRepo.getReferenceById(reviewer.userId.value),
+        rating.value, comment.value, reviewedAt.value
     )
 
     private fun ProductReviewEntity.toDomain(): Review {

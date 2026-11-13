@@ -73,7 +73,7 @@ data class DefinedProduct(
 
     // A product given with its id only: its SKU is its id
     constructor(productId: ProductId, name: Name, price: Price) :
-        this(productId, Sku.from(productId.toString()), name, NO_DESCRIPTION, Category.NOT_DEFINED, price)
+        this(productId, Sku.from(productId.identity.value), name, NO_DESCRIPTION, Category.NOT_DEFINED, price)
 
     val price: Price get() = pricing.price
 
