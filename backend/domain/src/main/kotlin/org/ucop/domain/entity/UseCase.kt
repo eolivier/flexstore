@@ -1,11 +1,9 @@
 package org.ucop.domain.entity
 
 import org.flexstore.domain.sharedkernel.*
-import org.ucop.domain.AlternativeException
 import org.ucop.domain.NominalException
 import org.ucop.domain.PostConditionException
 import org.ucop.domain.PreConditionException
-import org.ucop.domain.StepException
 import org.ucop.domain.UseCaseLog
 import kotlin.reflect.KClass
 
@@ -76,39 +74,11 @@ data class NominalScenario<T>(override val steps: List<Step<T>>) : Scenario<T> {
 
     // NominalScenario(step1, step2): the caller does not wrap the steps in a list
     constructor(vararg steps: Step<T>) : this(steps.toList())
-
-    override fun unfold(t: T) {
-        try {
-            steps.forEach { it.run(t) }
-        } catch (se: StepException) {
-            throw NominalException(se.errorMessage)
-        }
-    }
 }
 
 data class AlternativeScenario<T>(override val steps: List<Step<T>>) : Scenario<T> {
 
     constructor(vararg steps: Step<T>) : this(steps.toList())
-
-    override fun unfold(t: T) {
-        try {
-            steps.forEach { it.run(t) }
-        } catch (se: StepException) {
-            throw AlternativeException(se.errorMessage)
-        }
-    }
-}
-
-data class DeprecatedUseCase<T>(
-    val preConditions: List<PreCondition<T>>,
-    val nominalScenario: NominalScenario<T>,
-    val postConditions: List<PostCondition<T>>
-) {
-    fun run(t: T) {
-        preConditions.forEach { it.validate(t) }
-        nominalScenario.unfold(t)
-        postConditions.forEach { it.validate(t) }
-    }
 }
 
 interface UseCase<T> {
@@ -132,18 +102,6 @@ interface UseCase<T> {
             }
         }
     }
-}
-
-class EmptyUseCase<T> : UseCase<T> {
-
-    override fun getPreConditions(): PreConditions<T> = PreConditions.none()
-
-    override fun getNominalScenario(): NominalScenario<T> = NominalScenario(listOf())
-
-    override fun getPostConditions(): PostConditions<T> = PostConditions.none()
-
-    override fun getAlternativeScenarii(): Map<KClass<out NominalException>, AlternativeScenario<T>> = emptyMap()
-
 }
 
 // The nominal scenario of a query: it answers the request, without changing anything

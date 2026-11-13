@@ -1,6 +1,5 @@
 package org.ucop.domain
 
-data class StepException(val errorMessage: ErrorMessage) : Exception(errorMessage.value)
 open class NominalException(open val errorMessage: ErrorMessage) : Exception(errorMessage.value) {
 
     // A precondition not met, seen from outside the use case as a nominal failure: its cause is the precise
@@ -18,6 +17,5 @@ open class NominalException(open val errorMessage: ErrorMessage) : Exception(err
 open class PreConditionException(open val errorMessage: ErrorMessage) : Exception(errorMessage.value)
 // A postcondition that is not met: the business exceptions of the postconditions derive from it
 open class PostConditionException(open val errorMessage: ErrorMessage) : Exception(errorMessage.value)
-data class AlternativeException(val errorMessage: ErrorMessage) : Exception(errorMessage.value)
 
 fun Throwable.isNotNominal() = this !is NominalException
