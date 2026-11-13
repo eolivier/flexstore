@@ -20,8 +20,12 @@ import java.math.BigDecimal
 
 class MergeCartsUseCaseTest : WithAssertions {
 
-    private val product1 = DefinedProduct(ProductId(Identity("product-1")), Name("Product1"), Price(Amount(BigDecimal(10)), Currency.EUR))
-    private val product2 = DefinedProduct(ProductId(Identity("product-2")), Name("Product2"), Price(Amount(BigDecimal(11)), Currency.EUR))
+    private val product1 = DefinedProduct(
+        ProductId(Identity("product-1")), Name("Product1"), Price(Amount(BigDecimal(10)), Currency.EUR)
+    )
+    private val product2 = DefinedProduct(
+        ProductId(Identity("product-2")), Name("Product2"), Price(Amount(BigDecimal(11)), Currency.EUR)
+    )
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val visitor = CartOwner.Visitor(VisitorCartId.nextId())
     private val cartRepository = InMemoryCartRepository()

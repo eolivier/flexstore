@@ -23,7 +23,9 @@ import java.time.Instant
 class OrderAddressesTest : WithAssertions {
 
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
-    private val deskLamp = DefinedProduct(ProductId(Identity("desk-lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR))
+    private val deskLamp = DefinedProduct(
+        ProductId(Identity("desk-lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR)
+    )
     private val cart = Cart(customer).add(deskLamp, Quantity(1))
 
     companion object {
@@ -42,7 +44,10 @@ class OrderAddressesTest : WithAssertions {
     }
 
     private fun orderPlacementWith(orderAddresses: OrderAddresses) =
-        OrderPlacement(OrderStamp(OrderId("order-1"), Instant.parse("2026-10-24T10:00:00Z")), Checkout(customer, orderAddresses, acceptedTermsOfSale))
+        OrderPlacement(
+            OrderStamp(OrderId("order-1"), Instant.parse("2026-10-24T10:00:00Z")),
+            Checkout(customer, orderAddresses, acceptedTermsOfSale)
+        )
 
     @Test
     fun `an order should keep its delivery address and its billing address`() {
@@ -77,7 +82,9 @@ class OrderAddressesTest : WithAssertions {
 
     @ParameterizedTest(name = "an incomplete {0} address should be refused")
     @MethodSource("incompleteAddresses")
-    fun `an order should not be placed with an incomplete address`(@Suppress("UNUSED_PARAMETER") which: String, orderAddresses: OrderAddresses) {
+    fun `an order should not be placed with an incomplete address`(
+        @Suppress("UNUSED_PARAMETER") which: String, orderAddresses: OrderAddresses
+    ) {
         // Arrange
         val orderPlacement = orderPlacementWith(orderAddresses)
         // Act

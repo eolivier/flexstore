@@ -34,7 +34,9 @@ class CreditNoteDocumentTest : WithAssertions {
     private val orderId = OrderId("46555c9f-4e92")
     private val placedAt = Instant.parse("2026-10-24T10:00:00Z")
     private val janeDoe = OrderCustomer(FullName(FirstName("Jane"), LastName("Doe")), Email("jane@example.com"))
-    private val invoice = Invoice(InvoiceNumber("2026-000042"), InvoiceIssue(orderId, InvoiceDate(placedAt)), testSeller.id)
+    private val invoice = Invoice(
+        InvoiceNumber("2026-000042"), InvoiceIssue(orderId, InvoiceDate(placedAt)), testSeller.id
+    )
     private val creditNoteIssue = CreditNoteIssue(orderId, CreditNoteDate(Instant.parse("2026-10-26T09:00:00Z")))
     private val creditNote = CreditNote(CreditNoteNumber("AV-2026-000007"), creditNoteIssue)
 

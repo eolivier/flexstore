@@ -18,8 +18,15 @@ class CreateUserUseCaseTest {
 
     private val userRepository = mockk<UserRepository>()
     private val createUserUseCase = CreateUserUseCase(userRepository)
-    private val user = DefinedUser(ValidUserId("123"), FullName(FirstName("John"), LastName("Doe")), Email("john.doe@example.com"), PlainPassword("password123"))
-    private val draftUser = User.DraftUser(FullName(FirstName("John"), LastName("Doe")), Email("john.doe@example.com"), PlainPassword("password123"))
+    private val user = DefinedUser(
+        ValidUserId("123"),
+        FullName(FirstName("John"), LastName("Doe")),
+        Email("john.doe@example.com"),
+        PlainPassword("password123")
+    )
+    private val draftUser = User.DraftUser(
+        FullName(FirstName("John"), LastName("Doe")), Email("john.doe@example.com"), PlainPassword("password123")
+    )
 
     @Test
     fun `should create user successfully`() {
@@ -70,7 +77,9 @@ class CreateUserUseCaseTest {
         // Act
         val thrown = catchThrowable { createUserUseCase.unfold(CreateUserRequest(testAdministratorActor, user)) }
         // Assert
-        assertThat(thrown).hasCauseInstanceOf(UserAlreadyExists::class.java).hasMessage("User with ID 123 already exists.")
+        assertThat(thrown)
+            .hasCauseInstanceOf(UserAlreadyExists::class.java)
+            .hasMessage("User with ID 123 already exists.")
     }
 
     @Test
@@ -89,7 +98,9 @@ class CreateUserUseCaseTest {
     @Test
     fun `should create draft user with the id assigned by the repository`() {
         // Arrange
-        val savedUser = DefinedUser(ValidUserId("generated-id"), draftUser.fullName, draftUser.email, PlainPassword("password123"))
+        val savedUser = DefinedUser(
+            ValidUserId("generated-id"), draftUser.fullName, draftUser.email, PlainPassword("password123")
+        )
         every { userRepository.emailIsAlreadyUsed(draftUser.email) } returns false
         every { userRepository.save(draftUser) } returns savedUser
         every { userRepository.notExists(savedUser.id) } returns false
@@ -120,6 +131,8 @@ class CreateUserUseCaseTest {
         // Act
         val thrown = catchThrowable { createUserUseCase.unfold(createUserRequest) }
         // Assert
-        assertThat(thrown).hasCauseInstanceOf(InvalidPasswordException::class.java).hasMessage("Password must not be blank.")
+        assertThat(thrown)
+            .hasCauseInstanceOf(InvalidPasswordException::class.java)
+            .hasMessage("Password must not be blank.")
     }
 }

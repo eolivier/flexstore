@@ -22,8 +22,9 @@ private const val SHRINK_FACTOR = 0.8
 class JavaImageResizerRepository : ImageResizerRepository {
 
     override fun resize(content: ImageContent, format: ImageFormat): ImageContent {
-        val image = ImageIO.read(ByteArrayInputStream(content.bytes.value))
-            ?: throw UnreadableImageException(ErrorMessage("The image cannot be read: JPEG, PNG or WebP expected."))
+        val message = ErrorMessage("The image cannot be read: JPEG, PNG or WebP expected.")
+        val bytes = ByteArrayInputStream(content.bytes.value)
+        val image = ImageIO.read(bytes) ?: throw UnreadableImageException(message)
         var side = minOf(format.maxSide, maxOf(image.width, image.height))
         while (true) {
             val scaledImage = scaled(image, side)

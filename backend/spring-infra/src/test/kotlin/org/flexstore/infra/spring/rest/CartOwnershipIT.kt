@@ -57,7 +57,9 @@ class CartOwnershipIT {
         // Act
         val response = mockMvc.perform(saveItem(productId = "1", quantity = 1))
         // Assert
-        val cartId = objectMapper.readTree(response.andExpect(status().isOk).andReturn().response.contentAsString)["cartId"].asText()
+        val cartId = objectMapper.readTree(response.andExpect(status().isOk)
+            .andReturn()
+            .response.contentAsString)["cartId"].asText()
         mockMvc.perform(get("/api/cart/cart-items").header(CART_ID_HEADER, cartId))
             .andExpect(jsonPath("$.items.length()").value(1))
     }
@@ -67,7 +69,8 @@ class CartOwnershipIT {
         // Arrange
         mockMvc.perform(saveItem(productId = "1", quantity = 1).header(CART_ID_HEADER, visitorCartId))
         // Act
-        val response = mockMvc.perform(get("/api/cart/cart-items").header(CART_ID_HEADER, VisitorCartId.nextId().value))
+        val response = mockMvc.perform(get("/api/cart/cart-items")
+            .header(CART_ID_HEADER, VisitorCartId.nextId().value))
         // Assert
         response.andExpect(status().isOk)
             .andExpect(jsonPath("$.items.length()").value(0))
@@ -85,7 +88,8 @@ class CartOwnershipIT {
     @Test
     fun `a customer should find their cart with their token`() {
         // Arrange
-        mockMvc.perform(saveItem(productId = "4", quantity = 2).with(asUser(CUSTOMER_ID))).andExpect(status().isOk)
+        mockMvc.perform(saveItem(productId = "4", quantity = 2).with(asUser(CUSTOMER_ID)))
+            .andExpect(status().isOk)
         // Act
         val response = mockMvc.perform(get("/api/cart/cart-items").with(asUser(CUSTOMER_ID)))
         // Assert
@@ -105,11 +109,16 @@ class CartOwnershipIT {
     @Test
     fun `merging should move the visitor items into the customer cart`() {
         // Arrange
-        mockMvc.perform(saveItem(productId = "7", quantity = 1).with(asUser(CUSTOMER_ID))).andExpect(status().isOk)
-        mockMvc.perform(saveItem(productId = "7", quantity = 2).header(CART_ID_HEADER, visitorCartId)).andExpect(status().isOk)
-        mockMvc.perform(saveItem(productId = "9", quantity = 1).header(CART_ID_HEADER, visitorCartId)).andExpect(status().isOk)
+        mockMvc.perform(saveItem(productId = "7", quantity = 1).with(asUser(CUSTOMER_ID)))
+            .andExpect(status().isOk)
+        mockMvc.perform(saveItem(productId = "7", quantity = 2).header(CART_ID_HEADER, visitorCartId))
+            .andExpect(status().isOk)
+        mockMvc.perform(saveItem(productId = "9", quantity = 1).header(CART_ID_HEADER, visitorCartId))
+            .andExpect(status().isOk)
         // Act
-        val response = mockMvc.perform(post("/api/cart/merge").header(CART_ID_HEADER, visitorCartId).with(asUser(CUSTOMER_ID)))
+        val response = mockMvc.perform(post("/api/cart/merge")
+            .header(CART_ID_HEADER, visitorCartId)
+            .with(asUser(CUSTOMER_ID)))
         // Assert
         response.andExpect(status().isNoContent)
         mockMvc.perform(get("/api/cart/cart-items").with(asUser(CUSTOMER_ID)))
@@ -131,6 +140,8 @@ class CartOwnershipIT {
             productCurrency = "€",
             productQuantity = quantity
         )
-        return post("/api/cart/save").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(item))
+        return post("/api/cart/save")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(item))
     }
 }

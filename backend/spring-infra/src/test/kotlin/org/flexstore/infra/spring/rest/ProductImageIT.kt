@@ -67,7 +67,8 @@ class ProductImageIT {
             .andExpect(status().isOk).andExpect(content().contentType("image/jpeg"))
         mockMvc.perform(get("/api/products/$PRODUCT_ID/image?format=large"))
             .andExpect(status().isOk).andExpect(content().contentType("image/jpeg"))
-        mockMvc.perform(get("/api/product-images")).andExpect(jsonPath("$").value(org.hamcrest.Matchers.hasItem(PRODUCT_ID)))
+        mockMvc.perform(get("/api/product-images"))
+            .andExpect(jsonPath("$").value(org.hamcrest.Matchers.hasItem(PRODUCT_ID)))
     }
 
     @Test
@@ -77,7 +78,8 @@ class ProductImageIT {
         val eTag = mockMvc.perform(get("/api/products/$PRODUCT_ID/image?format=small"))
             .andReturn().response.getHeader(HttpHeaders.ETAG)!!
         // Act
-        val response = mockMvc.perform(get("/api/products/$PRODUCT_ID/image?format=small").header("If-None-Match", eTag))
+        val response = mockMvc.perform(get("/api/products/$PRODUCT_ID/image?format=small")
+            .header("If-None-Match", eTag))
         // Assert
         response.andExpect(status().isNotModified)
     }
@@ -115,9 +117,11 @@ class ProductImageIT {
         // Arrange
         upload(png(800, 600)).andExpect(status().isNoContent)
         // Act
-        mockMvc.perform(delete("/api/admin/products/$PRODUCT_ID/image").with(asAdmin())).andExpect(status().isNoContent)
+        mockMvc.perform(delete("/api/admin/products/$PRODUCT_ID/image").with(asAdmin()))
+            .andExpect(status().isNoContent)
         // Assert
         mockMvc.perform(get("/api/products/$PRODUCT_ID/image?format=small")).andExpect(status().isNotFound)
-        mockMvc.perform(get("/api/products/$PRODUCT_ID/image")).andExpect(header().doesNotExist(HttpHeaders.ETAG))
+        mockMvc.perform(get("/api/products/$PRODUCT_ID/image"))
+            .andExpect(header().doesNotExist(HttpHeaders.ETAG))
     }
 }

@@ -131,7 +131,8 @@ class AdminOrderIT {
         val response = mockMvc.perform(get("/api/admin/orders/$orderId").with(asAdmin()))
         // Assert
         response.andExpect(status().isOk)
-            .andExpect(jsonPath("$.statusHistory[*].status").value(contains("AWAITING_PAYMENT", "PAID", "PROCESSING")))
+            .andExpect(jsonPath("$.statusHistory[*].status")
+                .value(contains("AWAITING_PAYMENT", "PAID", "PROCESSING")))
             .andExpect(jsonPath("$.statusHistory[2].changedAt").isNotEmpty)
     }
 
@@ -377,7 +378,9 @@ class AdminOrderIT {
             post("/api/cart/save").with(asUser(CUSTOMER_ID)).contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(item))
         ).andExpect(status().isOk)
-        val body = mockMvc.perform(post("/api/orders").withHomeAddresses(mockMvc.currentTermsOfSaleId()).with(asUser(CUSTOMER_ID)))
+        val body = mockMvc.perform(post("/api/orders")
+            .withHomeAddresses(mockMvc.currentTermsOfSaleId())
+            .with(asUser(CUSTOMER_ID)))
             .andExpect(status().isCreated).andReturn().response.contentAsString
         val orderId = objectMapper.readTree(body)["id"].asText()
         if (paid) mockMvc.pay(orderId, CUSTOMER_ID).andExpect(status().isCreated)

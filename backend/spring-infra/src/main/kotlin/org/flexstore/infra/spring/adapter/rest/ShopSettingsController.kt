@@ -72,7 +72,9 @@ class ShopSettingsController(
         return JsonShopSettings(changedSettings)
     }
 
-    @Operation(summary = "Change the time a customer has to pay an order (1 to 1440 minutes); unpaid, it is cancelled")
+    @Operation(
+        summary = "Change the time a customer has to pay an order (1 to 1440 minutes); unpaid, it is cancelled"
+    )
     @PutMapping("/payment-delay")
     fun changePaymentDelay(
         @AuthenticationPrincipal editor: Jwt,
@@ -84,7 +86,9 @@ class ShopSettingsController(
         return JsonShopSettings(changedSettings)
     }
 
-    @Operation(summary = "Change the price of the items from which the standard shipping is free (0: always free)")
+    @Operation(
+        summary = "Change the price of the items from which the standard shipping is free (0: always free)"
+    )
     @PutMapping("/free-shipping-threshold")
     fun changeFreeShippingThreshold(
         @AuthenticationPrincipal editor: Jwt,

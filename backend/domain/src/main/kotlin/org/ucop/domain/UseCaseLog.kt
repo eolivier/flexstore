@@ -17,10 +17,22 @@ object UseCaseLog {
             logger.info("{}: done ({} ms)", useCaseName, elapsedMillis(start))
             return outcome
         } catch (refusal: NominalException) {
-            logger.warn("{}: refused ({}: {}) ({} ms)", useCaseName, refusal::class.simpleName, refusal.message, elapsedMillis(start))
+            logger.warn(
+                "{}: refused ({}: {}) ({} ms)",
+                useCaseName,
+                refusal::class.simpleName,
+                refusal.message,
+                elapsedMillis(start)
+            )
             throw refusal
         } catch (failure: Exception) {
-            logger.error("{}: failed ({}: {}) ({} ms)", useCaseName, failure::class.simpleName, failure.message, elapsedMillis(start))
+            logger.error(
+                "{}: failed ({}: {}) ({} ms)",
+                useCaseName,
+                failure::class.simpleName,
+                failure.message,
+                elapsedMillis(start)
+            )
             throw failure
         }
     }

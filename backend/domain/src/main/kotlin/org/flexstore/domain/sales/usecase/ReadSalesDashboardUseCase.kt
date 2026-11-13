@@ -24,7 +24,8 @@ class ReadSalesDashboardUseCase(
     // The reader, resolved before the use case runs, must be an Admin
     private fun readerIsAdministratorCondition() = PreCondition<SalesDashboardReading> { request ->
         if (request.reader.isNotAdmin()) {
-            throw SalesDashboardForbiddenException(ErrorMessage("Only an administrator can read the sales of the shop."))
+            val message = ErrorMessage("Only an administrator can read the sales of the shop.")
+            throw SalesDashboardForbiddenException(message)
         }
     }
 

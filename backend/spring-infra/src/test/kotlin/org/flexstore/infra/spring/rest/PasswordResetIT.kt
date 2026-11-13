@@ -107,7 +107,8 @@ class PasswordResetIT {
         // Arrange
         requestReset(CUSTOMER_EMAIL).andExpect(status().isNoContent)
         val customerId = userRepository.findByEmail(CUSTOMER_EMAIL)!!.id
-        val expireLink = "UPDATE user_token SET expires_at = now() - interval '1 second' WHERE user_id = ? AND type = 'PASSWORD_RESET'"
+        val expireLink = "UPDATE user_token SET expires_at = now() - interval '1 second' " +
+            "WHERE user_id = ? AND type = 'PASSWORD_RESET'"
         jdbcTemplate.update(expireLink, customerId)
         // Act
         val response = reset(lastToken(), "new-password")
@@ -140,7 +141,9 @@ class PasswordResetIT {
     private fun lastToken() = emailSender.sentPasswordResetEmails().last().reset.expiringToken.token.value
 
     private fun requestReset(email: String) = mockMvc.perform(
-        post("/api/password-reset-requests").contentType(MediaType.APPLICATION_JSON).content("""{"email": "$email"}""")
+        post("/api/password-reset-requests")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("""{"email": "$email"}""")
     )
 
     private fun reset(token: String, password: String) = mockMvc.perform(

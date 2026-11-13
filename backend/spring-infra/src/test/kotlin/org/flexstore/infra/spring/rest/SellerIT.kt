@@ -123,7 +123,8 @@ class SellerIT {
             "siret": "12345678900012", "vatNumber": "FR12345678901", "phone": "01 23 45 67 89",
             "email": "contact@flexstore.fr", "website": "www.flexstore.fr",
             "legalForm": "SAS", "shareCapital": "10 000", "registryCity": "Paris",
-            "socialNetworks": {"facebook": "https://www.facebook.com/flexstore", "twitch": "twitch.tv/flexstore"}}"""
+            "socialNetworks": {"facebook": "https://www.facebook.com/flexstore",
+            "twitch": "twitch.tv/flexstore"}}"""
         updateSeller(sellerJson).andExpect(status().isOk)
         // Act
         val response = mockMvc.perform(get("/api/social-networks"))

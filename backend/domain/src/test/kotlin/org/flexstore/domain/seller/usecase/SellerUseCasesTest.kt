@@ -141,14 +141,18 @@ class SellerUseCasesTest : WithAssertions {
     @CsvSource("+33 1 23 45 67 89, https://www.flexstore.fr", "01.23.45.67.89, flexstore.fr/boutique")
     fun `a seller with a phone number, an email and a website should be saved`(phone: String, website: String) {
         // Arrange
-        val sellerReach = SellerReach(SellerPhone(phone), SellerEmail("contact@flexstore.fr"), SellerWebsite(website))
+        val sellerReach = SellerReach(
+            SellerPhone(phone), SellerEmail("contact@flexstore.fr"), SellerWebsite(website)
+        )
         // Act
         val updatedSeller = sellerUseCases.update(administrator, testSellerDetail.copy(reach = sellerReach))
         // Assert
         assertThat(updatedSeller.detail.reach).isEqualTo(sellerReach)
     }
 
-    @ParameterizedTest(name = "the legal form \"{0}\", the share capital \"{1}\" and the city \"{2}\" are refused")
+    @ParameterizedTest(
+        name = "the legal form \"{0}\", the share capital \"{1}\" and the city \"{2}\" are refused"
+    )
     @CsvSource("'', 10 000, Paris", "SAS, '', Paris", "SAS, dix mille, Paris", "SAS, 10 000, ''")
     fun `a seller without its legal form, a share capital in euros and its register should be refused`(
         legalForm: String, shareCapital: String, registryCity: String

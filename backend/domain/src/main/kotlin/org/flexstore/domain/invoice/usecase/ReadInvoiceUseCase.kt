@@ -19,7 +19,8 @@ class ReadInvoiceUseCase(private val invoiceRepository: InvoiceRepository) : Que
 
     private fun invoiceExistsCondition() = PreCondition<OrderId> { orderId ->
         if (invoiceRepository.invoiceIsMissingFor(orderId)) {
-            throw InvoiceNotFoundException(ErrorMessage("Order ${orderId.value} has no invoice: it is not paid."))
+            val message = ErrorMessage("Order ${orderId.value} has no invoice: it is not paid.")
+            throw InvoiceNotFoundException(message)
         }
     }
 }

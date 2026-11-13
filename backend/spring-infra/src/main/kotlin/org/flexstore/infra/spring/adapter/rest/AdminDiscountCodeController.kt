@@ -31,7 +31,9 @@ class AdminDiscountCodeController(
         return discountCodeUseCases.getAll(actor).asList().map { JsonDiscountCode(it) }
     }
 
-    @Operation(summary = "Give a discount code: a percentage or an amount off the items, until a date, for some orders")
+    @Operation(
+        summary = "Give a discount code: a percentage or an amount off the items, until a date, for some orders"
+    )
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun createDiscountCode(

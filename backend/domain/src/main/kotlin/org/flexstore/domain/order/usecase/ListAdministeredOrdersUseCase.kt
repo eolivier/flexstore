@@ -33,7 +33,8 @@ class ListAdministeredOrdersUseCase(
     // The reader must be an existing user with the ADMIN role (read from the users, not from the request)
     private fun readerIsAdministratorCondition() = PreCondition<AdministeredOrdersReading> { request ->
         if (userRepository.isNotAdministrator(request.reader)) {
-            throw OrderAdministrationForbiddenException(ErrorMessage("Only an administrator can read the orders of all the customers."))
+            val message = ErrorMessage("Only an administrator can read the orders of all the customers.")
+            throw OrderAdministrationForbiddenException(message)
         }
     }
 }

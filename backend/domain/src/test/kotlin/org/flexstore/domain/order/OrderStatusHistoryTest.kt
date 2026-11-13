@@ -29,7 +29,9 @@ class OrderStatusHistoryTest : WithAssertions {
     private val shippedAt = StatusChangedAt(Instant.parse("2026-10-25T08:00:00Z"))
 
     private fun placedOrder(): Order {
-        val orderPlacement = OrderPlacement(OrderStamp(OrderId("order-1"), placedAt), Checkout(customer, homeOrderAddresses, acceptedTermsOfSale))
+        val orderPlacement = OrderPlacement(
+            OrderStamp(OrderId("order-1"), placedAt), Checkout(customer, homeOrderAddresses, acceptedTermsOfSale)
+        )
         return Order.place(orderPlacement, Cart(customer).add(deskLamp, Quantity(1)))
     }
 

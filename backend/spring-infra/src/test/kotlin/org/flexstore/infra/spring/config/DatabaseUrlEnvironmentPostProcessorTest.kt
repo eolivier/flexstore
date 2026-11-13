@@ -11,11 +11,14 @@ class DatabaseUrlEnvironmentPostProcessorTest {
     @Test
     fun `should convert a connection string to datasource properties`() {
         // Act
-        val properties = datasourceProperties("postgresql://flex:p%40ss@dpg-abc-a.frankfurt-postgres.render.com:5432/flexstore")
+        val properties = datasourceProperties(
+            "postgresql://flex:p%40ss@dpg-abc-a.frankfurt-postgres.render.com:5432/flexstore"
+        )
         // Assert
         assertThat(properties).isEqualTo(
             mapOf(
-                "spring.datasource.url" to "jdbc:postgresql://dpg-abc-a.frankfurt-postgres.render.com:5432/flexstore",
+                "spring.datasource.url" to
+                    "jdbc:postgresql://dpg-abc-a.frankfurt-postgres.render.com:5432/flexstore",
                 "spring.datasource.username" to "flex",
                 "spring.datasource.password" to "p@ss"
             )
@@ -33,9 +36,15 @@ class DatabaseUrlEnvironmentPostProcessorTest {
     @Test
     fun `should keep a JDBC URL as is`() {
         // Act
-        val properties = datasourceProperties("jdbc:postgresql://localhost:5432/flexstore?user=flex&password=flex")
+        val properties = datasourceProperties(
+            "jdbc:postgresql://localhost:5432/flexstore?user=flex&password=flex"
+        )
         // Assert
-        assertThat(properties).isEqualTo(mapOf("spring.datasource.url" to "jdbc:postgresql://localhost:5432/flexstore?user=flex&password=flex"))
+        assertThat(properties).isEqualTo(
+            mapOf(
+                "spring.datasource.url" to "jdbc:postgresql://localhost:5432/flexstore?user=flex&password=flex"
+            )
+        )
     }
 
     @Test
@@ -55,17 +64,20 @@ class DatabaseUrlEnvironmentPostProcessorTest {
         // Act
         DatabaseUrlEnvironmentPostProcessor().postProcessEnvironment(environment, SpringApplication())
         // Assert
-        assertThat(environment.getProperty("spring.datasource.url")).isEqualTo("jdbc:postgresql://host:5432/flexstore")
+        assertThat(environment.getProperty("spring.datasource.url"))
+            .isEqualTo("jdbc:postgresql://host:5432/flexstore")
         assertThat(environment.getProperty("spring.datasource.username")).isEqualTo("flex")
     }
 
     @Test
     fun `should not change anything when the variable is not set`() {
         // Arrange
-        val environment = MockEnvironment().withProperty("spring.datasource.url", "jdbc:postgresql://localhost/flexstore")
+        val environment = MockEnvironment()
+            .withProperty("spring.datasource.url", "jdbc:postgresql://localhost/flexstore")
         // Act
         DatabaseUrlEnvironmentPostProcessor().postProcessEnvironment(environment, SpringApplication())
         // Assert
-        assertThat(environment.getProperty("spring.datasource.url")).isEqualTo("jdbc:postgresql://localhost/flexstore")
+        assertThat(environment.getProperty("spring.datasource.url"))
+            .isEqualTo("jdbc:postgresql://localhost/flexstore")
     }
 }

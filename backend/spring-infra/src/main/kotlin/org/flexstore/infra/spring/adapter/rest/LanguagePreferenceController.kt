@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.*
 @RestController
 class LanguagePreferenceController(private val userPreferenceUseCases: UserPreferenceUseCases) {
 
-    @Operation(summary = "Retrieve the preferred language of the signed-in customer (NONE when they never chose)")
+    @Operation(
+        summary = "Retrieve the preferred language of the signed-in customer (NONE when they never chose)"
+    )
     @GetMapping("/api/language")
     fun getLanguagePreference(@AuthenticationPrincipal customer: Jwt): JsonLanguagePreference =
         JsonLanguagePreference.of(userPreferenceUseCases.preferencesOf(UserId.of(customer.subject)).language)

@@ -46,7 +46,7 @@ tasks.register("checkLineLength") {
         }
         val tooLong = (kotlinSources.files + newMigrations.files).flatMap { file ->
             file.readLines().withIndex()
-                .filter { (_, line) -> line.length > limit && !line.contains('"') }
+                .filter { (_, line) -> line.length > limit }
                 .map { (index, line) -> "${file.relativeTo(root)}:${index + 1} (${line.length} characters)" }
         }
         if (tooLong.isNotEmpty()) {

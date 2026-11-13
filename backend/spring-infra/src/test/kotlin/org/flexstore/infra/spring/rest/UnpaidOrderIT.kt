@@ -133,7 +133,9 @@ class UnpaidOrderIT {
     }
 
     private fun stock() =
-        jdbcTemplate.queryForObject("SELECT stock_quantity FROM product WHERE id = ?", Int::class.java, PRODUCT_ID)
+        jdbcTemplate.queryForObject(
+            "SELECT stock_quantity FROM product WHERE id = ?", Int::class.java, PRODUCT_ID
+        )
 
     private fun placedMinutesAgo(orderId: String, minutes: Int) {
         val placedAgo = "UPDATE customer_order SET placed_at = now() - make_interval(mins => ?) WHERE id = ?"
@@ -145,9 +147,14 @@ class UnpaidOrderIT {
             "productDescription": "Description", "productCategory": "ELECTRONICS", "productPrice": 10,
             "productCurrency": "€", "productQuantity": $quantity}"""
         mockMvc.perform(
-            post("/api/cart/save").with(asUser(CUSTOMER_ID)).contentType(MediaType.APPLICATION_JSON).content(item)
+            post("/api/cart/save")
+                .with(asUser(CUSTOMER_ID))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(item)
         ).andExpect(status().isOk)
-        val body = mockMvc.perform(post("/api/orders").withHomeAddresses(mockMvc.currentTermsOfSaleId()).with(asUser(CUSTOMER_ID)))
+        val body = mockMvc.perform(post("/api/orders")
+            .withHomeAddresses(mockMvc.currentTermsOfSaleId())
+            .with(asUser(CUSTOMER_ID)))
             .andExpect(status().isCreated).andReturn().response.contentAsString
         return objectMapper.readTree(body)["id"].asText()
     }

@@ -70,7 +70,9 @@ class RefundOrderUseCaseTest : WithAssertions {
     }
 
     @ParameterizedTest(name = "an order {0} is not refunded")
-    @EnumSource(OrderStatus::class, names = ["AWAITING_PAYMENT", "SHIPPED", "DELIVERED", "CANCELLED", "REFUNDED"])
+    @EnumSource(
+        OrderStatus::class, names = ["AWAITING_PAYMENT", "SHIPPED", "DELIVERED", "CANCELLED", "REFUNDED"]
+    )
     fun `an order not paid, or already shipped, should not be refunded`(status: OrderStatus) {
         // Arrange
         storeOrder(status)

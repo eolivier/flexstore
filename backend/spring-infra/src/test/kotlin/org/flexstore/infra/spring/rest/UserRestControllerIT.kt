@@ -91,7 +91,10 @@ class UserRestControllerIT {
         val draftJsonUser = DraftJsonUser("Draft", "User", DRAFT_USER_EMAIL, "testpassword", role)
         // Act
         val response = mockMvc.perform(
-            post("/api/users").with(asAdmin()).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(draftJsonUser))
+            post("/api/users")
+                .with(asAdmin())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(draftJsonUser))
         )
         // Assert
         response.andExpect(status().isCreated)
@@ -106,7 +109,10 @@ class UserRestControllerIT {
         val draftJsonUser = DraftJsonUser("Draft", "User", DRAFT_USER_EMAIL, "testpassword")
         // Act
         val response = mockMvc.perform(
-            post("/api/users").with(asAdmin(EXISTING_CUSTOMER_ID)).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(draftJsonUser))
+            post("/api/users")
+                .with(asAdmin(EXISTING_CUSTOMER_ID))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(draftJsonUser))
         )
         // Assert
         response.andExpect(status().isForbidden)
@@ -120,7 +126,10 @@ class UserRestControllerIT {
         val draftJsonUser = DraftJsonUser("Draft", "User", DRAFT_USER_EMAIL, "testpassword", "SUPERVISOR")
         // Act
         val response = mockMvc.perform(
-            post("/api/users").with(asAdmin()).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(draftJsonUser))
+            post("/api/users")
+                .with(asAdmin())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(draftJsonUser))
         )
         // Assert
         response.andExpect(status().isUnprocessableEntity)
@@ -161,7 +170,10 @@ class UserRestControllerIT {
         val editedUser = EditedJsonUser("Jane", "Doe", "jane.doe@example.com", "ADMIN")
         // Act
         val response = mockMvc.perform(
-            put("/api/users/$USER_ID").with(asAdmin()).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(editedUser))
+            put("/api/users/$USER_ID")
+                .with(asAdmin())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(editedUser))
         )
         // Assert
         response.andExpect(status().isOk)
@@ -175,13 +187,19 @@ class UserRestControllerIT {
     fun `an edit should keep the password, even if one is sent`() {
         // Arrange
         userService.createUser(CreateUserRequest(administrator(), createJsonUser().toUser()))
-        val editedUserWithPassword = """{"firstName": "Jane", "lastName": "Doe", "email": "jane.doe@example.com", "password": "another-password"}"""
+        val editedUserWithPassword =
+            """{"firstName": "Jane", "lastName": "Doe", """ +
+                """"email": "jane.doe@example.com", "password": "another-password"}"""
         // Act
         mockMvc.perform(
-            put("/api/users/$USER_ID").with(asAdmin()).contentType(MediaType.APPLICATION_JSON).content(editedUserWithPassword)
+            put("/api/users/$USER_ID")
+                .with(asAdmin())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(editedUserWithPassword)
         ).andExpect(status().isOk)
         // Assert
-        assertThat(userRepository.passwordMatches(Email("jane.doe@example.com"), PlainPassword("testpassword"))).isTrue()
+        assertThat(userRepository.passwordMatches(Email("jane.doe@example.com"), PlainPassword("testpassword")))
+            .isTrue()
     }
 
     @Test
@@ -191,11 +209,16 @@ class UserRestControllerIT {
         val editedUser = EditedJsonUser("Jane", "Doe", "jane.doe@example.com", "USER")
         // Act
         val response = mockMvc.perform(
-            put("/api/users/$USER_ID").with(asAdmin(EXISTING_CUSTOMER_ID)).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(editedUser))
+            put("/api/users/$USER_ID")
+                .with(asAdmin(EXISTING_CUSTOMER_ID))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(editedUser))
         )
         // Assert
         response.andExpect(status().isForbidden)
-        assertThat((userService.readUser(administrator(), UserId.of(USER_ID)) as User.DefinedUser).fullName.value).isEqualTo("John Doe")
+        assertThat(
+            (userService.readUser(administrator(), UserId.of(USER_ID)) as User.DefinedUser).fullName.value
+        ).isEqualTo("John Doe")
     }
 
     @Test
@@ -205,7 +228,10 @@ class UserRestControllerIT {
         val editedUser = EditedJsonUser("John", "Doe", "admin@flexstore.com", "USER")
         // Act
         val response = mockMvc.perform(
-            put("/api/users/$USER_ID").with(asAdmin()).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(editedUser))
+            put("/api/users/$USER_ID")
+                .with(asAdmin())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(editedUser))
         )
         // Assert
         response.andExpect(status().isConflict)
@@ -224,8 +250,10 @@ class UserRestControllerIT {
         )
             .andExpect(status().isNoContent)
         // Assert
-        assertThat(userRepository.passwordMatches(Email("john.doe@example.com"), PlainPassword("new-password"))).isTrue()
-        assertThat(userRepository.passwordMatches(Email("john.doe@example.com"), PlainPassword("testpassword"))).isFalse()
+        assertThat(userRepository.passwordMatches(Email("john.doe@example.com"), PlainPassword("new-password")))
+            .isTrue()
+        assertThat(userRepository.passwordMatches(Email("john.doe@example.com"), PlainPassword("testpassword")))
+            .isFalse()
     }
 
     @Test
@@ -240,7 +268,8 @@ class UserRestControllerIT {
                 .content(request)
         )
             .andExpect(status().isBadRequest)
-        assertThat(userRepository.passwordMatches(Email("john.doe@example.com"), PlainPassword("testpassword"))).isTrue()
+        assertThat(userRepository.passwordMatches(Email("john.doe@example.com"), PlainPassword("testpassword")))
+            .isTrue()
     }
 
     @Test

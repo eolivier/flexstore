@@ -91,7 +91,8 @@ class DefinedProductControllerIT {
     )
     fun `a product should be returned in the language of the customer`(acceptLanguage: String, name: String) {
         // Act
-        val response = mockMvc.perform(get("/api/products/2").header(HttpHeaders.ACCEPT_LANGUAGE, acceptLanguage))
+        val response = mockMvc.perform(get("/api/products/2")
+            .header(HttpHeaders.ACCEPT_LANGUAGE, acceptLanguage))
         // Assert
         response.andExpect(status().isOk).andExpect(jsonPath("$.name").value(name))
     }
@@ -296,7 +297,8 @@ class DefinedProductControllerIT {
     fun `an administrator should read back the period of the promotion of a product`() {
         // Arrange
         val productId = createProduct("Cook book")
-        val promotion = """{"percentage": 25, "startsAt": "2999-01-01T09:30:00Z", "endsAt": "2999-01-08T18:00:00Z"}"""
+        val promotion =
+            """{"percentage": 25, "startsAt": "2999-01-01T09:30:00Z", "endsAt": "2999-01-08T18:00:00Z"}"""
         mockMvc.perform(edit(productId, promotionBody(productId, promotion))).andExpect(status().isOk)
         // Act
         val response = mockMvc.perform(get("/api/admin/products/$productId").with(asAdmin()))
@@ -356,7 +358,9 @@ class DefinedProductControllerIT {
     fun `a customer should not be proposed a SKU`() {
         // Act
         val response = mockMvc.perform(
-            get("/api/admin/products/sku-proposal").with(asUser(EXISTING_CUSTOMER_ID)).param("category", "CLOTHING")
+            get("/api/admin/products/sku-proposal")
+                .with(asUser(EXISTING_CUSTOMER_ID))
+                .param("category", "CLOTHING")
         )
         // Assert
         response.andExpect(status().isForbidden)
@@ -435,7 +439,10 @@ class DefinedProductControllerIT {
     }
 
     private fun postProduct(draft: String): ResultActions {
-        val creation = post("/api/products").with(asAdmin()).contentType(MediaType.APPLICATION_JSON).content(draft)
+        val creation = post("/api/products")
+            .with(asAdmin())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(draft)
         return mockMvc.perform(creation)
     }
 

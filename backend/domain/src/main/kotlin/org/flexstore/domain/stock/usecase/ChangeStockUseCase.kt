@@ -26,7 +26,8 @@ class ChangeStockUseCase(
     // The editor, resolved before the use case runs, must be an Admin
     private fun editorIsAdministratorCondition() = PreCondition<StockChange> { request ->
         if (request.editor.isNotAdmin()) {
-            throw StockChangeForbiddenException(ErrorMessage("Only an administrator can change the stock of a product."))
+            val message = ErrorMessage("Only an administrator can change the stock of a product.")
+            throw StockChangeForbiddenException(message)
         }
     }
 

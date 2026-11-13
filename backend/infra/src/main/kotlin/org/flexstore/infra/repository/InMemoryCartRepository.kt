@@ -18,7 +18,10 @@ class InMemoryCartRepository : CartRepository {
     override fun save(cart: Cart): Cart {
         val savedCart = cart.copy(items = Items(cart.items.asList().map {
             when (it) {
-                is DraftItem -> CartItem(ItemId(Identity("item-" + counter.incrementAndGet())), it.product, it.quantity)
+                is DraftItem -> {
+                    val itemId = ItemId(Identity("item-" + counter.incrementAndGet()))
+                    CartItem(itemId, it.product, it.quantity)
+                }
                 else -> it
             }
         }))

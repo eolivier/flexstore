@@ -38,7 +38,9 @@ class SellerController(
     private val actorResolutionService: ActorResolutionService
 ) {
 
-    @Operation(summary = "Finish the setup assistant: save the seller, then turn the seller setup of the settings on")
+    @Operation(
+        summary = "Finish the setup assistant: save the seller, then turn the seller setup of the settings on"
+    )
     @PutMapping("/setup")
     fun completeSetup(@AuthenticationPrincipal editor: Jwt, @RequestBody seller: JsonSeller): JsonSeller {
         val actor = actorResolutionService.actorOf(UserId.of(editor.subject))

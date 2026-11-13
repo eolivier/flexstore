@@ -11,7 +11,9 @@ import java.math.BigDecimal
 
 class AbandonedCartReminderEmailContentTest : WithAssertions {
 
-    private val deskLamp = DefinedProduct(ProductId(Identity("desk-lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR))
+    private val deskLamp = DefinedProduct(
+        ProductId(Identity("desk-lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR)
+    )
     private val customer = CartOwner.Customer(UserId.ValidUserId("user-1"))
     private val cart = Cart(customer).add(deskLamp, Quantity(2))
     private val janeDoe = FullName(FirstName("Jane"), LastName("Doe"))

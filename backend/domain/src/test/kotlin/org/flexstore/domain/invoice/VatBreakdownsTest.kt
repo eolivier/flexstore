@@ -23,7 +23,9 @@ class VatBreakdownsTest : WithAssertions {
     private val cookBook = productAt(ProductId(Identity("cook-book")), Name("Cook book"), bookPricing)
 
     private fun productAt(productId: ProductId, name: Name, pricing: ProductPricing): DefinedProduct {
-        val translations = ProductTranslations.inDefaultLanguage(ProductText(name, Description("A product of the tests")))
+        val translations = ProductTranslations.inDefaultLanguage(
+            ProductText(name, Description("A product of the tests"))
+        )
         return DefinedProduct(productId, Sku.from(productId.id.value), translations, Category.HOME, pricing)
     }
 

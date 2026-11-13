@@ -114,13 +114,18 @@ class OrderConfirmationEmailIT {
         val email = emailSender.sentEmails().single()
         val content = OrderConfirmationEmailContent(email, ShopUrl("https://flexstore.example"))
         assertThat(email.recipient).isEqualTo(Email("admin@flexstore.com"))
-        assertThat(content.subject.value).isEqualTo("Flexstore - Confirmation de votre commande ${email.order.number()}")
-        assertThat(content.body.value).contains("2 × Laptop : 1\u202F598,00 €", "https://flexstore.example/orders/${email.order.orderId.value}")
+        assertThat(content.subject.value)
+            .isEqualTo("Flexstore - Confirmation de votre commande ${email.order.number()}")
+        assertThat(content.body.value).contains(
+            "2 × Laptop : 1\u202F598,00 €", "https://flexstore.example/orders/${email.order.orderId.value}"
+        )
     }
 
     private fun placeOrder(): String {
         addToCart(productId = "6", quantity = 2)
-        val body = mockMvc.perform(post("/api/orders").withHomeAddresses(mockMvc.currentTermsOfSaleId()).with(asUser(CUSTOMER_ID)))
+        val body = mockMvc.perform(post("/api/orders")
+            .withHomeAddresses(mockMvc.currentTermsOfSaleId())
+            .with(asUser(CUSTOMER_ID)))
             .andExpect(status().isCreated).andReturn().response.contentAsString
         return objectMapper.readTree(body)["id"].asText()
     }

@@ -33,7 +33,8 @@ data class Words(private val words: List<Word>) {
     fun hyphenated() = HyphenatedWords(words.joinToString("-") { it.value })
 
     companion object {
-        // The words of a text, in upper case, without accents nor other signs ("T-shirt bio" gives T, SHIRT, BIO)
+        // The words of a text, in upper case, without accents nor other signs
+        // ("T-shirt bio" gives T, SHIRT, BIO)
         fun of(text: String): Words {
             val withoutAccents = Normalizer.normalize(text, Normalizer.Form.NFD).replace(Regex("\\p{M}"), "")
             val letterGroups = withoutAccents.uppercase().split(Regex("[^A-Z0-9]+")).filter { it.isNotEmpty() }

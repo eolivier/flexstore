@@ -34,7 +34,8 @@ class McpIT {
     @Test
     fun `an assistant should initialize the server without signing in`() {
         // Arrange
-        val message = """{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18"}}"""
+        val message =
+            """{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18"}}"""
         // Act
         val response = postMessage(message)
         // Assert
@@ -60,14 +61,16 @@ class McpIT {
         // Assert
         response.andExpect(status().isOk)
             .andExpect(jsonPath("$.result.isError").value(false))
-            .andExpect(jsonPath("$.result.content[0].text").value(org.hamcrest.Matchers.containsString("\"sku\"")))
+            .andExpect(jsonPath("$.result.content[0].text")
+                .value(org.hamcrest.Matchers.containsString("\"sku\"")))
     }
 
     @Test
     fun `the tool get_product should refuse a product that does not exist`() {
         // Arrange
         val message =
-            """{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"get_product","arguments":{"id":"unknown"}}}"""
+            """{"jsonrpc":"2.0","id":3,"method":"tools/call",""" +
+                """"params":{"name":"get_product","arguments":{"id":"unknown"}}}"""
         // Act
         val response = postMessage(message)
         // Assert

@@ -9,7 +9,9 @@ class NominalScenarioTest {
     fun `should run the steps given without a list, in order`() {
         // Arrange
         val runSteps = mutableListOf<String>()
-        val scenario = NominalScenario(Step<String> { runSteps.add("first $it") }, Step { runSteps.add("second $it") })
+        val scenario = NominalScenario(
+            Step<String> { runSteps.add("first $it") }, Step { runSteps.add("second $it") }
+        )
         // Act
         scenario.unfold("call")
         // Assert

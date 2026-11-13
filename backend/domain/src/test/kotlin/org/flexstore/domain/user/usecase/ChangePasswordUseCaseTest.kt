@@ -17,7 +17,9 @@ class ChangePasswordUseCaseTest {
 
     private val userId = ValidUserId("123")
     private val email = Email("john.doe@example.com")
-    private val user = DefinedUser(userId, FullName(FirstName("John"), LastName("Doe")), email, HashedPassword("hashed"))
+    private val user = DefinedUser(
+        userId, FullName(FirstName("John"), LastName("Doe")), email, HashedPassword("hashed")
+    )
     private val currentPassword = PlainPassword("current-password")
     private val newPassword = PlainPassword("new-password")
 
@@ -49,7 +51,9 @@ class ChangePasswordUseCaseTest {
         // Act
         val thrown = catchThrowable { ChangePasswordUseCase(userRepository).unfold(changePasswordRequest) }
         // Assert
-        assertThat(thrown).hasCauseInstanceOf(InvalidCurrentPasswordException::class.java).hasMessage("The current password is wrong.")
+        assertThat(thrown)
+            .hasCauseInstanceOf(InvalidCurrentPasswordException::class.java)
+            .hasMessage("The current password is wrong.")
         verify(exactly = 0) { userRepository.save(ofType<DefinedUser>()) }
     }
 
@@ -58,9 +62,14 @@ class ChangePasswordUseCaseTest {
         // Arrange
         val userRepository = repository()
         // Act
-        val thrown = catchThrowable { ChangePasswordUseCase(userRepository).unfold(ChangePasswordRequest(userId, currentPassword, PlainPassword("short"))) }
+        val thrown = catchThrowable {
+            ChangePasswordUseCase(userRepository)
+                .unfold(ChangePasswordRequest(userId, currentPassword, PlainPassword("short")))
+        }
         // Assert
-        assertThat(thrown).hasCauseInstanceOf(InvalidPasswordException::class.java).hasMessage("Password must be at least 8 characters.")
+        assertThat(thrown)
+            .hasCauseInstanceOf(InvalidPasswordException::class.java)
+            .hasMessage("Password must be at least 8 characters.")
         verify(exactly = 0) { userRepository.save(ofType<DefinedUser>()) }
     }
 
@@ -73,6 +82,8 @@ class ChangePasswordUseCaseTest {
         // Act
         val thrown = catchThrowable { ChangePasswordUseCase(userRepository).unfold(changePasswordRequest) }
         // Assert
-        assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java).hasMessage("User with ID 123 does not exist.")
+        assertThat(thrown)
+            .hasCauseInstanceOf(UserNotFoundException::class.java)
+            .hasMessage("User with ID 123 does not exist.")
     }
 }

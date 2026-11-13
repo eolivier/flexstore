@@ -25,7 +25,8 @@ class OrderConfirmationEmailContent(email: OrderConfirmationEmail, shopUrl: Shop
         appendLine("Merci pour votre commande ${order.number()} du ${DATE_FORMAT.format(order.placedAt)}.")
         appendLine()
         order.lines.asList().forEach { line ->
-            appendLine("- ${line.quantity.value} × ${line.productName.value} : ${line.linePrice().formattedIn(FRENCH)}")
+            val price = line.linePrice().formattedIn(FRENCH)
+            appendLine("- ${line.quantity.value} × ${line.productName.value} : $price")
         }
         val discount = order.discount
         if (discount is AppliedOrderDiscount) {

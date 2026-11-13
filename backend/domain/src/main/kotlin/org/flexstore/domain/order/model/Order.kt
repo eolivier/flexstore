@@ -242,9 +242,14 @@ enum class OrderStatus {
         PAID -> PROCESSING
         PROCESSING -> SHIPPED
         SHIPPED -> DELIVERED
-        DELIVERED -> throw OrderStatusCannotAdvanceException(ErrorMessage("A delivered order has no next status"))
-        CANCELLED -> throw OrderStatusCannotAdvanceException(ErrorMessage("A cancelled order has no next status"))
-        REFUNDED -> throw OrderStatusCannotAdvanceException(ErrorMessage("A refunded order has no next status"))
+        DELIVERED -> throw noNextStatus("delivered")
+        CANCELLED -> throw noNextStatus("cancelled")
+        REFUNDED -> throw noNextStatus("refunded")
+    }
+
+    private fun noNextStatus(state: String): OrderStatusCannotAdvanceException {
+        val message = ErrorMessage("A $state order has no next status")
+        return OrderStatusCannotAdvanceException(message)
     }
 }
 

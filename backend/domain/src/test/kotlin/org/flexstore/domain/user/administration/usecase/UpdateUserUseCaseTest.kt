@@ -24,9 +24,25 @@ class UpdateUserUseCaseTest {
     private val updateUserUseCase = UpdateUserUseCase(userRepository)
     private val actorResolutionService = ActorResolutionService(userRepository)
     private val administratorActor get() = actorResolutionService.actorOf(administrator.id)
-    private val administrator = DefinedUser(ValidUserId("admin-1"), FullName(FirstName("Admin"), LastName("Flexstore")), Email("admin@example.com"), PlainPassword("admin-password"), Role.ADMIN)
-    private val simpleUser = DefinedUser(ValidUserId("user-1"), FullName(FirstName("Simple"), LastName("User")), Email("simple@example.com"), PlainPassword("user-password"))
-    private val john = DefinedUser(ValidUserId("123"), FullName(FirstName("John"), LastName("Doe")), Email("john.doe@example.com"), PlainPassword("password123"))
+    private val administrator = DefinedUser(
+        ValidUserId("admin-1"),
+        FullName(FirstName("Admin"), LastName("Flexstore")),
+        Email("admin@example.com"),
+        PlainPassword("admin-password"),
+        Role.ADMIN
+    )
+    private val simpleUser = DefinedUser(
+        ValidUserId("user-1"),
+        FullName(FirstName("Simple"), LastName("User")),
+        Email("simple@example.com"),
+        PlainPassword("user-password")
+    )
+    private val john = DefinedUser(
+        ValidUserId("123"),
+        FullName(FirstName("John"), LastName("Doe")),
+        Email("john.doe@example.com"),
+        PlainPassword("password123")
+    )
 
     init {
         listOf(administrator, simpleUser, john).forEach { userRepository.save(it) }
@@ -37,7 +53,11 @@ class UpdateUserUseCaseTest {
     @Test
     fun `an administrator should edit the name, the email and the role of a user`() {
         // Arrange
-        val editedJohn = john.copy(fullName = FullName(FirstName("Jane"), LastName("Doe")), email = Email("jane.doe@example.com"), role = Role.ADMIN)
+        val editedJohn = john.copy(
+            fullName = FullName(FirstName("Jane"), LastName("Doe")),
+            email = Email("jane.doe@example.com"),
+            role = Role.ADMIN
+        )
         // Act
         updateUserUseCase.unfold(UpdateUserRequest(administratorActor, editedJohn))
         // Assert
@@ -50,7 +70,9 @@ class UpdateUserUseCaseTest {
     @Test
     fun `an edit should keep the stored password`() {
         // Arrange
-        val editedJohn = john.copy(fullName = FullName(FirstName("Jane"), LastName("Doe")), password = PlainPassword("another-password"))
+        val editedJohn = john.copy(
+            fullName = FullName(FirstName("Jane"), LastName("Doe")), password = PlainPassword("another-password")
+        )
         // Act
         updateUserUseCase.unfold(UpdateUserRequest(administratorActor, editedJohn))
         // Assert
@@ -78,7 +100,9 @@ class UpdateUserUseCaseTest {
         // Act
         val thrown = catchThrowable { updateUserUseCase.unfold(UpdateUserRequest(administratorActor, user)) }
         // Assert
-        assertThat(thrown).hasCauseInstanceOf(InvalidUserIdException::class.java).hasMessage("User ID @ is invalid.")
+        assertThat(thrown)
+            .hasCauseInstanceOf(InvalidUserIdException::class.java)
+            .hasMessage("User ID @ is invalid.")
     }
 
     @Test
@@ -89,7 +113,9 @@ class UpdateUserUseCaseTest {
         // Act
         val thrown = catchThrowable { updateUserUseCase.unfold(updateUserRequest) }
         // Assert
-        assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java).hasMessage("User with ID unknown does not exist.")
+        assertThat(thrown)
+            .hasCauseInstanceOf(UserNotFoundException::class.java)
+            .hasMessage("User with ID unknown does not exist.")
     }
 
     @Test
@@ -109,7 +135,12 @@ class UpdateUserUseCaseTest {
         // Arrange
         val registration = RegisterCustomerUseCaseTest.jane
         RegisterCustomerUseCase(userRepository).unfold(registration)
-        val editedCustomer = DefinedUser(registration.userId, FullName(FirstName("Janet"), LastName("Doe")), registration.email, PlainPassword(""))
+        val editedCustomer = DefinedUser(
+            registration.userId,
+            FullName(FirstName("Janet"), LastName("Doe")),
+            registration.email,
+            PlainPassword("")
+        )
         // Act
         updateUserUseCase.unfold(UpdateUserRequest(administratorActor, editedCustomer))
         // Assert

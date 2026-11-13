@@ -129,7 +129,9 @@ class UserRestController(
         return userService.readUser(actor, UserId.of(id)).toJsonUser()
     }
 
-    @Operation(summary = "Change the status of an account: ACTIVE, SUSPENDED, LOCKED or DISABLED (administrator only)")
+    @Operation(
+        summary = "Change the status of an account: ACTIVE, SUSPENDED, LOCKED or DISABLED (administrator only)"
+    )
     @PutMapping("/{id}/status")
     @ResponseStatus(HttpStatus.OK)
     fun changeAccountStatus(
@@ -176,8 +178,9 @@ class UserRestController(
         responses = [
             ApiResponse(
                 responseCode = "200",
-                description = "SIGNED_IN: the token is returned with the user; TWO_FACTOR_REQUIRED: the code of " +
-                    "the authenticator app is still needed, see POST /api/users/login/two-factor-authentication",
+                description = "SIGNED_IN: the token is returned with the user; " +
+                    "TWO_FACTOR_REQUIRED: the code of the authenticator app is still needed, " +
+                    "see POST /api/users/login/two-factor-authentication",
                 content = [
                     Content(schema = Schema(implementation = JsonLoginResponse::class))
                 ]
@@ -262,7 +265,9 @@ class UserRestController(
 
     @Operation(summary = "Complete a challenged sign-in with the code of the authenticator app",
         responses = [
-            ApiResponse(responseCode = "200", description = "Successfully authenticated: the token and the user"),
+            ApiResponse(
+                responseCode = "200", description = "Successfully authenticated: the token and the user"
+            ),
             ApiResponse(responseCode = "401", description = "Wrong code, or unknown or expired challenge")
         ]
     )
@@ -320,8 +325,8 @@ class UserRestController(
 
     @Operation(
         summary = "Disable the two-factor authentication of another user (administrator only)",
-        description = "Reserved to an administrator, on another account than their own. No current password is " +
-            "asked, unlike the self-service operation.",
+        description = "Reserved to an administrator, on another account than their own. " +
+            "No current password is asked, unlike the self-service operation.",
         responses = [
             ApiResponse(responseCode = "200", description = "The user with two-factor authentication disabled"),
             ApiResponse(responseCode = "403", description = "Not an administrator"),

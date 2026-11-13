@@ -37,7 +37,9 @@ fun datasourceProperties(databaseUrl: String): Map<String, Any> {
     }
     val port = if (uri.port == -1) "" else ":${uri.port}"
     val query = uri.rawQuery?.let { "?$it" } ?: ""
-    val properties = mutableMapOf<String, Any>("spring.datasource.url" to "jdbc:postgresql://${uri.host}$port${uri.rawPath}$query")
+    val properties = mutableMapOf<String, Any>(
+        "spring.datasource.url" to "jdbc:postgresql://${uri.host}$port${uri.rawPath}$query"
+    )
     uri.rawUserInfo?.split(":", limit = 2)?.let { userInfo ->
         properties["spring.datasource.username"] = decode(userInfo[0])
         userInfo.getOrNull(1)?.let { properties["spring.datasource.password"] = decode(it) }

@@ -134,7 +134,9 @@ class RegisterCustomerUseCaseTest : WithAssertions {
 
     @ParameterizedTest(name = "a registration without {0} should be refused")
     @MethodSource("incompleteRegistrations")
-    fun `an incomplete registration should be refused`(@Suppress("UNUSED_PARAMETER") missing: String, registration: CustomerRegistration) {
+    fun `an incomplete registration should be refused`(
+        @Suppress("UNUSED_PARAMETER") missing: String, registration: CustomerRegistration
+    ) {
         // Act
         val thrown = catchThrowable { useCase.unfold(registration) }
         // Assert

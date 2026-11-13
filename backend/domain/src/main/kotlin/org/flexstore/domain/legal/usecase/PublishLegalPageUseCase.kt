@@ -35,7 +35,10 @@ class PublishLegalPageUseCase(
             text.isTooLong() -> "its text is 50 000 characters at most"
             else -> null
         }
-        if (reason != null) throw InvalidLegalPageException(ErrorMessage("The legal page is not valid: $reason."))
+        if (reason != null) {
+            val message = ErrorMessage("The legal page is not valid: $reason.")
+            throw InvalidLegalPageException(message)
+        }
     }
 
     private fun legalPageIsCurrentCondition() = PostCondition<LegalPagePublication> { publication ->

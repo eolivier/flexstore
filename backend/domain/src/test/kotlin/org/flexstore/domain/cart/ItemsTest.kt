@@ -11,8 +11,12 @@ import java.time.Instant
 
 class ItemsTest : WithAssertions {
 
-    private val lamp = DefinedProduct(ProductId(Identity("lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR))
-    private val mug = DefinedProduct(ProductId(Identity("mug")), Name("Mug"), Price(Amount(BigDecimal(12)), Currency.EUR))
+    private val lamp = DefinedProduct(
+        ProductId(Identity("lamp")), Name("Desk lamp"), Price(Amount(BigDecimal(35)), Currency.EUR)
+    )
+    private val mug = DefinedProduct(
+        ProductId(Identity("mug")), Name("Mug"), Price(Amount(BigDecimal(12)), Currency.EUR)
+    )
     private val storedLamp = CartItem(ItemId(Identity("item-1")), lamp, Quantity(2))
 
     @Test

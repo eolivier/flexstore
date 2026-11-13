@@ -37,7 +37,9 @@ class AccountController(
     fun register(@RequestBody registration: JsonAccountRegistration): JsonUser =
         customerRegistrationService.register(registration.toRegistration(UserId.nextId())).toJsonUser()
 
-    @Operation(summary = "Retrieve the account of the signed-in user, with their phone number and postal addresses")
+    @Operation(
+        summary = "Retrieve the account of the signed-in user, with their phone number and postal addresses"
+    )
     @GetMapping("/me")
     fun getAccount(@AuthenticationPrincipal user: Jwt): JsonAccount =
         JsonAccount(customerRegistrationService.getAccount(UserId.of(user.subject)))
@@ -85,7 +87,9 @@ class AccountController(
     fun verifyEmail(@RequestBody verification: JsonEmailVerification) =
         customerRegistrationService.verifyEmail(VerificationToken(verification.token))
 
-    @Operation(summary = "Send a new verification link to the signed-in customer; the previous links stop working")
+    @Operation(
+        summary = "Send a new verification link to the signed-in customer; the previous links stop working"
+    )
     @PostMapping("/me/verification-email")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun sendVerificationEmail(@AuthenticationPrincipal customer: Jwt) =

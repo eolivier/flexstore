@@ -83,7 +83,9 @@ class AdministeredOrdersUseCasesTest : WithAssertions {
     @Test
     fun `should report an unknown order`() {
         // Act
-        val thrown = catchThrowable { readUseCase.unfold(AdministeredOrderReading(administrator, OrderId("unknown"))) }
+        val thrown = catchThrowable {
+            readUseCase.unfold(AdministeredOrderReading(administrator, OrderId("unknown")))
+        }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(OrderNotFoundException::class.java)
     }
@@ -104,7 +106,8 @@ class AdministeredOrdersUseCasesTest : WithAssertions {
         // Act
         val administeredOrder = readUseCase.unfold(AdministeredOrderReading(janeId, OrderId("order-1")))
         // Assert
-        assertThat(administeredOrder).isEqualTo(AdministeredOrder(order, OrderCustomer(janeDoe, Email("jane@example.com"))))
+        assertThat(administeredOrder)
+            .isEqualTo(AdministeredOrder(order, OrderCustomer(janeDoe, Email("jane@example.com"))))
     }
 
     @Test
@@ -112,7 +115,9 @@ class AdministeredOrdersUseCasesTest : WithAssertions {
         // Arrange
         placeOrder(OrderId("order-1"), customer, placedAt)
         // Act
-        val thrown = catchThrowable { readUseCase.unfold(AdministeredOrderReading(testCustomer.id, OrderId("order-1"))) }
+        val thrown = catchThrowable {
+            readUseCase.unfold(AdministeredOrderReading(testCustomer.id, OrderId("order-1")))
+        }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(OrderNotFoundException::class.java)
     }
@@ -122,7 +127,9 @@ class AdministeredOrdersUseCasesTest : WithAssertions {
         // Arrange
         placeOrder(OrderId("order-1"), customer, placedAt)
         // Act
-        val thrown = catchThrowable { readUseCase.unfold(AdministeredOrderReading(unknownUser, OrderId("order-1"))) }
+        val thrown = catchThrowable {
+            readUseCase.unfold(AdministeredOrderReading(unknownUser, OrderId("order-1")))
+        }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(OrderNotFoundException::class.java)
     }

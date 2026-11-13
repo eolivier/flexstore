@@ -21,7 +21,8 @@ interface JpaCartRepository : JpaRepository<CartEntity, String> {
 
     @Query(
         "select c from CartEntity c where c.userId is not null and c.remindedAt is null " +
-            "and c.lastChangedAt <= :limit and exists (select i.id from CartItemEntity i where i.cartId = c.id) " +
+            "and c.lastChangedAt <= :limit " +
+            "and exists (select i.id from CartItemEntity i where i.cartId = c.id) " +
             "order by c.lastChangedAt"
     )
     fun findAbandonedBefore(@Param("limit") limit: Instant): List<CartEntity>

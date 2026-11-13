@@ -51,7 +51,8 @@ class ShopSettingsIT {
         expectedActivation: String
     ) {
         // Act
-        val response = mockMvc.perform(post("/api/admin/settings/order-confirmation-email/$action").with(asAdmin()))
+        val response = mockMvc.perform(post("/api/admin/settings/order-confirmation-email/$action")
+            .with(asAdmin()))
         // Assert
         response.andExpect(status().isOk)
             .andExpect(jsonPath("$.orderConfirmationEmail").value(expectedActivation))
@@ -109,7 +110,8 @@ class ShopSettingsIT {
     @CsvSource("enable, ENABLED", "disable, DISABLED")
     fun `an admin should enable or disable the abandoned cart reminder`(action: String, activation: String) {
         // Act
-        val response = mockMvc.perform(post("/api/admin/settings/abandoned-cart-reminder/$action").with(asAdmin()))
+        val response = mockMvc.perform(post("/api/admin/settings/abandoned-cart-reminder/$action")
+            .with(asAdmin()))
         // Assert
         response.andExpect(status().isOk).andExpect(jsonPath("$.abandonedCartReminder").value(activation))
         mockMvc.perform(get("/api/admin/settings").with(asAdmin()))
@@ -151,7 +153,9 @@ class ShopSettingsIT {
     )
 
     private fun changeFreeShippingThreshold(amount: String) = mockMvc.perform(
-        put("/api/admin/settings/free-shipping-threshold").with(asAdmin()).contentType(MediaType.APPLICATION_JSON)
+        put("/api/admin/settings/free-shipping-threshold")
+            .with(asAdmin())
+            .contentType(MediaType.APPLICATION_JSON)
             .content("""{"amount": $amount}""")
     )
 

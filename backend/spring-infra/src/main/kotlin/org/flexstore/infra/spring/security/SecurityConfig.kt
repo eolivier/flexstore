@@ -48,7 +48,8 @@ open class SecurityConfig(@Value("\${flexstore.security.jwt-secret:}") private v
         } else {
             // Without a configured secret, tokens are only valid until the application restarts
             logger.warn(
-                "FLEXSTORE_JWT_SECRET is missing or shorter than $JWT_KEY_BYTES characters: using a random secret"
+                "FLEXSTORE_JWT_SECRET is missing or shorter than $JWT_KEY_BYTES characters: " +
+                    "using a random secret"
             )
             ByteArray(JWT_KEY_BYTES).also { SecureRandom().nextBytes(it) }
         }

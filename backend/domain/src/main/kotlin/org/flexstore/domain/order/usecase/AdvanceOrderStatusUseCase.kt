@@ -40,7 +40,8 @@ class AdvanceOrderStatusUseCase(
     // The editor must be an existing user with the ADMIN role (read from the users, not from the request)
     private fun editorIsAdministratorCondition() = PreCondition<OrderStatusAdvance> { request ->
         if (userRepository.isNotAdministrator(request.editor)) {
-            throw OrderAdministrationForbiddenException(ErrorMessage("Only an administrator can move an order along its life cycle."))
+            val message = ErrorMessage("Only an administrator can move an order along its life cycle.")
+            throw OrderAdministrationForbiddenException(message)
         }
     }
 
@@ -68,7 +69,8 @@ class AdvanceOrderStatusUseCase(
 
     private fun trackingIsValidCondition() = PreCondition<OrderStatusAdvance> { orderStatusAdvance ->
         if (orderStatusAdvance.tracking.isInvalid()) {
-            val message = "A tracking number is letters, digits and hyphens, ${TrackingNumber.MAX_LENGTH} at most."
+            val message =
+                "A tracking number is letters, digits and hyphens, ${TrackingNumber.MAX_LENGTH} at most."
             throw InvalidOrderTrackingException(ErrorMessage(message))
         }
     }

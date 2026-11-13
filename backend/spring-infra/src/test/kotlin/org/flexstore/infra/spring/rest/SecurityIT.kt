@@ -43,8 +43,20 @@ class SecurityIT {
 
     @BeforeEach
     fun createUsers() {
-        userRepository.save(User.DefinedUser(UserId.of(ADMIN_ID), FullName(FirstName("Security"), LastName("Admin")), Email("security.admin@example.com"), PlainPassword(PASSWORD), Role.ADMIN))
-        userRepository.save(User.DefinedUser(UserId.of(USER_ID), FullName(FirstName("Security"), LastName("User")), Email("security.user@example.com"), PlainPassword(PASSWORD)))
+        userRepository.save(
+            User.DefinedUser(
+                UserId.of(ADMIN_ID), FullName(FirstName("Security"), LastName("Admin")), Email(
+                    "security.admin@example.com"
+                ), PlainPassword(PASSWORD), Role.ADMIN
+            )
+        )
+        userRepository.save(
+            User.DefinedUser(
+                UserId.of(USER_ID), FullName(FirstName("Security"), LastName("User")), Email(
+                    "security.user@example.com"
+                ), PlainPassword(PASSWORD)
+            )
+        )
     }
 
     @AfterEach
@@ -103,7 +115,9 @@ class SecurityIT {
     @Test
     fun `should reject anonymous product creation`() {
         // Act
-        val response = mockMvc.perform(post("/api/products").contentType(MediaType.APPLICATION_JSON).content("{}"))
+        val response = mockMvc.perform(post("/api/products")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("{}"))
         // Assert
         response.andExpect(status().isUnauthorized)
     }
@@ -111,7 +125,8 @@ class SecurityIT {
     @Test
     fun `should reject an invalid token`() {
         // Act
-        val response = mockMvc.perform(get("/api/users").header(HttpHeaders.AUTHORIZATION, bearer("not-a-token")))
+        val response = mockMvc.perform(get("/api/users")
+            .header(HttpHeaders.AUTHORIZATION, bearer("not-a-token")))
         // Assert
         response.andExpect(status().isUnauthorized)
     }

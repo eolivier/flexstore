@@ -108,7 +108,9 @@ class ProductAndCartPersistenceIT {
     @Test
     fun `should store the cart items with the catalog product`() {
         // Arrange
-        val itemWithFakeProductData = item(productId = "4", quantity = 2, name = "Fake name", price = BigDecimal.ONE)
+        val itemWithFakeProductData = item(
+            productId = "4", quantity = 2, name = "Fake name", price = BigDecimal.ONE
+        )
         // Act
         saveItem(itemWithFakeProductData)
         // Assert
@@ -199,7 +201,10 @@ class ProductAndCartPersistenceIT {
     }
 
     private fun createProduct(draft: String) =
-        mockMvc.perform(post("/api/products").with(asAdmin()).contentType(MediaType.APPLICATION_JSON).content(draft))
+        mockMvc.perform(post("/api/products")
+            .with(asAdmin())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(draft))
 
     private fun saveItem(item: JsonItem) {
         mockMvc.perform(
