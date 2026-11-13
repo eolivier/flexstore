@@ -2,9 +2,11 @@
   import { nextTick, ref, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useAuthStore } from '@/stores/auth.store';
+  import { useSnackbar } from '@/composables/useSnackbar';
 
   const { t } = useI18n();
   const authStore = useAuthStore();
+  const snackbar = useSnackbar();
 
   const currentPassword = ref('');
   const newPassword = ref('');
@@ -15,7 +17,6 @@
   const formRef = ref<{ reset: () => void; resetValidation: () => void } | null>(null);
   const newPasswordField = ref<{ validate: () => void } | null>(null);
   const confirmPasswordField = ref<{ validate: () => void } | null>(null);
-  const feedback = ref({ show: false, success: true, text: '' });
 
   const rules = {
     required: (v: string) => !!v || t('createUser.mandatoryField'),
@@ -27,17 +28,6 @@
   // The rules of a field depend on the other fields: check them again when those change
   watch(currentPassword, () => newPassword.value && newPasswordField.value?.validate());
   watch(newPassword, () => confirmPassword.value && confirmPasswordField.value?.validate());
-
-  // Close the previous message first, so that a new one is shown even if the previous one is still open
-  async function replaceFeedback(newFeedback: Omit<typeof feedback.value, 'show'>) {
-    feedback.value.show = false;
-    await nextTick();
-    feedback.value = { show: true, ...newFeedback };
-  }
-
-  const showSuccess = (text: string) => replaceFeedback({ success: true, text });
-
-  const showError = (text: string) => replaceFeedback({ success: false, text });
 
   async function submit() {
     if (!valid.value) return;
@@ -54,9 +44,9 @@
       await nextTick();
       formRef.value?.resetValidation();
       showPasswords.value = false;
-      await showSuccess(t(messages.changed));
+      snackbar.success(t(messages.changed));
     } else {
-      await showError(t(messages[passwordChange]));
+      snackbar.error(t(messages[passwordChange]));
     }
   }
 </script>
@@ -112,13 +102,5 @@
         </v-btn>
       </div>
     </v-form>
-    <v-snackbar
-      v-model="feedback.show"
-      :color="feedback.success ? 'primary' : 'error'"
-      timeout="3000"
-      location="bottom right"
-    >
-      {{ feedback.text }}
-    </v-snackbar>
   </v-card>
 </template>

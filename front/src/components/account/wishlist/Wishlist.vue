@@ -6,7 +6,6 @@
   import { useReviewsStore } from '@/stores/reviews.store';
   import { useAddToCart } from '@/composables/useAddToCart';
   import ProductCard from '@/components/products/ProductCard.vue';
-  import CartSnackbar from '@/components/cart/CartSnackbar.vue';
 
   // The products the signed-in customer saved to their wishlist: unsaving one (the heart on its card) removes
   // it from this page
@@ -14,7 +13,7 @@
   const wishlistStore = useWishlistStore();
   const stocksStore = useStocksStore();
   const reviewsStore = useReviewsStore();
-  const { addingProductId, feedback, addToCart } = useAddToCart();
+  const { addingProductId, addToCart } = useAddToCart();
 
   onMounted(() => {
     wishlistStore.fetchWishlist();
@@ -56,6 +55,5 @@
       </v-col>
     </v-row>
 
-    <CartSnackbar v-model="feedback" />
   </v-container>
 </template>

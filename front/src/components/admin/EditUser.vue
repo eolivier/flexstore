@@ -3,6 +3,7 @@
   import AdminBreadcrumbs from '@/components/admin/AdminBreadcrumbs.vue';
   import { computed, nextTick, onMounted, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
+  import { useSnackbar } from '@/composables/useSnackbar';
   import { useUsersStore, type EditedUser, type UserEdition } from '@/stores/users.store';
   import UserRoleField from './UserRoleField.vue';
   import AccountStatusField from './AccountStatusField.vue';
@@ -14,6 +15,7 @@
   const props = defineProps<{ id: string }>();
 
   const { t } = useI18n();
+  const snackbar = useSnackbar();
   const usersStore = useUsersStore();
   const authStore = useAuthStore();
 
@@ -35,7 +37,6 @@
   const ownAccount = computed(() => authStore.currentUser?.id === props.id);
   // The two-factor authentication is disabled by its own request, from its own field
   const twoFactorEnabled = ref(false);
-  const twoFactorJustDisabled = ref(false);
 
   const formRef = ref<{ validate: () => Promise<unknown> } | null>(null);
 
@@ -55,7 +56,7 @@
 
   function onTwoFactorDisabled() {
     twoFactorEnabled.value = false;
-    twoFactorJustDisabled.value = true;
+    snackbar.success(t('editUser.twoFactorDisabled'));
   }
 
   async function save() {
@@ -68,6 +69,9 @@
       else edition.value = 'error';
     }
     saving.value = false;
+    if (edition.value === 'saved') {
+      snackbar.success(t('editUser.saved'), { action: { text: t('nav.users'), to: '/admin/users' } });
+    }
   }
 </script>
 
@@ -111,26 +115,6 @@
         <FormActions class="mt-2" cancel-to="/admin/users" :loading="saving" :disabled="!valid" />
       </v-form>
     </v-card>
-    <v-snackbar
-      :model-value="edition === 'saved'"
-      color="primary"
-      timeout="3000"
-      location="bottom right"
-      @update:model-value="edition = null"
-    >
-      {{ t('editUser.saved') }}
-      <template #actions>
-        <v-btn to="/admin/users" variant="text" color="secondary">{{ t('nav.users') }}</v-btn>
-      </template>
-    </v-snackbar>
-    <v-snackbar
-      v-model="twoFactorJustDisabled"
-      color="primary"
-      timeout="3000"
-      location="bottom right"
-    >
-      {{ t('editUser.twoFactorDisabled') }}
-    </v-snackbar>
   </v-container>
 </template>
 
