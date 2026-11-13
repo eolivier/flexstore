@@ -154,7 +154,7 @@ class InvoiceIT {
         refund(orderId).andExpect(status().isOk)
         // Assert
         val number = jdbcTemplate.queryForObject(
-            "SELECT c.number FROM credit_note c JOIN invoice i ON i.id = c.invoice_id WHERE i.customer_order_id = ?",
+            "SELECT credit_note_number FROM invoice WHERE customer_order_id = ?",
             String::class.java, orderId
         )!!
         assertThat(number).matches("AV-\\d{4}-\\d{6}")
