@@ -485,10 +485,8 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         ReadShopPageContentUseCase(shopPageContentRepository)
 
     @Bean
-    open fun editShopPageContentUseCase(
-        shopPageContentRepository: ShopPageContentRepository,
-        userRepository: UserRepository
-    ) = EditShopPageContentUseCase(shopPageContentRepository, userRepository)
+    open fun editShopPageContentUseCase(shopPageContentRepository: ShopPageContentRepository) =
+        EditShopPageContentUseCase(shopPageContentRepository)
 
     @Bean
     open fun shopPageContentUseCases(

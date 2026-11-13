@@ -1,6 +1,6 @@
 package org.flexstore.domain.pagecontent
 
-import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.entity.Actor
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.PostConditionException
 import org.ucop.domain.PreConditionException
@@ -53,7 +53,7 @@ data class ShopPageContents(private val contents: List<ShopPageContent>) {
 }
 
 // An administrator changes the content of a type: the editor is the authenticated user who asks for it
-data class ShopPageContentChange(val editor: UserId, val content: ShopPageContent)
+data class ShopPageContentChange(val editor: Actor, val content: ShopPageContent)
 
 data class ShopPageContentForbiddenException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)

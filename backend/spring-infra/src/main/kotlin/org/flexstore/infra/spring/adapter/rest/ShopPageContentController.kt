@@ -2,6 +2,7 @@ package org.flexstore.infra.spring.adapter.rest
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.pagecontent.ShopPageContentType
 import org.flexstore.domain.pagecontent.usecase.ShopPageContentUseCases
 import org.flexstore.domain.user.model.UserId
@@ -36,7 +37,10 @@ class ShopPageContentController(private val shopPageContentUseCases: ShopPageCon
 @Tag(name = "Administration")
 @RestController
 @RequestMapping("/api/admin/shop-page-contents")
-class AdminShopPageContentController(private val shopPageContentUseCases: ShopPageContentUseCases) {
+class AdminShopPageContentController(
+    private val shopPageContentUseCases: ShopPageContentUseCases,
+    private val actorResolutionService: ActorResolutionService
+) {
 
     @Operation(summary = "Edit the content of a type: meta-key-words, google-analytics-id or meta-shop-description")
     @PutMapping("/{type}")
@@ -46,8 +50,8 @@ class AdminShopPageContentController(private val shopPageContentUseCases: ShopPa
         @RequestBody contentText: JsonShopPageContentText
     ): ResponseEntity<JsonShopPageContents> {
         val contentType = shopPageContentTypes[type] ?: return ResponseEntity.notFound().build()
-        val editorId = UserId.of(editor.subject)
-        val contents = shopPageContentUseCases.edit(editorId, contentText.toContent(contentType))
+        val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
+        val contents = shopPageContentUseCases.edit(actor, contentText.toContent(contentType))
         return ResponseEntity.ok(JsonShopPageContents(contents))
     }
 }
