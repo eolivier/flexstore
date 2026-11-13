@@ -2,6 +2,7 @@
   import NavigationMenu from './components/menu/NavigationMenu.vue';
   import AppFooter from './components/layout/AppFooter.vue';
   import CookieBanner from './components/cookies/CookieBanner.vue';
+  import GuidedTour from './components/guidedtour/GuidedTour.vue';
   import { useRouteHead } from './composables/useRouteHead';
   import { useShopPageContentHead } from './composables/useShopPageContentHead';
 
@@ -17,5 +18,6 @@
     </v-main>
     <AppFooter />
     <CookieBanner />
+    <GuidedTour />
   </v-app>
 </template>

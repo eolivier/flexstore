@@ -6,6 +6,7 @@
   import { LANGUAGE_NAMES, PAGE_LANGUAGES } from '@/utils/language';
   import AccountBreadcrumbs from '@/components/account/AccountBreadcrumbs.vue';
   import CookieSettings from '@/components/cookies/CookieSettings.vue';
+  import GuidedTourSwitch from './GuidedTourSwitch.vue';
 
   // The preferences of the signed-in customer: they see the display mode and the language they chose and can
   // change them here
@@ -40,8 +41,10 @@
         :hint="t('preferences.darkModeHint')"
         persistent-hint
         color="primary"
+        class="mb-4"
         @update:model-value="switchColorMode"
       />
+      <GuidedTourSwitch />
     </v-card>
 
     <CookieSettings class="mt-6" />

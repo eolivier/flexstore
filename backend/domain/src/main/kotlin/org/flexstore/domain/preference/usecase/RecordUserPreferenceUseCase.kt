@@ -6,8 +6,8 @@ import org.flexstore.domain.user.repository.UserRepository
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
-// A signed-in customer chooses a preference (their display mode or their language): it is kept in their account
-// for their next visits
+// A signed-in customer chooses a preference (their display mode, their language or their guided tour): it is
+// kept in their account for their next visits
 class RecordUserPreferenceUseCase(
     private val userPreferenceRepository: UserPreferenceRepository,
     private val userRepository: UserRepository
