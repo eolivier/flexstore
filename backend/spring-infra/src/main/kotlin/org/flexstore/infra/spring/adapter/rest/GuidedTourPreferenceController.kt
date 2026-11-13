@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.*
 @RestController
 class GuidedTourPreferenceController(private val userPreferenceUseCases: UserPreferenceUseCases) {
 
-    @Operation(summary = "Retrieve whether the guided tour is shown to the signed-in customer (NONE if never chosen)")
+    @Operation(
+        summary = "Retrieve whether the guided tour is shown to the signed-in customer (NONE if never chosen)"
+    )
     @GetMapping("/api/guided-tour")
     fun getGuidedTourPreference(@AuthenticationPrincipal customer: Jwt): JsonGuidedTourPreference =
         JsonGuidedTourPreference.of(userPreferenceUseCases.preferencesOf(UserId.of(customer.subject)).guidedTour)
