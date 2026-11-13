@@ -49,8 +49,7 @@ class UnpaidOrderServiceTest : WithAssertions {
     private val service = UnpaidOrderService(
         ActorResolutionService(InMemoryUserRepository().apply { save(systemUser) }),
         ReadShopSettingsUseCase(shopSettingsRepository),
-        ListAllOrdersUseCase(orderRepository),
-        cancelUnpaidOrderUseCase
+        UnpaidOrderUseCases(ListAllOrdersUseCase(orderRepository), cancelUnpaidOrderUseCase)
     )
 
     // The late orders are looked for at the given moment
@@ -179,8 +178,7 @@ class UnpaidOrderServiceTest : WithAssertions {
         val failingService = UnpaidOrderService(
             ActorResolutionService(InMemoryUserRepository().apply { save(systemUser) }),
             ReadShopSettingsUseCase(shopSettingsRepository),
-            ListAllOrdersUseCase(orderRepository),
-            failingUseCase
+            UnpaidOrderUseCases(ListAllOrdersUseCase(orderRepository), failingUseCase)
         )
         return Pair(failingService, failure)
     }

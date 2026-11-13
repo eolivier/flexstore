@@ -14,18 +14,16 @@ import org.ucop.domain.isNotNominal
 class UnpaidOrderService(
     private val actorResolutionService: ActorResolutionService,
     private val readShopSettingsUseCase: ReadShopSettingsUseCase,
-    private val listAllOrdersUseCase: ListAllOrdersUseCase,
-    private val cancelUnpaidOrderUseCase: CancelUnpaidOrderUseCase
+    private val unpaidOrderUseCases: UnpaidOrderUseCases
 ) {
 
     // The orders cancelled; an order whose payment has just completed is left as it is
     fun cancelLateOrders(): Orders {
         val paymentDelay = readShopSettingsUseCase.unfold(Unit).paymentDelay
         val timeLimit = PaymentTimeLimit(paymentDelay, InstantProvider.now())
-        val lateOrders = listAllOrdersUseCase.unfold(Unit).latePaymentsAt(timeLimit).asList()
+        val lateOrders = unpaidOrderUseCases.allOrders().latePaymentsAt(timeLimit).asList()
         val cancelledOrders = lateOrders.filter { order ->
-            val cancellation = UnpaidOrderCancellation(actorResolutionService.system(), order.orderId, timeLimit)
-            runCatching { cancelUnpaidOrderUseCase.unfold(cancellation) }
+            runCatching { unpaidOrderUseCases.cancel(actorResolutionService.system(), order, timeLimit) }
                 .onFailure { failure -> if (failure.stopsTheRun()) throw failure }
                 .isSuccess
         }

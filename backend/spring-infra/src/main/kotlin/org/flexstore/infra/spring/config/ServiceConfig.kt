@@ -102,20 +102,17 @@ open class ServiceConfig {
     @Bean
     open fun unpaidOrderService(actorResolutionService: ActorResolutionService,
                                 readShopSettingsUseCase: ReadShopSettingsUseCase,
-                                listAllOrdersUseCase: ListAllOrdersUseCase,
-                                cancelUnpaidOrderUseCase: CancelUnpaidOrderUseCase) =
+                                unpaidOrderUseCases: UnpaidOrderUseCases) =
         UnpaidOrderService(
-            actorResolutionService, readShopSettingsUseCase, listAllOrdersUseCase, cancelUnpaidOrderUseCase
+            actorResolutionService, readShopSettingsUseCase, unpaidOrderUseCases
         )
 
     @Bean
     open fun abandonedCartService(actorResolutionService: ActorResolutionService,
                                   readShopSettingsUseCase: ReadShopSettingsUseCase,
-                                  listAbandonedCartsUseCase: ListAbandonedCartsUseCase,
-                                  remindAbandonedCartUseCase: RemindAbandonedCartUseCase) =
+                                  abandonedCartUseCases: AbandonedCartUseCases) =
         AbandonedCartService(
-            actorResolutionService, readShopSettingsUseCase,
-            listAbandonedCartsUseCase, remindAbandonedCartUseCase
+            actorResolutionService, readShopSettingsUseCase, abandonedCartUseCases
         )
 
     @Bean

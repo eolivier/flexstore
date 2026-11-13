@@ -41,8 +41,10 @@ class AbandonedCartServiceTest : WithAssertions {
     private val service = AbandonedCartService(
         ActorResolutionService(usersWithSystemAndCustomers("user-1")),
         ReadShopSettingsUseCase(settingsRepository),
-        ListAbandonedCartsUseCase(cartRepository),
-        RemindAbandonedCartUseCase(cartRepository, customersWithIds("user-1"), emailRepository)
+        AbandonedCartUseCases(
+            ListAbandonedCartsUseCase(cartRepository),
+            RemindAbandonedCartUseCase(cartRepository, customersWithIds("user-1"), emailRepository)
+        )
     )
 
     @BeforeEach
@@ -152,8 +154,7 @@ class AbandonedCartServiceTest : WithAssertions {
         val failingService = AbandonedCartService(
             ActorResolutionService(usersWithSystemAndCustomers("user-1")),
             ReadShopSettingsUseCase(settingsRepository),
-            ListAbandonedCartsUseCase(cartRepository),
-            failingUseCase
+            AbandonedCartUseCases(ListAbandonedCartsUseCase(cartRepository), failingUseCase)
         )
         return Pair(failingService, failure)
     }

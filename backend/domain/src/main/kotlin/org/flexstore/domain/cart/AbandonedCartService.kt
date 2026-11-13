@@ -12,8 +12,7 @@ import org.ucop.domain.isNotNominal
 class AbandonedCartService(
     private val actorResolutionService: ActorResolutionService,
     private val readShopSettingsUseCase: ReadShopSettingsUseCase,
-    private val listAbandonedCartsUseCase: ListAbandonedCartsUseCase,
-    private val remindAbandonedCartUseCase: RemindAbandonedCartUseCase
+    private val abandonedCartUseCases: AbandonedCartUseCases
 ) {
 
     // The carts whose customer was reminded; a customer who cannot be reminded is left aside
@@ -21,8 +20,7 @@ class AbandonedCartService(
         val shopSettings = readShopSettingsUseCase.unfold(Unit)
         if (shopSettings.sendsAbandonedCartReminder()) {
             val limit = AbandonmentLimit.of(shopSettings.abandonedCartDelay, InstantProvider.now())
-            val reading = AbandonedCartsReading(actorResolutionService.system(), limit)
-            val abandonedCarts = listAbandonedCartsUseCase.unfold(reading).asList()
+            val abandonedCarts = abandonedCartUseCases.leftSince(actorResolutionService.system(), limit).asList()
             return AbandonedCarts(abandonedCarts.filter { cart -> isReminded(cart) })
         }
         return AbandonedCarts()
@@ -30,8 +28,7 @@ class AbandonedCartService(
 
     private fun isReminded(cart: Cart): Boolean {
         val customer = cart.owner as? CartOwner.Customer ?: return false
-        val reminding = AbandonedCartReminding(actorResolutionService.system(), customer)
-        return runCatching { remindAbandonedCartUseCase.unfold(reminding) }
+        return runCatching { abandonedCartUseCases.remind(actorResolutionService.system(), customer) }
             .onFailure { failure -> if (failure.stopsTheRun()) throw failure }
             .isSuccess
     }

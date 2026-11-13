@@ -463,6 +463,16 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         SellerUseCases(readCurrentSellerUseCase, updateSellerUseCase, readSocialNetworksUseCase)
 
     @Bean
+    open fun abandonedCartUseCases(listAbandonedCartsUseCase: ListAbandonedCartsUseCase,
+                                   remindAbandonedCartUseCase: RemindAbandonedCartUseCase) =
+        AbandonedCartUseCases(listAbandonedCartsUseCase, remindAbandonedCartUseCase)
+
+    @Bean
+    open fun unpaidOrderUseCases(listAllOrdersUseCase: ListAllOrdersUseCase,
+                                 cancelUnpaidOrderUseCase: CancelUnpaidOrderUseCase) =
+        UnpaidOrderUseCases(listAllOrdersUseCase, cancelUnpaidOrderUseCase)
+
+    @Bean
     open fun readLegalPageUseCase(legalPageRepository: LegalPageRepository) =
         ReadLegalPageUseCase(legalPageRepository)
 
