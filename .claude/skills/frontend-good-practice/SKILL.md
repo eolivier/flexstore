@@ -47,7 +47,11 @@ Details:
 The same interaction is built the same way everywhere in the application. A user who has learned how one screen works must find the same behaviour on the others.
 
 Rules:
-- **Same container for the same action**: if a user is edited in a modal dialog, a product is edited in a modal dialog too (not in a page, a drawer or inline). The same goes for creation, deletion confirmation, details, and so on.
+- **Same container for the same action**: the container follows the kind of action, and the same kind of action uses the same container everywhere (not a page here, a drawer or an inline edit there):
+  - **An administration entity** (a user, a product) is created and edited in **its own page**, with the breadcrumbs, its own route (`/admin/users/:id/edit`, `/admin/create-product`) and a link from its list: its form is long or has uploads and translations, and the page can be linked to and reloaded. A new administration entity follows the same pattern.
+  - **A quick edit** (an address, the shipment or the tracking of an order, the two-factor authentication) and **a confirmation** (a deletion, a refund: `ConfirmDialog`) are done in **a modal dialog** opened from the screen that shows the data, which stays visible behind.
+  - **A setting of the shop** (the seller, the shop page content, the settings) is a page of its own, a single screen rather than the row of a list.
+  - A new screen takes the container of the closest existing action of the same kind; a deliberate exception is written under "Choices to validate" (see below).
 - **Same buttons, same order, same wording**: if a form has a "Save" and a "Cancel" button, every form has them, in the same place and the same order, with the same labels (through the shared i18n keys), the same colours and the same variants.
 - **Same behaviour after an action**: if the modal closes when the form is saved, it closes everywhere; if the list is refreshed, a success message is displayed or the error is shown in the form after a save, it is done the same way everywhere. Cancel, the close icon and the Escape key behave the same way too.
 - **Same feedback**: loading states, validation errors, empty states, success and error messages follow one pattern.
