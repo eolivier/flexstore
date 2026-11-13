@@ -1,7 +1,7 @@
 package org.flexstore.domain.product.model
 
 import org.flexstore.domain.sharedkernel.*
-import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.entity.Actor
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.PostConditionException
 import org.ucop.domain.PreConditionException
@@ -109,7 +109,7 @@ enum class Category {
 }
 
 // An administrator who asks for a SKU free in the catalog, for a product they create
-data class SkuProposalRequest(val requester: UserId, val skuBasis: SkuBasis)
+data class SkuProposalRequest(val requester: Actor, val skuBasis: SkuBasis)
 
 data class ProductAdministrationForbiddenException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)

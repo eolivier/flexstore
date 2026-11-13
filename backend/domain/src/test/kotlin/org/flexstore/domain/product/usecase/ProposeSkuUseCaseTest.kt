@@ -8,16 +8,14 @@ import org.flexstore.infra.repository.InMemoryProductRepository
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import org.flexstore.domain.user.*
-import org.flexstore.domain.user.administration.testAdministrator
-import org.flexstore.domain.user.administration.testCustomer
-import org.flexstore.domain.user.administration.usersOfTheAdministration
+import org.flexstore.domain.actor.testAdministratorActor
+import org.flexstore.domain.actor.testCustomerActor
 
 class ProposeSkuUseCaseTest : WithAssertions {
 
     private val productRepository = InMemoryProductRepository()
-    private val userRepository = usersOfTheAdministration()
-    private val administrator = testAdministrator.id
-    private val useCase = ProposeSkuUseCase(productRepository, userRepository)
+    private val administrator = testAdministratorActor
+    private val useCase = ProposeSkuUseCase(productRepository)
 
     @Test
     fun `the SKU proposed should take the first number that no product has`() {
@@ -34,7 +32,7 @@ class ProposeSkuUseCaseTest : WithAssertions {
     @Test
     fun `a customer should not ask for a SKU`() {
         // Arrange
-        val request = SkuProposalRequest(testCustomer.id, SkuBasis(Category.HOME, Words.of("Mug")))
+        val request = SkuProposalRequest(testCustomerActor, SkuBasis(Category.HOME, Words.of("Mug")))
         // Act
         val thrown = catchThrowable { useCase.unfold(request) }
         // Assert

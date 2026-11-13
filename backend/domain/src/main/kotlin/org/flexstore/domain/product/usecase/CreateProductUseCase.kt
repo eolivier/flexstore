@@ -3,15 +3,15 @@ package org.flexstore.domain.product.usecase
 import kotlin.reflect.KClass
 import org.flexstore.domain.product.*
 import org.flexstore.domain.product.model.*
-import org.flexstore.domain.user.repository.UserRepository
-import org.flexstore.domain.user.model.UserId
+import org.flexstore.domain.actor.isNotAdmin
+import org.ucop.domain.entity.Actor
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
 import org.ucop.domain.entity.*
 
 // An administrator creates a product. The id of the new product is chosen by the caller, which can then read the
 // created product
-data class CreateProductRequest(val creator: UserId, val productId: ProductId, val draftProduct: DraftProduct) {
+data class CreateProductRequest(val creator: Actor, val productId: ProductId, val draftProduct: DraftProduct) {
     fun definedProduct() = DefinedProduct(
         productId,
         draftProduct.sku,
@@ -22,8 +22,7 @@ data class CreateProductRequest(val creator: UserId, val productId: ProductId, v
 }
 
 class CreateProductUseCase(
-    private val productRepository: ProductRepository,
-    private val userRepository: UserRepository
+    private val productRepository: ProductRepository
 ) : UseCase<CreateProductRequest> {
 
     override fun getPreConditions(): PreConditions<CreateProductRequest> = PreConditions(
@@ -49,9 +48,9 @@ class CreateProductUseCase(
         return emptyMap()
     }
 
-    // The creator must be an existing user with the ADMIN role (read from the users, not from the request)
+    // The creator, resolved before the use case runs, must be an Admin
     private fun creatorIsAdministratorCondition() = PreCondition<CreateProductRequest> { request ->
-        if (userRepository.isNotAdministrator(request.creator)) {
+        if (request.creator.isNotAdmin()) {
             throw ProductAdministrationForbiddenException(ErrorMessage("Only an administrator can create a product."))
         }
     }

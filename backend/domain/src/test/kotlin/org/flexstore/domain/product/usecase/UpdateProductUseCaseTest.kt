@@ -15,20 +15,18 @@ import org.junit.jupiter.params.provider.ValueSource
 import java.math.BigDecimal
 import java.time.Instant
 import org.flexstore.domain.user.*
-import org.flexstore.domain.user.administration.testAdministrator
-import org.flexstore.domain.user.administration.testCustomer
-import org.flexstore.domain.user.administration.usersOfTheAdministration
+import org.flexstore.domain.actor.testAdministratorActor
+import org.flexstore.domain.actor.testCustomerActor
 
 class UpdateProductUseCaseTest : WithAssertions {
 
     private val productRepository = InMemoryProductRepository()
-    private val userRepository = usersOfTheAdministration()
-    private val administrator = testAdministrator.id
-    private val useCase = UpdateProductUseCase(productRepository, userRepository)
+    private val administrator = testAdministratorActor
+    private val useCase = UpdateProductUseCase(productRepository)
     private val readProductUseCase = ReadProductUseCase(productRepository)
-    private val createProductUseCase = CreateProductUseCase(productRepository, userRepository)
+    private val createProductUseCase = CreateProductUseCase(productRepository)
     private val listProductsUseCase = ListProductsUseCase(productRepository)
-    private val proposeSkuUseCase = ProposeSkuUseCase(productRepository, userRepository)
+    private val proposeSkuUseCase = ProposeSkuUseCase(productRepository)
     private val productUseCases = ProductUseCases(
         createProductUseCase,
         readProductUseCase,
@@ -178,7 +176,7 @@ class UpdateProductUseCaseTest : WithAssertions {
         // Arrange
         val renamedTShirt = tShirt.renamed(Name("Linen T-shirt"))
         // Act
-        val thrown = catchThrowable { useCase.unfold(UpdateProductRequest(testCustomer.id, renamedTShirt)) }
+        val thrown = catchThrowable { useCase.unfold(UpdateProductRequest(testCustomerActor, renamedTShirt)) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(ProductAdministrationForbiddenException::class.java)
     }

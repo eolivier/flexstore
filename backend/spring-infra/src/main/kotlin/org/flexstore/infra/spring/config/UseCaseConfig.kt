@@ -59,15 +59,13 @@ import org.flexstore.domain.user.address.usecase.RemovePostalAddressUseCase
 open class UseCaseConfig(private val shopUrl: ShopUrl) {
 
     @Bean
-    open fun createProductUseCase(productRepository: ProductRepository,
-                                  userRepository: UserRepository): CreateProductUseCase {
-        return CreateProductUseCase(productRepository, userRepository)
+    open fun createProductUseCase(productRepository: ProductRepository): CreateProductUseCase {
+        return CreateProductUseCase(productRepository)
     }
 
     @Bean
-    open fun updateProductUseCase(productRepository: ProductRepository,
-                                  userRepository: UserRepository): UpdateProductUseCase {
-        return UpdateProductUseCase(productRepository, userRepository)
+    open fun updateProductUseCase(productRepository: ProductRepository): UpdateProductUseCase {
+        return UpdateProductUseCase(productRepository)
     }
 
     @Bean
@@ -326,8 +324,7 @@ open class UseCaseConfig(private val shopUrl: ShopUrl) {
         )
 
     @Bean
-    open fun proposeSkuUseCase(productRepository: ProductRepository, userRepository: UserRepository) =
-        ProposeSkuUseCase(productRepository, userRepository)
+    open fun proposeSkuUseCase(productRepository: ProductRepository) = ProposeSkuUseCase(productRepository)
 
     @Bean
     open fun cartUseCases(addItemToCartUseCase: AddItemToCartUseCase,

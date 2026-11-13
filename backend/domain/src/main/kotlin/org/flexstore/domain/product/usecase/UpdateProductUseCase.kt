@@ -2,18 +2,17 @@ package org.flexstore.domain.product.usecase
 
 import org.flexstore.domain.product.*
 import org.flexstore.domain.product.model.*
-import org.flexstore.domain.user.repository.UserRepository
-import org.flexstore.domain.user.model.UserId
+import org.flexstore.domain.actor.isNotAdmin
+import org.ucop.domain.entity.Actor
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // An administrator edits a product of the catalog: its SKU, its translations, its category, its price and its
 // promotion
-data class UpdateProductRequest(val editor: UserId, val product: DefinedProduct)
+data class UpdateProductRequest(val editor: Actor, val product: DefinedProduct)
 
 class UpdateProductUseCase(
-    private val productRepository: ProductRepository,
-    private val userRepository: UserRepository
+    private val productRepository: ProductRepository
 ) : UseCase<UpdateProductRequest> {
 
     override fun getPreConditions(): PreConditions<UpdateProductRequest> = PreConditions(
@@ -30,9 +29,9 @@ class UpdateProductUseCase(
 
     override fun getPostConditions(): PostConditions<UpdateProductRequest> = PostConditions.none()
 
-    // The editor must be an existing user with the ADMIN role (read from the users, not from the request)
+    // The editor, resolved before the use case runs, must be an Admin
     private fun editorIsAdministratorCondition() = PreCondition<UpdateProductRequest> { request ->
-        if (userRepository.isNotAdministrator(request.editor)) {
+        if (request.editor.isNotAdmin()) {
             throw ProductAdministrationForbiddenException(ErrorMessage("Only an administrator can change a product."))
         }
     }

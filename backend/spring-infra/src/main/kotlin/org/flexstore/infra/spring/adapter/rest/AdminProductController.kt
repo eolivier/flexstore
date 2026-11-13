@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.adapter.rest
 
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.product.*
 import org.flexstore.domain.product.model.*
 import org.flexstore.domain.product.usecase.*
@@ -20,7 +21,11 @@ import org.springframework.security.oauth2.jwt.Jwt
 @Tag(name = "Administration")
 @RestController
 @RequestMapping("/api/admin/products")
-class AdminProductController(private val productUseCases: ProductUseCases, private val mapper: ProductMapper) {
+class AdminProductController(
+    private val productUseCases: ProductUseCases,
+    private val mapper: ProductMapper,
+    private val actorResolutionService: ActorResolutionService
+) {
 
     @Operation(summary = "Retrieve a product with its translations in every language, to edit it")
     @GetMapping("/{id}")
@@ -35,6 +40,7 @@ class AdminProductController(private val productUseCases: ProductUseCases, priva
         @RequestParam(defaultValue = "") name: String
     ): JsonSkuProposal {
         val skuBasis = SkuBasis(Category.valueOf(category), Words.of(name))
-        return JsonSkuProposal(productUseCases.proposeSkuFor(UserId.of(requester.subject), skuBasis).value)
+        val actor = actorResolutionService.actorOf(UserId.of(requester.subject))
+        return JsonSkuProposal(productUseCases.proposeSkuFor(actor, skuBasis).value)
     }
 }

@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.adapter.rest
 
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.product.*
 import org.flexstore.domain.product.model.*
 import org.flexstore.domain.product.usecase.*
@@ -31,7 +32,8 @@ import org.springframework.security.oauth2.jwt.Jwt
 @RequestMapping("/api/products")
 class ProductController(private val productUseCases: ProductUseCases,
                         private val mapper: ProductMapper,
-                        private val productMetrics: ProductMetrics) {
+                        private val productMetrics: ProductMetrics,
+                        private val actorResolutionService: ActorResolutionService) {
 
     @Operation(summary = "Create a product")
     @ApiResponse(responseCode = "201", description = "Product created",
@@ -44,7 +46,8 @@ class ProductController(private val productUseCases: ProductUseCases,
         @RequestBody draftJsonProduct: DraftJsonProduct
     ): JsonProduct {
         val draftProduct = mapper.toDomain(draftJsonProduct)
-        val createProduct = productUseCases.createProduct(UserId.of(creator.subject), draftProduct)
+        val actor = actorResolutionService.actorOf(UserId.of(creator.subject))
+        val createProduct = productUseCases.createProduct(actor, draftProduct)
         val toJson = mapper.toJson(createProduct)
         productMetrics.incrementCreated()
         return toJson
@@ -62,7 +65,8 @@ class ProductController(private val productUseCases: ProductUseCases,
         @RequestBody editedJsonProduct: EditedJsonProduct
     ): JsonProduct {
         val editedProduct = mapper.toDomain(ProductId(Identity(id)), editedJsonProduct)
-        return mapper.toJson(productUseCases.updateProduct(UserId.of(editor.subject), editedProduct))
+        val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
+        return mapper.toJson(productUseCases.updateProduct(actor, editedProduct))
     }
 
     @Operation(
