@@ -3,6 +3,7 @@
   import { useI18n } from 'vue-i18n';
   import type { JsonOrderTracking } from '@/generated';
   import { isCompleteTracking, NO_TRACKING, type TrackingInput } from '@/utils/tracking';
+  import FormDialog from '@/components/layout/FormDialog.vue';
   import TrackingFields from './TrackingFields.vue';
 
   // Corrects the carrier and the tracking number of an order shipped or delivered
@@ -38,16 +39,12 @@
   >
     {{ t('orderTracking.edit') }}
   </v-btn>
-  <v-dialog v-model="open" max-width="480">
-    <v-card class="pa-5">
-      <h2 class="text-h6 font-weight-bold mb-4">{{ t('orderTracking.editTitle') }}</h2>
-      <TrackingFields v-model="tracking" />
-      <div class="d-flex justify-end ga-2">
-        <v-btn variant="text" @click="open = false">{{ t('cancel') }}</v-btn>
-        <v-btn color="primary" :disabled="!isCompleteTracking(tracking)" data-test="save-tracking" @click="save">
-          {{ t('save') }}
-        </v-btn>
-      </div>
-    </v-card>
-  </v-dialog>
+  <FormDialog v-model="open" :title="t('orderTracking.editTitle')">
+    <TrackingFields v-model="tracking" />
+    <template #actions>
+      <v-btn color="primary" :disabled="!isCompleteTracking(tracking)" data-test="save-tracking" @click="save">
+        {{ t('save') }}
+      </v-btn>
+    </template>
+  </FormDialog>
 </template>

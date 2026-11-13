@@ -3,6 +3,7 @@
   import { useI18n } from 'vue-i18n';
   import QRCode from 'qrcode';
   import { useAuthStore } from '@/stores/auth.store';
+  import FormDialog from '@/components/layout/FormDialog.vue';
 
   const open = defineModel<boolean>({ required: true });
   const emit = defineEmits<{ enabled: [] }>();
@@ -44,38 +45,32 @@
 </script>
 
 <template>
-  <v-dialog v-model="open" max-width="440">
-    <v-card class="pa-6">
-      <h2 class="text-h6 font-weight-bold mb-4">{{ t('twoFactorAuth.confirmTitle') }}</h2>
-      <template v-if="qrCodeDataUrl">
-        <p class="text-body-2 mb-3">{{ t('twoFactorAuth.scanQrCode') }}</p>
-        <div class="d-flex justify-center mb-3">
-          <img :src="qrCodeDataUrl" alt="QR code" width="200" height="200" />
-        </div>
-        <p class="text-body-2 text-medium-emphasis mb-1">{{ t('twoFactorAuth.manualSecret') }}</p>
-        <p class="text-body-2 font-weight-medium mb-4" style="word-break: break-all">{{ secret }}</p>
-        <p class="text-body-2 mb-3">{{ t('twoFactorAuth.confirmText') }}</p>
-        <v-form @submit.prevent="confirm">
-          <v-text-field
-            v-model="code"
-            :label="t('twoFactorAuth.codeLabel')"
-            inputmode="numeric"
-            maxlength="6"
-            class="mb-1"
-          />
-          <v-alert v-if="error" type="error" density="compact" class="mb-4">{{ error }}</v-alert>
-          <div class="d-flex justify-end ga-2">
-            <v-btn variant="text" @click="open = false">{{ t('cancel') }}</v-btn>
-            <v-btn type="submit" color="primary" :loading="loading" :disabled="code.length !== 6">
-              {{ t('twoFactorAuth.confirm') }}
-            </v-btn>
-          </div>
-        </v-form>
-      </template>
-      <v-alert v-else-if="error" type="error" density="compact">{{ error }}</v-alert>
-      <div v-else class="d-flex justify-center pa-6">
-        <v-progress-circular indeterminate color="primary" />
+  <FormDialog v-model="open" :title="t('twoFactorAuth.confirmTitle')" @submit="confirm">
+    <template v-if="qrCodeDataUrl">
+      <p class="text-body-2 mb-3">{{ t('twoFactorAuth.scanQrCode') }}</p>
+      <div class="d-flex justify-center mb-3">
+        <img :src="qrCodeDataUrl" alt="QR code" width="200" height="200" />
       </div>
-    </v-card>
-  </v-dialog>
+      <p class="text-body-2 text-medium-emphasis mb-1">{{ t('twoFactorAuth.manualSecret') }}</p>
+      <p class="text-body-2 font-weight-medium mb-4" style="word-break: break-all">{{ secret }}</p>
+      <p class="text-body-2 mb-3">{{ t('twoFactorAuth.confirmText') }}</p>
+      <v-text-field
+        v-model="code"
+        :label="t('twoFactorAuth.codeLabel')"
+        inputmode="numeric"
+        maxlength="6"
+        class="mb-1"
+      />
+      <v-alert v-if="error" type="error" variant="tonal" density="compact" class="mb-4">{{ error }}</v-alert>
+    </template>
+    <v-alert v-else-if="error" type="error" variant="tonal" density="compact">{{ error }}</v-alert>
+    <div v-else class="d-flex justify-center pa-6">
+      <v-progress-circular indeterminate color="primary" />
+    </div>
+    <template v-if="qrCodeDataUrl" #actions>
+      <v-btn type="submit" color="primary" :loading="loading" :disabled="code.length !== 6">
+        {{ t('twoFactorAuth.confirm') }}
+      </v-btn>
+    </template>
+  </FormDialog>
 </template>
