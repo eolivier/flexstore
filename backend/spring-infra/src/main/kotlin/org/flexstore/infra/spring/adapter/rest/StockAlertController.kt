@@ -27,8 +27,10 @@ class StockAlertController(
 
     @Operation(summary = "Retrieve the stocks at or under the alert threshold of their product, from the lowest")
     @GetMapping("/api/admin/stocks/low")
-    fun getLowStocks(@AuthenticationPrincipal reader: Jwt): List<JsonLowStock> =
-        stockAlertUseCases.lowStocks(UserId.of(reader.subject)).asList().map { JsonLowStock.of(it) }
+    fun getLowStocks(@AuthenticationPrincipal reader: Jwt): List<JsonLowStock> {
+        val actor = actorResolutionService.actorOf(UserId.of(reader.subject))
+        return stockAlertUseCases.lowStocks(actor).asList().map { JsonLowStock.of(it) }
+    }
 
     @Operation(summary = "Retrieve the alert threshold of a product (the default one when it was never given)")
     @GetMapping("/api/admin/stocks/{productId}/alert")

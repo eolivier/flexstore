@@ -1,14 +1,13 @@
 package org.flexstore.domain.stock.usecase
 
 import org.flexstore.domain.stock.*
-import org.flexstore.domain.user.repository.UserRepository
+import org.flexstore.domain.actor.isNotAdmin
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // An administrator reads the stocks that reached the threshold of their product, which they are warned of
 class ListLowStocksUseCase(
-    private val stockRepository: StockRepository,
-    private val userRepository: UserRepository
+    private val stockRepository: StockRepository
 ) : QueryUseCase<LowStocksReading, LowStocks> {
 
     override fun getPreConditions(): PreConditions<LowStocksReading> =
@@ -18,9 +17,9 @@ class ListLowStocksUseCase(
 
     override fun getPostConditions(): PostConditions<LowStocks> = PostConditions.none()
 
-    // The reader must be an existing user with the ADMIN role (read from the users, not from the request)
+    // The reader, resolved before the use case runs, must be an Admin
     private fun readerIsAdministratorCondition() = PreCondition<LowStocksReading> { reading ->
-        if (userRepository.isNotAdministrator(reading.reader)) {
+        if (reading.reader.isNotAdmin()) {
             throw StockAlertForbiddenException(ErrorMessage("Only an administrator can read the low stocks."))
         }
     }

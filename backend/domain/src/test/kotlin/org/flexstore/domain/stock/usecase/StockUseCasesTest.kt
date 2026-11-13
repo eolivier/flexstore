@@ -1,6 +1,7 @@
 package org.flexstore.domain.stock.usecase
 
 import org.assertj.core.api.WithAssertions
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.product.*
 import org.flexstore.domain.product.model.*
 import org.flexstore.domain.sharedkernel.*
@@ -21,10 +22,13 @@ class StockUseCasesTest : WithAssertions {
     private val deskLamp = DefinedProduct(ProductId(Identity("desk-lamp")), Name("Desk lamp"), price)
     private val productRepository = InMemoryProductRepository().apply { save(deskLamp) }
     private val stockRepository = InMemoryStockRepository()
-    private val changeStockUseCase =
-        ChangeStockUseCase(stockRepository, productRepository, usersOfTheAdministration())
+    private val changeStockUseCase = ChangeStockUseCase(stockRepository, productRepository)
     private val stockUseCases =
         StockUseCases(ListStocksUseCase(stockRepository), ReadStockUseCase(stockRepository), changeStockUseCase)
+    private val actorResolutionService = ActorResolutionService(usersOfTheAdministration())
+    private val administratorActor = actorResolutionService.actorOf(testAdministrator.id)
+    private val customerActor = actorResolutionService.actorOf(testCustomer.id)
+    private val unknownUserActor = actorResolutionService.actorOf(unknownUser)
 
     @Test
     fun `a product whose stock was never given should have none`() {
@@ -37,7 +41,7 @@ class StockUseCasesTest : WithAssertions {
     @Test
     fun `an administrator should give the stock of a product`() {
         // Act
-        val stock = stockUseCases.change(testAdministrator.id, Stock(deskLamp.productId, StockQuantity(12)))
+        val stock = stockUseCases.change(administratorActor, Stock(deskLamp.productId, StockQuantity(12)))
         // Assert
         assertThat(stock).isEqualTo(Stock(deskLamp.productId, StockQuantity(12)))
     }
@@ -47,7 +51,7 @@ class StockUseCasesTest : WithAssertions {
         // Arrange
         val negativeStock = Stock(deskLamp.productId, StockQuantity(-1))
         // Act
-        val thrown = catchThrowable { stockUseCases.change(testAdministrator.id, negativeStock) }
+        val thrown = catchThrowable { stockUseCases.change(administratorActor, negativeStock) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(NegativeStockException::class.java)
     }
@@ -57,7 +61,7 @@ class StockUseCasesTest : WithAssertions {
         // Arrange
         val unknownProductStock = Stock(ProductId(Identity("unknown")), StockQuantity(3))
         // Act
-        val thrown = catchThrowable { stockUseCases.change(testAdministrator.id, unknownProductStock) }
+        val thrown = catchThrowable { stockUseCases.change(administratorActor, unknownProductStock) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(ProductNotFoundException::class.java)
     }
@@ -67,7 +71,7 @@ class StockUseCasesTest : WithAssertions {
         // Arrange
         val stock = Stock(deskLamp.productId, StockQuantity(12))
         // Act
-        val thrown = catchThrowable { stockUseCases.change(testCustomer.id, stock) }
+        val thrown = catchThrowable { stockUseCases.change(customerActor, stock) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(StockChangeForbiddenException::class.java)
         assertThat(stockRepository.stockOf(deskLamp.productId)).isEqualTo(Stock.noneOf(deskLamp.productId))
@@ -78,7 +82,7 @@ class StockUseCasesTest : WithAssertions {
         // Arrange
         val stock = Stock(deskLamp.productId, StockQuantity(12))
         // Act
-        val thrown = catchThrowable { stockUseCases.change(unknownUser, stock) }
+        val thrown = catchThrowable { stockUseCases.change(unknownUserActor, stock) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(StockChangeForbiddenException::class.java)
     }
