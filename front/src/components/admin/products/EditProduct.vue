@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import FormActions from '@/components/form/FormActions.vue';
   import AdminBreadcrumbs from '@/components/admin/AdminBreadcrumbs.vue';
   import { onMounted, ref, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
@@ -118,20 +119,7 @@
         <v-alert v-if="saved === false" type="error" variant="tonal" density="compact" class="my-4">{{
           t('editProduct.error')
         }}</v-alert>
-        <div class="d-flex ga-3 mt-2">
-          <v-btn to="/admin/products" variant="outlined" color="primary" size="large" class="flex-grow-1">{{
-            t('editProduct.cancel')
-          }}</v-btn>
-          <v-btn
-            type="submit"
-            color="primary"
-            size="large"
-            class="flex-grow-1"
-            :loading="saving"
-            :disabled="!valid"
-            >{{ t('editProduct.save') }}</v-btn
-          >
-        </div>
+        <FormActions class="mt-2" cancel-to="/admin/products" :loading="saving" :disabled="!valid" />
       </v-form>
     </v-card>
     <v-snackbar

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import FormActions from '@/components/form/FormActions.vue';
   import { computed, ref, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
   import type { PostalAddress } from '@/models/account';
@@ -41,12 +42,7 @@
         <v-alert v-if="error" type="error" variant="tonal" density="compact" class="mb-4">
           {{ t(`addressBook.errors.${error}`) }}
         </v-alert>
-        <div class="d-flex justify-end ga-2">
-          <v-btn variant="text" @click="open = false">{{ t('addressBook.cancel') }}</v-btn>
-          <v-btn type="submit" color="secondary" :loading="saving" :disabled="valid === false">
-            {{ t('addressBook.save') }}
-          </v-btn>
-        </div>
+        <FormActions :loading="saving" :disabled="valid === false" @cancel="open = false" />
       </v-form>
     </v-card>
   </v-dialog>

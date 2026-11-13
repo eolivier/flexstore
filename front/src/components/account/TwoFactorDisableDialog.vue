@@ -41,7 +41,7 @@
         />
         <v-alert v-if="error" type="error" density="compact" class="mb-4">{{ error }}</v-alert>
         <div class="d-flex justify-end ga-2">
-          <v-btn variant="text" @click="open = false">{{ t('twoFactorAuth.cancel') }}</v-btn>
+          <v-btn variant="text" @click="open = false">{{ t('cancel') }}</v-btn>
           <v-btn type="submit" color="error" :loading="loading" :disabled="!currentPassword">
             {{ t('twoFactorAuth.disable') }}
           </v-btn>
