@@ -4,6 +4,7 @@
   import { useAuthStore, type LoginOutcome } from '@/stores/auth.store';
   import { useI18n } from 'vue-i18n';
   import TwoFactorChallengeForm from '@/components/account/TwoFactorChallengeForm.vue';
+  import PasswordField from '@/components/account/PasswordField.vue';
   import GoogleSignInButton from '@/components/account/GoogleSignInButton.vue';
 
   const email = ref('');
@@ -78,14 +79,11 @@
             class="mb-2"
           />
 
-          <v-text-field
+          <PasswordField
             v-model="password"
             :label="t('login.password')"
             :rules="[rules.required]"
-            type="password"
-            prepend-inner-icon="mdi-lock-outline"
             autocomplete="current-password"
-            required
             class="mb-1"
           />
           <div class="text-right mb-4">

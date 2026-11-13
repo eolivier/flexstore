@@ -1,7 +1,10 @@
 <script setup lang="ts">
   import { ref } from 'vue';
 
-  defineProps<{ label: string; rules: ((value: string) => true | string)[] }>();
+  withDefaults(
+    defineProps<{ label: string; rules: ((value: string) => true | string)[]; autocomplete?: string }>(),
+    { autocomplete: 'new-password' }
+  );
 
   const password = defineModel<string>({ required: true });
 
@@ -16,7 +19,7 @@
     :type="showPassword ? 'text' : 'password'"
     prepend-inner-icon="mdi-lock-outline"
     :append-inner-icon="showPassword ? 'mdi-eye-off-outline' : 'mdi-eye-outline'"
-    autocomplete="new-password"
+    :autocomplete="autocomplete"
     required
     @click:append-inner="showPassword = !showPassword"
   />
