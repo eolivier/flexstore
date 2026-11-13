@@ -40,7 +40,8 @@ class DeleteUserUseCaseTest {
         every { userRepository.notExists(SystemUser.id) } returns false
         every { userRepository.findById(SystemUser.id) } returns systemUser
         // Act
-        val thrown = catchThrowable { deleteUserUseCase.unfold(UserDeletion(testAdministratorActor, SystemUser.id)) }
+        val deletion = UserDeletion(testAdministratorActor, SystemUser.id)
+        val thrown = catchThrowable { deleteUserUseCase.unfold(deletion) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(SystemRoleForbiddenException::class.java)
             .hasMessage("The system user cannot be deleted.")
