@@ -9,11 +9,16 @@ import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 import java.time.Instant
 
-// The links sent by email (verification of the email, new password), used by the EmailRepositoryAdapter and the
-// PostgresPasswordResetRepositoryAdapter
+// The tokens of the users: the links sent by email (verification of the email, new password), used by the
+// EmailRepositoryAdapter and the PostgresPasswordResetRepositoryAdapter, and the sessions of the signed-in
+// users, used by the PostgresRefreshSessionRepositoryAdapter
 @Repository
 interface JpaUserTokenRepository : JpaRepository<UserTokenEntity, String> {
     fun findByTokenHashAndType(tokenHash: String, type: UserTokenType): UserTokenEntity?
+
+    fun existsByTokenHashAndType(tokenHash: String, type: UserTokenType): Boolean
+
+    fun existsByUserIdAndTypeAndRevokedAtIsNull(userId: String, type: UserTokenType): Boolean
 
     @Modifying
     fun deleteAllByUserIdAndType(userId: String, type: UserTokenType)
@@ -28,5 +33,17 @@ interface JpaUserTokenRepository : JpaRepository<UserTokenEntity, String> {
         @Param("userId") userId: String,
         @Param("type") type: UserTokenType,
         @Param("expiration") expiration: Instant
+    )
+
+    // The sessions of the user that are not revoked yet are revoked at the given moment
+    @Modifying(clearAutomatically = true)
+    @Query(
+        "UPDATE UserTokenEntity t SET t.revokedAt = :revokedAt " +
+            "WHERE t.userId = :userId AND t.type = :type AND t.revokedAt IS NULL"
+    )
+    fun revokeAllByUserIdAndType(
+        @Param("userId") userId: String,
+        @Param("type") type: UserTokenType,
+        @Param("revokedAt") revokedAt: Instant
     )
 }
