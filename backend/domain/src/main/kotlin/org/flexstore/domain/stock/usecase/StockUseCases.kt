@@ -2,7 +2,7 @@ package org.flexstore.domain.stock.usecase
 
 import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.stock.*
-import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.entity.Actor
 
 // The use cases of the stocks: the stock of a product is read back once changed
 class StockUseCases(
@@ -14,7 +14,7 @@ class StockUseCases(
 
     fun getStock(productId: ProductId) = readStockUseCase.unfold(productId)
 
-    fun change(editor: UserId, stock: Stock): Stock {
+    fun change(editor: Actor, stock: Stock): Stock {
         changeStockUseCase.unfold(StockChange(editor, stock))
         return readStockUseCase.unfold(stock.productId)
     }

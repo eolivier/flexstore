@@ -2,7 +2,6 @@ package org.flexstore.domain.stock.usecase
 
 import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.stock.*
-import org.flexstore.domain.user.model.UserId
 import org.ucop.domain.entity.Actor
 
 // The use cases of the alerts on the stocks, for the administrators: the threshold of a product is read back
@@ -12,7 +11,7 @@ class StockAlertUseCases(
     private val readStockAlertUseCase: ReadStockAlertUseCase,
     private val changeStockAlertUseCase: ChangeStockAlertUseCase
 ) {
-    fun lowStocks(reader: UserId) = listLowStocksUseCase.unfold(LowStocksReading(reader))
+    fun lowStocks(reader: Actor) = listLowStocksUseCase.unfold(LowStocksReading(reader))
 
     fun alertOf(reader: Actor, productId: ProductId) =
         readStockAlertUseCase.unfold(StockAlertReading(reader, productId))

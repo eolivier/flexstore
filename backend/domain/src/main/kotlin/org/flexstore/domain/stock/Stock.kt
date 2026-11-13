@@ -2,7 +2,6 @@ package org.flexstore.domain.stock
 
 import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.sharedkernel.Quantity
-import org.flexstore.domain.user.model.UserId
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.NominalException
 import org.ucop.domain.PostConditionException
@@ -84,7 +83,7 @@ data class StockAlertChange(val editor: Actor, val stockAlert: StockAlert)
 data class StockAlertReading(val reader: Actor, val productId: ProductId)
 
 // An administrator who reads the stocks that reached the threshold of their product
-data class LowStocksReading(val reader: UserId)
+data class LowStocksReading(val reader: Actor)
 
 // A stock that reached the threshold of its product
 data class LowStock(val stock: Stock, val threshold: AlertThreshold)
@@ -107,7 +106,7 @@ enum class StockReservation {
 }
 
 // An administrator who gives the number of units of a product that the shop has
-data class StockChange(val editor: UserId, val stock: Stock)
+data class StockChange(val editor: Actor, val stock: Stock)
 
 data class StockChangeForbiddenException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)

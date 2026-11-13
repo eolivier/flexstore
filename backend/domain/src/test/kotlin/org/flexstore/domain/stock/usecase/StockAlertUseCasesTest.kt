@@ -30,7 +30,7 @@ class StockAlertUseCasesTest : WithAssertions {
     }
     private val changeStockAlertUseCase = ChangeStockAlertUseCase(stockRepository, productRepository)
     private val readStockAlertUseCase = ReadStockAlertUseCase(stockRepository)
-    private val listLowStocksUseCase = ListLowStocksUseCase(stockRepository, userRepository)
+    private val listLowStocksUseCase = ListLowStocksUseCase(stockRepository)
     private val stockAlertUseCases =
         StockAlertUseCases(listLowStocksUseCase, readStockAlertUseCase, changeStockAlertUseCase)
     private val actorResolutionService = ActorResolutionService(userRepository)
@@ -87,7 +87,7 @@ class StockAlertUseCasesTest : WithAssertions {
         stockRepository.save(Stock(wallClock.productId, StockQuantity(8)))
         stockAlertUseCases.change(administratorActor, StockAlert(wallClock.productId, AlertThreshold(10)))
         // Act
-        val lowStocks = stockAlertUseCases.lowStocks(administrator.id)
+        val lowStocks = stockAlertUseCases.lowStocks(administratorActor)
         // Assert
         assertThat(lowStocks.asList()).containsExactly(
             LowStock(Stock(deskLamp.productId, StockQuantity(5)), AlertThreshold(5)),
@@ -100,7 +100,7 @@ class StockAlertUseCasesTest : WithAssertions {
         // Arrange
         stockRepository.save(Stock(deskLamp.productId, StockQuantity(6)))
         // Act
-        val lowStocks = stockAlertUseCases.lowStocks(administrator.id)
+        val lowStocks = stockAlertUseCases.lowStocks(administratorActor)
         // Assert
         assertThat(lowStocks.asList()).isEmpty()
     }
@@ -137,9 +137,18 @@ class StockAlertUseCasesTest : WithAssertions {
     }
 
     @Test
+    fun `a customer should not read the low stocks`() {
+        // Act
+        val thrown = catchThrowable { stockAlertUseCases.lowStocks(customerActor) }
+        // Assert
+        assertThat(thrown).hasCauseInstanceOf(StockAlertForbiddenException::class.java)
+    }
+
+    @Test
     fun `an unknown user should not read the low stocks`() {
         // Act
-        val thrown = catchThrowable { stockAlertUseCases.lowStocks(ValidUserId("unknown")) }
+        val unknownUser = actorResolutionService.actorOf(ValidUserId("unknown"))
+        val thrown = catchThrowable { stockAlertUseCases.lowStocks(unknownUser) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(StockAlertForbiddenException::class.java)
     }

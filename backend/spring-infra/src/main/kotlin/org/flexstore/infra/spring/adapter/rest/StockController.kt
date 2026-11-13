@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.sharedkernel.Identity
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.stock.*
 import org.flexstore.domain.stock.usecase.StockUseCases
 import org.flexstore.infra.spring.adapter.rest.json.JsonStock
@@ -17,7 +18,10 @@ import org.springframework.security.oauth2.jwt.Jwt
 // The stocks of the products: read by everyone, given by the administrators (ADMIN role, see SecurityConfig)
 @Tag(name = "Stocks")
 @RestController
-class StockController(private val stockUseCases: StockUseCases) {
+class StockController(
+    private val stockUseCases: StockUseCases,
+    private val actorResolutionService: ActorResolutionService
+) {
 
     @Operation(summary = "Retrieve the stocks of the products (a product without stock has none)")
     @GetMapping("/api/stocks")
@@ -36,6 +40,7 @@ class StockController(private val stockUseCases: StockUseCases) {
         @RequestBody stockQuantity: JsonStockQuantity
     ): JsonStock {
         val stock = Stock(ProductId(Identity(productId)), StockQuantity(stockQuantity.quantity))
-        return JsonStock.of(stockUseCases.change(UserId.of(editor.subject), stock))
+        val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
+        return JsonStock.of(stockUseCases.change(actor, stock))
     }
 }
