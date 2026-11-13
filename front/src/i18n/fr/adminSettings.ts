@@ -1,0 +1,90 @@
+export default {
+  admin: {
+    title: 'Administration',
+    subtitle: 'Gérez les utilisateurs et les produits de la boutique.',
+    usersText: 'Consulter et supprimer les comptes utilisateurs.',
+    createUserText: 'Ajouter un compte qui pourra se connecter.',
+    productsText: 'Consulter et modifier les produits du catalogue.',
+    createProductText: 'Ajouter un produit au catalogue.',
+    ordersText: "Suivre les commandes des clients et les faire passer à l'état suivant.",
+    salesText: "Suivre le chiffre d'affaires, les commandes par jour et les meilleures ventes.",
+    discountCodesText: "Créer des codes promo, jusqu'à une date et pour un nombre de commandes.",
+    settingsText: 'Activer ou désactiver les fonctionnalités de la boutique.',
+    environmentText: 'Vérifier quelles variables d’environnement du back end sont définies.',
+    sellerText:
+      'Modifier la boutique telle qu’elle figure sur ses factures : raison sociale, adresse, SIRET et TVA.',
+    legalPagesText:
+      'Rédiger les mentions légales, les conditions générales de vente et la politique de confidentialité de la boutique.',
+    shopPageContentText:
+      'Modifier les mots-clés, la description et l’identifiant Google Analytics de la boutique.',
+  },
+  environment: {
+    title: 'Environnement',
+    subtitle:
+      'Les variables d’environnement du back end. Les mots de passe et les clés ne sont jamais affichés.',
+    name: 'Variable',
+    necessityTitle: 'Besoin',
+    statusTitle: 'État',
+    value: 'Valeur',
+    hidden: 'Masquée (secret)',
+    category: {
+      EMAIL: 'Email',
+      PAYMENT: 'Paiement',
+      MCP: 'MCP',
+      DATABASE: 'Base de données',
+      OTHER: 'Autres',
+    },
+    necessity: { REQUIRED: 'Obligatoire', OPTIONAL: 'Facultative' },
+    status: { DEFINED: 'Définie', UNDEFINED: 'Non définie' },
+    missing: '{n} variable(s) obligatoire(s) non définie(s).',
+    complete: 'Toutes les variables obligatoires sont définies.',
+    databaseNote:
+      'La base de données est donnée soit par FLEXSTORE_DATABASE_URL, soit par les variables FLEXSTORE_DATASOURCE_*. Une variable est définie quand sa valeur n’est ni vide ni blanche.',
+    loadError: "L'environnement n'a pas pu être chargé.",
+  },
+  settings: {
+    title: 'Paramètres',
+    subtitle: 'Activez ou désactivez les fonctionnalités de la boutique.',
+    orderConfirmationEmail: 'Email de confirmation de commande',
+    orderConfirmationEmailText: "Envoyer au client un email récapitulant sa commande lorsqu'elle est passée.",
+    saveError: "Le paramètre n'a pas pu être enregistré.",
+    abandonedCartReminder: 'Rappel de panier abandonné',
+    abandonedCartReminderText:
+      "Envoyer un email au client qui a laissé des articles dans son panier, une fois qu'il est resté ce temps sans changement. Envoyé une seule fois, jusqu'à ce que le panier change de nouveau.",
+    abandonedCartDelayHours: 'Heures',
+    abandonedCartDelayRange: 'De 1 à 720 heures (30 jours)',
+    paymentDelay: "Délai de paiement d'une commande",
+    paymentDelayText:
+      'Une fois la commande passée, ses articles sont réservés pendant ce délai. Non payée à temps, la commande est annulée et ses articles reviennent en stock.',
+    paymentDelayMinutes: 'Minutes',
+    paymentDelayRange: 'De 1 à 1440 minutes (1 jour)',
+    freeShippingThreshold: 'Livraison offerte',
+    freeShippingThresholdText:
+      'La livraison standard est offerte dès que les articles de la commande atteignent ce prix. 0 : toujours offerte.',
+    freeShippingThresholdAmount: 'À partir de (€)',
+    freeShippingThresholdRange: 'Indiquez un prix de 0 € ou plus',
+    saved: 'Enregistré.',
+    loadError: "Les paramètres n'ont pas pu être chargés.",
+    sellerSetup: 'Configuration du vendeur',
+    sellerSetupText:
+      "Activé par l'assistant de configuration une fois le vendeur des factures renseigné. Il ne peut pas être modifié ici.",
+    sellerSetupOpen: "Ouvrir l'assistant de configuration",
+  },
+  salesDashboard: {
+    title: 'Ventes',
+    subtitle:
+      "Les commandes payées, ni annulées ni remboursées, passées sur la période (jours à l'heure de Paris).",
+    lastDays: '{n} derniers jours',
+    revenue: "Chiffre d'affaires",
+    orders: 'Commandes',
+    averageBasket: 'Panier moyen',
+    ordersPerDay: 'Commandes par jour',
+    dayOrders: '{day} : aucune commande | {day} : 1 commande, {amount} | {day} : {n} commandes, {amount}',
+    busiestDay: 'Jour le plus chargé : {n}',
+    bestSellers: 'Meilleures ventes',
+    product: 'Produit',
+    unitsSold: 'Unités vendues',
+    noSale: 'Aucune vente sur cette période.',
+    error: "Les ventes n'ont pas pu être chargées.",
+  },
+};

@@ -1,0 +1,68 @@
+export default {
+  cart: {
+    title: 'Mon panier',
+    total: 'Total',
+    increase: 'Augmenter la quantité',
+    decrease: 'Diminuer la quantité',
+    remove: 'Retirer du panier',
+    unitPrice: "{price} l'unité",
+    summary: 'Récapitulatif',
+    itemsCount: 'Aucun article | 1 article | {n} articles',
+    continue: 'Continuer mes achats',
+    empty: 'Votre panier est vide',
+    emptyText: 'Parcourez la boutique et ajoutez les produits qui vous plaisent.',
+    accountItemsMerged: 'Les articles enregistrés dans votre compte ont été ajoutés à votre panier.',
+    placeOrder: 'Passer la commande',
+    signInToOrder: 'Vous vous connecterez pour valider la commande.',
+  },
+  checkout: {
+    title: 'Livraison et facturation',
+    discount: {
+      title: 'Code promo',
+      code: 'Votre code',
+      apply: 'Appliquer',
+      remove: 'Retirer le code',
+      errors: {
+        unknown: "Ce code n'existe pas.",
+        unusable: 'Ce code a expiré ou a déjà été utilisé autant de fois que possible.',
+        error: "Le code n'a pas pu être vérifié. Réessayez.",
+      },
+    },
+    shipping: {
+      title: 'Livraison',
+      freeFrom: "Livraison standard offerte dès {threshold} d'articles.",
+      free: 'Offerte',
+      methods: { STANDARD: 'Livraison standard', EXPRESS: 'Livraison express' },
+      delays: { STANDARD: '3 à 5 jours ouvrés', EXPRESS: 'le jour ouvré suivant' },
+    },
+    deliveryAddress: 'Adresse de livraison',
+    billingAddress: 'Adresse de facturation',
+    iAmACompany: 'Je suis une entreprise',
+    completeRecipient: 'Qui reçoit à cette adresse ? Complétez son nom.',
+    companyName: "Nom de l'entreprise",
+    vatNumber: 'Numéro de TVA (facultatif)',
+    billedToDelivery: "L'adresse de facturation est l'adresse de livraison",
+    sameAsDelivery: "Identique à l'adresse de livraison",
+    otherAddress: 'Une autre adresse',
+    placeOrder: 'Commander et payer',
+    termsOfSale: {
+      accept: "J'ai lu et j'accepte les conditions générales de vente",
+      read: 'Lire les conditions générales de vente',
+      loadError:
+        "Les conditions générales de vente n'ont pas pu être chargées. Rechargez la page pour commander.",
+    },
+    errors: {
+      emptyCart: 'Votre panier est vide.',
+      refused:
+        'Votre compte ne permet pas de commander (suspendu, verrouillé ou désactivé). Contactez la boutique.',
+      incompleteAddress: "Complétez l'adresse de livraison et l'adresse de facturation.",
+      invalidRequest: 'La boutique a refusé la commande : {reason}',
+      outOfStock: "Un produit de votre panier n'a plus assez d'unités en stock : modifiez sa quantité.",
+      termsOfSaleNotAccepted: 'Acceptez les conditions générales de vente pour commander.',
+      outdatedTermsOfSale:
+        'Les conditions générales de vente viennent de changer : relisez-les, puis acceptez-les pour commander.',
+      discountCodeRefused: "Votre code promo n'est plus utilisable : retirez-le pour commander.",
+      error: "La commande n'a pas pu être passée. Veuillez réessayer.",
+    },
+  },
+};
