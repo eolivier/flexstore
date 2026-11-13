@@ -2,7 +2,7 @@ package org.flexstore.domain.image.usecase
 
 import org.flexstore.domain.image.*
 import org.flexstore.domain.product.model.ProductId
-import org.flexstore.domain.user.model.UserId
+import org.ucop.domain.entity.Actor
 
 // The use cases of the images of the products
 class ProductImageUseCases(
@@ -11,10 +11,10 @@ class ProductImageUseCases(
     private val readProductImageUseCase: ReadProductImageUseCase,
     private val listProductsWithImageUseCase: ListProductsWithImageUseCase
 ) {
-    fun add(editor: UserId, uploadedImage: UploadedImage) =
+    fun add(editor: Actor, uploadedImage: UploadedImage) =
         addProductImageUseCase.unfold(ProductImageUpload(editor, uploadedImage))
 
-    fun remove(editor: UserId, productId: ProductId) =
+    fun remove(editor: Actor, productId: ProductId) =
         removeProductImageUseCase.unfold(ProductImageRemoval(editor, productId))
 
     fun getImage(productId: ProductId, format: ImageFormat) =
