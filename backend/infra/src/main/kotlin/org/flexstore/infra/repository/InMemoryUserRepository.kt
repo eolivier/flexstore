@@ -17,7 +17,7 @@ class InMemoryUserRepository : UserRepository {
 
     override fun notExists(userId: UserId): Boolean = !exists(userId)
 
-    override fun notExistsBasedOn(email: Email): Boolean = findByEmail(email) !is User.DefinedUser
+    override fun notExistsBasedOn(email: Email): Boolean = findByEmail(email).isNotDefined()
 
     override fun save(user: User): User {
         val userToSave = when (user) {

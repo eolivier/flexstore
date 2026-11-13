@@ -78,7 +78,7 @@ class OrderController(
         @RequestParam(defaultValue = "${PageSize.DEFAULT}") size: Int
     ): ResponseEntity<List<JsonOrder>> {
         val paymentDelay = orderUseCases.paymentDelay(actorOf(jwt))
-        val orders = orderUseCases.getOrders(customer(jwt), PageRequest.of(page, size))
+        val orders = orderUseCases.getOrders(actorOf(jwt), PageRequest.of(page, size))
         return pagedBody(orders.content.asList().map { JsonOrder(it, paymentDelay) }, orders.total)
     }
 

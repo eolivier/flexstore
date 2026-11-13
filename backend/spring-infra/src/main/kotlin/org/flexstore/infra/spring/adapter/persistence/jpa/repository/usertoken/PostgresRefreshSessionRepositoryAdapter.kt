@@ -36,8 +36,8 @@ class PostgresRefreshSessionRepositoryAdapter(private val jpaRepo: JpaUserTokenR
     }
 
     @Transactional(readOnly = true)
-    override fun isUnknown(token: RefreshToken): Boolean =
-        !jpaRepo.existsByTokenHashAndType(token.hash(), SESSION)
+    override fun isKnown(token: RefreshToken): Boolean =
+        jpaRepo.existsByTokenHashAndType(token.hash(), SESSION)
 
     @Transactional(readOnly = true)
     override fun get(token: RefreshToken): RefreshSession {

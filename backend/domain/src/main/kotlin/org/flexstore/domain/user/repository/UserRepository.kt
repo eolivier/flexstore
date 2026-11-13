@@ -27,13 +27,6 @@ interface UserRepository {
     // The status of the account of an existing user
     fun statusOf(userId: UserId): AccountStatus = (findById(userId) as User.DefinedUser).status
 
-    // Managing the users (create, edit) is reserved to an existing user with the ADMIN role
-    fun isNotAdministrator(userId: UserId): Boolean {
-        if (notExists(userId)) return true
-        val user = findById(userId)
-        return user !is User.DefinedUser || user.isNotAdministrator()
-    }
-
     // A customer must be an existing user whose account is not suspended, locked or disabled to act
     fun verifyCustomerCanAct(customerId: UserId) {
         if (notExists(customerId)) {

@@ -48,7 +48,7 @@ fun Actor.isNotAtLeastCustomer() = !isAtLeastCustomer()
 
 fun Actor.isCustomer() = isAtLeastCustomer() && isNotAdmin()
 
-fun Actor.isVisitor() = this is Visitor && !isAtLeastCustomer()
+fun Actor.isVisitor() = this is Visitor && isNotAtLeastCustomer()
 
 // A visitor, or higher: a customer or an admin is one too, and so is the system, which stands above every role.
 // What the preconditions of the public reads ask of their reader

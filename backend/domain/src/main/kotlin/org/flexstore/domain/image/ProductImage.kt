@@ -40,6 +40,8 @@ enum class ImageFormat(val maxSide: Int, val maxBytes: Int) {
     SMALL(maxSide = 400, maxBytes = 60 * BYTES_PER_KILOBYTE);
 
     fun accepts(content: ImageContent) = content.size() <= maxBytes
+
+    fun refuses(content: ImageContent) = !accepts(content)
 }
 
 // The image of a product in one format

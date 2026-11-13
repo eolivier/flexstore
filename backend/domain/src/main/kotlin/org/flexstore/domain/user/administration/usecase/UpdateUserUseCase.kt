@@ -32,10 +32,12 @@ class UpdateUserUseCase(private val userRepository: UserRepository) : UseCase<Up
 
     // An edit changes neither the password (the stored hashed one is kept) nor the status, the contact details,
     // the company given by the customer, nor the two-factor authentication (removed by its own operation)
-    private fun withStoredAccount(user: User): User {
-        if (user !is User.DefinedUser) {
-            return user
-        }
+    private fun withStoredAccount(user: User): User = when (user) {
+        is User.DefinedUser -> withStoredAccountOf(user)
+        else -> user
+    }
+
+    private fun withStoredAccountOf(user: User.DefinedUser): User {
         return when (val existingUser = userRepository.findById(user.id)) {
             is User.DefinedUser -> user.copy(
                 password = existingUser.password,

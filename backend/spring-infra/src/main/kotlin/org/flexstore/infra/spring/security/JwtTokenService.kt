@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.security
 
+import org.flexstore.domain.sharedkernel.InstantProvider
 import org.flexstore.domain.user.model.Account
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm
@@ -20,7 +21,7 @@ class JwtTokenService(
 ) {
 
     fun issue(account: Account): IssuedToken {
-        val now = Instant.now()
+        val now = InstantProvider.now()
         val expiresAt = now.plus(ttl)
         val claims = JwtClaimsSet.builder()
             .issuer("flexstore")

@@ -12,6 +12,10 @@ import org.ucop.domain.entity.Actor
 sealed class User(open val id: UserId) {
     abstract fun user(userId: UserId):User
 
+    fun isDefined() = this is DefinedUser
+
+    fun isNotDefined() = !isDefined()
+
     data class DefinedUser(
         override val id: UserId,
         val fullName: FullName,
@@ -47,8 +51,6 @@ sealed class User(open val id: UserId) {
         fun isAdministrator() = role == Role.ADMIN
 
         fun isSystem() = role.isSystem()
-
-        fun isNotAdministrator() = role != Role.ADMIN
 
         // A new enrollment is generated, kept pending until the first code confirms it
         fun withTwoFactorAuthenticationPending(secret: TwoFactorSecret) =

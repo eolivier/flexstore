@@ -17,7 +17,7 @@ class OrderUseCases(
     private val proposeShippingOptionsUseCase: ProposeShippingOptionsUseCase
 ) {
 
-    fun getOrders(customer: UserId.ValidUserId, pageRequest: PageRequest) =
+    fun getOrders(customer: Actor, pageRequest: PageRequest) =
         orderQueryUseCases.listCustomerOrdersUseCase.unfold(CustomerOrdersReading(customer, pageRequest))
 
     fun getOrder(customer: UserId.ValidUserId, orderId: OrderId) =

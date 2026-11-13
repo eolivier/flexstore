@@ -9,9 +9,9 @@ interface RefreshSessionRepository {
     // Keeps a new session, or the revocation of a stored one
     fun save(session: RefreshSession)
 
-    fun isUnknown(token: RefreshToken): Boolean
+    fun isKnown(token: RefreshToken): Boolean
 
-    fun isKnown(token: RefreshToken): Boolean = !isUnknown(token)
+    fun isUnknown(token: RefreshToken): Boolean = !isKnown(token)
 
     // Only called once the token is known
     fun get(token: RefreshToken): RefreshSession

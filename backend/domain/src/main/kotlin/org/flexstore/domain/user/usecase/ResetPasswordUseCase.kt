@@ -61,7 +61,7 @@ class ResetPasswordUseCase(
     }
 
     private fun linkIsUsedCondition() = PostCondition<PasswordResetConfirmation> { confirmation ->
-        if (!passwordResetRepository.isUnknown(confirmation.chosenPassword.token)) {
+        if (passwordResetRepository.isKnown(confirmation.chosenPassword.token)) {
             throw PasswordResetFailed(ErrorMessage("The link to choose a new password can still be used."))
         }
     }

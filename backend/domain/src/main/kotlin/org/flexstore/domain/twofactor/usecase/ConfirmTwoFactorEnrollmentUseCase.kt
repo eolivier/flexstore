@@ -42,10 +42,10 @@ class ConfirmTwoFactorEnrollmentUseCase(private val userRepository: UserReposito
 
     private fun pendingEnrollmentOf(userId: UserId): TwoFactorAuthentication.PendingConfirmation {
         val twoFactorAuthentication = definedUser(userId).twoFactorAuthentication
-        if (twoFactorAuthentication !is TwoFactorAuthentication.PendingConfirmation) {
-            throw TwoFactorEnrollmentNotPendingException(ErrorMessage("No two-factor enrollment is pending."))
+        if (twoFactorAuthentication is TwoFactorAuthentication.PendingConfirmation) {
+            return twoFactorAuthentication
         }
-        return twoFactorAuthentication
+        throw TwoFactorEnrollmentNotPendingException(ErrorMessage("No two-factor enrollment is pending."))
     }
 
     // The customer, resolved before the use case runs, must be a customer or an admin who can act

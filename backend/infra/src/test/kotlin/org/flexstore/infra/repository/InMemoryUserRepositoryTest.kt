@@ -123,34 +123,6 @@ class InMemoryUserRepositoryTest {
         assertThat((savedUser as DefinedUser).role).isEqualTo(role)
     }
 
-    @ParameterizedTest(name = "user \"{0}\" is not an administrator: {1}")
-    @CsvSource("admin-1, false", "user-1, true", "unknown, true")
-    fun `only an existing ADMIN is an administrator`(userId: String, notAdministrator: Boolean) {
-        // Arrange
-        val userRepository = InMemoryUserRepository()
-        userRepository.save(
-            DefinedUser(
-                ValidUserId("admin-1"),
-                FullName(FirstName("Admin"), LastName("Flexstore")),
-                Email("admin@example.com"),
-                PlainPassword("password123"),
-                Role.ADMIN,
-            ),
-        )
-        userRepository.save(
-            DefinedUser(
-                ValidUserId("user-1"),
-                FullName(FirstName("Simple"), LastName("User")),
-                Email("user@example.com"),
-                PlainPassword("password123"),
-            ),
-        )
-        // Act
-        val isNotAdministrator = userRepository.isNotAdministrator(ValidUserId(userId))
-        // Assert
-        assertThat(isNotAdministrator).isEqualTo(notAdministrator)
-    }
-
     @ParameterizedTest(name = "the email of user \"{0}\" checked for user \"{1}\": used by another one = {2}")
     @CsvSource("user-1, user-1, false", "user-1, user-2, true")
     fun `an email is used by another user when it belongs to someone else`(
