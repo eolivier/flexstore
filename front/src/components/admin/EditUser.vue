@@ -1,16 +1,12 @@
 <script setup lang="ts">
-  import FormActions from '@/components/form/FormActions.vue';
   import AdminBreadcrumbs from '@/components/admin/AdminBreadcrumbs.vue';
-  import { computed, nextTick, onMounted, ref } from 'vue';
+  import { computed, onMounted, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useSnackbar } from '@/composables/useSnackbar';
   import { useUsersStore, type EditedUser, type UserEdition } from '@/stores/users.store';
-  import UserRoleField from './UserRoleField.vue';
-  import AccountStatusField from './AccountStatusField.vue';
-  import AdminTwoFactorAuthenticationField from './AdminTwoFactorAuthenticationField.vue';
   import { useAuthStore } from '@/stores/auth.store';
   import type { AccountStatus } from '@/models/user';
-  import UserNameFields from '@/components/account/UserNameFields.vue';
+  import UserForm, { type ExistingAccount, type UserFormValues } from './UserForm.vue';
 
   const props = defineProps<{ id: string }>();
 
@@ -21,37 +17,30 @@
 
   // null while loading, false when the user cannot be read
   const editedUser = ref<EditedUser | null | false>(null);
-  const valid = ref(false);
   const saving = ref(false);
   const edition = ref<UserEdition | null>(null);
-
-  const rules = {
-    required: (v: string) => !!v || t('createUser.mandatoryField'),
-    email: (v: string) => /.+@.+\..+/.test(v) || t('createUser.invalidEmail'),
-  };
-
-  // The status is changed by its own request, only when the administrator chose another one
-  const status = ref<AccountStatus | null>(null);
   const storedStatus = ref<AccountStatus | null>(null);
-  // An administrator cannot change the status of their own account
-  const ownAccount = computed(() => authStore.currentUser?.id === props.id);
   // The two-factor authentication is disabled by its own request, from its own field
   const twoFactorEnabled = ref(false);
 
-  const formRef = ref<{ validate: () => Promise<unknown> } | null>(null);
+  const account = computed<ExistingAccount>(() => ({
+    id: props.id,
+    status: storedStatus.value,
+    twoFactorEnabled: twoFactorEnabled.value,
+    // An administrator cannot change the status of their own account
+    ownAccount: authStore.currentUser?.id === props.id,
+  }));
+  const errorMessage = computed(() =>
+    edition.value === 'emailUsed' || edition.value === 'error' ? t(`editUser.${edition.value}`) : undefined
+  );
 
   onMounted(async () => {
     const user = await usersStore.fetchUser(props.id);
     editedUser.value = user
       ? { firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role ?? 'USER' }
       : false;
-    status.value = storedStatus.value = user?.status ?? null;
+    storedStatus.value = user?.status ?? null;
     twoFactorEnabled.value = user?.twoFactorEnabled ?? false;
-    // A field that the stored user leaves empty
-    // (e.g. the last name of a one-word name split by the migration) is
-    // shown in error at once: otherwise the save button would stay disabled without telling why
-    await nextTick();
-    await formRef.value?.validate();
   });
 
   function onTwoFactorDisabled() {
@@ -59,13 +48,12 @@
     snackbar.success(t('editUser.twoFactorDisabled'));
   }
 
-  async function save() {
-    if (!valid.value || !editedUser.value) return;
+  async function save({ firstName, lastName, email, role, status }: UserFormValues) {
     saving.value = true;
-    edition.value = await usersStore.updateUser(props.id, editedUser.value);
-    if (edition.value === 'saved' && status.value && status.value !== storedStatus.value) {
-      const changed = await usersStore.changeStatus(props.id, status.value);
-      if (changed) storedStatus.value = status.value;
+    edition.value = await usersStore.updateUser(props.id, { firstName, lastName, email, role });
+    if (edition.value === 'saved' && status && status !== storedStatus.value) {
+      const changed = await usersStore.changeStatus(props.id, status);
+      if (changed) storedStatus.value = status;
       else edition.value = 'error';
     }
     saving.value = false;
@@ -84,36 +72,14 @@
       t('editUser.loadError')
     }}</v-alert>
     <v-card v-else class="pa-6">
-      <v-form ref="formRef" v-model="valid" @submit.prevent="save">
-        <UserNameFields v-model:first-name="editedUser.firstName" v-model:last-name="editedUser.lastName" />
-        <v-text-field
-          v-model="editedUser.email"
-          :label="t('createUser.email')"
-          :rules="[rules.required, rules.email]"
-          type="email"
-          prepend-inner-icon="mdi-email-outline"
-          class="mb-2"
-        />
-        <UserRoleField v-model="editedUser.role" />
-        <AccountStatusField v-if="status" v-model="status" :disabled="ownAccount" />
-        <AdminTwoFactorAuthenticationField
-          v-if="twoFactorEnabled"
-          :user-id="props.id"
-          :own-account="ownAccount"
-          @disabled="onTwoFactorDisabled"
-        />
-        <p class="text-caption text-medium-emphasis mb-4">{{ t('editUser.passwordNote') }}</p>
-        <v-alert
-          v-if="edition === 'emailUsed' || edition === 'error'"
-          type="error"
-          variant="tonal"
-          density="compact"
-          class="mb-4"
-        >
-          {{ t(`editUser.${edition}`) }}
-        </v-alert>
-        <FormActions class="mt-2" cancel-to="/admin/users" :loading="saving" :disabled="!valid" />
-      </v-form>
+      <UserForm
+        :initial="editedUser"
+        :account="account"
+        :saving="saving"
+        :error-message="errorMessage"
+        @submit="save"
+        @two-factor-disabled="onTwoFactorDisabled"
+      />
     </v-card>
   </v-container>
 </template>

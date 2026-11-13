@@ -1,31 +1,16 @@
 <script setup lang="ts">
-  import FormActions from '@/components/form/FormActions.vue';
   import AdminBreadcrumbs from '@/components/admin/AdminBreadcrumbs.vue';
-  import { onMounted, ref, watch } from 'vue';
+  import { onMounted, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useSnackbar } from '@/composables/useSnackbar';
   import { useProductsStore } from '@/stores/products.store.ts';
-  import type { ProductTexts, VatRate } from '@/models/product';
   import { textsOf, translationsOf } from '@/utils/productTranslations';
   import { useStocksStore } from '@/stores/stocks.store';
   import { useStockAlertsStore } from '@/stores/stockAlerts.store';
-  import ProductFields from './ProductFields.vue';
+  import ProductForm, { type ProductFormValues } from './ProductForm.vue';
   import ProductImageField from './ProductImageField.vue';
-  import StockField from './StockField.vue';
-  import AlertThresholdField from './AlertThresholdField.vue';
   import { normalizedSku } from '@/utils/sku';
-  import { promotionFormOf, promotionOf, type PromotionForm } from '@/utils/promotion';
-
-  interface EditedProduct {
-    sku: string;
-    texts: ProductTexts;
-    category: string;
-    price: string | null;
-    vatRate: VatRate;
-    promotion: PromotionForm;
-    stock: string;
-    alertThreshold: string;
-  }
+  import { promotionFormOf, promotionOf } from '@/utils/promotion';
 
   const props = defineProps<{ id: string }>();
 
@@ -39,8 +24,7 @@
   const stockAlertsStore = useStockAlertsStore();
 
   // null while loading, false when the product cannot be read
-  const editedProduct = ref<EditedProduct | null | false>(null);
-  const valid = ref(false);
+  const editedProduct = ref<ProductFormValues | null | false>(null);
   const saving = ref(false);
   // null before the first save
   const saved = ref<boolean | null>(null);
@@ -65,10 +49,10 @@
       : false;
   });
 
-  async function save() {
-    if (!valid.value || !editedProduct.value || editedProduct.value.price === null) return;
+  async function save(values: ProductFormValues) {
+    if (values.price === null || values.alertThreshold === null) return;
     saving.value = true;
-    const { stock, alertThreshold, sku, texts, category, price, vatRate, promotion } = editedProduct.value;
+    const { stock, alertThreshold, sku, texts, category, price, vatRate, promotion } = values;
     const productSave = await productsStore.updateProduct(props.id, {
       sku: normalizedSku(sku),
       category,
@@ -90,12 +74,6 @@
       snackbar.success(t('editProduct.saved'), { action: { text: t('nav.products'), to: '/admin/products' } });
     }
   }
-
-  // A SKU typed again may be free
-  watch(
-    () => editedProduct.value && editedProduct.value.sku,
-    () => (skuAlreadyUsed.value = false)
-  );
 </script>
 
 <template>
@@ -109,23 +87,14 @@
     <v-card v-else class="pa-6">
       <ProductImageField :product-id="id" />
       <v-divider class="mb-4" />
-      <v-form v-model="valid" @submit.prevent="save">
-        <ProductFields
-          v-model:sku="editedProduct.sku"
-          v-model:texts="editedProduct.texts"
-          v-model:category="editedProduct.category"
-          v-model:price="editedProduct.price"
-          v-model:vat-rate="editedProduct.vatRate"
-          v-model:promotion="editedProduct.promotion"
-          :sku-already-used="skuAlreadyUsed"
-        />
-        <StockField v-model="editedProduct.stock" />
-        <AlertThresholdField v-model="editedProduct.alertThreshold" />
-        <v-alert v-if="saved === false" type="error" variant="tonal" density="compact" class="my-4">{{
-          t('editProduct.error')
-        }}</v-alert>
-        <FormActions class="mt-2" cancel-to="/admin/products" :loading="saving" :disabled="!valid" />
-      </v-form>
+      <ProductForm
+        :initial="editedProduct"
+        :saving="saving"
+        :sku-already-used="skuAlreadyUsed"
+        :error-message="saved === false ? t('editProduct.error') : undefined"
+        @submit="save"
+        @sku-change="skuAlreadyUsed = false"
+      />
     </v-card>
   </v-container>
 </template>
