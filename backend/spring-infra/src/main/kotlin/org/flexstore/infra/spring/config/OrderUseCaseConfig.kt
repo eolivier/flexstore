@@ -92,9 +92,39 @@ open class OrderUseCaseConfig {
     @Bean
     open fun proposeShippingOptionsUseCase(
         cartRepository: CartRepository,
+        shippingMethodRepository: ShippingMethodRepository,
         shopSettingsRepository: ShopSettingsRepository,
         userRepository: UserRepository
-    ) = ProposeShippingOptionsUseCase(cartRepository, shopSettingsRepository, userRepository)
+    ) = ProposeShippingOptionsUseCase(cartRepository, shippingMethodRepository, shopSettingsRepository, userRepository)
+
+    @Bean
+    open fun listShippingMethodsUseCase(shippingMethodRepository: ShippingMethodRepository) =
+        ListShippingMethodsUseCase(shippingMethodRepository)
+
+    @Bean
+    open fun createShippingMethodUseCase(shippingMethodRepository: ShippingMethodRepository) =
+        CreateShippingMethodUseCase(shippingMethodRepository)
+
+    @Bean
+    open fun updateShippingMethodUseCase(shippingMethodRepository: ShippingMethodRepository) =
+        UpdateShippingMethodUseCase(shippingMethodRepository)
+
+    @Bean
+    open fun readEnabledShippingMethodUseCase(shippingMethodRepository: ShippingMethodRepository,
+                                              userRepository: UserRepository) =
+        ReadEnabledShippingMethodUseCase(shippingMethodRepository, userRepository)
+
+    @Bean
+    open fun shippingMethodUseCases(listShippingMethodsUseCase: ListShippingMethodsUseCase,
+                                    createShippingMethodUseCase: CreateShippingMethodUseCase,
+                                    updateShippingMethodUseCase: UpdateShippingMethodUseCase,
+                                    readEnabledShippingMethodUseCase: ReadEnabledShippingMethodUseCase) =
+        ShippingMethodUseCases(
+            listShippingMethodsUseCase,
+            createShippingMethodUseCase,
+            updateShippingMethodUseCase,
+            readEnabledShippingMethodUseCase
+        )
 
     @Bean
     open fun orderPlacementUseCases(keepOrderAddressesUseCase: KeepOrderAddressesUseCase,

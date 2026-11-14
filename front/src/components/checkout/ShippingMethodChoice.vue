@@ -1,13 +1,13 @@
 <script setup lang="ts">
   import { useI18n } from 'vue-i18n';
-  import type { JsonOrderAddressesShippingMethodEnum, JsonShippingOptions } from '@/generated';
+  import type { JsonShippingOptions } from '@/generated';
   import { formatPrice } from '@/utils/price';
 
   // The shipping method the customer chooses, each one at its cost for their cart
-  const shippingMethod = defineModel<JsonOrderAddressesShippingMethodEnum>({ required: true });
+  const shippingMethod = defineModel<string>({ required: true });
   defineProps<{ shippingOptions: JsonShippingOptions }>();
 
-  const { t, locale } = useI18n();
+  const { t, te, locale } = useI18n();
 </script>
 
 <template>
@@ -24,8 +24,8 @@
       <v-radio v-for="option in shippingOptions.options" :key="option.method" :value="option.method">
         <template #label>
           <div class="d-flex flex-wrap ga-2 align-baseline">
-            <span class="font-weight-medium">{{ t(`checkout.shipping.methods.${option.method}`) }}</span>
-            <span class="text-body-2 text-medium-emphasis">{{
+            <span class="font-weight-medium">{{ option.label }}</span>
+            <span v-if="te(`checkout.shipping.delays.${option.method}`)" class="text-body-2 text-medium-emphasis">{{
               t(`checkout.shipping.delays.${option.method}`)
             }}</span>
             <span class="font-weight-bold">

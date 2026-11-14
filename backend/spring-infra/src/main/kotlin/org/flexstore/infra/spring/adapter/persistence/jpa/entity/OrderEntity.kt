@@ -21,9 +21,11 @@ data class OrderEntity(
     @Column(name = "placed_at", nullable = false, updatable = false)
     val placedAt: Instant,
 
-    // STANDARD or EXPRESS, and its cost in the currency of the lines
-    @Column(name = "shipping_method", nullable = false, updatable = false)
-    val shippingMethod: String,
+    // The shipping method of the order (a row of the shipping_method table), and its cost in the currency of the
+    // lines, fixed when the order is placed
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "shipping_method_id", nullable = false, updatable = false)
+    val shippingMethod: ShippingMethodEntity,
 
     @Column(name = "shipping_cost", nullable = false, updatable = false)
     val shippingCost: BigDecimal,

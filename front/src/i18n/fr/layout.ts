@@ -21,6 +21,7 @@ export default {
     adminOrders: 'Commandes',
     salesDashboard: 'Ventes',
     discountCodes: 'Codes promo',
+    shippingMethods: 'Modes de livraison',
     settings: 'Paramètres',
     environment: 'Environnement',
     seller: 'Vendeur',

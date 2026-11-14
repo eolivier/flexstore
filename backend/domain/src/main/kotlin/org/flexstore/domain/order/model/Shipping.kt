@@ -1,30 +1,129 @@
 package org.flexstore.domain.order.model
 
-import org.flexstore.domain.cart.Cart
+import org.flexstore.domain.cart.*
 import org.flexstore.domain.discount.*
 import org.flexstore.domain.settings.FreeShippingThreshold
 import org.flexstore.domain.sharedkernel.*
+import org.ucop.domain.ErrorMessage
+import org.ucop.domain.PostConditionException
+import org.ucop.domain.PreConditionException
+import org.ucop.domain.entity.Actor
 import java.math.BigDecimal
 
-// How an order is shipped, chosen by the customer: standard (free from the threshold of the shop settings) or
-// express, at its own cost
-enum class ShippingMethod(private val cost: BigDecimal, private val label: ShippingLabel) {
-    STANDARD(BigDecimal("4.90"), ShippingLabel("Livraison standard")),
-    EXPRESS(BigDecimal("9.90"), ShippingLabel("Livraison express"));
+// The identity of a shipping method
+data class ShippingMethodId(override val id: Identity) : Identifiable() {
+    companion object {
+        fun nextId() = ShippingMethodId(Identity.nextId())
+    }
+}
 
-    // How the customer reads it, on the payment page and in the emails (in French, the language of the shop)
+// Whether the shipping of a method is free from the threshold of the shop settings (the standard one) or always
+// at its cost (the express one)
+enum class FreeShippingEligibility { ELIGIBLE, NOT_ELIGIBLE }
+
+// A method that is disabled is no longer proposed to the customers; the orders placed with it keep it
+enum class ShippingMethodStatus { ENABLED, DISABLED }
+
+// How an order is shipped, chosen by the customer among the methods the administrators manage: its name, its cost
+// and whether it is free from the threshold of the shop settings
+data class ShippingMethod(
+    val id: ShippingMethodId,
+    private val label: ShippingLabel,
+    val cost: Price,
+    val eligibility: FreeShippingEligibility,
+    val status: ShippingMethodStatus
+) {
+
+    // A new method, enabled
+    constructor(id: ShippingMethodId, label: ShippingLabel, cost: Price, eligibility: FreeShippingEligibility) :
+        this(id, label, cost, eligibility, ShippingMethodStatus.ENABLED)
+
+    // How the customer reads it, on the payment page and in the emails
     fun label() = label
+
+    fun isEnabled() = status == ShippingMethodStatus.ENABLED
+
+    fun isDisabled() = !isEnabled()
+
+    // A method has a name, and a cost that is not negative
+    fun isInvalid() = label.isBlank() || cost.amount.value.signum() < 0
 
     // What the shipping costs for the items ordered
     fun costFor(itemsPrice: Price, freeShippingThreshold: FreeShippingThreshold): Price {
-        val freeShipping = this == STANDARD && freeShippingThreshold.isReachedBy(itemsPrice)
-        val shippingCost = if (freeShipping) BigDecimal.ZERO else cost
+        val isFree = eligibility == FreeShippingEligibility.ELIGIBLE && freeShippingThreshold.isReachedBy(itemsPrice)
+        val shippingCost = if (isFree) BigDecimal.ZERO else cost.amount.value
         return Price(Amount(shippingCost), itemsPrice.currency)
+    }
+
+    companion object {
+        // The methods of a shop that has not changed them: the first two methods stored by the migration
+        val STANDARD = ShippingMethod(
+            ShippingMethodId(Identity("STANDARD")), ShippingLabel("Livraison standard"),
+            Price(Amount(BigDecimal("4.90")), Currency.EUR), FreeShippingEligibility.ELIGIBLE
+        )
+        val EXPRESS = ShippingMethod(
+            ShippingMethodId(Identity("EXPRESS")), ShippingLabel("Livraison express"),
+            Price(Amount(BigDecimal("9.90")), Currency.EUR), FreeShippingEligibility.NOT_ELIGIBLE
+        )
+    }
+}
+
+// The shipping methods, in the order given
+data class ShippingMethods(private val methods: List<ShippingMethod>) {
+
+    constructor(vararg methods: ShippingMethod) : this(methods.toList())
+
+    // Read-only view for the adapters (JSON)
+    fun asList(): List<ShippingMethod> = methods.toList()
+
+    // The methods the customers can choose
+    fun enabled() = ShippingMethods(methods.filter { it.isEnabled() })
+
+    // The same methods, the one with the id of the given method replaced by it
+    fun replacedBy(method: ShippingMethod) = ShippingMethods(methods.map { if (it.id == method.id) method else it })
+
+    fun hasEnabledMethod() = methods.any { it.isEnabled() }
+
+    fun hasNoEnabledMethod() = !hasEnabledMethod()
+
+    companion object {
+        // The shipping methods of a shop that has not changed them
+        fun byDefault() = ShippingMethods(ShippingMethod.STANDARD, ShippingMethod.EXPRESS)
     }
 }
 
 // The name of a shipping method, as the customer reads it
-data class ShippingLabel(val value: String)
+data class ShippingLabel(val value: String) {
+    fun isBlank() = value.isBlank()
+}
+
+// An administrator who adds a shipping method
+data class ShippingMethodCreation(val creator: Actor, val method: ShippingMethod)
+
+// An administrator who changes a shipping method: its name, its cost, whether it is free from the threshold, and
+// whether it is enabled
+data class ShippingMethodUpdate(val editor: Actor, val method: ShippingMethod)
+
+// An administrator who reads all the shipping methods, the disabled ones included
+data class ShippingMethodsReading(val reader: Actor)
+
+// A customer who chooses a shipping method to check out
+data class EnabledShippingMethodLookup(val customer: CartOwner.Customer, val shippingMethodId: ShippingMethodId)
+
+data class ShippingMethodAdministrationForbiddenException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage)
+data class InvalidShippingMethodException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage)
+data class ShippingMethodNotFoundException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage) {
+    constructor(message: String) : this(ErrorMessage(message))
+}
+data class ShippingMethodDisabledException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage)
+data class NoShippingMethodLeftException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage)
+data class ShippingMethodCreationFailed(override val errorMessage: ErrorMessage) :
+    PostConditionException(errorMessage)
 
 // Where the order goes, and how
 data class OrderDelivery(val addresses: OrderAddresses, val method: ShippingMethod)
@@ -93,9 +192,13 @@ data class ShippingOptions(
     fun asList(): List<ShippingOption> = options.toList()
 
     companion object {
-        // Every shipping method, at its cost for these items
-        fun forItems(itemsPrice: Price, freeShippingThreshold: FreeShippingThreshold): ShippingOptions {
-            val options = ShippingMethod.entries.map { method ->
+        // The shipping methods the customers can choose, at their cost for these items
+        fun forItems(
+            shippingMethods: ShippingMethods,
+            itemsPrice: Price,
+            freeShippingThreshold: FreeShippingThreshold
+        ): ShippingOptions {
+            val options = shippingMethods.enabled().asList().map { method ->
                 ShippingOption(method, method.costFor(itemsPrice, freeShippingThreshold))
             }
             return ShippingOptions(options, freeShippingThreshold)

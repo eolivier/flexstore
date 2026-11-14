@@ -52,7 +52,7 @@
       <span class="text-success">−{{ formatPrice(order.discountAmount, order.currency, locale) }}</span>
     </div>
     <div class="d-flex text-body-2 px-5 pt-2">
-      <span class="text-medium-emphasis">{{ t(`checkout.shipping.methods.${order.shippingMethod}`) }}</span>
+      <span class="text-medium-emphasis">{{ order.shippingLabel }}</span>
       <v-spacer />
       <span>{{
         order.shippingCost === 0

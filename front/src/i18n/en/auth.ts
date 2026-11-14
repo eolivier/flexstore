@@ -46,8 +46,7 @@ export default {
   },
   passwordReset: {
     forgotTitle: 'Forgot your password?',
-    forgotText:
-      'Enter the email of your account: we will send you a link, valid for 1 hour, to choose a new password.',
+    forgotText: 'Enter the email of your account: we will send you a link, valid for 1 hour, to choose a new password.',
     send: 'Send me a link',
     sent: 'If an account exists for {email}, we sent it a link. Open it within 1 hour to choose a new password.',
     sendError: 'The link could not be sent. Try again later.',
@@ -75,8 +74,7 @@ export default {
     enabledText: 'Two-factor authentication is enabled on your account.',
     enable: 'Enable',
     disable: 'Disable',
-    scanQrCode:
-      'Scan this QR code with your authenticator app (Google Authenticator, Microsoft Authenticator...).',
+    scanQrCode: 'Scan this QR code with your authenticator app (Google Authenticator, Microsoft Authenticator...).',
     manualSecret: 'Or type this secret manually:',
     confirmTitle: 'Confirm the enrollment',
     confirmText: 'Enter the first 6-digit code shown by your authenticator app.',
@@ -94,8 +92,7 @@ export default {
   },
   emailVerification: {
     pendingTitle: 'Verify your email address',
-    pendingText:
-      'We sent a link to {email}. Open it within 1 hour to verify your address. You can already order.',
+    pendingText: 'We sent a link to {email}. Open it within 1 hour to verify your address. You can already order.',
     resend: 'Send a new link',
     sent: 'A new link has been sent. It is valid for 1 hour.',
     sendError: 'The link could not be sent. Try again later.',

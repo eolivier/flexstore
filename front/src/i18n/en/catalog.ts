@@ -89,8 +89,7 @@ export default {
     signIn: 'Sign in to review a product you bought.',
     delete: 'Delete this review',
     deleteTitle: 'Delete the review of {name}?',
-    deleteMessage:
-      'The rating of the product will no longer count it. The customer may review the product again.',
+    deleteMessage: 'The rating of the product will no longer count it. The customer may review the product again.',
     deletionFailed: 'The review could not be deleted.',
     onlyBuyers: 'Once you have bought this product, you can review it here.',
     errors: {

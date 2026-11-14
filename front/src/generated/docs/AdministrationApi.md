@@ -8,6 +8,7 @@ All URIs are relative to *http://localhost:8080*
 |[**completeSellerSetup**](#completesellersetup) | **PUT** /api/admin/seller/setup | Finish the setup assistant of the shop - save the seller, then turn the seller setup of the settings on (ADMIN role)|
 |[**correctOrderTracking**](#correctordertracking) | **PUT** /api/admin/orders/{id}/tracking | Correct the carrier and the tracking number of an order that is shipped or delivered (ADMIN role)|
 |[**createDiscountCode**](#creatediscountcode) | **POST** /api/admin/discount-codes | Give a discount code (ADMIN role)|
+|[**createShippingMethod**](#createshippingmethod) | **POST** /api/admin/shipping-methods | Add a shipping method, enabled (ADMIN role)|
 |[**deleteDiscountCode**](#deletediscountcode) | **DELETE** /api/admin/discount-codes/{code} | Delete a discount code; the orders that used it keep their discount (ADMIN role)|
 |[**deleteReview**](#deletereview) | **DELETE** /api/admin/reviews/{id} | Delete a review; the rating of its product no longer counts it (ADMIN role)|
 |[**editShopPageContent**](#editshoppagecontent) | **PUT** /api/admin/shop-page-contents/{type} | Edit the content of a type of the shop pages, an empty text clears it (ADMIN role)|
@@ -18,10 +19,12 @@ All URIs are relative to *http://localhost:8080*
 |[**getEnvironment**](#getenvironment) | **GET** /api/admin/environment | Retrieve the environment variables of the shop, the secrets only as defined or not (ADMIN role)|
 |[**getSalesDashboard**](#getsalesdashboard) | **GET** /api/admin/sales-dashboard | Retrieve the revenue, the orders per day and the best sellers of the last 7, 30 or 90 days (ADMIN role)|
 |[**getSeller**](#getseller) | **GET** /api/admin/seller | Retrieve the seller written on the next invoices (ADMIN role)|
+|[**getShippingMethods**](#getshippingmethods) | **GET** /api/admin/shipping-methods | Retrieve all the shipping methods, the disabled ones included, the cheapest first (ADMIN role)|
 |[**proposeSku**](#proposesku) | **GET** /api/admin/products/sku-proposal | Propose a SKU free in the catalog, from the category and the name of a product (ADMIN role)|
 |[**publishLegalPage**](#publishlegalpage) | **PUT** /api/admin/legal-pages/{kind} | Publish a new version of a legal page; the versions before are kept (ADMIN role)|
 |[**refundOrder**](#refundorder) | **POST** /api/admin/orders/{id}/refund | Cancel a paid order before it is shipped, refund its payment and put its units back in stock (ADMIN role)|
 |[**updateSeller**](#updateseller) | **PUT** /api/admin/seller | Change the seller written on the next invoices; the invoices issued keep theirs (ADMIN role)|
+|[**updateShippingMethod**](#updateshippingmethod) | **PUT** /api/admin/shipping-methods/{id} | Change a shipping method; the orders already placed keep their shipping cost (ADMIN role)|
 
 # **advanceOrderStatus**
 > JsonAdminOrder advanceOrderStatus(jsonOrderStatusAdvance)
@@ -244,6 +247,58 @@ const { status, data } = await apiInstance.createDiscountCode(
 |**201** | The discount code given |  -  |
 |**400** | Invalid code, reduction or usage limit |  -  |
 |**409** | The code is already given |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **createShippingMethod**
+> JsonShippingMethod createShippingMethod(jsonNewShippingMethod)
+
+
+### Example
+
+```typescript
+import {
+    AdministrationApi,
+    Configuration,
+    JsonNewShippingMethod
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdministrationApi(configuration);
+
+let jsonNewShippingMethod: JsonNewShippingMethod; //
+
+const { status, data } = await apiInstance.createShippingMethod(
+    jsonNewShippingMethod
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **jsonNewShippingMethod** | **JsonNewShippingMethod**|  | |
+
+
+### Return type
+
+**JsonShippingMethod**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**201** | The shipping method added |  -  |
+|**400** | No name, or a negative cost |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -746,6 +801,49 @@ This endpoint does not have any parameters.
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **getShippingMethods**
+> Array<JsonShippingMethod> getShippingMethods()
+
+
+### Example
+
+```typescript
+import {
+    AdministrationApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdministrationApi(configuration);
+
+const { status, data } = await apiInstance.getShippingMethods();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**Array<JsonShippingMethod>**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The shipping methods |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **proposeSku**
 > JsonSkuProposal proposeSku()
 
@@ -967,6 +1065,63 @@ const { status, data } = await apiInstance.updateSeller(
 |**200** | The seller, now current |  -  |
 |**400** | A name or an address missing, a SIRET or a VAT number malformed |  -  |
 |**403** | Not an administrator |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **updateShippingMethod**
+> JsonShippingMethod updateShippingMethod(jsonShippingMethodChange)
+
+
+### Example
+
+```typescript
+import {
+    AdministrationApi,
+    Configuration,
+    JsonShippingMethodChange
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdministrationApi(configuration);
+
+let id: string; // (default to undefined)
+let jsonShippingMethodChange: JsonShippingMethodChange; //
+
+const { status, data } = await apiInstance.updateShippingMethod(
+    id,
+    jsonShippingMethodChange
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **jsonShippingMethodChange** | **JsonShippingMethodChange**|  | |
+| **id** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**JsonShippingMethod**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The shipping method changed |  -  |
+|**400** | No name, or a negative cost |  -  |
+|**404** | Unknown shipping method |  -  |
+|**409** | At least one shipping method must stay enabled |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

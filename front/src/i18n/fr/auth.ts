@@ -27,8 +27,7 @@ export default {
   },
   signUp: {
     title: 'Créer votre compte',
-    subtitle:
-      'Commandez et suivez vos commandes. Vous pouvez commander tout de suite, avant de vérifier votre email.',
+    subtitle: 'Commandez et suivez vos commandes. Vous pouvez commander tout de suite, avant de vérifier votre email.',
     password: 'Mot de passe (8 caractères minimum)',
     giveDetails: 'Ajouter dès maintenant mon téléphone et mon adresse (vous pourrez le faire plus tard)',
     phoneNumber: 'Numéro de téléphone',

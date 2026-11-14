@@ -90,6 +90,7 @@ class RestExceptionHandler {
         is NegativeStockException -> reply(HttpStatus.BAD_REQUEST, ex, "Negative stock")
         is NegativeAlertThresholdException -> reply(HttpStatus.BAD_REQUEST, ex, "Negative alert threshold")
         is InvalidDiscountCodeException -> reply(HttpStatus.BAD_REQUEST, ex, "Invalid discount code")
+        is InvalidShippingMethodException -> reply(HttpStatus.BAD_REQUEST, ex, "Invalid shipping method")
         is InvalidReviewException -> reply(HttpStatus.BAD_REQUEST, ex, "Invalid review")
         is InvalidSalesPeriodException -> reply(HttpStatus.BAD_REQUEST, ex, "Invalid period of sales")
 
@@ -118,6 +119,7 @@ class RestExceptionHandler {
         is LegalPagePublicationForbiddenException, is StockAlertForbiddenException,
         is SellerAdministrationForbiddenException, is ShopSettingsAdministrationForbiddenException,
         is DiscountCodeAdministrationForbiddenException, is ProductAdministrationForbiddenException,
+        is ShippingMethodAdministrationForbiddenException,
         is ProductImageForbiddenException, is StockChangeForbiddenException,
         is ReviewModerationForbiddenException, is OrderAdministrationForbiddenException,
         is CreditNoteForbiddenException, is SalesDashboardForbiddenException,
@@ -139,6 +141,7 @@ class RestExceptionHandler {
         is PasswordResetLinkUnknownException ->
             reply(HttpStatus.NOT_FOUND, ex, "Unknown link to choose a new password")
         is DiscountCodeNotFoundException -> reply(HttpStatus.NOT_FOUND, ex, "Unknown discount code")
+        is ShippingMethodNotFoundException -> reply(HttpStatus.NOT_FOUND, ex, "Unknown shipping method")
         is ReviewNotFoundException -> reply(HttpStatus.NOT_FOUND, ex, "Unknown review")
         is InvoiceNotFoundException -> reply(HttpStatus.NOT_FOUND, ex, "No invoice")
         is CreditNoteNotFoundException -> reply(HttpStatus.NOT_FOUND, ex, "No credit note")
@@ -170,6 +173,9 @@ class RestExceptionHandler {
         is RestockSubscriptionRefusedException, is RestockNotificationRefusedException ->
             reply(HttpStatus.CONFLICT, ex, "The product is in stock")
         is DiscountCodeAlreadyExistsException -> reply(HttpStatus.CONFLICT, ex, "Discount code already given")
+        // The customer chooses another method; the administrator keeps one method enabled
+        is ShippingMethodDisabledException -> reply(HttpStatus.CONFLICT, ex, "Shipping method no longer proposed")
+        is NoShippingMethodLeftException -> reply(HttpStatus.CONFLICT, ex, "At least one shipping method is needed")
         is ReviewAlreadyWrittenException -> reply(HttpStatus.CONFLICT, ex, "Product already reviewed")
         is OrderAlreadyPaidException -> reply(HttpStatus.CONFLICT, ex, "Order already paid")
         is AccountAlreadyVerifiedException -> reply(HttpStatus.CONFLICT, ex, "Email already verified")

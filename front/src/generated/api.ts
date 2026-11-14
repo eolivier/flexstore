@@ -160,7 +160,14 @@ export interface JsonAdminOrder {
      * The price of the lines, without the shipping
      */
     'itemsPrice': number;
-    'shippingMethod': JsonAdminOrderShippingMethodEnum;
+    /**
+     * The id of the shipping method the order was placed with
+     */
+    'shippingMethod': string;
+    /**
+     * The name of that shipping method, as the customer reads it
+     */
+    'shippingLabel': string;
     /**
      * 0 when the shipping is free
      */
@@ -203,12 +210,6 @@ export const JsonAdminOrderStatusEnum = {
 } as const;
 
 export type JsonAdminOrderStatusEnum = typeof JsonAdminOrderStatusEnum[keyof typeof JsonAdminOrderStatusEnum];
-export const JsonAdminOrderShippingMethodEnum = {
-    Standard: 'STANDARD',
-    Express: 'EXPRESS'
-} as const;
-
-export type JsonAdminOrderShippingMethodEnum = typeof JsonAdminOrderShippingMethodEnum[keyof typeof JsonAdminOrderShippingMethodEnum];
 
 /**
  * A product as the administrator edits it, with its translations in every language
@@ -615,6 +616,19 @@ export interface JsonNewReview {
     'rating': number;
     'comment': string;
 }
+export interface JsonNewShippingMethod {
+    'label': string;
+    'cost': number;
+    'freeShippingEligibility': JsonNewShippingMethodFreeShippingEligibilityEnum;
+}
+
+export const JsonNewShippingMethodFreeShippingEligibilityEnum = {
+    Eligible: 'ELIGIBLE',
+    NotEligible: 'NOT_ELIGIBLE'
+} as const;
+
+export type JsonNewShippingMethodFreeShippingEligibilityEnum = typeof JsonNewShippingMethodFreeShippingEligibilityEnum[keyof typeof JsonNewShippingMethodFreeShippingEligibilityEnum];
+
 export interface JsonOrder {
     'id': string;
     'placedAt': string;
@@ -624,7 +638,14 @@ export interface JsonOrder {
      * The price of the lines, without the shipping
      */
     'itemsPrice': number;
-    'shippingMethod': JsonOrderShippingMethodEnum;
+    /**
+     * The id of the shipping method the order was placed with
+     */
+    'shippingMethod': string;
+    /**
+     * The name of that shipping method, as the customer reads it
+     */
+    'shippingLabel': string;
     /**
      * 0 when the shipping is free
      */
@@ -662,20 +683,14 @@ export const JsonOrderStatusEnum = {
 } as const;
 
 export type JsonOrderStatusEnum = typeof JsonOrderStatusEnum[keyof typeof JsonOrderStatusEnum];
-export const JsonOrderShippingMethodEnum = {
-    Standard: 'STANDARD',
-    Express: 'EXPRESS'
-} as const;
-
-export type JsonOrderShippingMethodEnum = typeof JsonOrderShippingMethodEnum[keyof typeof JsonOrderShippingMethodEnum];
 
 export interface JsonOrderAddresses {
     'deliveryAddress': JsonPostalAddress;
     'billingAddress'?: JsonPostalAddress;
     /**
-     * STANDARD when not given
+     * The id of the shipping method chosen, STANDARD when not given (409 when it is disabled)
      */
-    'shippingMethod'?: JsonOrderAddressesShippingMethodEnum;
+    'shippingMethod'?: string;
     /**
      * The discount code entered, if any (404 when unknown, 410 when expired or used up)
      */
@@ -685,14 +700,6 @@ export interface JsonOrderAddresses {
      */
     'termsOfSaleId': string;
 }
-
-export const JsonOrderAddressesShippingMethodEnum = {
-    Standard: 'STANDARD',
-    Express: 'EXPRESS'
-} as const;
-
-export type JsonOrderAddressesShippingMethodEnum = typeof JsonOrderAddressesShippingMethodEnum[keyof typeof JsonOrderAddressesShippingMethodEnum];
-
 /**
  * The customer who placed an order; empty fields when their account cannot be read any more
  */
@@ -1025,21 +1032,70 @@ export interface JsonSeller {
     'registryCity': string;
     'socialNetworks'?: JsonSocialNetworks;
 }
+export interface JsonShippingMethod {
+    'id': string;
+    'label': string;
+    /**
+     * In euros, 0 or more
+     */
+    'cost': number;
+    /**
+     * ELIGIBLE - free from the threshold of the shop settings; NOT_ELIGIBLE - always at its cost
+     */
+    'freeShippingEligibility': JsonShippingMethodFreeShippingEligibilityEnum;
+    /**
+     * A disabled method is no longer proposed to the customers
+     */
+    'status': JsonShippingMethodStatusEnum;
+}
+
+export const JsonShippingMethodFreeShippingEligibilityEnum = {
+    Eligible: 'ELIGIBLE',
+    NotEligible: 'NOT_ELIGIBLE'
+} as const;
+
+export type JsonShippingMethodFreeShippingEligibilityEnum = typeof JsonShippingMethodFreeShippingEligibilityEnum[keyof typeof JsonShippingMethodFreeShippingEligibilityEnum];
+export const JsonShippingMethodStatusEnum = {
+    Enabled: 'ENABLED',
+    Disabled: 'DISABLED'
+} as const;
+
+export type JsonShippingMethodStatusEnum = typeof JsonShippingMethodStatusEnum[keyof typeof JsonShippingMethodStatusEnum];
+
+export interface JsonShippingMethodChange {
+    'label': string;
+    'cost': number;
+    'freeShippingEligibility': JsonShippingMethodChangeFreeShippingEligibilityEnum;
+    'status': JsonShippingMethodChangeStatusEnum;
+}
+
+export const JsonShippingMethodChangeFreeShippingEligibilityEnum = {
+    Eligible: 'ELIGIBLE',
+    NotEligible: 'NOT_ELIGIBLE'
+} as const;
+
+export type JsonShippingMethodChangeFreeShippingEligibilityEnum = typeof JsonShippingMethodChangeFreeShippingEligibilityEnum[keyof typeof JsonShippingMethodChangeFreeShippingEligibilityEnum];
+export const JsonShippingMethodChangeStatusEnum = {
+    Enabled: 'ENABLED',
+    Disabled: 'DISABLED'
+} as const;
+
+export type JsonShippingMethodChangeStatusEnum = typeof JsonShippingMethodChangeStatusEnum[keyof typeof JsonShippingMethodChangeStatusEnum];
+
 export interface JsonShippingOption {
-    'method': JsonShippingOptionMethodEnum;
+    /**
+     * The id of the shipping method
+     */
+    'method': string;
+    /**
+     * Its name, as the customer reads it
+     */
+    'label': string;
     /**
      * For the items of the cart; 0 when free
      */
     'cost': number;
 }
-
-export const JsonShippingOptionMethodEnum = {
-    Standard: 'STANDARD',
-    Express: 'EXPRESS'
-} as const;
-
-export type JsonShippingOptionMethodEnum = typeof JsonShippingOptionMethodEnum[keyof typeof JsonShippingOptionMethodEnum];
-
 export interface JsonShippingOptions {
     'options': Array<JsonShippingOption>;
     /**
@@ -2118,6 +2174,46 @@ export const AdministrationApiAxiosParamCreator = function (configuration?: Conf
         },
         /**
          * 
+         * @summary Add a shipping method, enabled (ADMIN role)
+         * @param {JsonNewShippingMethod} jsonNewShippingMethod 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createShippingMethod: async (jsonNewShippingMethod: JsonNewShippingMethod, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'jsonNewShippingMethod' is not null or undefined
+            assertParamExists('createShippingMethod', 'jsonNewShippingMethod', jsonNewShippingMethod)
+            const localVarPath = `/api/admin/shipping-methods`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonNewShippingMethod, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Delete a discount code; the orders that used it keep their discount (ADMIN role)
          * @param {string} code 
          * @param {*} [options] Override http request option.
@@ -2494,6 +2590,40 @@ export const AdministrationApiAxiosParamCreator = function (configuration?: Conf
             };
         },
         /**
+         * 
+         * @summary Retrieve all the shipping methods, the disabled ones included, the cheapest first (ADMIN role)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getShippingMethods: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/shipping-methods`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * The first three letters of the category, the first two words of the name (eight characters at most each, without accents), then the first number from 0001 that no product has: CLO-ORGANIC-COTTON-0001
          * @summary Propose a SKU free in the catalog, from the category and the name of a product (ADMIN role)
          * @param {string} category 
@@ -2667,6 +2797,50 @@ export const AdministrationApiAxiosParamCreator = function (configuration?: Conf
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * 
+         * @summary Change a shipping method; the orders already placed keep their shipping cost (ADMIN role)
+         * @param {string} id 
+         * @param {JsonShippingMethodChange} jsonShippingMethodChange 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateShippingMethod: async (id: string, jsonShippingMethodChange: JsonShippingMethodChange, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('updateShippingMethod', 'id', id)
+            // verify required parameter 'jsonShippingMethodChange' is not null or undefined
+            assertParamExists('updateShippingMethod', 'jsonShippingMethodChange', jsonShippingMethodChange)
+            const localVarPath = `/api/admin/shipping-methods/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonShippingMethodChange, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -2728,6 +2902,19 @@ export const AdministrationApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.createDiscountCode(jsonNewDiscountCode, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdministrationApi.createDiscountCode']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Add a shipping method, enabled (ADMIN role)
+         * @param {JsonNewShippingMethod} jsonNewShippingMethod 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async createShippingMethod(jsonNewShippingMethod: JsonNewShippingMethod, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonShippingMethod>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createShippingMethod(jsonNewShippingMethod, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdministrationApi.createShippingMethod']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -2860,6 +3047,18 @@ export const AdministrationApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * 
+         * @summary Retrieve all the shipping methods, the disabled ones included, the cheapest first (ADMIN role)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getShippingMethods(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<JsonShippingMethod>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getShippingMethods(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdministrationApi.getShippingMethods']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * The first three letters of the category, the first two words of the name (eight characters at most each, without accents), then the first number from 0001 that no product has: CLO-ORGANIC-COTTON-0001
          * @summary Propose a SKU free in the catalog, from the category and the name of a product (ADMIN role)
          * @param {string} category 
@@ -2914,6 +3113,20 @@ export const AdministrationApiFp = function(configuration?: Configuration) {
             const localVarOperationServerBasePath = operationServerMap['AdministrationApi.updateSeller']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
+        /**
+         * 
+         * @summary Change a shipping method; the orders already placed keep their shipping cost (ADMIN role)
+         * @param {string} id 
+         * @param {JsonShippingMethodChange} jsonShippingMethodChange 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async updateShippingMethod(id: string, jsonShippingMethodChange: JsonShippingMethodChange, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonShippingMethod>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateShippingMethod(id, jsonShippingMethodChange, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdministrationApi.updateShippingMethod']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
     }
 };
 
@@ -2964,6 +3177,16 @@ export const AdministrationApiFactory = function (configuration?: Configuration,
          */
         createDiscountCode(jsonNewDiscountCode: JsonNewDiscountCode, options?: RawAxiosRequestConfig): AxiosPromise<JsonDiscountCode> {
             return localVarFp.createDiscountCode(jsonNewDiscountCode, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Add a shipping method, enabled (ADMIN role)
+         * @param {JsonNewShippingMethod} jsonNewShippingMethod 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createShippingMethod(jsonNewShippingMethod: JsonNewShippingMethod, options?: RawAxiosRequestConfig): AxiosPromise<JsonShippingMethod> {
+            return localVarFp.createShippingMethod(jsonNewShippingMethod, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -3065,6 +3288,15 @@ export const AdministrationApiFactory = function (configuration?: Configuration,
             return localVarFp.getSeller(options).then((request) => request(axios, basePath));
         },
         /**
+         * 
+         * @summary Retrieve all the shipping methods, the disabled ones included, the cheapest first (ADMIN role)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getShippingMethods(options?: RawAxiosRequestConfig): AxiosPromise<Array<JsonShippingMethod>> {
+            return localVarFp.getShippingMethods(options).then((request) => request(axios, basePath));
+        },
+        /**
          * The first three letters of the category, the first two words of the name (eight characters at most each, without accents), then the first number from 0001 that no product has: CLO-ORGANIC-COTTON-0001
          * @summary Propose a SKU free in the catalog, from the category and the name of a product (ADMIN role)
          * @param {string} category 
@@ -3106,6 +3338,17 @@ export const AdministrationApiFactory = function (configuration?: Configuration,
          */
         updateSeller(jsonSeller: JsonSeller, options?: RawAxiosRequestConfig): AxiosPromise<JsonSeller> {
             return localVarFp.updateSeller(jsonSeller, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Change a shipping method; the orders already placed keep their shipping cost (ADMIN role)
+         * @param {string} id 
+         * @param {JsonShippingMethodChange} jsonShippingMethodChange 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateShippingMethod(id: string, jsonShippingMethodChange: JsonShippingMethodChange, options?: RawAxiosRequestConfig): AxiosPromise<JsonShippingMethod> {
+            return localVarFp.updateShippingMethod(id, jsonShippingMethodChange, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -3158,6 +3401,17 @@ export class AdministrationApi extends BaseAPI {
      */
     public createDiscountCode(jsonNewDiscountCode: JsonNewDiscountCode, options?: RawAxiosRequestConfig) {
         return AdministrationApiFp(this.configuration).createDiscountCode(jsonNewDiscountCode, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Add a shipping method, enabled (ADMIN role)
+     * @param {JsonNewShippingMethod} jsonNewShippingMethod 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public createShippingMethod(jsonNewShippingMethod: JsonNewShippingMethod, options?: RawAxiosRequestConfig) {
+        return AdministrationApiFp(this.configuration).createShippingMethod(jsonNewShippingMethod, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -3270,6 +3524,16 @@ export class AdministrationApi extends BaseAPI {
     }
 
     /**
+     * 
+     * @summary Retrieve all the shipping methods, the disabled ones included, the cheapest first (ADMIN role)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getShippingMethods(options?: RawAxiosRequestConfig) {
+        return AdministrationApiFp(this.configuration).getShippingMethods(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * The first three letters of the category, the first two words of the name (eight characters at most each, without accents), then the first number from 0001 that no product has: CLO-ORGANIC-COTTON-0001
      * @summary Propose a SKU free in the catalog, from the category and the name of a product (ADMIN role)
      * @param {string} category 
@@ -3314,6 +3578,18 @@ export class AdministrationApi extends BaseAPI {
      */
     public updateSeller(jsonSeller: JsonSeller, options?: RawAxiosRequestConfig) {
         return AdministrationApiFp(this.configuration).updateSeller(jsonSeller, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Change a shipping method; the orders already placed keep their shipping cost (ADMIN role)
+     * @param {string} id 
+     * @param {JsonShippingMethodChange} jsonShippingMethodChange 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public updateShippingMethod(id: string, jsonShippingMethodChange: JsonShippingMethodChange, options?: RawAxiosRequestConfig) {
+        return AdministrationApiFp(this.configuration).updateShippingMethod(id, jsonShippingMethodChange, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

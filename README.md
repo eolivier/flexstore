@@ -32,7 +32,8 @@ This repo is meant to be a learning vehicle and a ready-to-fork base for real pr
 - Public pages in French and English (`/fr/...`, `/en/...`, each linking to its other version), pre-rendered for the search engines; the legal notice, the terms of sale and the privacy policy are written by the administrators (see Administration); the accounts of the shop on the social networks (Facebook, Instagram, X, TikTok, YouTube, Twitch) are shown when the seller gave them
 
 **Orders** (sign-in required)
-- Checkout page: the customer chooses the delivery address and the billing address (the same by default) among their addresses or enters another one (with its recipient, the customer by default, maybe a company), which is added to their addresses; they choose the shipping method (standard 4.90 €, express 9.90 €; the standard shipping is free from a threshold of items, 50 € by default), may enter a discount code and must accept the current version of the terms of sale (if they are published again meanwhile, the customer reads them again)
+- Checkout page: the customer chooses the delivery address and the billing address (the same by default) among their addresses or enters another one (with its recipient, the customer by default, maybe a company), which is added to their addresses; they choose the shipping method among the ones offered (standard 4.90 € and express 9.90 € at first; a method that is eligible, the standard one at first, is free from a threshold of items, 50 € by default), may enter a discount code and must accept the current version of the terms of sale (if they are published again meanwhile, the customer reads them again)
+- Shipping methods: an administrator adds shipping methods, changes their name, their cost and whether they are free from the threshold, and enables or disables them; a disabled method is no longer offered at the checkout, at least one method stays enabled, and the orders placed with a method keep their shipping cost
 - Discount codes: an administrator gives a code (3 to 30 upper-case letters and digits) that takes a percentage or an amount off the items of an order, with an expiry date and a usage limit; the checkout previews what the code takes off; the orders that used a code keep their discount, even when the code is deleted
 - Place an order from the cart: the order refers to both addresses, keeps the name and the price of the products, the shipping, the discount and the accepted terms of sale, and awaits its payment
 - Pay an order with Stripe Checkout (the card is entered on the page of Stripe, never on the shop), or with a simulated payment without a Stripe key; when the customer comes back from Stripe, the shop asks Stripe whether the order was paid, in case its notification did not arrive; once paid, the cart is emptied, the invoice is issued and a confirmation email is sent to the customer (can be turned off in the administration settings)
@@ -65,6 +66,7 @@ This repo is meant to be a learning vehicle and a ready-to-fork base for real pr
 - Users: list with their role, create with a role, edit first name/last name/email/role, change the status of the account (active, suspended, locked, disabled), delete, turn off their two-factor authentication
 - Products: list, create (a free SKU is proposed from the category and the name), edit name/description/category/price in each language, and a promotion: a percentage off the price, the regular price shown struck through; images and stocks (see Shop)
 - Orders: list the orders of all the customers, move each one to its next status (paid, processing, shipped, delivered; the payment moves an order awaiting it), give or correct the tracking, refund, download the invoice and the credit note of any order
+- Shipping methods: add, change, enable and disable (see Orders)
 - Discount codes: give and delete (see Orders)
 - Seller: the company that sells and is written on the invoices (name, address, SIRET, SIREN, VAT number, legal form, share capital, registry, contact, social networks); a setup assistant asks for it until the shop is set up
 - Legal pages: write the legal notice, the terms of sale and the privacy policy; each publication is a new version, the ones before are kept
@@ -278,7 +280,7 @@ npm run gen:api
 | `GET` | `/api/restock-subscriptions` | signed in | The ids of the products the customer waits for |
 | `PUT` / `DELETE` | `/api/restock-subscriptions/{productId}` | signed in | Ask to be notified by email when a product out of stock is back (once per product; `404` unknown product, `409` product in stock) / stop waiting for it |
 | `GET` | `/api/loyalty` | signed in | The loyalty statement of the customer: the total of points and a line of points for each paid order |
-| `GET` | `/api/orders/shipping-options` | signed in | The shipping methods with their cost for the cart |
+| `GET` | `/api/orders/shipping-options` | signed in | The enabled shipping methods with their cost for the cart |
 | `GET` | `/api/orders/discount-preview` | signed in | What a discount code takes off the cart (`404` unknown code, `410` expired or used up) |
 | `POST` | `/api/orders/{id}/payment/verification` | signed in | Ask the payment provider whether the order was paid, and pay it here if so |
 | `GET` | `/api/orders/{id}/invoice`, `/api/orders/{id}/credit-note` | signed in | The invoice of a paid order, the credit note of a refunded one (PDF) |
@@ -287,6 +289,8 @@ npm run gen:api
 | `PUT` | `/api/admin/orders/{id}/tracking` | `ADMIN` | Correct the tracking of a shipped or delivered order |
 | `POST` | `/api/admin/orders/{id}/refund` | `ADMIN` | Cancel a paid order not yet shipped, refund its payment, put its units back in stock, issue its credit note (`409` not refundable, `502` the provider refused) |
 | `GET` | `/api/admin/orders/{id}/invoice`, `/api/admin/orders/{id}/credit-note` | `ADMIN` | The invoice and the credit note of any order (PDF) |
+| `GET` / `POST` | `/api/admin/shipping-methods` | `ADMIN` | List all the shipping methods / add one (`400` no name or negative cost) |
+| `PUT` | `/api/admin/shipping-methods/{id}` | `ADMIN` | Change a shipping method, enable or disable it (`404` unknown, `409` the last enabled method) |
 | `GET` / `POST` | `/api/admin/discount-codes` | `ADMIN` | List / give a discount code (`400` invalid, `409` already given) |
 | `DELETE` | `/api/admin/discount-codes/{code}` | `ADMIN` | Delete a discount code |
 | `GET` | `/api/admin/stocks/low` | `ADMIN` | The stocks at or under the alert threshold of their product |

@@ -57,13 +57,11 @@ export default {
     termsOfSale: {
       accept: "J'ai lu et j'accepte les conditions générales de vente",
       read: 'Lire les conditions générales de vente',
-      loadError:
-        "Les conditions générales de vente n'ont pas pu être chargées. Rechargez la page pour commander.",
+      loadError: "Les conditions générales de vente n'ont pas pu être chargées. Rechargez la page pour commander.",
     },
     errors: {
       emptyCart: 'Votre panier est vide.',
-      refused:
-        'Votre compte ne permet pas de commander (suspendu, verrouillé ou désactivé). Contactez la boutique.',
+      refused: 'Votre compte ne permet pas de commander (suspendu, verrouillé ou désactivé). Contactez la boutique.',
       incompleteAddress: "Complétez l'adresse de livraison et l'adresse de facturation.",
       invalidRequest: 'La boutique a refusé la commande : {reason}',
       outOfStock: "Un produit de votre panier n'a plus assez d'unités en stock : modifiez sa quantité.",

@@ -68,7 +68,9 @@ class PaymentServiceTest : WithAssertions {
                 orderQueryUseCases,
                 sendEmailUseCase,
                 readShopSettingsUseCase,
-                ProposeShippingOptionsUseCase(cartRepository, shopSettingsRepository, userRepository)
+                ProposeShippingOptionsUseCase(
+                    cartRepository, InMemoryShippingMethodRepository(), shopSettingsRepository, userRepository
+                )
             )
         val sellerRepository = InMemorySellerRepository(testSeller)
         val issueInvoiceUseCase = IssueInvoiceUseCase(orderRepository, invoiceRepository, sellerRepository)

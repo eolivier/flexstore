@@ -43,9 +43,7 @@
       :close-label="t('checkout.discount.remove')"
       @click:close="appliedDiscount = null"
     >
-      {{ appliedDiscount.code }} : −{{
-        formatPrice(appliedDiscount.amountOff, appliedDiscount.currency, locale)
-      }}
+      {{ appliedDiscount.code }} : −{{ formatPrice(appliedDiscount.amountOff, appliedDiscount.currency, locale) }}
     </v-chip>
     <div v-else class="d-flex align-start ga-2">
       <v-text-field

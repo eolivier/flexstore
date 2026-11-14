@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.*
 class OrderController(
     private val orderUseCases: OrderUseCases,
     private val orderCheckoutService: OrderCheckoutService,
+    private val shippingMethodUseCases: ShippingMethodUseCases,
     private val actorResolutionService: ActorResolutionService
 ) {
 
@@ -47,7 +48,9 @@ class OrderController(
     @Transactional(rollbackFor = [Exception::class])
     fun placeOrder(@AuthenticationPrincipal jwt: Jwt, @RequestBody addresses: JsonOrderAddresses): JsonOrder {
         val customer = CartOwner.Customer(customer(jwt))
-        val checkout = Checkout(customer, addresses.toOrderDelivery(), addresses.toTermsOfSaleAcceptance())
+        val shippingMethod = shippingMethodUseCases.getEnabled(customer, addresses.toShippingMethodId())
+        val delivery = addresses.toOrderDelivery(shippingMethod)
+        val checkout = Checkout(customer, delivery, addresses.toTermsOfSaleAcceptance())
         val discountCode = addresses.toEnteredDiscountCode()
         val placedOrder = orderCheckoutService.placeOrder(actorOf(jwt), checkout, discountCode)
         return JsonOrder(placedOrder, orderUseCases.paymentDelay(actorOf(jwt)))
