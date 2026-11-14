@@ -20,6 +20,9 @@ export const guidedTourSections: GuidedTourSection[] = [
   { icon: 'mdi-tune-variant', messageKey: 'guidedTour.sections.preferences', focus: '/account/preferences', menu: 'account' },
 ];
 
+// The colors of the confetti of the end of the tour
+export const confettiColors = ['#f44336', '#ff9800', '#ffeb3b', '#4caf50', '#2196f3', '#9c27b0', '#e91e63'];
+
 // NONE: the account holds no choice yet (the tour is shown then)
 export type AccountGuidedTour = 'shown' | 'hidden' | 'none';
 

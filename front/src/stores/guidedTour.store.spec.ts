@@ -85,6 +85,28 @@ describe('guidedTour.store', () => {
     expect(store.presentedMenu).toBe('');
   });
 
+  it('should celebrate the end of the tour, then stop', async () => {
+    // Arrange
+    vi.useFakeTimers();
+    const store = await storeSignedInWith('NONE');
+    // Act
+    await store.finish(false);
+    // Assert
+    expect(store.isCelebrating).toBe(true);
+    vi.advanceTimersByTime(5000);
+    expect(store.isCelebrating).toBe(false);
+    vi.useRealTimers();
+  });
+
+  it('should not celebrate when skipped', async () => {
+    // Arrange
+    const store = await storeSignedInWith('NONE');
+    // Act
+    store.skip();
+    // Assert
+    expect(store.isCelebrating).toBe(false);
+  });
+
   it('should hide the tour in the account when finished with "Do not show again"', async () => {
     // Arrange
     const store = await storeSignedInWith('NONE');

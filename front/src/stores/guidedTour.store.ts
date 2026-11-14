@@ -4,6 +4,8 @@ import { useAuthStore } from '@/stores/auth.store';
 import { type AccountGuidedTour, type GuidedTourMenu, guidedTourOfAccount } from '@/utils/guidedTour';
 import { jsonRequest } from '@/utils/jsonRequest';
 
+const CELEBRATION_DURATION = 4500;
+
 // The guided tour of the shop, shown to a signed-in customer until they hide it ("Do not show again") or
 // until they skip it (it comes back at their next sign-in then). Hiding it is a preference of their account,
 // which they change again in their preferences
@@ -13,6 +15,8 @@ export const useGuidedTourStore = defineStore('guidedTour', () => {
   const isOpen = ref(false);
   // The menu that the tour keeps open to present one of its entries (none: an empty text)
   const presentedMenu = ref<GuidedTourMenu | ''>('');
+  // The confetti that celebrate the end of the tour are shown for a few seconds
+  const isCelebrating = ref(false);
   const isShown = computed(() => accountGuidedTour.value !== 'hidden');
 
   async function readFromAccount(): Promise<AccountGuidedTour> {
@@ -42,6 +46,7 @@ export const useGuidedTourStore = defineStore('guidedTour', () => {
       accountGuidedTour.value = 'none';
       isOpen.value = false;
       presentedMenu.value = '';
+      isCelebrating.value = false;
     },
     { immediate: true }
   );
@@ -56,10 +61,16 @@ export const useGuidedTourStore = defineStore('guidedTour', () => {
     presentedMenu.value = '';
   }
 
+  function celebrate() {
+    isCelebrating.value = true;
+    setTimeout(() => (isCelebrating.value = false), CELEBRATION_DURATION);
+  }
+
   // The customer reached the end of the tour, and may ask not to see it again
   async function finish(doNotShowAgain: boolean) {
     isOpen.value = false;
     presentedMenu.value = '';
+    celebrate();
     if (doNotShowAgain) await recordInAccount('hidden');
   }
 
@@ -69,5 +80,5 @@ export const useGuidedTourStore = defineStore('guidedTour', () => {
     isOpen.value = shown && isShown.value;
   }
 
-  return { isOpen, isShown, presentedMenu, presentMenu, skip, finish, choose };
+  return { isOpen, isCelebrating, isShown, presentedMenu, presentMenu, skip, finish, choose };
 });
