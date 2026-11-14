@@ -41,7 +41,7 @@ class ChangeCartItemQuantityUseCaseTest : WithAssertions {
         // Act
         useCase.unfold(request)
         // Assert
-        assertThat(cartRepository.load(owner).findBy(itemId)?.quantity).isEqualTo(Quantity(4))
+        assertThat(cartRepository.load(owner).quantityOf(itemId)).isEqualTo(Quantity(4))
     }
 
     @Test
@@ -71,7 +71,7 @@ class ChangeCartItemQuantityUseCaseTest : WithAssertions {
         // Act
         useCase.unfold(changeQuantityRequest(otherOwner, itemId, Quantity(0)))
         // Assert
-        assertThat(cartRepository.load(owner).findBy(itemId)?.quantity).isEqualTo(Quantity(1))
+        assertThat(cartRepository.load(owner).quantityOf(itemId)).isEqualTo(Quantity(1))
     }
 
     @Test

@@ -54,7 +54,8 @@ class CartTest : WithAssertions {
         // Act
         val updatedCart = cart.add(catalogProduct, Quantity(2))
         // Assert
-        assertThat(updatedCart.findBy(item1.itemId)?.product).isEqualTo(catalogProduct)
+        val updatedItem = item1.copy(product = catalogProduct, quantity = Quantity(2))
+        assertThat(updatedCart.items.asList()).containsExactly(updatedItem)
         assertThat(updatedCart.items.totalPrice().amount.value).isEqualByComparingTo("24")
     }
 
@@ -76,7 +77,7 @@ class CartTest : WithAssertions {
         // Act
         val updatedCart = cart.changeQuantity(item1.itemId, Quantity(12))
         // Assert
-        assertThat(updatedCart.findBy(item1.itemId)?.quantity).isEqualTo(Quantity(12))
+        assertThat(updatedCart.quantityOf(item1.itemId)).isEqualTo(Quantity(12))
     }
 
     @ParameterizedTest(name = "a quantity of {0} removes the item")

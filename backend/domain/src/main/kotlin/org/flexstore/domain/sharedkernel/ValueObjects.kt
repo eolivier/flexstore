@@ -46,6 +46,11 @@ data class Quantity(val value: Int) {
     fun isZero() = value == 0
     fun isZeroOrNegative() = value <= 0
     fun isAtLeast(other: Quantity) = value >= other.value
+
+    companion object {
+        // The quantity of what is not there
+        fun none() = Quantity(0)
+    }
 }
 data class Identity(val value: String) {
     companion object {

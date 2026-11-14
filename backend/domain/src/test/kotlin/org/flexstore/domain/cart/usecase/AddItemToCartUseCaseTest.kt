@@ -41,7 +41,7 @@ class AddItemToCartUseCaseTest : WithAssertions {
         // Act
         useCase.unfold(request)
         // Assert
-        val item = cartRepository.load(owner).findBy(product.productId) as CartItem
+        val item = cartRepository.load(owner).itemOf(product.productId) as CartItem
         assertThat(item.product).isEqualTo(product)
         assertThat(item.quantity).isEqualTo(Quantity(2))
     }
@@ -54,7 +54,7 @@ class AddItemToCartUseCaseTest : WithAssertions {
         useCase.unfold(addItemRequest(owner, product.productId, Quantity(3)))
         // Assert
         assertThat(cartRepository.load(owner).items.asList()).hasSize(1)
-        val cartItem = cartRepository.load(owner).findBy(product.productId) as CartItem
+        val cartItem = cartRepository.load(owner).itemOf(product.productId) as CartItem
         assertThat(cartItem.quantity).isEqualTo(Quantity(3))
     }
 
@@ -108,7 +108,7 @@ class AddItemToCartUseCaseTest : WithAssertions {
         // Act
         useCase.unfold(addItemRequest(visitor, product.productId, Quantity(1)))
         // Assert
-        assertThat(cartRepository.load(visitor).findBy(product.productId)).isInstanceOf(CartItem::class.java)
+        assertThat(cartRepository.load(visitor).itemOf(product.productId)).isInstanceOf(CartItem::class.java)
     }
 
     @ParameterizedTest

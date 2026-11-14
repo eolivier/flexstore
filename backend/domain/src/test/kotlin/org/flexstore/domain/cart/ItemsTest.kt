@@ -31,13 +31,25 @@ class ItemsTest : WithAssertions {
     }
 
     @Test
-    fun `should find a stored item by its id`() {
+    fun `should know the quantity of a stored item by its id`() {
         // Arrange
         val cartItems = CartItems(storedLamp)
         // Act
-        val item = cartItems.findBy(ItemId(Identity("item-1")))
+        val quantity = cartItems.quantityOf(ItemId(Identity("item-1")))
         // Assert
-        assertThat(item).isEqualTo(storedLamp)
+        assertThat(quantity).isEqualTo(storedLamp.quantity)
+    }
+
+    @Test
+    fun `an item that is not stored should have no quantity`() {
+        // Arrange
+        val cartItems = CartItems(storedLamp)
+        // Act
+        val unknownItemId = ItemId(Identity("unknown"))
+        // Assert
+        assertThat(cartItems.contains(unknownItemId)).isFalse()
+        assertThat(cartItems.doesNotContain(unknownItemId)).isTrue()
+        assertThat(cartItems.quantityOf(unknownItemId)).isEqualTo(Quantity.none())
     }
 
     @Test
@@ -61,5 +73,38 @@ class ItemsTest : WithAssertions {
         val totalPrice = items.totalPrice()
         // Assert
         assertThat(totalPrice.amount.value).isEqualByComparingTo("47")
+    }
+
+    @Test
+    fun `should contain a product that has an item`() {
+        // Arrange
+        val items = Items(storedLamp, DraftItem(mug, Quantity(1)))
+        // Act
+        val unknownProductId = ProductId(Identity("unknown"))
+        // Assert
+        assertThat(items.contains(mug.productId)).isTrue()
+        assertThat(items.doesNotContain(mug.productId)).isFalse()
+        assertThat(items.doesNotContain(unknownProductId)).isTrue()
+    }
+
+    @Test
+    fun `an item of a product that is not there should be no item`() {
+        // Arrange
+        val items = Items(storedLamp)
+        // Act
+        val item = items.itemOf(mug.productId)
+        // Assert
+        assertThat(item).isEqualTo(NoItem)
+    }
+
+    @Test
+    fun `should have at least the quantity of a product only when the product is there`() {
+        // Arrange
+        val items = Items(storedLamp)
+        val lampQuantity = storedLamp.quantity
+        // Assert
+        assertThat(items.hasAtLeast(storedLamp.product.productId, lampQuantity)).isTrue()
+        assertThat(items.hasAtLeast(storedLamp.product.productId, lampQuantity.increase())).isFalse()
+        assertThat(items.hasAtLeast(mug.productId, Quantity.none())).isFalse()
     }
 }

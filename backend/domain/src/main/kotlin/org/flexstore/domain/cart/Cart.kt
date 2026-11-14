@@ -41,13 +41,18 @@ data class Cart(val owner: CartOwner, val items: Items) {
 
     // The items of the other cart become new items of this cart
     fun mergeWith(other: Cart): Cart = other.items.fold(this) { cart, product, quantity ->
-        val currentQuantity = cart.items.quantityOf(product.productId)
-        if (currentQuantity?.isAtLeast(quantity) == true) cart else cart.add(product, quantity)
+        if (cart.items.hasAtLeast(product.productId, quantity)) cart else cart.add(product, quantity)
     }
 
-    fun findBy(itemId: ItemId): CartItem? = items.findBy(itemId)
+    fun contains(itemId: ItemId) = items.contains(itemId)
 
-    fun findBy(productId: ProductId): Item? = items.findBy(productId)
+    fun doesNotContain(itemId: ItemId) = items.doesNotContain(itemId)
+
+    // None when the item is not in the cart
+    fun quantityOf(itemId: ItemId): Quantity = items.quantityOf(itemId)
+
+    // NoItem when the product is not in the cart
+    fun itemOf(productId: ProductId): Item = items.itemOf(productId)
 
     fun isEmpty() = items.isEmpty()
 
