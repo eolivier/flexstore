@@ -122,7 +122,9 @@ data class InvalidDiscountCodeException(override val errorMessage: ErrorMessage)
 data class DiscountCodeAlreadyExistsException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
 data class DiscountCodeNotFoundException(override val errorMessage: ErrorMessage) :
-    PreConditionException(errorMessage)
+    PreConditionException(errorMessage) {
+    constructor(message: String) : this(ErrorMessage(message))
+}
 data class DiscountCodeExpiredException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
 data class DiscountCodeUsedUpException(override val errorMessage: ErrorMessage) :

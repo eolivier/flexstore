@@ -59,7 +59,9 @@ data class InvoicePdf(val content: ByteArray) {
 }
 
 data class InvoiceNotFoundException(override val errorMessage: ErrorMessage) :
-    PreConditionException(errorMessage)
+    PreConditionException(errorMessage) {
+    constructor(message: String) : this(ErrorMessage(message))
+}
 data class InvoiceAlreadyIssuedException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
 data class OrderNotPaidException(override val errorMessage: ErrorMessage) : PreConditionException(errorMessage)
@@ -69,7 +71,9 @@ data class CreditNoteIssuance(val issuer: Actor, val creditNoteIssue: CreditNote
 data class CreditNoteForbiddenException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
 data class CreditNoteNotFoundException(override val errorMessage: ErrorMessage) :
-    PreConditionException(errorMessage)
+    PreConditionException(errorMessage) {
+    constructor(message: String) : this(ErrorMessage(message))
+}
 data class CreditNoteAlreadyIssuedException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
 data class OrderNotRefundedException(override val errorMessage: ErrorMessage) :

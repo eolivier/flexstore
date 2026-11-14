@@ -72,7 +72,9 @@ data class EmailVerificationLink(
 }
 
 data class VerificationLinkUnknownException(override val errorMessage: ErrorMessage) :
-    PreConditionException(errorMessage)
+    PreConditionException(errorMessage) {
+    constructor(message: String) : this(ErrorMessage(message))
+}
 data class VerificationLinkExpiredException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
 data class AccountAlreadyVerifiedException(override val errorMessage: ErrorMessage) :

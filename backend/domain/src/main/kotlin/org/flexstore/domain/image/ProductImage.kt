@@ -70,7 +70,9 @@ data class ProductImageForbiddenException(override val errorMessage: ErrorMessag
 data class UnreadableImageException(override val errorMessage: ErrorMessage) : NominalException(errorMessage)
 data class ImageTooLargeException(override val errorMessage: ErrorMessage) : PreConditionException(errorMessage)
 data class ProductImageNotFoundException(override val errorMessage: ErrorMessage) :
-    PreConditionException(errorMessage)
+    PreConditionException(errorMessage) {
+    constructor(message: String) : this(ErrorMessage(message))
+}
 data class ProductImageStorageFailed(override val errorMessage: ErrorMessage) :
     PostConditionException(errorMessage)
 

@@ -7,7 +7,6 @@ import org.flexstore.domain.sharedkernel.Page
 import org.flexstore.domain.sharedkernel.PageRequest
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.order.model.OrderNotFoundException
-import org.ucop.domain.ErrorMessage
 
 interface OrderRepository {
 
@@ -17,7 +16,7 @@ interface OrderRepository {
 
     // The order, which a precondition has checked to exist
     fun get(orderId: OrderId): Order =
-        findById(orderId) ?: throw OrderNotFoundException(ErrorMessage("Order $orderId not found."))
+        findById(orderId) ?: throw OrderNotFoundException("Order $orderId not found.")
 
     fun orderExists(orderId: OrderId): Boolean
 
