@@ -8,6 +8,7 @@
   import ProductRating from './ProductRating.vue';
   import ReviewForm from './ReviewForm.vue';
   import ReviewList from './ReviewList.vue';
+  import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
 
   // The section of the reviews of a product: its rating, the reviews, and the form, offered to the signed-in
   // customers who bought the product and did not review it yet
@@ -24,9 +25,7 @@
 
   const rating = computed(() => reviewsStore.ratingOf(props.productId));
   const signedIn = computed(() => authStore.isAuthenticated);
-  const canReview = computed(
-    () => reviewsStore.eligibility === 'CAN_REVIEW' && outcome.value !== 'alreadyReviewed'
-  );
+  const canReview = computed(() => reviewsStore.eligibility === 'CAN_REVIEW' && outcome.value !== 'alreadyReviewed');
 
   watch(
     () => props.productId,
@@ -71,13 +70,11 @@
       class="mb-6"
       @delete="(review) => (reviewToDelete = review)"
     />
-    <v-alert v-if="deletionFailed" type="error" variant="tonal" density="compact" class="mb-4">{{
+    <FeedbackAlert v-if="deletionFailed" type="error" compact class="mb-4">{{
       t('reviews.deletionFailed')
-    }}</v-alert>
+    }}</FeedbackAlert>
 
-    <v-alert v-if="outcome === 'added'" type="success" variant="tonal" density="compact">{{
-      t('reviews.thanks')
-    }}</v-alert>
+    <FeedbackAlert v-if="outcome === 'added'" type="success" compact>{{ t('reviews.thanks') }}</FeedbackAlert>
     <ReviewForm v-else-if="signedIn && canReview" :submitting="submitting" :outcome="outcome" @submit="submit" />
     <p
       v-else-if="signedIn && reviewsStore.eligibility === 'NOT_BOUGHT'"
@@ -94,7 +91,9 @@
       {{ t('reviews.errors.alreadyReviewed') }}
     </p>
     <p v-else-if="!signedIn" class="text-body-2 text-medium-emphasis">
-      <router-link :to="{ path: '/login', query: { redirect: `/products/${productId}` } }" class="text-secondary">{{ t('reviews.signIn') }}</router-link>
+      <router-link :to="{ path: '/login', query: { redirect: `/products/${productId}` } }" class="text-secondary">{{
+        t('reviews.signIn')
+      }}</router-link>
     </p>
     <ConfirmDialog
       :model-value="reviewToDelete !== null"

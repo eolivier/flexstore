@@ -10,6 +10,7 @@
   import AddressEditDialog from './AddressEditDialog.vue';
   import ConfirmDialog from '@/components/ConfirmDialog.vue';
   import AccountBreadcrumbs from '@/components/account/AccountBreadcrumbs.vue';
+  import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
 
   // The addresses of the signed-in user: they add, edit and remove them. The orders keep their own addresses
   const addressBookStore = useAddressBookStore();
@@ -87,9 +88,9 @@
     </div>
 
     <LoadError v-if="addressBookStore.loadError" :message="t('addressBook.loadError')" class="mt-6" />
-    <v-alert v-if="removalError" type="error" variant="tonal" class="mt-6">
+    <FeedbackAlert v-if="removalError" type="error" class="mt-6">
       {{ t('addressBook.errors.removal') }}
-    </v-alert>
+    </FeedbackAlert>
 
     <v-skeleton-loader v-if="addressBookStore.loading" type="card" class="rounded-xl mt-6" />
     <EmptyState

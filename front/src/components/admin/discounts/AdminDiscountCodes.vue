@@ -9,6 +9,7 @@
   import { formatPrice } from '@/utils/price';
   import NewDiscountCodeForm from './NewDiscountCodeForm.vue';
   import { formatDate } from '@/utils/date';
+  import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
 
   // The discount codes: the administrator gives new ones, and deletes them
   const discountCodesStore = useDiscountCodesStore();
@@ -51,9 +52,9 @@
     <h1 class="text-h4 font-weight-bold mb-6">{{ t('discountCodes.title') }}</h1>
     <NewDiscountCodeForm />
     <LoadError v-if="discountCodesStore.loadError" :message="t('discountCodes.loadError')" class="mb-4" />
-    <v-alert v-if="deletionFailed" type="error" variant="tonal" class="mb-4">
+    <FeedbackAlert v-if="deletionFailed" type="error" class="mb-4">
       {{ t('discountCodes.deletionError') }}
-    </v-alert>
+    </FeedbackAlert>
     <v-data-table
       :headers="headers"
       :items="discountCodesStore.discountCodes"

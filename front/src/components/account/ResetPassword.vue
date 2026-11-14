@@ -4,6 +4,7 @@
   import { useRoute } from 'vue-router';
   import { usePasswordResetStore, type PasswordReset } from '@/stores/passwordReset.store';
   import PasswordField from './PasswordField.vue';
+  import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
 
   const { t } = useI18n();
   const route = useRoute();
@@ -58,9 +59,9 @@
             :rules="[rules.required, rules.passwordLength]"
             class="mb-4"
           />
-          <v-alert v-if="result" type="error" density="compact" class="mb-4">
+          <FeedbackAlert v-if="result" type="error" compact class="mb-4">
             {{ t(`passwordReset.${result}Error`) }}
-          </v-alert>
+          </FeedbackAlert>
           <v-btn type="submit" color="primary" size="large" block :loading="saving" :disabled="!valid">
             {{ t('passwordReset.save') }}
           </v-btn>

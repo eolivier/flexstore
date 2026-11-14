@@ -6,6 +6,7 @@
   import { useEnvironmentStore } from '@/stores/environment.store';
   import { groupedByCategory, requiredButUndefined } from '@/utils/environment';
   import EnvironmentCategoryCard from './EnvironmentCategoryCard.vue';
+  import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
 
   // The environment variables of the back end: which are defined, the secrets only as defined or not
   const { t } = useI18n();
@@ -26,10 +27,10 @@
     <LoadError v-if="environmentStore.loadError" :message="t('environment.loadError')" />
     <v-skeleton-loader v-else-if="!environmentStore.loaded" type="table" class="rounded-xl" />
     <template v-else>
-      <v-alert v-if="missingCount > 0" type="error" variant="tonal" class="mb-4">
+      <FeedbackAlert v-if="missingCount > 0" type="error" class="mb-4">
         {{ t('environment.missing', { n: missingCount }) }}
-      </v-alert>
-      <v-alert v-else type="success" variant="tonal" class="mb-4">{{ t('environment.complete') }}</v-alert>
+      </FeedbackAlert>
+      <FeedbackAlert v-else type="success" class="mb-4">{{ t('environment.complete') }}</FeedbackAlert>
       <EnvironmentCategoryCard
         v-for="group in groups"
         :key="group.category"

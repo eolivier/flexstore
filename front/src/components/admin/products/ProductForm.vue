@@ -6,6 +6,7 @@
   import ProductFields from './ProductFields.vue';
   import StockField from './StockField.vue';
   import AlertThresholdField from './AlertThresholdField.vue';
+  import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
 
   export interface ProductFormValues {
     sku: string;
@@ -67,9 +68,7 @@
     />
     <StockField v-model="stock" />
     <AlertThresholdField v-if="initial.alertThreshold !== null" v-model="alertThreshold" />
-    <v-alert v-if="errorMessage" type="error" variant="tonal" density="compact" class="my-4">{{
-      errorMessage
-    }}</v-alert>
+    <FeedbackAlert v-if="errorMessage" type="error" compact class="my-4">{{ errorMessage }}</FeedbackAlert>
     <FormActions class="mt-2" cancel-to="/admin/products" :loading="saving" :disabled="!valid">
       <template v-if="submitLabel">{{ submitLabel }}</template>
     </FormActions>

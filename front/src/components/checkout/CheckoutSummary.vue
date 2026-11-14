@@ -3,6 +3,7 @@
   import { useI18n } from 'vue-i18n';
   import { useCartStore } from '@/stores/cart.store';
   import { formatPrice } from '@/utils/price';
+  import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
 
   // The summary of the cart, with the shipping chosen (null while it is not known), and the button that places
   // the order; error: why the last attempt failed, as told to the customer
@@ -30,11 +31,7 @@
     return formatPrice(props.shippingCost, currency.value, locale.value);
   });
   const total = computed(() =>
-    formatPrice(
-      itemsPrice.value - props.discountAmount + (props.shippingCost ?? 0),
-      currency.value,
-      locale.value
-    )
+    formatPrice(itemsPrice.value - props.discountAmount + (props.shippingCost ?? 0), currency.value, locale.value)
   );
 </script>
 
@@ -62,7 +59,7 @@
       <v-spacer />
       <span class="text-h5 font-weight-bold">{{ total }}</span>
     </div>
-    <v-alert v-if="error" type="error" variant="tonal" density="compact" class="mb-4">{{ error }}</v-alert>
+    <FeedbackAlert v-if="error" type="error" compact class="mb-4">{{ error }}</FeedbackAlert>
     <v-btn
       color="secondary"
       size="large"

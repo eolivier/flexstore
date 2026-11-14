@@ -3,6 +3,7 @@
   import { useI18n } from 'vue-i18n';
   import { useUsersStore } from '@/stores/users.store';
   import FormDialog from '@/components/layout/FormDialog.vue';
+  import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
 
   const props = defineProps<{ userId: string }>();
   const open = defineModel<boolean>({ required: true });
@@ -33,9 +34,9 @@
     :text="t('editUser.twoFactorDisableText')"
     @submit="confirm"
   >
-    <v-alert v-if="error" type="error" variant="tonal" density="compact" class="mb-4">{{
+    <FeedbackAlert v-if="error" type="error" compact class="mb-4">{{
       t('editUser.twoFactorDisableError')
-    }}</v-alert>
+    }}</FeedbackAlert>
     <template #actions>
       <v-btn type="submit" color="error" :loading="loading">{{ t('editUser.twoFactorDisableConfirm') }}</v-btn>
     </template>

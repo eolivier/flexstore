@@ -8,6 +8,7 @@
   import UserRoleField from './UserRoleField.vue';
   import AccountStatusField from './AccountStatusField.vue';
   import AdminTwoFactorAuthenticationField from './AdminTwoFactorAuthenticationField.vue';
+  import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
 
   export interface UserFormValues {
     firstName: string;
@@ -105,9 +106,9 @@
       />
       <p class="text-caption text-medium-emphasis mb-4">{{ t('editUser.passwordNote') }}</p>
     </template>
-    <v-alert v-if="errorMessage" type="error" variant="tonal" density="compact" class="mb-4">
+    <FeedbackAlert v-if="errorMessage" type="error" compact class="mb-4">
       {{ errorMessage }}
-    </v-alert>
+    </FeedbackAlert>
     <FormActions class="mt-2" cancel-to="/admin/users" :loading="saving" :disabled="!valid">
       <template v-if="submitLabel">{{ submitLabel }}</template>
     </FormActions>

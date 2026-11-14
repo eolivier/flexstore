@@ -5,6 +5,7 @@
   import type { PostalAddress } from '@/models/account';
   import RecipientFields from '@/components/account/RecipientFields.vue';
   import PostalAddressFields from '@/components/account/PostalAddressFields.vue';
+  import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
 
   // Adds a new address, or edits a copy of an existing one: it is saved only when the user confirms.
   // The address starts blank to add one, or as a copy of the edited one
@@ -39,9 +40,9 @@
       <v-form v-model="valid" @submit.prevent="emit('save', editedAddress)">
         <RecipientFields v-model="editedAddress" purpose="delivery" />
         <PostalAddressFields v-model="editedAddress" />
-        <v-alert v-if="error" type="error" variant="tonal" density="compact" class="mb-4">
+        <FeedbackAlert v-if="error" type="error" compact class="mb-4">
           {{ t(`addressBook.errors.${error}`) }}
-        </v-alert>
+        </FeedbackAlert>
         <FormActions :loading="saving" :disabled="valid === false" @cancel="open = false" />
       </v-form>
     </v-card>

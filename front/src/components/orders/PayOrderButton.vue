@@ -4,6 +4,7 @@
   import type { JsonOrder } from '@/generated';
   import { useOrdersStore } from '@/stores/orders.store';
   import { openExternalPage } from '@/utils/navigation';
+  import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
 
   // Pays an order awaiting its payment, on the checkout page of the payment provider
   const props = defineProps<{ order: JsonOrder }>();
@@ -33,16 +34,10 @@
 
 <template>
   <div>
-    <v-alert v-if="paymentError" type="error" variant="tonal" density="compact" class="mb-3">
+    <FeedbackAlert v-if="paymentError" type="error" compact class="mb-3">
       {{ t('orders.paymentError') }}
-    </v-alert>
-    <v-btn
-      color="secondary"
-      size="large"
-      prepend-icon="mdi-credit-card-outline"
-      :loading="starting"
-      @click="pay"
-    >
+    </FeedbackAlert>
+    <v-btn color="secondary" size="large" prepend-icon="mdi-credit-card-outline" :loading="starting" @click="pay">
       {{ t('orders.pay') }}
     </v-btn>
   </div>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import { useI18n } from 'vue-i18n';
+  import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
 
   const { t } = useI18n();
 
@@ -8,10 +9,10 @@
 </script>
 
 <template>
-  <v-alert type="error" variant="tonal">
+  <FeedbackAlert type="error">
     {{ message }}
     <template v-if="retryable" #append>
       <v-btn variant="text" data-test="load-error-retry" @click="emit('retry')">{{ t('retry') }}</v-btn>
     </template>
-  </v-alert>
+  </FeedbackAlert>
 </template>

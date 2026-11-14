@@ -6,6 +6,7 @@
   import { formatPrice } from '@/utils/price';
   import { orderItemsCount, orderNumber, placedOn } from '@/utils/order';
   import AccountBreadcrumbs from '@/components/account/AccountBreadcrumbs.vue';
+  import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
 
   // The page the customer comes back to after paying:
   // the payment provider may confirm the payment a little later
@@ -42,9 +43,9 @@
         <template #date>{{ placedOn(order, locale) }}</template>
       </i18n-t>
 
-      <v-alert v-if="awaitingPayment" type="info" variant="tonal" class="mb-6 text-start">
+      <FeedbackAlert v-if="awaitingPayment" type="info" class="mb-6 text-start">
         {{ t('orders.awaitingPaymentConfirmation') }}
-      </v-alert>
+      </FeedbackAlert>
 
       <v-sheet
         rounded="lg"
@@ -65,7 +66,7 @@
       </div>
     </v-card>
 
-    <v-alert v-else type="error" variant="tonal">{{ t('orders.orderLoadError') }}</v-alert>
+    <FeedbackAlert v-else type="error">{{ t('orders.orderLoadError') }}</FeedbackAlert>
   </v-container>
 </template>
 

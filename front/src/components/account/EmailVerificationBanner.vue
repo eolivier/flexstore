@@ -3,6 +3,7 @@
   import { useI18n } from 'vue-i18n';
   import { useAuthStore } from '@/stores/auth.store';
   import ResendVerificationEmailButton from './ResendVerificationEmailButton.vue';
+  import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
 
   const { t } = useI18n();
   const authStore = useAuthStore();
@@ -12,11 +13,11 @@
 </script>
 
 <template>
-  <v-alert v-if="pendingVerification" type="info" variant="tonal" icon="mdi-email-check-outline" class="mb-6">
+  <FeedbackAlert v-if="pendingVerification" type="info" icon="mdi-email-check-outline" class="mb-6">
     <div class="font-weight-bold mb-1">{{ t('emailVerification.pendingTitle') }}</div>
     <p class="text-body-2 mb-3">
       {{ t('emailVerification.pendingText', { email: authStore.currentUser?.email }) }}
     </p>
     <ResendVerificationEmailButton />
-  </v-alert>
+  </FeedbackAlert>
 </template>
