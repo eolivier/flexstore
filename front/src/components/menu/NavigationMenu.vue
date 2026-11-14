@@ -41,7 +41,12 @@
   <v-app-bar flat border="b" color="surface" height="72">
     <LoadingBar />
     <v-container class="d-flex align-center py-0">
-      <v-app-bar-nav-icon class="d-md-none mr-1" :aria-label="t('nav.openMenu')" @click="drawer = !drawer" />
+      <v-app-bar-nav-icon
+        class="d-md-none mr-1"
+        :aria-label="t('nav.openMenu')"
+        data-guided-tour="shop"
+        @click="drawer = !drawer"
+      />
       <router-link to="/" class="d-flex text-decoration-none mr-8">
         <BrandLogo />
       </router-link>

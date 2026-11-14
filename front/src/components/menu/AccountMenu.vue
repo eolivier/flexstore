@@ -14,7 +14,13 @@
 <template>
   <v-menu location="bottom end">
     <template #activator="{ props: activator }">
-      <v-btn v-bind="activator" icon="mdi-account-circle-outline" variant="text" :aria-label="t('nav.account')" />
+      <v-btn
+        v-bind="activator"
+        icon="mdi-account-circle-outline"
+        variant="text"
+        :aria-label="t('nav.account')"
+        data-guided-tour="account"
+      />
     </template>
     <v-list density="comfortable" min-width="240">
       <v-list-item v-if="signedIn" :subtitle="email">

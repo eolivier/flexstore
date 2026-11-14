@@ -48,6 +48,23 @@ describe('GuidedTour.vue', () => {
     wrapper.unmount();
   });
 
+  it('should darken the page and bring the presented part into focus', async () => {
+    // Arrange
+    const { wrapper } = await openedTour();
+    const cart = document.createElement('button');
+    cart.dataset.guidedTour = 'cart';
+    cart.getBoundingClientRect = () => ({ top: 10, left: 10, width: 40, height: 40 }) as DOMRect;
+    document.body.appendChild(cart);
+    // Assert: the first section has no visible part, the whole page is darkened
+    expect(document.body.querySelector('[data-testid="guided-tour-hole"]')).toBeNull();
+    // Act
+    button('Next')?.click();
+    await flushPromises();
+    // Assert
+    expect(document.body.querySelector('[data-testid="guided-tour-hole"]')).not.toBeNull();
+    wrapper.unmount();
+  });
+
   it('should go on to the next section and back', async () => {
     // Arrange
     const { wrapper } = await openedTour();

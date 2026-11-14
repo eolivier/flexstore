@@ -1,17 +1,19 @@
-// A section of the shop that the guided tour presents: its icon and the prefix of its texts (title and text)
+// A section of the shop that the guided tour presents: its icon, the prefix of its texts (title and text) and
+// the name of the part of the page it brings into focus (the value of its `data-guided-tour` attribute)
 export interface GuidedTourSection {
   icon: string;
   messageKey: string;
+  focus: string;
 }
 
 // The sections of the shop the guided tour goes through, in order
 export const guidedTourSections: GuidedTourSection[] = [
-  { icon: 'mdi-view-grid-outline', messageKey: 'guidedTour.sections.catalog' },
-  { icon: 'mdi-cart-outline', messageKey: 'guidedTour.sections.cart' },
-  { icon: 'mdi-truck-outline', messageKey: 'guidedTour.sections.orders' },
-  { icon: 'mdi-heart-outline', messageKey: 'guidedTour.sections.wishlist' },
-  { icon: 'mdi-star-circle-outline', messageKey: 'guidedTour.sections.loyalty' },
-  { icon: 'mdi-tune-variant', messageKey: 'guidedTour.sections.preferences' },
+  { icon: 'mdi-view-grid-outline', messageKey: 'guidedTour.sections.catalog', focus: 'shop' },
+  { icon: 'mdi-cart-outline', messageKey: 'guidedTour.sections.cart', focus: 'cart' },
+  { icon: 'mdi-truck-outline', messageKey: 'guidedTour.sections.orders', focus: 'account' },
+  { icon: 'mdi-heart-outline', messageKey: 'guidedTour.sections.wishlist', focus: 'account' },
+  { icon: 'mdi-star-circle-outline', messageKey: 'guidedTour.sections.loyalty', focus: 'account' },
+  { icon: 'mdi-tune-variant', messageKey: 'guidedTour.sections.preferences', focus: 'account' },
 ];
 
 // NONE: the account holds no choice yet (the tour is shown then)
