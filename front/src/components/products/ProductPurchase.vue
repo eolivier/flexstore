@@ -1,10 +1,11 @@
 <script setup lang="ts">
   import { useI18n } from 'vue-i18n';
   import QuantityStepper from '@/components/cart/QuantityStepper.vue';
+  import NotifyRestockButton from './NotifyRestockButton.vue';
 
   // The quantity to order and the button that adds it to the cart, with what the cart already holds
   // stock: the units of the product, null while unknown
-  defineProps<{ stock: number | null; adding: boolean; quantityInCart: number }>();
+  defineProps<{ productId: string | undefined; stock: number | null; adding: boolean; quantityInCart: number }>();
   defineEmits<{ (e: 'add'): void }>();
   const quantity = defineModel<number>({ required: true });
 
@@ -29,6 +30,8 @@
       {{ t('products.addToCart') }}
     </v-btn>
   </div>
+
+  <NotifyRestockButton v-if="stock === 0" :product-id="productId" class="mb-3" />
 
   <div class="text-body-2 text-medium-emphasis mb-8">
     <v-icon icon="mdi-cart-outline" size="16" class="mr-1" />

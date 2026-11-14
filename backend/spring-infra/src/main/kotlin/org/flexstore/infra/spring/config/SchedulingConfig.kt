@@ -2,7 +2,9 @@ package org.flexstore.infra.spring.config
 
 import org.flexstore.domain.cart.AbandonedCartService
 import org.flexstore.domain.order.service.UnpaidOrderService
+import org.flexstore.domain.restock.RestockNotificationService
 import org.flexstore.infra.spring.adapter.scheduling.AbandonedCartScheduler
+import org.flexstore.infra.spring.adapter.scheduling.RestockNotificationScheduler
 import org.flexstore.infra.spring.adapter.scheduling.UnpaidOrderScheduler
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
@@ -23,4 +25,8 @@ open class SchedulingConfig {
     @Bean
     open fun abandonedCartScheduler(abandonedCartService: AbandonedCartService) =
         AbandonedCartScheduler(abandonedCartService)
+
+    @Bean
+    open fun restockNotificationScheduler(restockNotificationService: RestockNotificationService) =
+        RestockNotificationScheduler(restockNotificationService)
 }

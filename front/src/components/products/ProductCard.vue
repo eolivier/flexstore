@@ -4,6 +4,7 @@
   import type { Product } from '@/models/product';
   import { categoryInfo } from './categories';
   import StockBadge from './StockBadge.vue';
+  import NotifyRestockButton from './NotifyRestockButton.vue';
   import ProductVisual from './ProductVisual.vue';
   import ProductPrice from './ProductPrice.vue';
   import ProductRating from '@/components/reviews/ProductRating.vue';
@@ -61,6 +62,7 @@
         >
           {{ t('products.addToCart') }}
         </v-btn>
+        <NotifyRestockButton v-if="stock === 0" :product-id="product.id" class="mt-2" />
       </div>
     </v-card-text>
 

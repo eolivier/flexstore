@@ -32,6 +32,10 @@ data class Stock(val productId: ProductId, val quantity: StockQuantity) {
 
     fun doesNotCover(quantity: Quantity) = !covers(quantity)
 
+    fun isOutOfStock() = quantity.isEmpty()
+
+    fun isInStock() = !isOutOfStock()
+
     // An order paid after it was cancelled takes back what is left of its units, as another order may have
     // taken the last ones in the meantime
     fun availableOf(quantity: Quantity) = this.quantity.availableOf(quantity)

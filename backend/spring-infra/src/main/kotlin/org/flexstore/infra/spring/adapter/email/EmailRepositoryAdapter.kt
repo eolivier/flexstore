@@ -29,6 +29,8 @@ class EmailRepositoryAdapter(
 
     override fun send(email: AbandonedCartReminderEmail) = emailSender.send(email)
 
+    override fun send(email: RestockEmail) = emailSender.send(email)
+
     override fun save(verification: EmailVerification) {
         val verificationEntity = UserTokenEntity(
             Identity.nextId().value,

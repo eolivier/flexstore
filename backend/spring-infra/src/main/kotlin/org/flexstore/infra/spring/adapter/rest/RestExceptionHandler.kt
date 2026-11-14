@@ -13,6 +13,7 @@ import org.flexstore.domain.image.*
 import org.flexstore.domain.legal.*
 import org.flexstore.domain.pagecontent.*
 import org.flexstore.domain.product.model.*
+import org.flexstore.domain.restock.*
 import org.flexstore.domain.review.*
 import org.flexstore.domain.sales.*
 import org.flexstore.domain.environment.*
@@ -125,7 +126,8 @@ class RestExceptionHandler {
         is SellerReadingForbiddenException, is ReviewReadingForbiddenException,
         is LegalPageReadingForbiddenException, is ProductImageReadingForbiddenException,
         is ShopSettingsReadingForbiddenException, is ShopPageContentReadingForbiddenException,
-        is ProductReadingForbiddenException, is StockReadingForbiddenException ->
+        is ProductReadingForbiddenException, is StockReadingForbiddenException,
+        is RestockNotificationForbiddenException ->
             reply(HttpStatus.FORBIDDEN, ex, "Forbidden")
         // Only a customer who bought the product can review it
         is ReviewNotAllowedException -> reply(HttpStatus.FORBIDDEN, ex, "Review not allowed")
@@ -164,6 +166,9 @@ class RestExceptionHandler {
         // Not 422, which tells the front that the cart is empty
         is OutOfStockException, is StockReservationFailed ->
             reply(HttpStatus.CONFLICT, ex, "Not enough units in stock")
+        // The product is in stock: the customer can buy it, there is nothing to wait for
+        is RestockSubscriptionRefusedException, is RestockNotificationRefusedException ->
+            reply(HttpStatus.CONFLICT, ex, "The product is in stock")
         is DiscountCodeAlreadyExistsException -> reply(HttpStatus.CONFLICT, ex, "Discount code already given")
         is ReviewAlreadyWrittenException -> reply(HttpStatus.CONFLICT, ex, "Product already reviewed")
         is OrderAlreadyPaidException -> reply(HttpStatus.CONFLICT, ex, "Order already paid")
