@@ -115,4 +115,35 @@ describe('users.store', () => {
     expect(store.page).toBe(0);
     expect(store.users).toEqual([jane]);
   });
+
+  it('should ask the first page of the users that match the words searched', async () => {
+    // Arrange
+    respondWith({
+      'GET /api/users?page=0&size=20&search=jane+doe': {
+        status: 200,
+        body: [jane],
+        headers: { 'X-Total-Count': '1' },
+      },
+    });
+    const store = useUsersStore();
+    // Act
+    await store.searchUsers('  jane doe ');
+    // Assert
+    expect(store.users).toEqual([jane]);
+    expect(store.total).toBe(1);
+    expect(store.page).toBe(0);
+  });
+
+  it('should ask all the users again when the search is cleared', async () => {
+    // Arrange
+    respondWith({
+      'GET /api/users?page=0&size=20': { status: 200, body: [jane], headers: { 'X-Total-Count': '1' } },
+    });
+    const store = useUsersStore();
+    store.searchText = 'nobody';
+    // Act
+    await store.searchUsers('');
+    // Assert
+    expect(store.users).toEqual([jane]);
+  });
 });

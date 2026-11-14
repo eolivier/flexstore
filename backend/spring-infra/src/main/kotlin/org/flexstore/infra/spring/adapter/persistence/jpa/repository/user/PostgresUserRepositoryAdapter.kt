@@ -134,11 +134,12 @@ class PostgresUserRepositoryAdapter(
     override fun findAll(): List<User> = jpaRepo.findAll().map { it.toDomain() }
 
     // The first created first; the id keeps the order of two users created at the same moment stable
-    override fun findAll(pageRequest: PageRequest): Page<Users> {
+    override fun findAll(usersSearch: UsersSearch): Page<Users> {
+        val pageRequest = usersSearch.pageRequest
         val pageable = org.springframework.data.domain.PageRequest.of(
             pageRequest.number.value, pageRequest.size.value, Sort.by("createdAt", "id")
         )
-        val userEntities = jpaRepo.findAll(pageable)
+        val userEntities = jpaRepo.findAll(usersSearch.searchText.toSpecification(), pageable)
         return Page(Users(userEntities.content.map { it.toDomain() }), TotalCount(userEntities.totalElements))
     }
 

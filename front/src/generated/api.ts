@@ -7561,14 +7561,15 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
             };
         },
         /**
-         * The total number of users is in the header X-Total-Count; a size above 100 is brought back to 100
+         * The total number of users is in the header X-Total-Count; a size above 100 is brought back to 100. With a search, only the users that match it are read and counted
          * @summary Retrieve a page of the users, the first created first (ADMIN role)
          * @param {number} [page] The number of the page, from 0 (a negative number is brought back to 0)
          * @param {number} [size] The number of items of a page (a size out of 1 to 100 is brought back to the nearest limit)
+         * @param {string} [search] Words that each must be part of the first name, the last name or the email of the users, whatever the case
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getAllUsers: async (page?: number, size?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getAllUsers: async (page?: number, size?: number, search?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/users`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -7591,6 +7592,10 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
 
             if (size !== undefined) {
                 localVarQueryParameter['size'] = size;
+            }
+
+            if (search !== undefined) {
+                localVarQueryParameter['search'] = search;
             }
 
 
@@ -8009,15 +8014,16 @@ export const UsersApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * The total number of users is in the header X-Total-Count; a size above 100 is brought back to 100
+         * The total number of users is in the header X-Total-Count; a size above 100 is brought back to 100. With a search, only the users that match it are read and counted
          * @summary Retrieve a page of the users, the first created first (ADMIN role)
          * @param {number} [page] The number of the page, from 0 (a negative number is brought back to 0)
          * @param {number} [size] The number of items of a page (a size out of 1 to 100 is brought back to the nearest limit)
+         * @param {string} [search] Words that each must be part of the first name, the last name or the email of the users, whatever the case
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getAllUsers(page?: number, size?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<JsonUser>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getAllUsers(page, size, options);
+        async getAllUsers(page?: number, size?: number, search?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<JsonUser>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getAllUsers(page, size, search, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['UsersApi.getAllUsers']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -8211,15 +8217,16 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
             return localVarFp.disableTwoFactorAuthentication(id, jsonTwoFactorDisableRequest, options).then((request) => request(axios, basePath));
         },
         /**
-         * The total number of users is in the header X-Total-Count; a size above 100 is brought back to 100
+         * The total number of users is in the header X-Total-Count; a size above 100 is brought back to 100. With a search, only the users that match it are read and counted
          * @summary Retrieve a page of the users, the first created first (ADMIN role)
          * @param {number} [page] The number of the page, from 0 (a negative number is brought back to 0)
          * @param {number} [size] The number of items of a page (a size out of 1 to 100 is brought back to the nearest limit)
+         * @param {string} [search] Words that each must be part of the first name, the last name or the email of the users, whatever the case
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getAllUsers(page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<JsonUser>> {
-            return localVarFp.getAllUsers(page, size, options).then((request) => request(axios, basePath));
+        getAllUsers(page?: number, size?: number, search?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<JsonUser>> {
+            return localVarFp.getAllUsers(page, size, search, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -8391,15 +8398,16 @@ export class UsersApi extends BaseAPI {
     }
 
     /**
-     * The total number of users is in the header X-Total-Count; a size above 100 is brought back to 100
+     * The total number of users is in the header X-Total-Count; a size above 100 is brought back to 100. With a search, only the users that match it are read and counted
      * @summary Retrieve a page of the users, the first created first (ADMIN role)
      * @param {number} [page] The number of the page, from 0 (a negative number is brought back to 0)
      * @param {number} [size] The number of items of a page (a size out of 1 to 100 is brought back to the nearest limit)
+     * @param {string} [search] Words that each must be part of the first name, the last name or the email of the users, whatever the case
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public getAllUsers(page?: number, size?: number, options?: RawAxiosRequestConfig) {
-        return UsersApiFp(this.configuration).getAllUsers(page, size, options).then((request) => request(this.axios, this.basePath));
+    public getAllUsers(page?: number, size?: number, search?: string, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).getAllUsers(page, size, search, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

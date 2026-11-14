@@ -9,17 +9,20 @@ import org.flexstore.domain.actor.isNotAdmin
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
-// An administrator who reads a page of the users
-data class UsersReading(val reader: Actor, val pageRequest: PageRequest)
+// An administrator who reads a page of the users, all of them or the ones that match a search
+data class UsersReading(val reader: Actor, val usersSearch: UsersSearch) {
 
-// An administrator reads a page of the users of the shop, customers and administrators
+    constructor(reader: Actor, pageRequest: PageRequest) : this(reader, UsersSearch(pageRequest))
+}
+
+// An administrator reads a page of the users of the shop, customers and administrators, searched or not
 class ListUsersUseCase(private val userRepository: UserRepository) : QueryUseCase<UsersReading, Page<Users>> {
 
     override fun getPreConditions(): PreConditions<UsersReading> =
         PreConditions(readerIsAdministratorCondition())
 
     override fun getNominalQuery() = NominalQuery<UsersReading, Page<Users>> { reading ->
-        userRepository.findAll(reading.pageRequest)
+        userRepository.findAll(reading.usersSearch)
     }
 
     override fun getPostConditions(): PostConditions<Page<Users>> = PostConditions.none()

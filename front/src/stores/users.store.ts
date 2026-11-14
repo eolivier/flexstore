@@ -16,13 +16,28 @@ export const useUsersStore = defineStore('users', () => {
   const page = ref(0);
   const total = ref(0);
   const loading = ref(false);
+  // The words the administrator searches among the users (empty: all the users)
+  const searchText = ref('');
   // User management is reserved to admins: requests carry the token of the signed-in user
   const authStore = useAuthStore();
+
+  function usersQuery(pageNumber: number): string {
+    const query = new URLSearchParams(pageQuery(pageNumber));
+    const words = searchText.value.trim();
+    if (words) query.set('search', words);
+    return query.toString();
+  }
+
+  // The users that match the words, from the first page
+  async function searchUsers(words: string) {
+    searchText.value = words;
+    await fetchUsers(0);
+  }
 
   async function fetchUsers(pageNumber: number = page.value) {
     loading.value = true;
     try {
-      const response = await authStore.authFetch(`/api/users?${pageQuery(pageNumber)}`);
+      const response = await authStore.authFetch(`/api/users?${usersQuery(pageNumber)}`);
       if (response.ok) {
         const pageUsers: User[] = await response.json();
         users.value = pageUsers;
@@ -107,7 +122,9 @@ export const useUsersStore = defineStore('users', () => {
     page,
     total,
     loading,
+    searchText,
     fetchUsers,
+    searchUsers,
     fetchUser,
     addUser,
     updateUser,

@@ -51,4 +51,38 @@ class ListUsersUseCaseTest : WithAssertions {
         // Assert
         assertThat(users).doesNotHaveDuplicates().hasSize(total)
     }
+
+    @Test
+    fun `an administrator should find the users whose name or email matches every word searched`() {
+        // Arrange
+        val usersSearch = UsersSearch(UserSearchText("TEST admin"), PageRequest.first())
+        // Act
+        val page = useCase.unfold(UsersReading(testAdministratorActor, usersSearch))
+        // Assert
+        assertThat(page.content.asList()).allSatisfy { user ->
+            assertThat(UserSearchText("TEST admin").matches(user as User.DefinedUser)).isTrue()
+        }
+        assertThat(page.total.value).isEqualTo(page.content.asList().size.toLong())
+    }
+
+    @Test
+    fun `an administrator should find no user when no user matches the search`() {
+        // Arrange
+        val usersSearch = UsersSearch(UserSearchText("nobody-has-this-name"), PageRequest.first())
+        // Act
+        val page = useCase.unfold(UsersReading(testAdministratorActor, usersSearch))
+        // Assert
+        assertThat(page.content.asList()).isEmpty()
+        assertThat(page.total.value).isZero()
+    }
+
+    @Test
+    fun `a customer should not search the users`() {
+        // Arrange
+        val usersSearch = UsersSearch(UserSearchText("test"), PageRequest.first())
+        // Act
+        val thrown = catchThrowable { useCase.unfold(UsersReading(testCustomerActor, usersSearch)) }
+        // Assert
+        assertThat(thrown).hasCauseInstanceOf(UserReadingForbiddenException::class.java)
+    }
 }

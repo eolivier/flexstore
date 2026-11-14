@@ -51,10 +51,13 @@ class InMemoryUserRepository : UserRepository {
     
     override fun findAll(): List<User> = users.values.toList()
 
-    override fun findAll(pageRequest: PageRequest): Page<Users> {
-        val pageSize = pageRequest.size.value
-        val pageUsers = findAll().drop(pageRequest.number.value * pageSize).take(pageSize)
-        return Page(Users(pageUsers), TotalCount(users.size.toLong()))
+    override fun findAll(usersSearch: UsersSearch): Page<Users> {
+        val pageSize = usersSearch.pageRequest.size.value
+        val foundUsers = findAll().filter { user ->
+            user is User.DefinedUser && usersSearch.searchText.matches(user)
+        }
+        val pageUsers = foundUsers.drop(usersSearch.pageRequest.number.value * pageSize).take(pageSize)
+        return Page(Users(pageUsers), TotalCount(foundUsers.size.toLong()))
     }
     
     override fun delete(id: UserId): Boolean = users.remove(id) != null

@@ -408,7 +408,7 @@ void (empty response body)
 # **getAllUsers**
 > Array<JsonUser> getAllUsers()
 
-The total number of users is in the header X-Total-Count; a size above 100 is brought back to 100
+The total number of users is in the header X-Total-Count; a size above 100 is brought back to 100. With a search, only the users that match it are read and counted
 
 ### Example
 
@@ -423,10 +423,12 @@ const apiInstance = new UsersApi(configuration);
 
 let page: number; //The number of the page, from 0 (a negative number is brought back to 0) (optional) (default to 0)
 let size: number; //The number of items of a page (a size out of 1 to 100 is brought back to the nearest limit) (optional) (default to 20)
+let search: string; //Words that each must be part of the first name, the last name or the email of the users, whatever the case (optional) (default to '')
 
 const { status, data } = await apiInstance.getAllUsers(
     page,
-    size
+    size,
+    search
 );
 ```
 
@@ -436,6 +438,7 @@ const { status, data } = await apiInstance.getAllUsers(
 |------------- | ------------- | ------------- | -------------|
 | **page** | [**number**] | The number of the page, from 0 (a negative number is brought back to 0) | (optional) defaults to 0|
 | **size** | [**number**] | The number of items of a page (a size out of 1 to 100 is brought back to the nearest limit) | (optional) defaults to 20|
+| **search** | [**string**] | Words that each must be part of the first name, the last name or the email of the users, whatever the case | (optional) defaults to ''|
 
 
 ### Return type

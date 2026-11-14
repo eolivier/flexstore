@@ -10,6 +10,8 @@ import org.flexstore.domain.sharedkernel.PageNumber
 import org.flexstore.domain.sharedkernel.PageRequest
 import org.flexstore.domain.sharedkernel.PageSize
 import org.flexstore.domain.user.model.UserId
+import org.flexstore.domain.user.model.UserSearchText
+import org.flexstore.domain.user.model.UsersSearch
 import org.flexstore.domain.user.model.UserId.ValidUserId
 import org.flexstore.domain.user.model.of
 import org.flexstore.domain.user.administration.UserService
@@ -68,10 +70,12 @@ class UserAdministrationController(
     fun getAllUsers(
         @AuthenticationPrincipal reader: Jwt,
         @RequestParam(defaultValue = "${PageNumber.FIRST}") page: Int,
-        @RequestParam(defaultValue = "${PageSize.DEFAULT}") size: Int
+        @RequestParam(defaultValue = "${PageSize.DEFAULT}") size: Int,
+        @RequestParam(defaultValue = "") search: String
     ): ResponseEntity<List<JsonUser>> {
         val actor = actorResolutionService.actorOf(UserId.of(reader.subject))
-        val users = userService.readAllUsers(actor, PageRequest.of(page, size))
+        val usersSearch = UsersSearch(UserSearchText(search), PageRequest.of(page, size))
+        val users = userService.readAllUsers(actor, usersSearch)
         return pagedBody(users.content.asList().toJsonUsers(), users.total)
     }
 
