@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
@@ -120,6 +121,43 @@ class RestockSubscriptionIT {
     }
 
     @Test
+    fun `a customer should unsubscribe from the return of a product`() {
+        // Arrange
+        subscribe(PRODUCT_ID, CUSTOMER_ID).andExpect(status().isNoContent)
+        // Act
+        val response = unsubscribe(PRODUCT_ID, CUSTOMER_ID)
+        // Assert
+        response.andExpect(status().isNoContent)
+        subscriptions(CUSTOMER_ID).andExpect(jsonPath("$").isEmpty)
+    }
+
+    @Test
+    fun `unsubscribing from a product not waited for should leave the subscriptions as they are`() {
+        // Act
+        val response = unsubscribe(PRODUCT_ID, CUSTOMER_ID)
+        // Assert
+        response.andExpect(status().isNoContent)
+    }
+
+    @Test
+    fun `unsubscribing should leave the subscriptions of the other customers`() {
+        // Arrange
+        subscribe(PRODUCT_ID, OTHER_CUSTOMER_ID).andExpect(status().isNoContent)
+        // Act
+        unsubscribe(PRODUCT_ID, CUSTOMER_ID).andExpect(status().isNoContent)
+        // Assert
+        subscriptions(OTHER_CUSTOMER_ID).andExpect(jsonPath("$[0]").value(PRODUCT_ID))
+    }
+
+    @Test
+    fun `a visitor should not unsubscribe`() {
+        // Act
+        val response = mockMvc.perform(delete("/api/restock-subscriptions/$PRODUCT_ID"))
+        // Assert
+        response.andExpect(status().isUnauthorized)
+    }
+
+    @Test
     fun `a visitor should not subscribe`() {
         // Act
         val response = mockMvc.perform(put("/api/restock-subscriptions/$PRODUCT_ID"))
@@ -165,6 +203,9 @@ class RestockSubscriptionIT {
 
     private fun subscribe(productId: String, customerId: String) =
         mockMvc.perform(put("/api/restock-subscriptions/$productId").with(asUser(customerId)))
+
+    private fun unsubscribe(productId: String, customerId: String) =
+        mockMvc.perform(delete("/api/restock-subscriptions/$productId").with(asUser(customerId)))
 
     private fun subscriptions(customerId: String) =
         mockMvc.perform(get("/api/restock-subscriptions").with(asUser(customerId))).andExpect(status().isOk)

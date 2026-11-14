@@ -21,6 +21,10 @@ open class RestockUseCaseConfig {
     ) = SubscribeToRestockUseCase(restockSubscriptionRepository, productRepository, stockRepository)
 
     @Bean
+    open fun unsubscribeFromRestockUseCase(restockSubscriptionRepository: RestockSubscriptionRepository) =
+        UnsubscribeFromRestockUseCase(restockSubscriptionRepository)
+
+    @Bean
     open fun listCustomerRestockSubscriptionsUseCase(restockSubscriptionRepository: RestockSubscriptionRepository) =
         ListCustomerRestockSubscriptionsUseCase(restockSubscriptionRepository)
 
@@ -44,11 +48,12 @@ open class RestockUseCaseConfig {
     @Bean
     open fun restockUseCases(
         subscribeToRestockUseCase: SubscribeToRestockUseCase,
+        unsubscribeFromRestockUseCase: UnsubscribeFromRestockUseCase,
         listCustomerRestockSubscriptionsUseCase: ListCustomerRestockSubscriptionsUseCase,
         listRestockedSubscriptionsUseCase: ListRestockedSubscriptionsUseCase,
         notifyRestockUseCase: NotifyRestockUseCase
     ) = RestockUseCases(
-        subscribeToRestockUseCase, listCustomerRestockSubscriptionsUseCase, listRestockedSubscriptionsUseCase,
-        notifyRestockUseCase
+        subscribeToRestockUseCase, unsubscribeFromRestockUseCase, listCustomerRestockSubscriptionsUseCase,
+        listRestockedSubscriptionsUseCase, notifyRestockUseCase
     )
 }

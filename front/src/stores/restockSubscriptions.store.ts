@@ -30,6 +30,16 @@ export const useRestockSubscriptionsStore = defineStore('restockSubscriptions', 
     return true;
   }
 
+  // Returns whether the customer is no longer notified of the return of the product
+  async function unsubscribe(productId: string): Promise<boolean> {
+    const response = await authStore
+      .authFetch(`/api/restock-subscriptions/${encodeURIComponent(productId)}`, { method: 'DELETE' })
+      .catch(() => null);
+    if (!response?.ok) return false;
+    subscribedProductIds.value = subscribedProductIds.value.filter((subscribedId) => subscribedId !== productId);
+    return true;
+  }
+
   // Signed out: the subscriptions are forgotten; signed in: they are loaded
   watch(
     () => authStore.isAuthenticated,
@@ -43,5 +53,5 @@ export const useRestockSubscriptionsStore = defineStore('restockSubscriptions', 
     { immediate: true }
   );
 
-  return { subscribedProductIds, isSubscribed, fetchSubscriptions, subscribe };
+  return { subscribedProductIds, isSubscribed, fetchSubscriptions, subscribe, unsubscribe };
 });

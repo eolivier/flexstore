@@ -6134,6 +6134,44 @@ export const RestockSubscriptionsApiAxiosParamCreator = function (configuration?
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * 
+         * @summary Stop waiting for a product, so the signed-in customer is no longer notified of its return
+         * @param {string} productId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        unsubscribeFromRestock: async (productId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'productId' is not null or undefined
+            assertParamExists('unsubscribeFromRestock', 'productId', productId)
+            const localVarPath = `/api/restock-subscriptions/{productId}`
+                .replace(`{${"productId"}}`, encodeURIComponent(String(productId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -6168,6 +6206,19 @@ export const RestockSubscriptionsApiFp = function(configuration?: Configuration)
             const localVarOperationServerBasePath = operationServerMap['RestockSubscriptionsApi.subscribeToRestock']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
+        /**
+         * 
+         * @summary Stop waiting for a product, so the signed-in customer is no longer notified of its return
+         * @param {string} productId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async unsubscribeFromRestock(productId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.unsubscribeFromRestock(productId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['RestockSubscriptionsApi.unsubscribeFromRestock']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
     }
 };
 
@@ -6196,6 +6247,16 @@ export const RestockSubscriptionsApiFactory = function (configuration?: Configur
         subscribeToRestock(productId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.subscribeToRestock(productId, options).then((request) => request(axios, basePath));
         },
+        /**
+         * 
+         * @summary Stop waiting for a product, so the signed-in customer is no longer notified of its return
+         * @param {string} productId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        unsubscribeFromRestock(productId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.unsubscribeFromRestock(productId, options).then((request) => request(axios, basePath));
+        },
     };
 };
 
@@ -6222,6 +6283,17 @@ export class RestockSubscriptionsApi extends BaseAPI {
      */
     public subscribeToRestock(productId: string, options?: RawAxiosRequestConfig) {
         return RestockSubscriptionsApiFp(this.configuration).subscribeToRestock(productId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Stop waiting for a product, so the signed-in customer is no longer notified of its return
+     * @param {string} productId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public unsubscribeFromRestock(productId: string, options?: RawAxiosRequestConfig) {
+        return RestockSubscriptionsApiFp(this.configuration).unsubscribeFromRestock(productId, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
