@@ -1,6 +1,7 @@
 <script setup>
   import { useI18n } from 'vue-i18n';
   import { legalLinks, shopLinks } from '../menu/navigation';
+  import BrandLogo from '../menu/BrandLogo.vue';
   import { useAuthStore } from '@/stores/auth.store';
   import FooterSocialNetworks from './FooterSocialNetworks.vue';
 
@@ -14,12 +15,7 @@
     <v-container class="py-0">
       <v-row>
         <v-col cols="12" md="5">
-          <div class="d-flex align-center mb-3">
-            <span class="brand-mark d-flex align-center justify-center mr-2">
-              <v-icon icon="mdi-shopping" size="20" color="white" />
-            </span>
-            <span class="text-h6 font-weight-bold">Flexstore</span>
-          </div>
+          <BrandLogo class="mb-3" name-class="" />
           <p class="text-body-2 footer-muted">{{ t('footer.tagline') }}</p>
           <FooterSocialNetworks />
         </v-col>
@@ -69,12 +65,6 @@
   }
   .footer-muted {
     opacity: 0.72;
-  }
-  .brand-mark {
-    width: 34px;
-    height: 34px;
-    border-radius: 10px;
-    background: rgb(var(--v-theme-secondary));
   }
   .footer-link {
     color: inherit;

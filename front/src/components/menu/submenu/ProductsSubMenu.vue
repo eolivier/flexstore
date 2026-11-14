@@ -1,4 +1,5 @@
 <script setup>
+  import NavLinkItems from '../NavLinkItems.vue';
   import { ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { shopLinks } from '../navigation';
@@ -11,12 +12,6 @@
     <template #activator="{ props }">
       <v-list-item v-bind="props" prepend-icon="mdi-storefront-outline" :title="t('nav.shop')" />
     </template>
-    <v-list-item
-      v-for="link in shopLinks"
-      :key="link.to"
-      :to="link.to"
-      :prepend-icon="link.icon"
-      :title="t(link.label)"
-    />
+    <NavLinkItems :links="shopLinks" />
   </v-list-group>
 </template>
