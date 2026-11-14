@@ -19,9 +19,9 @@ const lamp: Item = {
   itemPrice: 80,
 };
 
-function mountLine() {
+function mountLine(outOfStock = false) {
   return mount(CartLine, {
-    props: { item: lamp },
+    props: { item: lamp, outOfStock },
     global: { plugins: [vuetify, i18n], stubs: { RouterLink: true } },
   });
 }
@@ -51,5 +51,30 @@ describe('CartLine.vue', () => {
     await flushPromises();
     // Assert
     expect(mockFetch.mock.calls.some(([url]) => String(url).includes('/api/wishlist/p-1'))).toBe(true);
+  });
+
+  it('a line in stock should not be tagged out of stock', () => {
+    // Act
+    const wrapper = mountLine();
+    // Assert
+    expect(wrapper.find('.out-of-stock-badge').exists()).toBe(false);
+    expect(wrapper.find('.cart-line').classes()).not.toContain('out-of-stock');
+  });
+
+  it('a line out of stock should be greyed and tagged out of stock', () => {
+    // Act
+    const wrapper = mountLine(true);
+    // Assert
+    expect(wrapper.find('.cart-line').classes()).toContain('out-of-stock');
+    expect(wrapper.find('.out-of-stock-badge').text()).toBe('Out of stock');
+  });
+
+  it('a line out of stock should still be removable', async () => {
+    // Arrange
+    const wrapper = mountLine(true);
+    // Act
+    await wrapper.find('button[aria-label="Remove from cart"]').trigger('click');
+    // Assert
+    expect(wrapper.emitted('update:quantity')).toEqual([[0]]);
   });
 });

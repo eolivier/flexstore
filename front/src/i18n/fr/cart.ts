@@ -13,6 +13,7 @@ export default {
     emptyText: 'Parcourez la boutique et ajoutez les produits qui vous plaisent.',
     accountItemsMerged: 'Les articles enregistrés dans votre compte ont été ajoutés à votre panier.',
     placeOrder: 'Passer la commande',
+    removeOutOfStock: 'Retirez de votre panier les produits en rupture de stock pour passer la commande.',
     signInToOrder: 'Vous vous connecterez pour valider la commande.',
     steps: {
       label: 'Étapes de la commande',

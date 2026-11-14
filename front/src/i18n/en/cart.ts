@@ -13,6 +13,7 @@ export default {
     emptyText: 'Browse the shop and add the products you like.',
     accountItemsMerged: 'The items saved in your account have been added to your cart.',
     placeOrder: 'Place order',
+    removeOutOfStock: 'Remove the products out of stock from your cart to place your order.',
     signInToOrder: 'You will sign in to confirm your order.',
     steps: {
       label: 'Order steps',
