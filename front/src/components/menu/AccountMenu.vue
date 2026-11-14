@@ -15,12 +15,15 @@
   const guidedTourStore = useGuidedTourStore();
   const isOpenedByTour = computed(() => guidedTourStore.presentedMenu === 'account');
   const isOpened = ref(false);
+  // Under the spotlight of the tour (z-index 2300), so that the outline of the entry presented stays visible
+  const menuZIndex = computed(() => (isOpenedByTour.value ? 2200 : undefined));
 </script>
 
 <template>
   <v-menu
     :model-value="isOpened || isOpenedByTour"
     :persistent="isOpenedByTour"
+    :z-index="menuZIndex"
     location="bottom end"
     @update:model-value="isOpened = $event"
   >
