@@ -1,8 +1,10 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
+import { createPinia, setActivePinia } from 'pinia';
 import { createMemoryHistory, createRouter } from 'vue-router';
 import AccountMenu from './AccountMenu.vue';
 import { vuetify, i18n } from '@/test/setup';
+import { useGuidedTourStore } from '@/stores/guidedTour.store';
 
 const router = createRouter({
   history: createMemoryHistory(),
@@ -13,8 +15,16 @@ const visitor = { signedIn: false, admin: false, fullName: '', email: '' };
 const customer = { signedIn: true, admin: false, fullName: 'Jane Doe', email: 'jane@example.com' };
 const administrator = { ...customer, admin: true };
 
+function mountMenu(props: typeof visitor) {
+  return mount(AccountMenu, {
+    props,
+    global: { plugins: [vuetify, i18n, router, createPinia()] },
+    attachTo: document.body,
+  });
+}
+
 async function openMenu(props: typeof visitor) {
-  const wrapper = mount(AccountMenu, { props, global: { plugins: [vuetify, i18n, router] }, attachTo: document.body });
+  const wrapper = mountMenu(props);
   await wrapper.find('button').trigger('click');
   await flushPromises();
   return wrapper;
@@ -24,6 +34,23 @@ async function openMenu(props: typeof visitor) {
 enableAutoUnmount(afterEach);
 
 describe('AccountMenu.vue', () => {
+  it('should stay open while the guided tour presents one of its entries', async () => {
+    // Arrange
+    const pinia = createPinia();
+    setActivePinia(pinia);
+    const wrapper = mount(AccountMenu, {
+      props: customer,
+      global: { plugins: [vuetify, i18n, router, pinia] },
+      attachTo: document.body,
+    });
+    // Act
+    useGuidedTourStore().presentMenu('account');
+    await flushPromises();
+    // Assert
+    expect(document.body.textContent).toContain('My orders');
+    expect(wrapper.exists()).toBe(true);
+  });
+
   it('should offer a visitor to sign in or to create an account', async () => {
     // Act
     await openMenu(visitor);

@@ -75,6 +75,16 @@ describe('guidedTour.store', () => {
     expect(mockFetch).toHaveBeenCalledTimes(1);
   });
 
+  it('should close the menu it presented when skipped', async () => {
+    // Arrange
+    const store = await storeSignedInWith('NONE');
+    store.presentMenu('account');
+    // Act
+    store.skip();
+    // Assert
+    expect(store.presentedMenu).toBe('');
+  });
+
   it('should hide the tour in the account when finished with "Do not show again"', async () => {
     // Arrange
     const store = await storeSignedInWith('NONE');

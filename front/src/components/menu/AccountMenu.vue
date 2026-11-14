@@ -1,18 +1,29 @@
 <script setup lang="ts">
-  import { computed } from 'vue';
+  import { computed, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import NavLinkItems from './NavLinkItems.vue';
   import { accountLinksOf, adminLinks } from './navigation';
+  import { useGuidedTourStore } from '@/stores/guidedTour.store';
 
   const props = defineProps<{ signedIn: boolean; admin: boolean; fullName: string; email: string }>();
   defineEmits<{ logout: [] }>();
   const { t } = useI18n();
 
   const accountLinks = computed(() => accountLinksOf(props.signedIn));
+
+  // The guided tour keeps the menu open while it presents one of its entries
+  const guidedTourStore = useGuidedTourStore();
+  const isOpenedByTour = computed(() => guidedTourStore.presentedMenu === 'account');
+  const isOpened = ref(false);
 </script>
 
 <template>
-  <v-menu location="bottom end">
+  <v-menu
+    :model-value="isOpened || isOpenedByTour"
+    :persistent="isOpenedByTour"
+    location="bottom end"
+    @update:model-value="isOpened = $event"
+  >
     <template #activator="{ props: activator }">
       <v-btn
         v-bind="activator"

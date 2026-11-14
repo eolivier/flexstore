@@ -1,10 +1,10 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { visibleFocusAreaOf } from './guidedTourFocus';
 
-function partNamed(focus: string, width: number) {
+function partNamed(focus: string, width: number, left = 8) {
   const part = document.createElement('button');
   part.dataset.guidedTour = focus;
-  part.getBoundingClientRect = () => ({ top: 5, left: 8, width, height: width > 0 ? 30 : 0 }) as DOMRect;
+  part.getBoundingClientRect = () => ({ top: 5, left, width, height: width > 0 ? 30 : 0 }) as DOMRect;
   document.body.appendChild(part);
 }
 
@@ -30,6 +30,16 @@ describe('visibleFocusAreaOf', () => {
     const area = visibleFocusAreaOf('shop');
     // Assert
     expect(area?.width).toBe(60);
+  });
+
+  it('should skip a part waiting outside of the window', () => {
+    // Arrange
+    partNamed('/orders', 200, -300);
+    partNamed('/orders', 200, 40);
+    // Act
+    const area = visibleFocusAreaOf('/orders');
+    // Assert
+    expect(area?.left).toBe(40);
   });
 
   it('should find nothing when no part has that name', () => {

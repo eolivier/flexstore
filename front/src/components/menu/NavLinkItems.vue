@@ -12,5 +12,6 @@
     :to="link.to"
     :prepend-icon="link.icon"
     :title="t(link.label)"
+    :data-guided-tour="link.to"
   />
 </template>
