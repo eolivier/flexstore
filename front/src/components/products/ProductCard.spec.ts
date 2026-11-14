@@ -3,6 +3,7 @@ import { createPinia, setActivePinia } from 'pinia';
 import { mount } from '@vue/test-utils';
 import { createMemoryHistory, createRouter } from 'vue-router';
 import ProductCard from './ProductCard.vue';
+import { useAuthStore } from '@/stores/auth.store';
 import { vuetify, i18n } from '@/test/setup';
 
 const router = createRouter({
@@ -41,6 +42,21 @@ describe('ProductCard.vue', () => {
       expect(wrapper.find('button').attributes('disabled') !== undefined).toBe(disabled);
     }
   );
+
+  it.each([
+    { stock: 0, offered: true },
+    { stock: 3, offered: false },
+    { stock: null, offered: false },
+  ])('a signed-in customer is offered to be notified with a stock of $stock: $offered', ({ stock, offered }) => {
+    // Arrange
+    const authStore = useAuthStore();
+    authStore.token = 'token';
+    authStore.currentUser = { id: 'user-1', role: 'USER' } as typeof authStore.currentUser;
+    // Act
+    const wrapper = mountCard(stock);
+    // Assert
+    expect(wrapper.text().includes('Notify me when it is back')).toBe(offered);
+  });
 
   it('should show no stock while the stocks are not loaded', () => {
     // Act

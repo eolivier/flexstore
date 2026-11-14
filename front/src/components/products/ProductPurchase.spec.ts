@@ -1,7 +1,9 @@
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { createPinia, setActivePinia } from 'pinia';
 import { mount } from '@vue/test-utils';
 import { createMemoryHistory, createRouter } from 'vue-router';
 import ProductPurchase from './ProductPurchase.vue';
+import { useAuthStore } from '@/stores/auth.store';
 import { vuetify, i18n } from '@/test/setup';
 
 const router = createRouter({
@@ -11,7 +13,7 @@ const router = createRouter({
 
 function mountPurchase(stock: number | null, quantityInCart: number) {
   return mount(ProductPurchase, {
-    props: { modelValue: 2, stock, adding: false, quantityInCart },
+    props: { modelValue: 2, productId: 'p-1', stock, adding: false, quantityInCart },
     global: { plugins: [vuetify, i18n, router] },
   });
 }
@@ -21,6 +23,10 @@ function addButtonOf(wrapper: ReturnType<typeof mountPurchase>) {
 }
 
 describe('ProductPurchase.vue', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia());
+  });
+
   it.each([
     { stock: 0, disabled: true },
     { stock: 3, disabled: false },
@@ -30,6 +36,17 @@ describe('ProductPurchase.vue', () => {
     const wrapper = mountPurchase(stock, 0);
     // Assert
     expect(addButtonOf(wrapper)?.attributes('disabled') !== undefined).toBe(disabled);
+  });
+
+  it('should offer a signed-in customer to be notified when the product is out of stock', () => {
+    // Arrange
+    const authStore = useAuthStore();
+    authStore.token = 'token';
+    authStore.currentUser = { id: 'user-1', role: 'USER' } as typeof authStore.currentUser;
+    // Act
+    const wrapper = mountPurchase(0, 0);
+    // Assert
+    expect(wrapper.text()).toContain('Notify me when it is back');
   });
 
   it('should ask to add the product when the customer clicks on the add button', async () => {

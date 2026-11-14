@@ -81,6 +81,7 @@
           />
           <ProductPurchase
             v-model="quantity"
+            :product-id="product.id"
             :stock="stock"
             :adding="addingProductId === product.id"
             :quantity-in-cart="quantityInCart"

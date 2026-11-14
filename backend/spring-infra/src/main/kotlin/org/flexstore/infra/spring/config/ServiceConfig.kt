@@ -13,6 +13,8 @@ import org.flexstore.domain.order.*
 import org.flexstore.domain.order.service.*
 import org.flexstore.domain.order.usecase.*
 import org.flexstore.domain.product.*
+import org.flexstore.domain.restock.*
+import org.flexstore.domain.restock.usecase.*
 import org.flexstore.domain.seller.SellerSetupService
 import org.flexstore.domain.seller.usecase.SellerUseCases
 import org.flexstore.domain.settings.*
@@ -115,6 +117,11 @@ open class ServiceConfig {
         AbandonedCartService(
             actorResolutionService, readShopSettingsUseCase, abandonedCartUseCases
         )
+
+    @Bean
+    open fun restockNotificationService(actorResolutionService: ActorResolutionService,
+                                        restockUseCases: RestockUseCases) =
+        RestockNotificationService(actorResolutionService, restockUseCases)
 
     @Bean
     open fun addressBookService(readAccountUseCase: ReadAccountUseCase, addressUseCases: AddressUseCases) =

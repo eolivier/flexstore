@@ -15,6 +15,7 @@ interface EmailSender {
     fun send(link: EmailVerificationLink)
     fun send(email: PasswordResetEmail)
     fun send(email: AbandonedCartReminderEmail)
+    fun send(email: RestockEmail)
 }
 
 /**
@@ -71,6 +72,13 @@ class SmtpEmailSender(
             .onFailure { logger.error("Abandoned cart reminder email to ${email.recipient.value} not sent", it) }
     }
 
+    override fun send(email: RestockEmail) {
+        val content = RestockEmailContent(email, shopUrl)
+        runCatching { mailSender.send(message(email.recipient, content)) }
+            .onSuccess { logger.info("Restock email sent to {}", email.recipient.value) }
+            .onFailure { logger.error("Restock email to ${email.recipient.value} not sent", it) }
+    }
+
     private fun message(recipient: Email, content: EmailContent) = SimpleMailMessage().apply {
         from = sender
         setTo(recipient.value)
@@ -104,6 +112,10 @@ class LoggingEmailSender(private val shopUrl: ShopUrl) : EmailSender {
 
     override fun send(email: AbandonedCartReminderEmail) {
         log(email.recipient, AbandonedCartReminderEmailContent(email, shopUrl))
+    }
+
+    override fun send(email: RestockEmail) {
+        log(email.recipient, RestockEmailContent(email, shopUrl))
     }
 
     private fun log(recipient: Email, content: EmailContent) = logger.info(

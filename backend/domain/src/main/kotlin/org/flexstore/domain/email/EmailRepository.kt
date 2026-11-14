@@ -7,6 +7,7 @@ import org.flexstore.domain.email.model.ExpirationDate
 import org.flexstore.domain.email.model.OrderConfirmationEmail
 import org.flexstore.domain.email.model.OrderStatusEmail
 import org.flexstore.domain.email.model.PasswordResetEmail
+import org.flexstore.domain.email.model.RestockEmail
 import org.flexstore.domain.email.model.VerificationToken
 import org.flexstore.domain.user.model.UserId
 import org.flexstore.domain.email.model.VerificationLinkUnknownException
@@ -19,6 +20,7 @@ interface EmailRepository {
     fun send(link: EmailVerificationLink)
     fun send(email: PasswordResetEmail)
     fun send(email: AbandonedCartReminderEmail)
+    fun send(email: RestockEmail)
 
     fun save(verification: EmailVerification)
     fun findBy(token: VerificationToken): EmailVerification?

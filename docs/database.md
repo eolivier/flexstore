@@ -1,6 +1,6 @@
 # Physical data model
 
-The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V68**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
+The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V69**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
 
 ![Physical data model](database.png)
 
@@ -276,6 +276,14 @@ erDiagram
         updated_at timestamp
     }
 
+    restock_subscription {
+        id varchar(50) PK
+        user_id varchar(50) FK,UK "unique with product_id: a product waited for once per customer"
+        product_id varchar(50) FK,UK
+        created_at timestamp "the moment of the subscription"
+        updated_at timestamp
+    }
+
     shop_settings {
         id int PK "a single row (id = 1)"
         order_confirmation_email varchar(10) "ENABLED or DISABLED"
@@ -319,6 +327,8 @@ erDiagram
     product_review }o--|| user : "user_id (cascade)"
     wishlist_item }o--|| product : "product_id (cascade)"
     wishlist_item }o--|| user : "user_id (cascade)"
+    restock_subscription }o--|| product : "product_id (cascade)"
+    restock_subscription }o--|| user : "user_id (cascade)"
 ```
 
 ## Notes
@@ -343,4 +353,5 @@ erDiagram
 - `user` is quoted in SQL (`"user"`), a reserved word; the orders are stored in `customer_order` for the same reason.
 - The name and the description of a `product` are in `product_translation`, one row per language: always one in the default language (`en`), which the application requires, and one per other language the product is translated into. A product without a translation in the language of the customer is shown in `en`.
 - A `wishlist_item` is a product a customer saved to buy it back later: at most one row per customer and product (saving it again changes nothing). Removing it from the wishlist only deletes this row, not the product or the orders already placed for it.
+- A `restock_subscription` is a customer who waits for a product out of stock: at most one row per customer and product. The row is deleted as soon as the customer has been notified by email that the product is back in stock; deleting the product or the customer deletes it too.
 - The stock of a `product` is two of its columns (V59 merged the former `stock` table into `product`): `stock_quantity`, the units the shop has, and `stock_alert_threshold`, the units at or under which the administrators are warned (5 by default). `stock_quantity` is empty while the stock was never given: such a product has no units, an order for it is refused, and it is not listed among the low stocks.

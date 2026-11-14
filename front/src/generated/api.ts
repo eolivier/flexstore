@@ -6058,6 +6058,176 @@ export class ProductsApi extends BaseAPI {
 
 
 /**
+ * RestockSubscriptionsApi - axios parameter creator
+ */
+export const RestockSubscriptionsApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Retrieve the ids of the products the signed-in customer waits for
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getRestockSubscribedProductIds: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/restock-subscriptions`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Ask to be notified by email when a product out of stock is back, once per product
+         * @param {string} productId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        subscribeToRestock: async (productId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'productId' is not null or undefined
+            assertParamExists('subscribeToRestock', 'productId', productId)
+            const localVarPath = `/api/restock-subscriptions/{productId}`
+                .replace(`{${"productId"}}`, encodeURIComponent(String(productId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * RestockSubscriptionsApi - functional programming interface
+ */
+export const RestockSubscriptionsApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = RestockSubscriptionsApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Retrieve the ids of the products the signed-in customer waits for
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getRestockSubscribedProductIds(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<string>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getRestockSubscribedProductIds(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['RestockSubscriptionsApi.getRestockSubscribedProductIds']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Ask to be notified by email when a product out of stock is back, once per product
+         * @param {string} productId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async subscribeToRestock(productId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.subscribeToRestock(productId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['RestockSubscriptionsApi.subscribeToRestock']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * RestockSubscriptionsApi - factory interface
+ */
+export const RestockSubscriptionsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = RestockSubscriptionsApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Retrieve the ids of the products the signed-in customer waits for
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getRestockSubscribedProductIds(options?: RawAxiosRequestConfig): AxiosPromise<Array<string>> {
+            return localVarFp.getRestockSubscribedProductIds(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Ask to be notified by email when a product out of stock is back, once per product
+         * @param {string} productId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        subscribeToRestock(productId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.subscribeToRestock(productId, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * RestockSubscriptionsApi - object-oriented interface
+ */
+export class RestockSubscriptionsApi extends BaseAPI {
+    /**
+     * 
+     * @summary Retrieve the ids of the products the signed-in customer waits for
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getRestockSubscribedProductIds(options?: RawAxiosRequestConfig) {
+        return RestockSubscriptionsApiFp(this.configuration).getRestockSubscribedProductIds(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Ask to be notified by email when a product out of stock is back, once per product
+     * @param {string} productId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public subscribeToRestock(productId: string, options?: RawAxiosRequestConfig) {
+        return RestockSubscriptionsApiFp(this.configuration).subscribeToRestock(productId, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
  * ReviewsApi - axios parameter creator
  */
 export const ReviewsApiAxiosParamCreator = function (configuration?: Configuration) {
