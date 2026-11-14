@@ -70,6 +70,7 @@ fun productUseCasesOf(vararg products: DefinedProduct): ProductUseCases {
     val productRepository = mockk<ProductRepository>()
     every { productRepository.findAll() } returns products.toList()
     every { productRepository.findById(any()) } answers { products.firstOrNull { it.productId == firstArg() } }
+    every { productRepository.get(any()) } answers { products.first { it.productId == firstArg() } }
     every { productRepository.productIsMissing(any()) } answers { products.none { it.productId == firstArg() } }
     return ProductUseCases(
         CreateProductUseCase(productRepository),

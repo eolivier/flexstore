@@ -9,6 +9,10 @@ interface ProductImageRepository {
 
     fun find(productId: ProductId, format: ImageFormat): ProductImage?
 
+    // The image, which a precondition has checked to exist
+    fun get(productId: ProductId, format: ImageFormat): ProductImage =
+        find(productId, format) ?: throw ProductImageNotFoundException("Product $productId has no $format image.")
+
     fun imageIsMissing(productId: ProductId, format: ImageFormat) = find(productId, format) == null
 
     // The products that have an image

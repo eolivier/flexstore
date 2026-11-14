@@ -8,6 +8,8 @@ import org.flexstore.domain.invoice.model.InvoiceIssue
 import org.flexstore.domain.invoice.model.InvoicePdf
 import org.flexstore.domain.order.model.OrderId
 import org.flexstore.domain.seller.*
+import org.flexstore.domain.invoice.model.InvoiceNotFoundException
+import org.flexstore.domain.invoice.model.CreditNoteNotFoundException
 
 // The invoices issued, numbered in a sequence without gaps
 interface InvoiceRepository {
@@ -16,6 +18,10 @@ interface InvoiceRepository {
     fun issue(invoiceIssue: InvoiceIssue, sellerId: SellerId): Invoice
 
     fun findBy(orderId: OrderId): Invoice?
+
+    // The invoice, which a precondition has checked to exist
+    fun get(orderId: OrderId): Invoice =
+        findBy(orderId) ?: throw InvoiceNotFoundException("No invoice for order $orderId.")
 
     fun invoiceExistsFor(orderId: OrderId) = findBy(orderId) != null
 
@@ -29,6 +35,10 @@ interface CreditNoteRepository {
     fun issue(creditNoteIssue: CreditNoteIssue): CreditNote
 
     fun findBy(orderId: OrderId): CreditNote?
+
+    // The credit note, which a precondition has checked to exist
+    fun get(orderId: OrderId): CreditNote =
+        findBy(orderId) ?: throw CreditNoteNotFoundException("No credit note for order $orderId.")
 
     fun creditNoteExistsFor(orderId: OrderId) = findBy(orderId) != null
 

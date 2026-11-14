@@ -12,7 +12,7 @@ class ReadInvoiceUseCase(private val invoiceRepository: InvoiceRepository) : Que
     override fun getPreConditions(): PreConditions<OrderId> = PreConditions(invoiceExistsCondition())
 
     override fun getNominalQuery() = NominalQuery<OrderId, Invoice> { orderId ->
-        invoiceRepository.findBy(orderId)!!
+        invoiceRepository.get(orderId)
     }
 
     override fun getPostConditions(): PostConditions<Invoice> = PostConditions.none()

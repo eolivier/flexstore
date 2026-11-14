@@ -18,7 +18,7 @@ class ReadSellerUseCase(
 
     override fun getNominalQuery() =
         NominalQuery<SellerVersionReading, Seller> { reading ->
-            sellerRepository.findBy(reading.sellerId)!!
+            sellerRepository.get(reading.sellerId)
         }
 
     override fun getPostConditions(): PostConditions<Seller> = PostConditions.none()

@@ -17,7 +17,7 @@ class UseDiscountCodeUseCase(private val discountCodeRepository: DiscountCodeRep
     override fun getPostConditions(): PostConditions<PromoCode> = PostConditions.none()
 
     // Only called once the code is known
-    private fun discountCodeOf(code: PromoCode) = discountCodeRepository.findBy(code)!!
+    private fun discountCodeOf(code: PromoCode) = discountCodeRepository.get(code)
 
     private fun codeExistsCondition() = PreCondition<PromoCode> { code ->
         if (discountCodeRepository.codeIsMissing(code)) {

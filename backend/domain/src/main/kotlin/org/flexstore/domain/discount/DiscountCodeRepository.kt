@@ -1,11 +1,16 @@
 package org.flexstore.domain.discount
 
+
 // The discount codes given by the administrators
 interface DiscountCodeRepository {
 
     fun save(discountCode: DiscountCode)
 
     fun findBy(code: PromoCode): DiscountCode?
+
+    // The discount code, which a precondition has checked to exist
+    fun get(code: PromoCode): DiscountCode =
+        findBy(code) ?: throw DiscountCodeNotFoundException("Discount code $code not found.")
 
     // Newest first
     fun findAll(): DiscountCodes

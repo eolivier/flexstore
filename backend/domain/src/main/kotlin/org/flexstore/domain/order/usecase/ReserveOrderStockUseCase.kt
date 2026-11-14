@@ -17,7 +17,7 @@ class ReserveOrderStockUseCase(
 
     override fun getNominalScenario(): NominalScenario<OrderId> {
         val reserveStockStep = Step<OrderId> { orderId ->
-            val order = orderRepository.findById(orderId)!!
+            val order = orderRepository.get(orderId)
             val reservations = order.lines.asList().associateWith { line ->
                 stockRepository.reserve(line.productId, line.quantity)
             }

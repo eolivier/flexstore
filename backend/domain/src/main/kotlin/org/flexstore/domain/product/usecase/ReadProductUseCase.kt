@@ -17,7 +17,7 @@ class ReadProductUseCase(
         PreConditions(readerCanReadCondition(), productExistsCondition())
 
     override fun getNominalQuery() = NominalQuery<ProductReading, DefinedProduct> { reading ->
-        productRepository.findById(reading.productId)!!
+        productRepository.get(reading.productId)
     }
 
     override fun getPostConditions(): PostConditions<DefinedProduct> = PostConditions.none()

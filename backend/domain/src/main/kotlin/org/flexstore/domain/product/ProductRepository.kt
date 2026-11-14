@@ -5,12 +5,16 @@ import org.flexstore.domain.product.model.DefinedProduct
 import org.flexstore.domain.product.model.Product
 import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.product.model.Sku
+import org.flexstore.domain.product.model.ProductNotFoundException
 
 interface ProductRepository {
 
     fun save(product: Product): Product
     fun findAll(): List<Product>
     fun findById(productId: ProductId): DefinedProduct?
+    // The product, which a precondition has checked to exist
+    fun get(productId: ProductId): DefinedProduct =
+        findById(productId) ?: throw ProductNotFoundException("Product $productId not found.")
     fun findAllBy(category: Category): List<Product>
     fun exists(product: Product): Boolean
     fun notExists(product: Product): Boolean

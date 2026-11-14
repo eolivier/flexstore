@@ -35,7 +35,10 @@ data class OrderNotRefundableException(override val errorMessage: ErrorMessage) 
 data class OrderRefundFailed(override val errorMessage: ErrorMessage) : PostConditionException(errorMessage)
 data class OrderAdministrationForbiddenException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
-data class OrderNotFoundException(override val errorMessage: ErrorMessage) : PreConditionException(errorMessage)
+data class OrderNotFoundException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage) {
+    constructor(message: String) : this(ErrorMessage(message))
+}
 data class TermsOfSaleNotAcceptedException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
 data class OutdatedTermsOfSaleException(override val errorMessage: ErrorMessage) :

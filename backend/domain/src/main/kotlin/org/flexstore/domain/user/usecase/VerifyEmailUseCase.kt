@@ -33,7 +33,7 @@ class VerifyEmailUseCase(
 
     // Only called once the link is known
     private fun verification(confirmation: EmailVerificationConfirmation) =
-        emailRepository.findBy(confirmation.token)!!
+        emailRepository.get(confirmation.token)
 
     private fun linkIsKnownCondition() = PreCondition<EmailVerificationConfirmation> { confirmation ->
         if (emailRepository.isUnknown(confirmation.token)) {

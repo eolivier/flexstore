@@ -9,6 +9,7 @@ import org.flexstore.domain.email.model.OrderStatusEmail
 import org.flexstore.domain.email.model.PasswordResetEmail
 import org.flexstore.domain.email.model.VerificationToken
 import org.flexstore.domain.user.model.UserId
+import org.flexstore.domain.email.model.VerificationLinkUnknownException
 
 // The emails of the shop: sends them (the infrastructure decides how: SMTP, logs...) and keeps the verifications
 // of the email addresses, whose links are sent by email
@@ -21,6 +22,9 @@ interface EmailRepository {
 
     fun save(verification: EmailVerification)
     fun findBy(token: VerificationToken): EmailVerification?
+    // The verification, which a precondition has checked to exist
+    fun get(token: VerificationToken): EmailVerification =
+        findBy(token) ?: throw VerificationLinkUnknownException("Unknown verification link.")
     fun isUnknown(token: VerificationToken): Boolean = findBy(token) == null
     // The links of the user expire at the given date, unless they already expired before
     fun expireAllVerificationsOf(userId: UserId, expiration: ExpirationDate)

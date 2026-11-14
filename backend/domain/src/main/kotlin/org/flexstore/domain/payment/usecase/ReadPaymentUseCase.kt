@@ -13,7 +13,7 @@ class ReadPaymentUseCase(
     override fun getPreConditions(): PreConditions<OrderId> = PreConditions(paymentStartedCondition())
 
     override fun getNominalQuery() = NominalQuery<OrderId, PaymentSession> { orderId ->
-        paymentRepository.sessionOf(orderId)!!
+        paymentRepository.getSessionOf(orderId)
     }
 
     override fun getPostConditions(): PostConditions<PaymentSession> = PostConditions.none()

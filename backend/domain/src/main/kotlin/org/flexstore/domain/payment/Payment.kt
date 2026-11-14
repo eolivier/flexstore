@@ -35,6 +35,8 @@ data class PaymentRefundRefusedException(override val errorMessage: ErrorMessage
 data class OrderPaymentStartedException(override val errorMessage: ErrorMessage) :
     PostConditionException(errorMessage)
 data class PaymentNotStartedException(override val errorMessage: ErrorMessage) :
-    PreConditionException(errorMessage)
+    PreConditionException(errorMessage) {
+    constructor(message: String) : this(ErrorMessage(message))
+}
 data class PaymentConfirmationFailed(override val errorMessage: ErrorMessage) :
     PostConditionException(errorMessage)

@@ -19,7 +19,7 @@ class ReadUsableDiscountCodeUseCase(
     override fun getPostConditions(): PostConditions<DiscountCode> = PostConditions.none()
 
     // Only called once the code is known
-    private fun discountCodeOf(lookup: DiscountCodeLookup) = discountCodeRepository.findBy(lookup.code)!!
+    private fun discountCodeOf(lookup: DiscountCodeLookup) = discountCodeRepository.get(lookup.code)
 
     private fun codeExistsCondition() = PreCondition<DiscountCodeLookup> { lookup ->
         if (discountCodeRepository.codeIsMissing(lookup.code)) {

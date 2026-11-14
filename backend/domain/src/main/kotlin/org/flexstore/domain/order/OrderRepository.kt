@@ -6,12 +6,17 @@ import org.flexstore.domain.order.model.Orders
 import org.flexstore.domain.sharedkernel.Page
 import org.flexstore.domain.sharedkernel.PageRequest
 import org.flexstore.domain.user.model.*
+import org.flexstore.domain.order.model.OrderNotFoundException
 
 interface OrderRepository {
 
     fun save(order: Order): Order
 
     fun findById(orderId: OrderId): Order?
+
+    // The order, which a precondition has checked to exist
+    fun get(orderId: OrderId): Order =
+        findById(orderId) ?: throw OrderNotFoundException("Order $orderId not found.")
 
     fun orderExists(orderId: OrderId): Boolean
 

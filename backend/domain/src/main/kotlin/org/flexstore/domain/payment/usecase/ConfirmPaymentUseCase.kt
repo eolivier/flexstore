@@ -22,15 +22,15 @@ class ConfirmPaymentUseCase(
 
     override fun getNominalScenario(): NominalScenario<OrderId> {
         val withdrawStockStep = Step<OrderId> { orderId ->
-            val order = orderRepository.findById(orderId)!!
+            val order = orderRepository.get(orderId)
             if (order.isCancelled()) withdrawStockOf(order)
         }
         val payStep = Step<OrderId> { orderId ->
-            val order = orderRepository.findById(orderId)!!
+            val order = orderRepository.get(orderId)
             orderRepository.save(order.paidAt(StatusChangedAt.now()))
         }
         val emptyCartStep = Step<OrderId> { orderId ->
-            val customer = CartOwner.Customer(orderRepository.findById(orderId)!!.customer)
+            val customer = CartOwner.Customer(orderRepository.get(orderId).customer)
             cartRepository.save(cartRepository.load(customer).emptied())
         }
         return NominalScenario(listOf(withdrawStockStep, payStep, emptyCartStep))
@@ -51,7 +51,7 @@ class ConfirmPaymentUseCase(
     }
 
     private fun orderAwaitsPaymentCondition() = PreCondition<OrderId> { orderId ->
-        val order = orderRepository.findById(orderId)!!
+        val order = orderRepository.get(orderId)
         if (order.isPaid()) {
             throw OrderAlreadyPaidException(ErrorMessage("Order ${order.number()} is already paid."))
         }

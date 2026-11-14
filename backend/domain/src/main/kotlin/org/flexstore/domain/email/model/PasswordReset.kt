@@ -45,7 +45,9 @@ data class PasswordResetEmail(val user: User.DefinedUser, val reset: PasswordRes
 }
 
 data class PasswordResetLinkUnknownException(override val errorMessage: ErrorMessage) :
-    PreConditionException(errorMessage)
+    PreConditionException(errorMessage) {
+    constructor(message: String) : this(ErrorMessage(message))
+}
 data class PasswordResetLinkExpiredException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)
 data class PasswordResetFailed(override val errorMessage: ErrorMessage) : PostConditionException(errorMessage)

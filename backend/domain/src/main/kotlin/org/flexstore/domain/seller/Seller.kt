@@ -190,7 +190,10 @@ data class SellerAdministrationForbiddenException(override val errorMessage: Err
     PreConditionException(errorMessage)
 data class InvalidSellerException(override val errorMessage: ErrorMessage) : PreConditionException(errorMessage)
 data class SellerUpdateFailed(override val errorMessage: ErrorMessage) : PostConditionException(errorMessage)
-data class SellerNotFoundException(override val errorMessage: ErrorMessage) : PreConditionException(errorMessage)
+data class SellerNotFoundException(override val errorMessage: ErrorMessage) :
+    PreConditionException(errorMessage) {
+    constructor(message: String) : this(ErrorMessage(message))
+}
 
 private val SIRET = Regex("[0-9]{14}")
 private val VAT_NUMBER = Regex("[A-Z]{2}[0-9A-Z]{2,13}")
