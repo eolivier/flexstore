@@ -2,8 +2,9 @@
   import { useI18n } from 'vue-i18n';
 
   // The breadcrumb of the order: the pictogram of the current step is selected, the steps already done lead back
-  // to their page, so that the customer can change their cart from the checkout
-  const props = defineProps<{ current: 'cart' | 'delivery' | 'payment' }>();
+  // to their page, so that the customer can change their cart from the checkout.
+  // Once the order is confirmed, nothing leads back: the cart and the payment are over
+  const props = defineProps<{ current: 'cart' | 'delivery' | 'payment' | 'confirmation' }>();
 
   const { t } = useI18n();
 
@@ -11,8 +12,11 @@
     { name: 'cart', icon: 'mdi-cart-outline', to: '/cart' },
     { name: 'delivery', icon: 'mdi-truck-delivery-outline', to: '/checkout' },
     { name: 'payment', icon: 'mdi-credit-card-outline', to: undefined },
+    { name: 'confirmation', icon: 'mdi-check-circle-outline', to: undefined },
   ] as const;
   const currentIndex = () => steps.findIndex((step) => step.name === props.current);
+  const leadsBack = (index: number) =>
+    index < currentIndex() && props.current !== 'confirmation' && steps[index].to !== undefined;
 </script>
 
 <template>
@@ -22,8 +26,8 @@
         <v-icon v-if="index > 0" icon="mdi-chevron-right" class="mx-2 text-medium-emphasis" />
         <li :aria-current="step.name === current ? 'step' : undefined" class="step">
           <component
-            :is="index < currentIndex() ? 'router-link' : 'span'"
-            :to="index < currentIndex() ? step.to : undefined"
+            :is="leadsBack(index) ? 'router-link' : 'span'"
+            :to="leadsBack(index) ? step.to : undefined"
             class="d-flex align-center ga-2 text-decoration-none"
             :class="index > currentIndex() ? 'text-disabled' : 'text-primary'"
           >

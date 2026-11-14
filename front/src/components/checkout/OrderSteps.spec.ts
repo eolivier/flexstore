@@ -4,7 +4,7 @@ import { createRouter, createMemoryHistory } from 'vue-router';
 import OrderSteps from './OrderSteps.vue';
 import { vuetify, i18n } from '@/test/setup';
 
-function mountSteps(current: 'cart' | 'delivery' | 'payment') {
+function mountSteps(current: 'cart' | 'delivery' | 'payment' | 'confirmation') {
   const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/:p(.*)*', component: {} }] });
   return mount(OrderSteps, { props: { current }, global: { plugins: [vuetify, i18n, router] } });
 }
@@ -32,6 +32,14 @@ describe('OrderSteps.vue', () => {
     // Arrange / Act
     const wrapper = mountSteps('cart');
     // Assert
+    expect(wrapper.findAll('a')).toHaveLength(0);
+  });
+
+  it('should select the order confirmation without leading back to a previous step', () => {
+    // Arrange / Act
+    const wrapper = mountSteps('confirmation');
+    // Assert
+    expect(wrapper.find('[aria-current="step"]').text()).toBe('Order confirmation');
     expect(wrapper.findAll('a')).toHaveLength(0);
   });
 });

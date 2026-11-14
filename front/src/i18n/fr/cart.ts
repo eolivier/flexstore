@@ -19,6 +19,7 @@ export default {
       cart: 'Panier',
       delivery: 'Livraison',
       payment: 'Paiement',
+      confirmation: 'Confirmation commande',
     },
   },
   checkout: {
