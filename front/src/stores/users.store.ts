@@ -4,6 +4,7 @@ import type { AccountStatus, User } from '@/models/user';
 import { pageQuery, totalCountOf } from '@/utils/pagination';
 import { useAuthStore } from './auth.store';
 import { jsonRequest } from '@/utils/jsonRequest';
+import { logFailure } from '@/utils/logFailure';
 
 // The fields of a user an administrator edits: the password is changed by a separate operation
 export type EditedUser = Pick<User, 'firstName' | 'lastName' | 'email'> & { role: NonNullable<User['role']> };
@@ -30,7 +31,7 @@ export const useUsersStore = defineStore('users', () => {
         // The last user of the last page was deleted: the page before is the last one now
         if (pageUsers.length === 0 && pageNumber > 0) await fetchUsers(pageNumber - 1);
       } else {
-        console.error('Error when loading users');
+        logFailure('load the users');
       }
     } finally {
       loading.value = false;
@@ -42,13 +43,13 @@ export const useUsersStore = defineStore('users', () => {
     try {
       const response = await authStore.authFetch('/api/users', jsonRequest('POST', user));
       if (!response.ok) {
-        console.error('Error when creating user', await response.text());
+        logFailure('create the user', await response.text());
         return false;
       }
       await fetchUsers();
       return true;
     } catch (error) {
-      console.error('Error when creating user', error);
+      logFailure('create the user', error);
       return false;
     }
   }
@@ -60,7 +61,7 @@ export const useUsersStore = defineStore('users', () => {
       await fetchUsers();
       return response.ok;
     } catch (error) {
-      console.error('Error when deleting user', error);
+      logFailure('delete the user', error);
       return false;
     }
   }

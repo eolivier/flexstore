@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { useAuthStore } from './auth.store';
 import { useLoadingStore } from './loading.store';
 import { jsonRequest } from '@/utils/jsonRequest';
+import { logFailure } from '@/utils/logFailure';
 
 // verified: the account is active; expired: the link is older than 1 hour; unknown: wrong or already used link
 export type EmailVerification = 'verified' | 'expired' | 'unknown' | 'error';
@@ -24,7 +25,7 @@ export const useEmailVerificationStore = defineStore('emailVerification', () => 
       if (response.status === 404) return 'unknown';
       return 'error';
     } catch (error) {
-      console.error('Email verification error:', error);
+      logFailure('verify the email', error);
       return 'error';
     }
   }
@@ -35,7 +36,7 @@ export const useEmailVerificationStore = defineStore('emailVerification', () => 
       const response = await useAuthStore().authFetch('/api/accounts/me/verification-email', { method: 'POST' });
       return response.ok;
     } catch (error) {
-      console.error('Verification email error:', error);
+      logFailure('send the verification email', error);
       return false;
     }
   }

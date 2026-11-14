@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { useLoadingStore } from './loading.store';
 import { jsonRequest } from '@/utils/jsonRequest';
+import { logFailure } from '@/utils/logFailure';
 
 // reset: the customer signs in with the new password; expired: the link is older than 1 hour; unknown: wrong or
 // already used link; tooShort: less than 8 characters
@@ -21,7 +22,7 @@ export const usePasswordResetStore = defineStore('passwordReset', () => {
       const response = await post('/api/password-reset-requests', { email: email.trim() });
       return response.ok;
     } catch (error) {
-      console.error('Password reset request error:', error);
+      logFailure('request the password reset', error);
       return false;
     }
   }
@@ -35,7 +36,7 @@ export const usePasswordResetStore = defineStore('passwordReset', () => {
       if (response.status === 422) return 'tooShort';
       return 'error';
     } catch (error) {
-      console.error('Password reset error:', error);
+      logFailure('reset the password', error);
       return 'error';
     }
   }
