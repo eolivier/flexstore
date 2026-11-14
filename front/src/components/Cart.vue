@@ -7,6 +7,7 @@
   import { useCartStore } from '@/stores/cart.store';
   import { useProductImagesStore } from '@/stores/productImages.store';
   import type { Item } from '@/models/cart';
+  import OrderSteps from '@/components/checkout/OrderSteps.vue';
   import CartLine from '@/components/cart/CartLine.vue';
   import { formatPrice } from '@/utils/price';
 
@@ -44,6 +45,7 @@
 
 <template>
   <v-container class="py-10">
+    <OrderSteps current="cart" />
     <h1 class="text-h4 font-weight-bold mb-6">{{ t('cart.title') }}</h1>
 
     <transition name="cart-fade" mode="out-in">

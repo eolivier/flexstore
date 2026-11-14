@@ -71,6 +71,9 @@
     >
       {{ t('checkout.placeOrder') }}
     </v-btn>
+    <v-btn to="/cart" variant="outlined" color="primary" block class="mt-3" prepend-icon="mdi-arrow-left">
+      {{ t('checkout.backToCart') }}
+    </v-btn>
   </v-card>
 </template>
 

@@ -14,6 +14,12 @@ export default {
     accountItemsMerged: 'Les articles enregistrés dans votre compte ont été ajoutés à votre panier.',
     placeOrder: 'Passer la commande',
     signInToOrder: 'Vous vous connecterez pour valider la commande.',
+    steps: {
+      label: 'Étapes de la commande',
+      cart: 'Panier',
+      delivery: 'Livraison',
+      payment: 'Paiement',
+    },
   },
   checkout: {
     title: 'Livraison et facturation',
@@ -45,6 +51,7 @@ export default {
     sameAsDelivery: "Identique à l'adresse de livraison",
     otherAddress: 'Une autre adresse',
     placeOrder: 'Commander et payer',
+    backToCart: 'Modifier mon panier',
     termsOfSale: {
       accept: "J'ai lu et j'accepte les conditions générales de vente",
       read: 'Lire les conditions générales de vente',
