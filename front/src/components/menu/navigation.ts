@@ -7,7 +7,7 @@ export const shopLinks = [
 ];
 
 export const accountLinks = [
-  { to: '/user-profile', icon: 'mdi-account-outline', label: 'nav.profile' },
+  { to: '/user-profile', icon: 'mdi-account-outline', label: 'nav.account' },
   { to: '/orders', icon: 'mdi-truck-outline', label: 'nav.orders' },
   { to: '/account/addresses', icon: 'mdi-map-marker-outline', label: 'nav.addresses' },
   { to: '/account/wishlist', icon: 'mdi-heart-outline', label: 'nav.wishlist' },

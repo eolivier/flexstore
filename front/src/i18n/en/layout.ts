@@ -12,7 +12,6 @@ export default {
     wishlist: 'My wishlist',
     loyalty: 'My loyalty',
     preferences: 'My preferences',
-    profile: 'My profile',
     account: 'My account',
     admin: 'Administration',
     users: 'Users',
