@@ -62,4 +62,40 @@ describe('LegalPageForm.vue', () => {
     expect(mockFetch).not.toHaveBeenCalled();
     expect(wrapper.text()).toContain('Mandatory field');
   });
+
+  it('should keep Publish enabled and Cancel disabled while nothing is modified', () => {
+    // Act
+    const wrapper = mountForm();
+    // Assert
+    expect(wrapper.find('[data-test="form-save"]').attributes('disabled')).toBeUndefined();
+    expect(wrapper.find('[data-test="form-cancel"]').attributes('disabled')).toBeDefined();
+  });
+
+  it('should restore the published text when cancelled', async () => {
+    // Arrange
+    const wrapper = mountForm();
+    await wrapper.find('textarea').setValue('Another text');
+    await flushPromises();
+    expect(wrapper.find('[data-test="form-cancel"]').attributes('disabled')).toBeUndefined();
+    // Act
+    await wrapper.find('[data-test="form-cancel"]').trigger('click');
+    await flushPromises();
+    // Assert
+    expect((wrapper.find('textarea').element as HTMLTextAreaElement).value).toBe('Flexstore SAS');
+    expect(wrapper.find('[data-test="form-cancel"]').attributes('disabled')).toBeDefined();
+  });
+
+  it('should take the published text as the new initial one', async () => {
+    // Arrange
+    const edited = { ...legalNotice, text: 'Flexstore SAS, 1 rue de la Démo' };
+    mockFetch.mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve(edited) });
+    const wrapper = mountForm();
+    await wrapper.find('textarea').setValue(edited.text);
+    await flushPromises();
+    // Act
+    await wrapper.find('form').trigger('submit');
+    await flushPromises();
+    // Assert
+    expect(wrapper.find('[data-test="form-cancel"]').attributes('disabled')).toBeDefined();
+  });
 });

@@ -1,7 +1,8 @@
 <script setup lang="ts">
   import FormActions from '@/components/form/FormActions.vue';
-  import { computed, reactive, ref } from 'vue';
+  import { ref } from 'vue';
   import { useI18n } from 'vue-i18n';
+  import { useEditedForm } from '@/composables/useEditedForm';
   import { useSellerStore, type Seller, type SellerUpdate } from '@/stores/seller.store';
   import SellerSocialNetworksFields from './SellerSocialNetworksFields.vue';
   import { useSellerFieldRules } from './setup/useSellerFieldRules';
@@ -11,12 +12,8 @@
   const { t } = useI18n();
   const sellerStore = useSellerStore();
 
-  const copyOf = (seller: Seller): Seller => ({ ...seller, socialNetworks: { ...seller.socialNetworks } });
-
-  // the last saved values: what "Cancel" restores and what "Save" is compared with
-  const initialSeller = ref<Seller>(copyOf(props.seller));
-  const editedSeller = reactive<Seller>(copyOf(props.seller));
-  const modified = computed(() => JSON.stringify(editedSeller) !== JSON.stringify(initialSeller.value));
+  // the last saved values are what "Cancel" restores and what the edited seller is compared with
+  const { editedValues: editedSeller, isModified, snapshot, markSaved, restore } = useEditedForm<Seller>(props.seller);
   // null until every field is checked
   const valid = ref<boolean | null>(true);
   const saving = ref(false);
@@ -28,13 +25,13 @@
   async function save() {
     if (valid.value === false) return;
     saving.value = true;
-    update.value = await sellerStore.updateSeller(copyOf(editedSeller));
-    if (update.value === 'saved') initialSeller.value = copyOf(editedSeller);
+    update.value = await sellerStore.updateSeller(snapshot());
+    if (update.value === 'saved') markSaved();
     saving.value = false;
   }
 
   function cancel() {
-    Object.assign(editedSeller, copyOf(initialSeller.value));
+    restore();
     update.value = null;
   }
 </script>
@@ -117,7 +114,7 @@
       <FormActions
         :loading="saving"
         :disabled="valid === false"
-        :cancel-disabled="!modified"
+        :cancel-disabled="!isModified"
         @cancel="cancel"
       />
     </div>

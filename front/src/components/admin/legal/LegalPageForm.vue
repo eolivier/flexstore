@@ -1,6 +1,8 @@
 <script setup lang="ts">
+  import FormActions from '@/components/form/FormActions.vue';
   import { ref } from 'vue';
   import { useI18n } from 'vue-i18n';
+  import { useEditedForm } from '@/composables/useEditedForm';
   import { useFieldRules } from '@/composables/useFieldRules';
   import type { JsonLegalPage } from '@/generated';
   import { useLegalPagesStore, type LegalPageKind, type LegalPagePublication } from '@/stores/legalPages.store';
@@ -12,7 +14,9 @@
   const { t } = useI18n();
   const legalPagesStore = useLegalPagesStore();
 
-  const text = ref(props.legalPage.text);
+  const { editedValues: editedLegalPage, isModified, markSaved, restore } = useEditedForm({
+    text: props.legalPage.text,
+  });
   const formRef = ref<{ validate: () => Promise<{ valid: boolean }> } | null>(null);
   // null until every field is checked
   const valid = ref<boolean | null>(true);
@@ -30,15 +34,21 @@
     const validation = await formRef.value?.validate();
     if (!validation?.valid) return;
     saving.value = true;
-    publication.value = await legalPagesStore.publishLegalPage(props.kind, text.value);
+    publication.value = await legalPagesStore.publishLegalPage(props.kind, editedLegalPage.text);
+    if (publication.value === 'saved') markSaved();
     saving.value = false;
+  }
+
+  function cancel() {
+    restore();
+    publication.value = null;
   }
 </script>
 
 <template>
   <v-form ref="formRef" v-model="valid" @submit.prevent="publish">
     <v-textarea
-      v-model="text"
+      v-model="editedLegalPage.text"
       :label="t(`legalPages.${kind}.title`)"
       :hint="t('legalPages.textHint')"
       :rules="[rules.required, rules.maximumLength]"
@@ -48,9 +58,6 @@
       class="mb-2"
     />
     <div class="d-flex align-center ga-4 mt-2">
-      <v-btn type="submit" color="secondary" :loading="saving" :disabled="valid === false">{{
-        t('legalPages.publish')
-      }}</v-btn>
       <router-link :to="`/${kind}`" class="text-body-2">{{ t('legalPages.see') }}</router-link>
       <span v-if="publication === 'saved'" class="text-body-2 text-success">{{ t('legalPages.saved') }}</span>
       <span v-else-if="publication === 'invalid'" class="text-body-2 text-error">{{
@@ -59,6 +66,15 @@
       <span v-else-if="publication === 'failed'" class="text-body-2 text-error">{{
         t('legalPages.saveError')
       }}</span>
+      <FormActions
+        class="ml-auto"
+        :loading="saving"
+        :disabled="valid === false"
+        :cancel-disabled="!isModified"
+        @cancel="cancel"
+      >
+        {{ t('legalPages.publish') }}
+      </FormActions>
     </div>
   </v-form>
 </template>
