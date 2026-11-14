@@ -63,6 +63,8 @@ export default {
     loadError: "Les produits n'ont pas pu être chargés.",
     added: '{name} a été ajouté à votre panier',
     addError: "Le produit n'a pas pu être ajouté à votre panier.",
+    addedAll: '{count} produits ont été ajoutés à votre panier',
+    addAllError: "Certains produits n'ont pas pu être ajoutés à votre panier.",
     viewCart: 'Voir le panier',
     shop: 'Boutique',
     quantity: 'Quantité',

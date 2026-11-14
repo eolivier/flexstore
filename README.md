@@ -55,7 +55,7 @@ This repo is meant to be a learning vehicle and a ready-to-fork base for real pr
 - My preferences: the display mode (light or dark), the language and the guided tour of a signed-in customer are kept in their account (`/api/color-mode`, `/api/language`, `/api/guided-tour`) and found again on every device
 - Guided tour: at sign-in, an assistant presents the sections of the shop (catalog, cart, orders, wishlist, loyalty, preferences) step by step. The customer can skip it at any step (it comes back at their next sign-in) or, at its end, tick "Do not show again", which hides it in their account (`guided_tour` setting, `PUT /api/guided-tour`). Turning "Guided tour" back on in My preferences shows it again right away
 - My addresses: see, add, edit and remove the postal addresses of the account; the orders keep the address they were sent to
-- Wishlist: a customer saves products to find them again later (once per product, newest first)
+- Wishlist: a customer saves products to find them again later (once per product, newest first). One click on "Add everything to my cart" moves all the saved products that are in stock to the cart (a product already in the cart gets one more unit; the products out of stock are left out)
 - Loyalty: one point for each whole euro or dollar of the paid orders of the customer. "My loyalty" shows a line for each purchase with the points it earned (newest first, a refunded order gives its points back) and the total of the points collected
 
 **Administration** (`ADMIN` role)

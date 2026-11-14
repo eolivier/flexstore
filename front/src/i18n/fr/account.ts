@@ -51,6 +51,7 @@ export default {
     subtitle: 'Les produits que vous avez enregistrés, pour les acheter plus tard.',
     empty: 'Votre liste de souhaits est vide : enregistrez un produit depuis la boutique pour le voir ici.',
     loadError: "Votre liste de souhaits n'a pas pu être chargée.",
+    addAllToCart: 'Tout ajouter à mon panier',
   },
   loyalty: {
     title: 'Ma fidélité',

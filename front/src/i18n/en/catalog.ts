@@ -63,6 +63,8 @@ export default {
     loadError: 'The products could not be loaded.',
     added: '{name} added to your cart',
     addError: 'The product could not be added to your cart.',
+    addedAll: '{count} products added to your cart',
+    addAllError: 'Some products could not be added to your cart.',
     viewCart: 'View cart',
     shop: 'Shop',
     quantity: 'Quantity',

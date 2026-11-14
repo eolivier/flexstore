@@ -1,13 +1,14 @@
 <script setup lang="ts">
   import EmptyState from '@/components/layout/EmptyState.vue';
   import LoadError from '@/components/layout/LoadError.vue';
-  import { onMounted } from 'vue';
+  import { computed, onMounted } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useWishlistStore } from '@/stores/wishlist.store';
   import { useStocksStore } from '@/stores/stocks.store';
   import { useReviewsStore } from '@/stores/reviews.store';
   import { useAddToCart } from '@/composables/useAddToCart';
   import ProductCard from '@/components/products/ProductCard.vue';
+  import WishlistAddAllButton from './WishlistAddAllButton.vue';
 
   // The products the signed-in customer saved to their wishlist: unsaving one (the heart on its card) removes
   // it from this page
@@ -15,7 +16,12 @@
   const wishlistStore = useWishlistStore();
   const stocksStore = useStocksStore();
   const reviewsStore = useReviewsStore();
-  const { addingProductId, addToCart } = useAddToCart();
+  const { addingProductId, addingAll, addToCart, addAllToCart } = useAddToCart();
+
+  // A product out of stock cannot be added to the cart (its own button is disabled too)
+  const productsInStock = computed(() =>
+    wishlistStore.products.filter((product) => stocksStore.quantityOf(product.id) !== 0)
+  );
 
   onMounted(() => {
     wishlistStore.fetchWishlist();
@@ -37,25 +43,29 @@
       </v-col>
     </v-row>
 
-    <EmptyState
-      v-else-if="wishlistStore.products.length === 0"
-      icon="mdi-heart-outline"
-      :message="t('wishlist.empty')"
-    >
+    <EmptyState v-else-if="wishlistStore.products.length === 0" icon="mdi-heart-outline" :message="t('wishlist.empty')">
       <v-btn to="/products" color="primary">{{ t('products.backToShop') }}</v-btn>
     </EmptyState>
 
-    <v-row v-else>
-      <v-col v-for="product in wishlistStore.products" :key="product.id" cols="12" sm="6" md="4" lg="3">
-        <ProductCard
-          :product="product"
-          :stock="stocksStore.quantityOf(product.id)"
-          :rating="reviewsStore.ratingOf(product.id)"
-          :adding="addingProductId === product.id"
-          @add="addToCart"
+    <template v-else>
+      <div class="d-flex justify-end mb-4">
+        <WishlistAddAllButton
+          :adding="addingAll"
+          :disabled="productsInStock.length === 0"
+          @add-all="addAllToCart(productsInStock)"
         />
-      </v-col>
-    </v-row>
-
+      </div>
+      <v-row>
+        <v-col v-for="product in wishlistStore.products" :key="product.id" cols="12" sm="6" md="4" lg="3">
+          <ProductCard
+            :product="product"
+            :stock="stocksStore.quantityOf(product.id)"
+            :rating="reviewsStore.ratingOf(product.id)"
+            :adding="addingProductId === product.id"
+            @add="addToCart"
+          />
+        </v-col>
+      </v-row>
+    </template>
   </v-container>
 </template>
