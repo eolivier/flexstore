@@ -7,6 +7,7 @@
   import { useOrdersStore } from '@/stores/orders.store';
   import type { PostalAddress, Recipient } from '@/models/account';
   import { openExternalPage } from '@/utils/navigation';
+  import OrderSteps from './OrderSteps.vue';
   import AddressChoice from './AddressChoice.vue';
   import CheckoutSummary from './CheckoutSummary.vue';
   import ShippingMethodChoice from './ShippingMethodChoice.vue';
@@ -117,6 +118,7 @@
 
 <template>
   <v-container class="py-10">
+    <OrderSteps current="delivery" />
     <h1 class="text-h4 font-weight-bold mb-6">{{ t('checkout.title') }}</h1>
     <v-row>
       <v-col cols="12" md="8">

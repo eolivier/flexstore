@@ -14,6 +14,12 @@ export default {
     accountItemsMerged: 'The items saved in your account have been added to your cart.',
     placeOrder: 'Place order',
     signInToOrder: 'You will sign in to confirm your order.',
+    steps: {
+      label: 'Order steps',
+      cart: 'Cart',
+      delivery: 'Delivery',
+      payment: 'Payment',
+    },
   },
   checkout: {
     title: 'Delivery and billing',
@@ -45,6 +51,7 @@ export default {
     sameAsDelivery: 'Same as the delivery address',
     otherAddress: 'Another address',
     placeOrder: 'Order and pay',
+    backToCart: 'Edit my cart',
     termsOfSale: {
       accept: 'I have read and I accept the terms of sale',
       read: 'Read the terms of sale',
