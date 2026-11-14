@@ -29,8 +29,9 @@ class VerifyPaymentUseCase(
 
     // The order of another customer is reported as not found, so that its existence is not revealed
     private fun orderOfTheCustomerCondition() = PreCondition<OrderPayment> { orderPayment ->
-        val order = orderRepository.findById(orderPayment.orderId)
-        if (order == null || order.belongsTo(orderPayment.customer.userId).not()) {
+        val orderId = orderPayment.orderId
+        val customerId = orderPayment.customer.userId
+        if (orderRepository.orderIsMissing(orderId) || orderRepository.get(orderId).doesNotBelongTo(customerId)) {
             throw OrderNotFoundException(ErrorMessage("Order ${orderPayment.orderId} not found."))
         }
     }

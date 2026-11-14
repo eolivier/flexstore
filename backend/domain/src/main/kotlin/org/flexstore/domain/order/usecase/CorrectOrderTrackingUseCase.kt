@@ -59,7 +59,7 @@ class CorrectOrderTrackingUseCase(
     }
 
     private fun trackingIsKeptCondition() = PostCondition<OrderTrackingCorrection> { correction ->
-        if (orderRepository.findById(correction.orderId)?.tracking != correction.tracking) {
+        if (orderRepository.get(correction.orderId).tracking != correction.tracking) {
             val message = "The tracking of order ${correction.orderId} was not corrected."
             throw OrderTrackingChangeFailed(ErrorMessage(message))
         }

@@ -78,7 +78,7 @@ class CancelUnpaidOrderUseCase(
     }
 
     private fun orderIsCancelledCondition() = PostCondition<UnpaidOrderCancellation> { cancellation ->
-        if (orderRepository.findById(cancellation.orderId)?.isCancelled() != true) {
+        if (orderRepository.get(cancellation.orderId).isNotCancelled()) {
             val message = ErrorMessage("Order ${cancellation.orderId} was not cancelled.")
             throw OrderCancellationFailed(message)
         }

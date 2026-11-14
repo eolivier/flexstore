@@ -77,7 +77,7 @@ class RefundOrderUseCase(
     }
 
     private fun orderIsRefundedCondition() = PostCondition<OrderRefund> { orderRefund ->
-        if (orderRepository.findById(orderRefund.orderId)?.isRefunded() != true) {
+        if (orderRepository.get(orderRefund.orderId).isNotRefunded()) {
             val message = ErrorMessage("Order ${orderRefund.orderId} was not refunded.")
             throw OrderRefundFailed(message)
         }
