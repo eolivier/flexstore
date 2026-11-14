@@ -86,13 +86,21 @@ paths:
       - Users
       summary: Retrieve a page of the users, the first created first (ADMIN role)
       description: The total number of users is in the header X-Total-Count; a size above 100 is brought back
-        to 100
+        to 100. With a search, only the users that match it are read and counted
       operationId: getAllUsers
       security:
       - bearerAuth: []
       parameters:
       - $ref: "#/components/parameters/Page"
       - $ref: "#/components/parameters/PageSize"
+      - name: search
+        in: query
+        required: false
+        description: Words that each must be part of the first name, the last name or the email of the users,
+          whatever the case
+        schema:
+          type: string
+          default: ""
       responses:
         "200":
           description: A page of the users

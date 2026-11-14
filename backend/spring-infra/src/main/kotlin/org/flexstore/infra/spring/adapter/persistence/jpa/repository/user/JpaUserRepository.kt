@@ -6,10 +6,11 @@ import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 import org.springframework.stereotype.Repository
 
 @Repository
-interface JpaUserRepository : JpaRepository<UserEntity, String> {
+interface JpaUserRepository : JpaRepository<UserEntity, String>, JpaSpecificationExecutor<UserEntity> {
     fun existsByEmail(email: String): Boolean
     fun findByEmail(email: String): UserEntity?
 }

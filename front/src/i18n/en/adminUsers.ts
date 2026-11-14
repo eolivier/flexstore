@@ -1,5 +1,7 @@
 export default {
   users: {
+    search: 'Search by name or email',
+    noMatch: 'No user matches the search.',
     loading: 'Loading the users…',
     title: 'Users',
     delete: 'Delete',

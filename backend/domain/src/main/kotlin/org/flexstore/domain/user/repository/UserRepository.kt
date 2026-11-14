@@ -1,7 +1,6 @@
 package org.flexstore.domain.user.repository
 
 import org.flexstore.domain.sharedkernel.Page
-import org.flexstore.domain.sharedkernel.PageRequest
 import org.flexstore.domain.user.model.*
 import org.ucop.domain.ErrorMessage
 
@@ -14,8 +13,8 @@ interface UserRepository {
     fun findByEmail(email: Email): User
     fun findAll(): List<User>
 
-    // A page of the users, the first created first, with the number of all the users
-    fun findAll(pageRequest: PageRequest): Page<Users>
+    // A page of the users that match the search, the first created first, with the number of all of them
+    fun findAll(usersSearch: UsersSearch): Page<Users>
     fun delete(id: UserId):Boolean
     fun passwordMatches(email: Email, password: Password): Boolean
     fun passwordDoesNotMatch(email: Email, password: Password): Boolean = !passwordMatches(email, password)

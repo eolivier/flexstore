@@ -3,6 +3,7 @@
   import { computed, onMounted, ref } from 'vue';
   import { useUsersStore } from '@/stores/users.store.ts';
   import ConfirmDialog from '@/components/ConfirmDialog.vue';
+  import UsersSearchField from '@/components/admin/UsersSearchField.vue';
   import ListPager from '@/components/layout/ListPager.vue';
   import { FullName, type AccountStatus, type User } from '@/models/user';
   import { useI18n } from 'vue-i18n';
@@ -64,11 +65,14 @@
       }}</v-btn>
     </div>
 
+    <UsersSearchField :model-value="usersStore.searchText" @update:model-value="usersStore.searchUsers" />
+
     <v-data-table
       :headers="headers"
       :items="usersStore.users"
       :loading="usersStore.loading"
       :loading-text="t('users.loading')"
+      :no-data-text="t('users.noMatch')"
       item-value="id"
       :items-per-page="-1"
       hide-default-footer
