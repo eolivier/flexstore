@@ -11,7 +11,7 @@
     <v-btn to="/" variant="text" exact>{{ t('nav.home') }}</v-btn>
     <v-menu open-on-hover location="bottom start">
       <template #activator="{ props }">
-        <v-btn v-bind="props" variant="text" append-icon="mdi-chevron-down">
+        <v-btn v-bind="props" variant="text" append-icon="mdi-chevron-down" data-guided-tour="shop">
           {{ t('nav.shop') }}
         </v-btn>
       </template>

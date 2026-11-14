@@ -23,7 +23,7 @@
 </script>
 
 <template>
-  <v-btn to="/cart" icon variant="text" :aria-label="t('nav.cart')">
+  <v-btn to="/cart" icon variant="text" :aria-label="t('nav.cart')" data-guided-tour="cart">
     <v-badge
       :content="count"
       :model-value="count > 0"
