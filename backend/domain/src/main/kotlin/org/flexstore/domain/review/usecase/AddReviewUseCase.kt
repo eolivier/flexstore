@@ -49,14 +49,13 @@ class AddReviewUseCase(
 
     private fun opinionIsValidCondition() = PreCondition<ReviewSubmission> { submission ->
         val opinion = submission.draft.productOpinion.opinion
-        val reason = when {
-            opinion.rating.isInvalid() -> "the rating is from 1 to 5"
-            opinion.comment.isBlank() -> "the comment is not empty"
-            opinion.comment.isTooLong() -> "the comment is 1000 characters at most"
-            else -> null
-        }
-        if (reason != null) throw InvalidReviewException(ErrorMessage("The review is not valid: $reason."))
+        if (opinion.rating.isInvalid()) throw invalidReview("the rating is from 1 to 5")
+        if (opinion.comment.isBlank()) throw invalidReview("the comment is not empty")
+        if (opinion.comment.isTooLong()) throw invalidReview("the comment is 1000 characters at most")
     }
+
+    private fun invalidReview(reason: String) =
+        InvalidReviewException(ErrorMessage("The review is not valid: $reason."))
 
     private fun productExistsCondition() = PreCondition<ReviewSubmission> { submission ->
         val productId = submission.draft.productOpinion.productId

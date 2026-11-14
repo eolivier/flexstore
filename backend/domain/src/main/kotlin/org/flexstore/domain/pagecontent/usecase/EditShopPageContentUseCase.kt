@@ -31,17 +31,14 @@ class EditShopPageContentUseCase(
 
     private fun contentIsValidCondition() = PreCondition<ShopPageContentChange> { change ->
         val content = change.content
-        val reason = when {
-            content.isTooLong() -> "its text is ${ShopPageContentText.MAXIMUM_LENGTH} characters at most"
-            content.isMalformed() -> "its text is letters, digits and hyphens only"
-            else -> null
+        if (content.isTooLong()) {
+            throw invalidContent(content, "its text is ${ShopPageContentText.MAXIMUM_LENGTH} characters at most")
         }
-        if (reason != null) {
-            throw InvalidShopPageContentException(
-                ErrorMessage("The content ${content.type} is not valid: $reason.")
-            )
-        }
+        if (content.isMalformed()) throw invalidContent(content, "its text is letters, digits and hyphens only")
     }
+
+    private fun invalidContent(content: ShopPageContent, reason: String) =
+        InvalidShopPageContentException(ErrorMessage("The content ${content.type} is not valid: $reason."))
 
     private fun contentIsSavedCondition() = PostCondition<ShopPageContentChange> { change ->
         val content = change.content

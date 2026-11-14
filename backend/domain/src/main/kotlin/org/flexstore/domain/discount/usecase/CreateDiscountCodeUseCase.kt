@@ -30,17 +30,16 @@ class CreateDiscountCodeUseCase(
 
     private fun discountCodeIsValidCondition() = PreCondition<DiscountCodeCreation> { (_, discountCode) ->
         val validity = discountCode.offer.validity
-        val reason = when {
-            discountCode.code.isMalformed() -> "its code is upper-case letters and digits, 3 to 30"
-            discountCode.reduction.isInvalid() -> "its reduction is more than 0 (a percentage up to 100)"
-            validity.usageLimit.isInvalid() -> "it may be used by 1 order at least"
-            else -> null
+        val code = discountCode.code
+        if (code.isMalformed()) throw invalidDiscountCode(code, "its code is upper-case letters and digits, 3 to 30")
+        if (discountCode.reduction.isInvalid()) {
+            throw invalidDiscountCode(code, "its reduction is more than 0 (a percentage up to 100)")
         }
-        if (reason != null) {
-            val message = ErrorMessage("The discount code ${discountCode.code.value}: $reason.")
-            throw InvalidDiscountCodeException(message)
-        }
+        if (validity.usageLimit.isInvalid()) throw invalidDiscountCode(code, "it may be used by 1 order at least")
     }
+
+    private fun invalidDiscountCode(code: PromoCode, reason: String) =
+        InvalidDiscountCodeException(ErrorMessage("The discount code ${code.value}: $reason."))
 
     private fun codeIsFreeCondition() = PreCondition<DiscountCodeCreation> { (_, discountCode) ->
         if (discountCodeRepository.codeExists(discountCode.code)) {

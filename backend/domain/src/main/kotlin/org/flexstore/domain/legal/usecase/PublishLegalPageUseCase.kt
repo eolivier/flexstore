@@ -30,16 +30,12 @@ class PublishLegalPageUseCase(
 
     private fun textIsValidCondition() = PreCondition<LegalPagePublication> { publication ->
         val text = publication.legalPage.text
-        val reason = when {
-            text.isBlank() -> "its text is not empty"
-            text.isTooLong() -> "its text is 50 000 characters at most"
-            else -> null
-        }
-        if (reason != null) {
-            val message = ErrorMessage("The legal page is not valid: $reason.")
-            throw InvalidLegalPageException(message)
-        }
+        if (text.isBlank()) throw invalidLegalPage("its text is not empty")
+        if (text.isTooLong()) throw invalidLegalPage("its text is 50 000 characters at most")
     }
+
+    private fun invalidLegalPage(reason: String) =
+        InvalidLegalPageException(ErrorMessage("The legal page is not valid: $reason."))
 
     private fun legalPageIsCurrentCondition() = PostCondition<LegalPagePublication> { publication ->
         val legalPage = publication.legalPage
