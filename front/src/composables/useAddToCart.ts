@@ -12,14 +12,36 @@ export function useAddToCart() {
   const snackbar = useSnackbar();
 
   const addingProductId = ref<string | undefined>();
+  const addingAll = ref(false);
 
-  async function addToCart(product: Product, quantity = 1) {
-    addingProductId.value = product.id;
+  // The cart is reloaded after each save, so the next product finds the quantity already in the cart
+  function saveOneMore(product: Product, quantity = 1): Promise<boolean> {
     const existingItem = cartStore.cartItems?.items.find((i) => i.productId === product.id);
     const item = existingItem
       ? { ...existingItem, productQuantity: existingItem.productQuantity + quantity }
       : productToCartItem(product, quantity);
-    const saved = await cartStore.saveItem(item);
+    return cartStore.saveItem(item);
+  }
+
+  // Adds one of each product, one after the other, and tells the result in the snackbar
+  async function addAllToCart(products: Product[]) {
+    addingAll.value = true;
+    let addedCount = 0;
+    for (const product of products) {
+      if (await saveOneMore(product)) addedCount++;
+    }
+    addingAll.value = false;
+    if (addedCount === products.length) {
+      snackbar.success(t('products.addedAll', { count: addedCount }), {
+        icon: 'mdi-check-circle-outline',
+        action: { text: t('products.viewCart'), to: '/cart' },
+      });
+    } else snackbar.error(t('products.addAllError'), { icon: 'mdi-alert-circle-outline' });
+  }
+
+  async function addToCart(product: Product, quantity = 1) {
+    addingProductId.value = product.id;
+    const saved = await saveOneMore(product, quantity);
     addingProductId.value = undefined;
     if (saved) {
       snackbar.success(t('products.added', { name: product.name }), {
@@ -29,7 +51,7 @@ export function useAddToCart() {
     } else snackbar.error(t('products.addError'), { icon: 'mdi-alert-circle-outline' });
   }
 
-  return { addingProductId, addToCart };
+  return { addingProductId, addingAll, addToCart, addAllToCart };
 }
 
 function productToCartItem(product: Product, quantity: number): Item {

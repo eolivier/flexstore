@@ -5,11 +5,12 @@ import { createMemoryHistory, createRouter } from 'vue-router';
 import Wishlist from './Wishlist.vue';
 import { useAuthStore } from '@/stores/auth.store';
 import { vuetify, i18n } from '@/test/setup';
+import { stocksApi } from '@/api';
 
 vi.mock('@/api', () => ({
   apiBaseUrl: 'https://api.example',
   reviewsApi: { getRatings: vi.fn(() => Promise.resolve({ data: [] })) },
-  stocksApi: { getStocks: vi.fn(() => Promise.resolve({ data: [] })) },
+  stocksApi: { getStocks: vi.fn() },
 }));
 
 const mockFetch = vi.fn();
@@ -36,10 +37,15 @@ function signIn() {
   authStore.currentUser = { id: 'user-1', role: 'USER' } as typeof authStore.currentUser;
 }
 
+const floorLamp = { ...deskLamp, id: 'p-2', sku: 'LAMP-FLOOR', name: 'Floor lamp' };
+
 function respondWith(products: object[]) {
   mockFetch.mockImplementation((url: string) => {
     if (url.endsWith('/api/wishlist')) {
       return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(products) });
+    }
+    if (url.endsWith('/api/cart/cart-items')) {
+      return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ items: [] }) });
     }
     return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve([]) });
   });
@@ -55,6 +61,7 @@ describe('Wishlist.vue', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     mockFetch.mockReset();
+    vi.mocked(stocksApi.getStocks).mockResolvedValue({ data: [] } as never);
     signIn();
   });
 
@@ -83,5 +90,52 @@ describe('Wishlist.vue', () => {
     const wrapper = await mountWishlist();
     // Assert
     expect(wrapper.text()).toContain('could not be loaded');
+  });
+
+  function stockOf(productId: string, quantity: number) {
+    return { productId, quantity };
+  }
+
+  it('should add every saved product to the cart in one click', async () => {
+    // Arrange
+    vi.mocked(stocksApi.getStocks).mockResolvedValue({
+      data: [stockOf('p-1', 5), stockOf('p-2', 5)],
+    } as never);
+    respondWith([deskLamp, floorLamp]);
+    const wrapper = await mountWishlist();
+    // Act
+    await wrapper.find('[data-testid="wishlist-add-all"]').trigger('click');
+    await flushPromises();
+    // Assert
+    const savedProductIds = mockFetch.mock.calls
+      .filter(([url]) => url.endsWith('/api/cart/save'))
+      .map(([, init]) => JSON.parse(init.body).productId);
+    expect(savedProductIds).toEqual(['p-1', 'p-2']);
+  });
+
+  it('should leave the products out of stock out of the cart', async () => {
+    // Arrange
+    vi.mocked(stocksApi.getStocks).mockResolvedValue({
+      data: [stockOf('p-1', 5), stockOf('p-2', 0)],
+    } as never);
+    respondWith([deskLamp, floorLamp]);
+    const wrapper = await mountWishlist();
+    // Act
+    await wrapper.find('[data-testid="wishlist-add-all"]').trigger('click');
+    await flushPromises();
+    // Assert
+    const savedProductIds = mockFetch.mock.calls
+      .filter(([url]) => url.endsWith('/api/cart/save'))
+      .map(([, init]) => JSON.parse(init.body).productId);
+    expect(savedProductIds).toEqual(['p-1']);
+  });
+
+  it('should not offer to add anything to the cart when the wishlist is empty', async () => {
+    // Arrange
+    respondWith([]);
+    // Act
+    const wrapper = await mountWishlist();
+    // Assert
+    expect(wrapper.find('[data-testid="wishlist-add-all"]').exists()).toBe(false);
   });
 });

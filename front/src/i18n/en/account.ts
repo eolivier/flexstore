@@ -51,6 +51,7 @@ export default {
     subtitle: 'The products you saved, to buy them back later.',
     empty: 'Your wishlist is empty: save a product from the shop to see it here.',
     loadError: 'Your wishlist could not be loaded.',
+    addAllToCart: 'Add everything to my cart',
   },
   loyalty: {
     title: 'My loyalty',
