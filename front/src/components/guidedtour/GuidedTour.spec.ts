@@ -65,6 +65,24 @@ describe('GuidedTour.vue', () => {
     wrapper.unmount();
   });
 
+  it('should keep the account menu open while it presents one of its entries', async () => {
+    // Arrange
+    const { store, wrapper } = await openedTour();
+    expect(store.presentedMenu).toBe('');
+    // Act
+    button('Next')?.click();
+    await flushPromises();
+    button('Next')?.click();
+    await flushPromises();
+    // Assert
+    expect(body()).toContain('Follow your orders');
+    expect(store.presentedMenu).toBe('account');
+    button('Skip')?.click();
+    await flushPromises();
+    expect(store.presentedMenu).toBe('');
+    wrapper.unmount();
+  });
+
   it('should go on to the next section and back', async () => {
     // Arrange
     const { wrapper } = await openedTour();

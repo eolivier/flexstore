@@ -16,7 +16,8 @@
   const stepIndex = ref(0);
   const doNotShowAgain = ref(false);
   const isLast = computed(() => stepIndex.value === guidedTourSections.length - 1);
-  const focus = computed(() => guidedTourSections[stepIndex.value].focus);
+  const focus = computed(() => section.value.focus);
+  const section = computed(() => guidedTourSections[stepIndex.value]);
   const { focusArea } = useGuidedTourFocus(focus, computed(() => guidedTourStore.isOpen));
 
   watch(
@@ -27,6 +28,12 @@
         doNotShowAgain.value = false;
       }
     }
+  );
+
+  // The menu of the section presented is open while its step is displayed
+  watch(
+    [() => guidedTourStore.isOpen, section],
+    ([isOpen]) => guidedTourStore.presentMenu(isOpen ? (section.value.menu ?? '') : '')
   );
 </script>
 
@@ -44,7 +51,7 @@
         {{ t('guidedTour.progress', { step: stepIndex + 1, total: guidedTourSections.length }) }}
       </v-card-title>
       <v-card-text>
-        <GuidedTourStep :section="guidedTourSections[stepIndex]" />
+        <GuidedTourStep :section="section" />
         <v-checkbox
           v-if="isLast"
           v-model="doNotShowAgain"
