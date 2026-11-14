@@ -78,7 +78,7 @@
 </script>
 
 <template>
-  <v-container class="page py-10">
+  <v-container class="py-10">
     <AdminBreadcrumbs />
     <h1 class="text-h4 font-weight-bold mb-6">{{ t('editProduct.title') }}</h1>
     <v-skeleton-loader v-if="editedProduct === null" type="article" class="rounded-xl" />
@@ -97,9 +97,3 @@
     </v-card>
   </v-container>
 </template>
-
-<style scoped>
-  .page {
-    max-width: 640px;
-  }
-</style>
