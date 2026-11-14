@@ -2,14 +2,14 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import AbandonedCartReminderSetting from './AbandonedCartReminderSetting.vue';
-import { useSettingsStore } from '@/stores/settings.store';
+import type { ShopSettings } from '@/stores/settings.store';
 import { vuetify, i18n } from '@/test/setup';
 
 const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
 function mountSetting(activation: 'ENABLED' | 'DISABLED') {
-  useSettingsStore().settings = {
+  const settings: ShopSettings = {
     orderConfirmationEmail: 'ENABLED',
     paymentDelayMinutes: 10,
     freeShippingThreshold: 50,
@@ -17,7 +17,7 @@ function mountSetting(activation: 'ENABLED' | 'DISABLED') {
     abandonedCartReminder: activation,
     abandonedCartDelayHours: 24,
   };
-  return mount(AbandonedCartReminderSetting, { global: { plugins: [vuetify, i18n] } });
+  return mount(AbandonedCartReminderSetting, { props: { settings }, global: { plugins: [vuetify, i18n] } });
 }
 
 describe('AbandonedCartReminderSetting.vue', () => {

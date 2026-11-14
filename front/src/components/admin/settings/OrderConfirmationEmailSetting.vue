@@ -2,9 +2,10 @@
   import { ref } from 'vue';
   import SettingTitle from './SettingTitle.vue';
   import { useI18n } from 'vue-i18n';
-  import { useSettingsStore } from '@/stores/settings.store';
+  import { useSettingsStore, type ShopSettings } from '@/stores/settings.store';
 
   const { t } = useI18n();
+  defineProps<{ settings: ShopSettings }>();
   const settingsStore = useSettingsStore();
 
   const saving = ref(false);
@@ -32,7 +33,7 @@
       <p v-if="saveError" class="text-body-2 text-error mt-1">{{ t('settings.saveError') }}</p>
     </div>
     <v-switch
-      :model-value="settingsStore.settings?.orderConfirmationEmail === 'ENABLED'"
+      :model-value="settings.orderConfirmationEmail === 'ENABLED'"
       :loading="saving"
       :disabled="saving"
       :aria-label="t('settings.orderConfirmationEmail')"

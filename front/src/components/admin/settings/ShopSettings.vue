@@ -24,20 +24,24 @@
     <h1 class="text-h4 font-weight-bold mb-1">{{ t('settings.title') }}</h1>
     <p class="text-body-2 text-medium-emphasis mb-4">{{ t('settings.subtitle') }}</p>
 
-    <LoadError v-if="settingsStore.loadError" :message="t('settings.loadError')" />
+    <LoadError v-if="settingsStore.load.status === 'failed'" :message="t('settings.loadError')" />
 
-    <v-skeleton-loader v-else-if="!settingsStore.settings" type="list-item-avatar-two-line" class="rounded-xl" />
+    <v-skeleton-loader
+      v-else-if="settingsStore.load.status === 'loading'"
+      type="list-item-avatar-two-line"
+      class="rounded-xl"
+    />
 
     <v-card v-else class="pa-4">
-      <SellerSetupSetting />
+      <SellerSetupSetting :settings="settingsStore.load.settings" />
       <v-divider class="my-3" />
-      <OrderConfirmationEmailSetting />
+      <OrderConfirmationEmailSetting :settings="settingsStore.load.settings" />
       <v-divider class="my-3" />
-      <AbandonedCartReminderSetting />
+      <AbandonedCartReminderSetting :settings="settingsStore.load.settings" />
       <v-divider class="my-3" />
-      <PaymentDelaySetting />
+      <PaymentDelaySetting :settings="settingsStore.load.settings" />
       <v-divider class="my-3" />
-      <FreeShippingThresholdSetting />
+      <FreeShippingThresholdSetting :settings="settingsStore.load.settings" />
     </v-card>
   </v-container>
 </template>
