@@ -171,6 +171,18 @@ describe('products.store', () => {
     expect(sku).toBeNull();
   });
 
+  it('should propose no SKU and log the failure when the answer cannot be read', async () => {
+    // Arrange
+    const unreadableAnswer = new SyntaxError('Unexpected end of JSON input');
+    mockFetch.mockResolvedValue({ ok: true, status: 200, json: () => Promise.reject(unreadableAnswer) });
+    const store = productsStore();
+    // Act
+    const sku = await store.proposeSku('home', 'Desk lamp');
+    // Assert
+    expect(sku).toBeNull();
+    expect(console.error).toHaveBeenCalledWith('Failed to propose a SKU', unreadableAnswer);
+  });
+
   it('should read the product of an administrator', async () => {
     // Arrange
     const adminProduct = { id: 'p/1', ...deskLampInput };
@@ -214,6 +226,18 @@ describe('products.store', () => {
     expect(mockFetch.mock.calls[0][0]).toContain('/api/products');
     expect(mockFetch.mock.calls[0][1].method).toBe('POST');
     expect(JSON.parse(mockFetch.mock.calls[0][1].body)).toEqual(deskLampInput);
+  });
+
+  it('should fail to create a product when the API answers without its id', async () => {
+    // Arrange
+    answer(201, { ...deskLamp, id: undefined });
+    const store = productsStore();
+    // Act
+    const creation = await store.addProduct(deskLampInput);
+    // Assert
+    expect(creation).toEqual({ outcome: 'failed' });
+    expect(getAllProducts).not.toHaveBeenCalled();
+    expect(console.error).toHaveBeenCalledWith('Failed to save the product', 'the answer has no product id');
   });
 
   it('should load the products again once a product is created', async () => {
@@ -269,6 +293,16 @@ describe('products.store', () => {
     expect(update).toBe('saved');
     expect(mockFetch.mock.calls[0][0]).toContain('/api/products/p-1');
     expect(mockFetch.mock.calls[0][1].method).toBe('PUT');
+  });
+
+  it('should fail to update a product when the API answers without its id', async () => {
+    // Arrange
+    answer(200, { ...deskLamp, id: undefined });
+    const store = productsStore();
+    // Act
+    const update = await store.updateProduct('p-1', deskLampInput);
+    // Assert
+    expect(update).toBe('failed');
   });
 
   it('should refuse to update a product to a SKU used by another one', async () => {
