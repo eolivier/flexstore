@@ -5,7 +5,7 @@
   import { usePaymentConfirmation } from '@/composables/usePaymentConfirmation';
   import { formatPrice } from '@/utils/price';
   import { orderItemsCount, orderNumber, placedOn } from '@/utils/order';
-  import AccountBreadcrumbs from '@/components/account/AccountBreadcrumbs.vue';
+  import OrderSteps from '@/components/checkout/OrderSteps.vue';
   import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
 
   // The page the customer comes back to after paying:
@@ -27,8 +27,8 @@
 </script>
 
 <template>
-  <v-container class="page py-12">
-    <AccountBreadcrumbs />
+  <v-container class="py-10">
+    <OrderSteps current="confirmation" />
     <v-skeleton-loader v-if="!orderLookup" type="article" class="rounded-xl" />
 
     <v-card v-else-if="order" class="pa-8 pa-sm-10 text-center">
@@ -71,9 +71,6 @@
 </template>
 
 <style scoped>
-  .page {
-    max-width: 720px;
-  }
   .summary {
     max-width: 360px;
   }
