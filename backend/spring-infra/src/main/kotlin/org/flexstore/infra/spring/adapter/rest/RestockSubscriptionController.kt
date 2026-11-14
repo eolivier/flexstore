@@ -36,5 +36,12 @@ class RestockSubscriptionController(
         restockUseCases.subscribe(customer(jwt), ProductId(Identity(productId)))
     }
 
+    @Operation(summary = "Stop waiting for a product, so the signed-in customer is no longer notified of its return")
+    @DeleteMapping("/{productId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun unsubscribe(@AuthenticationPrincipal jwt: Jwt, @PathVariable productId: String) {
+        restockUseCases.unsubscribe(customer(jwt), ProductId(Identity(productId)))
+    }
+
     private fun customer(jwt: Jwt) = actorResolutionService.actorOf(UserId.of(jwt.subject))
 }

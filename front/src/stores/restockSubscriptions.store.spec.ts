@@ -67,6 +67,35 @@ describe('restockSubscriptions.store', () => {
     expect(store.isSubscribed('p-1')).toBe(false);
   });
 
+  it('should unsubscribe from the return of a product', async () => {
+    // Arrange
+    mockFetch.mockResolvedValue({ ok: true, status: 204 });
+    const store = useRestockSubscriptionsStore();
+    await store.subscribe('p-1');
+    // Act
+    const unsubscribed = await store.unsubscribe('p-1');
+    // Assert
+    expect(unsubscribed).toBe(true);
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringMatching(/\/api\/restock-subscriptions\/p-1$/),
+      expect.objectContaining({ method: 'DELETE' })
+    );
+    expect(store.isSubscribed('p-1')).toBe(false);
+  });
+
+  it('should stay subscribed when the shop refused to unsubscribe', async () => {
+    // Arrange
+    const store = useRestockSubscriptionsStore();
+    mockFetch.mockResolvedValue({ ok: true, status: 204 });
+    await store.subscribe('p-1');
+    mockFetch.mockResolvedValue({ ok: false, status: 500 });
+    // Act
+    const unsubscribed = await store.unsubscribe('p-1');
+    // Assert
+    expect(unsubscribed).toBe(false);
+    expect(store.isSubscribed('p-1')).toBe(true);
+  });
+
   it('should forget the subscriptions when the customer signs out', async () => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: true, status: 204, json: () => Promise.resolve([]) });

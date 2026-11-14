@@ -44,6 +44,7 @@ export default {
     outOfStock: 'Out of stock',
     notifyRestock: 'Notify me when it is back',
     notifyRestockDone: 'You will be notified by email',
+    cancelNotifyRestock: 'Stop notifying me',
     notifyRestockError: 'We could not register your request. Please try again.',
     units: 'Units in stock',
     invalid: 'Give a number of units, 0 or more.',

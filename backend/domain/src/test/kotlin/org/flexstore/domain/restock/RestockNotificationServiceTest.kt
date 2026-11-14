@@ -33,6 +33,7 @@ class RestockNotificationServiceTest : WithAssertions {
         ActorResolutionService(userRepository),
         RestockUseCases(
             SubscribeToRestockUseCase(restockSubscriptionRepository, productRepository, stockRepository),
+            UnsubscribeFromRestockUseCase(restockSubscriptionRepository),
             ListCustomerRestockSubscriptionsUseCase(restockSubscriptionRepository),
             ListRestockedSubscriptionsUseCase(restockSubscriptionRepository, stockRepository),
             NotifyRestockUseCase(

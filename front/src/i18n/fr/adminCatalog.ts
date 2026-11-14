@@ -44,6 +44,7 @@ export default {
     outOfStock: 'Rupture de stock',
     notifyRestock: 'Me prévenir du retour en stock',
     notifyRestockDone: 'Vous serez prévenu par email',
+    cancelNotifyRestock: 'Ne plus me prévenir',
     notifyRestockError: "Nous n'avons pas pu enregistrer votre demande. Veuillez réessayer.",
     units: 'Unités en stock',
     invalid: "Indiquez un nombre d'unités, 0 ou plus.",

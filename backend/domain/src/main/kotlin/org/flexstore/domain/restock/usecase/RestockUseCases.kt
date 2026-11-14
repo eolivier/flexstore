@@ -7,12 +7,16 @@ import org.ucop.domain.entity.Actor
 // The use cases of the subscriptions to the return of a product
 class RestockUseCases(
     private val subscribeToRestockUseCase: SubscribeToRestockUseCase,
+    private val unsubscribeFromRestockUseCase: UnsubscribeFromRestockUseCase,
     private val listCustomerRestockSubscriptionsUseCase: ListCustomerRestockSubscriptionsUseCase,
     private val listRestockedSubscriptionsUseCase: ListRestockedSubscriptionsUseCase,
     private val notifyRestockUseCase: NotifyRestockUseCase
 ) {
     fun subscribe(customer: Actor, productId: ProductId) =
         subscribeToRestockUseCase.unfold(RestockSubscribing(customer, productId))
+
+    fun unsubscribe(customer: Actor, productId: ProductId) =
+        unsubscribeFromRestockUseCase.unfold(RestockUnsubscribing(customer, productId))
 
     fun getSubscriptions(customer: Actor) = listCustomerRestockSubscriptionsUseCase.unfold(customer)
 

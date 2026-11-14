@@ -68,6 +68,31 @@ describe('NotifyRestockButton.vue', () => {
     expect(wrapper.find('button').attributes('disabled')).toBeDefined();
   });
 
+  it('should unsubscribe the customer when they click on the bell', async () => {
+    // Arrange
+    signIn();
+    useRestockSubscriptionsStore().subscribedProductIds = ['p-1'];
+    const wrapper = mountButton();
+    // Act
+    await wrapper.find('button[aria-label="Stop notifying me"]').trigger('click');
+    await flushPromises();
+    // Assert
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringMatching(/\/api\/restock-subscriptions\/p-1$/),
+      expect.objectContaining({ method: 'DELETE' })
+    );
+    expect(wrapper.text()).toBe('Notify me when it is back');
+  });
+
+  it('should show no bell before the customer subscribed', () => {
+    // Arrange
+    signIn();
+    // Act
+    const wrapper = mountButton();
+    // Assert
+    expect(wrapper.find('button[aria-label="Stop notifying me"]').exists()).toBe(false);
+  });
+
   it('should tell the customer when the request failed', async () => {
     // Arrange
     signIn();

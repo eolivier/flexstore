@@ -6,6 +6,7 @@ All URIs are relative to *http://localhost:8080*
 |------------- | ------------- | -------------|
 |[**getRestockSubscribedProductIds**](#getrestocksubscribedproductids) | **GET** /api/restock-subscriptions | Retrieve the ids of the products the signed-in customer waits for|
 |[**subscribeToRestock**](#subscribetorestock) | **PUT** /api/restock-subscriptions/{productId} | Ask to be notified by email when a product out of stock is back, once per product|
+|[**unsubscribeFromRestock**](#unsubscribefromrestock) | **DELETE** /api/restock-subscriptions/{productId} | Stop waiting for a product, so the signed-in customer is no longer notified of its return|
 
 # **getRestockSubscribedProductIds**
 > Array<string> getRestockSubscribedProductIds()
@@ -101,6 +102,57 @@ void (empty response body)
 |**401** | Not signed in |  -  |
 |**404** | Unknown product |  -  |
 |**409** | The product is in stock, there is nothing to wait for |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **unsubscribeFromRestock**
+> unsubscribeFromRestock()
+
+
+### Example
+
+```typescript
+import {
+    RestockSubscriptionsApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new RestockSubscriptionsApi(configuration);
+
+let productId: string; // (default to undefined)
+
+const { status, data } = await apiInstance.unsubscribeFromRestock(
+    productId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **productId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: Not defined
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**204** | Unsubscribed (or was not subscribed) |  -  |
+|**401** | Not signed in |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

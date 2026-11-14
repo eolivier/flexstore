@@ -1171,6 +1171,24 @@ paths:
           description: Unknown product
         "409":
           description: The product is in stock, there is nothing to wait for
+    delete:
+      tags:
+      - Restock subscriptions
+      summary: Stop waiting for a product, so the signed-in customer is no longer notified of its return
+      operationId: unsubscribeFromRestock
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: Unsubscribed (or was not subscribed)
+        "401":
+          description: Not signed in
   /api/products/{id}:
     get:
       tags:

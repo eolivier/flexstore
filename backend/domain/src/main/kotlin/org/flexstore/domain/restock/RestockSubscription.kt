@@ -44,6 +44,9 @@ data class RestockSubscriptions(private val restockSubscriptions: List<RestockSu
 // A customer who asks to be notified when a product is back in stock
 data class RestockSubscribing(val customer: Actor, val productId: ProductId)
 
+// A customer who no longer wants to be notified when a product is back in stock
+data class RestockUnsubscribing(val customer: Actor, val productId: ProductId)
+
 // The system or an administrator who reads the subscriptions whose product is back in stock
 data class RestockedSubscriptionsReading(val reader: Actor)
 
@@ -62,6 +65,9 @@ data class RestockNotificationRefusedException(override val errorMessage: ErrorM
     PreConditionException(errorMessage)
 
 data class RestockSubscriptionFailed(override val errorMessage: ErrorMessage) :
+    PostConditionException(errorMessage)
+
+data class RestockUnsubscriptionFailed(override val errorMessage: ErrorMessage) :
     PostConditionException(errorMessage)
 
 data class RestockNotificationFailed(override val errorMessage: ErrorMessage) :

@@ -3,9 +3,10 @@
   import { useI18n } from 'vue-i18n';
   import { useAuthStore } from '@/stores/auth.store';
   import { useRestockSubscriptionsStore } from '@/stores/restockSubscriptions.store';
+  import RestockBellButton from './RestockBellButton.vue';
 
   // The button of a product out of stock: the signed-in customer asks to be notified by email when it is back;
-  // hidden for a visitor, and once asked it says that the customer will be notified
+  // hidden for a visitor, and once asked it says that the customer will be notified, with the bell that cancels it
   const props = defineProps<{ productId: string | undefined }>();
 
   const { t } = useI18n();
@@ -26,16 +27,12 @@
 
 <template>
   <div v-if="authStore.isAuthenticated && productId">
-    <v-btn
-      v-if="subscribed"
-      color="success"
-      variant="tonal"
-      prepend-icon="mdi-bell-check-outline"
-      block
-      disabled
-    >
-      {{ t('stock.notifyRestockDone') }}
-    </v-btn>
+    <div v-if="subscribed" class="d-flex align-center ga-2">
+      <v-btn color="success" variant="tonal" prepend-icon="mdi-bell-check-outline" class="flex-grow-1" disabled>
+        {{ t('stock.notifyRestockDone') }}
+      </v-btn>
+      <RestockBellButton :product-id="productId" />
+    </div>
     <v-btn
       v-else
       color="secondary"
