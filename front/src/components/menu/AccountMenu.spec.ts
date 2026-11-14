@@ -51,6 +51,22 @@ describe('AccountMenu.vue', () => {
     expect(wrapper.exists()).toBe(true);
   });
 
+  it('should sit under the spotlight of the guided tour while it presents one of its entries', async () => {
+    // Arrange
+    const pinia = createPinia();
+    setActivePinia(pinia);
+    mount(AccountMenu, {
+      props: customer,
+      global: { plugins: [vuetify, i18n, router, pinia] },
+      attachTo: document.body,
+    });
+    // Act
+    useGuidedTourStore().presentMenu('account');
+    await flushPromises();
+    // Assert
+    expect(document.querySelector('.under-guided-tour-spotlight')).not.toBeNull();
+  });
+
   it('should offer a visitor to sign in or to create an account', async () => {
     // Act
     await openMenu(visitor);

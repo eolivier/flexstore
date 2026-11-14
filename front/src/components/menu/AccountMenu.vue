@@ -15,15 +15,15 @@
   const guidedTourStore = useGuidedTourStore();
   const isOpenedByTour = computed(() => guidedTourStore.presentedMenu === 'account');
   const isOpened = ref(false);
-  // Under the spotlight of the tour (z-index 2300), so that the outline of the entry presented stays visible
-  const menuZIndex = computed(() => (isOpenedByTour.value ? 2200 : undefined));
+  // Under the spotlight of the tour, so that the outline of the entry presented stays visible
+  const menuClass = computed(() => (isOpenedByTour.value ? 'under-guided-tour-spotlight' : ''));
 </script>
 
 <template>
   <v-menu
     :model-value="isOpened || isOpenedByTour"
     :persistent="isOpenedByTour"
-    :z-index="menuZIndex"
+    :content-class="menuClass"
     location="bottom end"
     @update:model-value="isOpened = $event"
   >
@@ -56,3 +56,11 @@
     </v-list>
   </v-menu>
 </template>
+
+<style>
+  /* Vuetify stacks each overlay 10 above the previous one with an inline z-index, which a z-index prop does not
+     change: only !important wins. The spotlight of the guided tour is at 2300, its dialog at 2400 */
+  .under-guided-tour-spotlight {
+    z-index: 2200 !important;
+  }
+</style>
