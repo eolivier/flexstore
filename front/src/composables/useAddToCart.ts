@@ -2,6 +2,7 @@ import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useCartStore } from '@/stores/cart.store';
 import { useSnackbar } from './useSnackbar';
+import { useAddedToCartSignal } from './useAddedToCartSignal';
 import type { Item } from '@/models/cart';
 import type { Product } from '@/models/product';
 
@@ -10,17 +11,20 @@ export function useAddToCart() {
   const { t } = useI18n();
   const cartStore = useCartStore();
   const snackbar = useSnackbar();
+  const { announceAdded } = useAddedToCartSignal();
 
   const addingProductId = ref<string | undefined>();
   const addingAll = ref(false);
 
   // The cart is reloaded after each save, so the next product finds the quantity already in the cart
-  function saveOneMore(product: Product, quantity = 1): Promise<boolean> {
+  async function saveOneMore(product: Product, quantity = 1): Promise<boolean> {
     const existingItem = cartStore.cartItems?.items.find((i) => i.productId === product.id);
     const item = existingItem
       ? { ...existingItem, productQuantity: existingItem.productQuantity + quantity }
       : productToCartItem(product, quantity);
-    return cartStore.saveItem(item);
+    const saved = await cartStore.saveItem(item);
+    if (saved) announceAdded(product.id);
+    return saved;
   }
 
   // Adds one of each product, one after the other, and tells the result in the snackbar
