@@ -13,4 +13,20 @@ describe('BrandLogo.vue', () => {
     expect(wrapper.text()).toBe('Flexstore');
     expect(wrapper.find('.brand-mark').exists()).toBe(true);
   });
+
+  it('should color the name in primary by default', () => {
+    // Act
+    const wrapper = mount(BrandLogo, { global: { plugins: [vuetify] } });
+    // Assert
+    expect(wrapper.find('.text-h6').classes()).toContain('text-primary');
+  });
+
+  it('should use the given class for the name instead of the primary color', () => {
+    // Act
+    const wrapper = mount(BrandLogo, { props: { nameClass: 'text-white' }, global: { plugins: [vuetify] } });
+    // Assert
+    const nameClasses = wrapper.find('.text-h6').classes();
+    expect(nameClasses).toContain('text-white');
+    expect(nameClasses).not.toContain('text-primary');
+  });
 });

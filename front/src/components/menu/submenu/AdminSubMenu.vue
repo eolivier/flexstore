@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import NavLinkItems from '../NavLinkItems.vue';
   import { ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { adminLinks } from '../navigation';
@@ -12,12 +13,6 @@
     <template #activator="{ props }">
       <v-list-item v-bind="props" prepend-icon="mdi-cog-outline" :title="t('nav.admin')" />
     </template>
-    <v-list-item
-      v-for="link in adminLinks"
-      :key="link.to"
-      :to="link.to"
-      :prepend-icon="link.icon"
-      :title="t(link.label)"
-    />
+    <NavLinkItems :links="adminLinks" />
   </v-list-group>
 </template>

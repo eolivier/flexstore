@@ -1,9 +1,13 @@
+<script setup lang="ts">
+  withDefaults(defineProps<{ nameClass?: string }>(), { nameClass: 'text-primary' });
+</script>
+
 <template>
   <span class="d-flex align-center">
     <span class="brand-mark d-flex align-center justify-center mr-2">
       <v-icon icon="mdi-shopping" size="20" color="white" />
     </span>
-    <span class="text-h6 font-weight-bold text-primary">Flexstore</span>
+    <span class="text-h6 font-weight-bold" :class="nameClass">Flexstore</span>
   </span>
 </template>
 
