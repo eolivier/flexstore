@@ -12,6 +12,11 @@ export default {
     quantity: 'Quantity',
     status: 'Status',
   },
+  rule: {
+    required: 'Mandatory field',
+    invalidEmail: 'Invalid email format',
+    passwordTooShort: 'Password must be at least 8 characters',
+  },
   pagination: {
     label: 'Pages',
   },

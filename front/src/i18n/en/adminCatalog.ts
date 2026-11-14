@@ -20,7 +20,6 @@ export default {
     error: 'The product could not be created.',
     partlyCreated: 'The product {name} has been created, but its image or its stock could not be saved.',
     finish: 'Finish it',
-    mandatoryField: 'Mandatory field',
     translation: 'Name and description in each language (English required)',
     invalidPrice: 'Enter a positive price',
   },

@@ -177,7 +177,7 @@ describe('SellerForm.vue', () => {
 
   it.each([
     { field: 3, value: 'dix mille', expected: 'An amount in euros, in digits' },
-    { field: 5, value: ' ', expected: 'Required' },
+    { field: 5, value: ' ', expected: 'Mandatory field' },
     { field: 7, value: 'abc', expected: 'Invalid phone number' },
     { field: 8, value: 'contact.flexstore.fr', expected: 'Invalid email' },
     { field: 9, value: 'flexstore', expected: 'Invalid website' },

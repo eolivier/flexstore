@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import { ref, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
+  import { useFieldRules } from '@/composables/useFieldRules';
   import { DEFAULT_LANGUAGE, SHOP_LANGUAGES, type ProductTexts } from '@/models/product';
   import { isEntered, isHalfEntered } from '@/utils/productTranslations';
 
@@ -9,6 +10,7 @@
   const texts = defineModel<ProductTexts>({ required: true });
 
   const { t } = useI18n();
+  const { required } = useFieldRules();
   const shownLanguage = ref(DEFAULT_LANGUAGE);
 
   // A field shown in error is checked again when the other field of its language changes: emptying the
@@ -27,9 +29,8 @@
   // The default language is required; another one is either empty (not translated) or complete
   function rules(language: string, field: 'name' | 'description') {
     const otherField = field === 'name' ? 'description' : 'name';
-    const required = (v: string) => !!v.trim() || t('createProduct.mandatoryField');
     const requiredWithOther = (v: string) =>
-      !!v.trim() || !texts.value[language][otherField].trim() || t('createProduct.mandatoryField');
+      !!v.trim() || !texts.value[language][otherField].trim() || required(v);
     return [language === DEFAULT_LANGUAGE ? required : requiredWithOther];
   }
 </script>

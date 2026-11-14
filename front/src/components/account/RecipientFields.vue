@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import { computed } from 'vue';
   import { useI18n } from 'vue-i18n';
+  import { useFieldRules } from '@/composables/useFieldRules';
   import type { Recipient } from '@/models/account';
   import UserNameFields from './UserNameFields.vue';
 
@@ -11,7 +12,7 @@
 
   const { t } = useI18n();
 
-  const required = (v: string) => !!v?.trim() || t('createUser.mandatoryField');
+  const { required } = useFieldRules();
 
   const isCompany = computed({
     get: () => recipient.value.recipientType === 'LEGAL_ENTITY',

@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import { useI18n } from 'vue-i18n';
+  import { useFieldRules } from '@/composables/useFieldRules';
   import { isValidSiren, isValidVatNumber } from '@/utils/company';
 
   // The company a customer buys for: its name and its SIREN are required, its intra-community VAT number is
@@ -11,7 +12,7 @@
   const { t } = useI18n();
 
   const rules = {
-    required: (v: string) => !!v?.trim() || t('createUser.mandatoryField'),
+    ...useFieldRules(),
     siren: (v: string) => isValidSiren(v) || t('company.invalidSiren'),
     vatNumber: (v: string) => isValidVatNumber(v, siren.value) || t('company.invalidVatNumber'),
   };

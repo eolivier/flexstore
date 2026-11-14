@@ -15,10 +15,6 @@ export function isPhone(phone: string) {
   return /^\+?[0-9][0-9 .()-]{5,19}$/.test(phone.trim());
 }
 
-export function isEmail(email: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
-}
-
 // With or without its scheme: www.flexstore.fr, https://www.flexstore.fr
 export function isWebsite(website: string) {
   return /^(https?:\/\/)?[^\s/.]+(\.[^\s/.]+)+(\/\S*)?$/.test(website.trim());

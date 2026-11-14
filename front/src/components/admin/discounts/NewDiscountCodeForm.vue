@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import { nextTick, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
+  import { useFieldRules } from '@/composables/useFieldRules';
   import { useDiscountCodesStore, type DiscountCodeCreation } from '@/stores/discountCodes.store';
   import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
 
@@ -24,13 +25,13 @@
   ];
 
   const rules = {
+    ...useFieldRules(),
     code: (v: string) => /^[A-Za-z0-9]{3,30}$/.test(v.trim()) || t('discountCodes.codeRule'),
     reduction: (v: string) => {
       const value = Number(v);
       const maximum = reductionType.value === 'PERCENTAGE' ? 100 : Infinity;
       return (value > 0 && value <= maximum) || t(`discountCodes.reductionRule.${reductionType.value}`);
     },
-    required: (v: string) => !!v || t('createProduct.mandatoryField'),
     usageLimit: (v: string) => (Number.isInteger(Number(v)) && Number(v) >= 1) || t('discountCodes.usageLimitRule'),
   };
 

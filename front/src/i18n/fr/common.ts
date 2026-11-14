@@ -12,6 +12,11 @@ export default {
     quantity: 'Quantité',
     status: 'Statut',
   },
+  rule: {
+    required: 'Champ obligatoire',
+    invalidEmail: "Format d'email invalide",
+    passwordTooShort: 'Le mot de passe doit contenir au moins 8 caractères',
+  },
   pagination: {
     label: 'Pages',
   },

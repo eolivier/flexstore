@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import { computed, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
+  import { useFieldRules } from '@/composables/useFieldRules';
   import { useRoute } from 'vue-router';
   import { usePasswordResetStore, type PasswordReset } from '@/stores/passwordReset.store';
   import PasswordField from './PasswordField.vue';
@@ -21,10 +22,7 @@
   // The link does not work: the customer asks for a new one
   const linkRefused = computed(() => result.value === 'expired' || result.value === 'unknown');
 
-  const rules = {
-    required: (v: string) => !!v || t('login.mandatoryField'),
-    passwordLength: (v: string) => v.length >= 8 || t('createUser.passwordTooShort'),
-  };
+  const rules = useFieldRules();
 
   async function submit() {
     if (!valid.value) return;

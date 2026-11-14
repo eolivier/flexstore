@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import { computed } from 'vue';
   import { useI18n } from 'vue-i18n';
+  import { useFieldRules } from '@/composables/useFieldRules';
 
   // The first name and the last name of a user, side by side on a large screen: required unless said otherwise
   const firstName = defineModel<string>('firstName', { required: true });
@@ -11,7 +12,7 @@
 
   const { t } = useI18n();
 
-  const required = (v: string) => !!v?.trim() || t('createUser.mandatoryField');
+  const { required } = useFieldRules();
   const rules = computed(() => (props.requirement === 'required' ? [required] : []));
 </script>
 

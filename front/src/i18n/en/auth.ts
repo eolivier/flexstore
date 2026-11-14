@@ -6,8 +6,6 @@ export default {
     password: 'Password',
     submit: 'Sign In',
     error: 'Invalid email or password',
-    mandatoryField: 'Mandatory field',
-    invalidEmail: 'Invalid email format',
     forgotPassword: 'Forgot your password?',
     or: 'or',
     googleUnavailable: 'Sign in with Google is not available right now.',

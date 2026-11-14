@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import {
-  isEmail,
   isPhone,
   isShareCapital,
   isSiret,
@@ -49,8 +48,6 @@ describe('sellerRules', () => {
     { rule: isPhone, value: '+33 (0)1 23 45 67 89', expected: true },
     { rule: isPhone, value: 'abc', expected: false },
     { rule: isPhone, value: '', expected: false },
-    { rule: isEmail, value: 'contact@flexstore.fr', expected: true },
-    { rule: isEmail, value: 'contact.flexstore.fr', expected: false },
     { rule: isWebsite, value: 'www.flexstore.fr', expected: true },
     { rule: isWebsite, value: 'https://www.flexstore.fr/boutique', expected: true },
     { rule: isWebsite, value: 'flexstore', expected: false },

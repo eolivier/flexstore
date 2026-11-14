@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { useI18n } from 'vue-i18n';
+  import { useFieldRules } from '@/composables/useFieldRules';
   import type { JsonLegalPage } from '@/generated';
   import { useLegalPagesStore, type LegalPageKind, type LegalPagePublication } from '@/stores/legalPages.store';
 
@@ -20,7 +21,7 @@
   const publication = ref<LegalPagePublication | null>(null);
 
   const rules = {
-    required: (v: string) => v.trim().length > 0 || t('legalPages.required'),
+    ...useFieldRules(),
     maximumLength: (v: string) => v.length <= MAXIMUM_LENGTH || t('legalPages.tooLong'),
   };
 

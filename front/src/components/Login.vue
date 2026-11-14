@@ -3,6 +3,7 @@
   import { useRouter, useRoute } from 'vue-router';
   import { useAuthStore, type LoginOutcome } from '@/stores/auth.store';
   import { useI18n } from 'vue-i18n';
+  import { useFieldRules } from '@/composables/useFieldRules';
   import TwoFactorChallengeForm from '@/components/account/TwoFactorChallengeForm.vue';
   import PasswordField from '@/components/account/PasswordField.vue';
   import GoogleSignInButton from '@/components/account/GoogleSignInButton.vue';
@@ -21,10 +22,7 @@
   const route = useRoute();
   const { t } = useI18n();
 
-  const rules = {
-    required: (v: string) => !!v || t('login.mandatoryField'),
-    email: (v: string) => /.+@.+\..+/.test(v) || t('login.invalidEmail'),
-  };
+  const rules = useFieldRules();
 
   function redirectAfterSignIn() {
     const redirectTo = (route.query.redirect as string) || (authStore.isAdmin ? '/admin' : '/user-profile');

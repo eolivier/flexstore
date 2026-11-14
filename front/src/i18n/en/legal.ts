@@ -10,7 +10,6 @@ export default {
     adminSubtitle:
       'The legal notice, the terms of sale and the privacy policy of the shop, read by everyone from the footer.',
     textHint: 'Plain text: each line break is kept',
-    required: 'Required',
     tooLong: '50,000 characters at most',
     publish: 'Publish',
     see: 'See the page',

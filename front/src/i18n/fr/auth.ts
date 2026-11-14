@@ -6,8 +6,6 @@ export default {
     password: 'Mot de passe',
     submit: 'Se connecter',
     error: 'Email ou mot de passe invalide',
-    mandatoryField: 'Champ obligatoire',
-    invalidEmail: "Format d'email invalide",
     forgotPassword: 'Mot de passe oublié ?',
     or: 'ou',
     googleUnavailable: "La connexion avec Google n'est pas disponible pour le moment.",

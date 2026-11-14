@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import { useI18n } from 'vue-i18n';
+  import { useFieldRules } from '@/composables/useFieldRules';
   import type { Location } from '@/models/account';
 
   // The fields of where an address is: everything is required but the complement
@@ -7,7 +8,7 @@
 
   const { t } = useI18n();
 
-  const required = (v: string) => !!v?.trim() || t('createUser.mandatoryField');
+  const { required } = useFieldRules();
 </script>
 
 <template>

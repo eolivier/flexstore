@@ -20,7 +20,6 @@ export default {
     error: "Le produit n'a pas pu être créé.",
     partlyCreated: "Le produit {name} a été créé, mais son image ou son stock n'a pas pu être enregistré.",
     finish: 'Le compléter',
-    mandatoryField: 'Champ obligatoire',
     translation: 'Nom et description dans chaque langue (anglais obligatoire)',
     invalidPrice: 'Saisissez un prix positif',
   },

@@ -1,6 +1,6 @@
 import type { Seller } from '@/stores/seller.store';
+import { isEmail } from '../../../../utils/email';
 import {
-  isEmail,
   isPhone,
   isShareCapital,
   isSiret,

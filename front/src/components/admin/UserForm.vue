@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import { nextTick, onMounted, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
+  import { useFieldRules } from '@/composables/useFieldRules';
   import FormActions from '@/components/form/FormActions.vue';
   import PasswordField from '@/components/account/PasswordField.vue';
   import UserNameFields from '@/components/account/UserNameFields.vue';
@@ -48,11 +49,7 @@
   const valid = ref(false);
   const formRef = ref<{ validate: () => Promise<unknown> } | null>(null);
 
-  const rules = {
-    required: (v: string) => !!v || t('createUser.mandatoryField'),
-    email: (v: string) => /.+@.+\..+/.test(v) || t('createUser.invalidEmail'),
-    passwordLength: (v: string) => v.length >= 8 || t('createUser.passwordTooShort'),
-  };
+  const rules = useFieldRules();
 
   onMounted(async () => {
     if (!props.account) return;
