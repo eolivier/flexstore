@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
+import { createRouter, createMemoryHistory } from 'vue-router';
 import MyLoyalty from './MyLoyalty.vue';
 import { useAuthStore } from '@/stores/auth.store';
 import { vuetify, i18n } from '@/test/setup';
@@ -15,7 +16,8 @@ function signIn() {
 }
 
 async function mountMyLoyalty() {
-  const wrapper = mount(MyLoyalty, { global: { plugins: [vuetify, i18n] } });
+  const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/:any(.*)', component: {} }] });
+  const wrapper = mount(MyLoyalty, { global: { plugins: [vuetify, i18n, router] } });
   await flushPromises();
   return wrapper;
 }
@@ -82,5 +84,18 @@ describe('MyLoyalty.vue', () => {
     const wrapper = await mountMyLoyalty();
     // Assert
     expect(wrapper.text()).toContain('could not be loaded');
+  });
+
+  it('should show the breadcrumbs back to the home of the customer own space', async () => {
+    // Arrange
+    mockFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({ points: 0, purchases: [] }),
+    });
+    // Act
+    const wrapper = await mountMyLoyalty();
+    // Assert
+    expect(wrapper.findComponent({ name: 'AccountBreadcrumbs' }).exists()).toBe(true);
   });
 });
