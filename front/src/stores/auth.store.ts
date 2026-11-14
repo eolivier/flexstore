@@ -113,17 +113,17 @@ export const useAuthStore = defineStore('auth', () => {
       const response = await loadingStore.track(fetch(`${apiUrl}${path}`, jsonRequest('POST', credentials)));
 
       if (response.ok) {
-        const result: JsonLoginResponse = await response.json();
-        if (result.status === 'TWO_FACTOR_REQUIRED') {
-          pendingChallengeId.value = result.challengeId ?? null;
+        const loginResponse: JsonLoginResponse = await response.json();
+        if (loginResponse.status === 'TWO_FACTOR_REQUIRED') {
+          pendingChallengeId.value = loginResponse.challengeId ?? null;
           return 'twoFactorRequired';
         }
         openSession({
-          token: result.token!,
-          expiresAt: result.expiresAt!,
-          refreshToken: result.refreshToken!,
-          refreshExpiresAt: result.refreshExpiresAt!,
-          user: result.user!,
+          token: loginResponse.token!,
+          expiresAt: loginResponse.expiresAt!,
+          refreshToken: loginResponse.refreshToken!,
+          refreshExpiresAt: loginResponse.refreshExpiresAt!,
+          user: loginResponse.user!,
         });
         return 'signedIn';
       } else if (response.status === 403) {

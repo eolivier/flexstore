@@ -17,17 +17,17 @@
   const valid = ref(false);
   const saving = ref(false);
   // A link without token is invalid, without asking the server; null until the form is sent
-  const result = ref<PasswordReset | null>(token ? null : 'unknown');
+  const passwordReset = ref<PasswordReset | null>(token ? null : 'unknown');
 
   // The link does not work: the customer asks for a new one
-  const linkRefused = computed(() => result.value === 'expired' || result.value === 'unknown');
+  const linkRefused = computed(() => passwordReset.value === 'expired' || passwordReset.value === 'unknown');
 
   const rules = useFieldRules();
 
   async function submit() {
     if (!valid.value) return;
     saving.value = true;
-    result.value = await passwordResetStore.resetPassword(token, password.value);
+    passwordReset.value = await passwordResetStore.resetPassword(token, password.value);
     saving.value = false;
   }
 </script>
@@ -35,7 +35,7 @@
 <template>
   <v-container class="py-12 d-flex justify-center align-center" style="min-height: 70vh">
     <v-card width="100%" max-width="420" class="pa-8">
-      <template v-if="result === 'reset'">
+      <template v-if="passwordReset === 'reset'">
         <v-icon icon="mdi-check-circle-outline" size="56" color="success" class="mb-4" />
         <h1 class="text-h5 font-weight-bold mb-2">{{ t('passwordReset.reset.title') }}</h1>
         <p class="text-body-2 text-medium-emphasis mb-6">{{ t('passwordReset.reset.text') }}</p>
@@ -43,8 +43,8 @@
       </template>
       <template v-else-if="linkRefused">
         <v-icon icon="mdi-link-variant-off" size="56" color="warning" class="mb-4" />
-        <h1 class="text-h5 font-weight-bold mb-2">{{ t(`passwordReset.${result}.title`) }}</h1>
-        <p class="text-body-2 text-medium-emphasis mb-6">{{ t(`passwordReset.${result}.text`) }}</p>
+        <h1 class="text-h5 font-weight-bold mb-2">{{ t(`passwordReset.${passwordReset}.title`) }}</h1>
+        <p class="text-body-2 text-medium-emphasis mb-6">{{ t(`passwordReset.${passwordReset}.text`) }}</p>
         <v-btn to="/forgot-password" color="primary" block>{{ t('passwordReset.askNewLink') }}</v-btn>
       </template>
       <template v-else>
@@ -57,8 +57,8 @@
             :rules="[rules.required, rules.passwordLength]"
             class="mb-4"
           />
-          <FeedbackAlert v-if="result" type="error" compact class="mb-4">
-            {{ t(`passwordReset.${result}Error`) }}
+          <FeedbackAlert v-if="passwordReset" type="error" compact class="mb-4">
+            {{ t(`passwordReset.${passwordReset}Error`) }}
           </FeedbackAlert>
           <v-btn type="submit" color="primary" size="large" block :loading="saving" :disabled="!valid">
             {{ t('passwordReset.save') }}
