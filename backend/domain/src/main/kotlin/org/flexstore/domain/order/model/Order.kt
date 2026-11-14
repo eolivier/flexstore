@@ -84,11 +84,15 @@ data class Order(
 
     fun isRefunded() = status == OrderStatus.REFUNDED
 
+    fun isNotRefunded() = !isRefunded()
+
     fun isAwaitingPayment() = status == OrderStatus.AWAITING_PAYMENT
 
     fun isNotAwaitingPayment() = !isAwaitingPayment()
 
     fun isCancelled() = status == OrderStatus.CANCELLED
+
+    fun isNotCancelled() = !isCancelled()
 
     fun isPaid() = status.isPaid()
 

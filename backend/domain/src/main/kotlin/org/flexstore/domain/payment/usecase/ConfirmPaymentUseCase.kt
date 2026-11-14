@@ -58,7 +58,7 @@ class ConfirmPaymentUseCase(
     }
 
     private fun orderIsPaidCondition() = PostCondition<OrderId> { orderId ->
-        if (orderRepository.findById(orderId)?.status != OrderStatus.PAID) {
+        if (orderRepository.get(orderId).status != OrderStatus.PAID) {
             throw PaymentConfirmationFailed(ErrorMessage("Order ${orderId} is not paid."))
         }
     }
