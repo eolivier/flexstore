@@ -4,6 +4,7 @@
   import { useGuidedTourStore } from '@/stores/guidedTour.store';
   import { useGuidedTourFocus } from '@/composables/useGuidedTourFocus';
   import { guidedTourSections } from '@/utils/guidedTour';
+  import GuidedTourConfetti from './GuidedTourConfetti.vue';
   import GuidedTourActions from './GuidedTourActions.vue';
   import GuidedTourSpotlight from './GuidedTourSpotlight.vue';
   import GuidedTourStep from './GuidedTourStep.vue';
@@ -38,6 +39,7 @@
 </script>
 
 <template>
+  <GuidedTourConfetti v-if="guidedTourStore.isCelebrating" />
   <GuidedTourSpotlight v-if="guidedTourStore.isOpen" :area="focusArea" />
   <v-dialog
     :model-value="guidedTourStore.isOpen"
