@@ -53,8 +53,9 @@ class CartController(
     ): JsonSaveItemResponse {
         val owner = customer(jwt) ?: visitor(cartId) ?: CartOwner.Visitor(VisitorCartId.nextId())
         val quantity = Quantity(jsonItem.productQuantity)
-        if (ItemId.isValid(jsonItem.itemId)) {
-            val itemId = ItemId(Identity(jsonItem.itemId!!))
+        val givenItemId = jsonItem.itemId.orEmpty()
+        if (ItemId.isValid(givenItemId)) {
+            val itemId = ItemId(Identity(givenItemId))
             cartUseCases.changeQuantity(ChangeCartItemQuantityRequest(actorOf(jwt), owner, itemId, quantity))
         } else {
             val productId = ProductId(Identity(jsonItem.productId))
@@ -81,6 +82,8 @@ class CartController(
     private fun customer(jwt: Jwt?) = jwt?.let { CartOwner.Customer(UserId.ValidUserId(it.subject)) }
 
     // An unknown or malformed id is ignored: the visitor gets a new cart
-    private fun visitor(cartId: String?) =
-        if (VisitorCartId.isValid(cartId)) CartOwner.Visitor(VisitorCartId(Identity(cartId!!))) else null
+    private fun visitor(cartId: String?): CartOwner.Visitor? {
+        val givenCartId = cartId.orEmpty()
+        return if (VisitorCartId.isValid(givenCartId)) CartOwner.Visitor(VisitorCartId(Identity(givenCartId))) else null
+    }
 }

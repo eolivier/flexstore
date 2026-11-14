@@ -63,7 +63,8 @@ class PostgresCartRepositoryAdapter(
     @Transactional(readOnly = true)
     override fun abandonedCartsAt(limit: AbandonmentLimit): AbandonedCarts {
         val abandonedCarts = cartRepo.findAbandonedBefore(limit.value).map { cartEntity ->
-            val customer = CartOwner.Customer(UserId.ValidUserId(cartEntity.userId!!))
+            val userId = checkNotNull(cartEntity.userId) { "An abandoned cart belongs to a customer" }
+            val customer = CartOwner.Customer(UserId.ValidUserId(userId))
             Cart(customer, Items(items(cartEntity).map { it.toDomain() }))
         }
         return AbandonedCarts(abandonedCarts)

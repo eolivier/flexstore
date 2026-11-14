@@ -54,11 +54,11 @@ class ProductMapper {
 
 // The name and the description in the language asked, or in the default language when the product is not
 // translated into it
-fun <E> List<E>.toJsonProducts(language: Language): List<JsonProduct> {
+fun <E : Any> List<E>.toJsonProducts(language: Language): List<JsonProduct> {
     return this.map {
         when (it) {
             is DefinedProduct -> it.toJson(language)
-            else -> throw IllegalArgumentException("Unknown product type: ${it!!::class.java}")
+            else -> throw IllegalArgumentException("Unknown product type: ${it::class.java}")
         }
     }
 }
