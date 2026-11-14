@@ -3,6 +3,11 @@ import org.flexstore.domain.user.address.AddressPosition
 
 data class PhoneNumber(val value: String) {
     fun isGiven() = value.isNotBlank()
+
+    companion object {
+        // A customer who did not give their phone number
+        fun none() = PhoneNumber("")
+    }
 }
 
 data class Street(val value: String)

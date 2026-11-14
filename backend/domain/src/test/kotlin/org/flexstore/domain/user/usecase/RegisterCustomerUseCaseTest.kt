@@ -98,7 +98,7 @@ class RegisterCustomerUseCaseTest : WithAssertions {
         // Act
         useCase.unfold(janeInAHurry)
         // Assert
-        assertThat(stored().phoneNumber).isNull()
+        assertThat(stored().phoneNumber).isEqualTo(PhoneNumber.none())
         assertThat(stored().postalAddresses).isEqualTo(PostalAddresses.none())
     }
 

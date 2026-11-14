@@ -25,7 +25,7 @@ sealed class User(open val id: UserId) {
         // A user created by an administrator is active at once
         val status: AccountStatus = AccountStatus.ACTIVE,
         // Given by a customer who creates their own account
-        val phoneNumber: PhoneNumber? = null,
+        val phoneNumber: PhoneNumber = PhoneNumber.none(),
         val postalAddresses: PostalAddresses = PostalAddresses.none(),
         // Given by a customer who creates their own account for their company
         val customerType: CustomerType = CustomerType.Individual,

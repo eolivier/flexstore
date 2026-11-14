@@ -29,7 +29,7 @@ data class CustomerRegistration(
 
     // The express registration of a customer who buys for themselves
     constructor(userId: UserId, fullName: FullName, email: Email, password: PlainPassword) :
-        this(userId, fullName, email, password, PhoneNumber(""), PostalAddresses.none(), CustomerType.Individual)
+        this(userId, fullName, email, password, PhoneNumber.none(), PostalAddresses.none(), CustomerType.Individual)
 
     // A registered customer is a simple user whose email is not verified yet. The address they give is sent to
     // them, or to their company for their attention
@@ -40,7 +40,7 @@ data class CustomerRegistration(
         password = password,
         role = Role.USER,
         status = AccountStatus.PENDING_VERIFICATION,
-        phoneNumber = phoneNumber.takeIf { it.isGiven() },
+        phoneNumber = phoneNumber,
         postalAddresses = addressesForTheCustomer(),
         customerType = customerType
     )

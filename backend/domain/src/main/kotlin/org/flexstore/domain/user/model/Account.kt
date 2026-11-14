@@ -9,7 +9,7 @@ data class Account(
     val email: Email,
     val role: Role,
     val status: AccountStatus,
-    val phoneNumber: PhoneNumber?,
+    val phoneNumber: PhoneNumber,
     val postalAddresses: PostalAddresses,
     val customerType: CustomerType,
     val twoFactorAuthentication: TwoFactorAuthentication

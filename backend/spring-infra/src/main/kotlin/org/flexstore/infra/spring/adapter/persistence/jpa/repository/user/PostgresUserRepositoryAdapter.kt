@@ -61,7 +61,7 @@ class PostgresUserRepositoryAdapter(
                     password = hashedPasswordValue,
                     role = user.role.name,
                     status = user.status.name,
-                    phoneNumber = user.phoneNumber?.value,
+                    phoneNumber = if (user.phoneNumber.isGiven()) user.phoneNumber.value else null,
                     twoFactorSecret = twoFactorSecretColumnOf(user.twoFactorAuthentication),
                     twoFactorStatus = twoFactorStatusColumnOf(user.twoFactorAuthentication),
                     addresses = addressEntities(user),
@@ -171,7 +171,7 @@ class PostgresUserRepositoryAdapter(
         password = HashedPassword(this.password),
         role = Role.valueOf(this.role),
         status = AccountStatus.valueOf(this.status),
-        phoneNumber = phoneNumber?.let { PhoneNumber(it) },
+        phoneNumber = phoneNumber?.let { PhoneNumber(it) } ?: PhoneNumber.none(),
         postalAddresses = PostalAddresses(addresses.map { it.address.toDomain() }),
         customerType = customerType(),
         twoFactorAuthentication = twoFactorAuthenticationOf(twoFactorSecret, twoFactorStatus)
