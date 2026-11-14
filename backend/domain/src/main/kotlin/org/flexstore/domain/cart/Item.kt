@@ -16,21 +16,37 @@ data class Items(private val items: List<Item>) {
     }
 
     fun totalPrice(): Price {
-        val totalAmount = items.fold(BigDecimal.ZERO) { total, item -> total.add(priceOf(item).amount.value) }
+        val totalAmount = productItems().fold(BigDecimal.ZERO) { total, item ->
+            total.add(item.itemPrice().amount.value)
+        }
         return Price(Amount(totalAmount), currency())
     }
 
-    fun currency(): Currency = items.firstOrNull()?.let { productOf(it)?.price?.currency } ?: Currency.EUR
+    fun currency(): Currency =
+        if (hasItems()) productItems().first().product.price.currency else Currency.EUR
 
-    fun findBy(itemId: ItemId): CartItem? = cartItems().findBy(itemId)
+    fun contains(itemId: ItemId) = cartItems().contains(itemId)
 
-    fun findBy(productId: ProductId): Item? = items.firstOrNull { productOf(it)?.productId == productId }
+    fun doesNotContain(itemId: ItemId) = cartItems().doesNotContain(itemId)
 
-    fun quantityOf(productId: ProductId): Quantity? = findBy(productId)?.let { quantityOf(it) }
+    // None when the item is not in the items
+    fun quantityOf(itemId: ItemId): Quantity = cartItems().quantityOf(itemId)
+
+    fun contains(productId: ProductId) = productItems().any { it.product.productId == productId }
+
+    fun doesNotContain(productId: ProductId) = !contains(productId)
+
+    // NoItem when the product is not in the items
+    fun itemOf(productId: ProductId): Item =
+        if (contains(productId)) productItems().first { it.product.productId == productId } else NoItem
+
+    fun hasAtLeast(productId: ProductId, quantity: Quantity) =
+        contains(productId) && quantityOf(productId).isAtLeast(quantity)
 
     // A product is in the items at most once: a product already there gets the new quantity
     fun withProduct(product: DefinedProduct, quantity: Quantity): Items {
-        val existingItem = findBy(product.productId) ?: return Items(items + DraftItem(product, quantity))
+        if (doesNotContain(product.productId)) return Items(items + DraftItem(product, quantity))
+        val existingItem = itemOf(product.productId)
         return Items(items.map {
             when {
                 it != existingItem -> it
@@ -48,7 +64,7 @@ data class Items(private val items: List<Item>) {
 
     // Folds over the product and the quantity of each item
     fun <R> fold(initial: R, operation: (R, DefinedProduct, Quantity) -> R): R =
-        items.fold(initial) { result, item -> operation(result, productOf(item)!!, quantityOf(item)!!) }
+        productItems().fold(initial) { result, item -> operation(result, item.product, item.quantity) }
 
     fun isEmpty() = items.isEmpty()
 
@@ -62,22 +78,11 @@ data class Items(private val items: List<Item>) {
     // Read-only view for the adapters (JSON, persistence)
     fun asList(): List<Item> = items.toList()
 
-    private fun productOf(item: Item): DefinedProduct? = when (item) {
-        is CartItem -> item.product
-        is DraftItem -> item.product
-        is NoItem -> null
-    }
+    private fun productItems() = items.filterIsInstance<ProductItem>()
 
-    private fun quantityOf(item: Item): Quantity? = when (item) {
-        is CartItem -> item.quantity
-        is DraftItem -> item.quantity
-        is NoItem -> null
-    }
-
-    private fun priceOf(item: Item): Price = when (item) {
-        is CartItem -> item.itemPrice()
-        is DraftItem -> item.itemPrice()
-        is NoItem -> Price(Amount(BigDecimal.ZERO), Currency.EUR)
+    private fun quantityOf(productId: ProductId): Quantity = when (val item = itemOf(productId)) {
+        is ProductItem -> item.quantity
+        is NoItem -> Quantity.none()
     }
 }
 
@@ -86,7 +91,13 @@ data class CartItems(private val items: List<CartItem>) {
 
     constructor(vararg items: CartItem) : this(items.toList())
 
-    fun findBy(itemId: ItemId): CartItem? = items.firstOrNull { it.itemId == itemId }
+    fun contains(itemId: ItemId) = items.any { it.itemId == itemId }
+
+    fun doesNotContain(itemId: ItemId) = !contains(itemId)
+
+    // None when the item is not among the stored items
+    fun quantityOf(itemId: ItemId): Quantity =
+        if (contains(itemId)) items.first { it.itemId == itemId }.quantity else Quantity.none()
 
     // Read-only view of the ids for the adapters (persistence)
     fun itemIds(): Set<ItemId> = items.map { it.itemId }.toSet()
@@ -98,24 +109,30 @@ sealed interface Item {
     fun changeQuantity(newQuantity: Quantity): Item = this
 }
 
-data class CartItem(
-    val itemId: ItemId,
-    val product: DefinedProduct,
-    val quantity: Quantity,
-) : Item {
-    override fun increase() = copy(quantity = quantity.increase())
-    override fun decrease() = copy(quantity = quantity.decrease())
-    override fun changeQuantity(newQuantity: Quantity) = copy(quantity = newQuantity)
+// An item of a product, stored (CartItem) or not yet (DraftItem)
+sealed interface ProductItem : Item {
+    val product: DefinedProduct
+    val quantity: Quantity
+
     fun itemPrice() = product.currentPrice.multiply(quantity)
 }
-data class DraftItem(
-    val product: DefinedProduct,
-    val quantity: Quantity,
-) : Item {
+
+data class CartItem(
+    val itemId: ItemId,
+    override val product: DefinedProduct,
+    override val quantity: Quantity,
+) : ProductItem {
     override fun increase() = copy(quantity = quantity.increase())
     override fun decrease() = copy(quantity = quantity.decrease())
     override fun changeQuantity(newQuantity: Quantity) = copy(quantity = newQuantity)
-    fun itemPrice() = product.currentPrice.multiply(quantity)
+}
+data class DraftItem(
+    override val product: DefinedProduct,
+    override val quantity: Quantity,
+) : ProductItem {
+    override fun increase() = copy(quantity = quantity.increase())
+    override fun decrease() = copy(quantity = quantity.decrease())
+    override fun changeQuantity(newQuantity: Quantity) = copy(quantity = newQuantity)
 }
 
 data object NoItem : Item

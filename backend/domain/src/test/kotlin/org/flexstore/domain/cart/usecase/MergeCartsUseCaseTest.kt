@@ -44,8 +44,8 @@ class MergeCartsUseCaseTest : WithAssertions {
         useCase.unfold(MergeCartsRequest(visitor, customerActor()))
         // Assert
         val customerCart = cartRepository.load(customer)
-        assertThat((customerCart.findBy(product1.productId) as CartItem).quantity).isEqualTo(Quantity(2))
-        assertThat((customerCart.findBy(product2.productId) as CartItem).quantity).isEqualTo(Quantity(1))
+        assertThat((customerCart.itemOf(product1.productId) as CartItem).quantity).isEqualTo(Quantity(2))
+        assertThat((customerCart.itemOf(product2.productId) as CartItem).quantity).isEqualTo(Quantity(1))
     }
 
     @Test

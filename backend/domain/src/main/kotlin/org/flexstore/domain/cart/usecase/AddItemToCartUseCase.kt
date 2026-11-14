@@ -48,7 +48,7 @@ class AddItemToCartUseCase(
     }
 
     private fun itemHasQuantityCondition() = PostCondition<AddItemToCartRequest> { request ->
-        val item = cartRepository.load(request.owner).findBy(request.productId)
+        val item = cartRepository.load(request.owner).itemOf(request.productId)
         if (item is CartItem && item.quantity == request.quantity) return@PostCondition
         val message = ErrorMessage("Product ${request.productId} was not added to the cart.")
         throw CartUpdateFailed(message)

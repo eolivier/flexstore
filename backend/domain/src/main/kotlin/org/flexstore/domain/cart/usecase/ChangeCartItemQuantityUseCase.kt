@@ -38,10 +38,11 @@ class ChangeCartItemQuantityUseCase(
     }
 
     private fun quantityChangedCondition() = PostCondition<ChangeCartItemQuantityRequest> { request ->
-        val item = cartRepository.load(request.owner).findBy(request.itemId)
+        val cart = cartRepository.load(request.owner)
         // An item kept with another quantity than requested, or kept when it should have been removed
-        val quantityStillThere = request.quantity.isZeroOrNegative() || item?.quantity != request.quantity
-        val quantityNotApplied = item != null && quantityStillThere
+        val quantityDiffers = cart.quantityOf(request.itemId) != request.quantity
+        val quantityStillThere = request.quantity.isZeroOrNegative() || quantityDiffers
+        val quantityNotApplied = cart.contains(request.itemId) && quantityStillThere
         if (quantityNotApplied) {
             throw CartUpdateFailed(ErrorMessage("Quantity of item ${request.itemId} was not changed."))
         }
