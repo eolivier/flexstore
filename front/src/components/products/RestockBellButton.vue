@@ -24,6 +24,7 @@
     color="success"
     variant="elevated"
     density="comfortable"
+    size="small"
     :loading="unsubscribing"
     :aria-label="t('stock.cancelNotifyRestock')"
     :title="t('stock.cancelNotifyRestock')"
