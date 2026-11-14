@@ -177,7 +177,7 @@ Why: the condition reads as the business rule ("if the product is missing"), the
 
 **`get` and `findBy` do not answer the same question** on a repository port:
 - **`findBy…`** (`findById`, `findBy(orderId)`) is a search: the element may not exist, and its absence is a normal answer. It returns a nullable type, for the code that handles both cases (an adapter, a use case that creates when the element is missing).
-- **`get…`** (`get(orderId)`) is a read of an element that is known to exist: it returns a non-null type, and throws when the element is missing, which is a bug (a broken precondition), not a business case.
+- **`get…`** (`get(orderId)`) is a read of an element that is known to exist: it returns a non-null type, and throws **the business exception of that element** when it is missing (`OrderNotFoundException`, `DiscountCodeNotFoundException`, `ProductNotFoundException`...), never an `IllegalStateException`: the exception is the one the precondition throws, so the adapters map it to the same answer (404). A concept that has no such exception yet gets one in its functional package (`PaymentNotStartedException` for a missing payment session).
 
 A use case first checks the existence in a precondition (`orderIsMissing(orderId)` throws the business exception, section 2), then reads the element with `get`: it never reads it again with `findBy(...)!!`.
 
