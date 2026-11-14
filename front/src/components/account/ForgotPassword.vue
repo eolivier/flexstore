@@ -3,6 +3,7 @@
   import { useI18n } from 'vue-i18n';
   import { useRoute } from 'vue-router';
   import { usePasswordResetStore } from '@/stores/passwordReset.store';
+  import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
 
   const { t } = useI18n();
   const route = useRoute();
@@ -33,7 +34,7 @@
     <v-card width="100%" max-width="420" class="pa-8">
       <h1 class="text-h5 font-weight-bold mb-1">{{ t('passwordReset.forgotTitle') }}</h1>
       <template v-if="received">
-        <v-alert type="success" variant="tonal" class="my-4">{{ t('passwordReset.sent', { email }) }}</v-alert>
+        <FeedbackAlert type="success" class="my-4">{{ t('passwordReset.sent', { email }) }}</FeedbackAlert>
         <v-btn to="/login" color="primary" block>{{ t('passwordReset.backToLogin') }}</v-btn>
       </template>
       <template v-else>
@@ -49,9 +50,9 @@
             required
             class="mb-4"
           />
-          <v-alert v-if="received === false" type="error" density="compact" class="mb-4">
+          <FeedbackAlert v-if="received === false" type="error" compact class="mb-4">
             {{ t('passwordReset.sendError') }}
-          </v-alert>
+          </FeedbackAlert>
           <v-btn type="submit" color="primary" size="large" block :loading="sending" :disabled="!valid">
             {{ t('passwordReset.send') }}
           </v-btn>

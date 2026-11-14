@@ -2,6 +2,7 @@
   import { ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useAuthStore } from '@/stores/auth.store';
+  import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
 
   const emit = defineEmits<{ verified: []; cancel: [] }>();
   const { t } = useI18n();
@@ -41,7 +42,7 @@
         autofocus
         class="mb-1"
       />
-      <v-alert v-if="error" type="error" density="compact" class="mb-4">{{ error }}</v-alert>
+      <FeedbackAlert v-if="error" type="error" compact class="mb-4">{{ error }}</FeedbackAlert>
       <v-btn type="submit" color="primary" size="large" block :loading="loading" :disabled="code.length !== 6">
         {{ t('login.twoFactor.submit') }}
       </v-btn>

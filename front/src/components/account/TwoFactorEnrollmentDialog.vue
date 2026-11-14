@@ -4,6 +4,7 @@
   import QRCode from 'qrcode';
   import { useAuthStore } from '@/stores/auth.store';
   import FormDialog from '@/components/layout/FormDialog.vue';
+  import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
 
   const open = defineModel<boolean>({ required: true });
   const emit = defineEmits<{ enabled: [] }>();
@@ -61,9 +62,9 @@
         maxlength="6"
         class="mb-1"
       />
-      <v-alert v-if="error" type="error" variant="tonal" density="compact" class="mb-4">{{ error }}</v-alert>
+      <FeedbackAlert v-if="error" type="error" compact class="mb-4">{{ error }}</FeedbackAlert>
     </template>
-    <v-alert v-else-if="error" type="error" variant="tonal" density="compact">{{ error }}</v-alert>
+    <FeedbackAlert v-else-if="error" type="error" compact>{{ error }}</FeedbackAlert>
     <div v-else class="d-flex justify-center pa-6">
       <v-progress-circular indeterminate color="primary" />
     </div>

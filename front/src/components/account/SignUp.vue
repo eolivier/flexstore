@@ -8,6 +8,7 @@
   import UserNameFields from './UserNameFields.vue';
   import PasswordField from './PasswordField.vue';
   import SignUpDetailsFields from './SignUpDetailsFields.vue';
+  import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
 
   const { t } = useI18n();
   const route = useRoute();
@@ -111,25 +112,17 @@
           v-model:company="company"
           v-model:location="location"
         />
-        <v-alert
+        <FeedbackAlert
           v-if="result === 'emailUsed' || result === 'invalidCompany' || result === 'error'"
           type="error"
-          variant="tonal"
-          density="compact"
+          compact
           class="my-4"
         >
           {{ t(`signUp.${result}`) }}
-        </v-alert>
-        <v-btn
-          type="submit"
-          color="primary"
-          size="large"
-          block
-          class="mt-2"
-          :loading="saving"
-          :disabled="!valid"
-          >{{ t('signUp.submit') }}</v-btn
-        >
+        </FeedbackAlert>
+        <v-btn type="submit" color="primary" size="large" block class="mt-2" :loading="saving" :disabled="!valid">{{
+          t('signUp.submit')
+        }}</v-btn>
       </v-form>
       <p class="text-body-2 text-center mt-6">
         {{ t('signUp.haveAccount') }}

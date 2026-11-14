@@ -2,6 +2,7 @@
   import { nextTick, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useDiscountCodesStore, type DiscountCodeCreation } from '@/stores/discountCodes.store';
+  import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
 
   // A new discount code: its code, a percentage or an amount off, until a day, for a number of orders
   const { t } = useI18n();
@@ -30,8 +31,7 @@
       return (value > 0 && value <= maximum) || t(`discountCodes.reductionRule.${reductionType.value}`);
     },
     required: (v: string) => !!v || t('createProduct.mandatoryField'),
-    usageLimit: (v: string) =>
-      (Number.isInteger(Number(v)) && Number(v) >= 1) || t('discountCodes.usageLimitRule'),
+    usageLimit: (v: string) => (Number.isInteger(Number(v)) && Number(v) >= 1) || t('discountCodes.usageLimitRule'),
   };
 
   async function create() {
@@ -98,9 +98,9 @@
         </v-col>
       </v-row>
     </v-form>
-    <v-alert v-if="creation && creation !== 'created'" type="error" variant="tonal" density="compact">
+    <FeedbackAlert v-if="creation && creation !== 'created'" type="error" compact>
       {{ t(`discountCodes.errors.${creation}`) }}
-    </v-alert>
+    </FeedbackAlert>
   </v-card>
 </template>
 

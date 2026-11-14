@@ -5,6 +5,7 @@
   import { useSnackbar } from '@/composables/useSnackbar';
   import TwoFactorEnrollmentDialog from '@/components/account/TwoFactorEnrollmentDialog.vue';
   import TwoFactorDisableDialog from '@/components/account/TwoFactorDisableDialog.vue';
+  import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
 
   const { t } = useI18n();
   const authStore = useAuthStore();
@@ -20,9 +21,9 @@
     <p class="text-body-2 text-medium-emphasis mb-4">{{ t('twoFactorAuth.text') }}</p>
 
     <template v-if="authStore.currentUser?.twoFactorEnabled">
-      <v-alert type="success" variant="tonal" density="compact" class="mb-4">
+      <FeedbackAlert type="success" compact class="mb-4">
         {{ t('twoFactorAuth.enabledText') }}
-      </v-alert>
+      </FeedbackAlert>
       <v-btn color="error" variant="outlined" @click="disableOpen = true">{{ t('twoFactorAuth.disable') }}</v-btn>
     </template>
     <v-btn v-else color="primary" @click="enrollmentOpen = true">{{ t('twoFactorAuth.enable') }}</v-btn>

@@ -3,6 +3,7 @@
   import { useI18n } from 'vue-i18n';
   import { useProductImagesStore, type ImageUpload } from '@/stores/productImages.store';
   import ConfirmDialog from '@/components/ConfirmDialog.vue';
+  import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
 
   // The image of the product: given at once (2 MB at most, resized by the back end), replaced or removed
   const props = defineProps<{ productId: string }>();
@@ -63,27 +64,15 @@
         >
           {{ hasImage ? t('productImage.replace') : t('productImage.add') }}
         </v-btn>
-        <v-btn
-          v-if="hasImage"
-          variant="text"
-          color="error"
-          prepend-icon="mdi-delete-outline"
-          @click="removing = true"
-        >
+        <v-btn v-if="hasImage" variant="text" color="error" prepend-icon="mdi-delete-outline" @click="removing = true">
           {{ t('productImage.remove') }}
         </v-btn>
         <span class="text-caption text-medium-emphasis">{{ t('productImage.hint') }}</span>
       </div>
     </div>
-    <v-alert
-      v-if="feedback && feedback !== 'saved' && feedback !== 'removed'"
-      type="error"
-      variant="tonal"
-      density="compact"
-      class="mt-3"
-    >
+    <FeedbackAlert v-if="feedback && feedback !== 'saved' && feedback !== 'removed'" type="error" compact class="mt-3">
       {{ t(`productImage.errors.${feedback}`) }}
-    </v-alert>
+    </FeedbackAlert>
 
     <ConfirmDialog
       v-model="removing"

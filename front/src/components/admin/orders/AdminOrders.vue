@@ -13,6 +13,7 @@
   import AdminOrderFilters from './AdminOrderFilters.vue';
   import ListPager from '@/components/layout/ListPager.vue';
   import { matchesOrderFilter, noOrderFilter, type AdminOrderFilter } from '@/utils/adminOrderFilter';
+  import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
 
   // The orders of all the customers, a page at a time: the administrator moves each one to its next status.
   // The filters apply to the orders of the page shown
@@ -64,7 +65,7 @@
     <AdminOrderFilters v-model="filter" />
 
     <LoadError v-if="adminOrdersStore.loadError" :message="t('adminOrders.loadError')" class="mb-4" />
-    <v-alert v-if="feedback" type="warning" variant="tonal" class="mb-4">{{ feedback }}</v-alert>
+    <FeedbackAlert v-if="feedback" type="warning" class="mb-4">{{ feedback }}</FeedbackAlert>
 
     <v-data-table
       :headers="headers"

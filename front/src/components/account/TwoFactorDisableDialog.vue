@@ -3,6 +3,7 @@
   import { useI18n } from 'vue-i18n';
   import { useAuthStore } from '@/stores/auth.store';
   import FormDialog from '@/components/layout/FormDialog.vue';
+  import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
 
   const open = defineModel<boolean>({ required: true });
   const emit = defineEmits<{ disabled: [] }>();
@@ -41,7 +42,7 @@
       autocomplete="current-password"
       class="mb-1"
     />
-    <v-alert v-if="error" type="error" variant="tonal" density="compact" class="mb-4">{{ error }}</v-alert>
+    <FeedbackAlert v-if="error" type="error" compact class="mb-4">{{ error }}</FeedbackAlert>
     <template #actions>
       <v-btn type="submit" color="error" :loading="loading" :disabled="!currentPassword">
         {{ t('twoFactorAuth.disable') }}

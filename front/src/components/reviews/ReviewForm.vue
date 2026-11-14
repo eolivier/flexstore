@@ -2,6 +2,7 @@
   import { computed, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import type { ReviewOutcome } from '@/stores/reviews.store';
+  import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
 
   // The form of a customer who reviews a product: a rating and a comment; outcome is how the last sending ended
   const props = defineProps<{ submitting?: boolean; outcome?: ReviewOutcome | null }>();
@@ -34,7 +35,7 @@
       auto-grow
       variant="outlined"
     />
-    <v-alert v-if="errorKey" type="error" variant="tonal" density="compact">{{ t(errorKey) }}</v-alert>
+    <FeedbackAlert v-if="errorKey" type="error" compact>{{ t(errorKey) }}</FeedbackAlert>
     <v-btn type="submit" color="primary" class="align-self-start" :loading="submitting" :disabled="!canSubmit">
       {{ t('reviews.publish') }}
     </v-btn>

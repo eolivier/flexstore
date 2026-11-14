@@ -12,6 +12,7 @@
   import PaymentCountdown from './PaymentCountdown.vue';
   import AccountBreadcrumbs from '@/components/account/AccountBreadcrumbs.vue';
   import OrderTrackingCard from './OrderTrackingCard.vue';
+  import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
 
   const props = defineProps<{ id: string }>();
 
@@ -48,9 +49,9 @@
       <v-btn to="/orders" color="secondary">{{ t('orders.backToOrders') }}</v-btn>
     </v-card>
 
-    <v-alert v-else-if="orderLookup.status === 'error'" type="error" variant="tonal">
+    <FeedbackAlert v-else-if="orderLookup.status === 'error'" type="error">
       {{ t('orders.orderLoadError') }}
-    </v-alert>
+    </FeedbackAlert>
 
     <template v-else-if="order">
       <v-card class="pa-5 mb-6">
@@ -83,23 +84,23 @@
           />
         </div>
       </div>
-      <v-alert v-if="confirming" type="info" variant="tonal" class="mb-6">
+      <FeedbackAlert v-if="confirming" type="info" class="mb-6">
         {{ t('orders.awaitingPaymentConfirmation') }}
-      </v-alert>
+      </FeedbackAlert>
       <v-card v-else-if="order.status === 'AWAITING_PAYMENT'" class="pa-5 mb-6">
         <PaymentCountdown v-if="order.paymentDeadline" :order="order" @expired="load" />
         <p v-else class="text-body-2 text-medium-emphasis mb-3">{{ t('orders.awaitingPaymentText') }}</p>
         <PayOrderButton :order="order" @status-changed="load" />
       </v-card>
-      <v-alert v-else-if="order.status === 'CANCELLED'" type="warning" variant="tonal" class="mb-6">
+      <FeedbackAlert v-else-if="order.status === 'CANCELLED'" type="warning" class="mb-6">
         <p class="mb-3">{{ t('orders.cancelledText') }}</p>
         <v-btn to="/cart" color="primary" variant="flat" prepend-icon="mdi-cart-outline">
           {{ t('orders.orderAgain') }}
         </v-btn>
-      </v-alert>
-      <v-alert v-else-if="order.status === 'REFUNDED'" type="info" variant="tonal" class="mb-6">
+      </FeedbackAlert>
+      <FeedbackAlert v-else-if="order.status === 'REFUNDED'" type="info" class="mb-6">
         {{ t('orders.refundedText') }}
-      </v-alert>
+      </FeedbackAlert>
       <OrderLinesTable :order="order" />
       <OrderAddressesCard :order="order" />
     </template>

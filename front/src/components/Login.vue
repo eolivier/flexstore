@@ -6,6 +6,7 @@
   import TwoFactorChallengeForm from '@/components/account/TwoFactorChallengeForm.vue';
   import PasswordField from '@/components/account/PasswordField.vue';
   import GoogleSignInButton from '@/components/account/GoogleSignInButton.vue';
+  import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
 
   const email = ref('');
   const password = ref('');
@@ -92,9 +93,9 @@
             </router-link>
           </div>
 
-          <v-alert v-if="authStore.loginError" type="error" density="compact" class="mb-4">
+          <FeedbackAlert v-if="authStore.loginError" type="error" compact class="mb-4">
             {{ authStore.refusedStatus ? t(`login.refused.${authStore.refusedStatus}`) : t('login.error') }}
-          </v-alert>
+          </FeedbackAlert>
 
           <v-btn type="submit" color="primary" size="large" block :loading="loading" :disabled="!valid">
             {{ t('login.submit') }}

@@ -2,6 +2,7 @@
   import { computed, onBeforeUnmount, ref, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { MAX_IMAGE_BYTES } from '@/stores/productImages.store';
+  import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
 
   // The image of a product not created yet: chosen and previewed here, given to the product once it is created
   const image = defineModel<File | null>({ required: true });
@@ -54,9 +55,9 @@
         <span class="text-caption text-medium-emphasis">{{ t('productImage.hint') }}</span>
       </div>
     </div>
-    <v-alert v-if="refusal" type="error" variant="tonal" density="compact" class="mt-3">
+    <FeedbackAlert v-if="refusal" type="error" compact class="mt-3">
       {{ t(`productImage.errors.${refusal}`) }}
-    </v-alert>
+    </FeedbackAlert>
   </div>
 </template>
 
