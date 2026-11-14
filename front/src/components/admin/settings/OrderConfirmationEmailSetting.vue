@@ -24,11 +24,8 @@
 
 <template>
   <div class="d-flex align-start ga-4">
-    <v-avatar color="secondary" variant="tonal" rounded="lg" size="36">
-      <v-icon icon="mdi-email-check-outline" size="small" />
-    </v-avatar>
     <div class="flex-grow-1">
-      <SettingTitle>{{ t('settings.orderConfirmationEmail') }}</SettingTitle>
+      <SettingTitle icon="mdi-email-check-outline">{{ t('settings.orderConfirmationEmail') }}</SettingTitle>
       <p class="text-body-2 text-medium-emphasis">{{ t('settings.orderConfirmationEmailText') }}</p>
       <p v-if="saveError" class="text-body-2 text-error mt-1">{{ t('settings.saveError') }}</p>
     </div>

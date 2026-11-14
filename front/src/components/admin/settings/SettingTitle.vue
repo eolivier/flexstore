@@ -1,10 +1,12 @@
-<template>
-  <!-- As tall as the icon avatar of the setting, so that the title is centered on the icon -->
-  <h2 class="setting-title d-flex align-center text-subtitle-1 font-weight-bold"><slot /></h2>
-</template>
+<script setup lang="ts">
+  defineProps<{ icon: string }>();
+</script>
 
-<style scoped>
-  .setting-title {
-    min-height: 36px;
-  }
-</style>
+<template>
+  <div class="d-flex align-center ga-3 mb-1">
+    <v-avatar color="secondary" variant="tonal" rounded="lg" size="32">
+      <v-icon :icon="icon" size="small" />
+    </v-avatar>
+    <h2 class="text-body-1 font-weight-bold"><slot /></h2>
+  </div>
+</template>
