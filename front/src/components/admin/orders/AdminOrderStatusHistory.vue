@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import { useI18n } from 'vue-i18n';
   import type { JsonOrderStatusChange } from '@/generated';
+  import { formatDateTime } from '@/utils/date';
 
   // The statuses an order went through, oldest first, with the day and the time it reached each one
   defineProps<{ statusHistory: JsonOrderStatusChange[] }>();
@@ -8,13 +9,7 @@
   const { t, locale } = useI18n();
 
   function changedOn(statusChange: JsonOrderStatusChange) {
-    return new Date(statusChange.changedAt).toLocaleString(locale.value, {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+    return formatDateTime(statusChange.changedAt, locale.value);
   }
 </script>
 

@@ -3,6 +3,7 @@
   import { computed, onServerPrefetch, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useLegalPagesStore, type LegalPageKind } from '@/stores/legalPages.store';
+  import { formatDate } from '@/utils/date';
 
   const props = defineProps<{ kind: LegalPageKind }>();
 
@@ -11,11 +12,7 @@
 
   const legalPage = computed(() => legalPagesStore.legalPages[props.kind]);
   const isWritten = computed(() => (legalPage.value?.text.trim().length ?? 0) > 0);
-  const publishedOn = computed(() =>
-    legalPage.value
-      ? new Date(legalPage.value.publishedAt).toLocaleDateString(locale.value, { dateStyle: 'long' })
-      : ''
-  );
+  const publishedOn = computed(() => (legalPage.value ? formatDate(legalPage.value.publishedAt, locale.value) : ''));
 
   const firstLoad = legalPagesStore.fetchLegalPage(props.kind);
   watch(

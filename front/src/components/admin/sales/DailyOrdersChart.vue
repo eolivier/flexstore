@@ -4,6 +4,7 @@
   import type { JsonDailySales } from '@/generated';
   import { barHeightPercent } from '@/utils/sales';
   import { formatPrice } from '@/utils/price';
+  import { formatShortDay } from '@/utils/date';
 
   // The orders of each day of the period, as bars
   const props = defineProps<{ days: JsonDailySales[]; currency: string }>();
@@ -24,7 +25,7 @@
   );
 
   function dayOf(day: JsonDailySales) {
-    return new Date(`${day.day}T12:00:00`).toLocaleDateString(locale.value, { day: 'numeric', month: 'short' });
+    return formatShortDay(day.day, locale.value);
   }
 </script>
 

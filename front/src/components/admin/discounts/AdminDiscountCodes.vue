@@ -8,6 +8,7 @@
   import { useDiscountCodesStore } from '@/stores/discountCodes.store';
   import { formatPrice } from '@/utils/price';
   import NewDiscountCodeForm from './NewDiscountCodeForm.vue';
+  import { formatDate } from '@/utils/date';
 
   // The discount codes: the administrator gives new ones, and deletes them
   const discountCodesStore = useDiscountCodesStore();
@@ -34,7 +35,7 @@
   }
 
   function expiryOf(discountCode: JsonDiscountCode) {
-    return new Date(discountCode.expiresAt).toLocaleDateString(locale.value, { dateStyle: 'long' });
+    return formatDate(discountCode.expiresAt, locale.value);
   }
 
   async function confirmDeletion() {

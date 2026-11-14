@@ -1,4 +1,5 @@
 import type { JsonOrder } from '@/generated';
+import { formatDate } from '@/utils/date';
 
 // Short number shown to the customer: the beginning of the order id
 export function orderNumber(order: JsonOrder): string {
@@ -10,11 +11,7 @@ export function orderItemsCount(order: JsonOrder): number {
 }
 
 export function placedOn(order: JsonOrder, locale: string): string {
-  return new Date(order.placedAt).toLocaleDateString(locale, {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
+  return formatDate(order.placedAt, locale);
 }
 
 // The time left to pay the order, "mm:ss" (or "h:mm:ss" from one hour), at the given moment; null when the order
