@@ -2,14 +2,14 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import PaymentDelaySetting from './PaymentDelaySetting.vue';
-import { useSettingsStore } from '@/stores/settings.store';
+import type { ShopSettings } from '@/stores/settings.store';
 import { vuetify, i18n } from '@/test/setup';
 
 const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
 function mountSetting() {
-  useSettingsStore().settings = {
+  const settings: ShopSettings = {
     orderConfirmationEmail: 'ENABLED',
     paymentDelayMinutes: 10,
     freeShippingThreshold: 50,
@@ -17,7 +17,7 @@ function mountSetting() {
     abandonedCartReminder: 'DISABLED',
     abandonedCartDelayHours: 24,
   };
-  return mount(PaymentDelaySetting, { global: { plugins: [vuetify, i18n] } });
+  return mount(PaymentDelaySetting, { props: { settings }, global: { plugins: [vuetify, i18n] } });
 }
 
 describe('PaymentDelaySetting.vue', () => {

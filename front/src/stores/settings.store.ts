@@ -16,6 +16,12 @@ export interface ShopSettings {
   abandonedCartDelayHours: number;
 }
 
+// The settings are being read, were read, or could not be read
+export type SettingsLoad =
+  | { status: 'loading' }
+  | { status: 'loaded'; settings: ShopSettings }
+  | { status: 'failed' };
+
 // From 1 minute to 1 day
 export const MAX_PAYMENT_DELAY_MINUTES = 24 * 60;
 
@@ -24,17 +30,21 @@ export const MAX_ABANDONED_CART_DELAY_HOURS = 30 * 24;
 
 // The settings of the shop, for the administrators
 export const useSettingsStore = defineStore('settings', () => {
-  const settings = ref<ShopSettings | null>(null);
-  const loadError = ref(false);
+  const load = ref<SettingsLoad>({ status: 'loading' });
   const authStore = useAuthStore();
 
+  async function readSettings(response: Response) {
+    const settings: ShopSettings = await response.json();
+    load.value = { status: 'loaded', settings };
+  }
+
   async function fetchSettings() {
-    loadError.value = false;
+    if (load.value.status === 'failed') load.value = { status: 'loading' };
     const response = await authStore.authFetch('/api/admin/settings').catch(() => null);
     if (response?.ok) {
-      settings.value = await response.json();
+      await readSettings(response);
     } else {
-      loadError.value = true;
+      load.value = { status: 'failed' };
     }
   }
 
@@ -44,7 +54,7 @@ export const useSettingsStore = defineStore('settings', () => {
       .authFetch(`/api/admin/settings/order-confirmation-email/${action}`, { method: 'POST' })
       .catch(() => null);
     if (!response?.ok) return false;
-    settings.value = await response.json();
+    await readSettings(response);
     return true;
   }
 
@@ -58,7 +68,7 @@ export const useSettingsStore = defineStore('settings', () => {
       .authFetch(`/api/admin/settings/abandoned-cart-reminder/${action}`, { method: 'POST' })
       .catch(() => null);
     if (!response?.ok) return false;
-    settings.value = await response.json();
+    await readSettings(response);
     return true;
   }
 
@@ -72,7 +82,7 @@ export const useSettingsStore = defineStore('settings', () => {
       .authFetch('/api/admin/settings/abandoned-cart-delay', jsonRequest('PUT', { hours }))
       .catch(() => null);
     if (!response?.ok) return false;
-    settings.value = await response.json();
+    await readSettings(response);
     return true;
   }
 
@@ -82,7 +92,7 @@ export const useSettingsStore = defineStore('settings', () => {
       .authFetch('/api/admin/settings/payment-delay', jsonRequest('PUT', { minutes }))
       .catch(() => null);
     if (!response?.ok) return false;
-    settings.value = await response.json();
+    await readSettings(response);
     return true;
   }
 
@@ -92,13 +102,12 @@ export const useSettingsStore = defineStore('settings', () => {
       .authFetch('/api/admin/settings/free-shipping-threshold', jsonRequest('PUT', { amount }))
       .catch(() => null);
     if (!response?.ok) return false;
-    settings.value = await response.json();
+    await readSettings(response);
     return true;
   }
 
   return {
-    settings,
-    loadError,
+    load,
     fetchSettings,
     enableOrderConfirmationEmail,
     disableOrderConfirmationEmail,

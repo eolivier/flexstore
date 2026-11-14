@@ -23,7 +23,7 @@ describe('sellerSetupIsPendingFor', () => {
 
   it('should be pending for a page of the administration while the seller setup is off', async () => {
     // Arrange
-    useSettingsStore().settings = settings;
+    useSettingsStore().load = { status: 'loaded', settings };
     // Act
     const pending = await sellerSetupIsPendingFor('/admin/products');
     // Assert
@@ -32,7 +32,7 @@ describe('sellerSetupIsPendingFor', () => {
 
   it('should not be pending once the seller setup is on', async () => {
     // Arrange
-    useSettingsStore().settings = { ...settings, sellerSetup: 'ENABLED' };
+    useSettingsStore().load = { status: 'loaded', settings: { ...settings, sellerSetup: 'ENABLED' } };
     // Act
     const pending = await sellerSetupIsPendingFor('/admin/products');
     // Assert
@@ -41,7 +41,7 @@ describe('sellerSetupIsPendingFor', () => {
 
   it('should not be pending for the assistant itself', async () => {
     // Arrange
-    useSettingsStore().settings = settings;
+    useSettingsStore().load = { status: 'loaded', settings };
     // Act
     const pending = await sellerSetupIsPendingFor(SELLER_SETUP_PATH);
     // Assert

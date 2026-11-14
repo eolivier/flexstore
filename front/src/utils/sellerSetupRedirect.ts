@@ -7,6 +7,8 @@ export const SELLER_SETUP_PATH = '/admin/seller-setup';
 export async function sellerSetupIsPendingFor(path: string) {
   if (path === SELLER_SETUP_PATH) return false;
   const settingsStore = useSettingsStore();
-  if (!settingsStore.settings) await settingsStore.fetchSettings();
-  return settingsStore.settings?.sellerSetup === 'DISABLED';
+  if (settingsStore.load.status !== 'loaded') await settingsStore.fetchSettings();
+  const settingsLoad = settingsStore.load;
+  const isSellerSetupOff = settingsLoad.status === 'loaded' && settingsLoad.settings.sellerSetup === 'DISABLED';
+  return isSellerSetupOff;
 }

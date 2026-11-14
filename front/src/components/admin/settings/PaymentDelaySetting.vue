@@ -3,21 +3,23 @@
   import { ref, watch } from 'vue';
   import SettingTitle from './SettingTitle.vue';
   import { useI18n } from 'vue-i18n';
-  import { MAX_PAYMENT_DELAY_MINUTES, useSettingsStore } from '@/stores/settings.store';
+  import { MAX_PAYMENT_DELAY_MINUTES, useSettingsStore, type ShopSettings } from '@/stores/settings.store';
+
+  const props = defineProps<{ settings: ShopSettings }>();
 
   const { t } = useI18n();
   const settingsStore = useSettingsStore();
 
-  const minutes = ref(settingsStore.settings?.paymentDelayMinutes ?? 10);
+  const minutes = ref(props.settings.paymentDelayMinutes);
   const valid = ref(true);
   const saving = ref(false);
   // null until saved
   const saved = ref<boolean | null>(null);
 
   watch(
-    () => settingsStore.settings?.paymentDelayMinutes,
+    () => props.settings.paymentDelayMinutes,
     (stored) => {
-      if (stored) minutes.value = stored;
+      minutes.value = stored;
     }
   );
 

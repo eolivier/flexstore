@@ -2,11 +2,11 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import SellerSetupSetting from './SellerSetupSetting.vue';
-import { useSettingsStore } from '@/stores/settings.store';
+import type { ShopSettings } from '@/stores/settings.store';
 import { vuetify, i18n } from '@/test/setup';
 
 function mountSetting(sellerSetup: 'ENABLED' | 'DISABLED') {
-  useSettingsStore().settings = {
+  const settings: ShopSettings = {
     orderConfirmationEmail: 'ENABLED',
     paymentDelayMinutes: 10,
     freeShippingThreshold: 50,
@@ -15,7 +15,7 @@ function mountSetting(sellerSetup: 'ENABLED' | 'DISABLED') {
     abandonedCartDelayHours: 24,
   };
   const stubs = { 'router-link': { template: '<a class="setup-link"><slot /></a>' } };
-  return mount(SellerSetupSetting, { global: { plugins: [vuetify, i18n], stubs } });
+  return mount(SellerSetupSetting, { props: { settings }, global: { plugins: [vuetify, i18n], stubs } });
 }
 
 const switchOf = (wrapper: ReturnType<typeof mountSetting>) =>

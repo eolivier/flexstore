@@ -21,8 +21,25 @@ describe('settings.store', () => {
     // Act
     await store.fetchSettings();
     // Assert
-    expect(store.settings).toEqual({ orderConfirmationEmail: 'ENABLED' });
+    expect(store.load).toEqual({ status: 'loaded', settings: { orderConfirmationEmail: 'ENABLED' } });
     expect(mockFetch.mock.lastCall![0]).toBe('http://localhost:8080/api/admin/settings');
+  });
+
+  it('should be loading until the settings are read', () => {
+    // Act
+    const store = useSettingsStore();
+    // Assert
+    expect(store.load).toEqual({ status: 'loading' });
+  });
+
+  it('should fail when the settings cannot be read', async () => {
+    // Arrange
+    answer(500);
+    const store = useSettingsStore();
+    // Act
+    await store.fetchSettings();
+    // Assert
+    expect(store.load).toEqual({ status: 'failed' });
   });
 
   it.each([
@@ -36,7 +53,7 @@ describe('settings.store', () => {
     const saved = await store[intent]();
     // Assert
     expect(saved).toBe(true);
-    expect(store.settings).toEqual({ orderConfirmationEmail: activation });
+    expect(store.load).toEqual({ status: 'loaded', settings: { orderConfirmationEmail: activation } });
     const [url, init] = mockFetch.mock.lastCall!;
     expect(url).toBe(`http://localhost:8080/api/admin/settings/order-confirmation-email/${path}`);
     expect(init.method).toBe('POST');

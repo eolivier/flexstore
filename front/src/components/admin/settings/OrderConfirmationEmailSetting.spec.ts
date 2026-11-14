@@ -2,15 +2,14 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import OrderConfirmationEmailSetting from './OrderConfirmationEmailSetting.vue';
-import { useSettingsStore } from '@/stores/settings.store';
+import type { ShopSettings } from '@/stores/settings.store';
 import { vuetify, i18n } from '@/test/setup';
 
 const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
 function mountSetting(activation: 'ENABLED' | 'DISABLED') {
-  const store = useSettingsStore();
-  store.settings = {
+  const settings: ShopSettings = {
     orderConfirmationEmail: activation,
     paymentDelayMinutes: 10,
     freeShippingThreshold: 50,
@@ -18,7 +17,7 @@ function mountSetting(activation: 'ENABLED' | 'DISABLED') {
     abandonedCartReminder: 'DISABLED',
     abandonedCartDelayHours: 24,
   };
-  return mount(OrderConfirmationEmailSetting, { global: { plugins: [vuetify, i18n] } });
+  return mount(OrderConfirmationEmailSetting, { props: { settings }, global: { plugins: [vuetify, i18n] } });
 }
 
 describe('OrderConfirmationEmailSetting.vue', () => {

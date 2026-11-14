@@ -3,22 +3,24 @@
   import { ref, watch } from 'vue';
   import SettingTitle from './SettingTitle.vue';
   import { useI18n } from 'vue-i18n';
-  import { useSettingsStore } from '@/stores/settings.store';
+  import { useSettingsStore, type ShopSettings } from '@/stores/settings.store';
+
+  const props = defineProps<{ settings: ShopSettings }>();
 
   // The price of the items from which the standard shipping is free
   const { t } = useI18n();
   const settingsStore = useSettingsStore();
 
-  const amount = ref(settingsStore.settings?.freeShippingThreshold ?? 50);
+  const amount = ref(props.settings.freeShippingThreshold);
   const valid = ref(true);
   const saving = ref(false);
   // null until saved
   const saved = ref<boolean | null>(null);
 
   watch(
-    () => settingsStore.settings?.freeShippingThreshold,
+    () => props.settings.freeShippingThreshold,
     (stored) => {
-      if (stored !== undefined) amount.value = stored;
+      amount.value = stored;
     }
   );
 

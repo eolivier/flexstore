@@ -3,21 +3,23 @@
   import { ref, watch } from 'vue';
   import SettingTitle from './SettingTitle.vue';
   import { useI18n } from 'vue-i18n';
-  import { MAX_ABANDONED_CART_DELAY_HOURS, useSettingsStore } from '@/stores/settings.store';
+  import { MAX_ABANDONED_CART_DELAY_HOURS, useSettingsStore, type ShopSettings } from '@/stores/settings.store';
+
+  const props = defineProps<{ settings: ShopSettings }>();
 
   const { t } = useI18n();
   const settingsStore = useSettingsStore();
 
-  const hours = ref(settingsStore.settings?.abandonedCartDelayHours ?? 24);
+  const hours = ref(props.settings.abandonedCartDelayHours);
   const valid = ref(true);
   const saving = ref(false);
   // null until saved
   const saved = ref<boolean | null>(null);
 
   watch(
-    () => settingsStore.settings?.abandonedCartDelayHours,
+    () => props.settings.abandonedCartDelayHours,
     (stored) => {
-      if (stored) hours.value = stored;
+      hours.value = stored;
     }
   );
 
@@ -73,7 +75,7 @@
       <p v-else-if="saved" class="text-body-2 text-success">{{ t('settings.saved') }}</p>
     </div>
     <v-switch
-      :model-value="settingsStore.settings?.abandonedCartReminder === 'ENABLED'"
+      :model-value="settings.abandonedCartReminder === 'ENABLED'"
       :disabled="saving"
       :aria-label="t('settings.abandonedCartReminder')"
       color="secondary"
