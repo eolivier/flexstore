@@ -7,6 +7,7 @@
   import NotifyRestockButton from './NotifyRestockButton.vue';
   import ProductVisual from './ProductVisual.vue';
   import ProductPrice from './ProductPrice.vue';
+  import AddedShine from './AddedShine.vue';
   import ProductRating from '@/components/reviews/ProductRating.vue';
   import type { Rating } from '@/stores/reviews.store';
   import WishlistToggleButton from './WishlistToggleButton.vue';
@@ -67,6 +68,7 @@
     </v-card-text>
 
     <WishlistToggleButton :product="product" class="wishlist-overlay" />
+    <AddedShine :product-id="product.id" />
   </v-card>
 </template>
 
