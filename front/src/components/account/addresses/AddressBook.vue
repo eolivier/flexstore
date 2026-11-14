@@ -82,7 +82,7 @@
         <h1 class="text-h4 font-weight-bold">{{ t('addressBook.title') }}</h1>
         <p class="text-body-2 text-medium-emphasis mt-1">{{ t('addressBook.subtitle') }}</p>
       </div>
-      <v-btn color="primary" variant="tonal" prepend-icon="mdi-plus" @click="startAdding">
+      <v-btn color="primary" prepend-icon="mdi-plus" @click="startAdding">
         {{ t('addressBook.add') }}
       </v-btn>
     </div>
