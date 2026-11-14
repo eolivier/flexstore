@@ -1,6 +1,7 @@
 package org.flexstore.domain.payment
 
 import org.flexstore.domain.order.model.OrderId
+import org.ucop.domain.ErrorMessage
 
 // The payment provider (Stripe, or a simulated one): the domain does not know which one
 interface PaymentRepository {
@@ -12,7 +13,7 @@ interface PaymentRepository {
 
     // The session, which a precondition has checked to exist
     fun getSessionOf(orderId: OrderId): PaymentSession =
-        sessionOf(orderId) ?: throw IllegalStateException("No payment session for $orderId.")
+        sessionOf(orderId) ?: throw PaymentNotStartedException(ErrorMessage("No payment started for order $orderId."))
 
     fun sessionExistsFor(orderId: OrderId) = sessionOf(orderId) != null
 

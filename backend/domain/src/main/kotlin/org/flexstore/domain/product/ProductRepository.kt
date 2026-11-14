@@ -5,6 +5,8 @@ import org.flexstore.domain.product.model.DefinedProduct
 import org.flexstore.domain.product.model.Product
 import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.product.model.Sku
+import org.flexstore.domain.product.model.ProductNotFoundException
+import org.ucop.domain.ErrorMessage
 
 interface ProductRepository {
 
@@ -13,7 +15,7 @@ interface ProductRepository {
     fun findById(productId: ProductId): DefinedProduct?
     // The product, which a precondition has checked to exist
     fun get(productId: ProductId): DefinedProduct =
-        findById(productId) ?: throw IllegalStateException("Product $productId is missing.")
+        findById(productId) ?: throw ProductNotFoundException(ErrorMessage("Product $productId not found."))
     fun findAllBy(category: Category): List<Product>
     fun exists(product: Product): Boolean
     fun notExists(product: Product): Boolean

@@ -1,5 +1,7 @@
 package org.flexstore.domain.discount
 
+import org.ucop.domain.ErrorMessage
+
 // The discount codes given by the administrators
 interface DiscountCodeRepository {
 
@@ -9,7 +11,7 @@ interface DiscountCodeRepository {
 
     // The discount code, which a precondition has checked to exist
     fun get(code: PromoCode): DiscountCode =
-        findBy(code) ?: throw IllegalStateException("Discount code $code is missing.")
+        findBy(code) ?: throw DiscountCodeNotFoundException(ErrorMessage("Discount code $code not found."))
 
     // Newest first
     fun findAll(): DiscountCodes

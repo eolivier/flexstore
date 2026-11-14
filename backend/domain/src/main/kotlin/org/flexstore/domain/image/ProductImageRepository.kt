@@ -1,6 +1,7 @@
 package org.flexstore.domain.image
 
 import org.flexstore.domain.product.model.ProductId
+import org.ucop.domain.ErrorMessage
 
 interface ProductImageRepository {
 
@@ -11,7 +12,8 @@ interface ProductImageRepository {
 
     // The image, which a precondition has checked to exist
     fun get(productId: ProductId, format: ImageFormat): ProductImage =
-        find(productId, format) ?: throw IllegalStateException("Product $productId has no $format image.")
+        find(productId, format)
+            ?: throw ProductImageNotFoundException(ErrorMessage("Product $productId has no $format image."))
 
     fun imageIsMissing(productId: ProductId, format: ImageFormat) = find(productId, format) == null
 
