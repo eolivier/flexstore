@@ -12,12 +12,13 @@ import org.flexstore.domain.order.model.NoTermsOfSaleAccepted
 import org.flexstore.domain.order.model.OrderAddresses
 import org.flexstore.domain.order.model.OrderDelivery
 import org.flexstore.domain.order.model.ShippingMethod
+import org.flexstore.domain.order.model.ShippingMethodId
 import org.flexstore.domain.order.model.TermsOfSaleAcceptance
 import org.flexstore.domain.sharedkernel.Identity
 
 // The addresses of an order to place: without billing address, the order is billed to the delivery address.
-// shippingMethod: STANDARD (when not given) or EXPRESS; discountCode: the discount code entered, if any;
-// termsOfSaleId: the version of the terms of sale the customer read and accepted
+// shippingMethod: the id of the shipping method chosen (STANDARD when not given); discountCode: the discount code
+// entered, if any; termsOfSaleId: the version of the terms of sale the customer read and accepted
 data class JsonOrderAddresses @JsonCreator constructor(
     @JsonProperty("deliveryAddress") val deliveryAddress: JsonPostalAddress,
     @JsonProperty("billingAddress") val billingAddress: JsonPostalAddress? = null,
@@ -35,10 +36,12 @@ data class JsonOrderAddresses @JsonCreator constructor(
         return DiscountCodeEntered(PromoCode.from(typedCode))
     }
 
-    fun toOrderDelivery(): OrderDelivery {
-        val method = shippingMethod?.let { ShippingMethod.valueOf(it) } ?: ShippingMethod.STANDARD
-        return OrderDelivery(toOrderAddresses(), method)
+    fun toShippingMethodId(): ShippingMethodId {
+        val chosenId = shippingMethod?.takeIf { it.isNotBlank() } ?: return ShippingMethod.STANDARD.id
+        return ShippingMethodId(Identity(chosenId))
     }
+
+    fun toOrderDelivery(shippingMethod: ShippingMethod) = OrderDelivery(toOrderAddresses(), shippingMethod)
 
     fun toOrderAddresses(): OrderAddresses {
         val delivery = deliveryAddress.toPostalAddress()

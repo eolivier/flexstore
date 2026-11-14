@@ -5,7 +5,8 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**method** | **string** |  | [default to undefined]
+**method** | **string** | The id of the shipping method | [default to undefined]
+**label** | **string** | Its name, as the customer reads it | [default to undefined]
 **cost** | **number** | For the items of the cart; 0 when free | [default to undefined]
 
 ## Example
@@ -15,6 +16,7 @@ import { JsonShippingOption } from './api';
 
 const instance: JsonShippingOption = {
     method,
+    label,
     cost,
 };
 ```

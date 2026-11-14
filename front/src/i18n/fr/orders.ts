@@ -66,8 +66,7 @@ export default {
       OTHER: 'Autre transporteur',
     },
     shipTitle: 'Expédier cette commande',
-    shipText:
-      "Indiquez le transporteur et le numéro de suivi : le client les voit sur sa commande et dans l'email.",
+    shipText: "Indiquez le transporteur et le numéro de suivi : le client les voit sur sa commande et dans l'email.",
     ship: 'Expédier',
     shipWithout: 'Expédier sans suivi',
     edit: 'Modifier le suivi',

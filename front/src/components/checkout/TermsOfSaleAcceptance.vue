@@ -23,12 +23,7 @@
 
 <template>
   <div class="terms-of-sale">
-    <v-checkbox
-      v-model="accepted"
-      :label="t('checkout.termsOfSale.accept')"
-      :disabled="!termsOfSale"
-      hide-details
-    />
+    <v-checkbox v-model="accepted" :label="t('checkout.termsOfSale.accept')" :disabled="!termsOfSale" hide-details />
     <router-link to="/terms-of-sale" target="_blank" class="text-body-2">
       {{ t('checkout.termsOfSale.read') }}
     </router-link>

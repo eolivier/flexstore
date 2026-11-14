@@ -10,6 +10,7 @@ import org.ucop.domain.entity.*
 // The shipping methods a customer chooses from when checking out, with their cost for the items of their cart
 class ProposeShippingOptionsUseCase(
     private val cartRepository: CartRepository,
+    private val shippingMethodRepository: ShippingMethodRepository,
     private val shopSettingsRepository: ShopSettingsRepository,
     private val userRepository: UserRepository
 ) : QueryUseCase<CartOwner.Customer, ShippingOptions> {
@@ -20,7 +21,7 @@ class ProposeShippingOptionsUseCase(
     override fun getNominalQuery() = NominalQuery<CartOwner.Customer, ShippingOptions> { customer ->
         val itemsPrice = cartRepository.load(customer).items.totalPrice()
         val freeShippingThreshold = shopSettingsRepository.load().freeShippingThreshold
-        ShippingOptions.forItems(itemsPrice, freeShippingThreshold)
+        ShippingOptions.forItems(shippingMethodRepository.findAll(), itemsPrice, freeShippingThreshold)
     }
 
     override fun getPostConditions(): PostConditions<ShippingOptions> = PostConditions.none()

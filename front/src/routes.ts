@@ -32,6 +32,7 @@ import { SELLER_SETUP_PATH } from './utils/sellerSetupRedirect';
 import AdminLegalPages from './components/admin/legal/AdminLegalPages.vue';
 import AdminShopPageContent from './components/admin/pagecontent/AdminShopPageContent.vue';
 import LegalPage from './components/legal/LegalPage.vue';
+import AdminShippingMethods from './components/admin/shipping/AdminShippingMethods.vue';
 import AdminDiscountCodes from './components/admin/discounts/AdminDiscountCodes.vue';
 import Login from './components/Login.vue';
 import SignUp from './components/account/SignUp.vue';
@@ -126,6 +127,11 @@ const shopRoutes: RouteRecordRaw[] = [
   {
     path: '/admin/create-product',
     component: CreateProduct,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/admin/shipping-methods',
+    component: AdminShippingMethods,
     meta: { requiresAuth: true, requiresAdmin: true },
   },
   {

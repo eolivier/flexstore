@@ -65,8 +65,7 @@ export default {
       OTHER: 'Other carrier',
     },
     shipTitle: 'Ship this order',
-    shipText:
-      'Give the carrier and the tracking number: the customer sees them on their order and in the email.',
+    shipText: 'Give the carrier and the tracking number: the customer sees them on their order and in the email.',
     ship: 'Ship',
     shipWithout: 'Ship without tracking',
     edit: 'Edit the tracking',

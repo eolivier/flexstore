@@ -8,6 +8,7 @@ export default {
     createProductText: 'Add a product to the catalog.',
     ordersText: 'Follow the orders of the customers and move them to their next status.',
     salesText: 'Follow the revenue, the orders per day and the best sellers.',
+    shippingMethodsText: 'Manage the shipping methods: their name, their cost, and whether they are offered.',
     discountCodesText: 'Give discount codes, until a date and for a number of orders.',
     settingsText: 'Turn the features of the shop on or off.',
     environmentText: 'Check which environment variables of the back end are defined.',

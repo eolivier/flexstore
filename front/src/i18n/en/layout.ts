@@ -21,6 +21,7 @@ export default {
     adminOrders: 'Orders',
     salesDashboard: 'Sales',
     discountCodes: 'Discount codes',
+    shippingMethods: 'Shipping methods',
     settings: 'Settings',
     environment: 'Environment',
     seller: 'Seller',

@@ -8,20 +8,18 @@ export default {
     createProductText: 'Ajouter un produit au catalogue.',
     ordersText: "Suivre les commandes des clients et les faire passer à l'état suivant.",
     salesText: "Suivre le chiffre d'affaires, les commandes par jour et les meilleures ventes.",
+    shippingMethodsText: "Gérer les modes de livraison : leur nom, leur coût, et s'ils sont proposés.",
     discountCodesText: "Créer des codes promo, jusqu'à une date et pour un nombre de commandes.",
     settingsText: 'Activer ou désactiver les fonctionnalités de la boutique.',
     environmentText: 'Vérifier quelles variables d’environnement du back end sont définies.',
-    sellerText:
-      'Modifier la boutique telle qu’elle figure sur ses factures : raison sociale, adresse, SIRET et TVA.',
+    sellerText: 'Modifier la boutique telle qu’elle figure sur ses factures : raison sociale, adresse, SIRET et TVA.',
     legalPagesText:
       'Rédiger les mentions légales, les conditions générales de vente et la politique de confidentialité de la boutique.',
-    shopPageContentText:
-      'Modifier les mots-clés, la description et l’identifiant Google Analytics de la boutique.',
+    shopPageContentText: 'Modifier les mots-clés, la description et l’identifiant Google Analytics de la boutique.',
   },
   environment: {
     title: 'Environnement',
-    subtitle:
-      'Les variables d’environnement du back end. Les mots de passe et les clés ne sont jamais affichés.',
+    subtitle: 'Les variables d’environnement du back end. Les mots de passe et les clés ne sont jamais affichés.',
     name: 'Variable',
     necessityTitle: 'Besoin',
     statusTitle: 'État',
@@ -72,8 +70,7 @@ export default {
   },
   salesDashboard: {
     title: 'Ventes',
-    subtitle:
-      "Les commandes payées, ni annulées ni remboursées, passées sur la période (jours à l'heure de Paris).",
+    subtitle: "Les commandes payées, ni annulées ni remboursées, passées sur la période (jours à l'heure de Paris).",
     lastDays: '{n} derniers jours',
     revenue: "Chiffre d'affaires",
     orders: 'Commandes',

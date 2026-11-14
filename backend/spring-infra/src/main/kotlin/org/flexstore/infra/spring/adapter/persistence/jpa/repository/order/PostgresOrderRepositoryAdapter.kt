@@ -19,6 +19,8 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
+import org.flexstore.infra.spring.adapter.persistence.jpa.repository.shipping.JpaShippingMethodRepository
+import org.flexstore.infra.spring.adapter.persistence.jpa.repository.shipping.toDomain as toShippingMethod
 import org.flexstore.infra.spring.adapter.persistence.jpa.repository.user.JpaUserRepository
 
 // The newest orders first; the id keeps the order of two orders placed at the same moment stable
@@ -28,7 +30,8 @@ private val NEWEST_FIRST = Sort.by(Sort.Order.desc("placedAt"), Sort.Order.desc(
 @Transactional
 class PostgresOrderRepositoryAdapter(
     private val jpaRepo: JpaOrderRepository,
-    private val jpaUserRepository: JpaUserRepository
+    private val jpaUserRepository: JpaUserRepository,
+    private val jpaShippingMethodRepository: JpaShippingMethodRepository
 ) : OrderRepository {
 
     // An order is placed once, then only its status and its tracking change: the stored rows of its lines are
@@ -91,7 +94,7 @@ class PostgresOrderRepositoryAdapter(
             userId = customer.value,
             status = status.name,
             placedAt = placedAt,
-            shippingMethod = shipping.method.name,
+            shippingMethod = jpaShippingMethodRepository.findById(shipping.method.id.id.value).orElseThrow(),
             shippingCost = shipping.cost.amount.value,
             discountCode = (discount as? AppliedOrderDiscount)?.code?.value,
             discountAmount = discountAmount().amount.value,
@@ -123,7 +126,7 @@ class PostgresOrderRepositoryAdapter(
     private fun OrderEntity.toDomain(): Order {
         val orderStamp = OrderStamp(OrderId(Identity(id)), placedAt)
         val orderAddresses = OrderAddresses(deliveryAddress.toDomain(), billingAddress.toDomain())
-        val shippingMethod = ShippingMethod.valueOf(this.shippingMethod)
+        val shippingMethod = this.shippingMethod.toShippingMethod()
         val delivery = OrderDelivery(orderAddresses, shippingMethod)
         val termsOfSale = legalPageId
             ?.let { id -> AcceptedTermsOfSale(LegalPageId(Identity(id))) }

@@ -13,11 +13,7 @@
   import ShippingMethodChoice from './ShippingMethodChoice.vue';
   import DiscountCodeField from './DiscountCodeField.vue';
   import TermsOfSaleAcceptance from './TermsOfSaleAcceptance.vue';
-  import type {
-    JsonDiscountPreview,
-    JsonOrderAddressesShippingMethodEnum,
-    JsonShippingOptions,
-  } from '@/generated';
+  import type { JsonDiscountPreview, JsonShippingOptions } from '@/generated';
 
   const { t } = useI18n();
   const router = useRouter();
@@ -44,7 +40,7 @@
   const placing = ref(false);
   // null while the shipping options are loaded, or when they cannot be
   const shippingOptions = ref<JsonShippingOptions | null>(null);
-  const shippingMethod = ref<JsonOrderAddressesShippingMethodEnum>('STANDARD');
+  const shippingMethod = ref('STANDARD');
   const appliedDiscount = ref<JsonDiscountPreview | null>(null);
   // The version of the terms of sale the customer accepted; null until they tick the box
   const acceptedTermsOfSaleId = ref<string | null>(null);
@@ -55,7 +51,12 @@
 
   onMounted(async () => {
     cartStore.fetchCartItems();
-    ordersStore.fetchShippingOptions().then((options) => (shippingOptions.value = options));
+    ordersStore.fetchShippingOptions().then((options) => {
+      shippingOptions.value = options;
+      // The standard method may be disabled: the customer starts with the first method offered
+      const isOffered = options?.options.some((option) => option.method === shippingMethod.value);
+      if (options && !isOffered && options.options.length > 0) shippingMethod.value = options.options[0].method;
+    });
     const account = await accountStore.fetchAccount();
     customer.value = {
       ...customer.value,
@@ -125,18 +126,8 @@
         <v-skeleton-loader v-if="savedAddresses === null" type="article" class="rounded-xl" />
         <v-card v-else class="pa-6">
           <v-form v-model="valid">
-            <AddressChoice
-              v-model="delivery"
-              :addresses="savedAddresses"
-              :customer="customer"
-              purpose="delivery"
-            />
-            <v-checkbox
-              v-model="billedToDelivery"
-              :label="t('checkout.billedToDelivery')"
-              hide-details
-              class="mb-2"
-            />
+            <AddressChoice v-model="delivery" :addresses="savedAddresses" :customer="customer" purpose="delivery" />
+            <v-checkbox v-model="billedToDelivery" :label="t('checkout.billedToDelivery')" hide-details class="mb-2" />
             <AddressChoice
               v-if="!billedToDelivery"
               v-model="billing"
@@ -145,11 +136,7 @@
               purpose="billing"
             />
             <v-divider class="my-4" />
-            <ShippingMethodChoice
-              v-if="shippingOptions"
-              v-model="shippingMethod"
-              :shipping-options="shippingOptions"
-            />
+            <ShippingMethodChoice v-if="shippingOptions" v-model="shippingMethod" :shipping-options="shippingOptions" />
             <v-divider class="my-4" />
             <DiscountCodeField v-model="appliedDiscount" />
             <v-divider class="my-4" />

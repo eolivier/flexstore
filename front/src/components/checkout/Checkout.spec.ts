@@ -63,8 +63,8 @@ const checkoutUrl = 'https://checkout.stripe.com/c/pay/cs_1';
 
 const shippingOptions = {
   options: [
-    { method: 'STANDARD', cost: 4.9 },
-    { method: 'EXPRESS', cost: 9.9 },
+    { method: 'STANDARD', label: 'Livraison standard', cost: 4.9 },
+    { method: 'EXPRESS', label: 'Livraison express', cost: 9.9 },
   ],
   freeShippingThreshold: 50,
   currency: '€',
@@ -122,9 +122,7 @@ async function placeOrder(wrapper: Awaited<ReturnType<typeof mountCheckout>>['wr
 }
 
 function sentAddresses() {
-  const [, init] = mockFetch.mock.calls.find(
-    ([url, init]) => url.endsWith('/api/orders') && init?.method === 'POST'
-  )!;
+  const [, init] = mockFetch.mock.calls.find(([url, init]) => url.endsWith('/api/orders') && init?.method === 'POST')!;
   return JSON.parse(init.body);
 }
 
@@ -292,9 +290,7 @@ describe('Checkout.vue', () => {
     const { wrapper } = await mountCheckout();
     // Assert
     const [firstName, lastName, companyName] = wrapper.findAll('input[type="text"]');
-    const recipient = [firstName, lastName, companyName].map(
-      (input) => (input.element as HTMLInputElement).value
-    );
+    const recipient = [firstName, lastName, companyName].map((input) => (input.element as HTMLInputElement).value);
     expect(recipient).toEqual(['Jane', 'Doe', '']);
   });
 

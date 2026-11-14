@@ -24,9 +24,7 @@
   const incompleteChoices = props.addresses
     .map((saved, index) => (isRecipientComplete(saved) ? null : index))
     .filter((index) => index !== null);
-  const recipientToComplete = computed(
-    () => choice.value !== 'other' && incompleteChoices.includes(choice.value)
-  );
+  const recipientToComplete = computed(() => choice.value !== 'other' && incompleteChoices.includes(choice.value));
 
   watch(
     [choice, otherAddress, savedAddresses],

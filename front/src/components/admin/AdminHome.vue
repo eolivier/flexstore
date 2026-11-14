@@ -12,6 +12,7 @@
     '/admin/products': 'admin.productsText',
     '/admin/create-product': 'admin.createProductText',
     '/admin/orders': 'admin.ordersText',
+    '/admin/shipping-methods': 'admin.shippingMethodsText',
     '/admin/discount-codes': 'admin.discountCodesText',
     '/admin/seller': 'admin.sellerText',
     '/admin/legal-pages': 'admin.legalPagesText',

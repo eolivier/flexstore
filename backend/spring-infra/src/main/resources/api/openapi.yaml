@@ -1696,6 +1696,78 @@ paths:
           description: Deleted
         "404":
           description: Unknown discount code
+  /api/admin/shipping-methods:
+    get:
+      tags:
+      - Administration
+      summary: Retrieve all the shipping methods, the disabled ones included, the cheapest first (ADMIN role)
+      operationId: getShippingMethods
+      security:
+      - bearerAuth: []
+      responses:
+        "200":
+          description: The shipping methods
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/JsonShippingMethod"
+    post:
+      tags:
+      - Administration
+      summary: Add a shipping method, enabled (ADMIN role)
+      operationId: createShippingMethod
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonNewShippingMethod"
+      responses:
+        "201":
+          description: The shipping method added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonShippingMethod"
+        "400":
+          description: No name, or a negative cost
+  /api/admin/shipping-methods/{id}:
+    put:
+      tags:
+      - Administration
+      summary: Change a shipping method; the orders already placed keep their shipping cost (ADMIN role)
+      operationId: updateShippingMethod
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonShippingMethodChange"
+      responses:
+        "200":
+          description: The shipping method changed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonShippingMethod"
+        "400":
+          description: No name, or a negative cost
+        "404":
+          description: Unknown shipping method
+        "409":
+          description: At least one shipping method must stay enabled
   /api/orders/shipping-options:
     get:
       tags:
@@ -3006,7 +3078,8 @@ components:
           type: string
     JsonOrder:
       type: object
-      required: [id, placedAt, status, lines, itemsPrice, shippingMethod, shippingCost, discountAmount, totalPrice,
+      required: [id, placedAt, status, lines, itemsPrice, shippingMethod, shippingLabel, shippingCost, discountAmount,
+        totalPrice,
         currency, deliveryAddress, billingAddress]
       properties:
         id:
@@ -3026,7 +3099,10 @@ components:
           description: The price of the lines, without the shipping
         shippingMethod:
           type: string
-          enum: [STANDARD, EXPRESS]
+          description: The id of the shipping method the order was placed with
+        shippingLabel:
+          type: string
+          description: The name of that shipping method, as the customer reads it
         shippingCost:
           type: number
           description: 0 when the shipping is free
@@ -3245,8 +3321,7 @@ components:
           $ref: "#/components/schemas/JsonPostalAddress"
         shippingMethod:
           type: string
-          enum: [STANDARD, EXPRESS]
-          description: STANDARD when not given
+          description: The id of the shipping method chosen, STANDARD when not given (409 when it is disabled)
         discountCode:
           type: string
           description: The discount code entered, if any (404 when unknown, 410 when expired or used up)
@@ -3436,14 +3511,61 @@ components:
           type: string
     JsonShippingOption:
       type: object
-      required: [method, cost]
+      required: [method, label, cost]
       properties:
         method:
           type: string
-          enum: [STANDARD, EXPRESS]
+          description: The id of the shipping method
+        label:
+          type: string
+          description: Its name, as the customer reads it
         cost:
           type: number
           description: For the items of the cart; 0 when free
+    JsonShippingMethod:
+      type: object
+      required: [id, label, cost, freeShippingEligibility, status]
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        cost:
+          type: number
+          description: In euros, 0 or more
+        freeShippingEligibility:
+          type: string
+          enum: [ELIGIBLE, NOT_ELIGIBLE]
+          description: ELIGIBLE - free from the threshold of the shop settings; NOT_ELIGIBLE - always at its cost
+        status:
+          type: string
+          enum: [ENABLED, DISABLED]
+          description: A disabled method is no longer proposed to the customers
+    JsonNewShippingMethod:
+      type: object
+      required: [label, cost, freeShippingEligibility]
+      properties:
+        label:
+          type: string
+        cost:
+          type: number
+        freeShippingEligibility:
+          type: string
+          enum: [ELIGIBLE, NOT_ELIGIBLE]
+    JsonShippingMethodChange:
+      type: object
+      required: [label, cost, freeShippingEligibility, status]
+      properties:
+        label:
+          type: string
+        cost:
+          type: number
+        freeShippingEligibility:
+          type: string
+          enum: [ELIGIBLE, NOT_ELIGIBLE]
+        status:
+          type: string
+          enum: [ENABLED, DISABLED]
     JsonAccount:
       type: object
       required: [id, firstName, lastName, email, role, status, postalAddresses, twoFactorEnabled]

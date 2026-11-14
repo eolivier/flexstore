@@ -11,7 +11,8 @@ Name | Type | Description | Notes
 **status** | **string** |  | [default to undefined]
 **lines** | [**Array&lt;JsonOrderLine&gt;**](JsonOrderLine.md) |  | [default to undefined]
 **itemsPrice** | **number** | The price of the lines, without the shipping | [default to undefined]
-**shippingMethod** | **string** |  | [default to undefined]
+**shippingMethod** | **string** | The id of the shipping method the order was placed with | [default to undefined]
+**shippingLabel** | **string** | The name of that shipping method, as the customer reads it | [default to undefined]
 **shippingCost** | **number** | 0 when the shipping is free | [default to undefined]
 **discountCode** | **string** | The discount code used, if any | [optional] [default to undefined]
 **discountAmount** | **number** | What the discount code took off the items (0 without code) | [default to undefined]
@@ -36,6 +37,7 @@ const instance: JsonAdminOrder = {
     lines,
     itemsPrice,
     shippingMethod,
+    shippingLabel,
     shippingCost,
     discountCode,
     discountAmount,

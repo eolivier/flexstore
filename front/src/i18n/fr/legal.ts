@@ -16,8 +16,7 @@ export default {
     saved: 'Publiée : les visiteurs lisent désormais cette version.',
     invalid: 'La boutique a refusé la page : son texte est vide ou trop long.',
     saveError: 'La page n’a pas pu être publiée.',
-    versionsNote:
-      'Chaque publication est conservée comme une nouvelle version : les précédentes ne sont pas perdues.',
+    versionsNote: 'Chaque publication est conservée comme une nouvelle version : les précédentes ne sont pas perdues.',
   },
   shopPageContent: {
     title: 'Contenu des pages de la boutique',

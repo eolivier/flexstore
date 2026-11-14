@@ -1,6 +1,6 @@
 # Physical data model
 
-The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V69**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
+The PostgreSQL schema of Flexstore, as created by the Flyway migrations of `backend/migrations` (last migration: **V70**). Update this diagram in the same pull request as any migration that changes the schema (see the `database-convention` skill).
 
 ![Physical data model](database.png)
 
@@ -63,7 +63,7 @@ erDiagram
         user_id varchar(50) FK
         status varchar(20) "last status: AWAITING_PAYMENT, PAID, PROCESSING, SHIPPED, DELIVERED, CANCELLED or REFUNDED"
         placed_at timestamptz
-        shipping_method varchar(20) "STANDARD or EXPRESS"
+        shipping_method_id varchar(50) FK "the method the order was placed with"
         shipping_cost numeric "0 or more, 0 when free"
         discount_code varchar(30) "copy of the code used, no foreign key; nullable: no discount"
         discount_amount numeric "taken off the items, 0 without code"
@@ -163,6 +163,16 @@ erDiagram
         version int UK "never changed: each publication adds a version, the highest is the current page"
         text text "plain text, 50 000 characters at most; empty in the first version"
         published_at timestamptz
+        created_at timestamp
+        updated_at timestamp
+    }
+
+    shipping_method {
+        id varchar(50) PK "STANDARD and EXPRESS for the first two, a generated id for the others"
+        label varchar(255) "as the customer reads it"
+        cost numeric "0 or more"
+        free_shipping_eligibility varchar(20) "ELIGIBLE (free from the threshold of the shop settings) or NOT_ELIGIBLE"
+        status varchar(20) "ENABLED or DISABLED (not proposed any more; never deleted)"
         created_at timestamp
         updated_at timestamp
     }
@@ -312,6 +322,7 @@ erDiagram
     user ||--o{ customer_order : "user_id (cascade)"
     customer_order }o--|| address : "delivery_address_id"
     customer_order }o--|| address : "billing_address_id"
+    customer_order }o--|| shipping_method : "shipping_method_id"
     customer_order }o--o| payment : "payment_id"
     customer_order }o--o| legal_page : "legal_page_id"
     customer_order ||--|{ customer_order_line : "customer_order_id (cascade)"

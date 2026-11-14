@@ -17,6 +17,7 @@ export const twoLinesOrder: JsonOrder = {
   ],
   itemsPrice: 857,
   shippingMethod: 'STANDARD',
+  shippingLabel: 'Livraison standard',
   shippingCost: 0,
   discountCode: null,
   discountAmount: 0,

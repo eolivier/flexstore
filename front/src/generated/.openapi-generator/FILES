@@ -47,6 +47,7 @@ docs/JsonLoyaltyPurchase.md
 docs/JsonLoyaltyStatement.md
 docs/JsonNewDiscountCode.md
 docs/JsonNewReview.md
+docs/JsonNewShippingMethod.md
 docs/JsonOrder.md
 docs/JsonOrderAddresses.md
 docs/JsonOrderCustomer.md
@@ -70,6 +71,8 @@ docs/JsonReviewEligibility.md
 docs/JsonSalesDashboard.md
 docs/JsonSaveItemResponse.md
 docs/JsonSeller.md
+docs/JsonShippingMethod.md
+docs/JsonShippingMethodChange.md
 docs/JsonShippingOption.md
 docs/JsonShippingOptions.md
 docs/JsonShopPageContent.md

@@ -11,9 +11,11 @@ data class JsonOrder(
     @JsonProperty("placedAt") val placedAt: String,
     @JsonProperty("status") val status: String,
     @JsonProperty("lines") val lines: List<JsonOrderLine>,
-    // The price of the lines, then the shipping (STANDARD or EXPRESS) and its cost: their sum is the total
+    // The price of the lines, then the shipping (the id of its method and its name) and its cost: their sum is
+    // the total
     @JsonProperty("itemsPrice") val itemsPrice: BigDecimal,
     @JsonProperty("shippingMethod") val shippingMethod: String,
+    @JsonProperty("shippingLabel") val shippingLabel: String,
     @JsonProperty("shippingCost") val shippingCost: BigDecimal,
     // The discount code used, if any, and the amount it took off the items (0 without code)
     @JsonProperty("discountCode") val discountCode: String?,
@@ -33,7 +35,8 @@ data class JsonOrder(
         order.status.name,
         order.lines.asList().map { JsonOrderLine.of(it) },
         order.itemsPrice().amount.value,
-        order.shipping.method.name,
+        order.shipping.method.id.id.value,
+        order.shipping.method.label().value,
         order.shipping.cost.amount.value,
         (order.discount as? AppliedOrderDiscount)?.code?.value,
         order.discountAmount().amount.value,
@@ -52,7 +55,8 @@ data class JsonOrder(
         order.status.name,
         order.lines.asList().map { JsonOrderLine.of(it) },
         order.itemsPrice().amount.value,
-        order.shipping.method.name,
+        order.shipping.method.id.id.value,
+        order.shipping.method.label().value,
         order.shipping.cost.amount.value,
         (order.discount as? AppliedOrderDiscount)?.code?.value,
         order.discountAmount().amount.value,
