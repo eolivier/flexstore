@@ -34,7 +34,7 @@
 </script>
 
 <template>
-  <v-container class="page py-10">
+  <v-container class="py-10">
     <AccountBreadcrumbs />
     <v-btn to="/orders" variant="text" prepend-icon="mdi-arrow-left" class="mb-4 px-2">
       {{ t('orders.backToOrders') }}
@@ -106,9 +106,3 @@
     </template>
   </v-container>
 </template>
-
-<style scoped>
-  .page {
-    max-width: 960px;
-  }
-</style>
