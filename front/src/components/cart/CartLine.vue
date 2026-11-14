@@ -6,6 +6,8 @@
   import { categoryInfo } from '@/components/products/categories';
   import ProductVisual from '@/components/products/ProductVisual.vue';
   import CartItemUnitPrice from './CartItemUnitPrice.vue';
+  import WishlistToggleButton from '@/components/products/WishlistToggleButton.vue';
+  import type { Product } from '@/models/product';
   import { formatPrice } from '@/utils/price';
   import { productPath } from '@/utils/productSlug';
 
@@ -16,6 +18,18 @@
 
   const category = computed(() => categoryInfo(props.item.productCategory));
   const detailLink = computed(() => productPath({ id: props.item.productId, name: props.item.productName }));
+  // The product of the line, as the wishlist saves it
+  const product = computed<Product>(() => ({
+    id: props.item.productId,
+    sku: '',
+    name: props.item.productName,
+    description: props.item.productDescription ?? '',
+    category: props.item.productCategory ?? '',
+    price: props.item.regularPrice ?? props.item.productPrice,
+    currency: props.item.productCurrency ?? '',
+    promotionPercentage: props.item.promotionPercentage,
+    currentPrice: props.item.productPrice,
+  }));
   const linePrice = computed(() => formatPrice(props.item.itemPrice, props.item.productCurrency, locale.value));
 </script>
 
@@ -50,6 +64,7 @@
         @update:model-value="$emit('update:quantity', $event)"
       />
       <div class="line-price text-subtitle-1 font-weight-bold text-right">{{ linePrice }}</div>
+      <WishlistToggleButton :product="product" />
       <v-btn
         icon="mdi-close"
         size="small"

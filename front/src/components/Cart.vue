@@ -4,6 +4,7 @@
   import { useI18n } from 'vue-i18n';
   import { useRouter } from 'vue-router';
   import { useAuthStore } from '@/stores/auth.store';
+  import { useWishlistStore } from '@/stores/wishlist.store';
   import { useCartStore } from '@/stores/cart.store';
   import { useProductImagesStore } from '@/stores/productImages.store';
   import type { Item } from '@/models/cart';
@@ -25,6 +26,7 @@
   onMounted(() => {
     useProductImagesStore().fetchProductsWithImage();
     cartStore.fetchCartItems();
+    if (authStore.isAuthenticated) useWishlistStore().fetchWishlist();
   });
 
   const items = computed(() => cartStore.cartItems?.items ?? []);
