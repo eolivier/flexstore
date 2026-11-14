@@ -6,8 +6,8 @@
   import { timeLeftToPay } from '@/utils/order';
 
   // The time left to pay the order, counted down every second; once it is over, the page is told so that it
-  // reads the order again (cancelled by the shop)
-  const props = defineProps<{ order: JsonOrder }>();
+  // reads the order again (cancelled by the shop). Compact: one line, for the list of the orders
+  const props = defineProps<{ order: JsonOrder; compact?: boolean }>();
   const emit = defineEmits<{ expired: [] }>();
 
   const { t } = useI18n();
@@ -21,15 +21,22 @@
 </script>
 
 <template>
-  <div v-if="timeLeft" class="mb-3">
-    <p class="d-flex align-center ga-2 text-body-1 font-weight-medium" role="timer" aria-live="off">
-      <v-icon icon="mdi-timer-sand" color="warning" />
+  <div v-if="timeLeft" :class="{ 'mb-3': !compact }">
+    <p
+      class="d-flex align-center ga-2 font-weight-medium"
+      :class="compact ? 'text-body-2' : 'text-body-1'"
+      role="timer"
+      aria-live="off"
+    >
+      <v-icon icon="mdi-timer-sand" color="warning" :size="compact ? 'small' : undefined" />
       <span>{{ t('orders.timeLeftToPay') }}</span>
       <span class="countdown">{{ timeLeft }}</span>
     </p>
-    <p class="text-body-2 text-medium-emphasis mt-1">{{ t('orders.afterPaymentDelay') }}</p>
+    <p v-if="!compact" class="text-body-2 text-medium-emphasis mt-1">{{ t('orders.afterPaymentDelay') }}</p>
   </div>
-  <p v-else class="text-body-2 text-medium-emphasis mb-3">{{ t('orders.paymentDelayOver') }}</p>
+  <p v-else class="text-body-2 text-medium-emphasis" :class="{ 'mb-3': !compact }">
+    {{ t('orders.paymentDelayOver') }}
+  </p>
 </template>
 
 <style scoped>
