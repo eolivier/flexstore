@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import AccountBreadcrumbs from '@/components/account/AccountBreadcrumbs.vue';
   import EmptyState from '@/components/layout/EmptyState.vue';
   import LoadError from '@/components/layout/LoadError.vue';
   import { onMounted } from 'vue';
@@ -17,6 +18,7 @@
 
 <template>
   <v-container class="py-10">
+    <AccountBreadcrumbs />
     <h1 class="text-h4 font-weight-bold">{{ t('loyalty.title') }}</h1>
     <p class="text-body-2 text-medium-emphasis mt-1 mb-6">{{ t('loyalty.subtitle') }}</p>
 

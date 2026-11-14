@@ -11,6 +11,7 @@ const orders = { label: 'nav.orders', to: '/orders' };
 const trails: { pattern: RegExp; parents: AccountBreadcrumb[]; label: string }[] = [
   { pattern: /^\/account\/addresses$/, parents: [home], label: 'addressBook.title' },
   { pattern: /^\/account\/preferences$/, parents: [home], label: 'nav.preferences' },
+  { pattern: /^\/account\/loyalty$/, parents: [home], label: 'nav.loyalty' },
   { pattern: /^\/orders\/[^/]+\/confirmation$/, parents: [home, orders], label: 'orders.detail' },
   { pattern: /^\/orders\/[^/]+$/, parents: [home, orders], label: 'orders.detail' },
   { pattern: /^\/orders$/, parents: [home], label: 'nav.orders' },
