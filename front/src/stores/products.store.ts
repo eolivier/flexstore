@@ -16,12 +16,15 @@ export const useProductsStore = defineStore('products', () => {
   // proposed
   async function proposeSku(category: string, name: string): Promise<string | null> {
     const query = new URLSearchParams({ category, name });
-    const response = await useAuthStore()
-      .authFetch(`/api/admin/products/sku-proposal?${query}`)
-      .catch(() => null);
-    if (!response?.ok) return null;
-    const proposal: { sku: string } = await response.json();
-    return proposal.sku;
+    try {
+      const response = await useAuthStore().authFetch(`/api/admin/products/sku-proposal?${query}`);
+      if (!response.ok) return null;
+      const proposal: { sku: string } = await response.json();
+      return proposal.sku;
+    } catch (e) {
+      logFailure('propose a SKU', e);
+      return null;
+    }
   }
 
   // The created product keeps the id given by the API: its image and its stock are given with it
@@ -57,8 +60,12 @@ export const useProductsStore = defineStore('products', () => {
         return { outcome: 'failed' };
       }
       const savedProduct: Product = await response.json();
+      if (savedProduct.id === undefined) {
+        logFailure('save the product', 'the answer has no product id');
+        return { outcome: 'failed' };
+      }
       await fetchProducts();
-      return { outcome: 'saved', productId: savedProduct.id ?? '' };
+      return { outcome: 'saved', productId: savedProduct.id };
     } catch (e) {
       logFailure('save the product', e);
       return { outcome: 'failed' };
