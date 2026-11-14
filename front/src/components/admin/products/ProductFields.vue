@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import { computed } from 'vue';
   import { useI18n } from 'vue-i18n';
+  import { useFieldRules } from '@/composables/useFieldRules';
   import { categoryInfo, shopCategories } from '@/components/products/categories';
   import { DEFAULT_LANGUAGE, type ProductTexts, type VatRate } from '@/models/product';
   import ProductTranslationFields from './ProductTranslationFields.vue';
@@ -30,7 +31,7 @@
   );
 
   const rules = {
-    required: (v: string | null) => !!v || t('createProduct.mandatoryField'),
+    ...useFieldRules(),
     price: (v: string | null) => (v !== null && parseFloat(v) > 0) || t('createProduct.invalidPrice'),
   };
 </script>

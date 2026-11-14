@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { useI18n } from 'vue-i18n';
+  import { useFieldRules } from '@/composables/useFieldRules';
   import { useRoute } from 'vue-router';
   import { usePasswordResetStore } from '@/stores/passwordReset.store';
   import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
@@ -16,10 +17,7 @@
   // null until the form is sent
   const received = ref<boolean | null>(null);
 
-  const rules = {
-    required: (v: string) => !!v?.trim() || t('login.mandatoryField'),
-    email: (v: string) => /.+@.+\..+/.test(v) || t('login.invalidEmail'),
-  };
+  const rules = useFieldRules();
 
   async function submit() {
     if (!valid.value) return;

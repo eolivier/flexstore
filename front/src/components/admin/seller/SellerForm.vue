@@ -4,7 +4,7 @@
   import { useI18n } from 'vue-i18n';
   import { useSellerStore, type Seller, type SellerUpdate } from '@/stores/seller.store';
   import SellerSocialNetworksFields from './SellerSocialNetworksFields.vue';
-  import { isEmail, isPhone, isShareCapital, isSiret, isVatNumber, isWebsite } from './sellerRules';
+  import { useSellerFieldRules } from './setup/useSellerFieldRules';
 
   const props = defineProps<{ seller: Seller }>();
 
@@ -23,15 +23,7 @@
   // null until saved
   const update = ref<SellerUpdate | null>(null);
 
-  const rules = {
-    required: (v: string) => v.trim().length > 0 || t('seller.required'),
-    siret: (v: string) => isSiret(v) || t('seller.siretFormat'),
-    vatNumber: (v: string) => isVatNumber(v) || t('seller.vatNumberFormat'),
-    phone: (v: string) => isPhone(v) || t('seller.phoneFormat'),
-    email: (v: string) => isEmail(v) || t('seller.emailFormat'),
-    website: (v: string) => isWebsite(v) || t('seller.websiteFormat'),
-    shareCapital: (v: string) => isShareCapital(v) || t('seller.shareCapitalFormat'),
-  };
+  const rules = useSellerFieldRules();
 
   async function save() {
     if (valid.value === false) return;

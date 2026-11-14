@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import { useI18n } from 'vue-i18n';
+  import { useFieldRules } from '@/composables/useFieldRules';
   import type { CustomerCompany, Location } from '@/models/account';
   import PostalAddressFields from './PostalAddressFields.vue';
   import CompanyFields from './CompanyFields.vue';
@@ -14,7 +15,7 @@
   const { t } = useI18n();
 
   const rules = {
-    required: (v: string) => !!v?.trim() || t('createUser.mandatoryField'),
+    ...useFieldRules(),
     phoneNumber: (v: string) => /^\+?[0-9][0-9 .()-]{5,19}$/.test(v.trim()) || t('signUp.invalidPhoneNumber'),
   };
 </script>

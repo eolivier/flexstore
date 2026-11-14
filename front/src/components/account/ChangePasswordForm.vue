@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import { nextTick, ref, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
+  import { useFieldRules } from '@/composables/useFieldRules';
   import { useAuthStore } from '@/stores/auth.store';
   import { useSnackbar } from '@/composables/useSnackbar';
 
@@ -19,8 +20,7 @@
   const confirmPasswordField = ref<{ validate: () => void } | null>(null);
 
   const rules = {
-    required: (v: string) => !!v || t('createUser.mandatoryField'),
-    length: (v: string) => v.length >= 8 || t('createUser.passwordTooShort'),
+    ...useFieldRules(),
     different: (v: string) => v !== currentPassword.value || t('profile.passwordUnchanged'),
     same: (v: string) => v === newPassword.value || t('profile.passwordsDiffer'),
   };
@@ -72,7 +72,7 @@
             v-model="newPassword"
             :label="t('profile.newPassword')"
             :type="showPasswords ? 'text' : 'password'"
-            :rules="[rules.required, rules.length, rules.different]"
+            :rules="[rules.required, rules.passwordLength, rules.different]"
             prepend-inner-icon="mdi-lock-plus-outline"
             autocomplete="new-password"
           />

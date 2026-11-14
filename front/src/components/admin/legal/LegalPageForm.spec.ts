@@ -60,6 +60,6 @@ describe('LegalPageForm.vue', () => {
     await flushPromises();
     // Assert
     expect(mockFetch).not.toHaveBeenCalled();
-    expect(wrapper.text()).toContain('Required');
+    expect(wrapper.text()).toContain('Mandatory field');
   });
 });

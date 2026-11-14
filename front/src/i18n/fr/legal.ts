@@ -10,7 +10,6 @@ export default {
     adminSubtitle:
       'Les mentions légales, les conditions générales de vente et la politique de confidentialité de la boutique, lues par tous depuis le pied de page.',
     textHint: 'Texte brut : chaque retour à la ligne est conservé',
-    required: 'Obligatoire',
     tooLong: '50 000 caractères au maximum',
     publish: 'Publier',
     see: 'Voir la page',

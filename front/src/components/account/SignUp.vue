@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { useI18n } from 'vue-i18n';
+  import { useFieldRules } from '@/composables/useFieldRules';
   import { useRoute, useRouter } from 'vue-router';
   import { useAuthStore, type Registration } from '@/stores/auth.store';
   import type { ExpressAccountRegistration, CustomerCompany, Location } from '@/models/account';
@@ -29,11 +30,7 @@
   const saving = ref(false);
   const result = ref<Registration | null>(null);
 
-  const rules = {
-    required: (v: string) => !!v?.trim() || t('createUser.mandatoryField'),
-    email: (v: string) => /.+@.+\..+/.test(v) || t('createUser.invalidEmail'),
-    passwordLength: (v: string) => v.length >= 8 || t('createUser.passwordTooShort'),
-  };
+  const rules = useFieldRules();
 
   function companyAsSent(): CustomerCompany {
     return {

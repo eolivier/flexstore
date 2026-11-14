@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { useI18n } from 'vue-i18n';
+  import { useFieldRules } from '@/composables/useFieldRules';
   import { useProductsStore } from '@/stores/products.store';
   import { isWellFormedSku, SKU_MAX_LENGTH } from '@/utils/sku';
 
@@ -10,6 +11,7 @@
   const props = defineProps<{ alreadyUsed: boolean; category: string; name: string }>();
 
   const { t } = useI18n();
+  const { required } = useFieldRules();
   const productsStore = useProductsStore();
 
   const generating = ref(false);
@@ -30,7 +32,7 @@
   }
 
   const rules = [
-    (v: string) => !!v.trim() || t('createProduct.mandatoryField'),
+    required,
     (v: string) => isWellFormedSku(v) || t('sku.invalid', { max: SKU_MAX_LENGTH }),
   ];
 </script>
