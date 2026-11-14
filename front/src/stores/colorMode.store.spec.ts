@@ -117,6 +117,18 @@ describe('colorMode.store, signed in', () => {
     expect(localStorage.getItem(COLOR_MODE_KEY)).toBeNull();
   });
 
+  it('should give the mode just chosen, not the one the account held at sign-in', async () => {
+    // Arrange
+    answer(200, { colorMode: 'LIGHT' });
+    const store = useColorModeStore();
+    await flushPromises();
+    answer(200, { colorMode: 'DARK' });
+    // Act
+    await store.choose('dark');
+    // Assert
+    expect(store.accountColorMode).toBe('dark');
+  });
+
   it('should keep the choice in the browser when the account could not record it', async () => {
     // Arrange
     rememberCookieChoice('accepted');

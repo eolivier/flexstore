@@ -51,7 +51,10 @@ export const useColorModeStore = defineStore('colorMode', () => {
   async function choose(colorMode: ColorMode) {
     if (!authStore.isAuthenticated) {
       rememberColorMode(colorMode);
-    } else if (!(await recordInAccount(colorMode))) {
+    } else if (await recordInAccount(colorMode)) {
+      // The page applies the mode of the account whenever it is shown: it must be the one just chosen
+      accountColorMode.value = colorMode;
+    } else {
       rememberColorMode(colorMode);
     }
   }
