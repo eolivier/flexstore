@@ -62,5 +62,9 @@
 <style scoped>
   .address-field {
     border: none;
+    /* A fieldset has a default padding and margin: reset them to align with the fields above */
+    padding: 0;
+    margin-inline: 0;
+    min-inline-size: 0;
   }
 </style>
