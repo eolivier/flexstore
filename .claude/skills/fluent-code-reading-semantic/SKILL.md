@@ -1,6 +1,6 @@
 ---
 name: fluent-code-reading-semantic
-description: Principles that make code read like the business language - wrapping collections in their own class, naming boolean methods affirmatively (no `!is`: `isNotAdmin()`, defined as `!isAdmin()`, rather than `!is Admin`), no negated condition before an else (swap the branches), no nested if (cumulate the conditions with &&, one guard clause per rule), the negated twin of a question rather than a ! (hasNotPaidFor), naming a condition with a method (a deadline that is reached rather than a comparison of dates), naming variables after their type, intermediate variables, strong types rather than nullable ones, no nullable type marker (`?`) in declarations, no magic number, one or two arguments per method, lines of 120 characters at most (shortened by extracting a variable, never by wrapping an instruction), singular or plural names, no repeated names, no null arguments, beans declared step by step (repository, use case, service). Use before writing, changing or reviewing domain or application code (entities, value objects, aggregates, use cases), in any language.
+description: Principles that make code read like the business language - wrapping collections in their own class, naming boolean methods affirmatively (no `!is`: `isNotAdmin()`, defined as `!isAdmin()`, rather than `!is Admin`), no negated condition before an else (swap the branches), no nested if (cumulate the conditions with &&, one guard clause per rule), the negated twin of a question rather than a ! (hasNotPaidFor), naming a business condition with a variable or a method (`val isOutOfStock = product.quantity == 0`, a deadline that is reached rather than a comparison of dates), naming variables after their type, intermediate variables, strong types rather than nullable ones, no nullable type marker (`?`) in declarations, no magic number, one or two arguments per method, lines of 120 characters at most (shortened by extracting a variable, never by wrapping an instruction), singular or plural names, no repeated names, no null arguments, beans declared step by step (repository, use case, service). Use before writing, changing or reviewing domain or application code (entities, value objects, aggregates, use cases), in any language.
 ---
 
 # Fluent code reading semantic
@@ -101,9 +101,9 @@ if (actor.isNotAdmin()) { throw StockAlertForbiddenException(...) }
 
 Why: `!is` hides the negation in the middle of the line, between the value and the type; `isNotAdmin()` reads as the question it answers, and it cannot drift from `isAdmin()` since it is defined as its negation. The only type check left is the `is` of the affirmative method.
 
-## 3. Name a condition with a method
+## 3. Name a condition with a variable or a method
 
-A condition built from comparisons, computations or negations (`!checkedAt.isBefore(placedAt + delay)`, `a.amount > b.amount && ...`) is not written inline: it goes into a method named after the business question it answers, on the object that holds the data. When the condition needs a value that has no name yet (a deadline, a threshold), give that value its own value object first.
+A condition built from comparisons, computations or negations (`!checkedAt.isBefore(placedAt + delay)`, `a.amount > b.amount && ...`) is not written inline: it goes into a variable or a method named after the business question it answers, on the object that holds the data. When the condition needs a value that has no name yet (a deadline, a threshold), give that value its own value object first.
 
 Avoid:
 
@@ -129,7 +129,23 @@ fun isExceededFor(order: Order) =
 
 Why: the caller reads the rule ("the order awaits its payment and its payment deadline is reached") instead of working out what a comparison of dates means; the computation (placement plus delay) and the comparison live once, in the object they belong to, and can be tested on their own.
 
+A condition used once, on values the caller already holds, is named with a **local variable** whose name expresses the idea (`isOutOfStock`, `hasReachedDeadline`), then the `if` reads the variable. A condition used in several places, or that belongs to an object, is a **method** on that object (above).
+
+Avoid:
+
+```kotlin
+if (product.quantity == 0) { ... }
+```
+
+Prefer:
+
+```kotlin
+val isOutOfStock = product.quantity == 0
+if (isOutOfStock) { ... }
+```
+
 Details:
+- A business condition is never left as a bare comparison inside an `if`: the variable or the method says what the comparison means.
 - Inside the named method, prefer the direct comparison (`instant >= value`) to a negated one (`!instant.isBefore(value)`), as in principle 2.
 - A condition that combines named methods with `&&` or `||` (`order.isAwaitingPayment() && deadline.isReachedAt(now)`) already reads as a sentence: it may stay inline.
 - The same applies in TypeScript and in templates: a `computed` or a function named after the question (`isAwaitingPayment(order)`) rather than the expression repeated in a `v-if`.
