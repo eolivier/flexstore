@@ -3,6 +3,7 @@
   import { useI18n } from 'vue-i18n';
   import { useRouter } from 'vue-router';
   import { useAuthStore } from '@/stores/auth.store';
+  import AccountBreadcrumbs from '@/components/account/AccountBreadcrumbs.vue';
   import ChangePasswordForm from '@/components/account/ChangePasswordForm.vue';
   import EmailVerificationBanner from '@/components/account/EmailVerificationBanner.vue';
   import TwoFactorAuthSection from '@/components/account/TwoFactorAuthSection.vue';
@@ -27,7 +28,8 @@
 </script>
 
 <template>
-  <v-container class="page py-10">
+  <v-container class="py-10">
+    <AccountBreadcrumbs />
     <h1 class="text-h4 font-weight-bold mb-6">{{ t('profile.title') }}</h1>
 
     <v-card v-if="!authStore.isAuthenticated" class="pa-10 text-center">
@@ -76,9 +78,3 @@
     </template>
   </v-container>
 </template>
-
-<style scoped>
-  .page {
-    max-width: 860px;
-  }
-</style>

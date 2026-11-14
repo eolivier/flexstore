@@ -6,21 +6,21 @@ describe('accountBreadcrumbs', () => {
     // Act
     const breadcrumbs = accountBreadcrumbsOf('/user-profile');
     // Assert
-    expect(breadcrumbs).toEqual([{ label: 'nav.profile' }]);
+    expect(breadcrumbs).toEqual([{ label: 'nav.account' }]);
   });
 
   it('the addresses should go back to the home of the customer own space', () => {
     // Act
     const breadcrumbs = accountBreadcrumbsOf('/account/addresses');
     // Assert
-    expect(breadcrumbs).toEqual([{ label: 'nav.profile', to: '/user-profile' }, { label: 'addressBook.title' }]);
+    expect(breadcrumbs).toEqual([{ label: 'nav.account', to: '/user-profile' }, { label: 'addressBook.title' }]);
   });
 
   it('the preferences should go back to the home of the customer own space', () => {
     // Act
     const breadcrumbs = accountBreadcrumbsOf('/account/preferences');
     // Assert
-    expect(breadcrumbs).toEqual([{ label: 'nav.profile', to: '/user-profile' }, { label: 'nav.preferences' }]);
+    expect(breadcrumbs).toEqual([{ label: 'nav.account', to: '/user-profile' }, { label: 'nav.preferences' }]);
   });
 
   it('the loyalty should go back to the home of the customer own space', () => {
@@ -34,7 +34,7 @@ describe('accountBreadcrumbs', () => {
     // Act
     const breadcrumbs = accountBreadcrumbsOf('/orders');
     // Assert
-    expect(breadcrumbs).toEqual([{ label: 'nav.profile', to: '/user-profile' }, { label: 'nav.orders' }]);
+    expect(breadcrumbs).toEqual([{ label: 'nav.account', to: '/user-profile' }, { label: 'nav.orders' }]);
   });
 
   it.each([
@@ -45,7 +45,7 @@ describe('accountBreadcrumbs', () => {
     const breadcrumbs = accountBreadcrumbsOf(path);
     // Assert
     expect(breadcrumbs).toEqual([
-      { label: 'nav.profile', to: '/user-profile' },
+      { label: 'nav.account', to: '/user-profile' },
       { label: 'nav.orders', to: '/orders' },
       { label: 'orders.detail' },
     ]);

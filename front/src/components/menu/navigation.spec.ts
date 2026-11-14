@@ -14,7 +14,7 @@ describe('navigation', () => {
     const links = accountLinksOf(true);
     // Assert
     expect(links.map((link) => link.label)).toEqual([
-      'nav.profile',
+      'nav.account',
       'nav.orders',
       'nav.addresses',
       'nav.wishlist',
