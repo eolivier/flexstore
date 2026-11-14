@@ -10,11 +10,8 @@
 
 <template>
   <div class="d-flex align-start ga-4">
-    <v-avatar color="secondary" variant="tonal" rounded="lg" size="36">
-      <v-icon icon="mdi-store-cog-outline" size="small" />
-    </v-avatar>
     <div class="flex-grow-1">
-      <SettingTitle>{{ t('settings.sellerSetup') }}</SettingTitle>
+      <SettingTitle icon="mdi-store-cog-outline">{{ t('settings.sellerSetup') }}</SettingTitle>
       <p class="text-body-2 text-medium-emphasis">{{ t('settings.sellerSetupText') }}</p>
       <router-link v-if="settings.sellerSetup === 'DISABLED'" :to="SELLER_SETUP_PATH">{{
         t('settings.sellerSetupOpen')

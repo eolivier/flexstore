@@ -21,7 +21,7 @@
 <template>
   <v-container class="py-6">
     <AdminBreadcrumbs />
-    <h1 class="text-h4 font-weight-bold mb-1">{{ t('settings.title') }}</h1>
+    <h1 class="text-h5 font-weight-bold mb-1">{{ t('settings.title') }}</h1>
     <p class="text-body-2 text-medium-emphasis mb-4">{{ t('settings.subtitle') }}</p>
 
     <LoadError v-if="settingsStore.load.status === 'failed'" :message="t('settings.loadError')" />

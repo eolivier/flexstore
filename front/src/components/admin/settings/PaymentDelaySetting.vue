@@ -43,11 +43,8 @@
 
 <template>
   <div class="d-flex align-start ga-4">
-    <v-avatar color="secondary" variant="tonal" rounded="lg" size="36">
-      <v-icon icon="mdi-timer-sand" size="small" />
-    </v-avatar>
     <div class="flex-grow-1">
-      <SettingTitle>{{ t('settings.paymentDelay') }}</SettingTitle>
+      <SettingTitle icon="mdi-timer-sand">{{ t('settings.paymentDelay') }}</SettingTitle>
       <p class="text-body-2 text-medium-emphasis mb-3">{{ t('settings.paymentDelayText') }}</p>
       <v-form v-model="valid" class="d-flex align-start ga-3" @submit.prevent="save">
         <v-text-field
