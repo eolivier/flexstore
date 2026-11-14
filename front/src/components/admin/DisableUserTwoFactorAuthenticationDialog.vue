@@ -2,6 +2,7 @@
   import { ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useUsersStore } from '@/stores/users.store';
+  import FormDialog from '@/components/layout/FormDialog.vue';
 
   const props = defineProps<{ userId: string }>();
   const open = defineModel<boolean>({ required: true });
@@ -26,17 +27,17 @@
 </script>
 
 <template>
-  <v-dialog v-model="open" max-width="440">
-    <v-card class="pa-6">
-      <h2 class="text-h6 font-weight-bold mb-1">{{ t('editUser.twoFactorDisableTitle') }}</h2>
-      <p class="text-body-2 text-medium-emphasis mb-4">{{ t('editUser.twoFactorDisableText') }}</p>
-      <v-alert v-if="error" type="error" density="compact" class="mb-4">{{
-        t('editUser.twoFactorDisableError')
-      }}</v-alert>
-      <div class="d-flex justify-end ga-2">
-        <v-btn variant="text" @click="open = false">{{ t('cancel') }}</v-btn>
-        <v-btn color="error" :loading="loading" @click="confirm">{{ t('editUser.twoFactorDisableConfirm') }}</v-btn>
-      </div>
-    </v-card>
-  </v-dialog>
+  <FormDialog
+    v-model="open"
+    :title="t('editUser.twoFactorDisableTitle')"
+    :text="t('editUser.twoFactorDisableText')"
+    @submit="confirm"
+  >
+    <v-alert v-if="error" type="error" variant="tonal" density="compact" class="mb-4">{{
+      t('editUser.twoFactorDisableError')
+    }}</v-alert>
+    <template #actions>
+      <v-btn type="submit" color="error" :loading="loading">{{ t('editUser.twoFactorDisableConfirm') }}</v-btn>
+    </template>
+  </FormDialog>
 </template>
