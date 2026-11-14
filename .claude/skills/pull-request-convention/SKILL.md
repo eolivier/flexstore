@@ -1,6 +1,6 @@
 ---
 name: pull-request-convention
-description: How a pull request is made and kept - a branch from main targeting main (a dependent pull request included), every pull request rebased on main so that its diff only shows its own changes, pushed as soon as the code compiles, opened ready for review (never as a draft), its title (Conventional Commits: feat, fix, refactor, chore...) and description (written in English), independent pull requests and migration numbers, switching branches cleanly, comments handled right away with the oldest pull request first, every open pull request rebased after each merge. Use before creating a branch, committing, pushing, opening or updating a pull request, when a comment is added to a pull request, and after each merge on main.
+description: How a pull request is made and kept - a branch from main targeting main (a dependent pull request included), every pull request rebased on main so that its diff only shows its own changes, pushed as soon as the code compiles, opened ready for review (never as a draft), its title (Conventional Commits: feat, fix, refactor, chore...) and description (written in English), independent pull requests and migration numbers, switching branches cleanly, comments handled right away with the oldest pull request first (written in English and in French, clear and concise; skills checked before asking a question), every open pull request rebased after each merge. Use before creating a branch, committing, pushing, opening or updating a pull request, when a comment is added to a pull request, and after each merge on main.
 ---
 
 # Pull request convention
@@ -84,6 +84,14 @@ The goal is to merge the pull requests as fast as possible, the oldest first.
 
 - **A comment is handled first**: as soon as a comment is added to a pull request (review comment, general comment, requested change), it takes priority over any other work, a new request included: stop what is in progress (commit it first, section 4), answer or fix, push, and reply on the comment.
 - **The older the pull request, the higher the priority**: when comments are waiting on several pull requests, handle them in the order of creation of the pull requests, the oldest first, so that the oldest one can be merged first. A comment on a recent pull request waits until the older comments are handled.
+- **Comments are bilingual, clear and concise**: every comment written on a pull request (reply to a review comment, general comment, question) has two sections, an **English** one and a **Français** one, the second being the translation of the first (same content, nothing added or left out). Each section is short and direct: what was done or what is asked, no filler. This does not change the title and the description of the pull request, which stay in English only (section 1). Example:
+
+  ```
+  **English**: Fixed, the label now comes from the i18n file.
+
+  **Français** : Corrigé, le libellé vient maintenant du fichier i18n.
+  ```
+- **Points to validate: check the skills first**: before asking the user a question or writing a comment that asks for a validation, read the skills that apply (`.claude/skills/`, starting with `prompt-convention` and this one) and `CLAUDE.md`. If a skill already answers, apply it without asking; if a sensible default exists, take it and list it under "Choices to validate" (see the `prompt-convention` skill). Only a point that no skill settles and that blocks the work is asked, in the bilingual format above.
 - **After each merge on `main`, rebase the other open pull requests** on the new `main`, so that they include what the merge changed on `main`: do it right away, oldest pull request first, following section 2 (adapt, run all the tests, push with a lease, check the CI). The merged pull request is never touched again.
 
 Example, after a merge on `main`, listing the open pull requests from the oldest to the newest:
