@@ -1,11 +1,11 @@
 <script setup lang="ts">
-  import FormActions from '@/components/form/FormActions.vue';
   import { computed, ref, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
   import type { PostalAddress } from '@/models/account';
   import RecipientFields from '@/components/account/RecipientFields.vue';
   import PostalAddressFields from '@/components/account/PostalAddressFields.vue';
   import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
+  import FormDialog from '@/components/layout/FormDialog.vue';
 
   // Adds a new address, or edits a copy of an existing one: it is saved only when the user confirms.
   // The address starts blank to add one, or as a copy of the edited one
@@ -34,17 +34,22 @@
 </script>
 
 <template>
-  <v-dialog v-model="open" max-width="640">
-    <v-card class="pa-6">
-      <h2 class="text-h6 font-weight-bold mb-4">{{ title }}</h2>
-      <v-form v-model="valid" @submit.prevent="emit('save', editedAddress)">
-        <RecipientFields v-model="editedAddress" purpose="delivery" />
-        <PostalAddressFields v-model="editedAddress" />
-        <FeedbackAlert v-if="error" type="error" compact class="mb-4">
-          {{ t(`addressBook.errors.${error}`) }}
-        </FeedbackAlert>
-        <FormActions :loading="saving" :disabled="valid === false" @cancel="open = false" />
-      </v-form>
-    </v-card>
-  </v-dialog>
+  <FormDialog
+    v-model="open"
+    v-model:valid="valid"
+    :title="title"
+    :max-width="640"
+    @submit="emit('save', editedAddress)"
+  >
+    <RecipientFields v-model="editedAddress" purpose="delivery" />
+    <PostalAddressFields v-model="editedAddress" />
+    <FeedbackAlert v-if="error" type="error" compact class="mb-4">
+      {{ t(`addressBook.errors.${error}`) }}
+    </FeedbackAlert>
+    <template #actions>
+      <v-btn type="submit" color="secondary" :loading="saving" :disabled="valid === false" data-test="form-save">
+        {{ t('save') }}
+      </v-btn>
+    </template>
+  </FormDialog>
 </template>
