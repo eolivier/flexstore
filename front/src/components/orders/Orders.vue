@@ -38,7 +38,12 @@
 
     <template v-else>
       <div class="d-flex flex-column ga-4">
-        <OrderSummaryCard v-for="order in ordersStore.orders" :key="order.id" :order="order" />
+        <OrderSummaryCard
+          v-for="order in ordersStore.orders"
+          :key="order.id"
+          :order="order"
+          @expired="ordersStore.fetchOrders()"
+        />
       </div>
       <ListPager
         :model-value="ordersStore.page"

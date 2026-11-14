@@ -4,8 +4,11 @@
   import { formatPrice } from '@/utils/price';
   import { orderItemsCount, orderNumber, placedOn } from '@/utils/order';
   import OrderStatusSteps from './OrderStatusSteps.vue';
+  import PaymentCountdown from './PaymentCountdown.vue';
 
   const props = defineProps<{ order: JsonOrder }>();
+  // The time to pay is over: the list reads the orders again (the shop cancels the order)
+  defineEmits<{ expired: [] }>();
 
   const { t, locale } = useI18n();
 
@@ -31,6 +34,13 @@
           {{ t('orders.itemsCount', orderItemsCount(order)) }}
         </div>
         <div class="lines-summary text-body-2 text-medium-emphasis">{{ linesSummary }}</div>
+        <PaymentCountdown
+          v-if="order.status === 'AWAITING_PAYMENT' && order.paymentDeadline"
+          :order="order"
+          compact
+          class="mt-1"
+          @expired="$emit('expired')"
+        />
       </div>
       <div class="order-status d-flex align-center ga-4">
         <OrderStatusSteps :status="order.status" layout="compact" />
