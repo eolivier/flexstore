@@ -11,7 +11,8 @@
   import { formatPrice } from '@/utils/price';
   import { productPath } from '@/utils/productSlug';
 
-  const props = defineProps<{ item: Item }>();
+  // outOfStock: the product has no unit left, the line is greyed and only its removal is possible
+  const props = defineProps<{ item: Item; outOfStock?: boolean }>();
   defineEmits<{ (e: 'update:quantity', quantity: number): void }>();
 
   const { t, locale } = useI18n();
@@ -34,19 +35,14 @@
 </script>
 
 <template>
-  <div class="cart-line d-flex align-center ga-4 py-4">
+  <div class="cart-line d-flex align-center ga-4 py-4" :class="{ 'out-of-stock': outOfStock }">
     <router-link
       :to="detailLink"
       class="line-visual d-flex align-center justify-center flex-shrink-0"
       :style="{ background: category.tint }"
       :aria-label="item.productName"
     >
-      <ProductVisual
-        :product-id="item.productId"
-        :category="item.productCategory"
-        format="small"
-        :icon-size="32"
-      />
+      <ProductVisual :product-id="item.productId" :category="item.productCategory" format="small" :icon-size="32" />
     </router-link>
 
     <div class="flex-grow-1 line-info">
@@ -55,16 +51,27 @@
         item.productName
       }}</router-link>
       <CartItemUnitPrice :item="item" />
+      <v-chip
+        v-if="outOfStock"
+        class="out-of-stock-badge mt-1"
+        color="error"
+        prepend-icon="mdi-close-circle-outline"
+        variant="tonal"
+        size="small"
+        >{{ t('stock.outOfStock') }}</v-chip
+      >
     </div>
 
     <div class="line-actions d-flex align-center ga-4">
       <QuantityStepper
+        class="line-grey"
+        :class="{ 'pe-none': outOfStock }"
         :model-value="item.productQuantity"
         :min="1"
         @update:model-value="$emit('update:quantity', $event)"
       />
-      <div class="line-price text-subtitle-1 font-weight-bold text-right">{{ linePrice }}</div>
-      <WishlistToggleButton :product="product" />
+      <div class="line-price line-grey text-subtitle-1 font-weight-bold text-right">{{ linePrice }}</div>
+      <WishlistToggleButton v-if="!outOfStock" :product="product" />
       <v-btn
         icon="mdi-close"
         size="small"
@@ -93,6 +100,12 @@
   }
   .line-info {
     min-width: 0;
+  }
+  .out-of-stock .line-visual,
+  .out-of-stock .line-info > :not(.out-of-stock-badge),
+  .out-of-stock .line-grey {
+    opacity: 0.45;
+    filter: grayscale(1);
   }
   .line-price {
     min-width: 96px;

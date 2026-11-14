@@ -6,6 +6,7 @@
   import { useAuthStore } from '@/stores/auth.store';
   import { useWishlistStore } from '@/stores/wishlist.store';
   import { useCartStore } from '@/stores/cart.store';
+  import { useStocksStore } from '@/stores/stocks.store';
   import { useProductImagesStore } from '@/stores/productImages.store';
   import type { Item } from '@/models/cart';
   import OrderSteps from '@/components/checkout/OrderSteps.vue';
@@ -13,6 +14,7 @@
   import { formatPrice } from '@/utils/price';
 
   const cartStore = useCartStore();
+  const stocksStore = useStocksStore();
   const authStore = useAuthStore();
   const router = useRouter();
   const { t, locale } = useI18n();
@@ -26,11 +28,17 @@
   onMounted(() => {
     useProductImagesStore().fetchProductsWithImage();
     cartStore.fetchCartItems();
+    stocksStore.fetchStocks();
     if (authStore.isAuthenticated) useWishlistStore().fetchWishlist();
   });
 
   const items = computed(() => cartStore.cartItems?.items ?? []);
   const itemsCount = computed(() => items.value.reduce((count, item) => count + item.productQuantity, 0));
+  // A product out of stock stays in the cart, greyed: the customer must remove it to place the order
+  function isOutOfStock(item: Item) {
+    return stocksStore.quantityOf(item.productId) === 0;
+  }
+  const hasOutOfStockItems = computed(() => items.value.some(isOutOfStock));
   const total = computed(() =>
     formatPrice(cartStore.cartItems?.totalItemsPrice, cartStore.cartItems?.itemsCurrency, locale.value)
   );
@@ -52,9 +60,7 @@
 
     <transition name="cart-fade" mode="out-in">
       <v-row v-if="!cartStore.cartItems" key="loading">
-        <v-col cols="12" md="8"
-          ><v-skeleton-loader type="list-item-avatar-two-line@3" class="rounded-xl"
-        /></v-col>
+        <v-col cols="12" md="8"><v-skeleton-loader type="list-item-avatar-two-line@3" class="rounded-xl" /></v-col>
         <v-col cols="12" md="4"><v-skeleton-loader type="article" class="rounded-xl" /></v-col>
       </v-row>
 
@@ -75,7 +81,11 @@
           <v-card class="px-5">
             <transition-group name="cart-line-fade" tag="div">
               <div v-for="item in items" :key="item.itemId" class="cart-line-row">
-                <CartLine :item="item" @update:quantity="(quantity) => updateQuantityAndSave(item, quantity)" />
+                <CartLine
+                  :item="item"
+                  :out-of-stock="isOutOfStock(item)"
+                  @update:quantity="(quantity) => updateQuantityAndSave(item, quantity)"
+                />
               </div>
             </transition-group>
           </v-card>
@@ -99,10 +109,14 @@
               block
               class="mb-3"
               prepend-icon="mdi-check"
+              :disabled="hasOutOfStockItems"
               @click="goToCheckout"
             >
               {{ t('cart.placeOrder') }}
             </v-btn>
+            <p v-if="hasOutOfStockItems" class="text-caption text-error text-center mb-3">
+              {{ t('cart.removeOutOfStock') }}
+            </p>
             <p v-if="!authStore.isAuthenticated" class="text-caption text-medium-emphasis text-center mb-3">
               {{ t('cart.signInToOrder') }}
             </p>
