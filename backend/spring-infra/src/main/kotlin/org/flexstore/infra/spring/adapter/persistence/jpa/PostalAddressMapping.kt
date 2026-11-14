@@ -8,7 +8,7 @@ private const val LEGAL_ENTITY = "LEGAL_ENTITY"
 
 // The postal address stored in a row of the address table (an address of users, maybe used by orders)
 internal fun AddressEntity.toDomain(): PostalAddress {
-    val addressComplement = complement?.let { AddressComplement(it) }
+    val addressComplement = AddressComplement(complement.orEmpty())
     val streetAddress = StreetAddress(Street(street), addressComplement)
     val town = Town(PostalCode(postalCode), City(city))
     val location = Location(streetAddress, Locality(town, Country(country)))
@@ -36,7 +36,7 @@ internal fun PostalAddress.toEntity(id: String): AddressEntity {
         companyName = legalEntity?.company?.name?.value,
         vatNumber = legalEntity?.company?.vatNumber?.value?.ifEmpty { null },
         street = location.street.value,
-        complement = location.complement?.value,
+        complement = if (location.complement.isGiven()) location.complement.value else null,
         postalCode = location.postalCode.value,
         city = location.city.value,
         country = location.country.value

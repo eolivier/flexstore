@@ -197,7 +197,8 @@ data class InvoiceDocument(val invoice: Invoice, val sale: InvoicedSale) : Billi
 
     private fun linesOf(address: PostalAddress): List<String> {
         val location = address.location
-        val street = listOfNotNull(location.street.value, location.complement?.value).joinToString(", ")
+        val streetText = location.street.value
+        val street = if (location.complement.isGiven()) "$streetText, ${location.complement.value}" else streetText
         val town = "${location.postalCode.value} ${location.city.value}"
         return listOf(recipientOf(address.recipient), street, town, location.country.value)
     }
