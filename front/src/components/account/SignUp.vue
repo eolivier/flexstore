@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { computed, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useRoute, useRouter } from 'vue-router';
   import { useAuthStore, type Registration } from '@/stores/auth.store';
@@ -27,7 +27,10 @@
   const location = ref<Location>({ street: '', complement: '', postalCode: '', city: '', country: 'France' });
   const valid = ref(false);
   const saving = ref(false);
-  const result = ref<Registration | null>(null);
+  const registrationOutcome = ref<Registration | null>(null);
+  const registrationRefused = computed(
+    () => registrationOutcome.value !== null && registrationOutcome.value !== 'signedIn'
+  );
 
   const rules = {
     required: (v: string) => !!v?.trim() || t('createUser.mandatoryField'),
@@ -66,9 +69,9 @@
     if (!valid.value) return;
     saving.value = true;
     const detailsPart = givesDetails.value ? details() : {};
-    result.value = await authStore.register({ ...registration.value, ...detailsPart });
+    registrationOutcome.value = await authStore.register({ ...registration.value, ...detailsPart });
     saving.value = false;
-    if (result.value === 'signedIn') {
+    if (registrationOutcome.value === 'signedIn') {
       router.push((route.query.redirect as string) || '/user-profile');
     }
   }
@@ -112,13 +115,8 @@
           v-model:company="company"
           v-model:location="location"
         />
-        <FeedbackAlert
-          v-if="result === 'emailUsed' || result === 'invalidCompany' || result === 'error'"
-          type="error"
-          compact
-          class="my-4"
-        >
-          {{ t(`signUp.${result}`) }}
+        <FeedbackAlert v-if="registrationRefused" type="error" compact class="my-4">
+          {{ t(`signUp.${registrationOutcome}`) }}
         </FeedbackAlert>
         <v-btn type="submit" color="primary" size="large" block class="mt-2" :loading="saving" :disabled="!valid">{{
           t('signUp.submit')
