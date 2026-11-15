@@ -26,30 +26,42 @@ describe('ShopPageContentForm.vue', () => {
     expect((wrapper.find('textarea').element as HTMLTextAreaElement).value).toBe('shop, demo');
   });
 
-  it('should disable the save button while the text is unchanged', () => {
+  it('should keep the save button enabled and the cancel button disabled while the text is unchanged', () => {
     // Act
     const wrapper = mountForm('META_KEY_WORDS', 'shop, demo');
     // Assert
-    expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeDefined();
+    expect(wrapper.find('[data-test="form-save"]').attributes('disabled')).toBeUndefined();
+    expect(wrapper.find('[data-test="form-cancel"]').attributes('disabled')).toBeDefined();
   });
 
-  it('should enable the save button once the text is edited', async () => {
+  it('should enable the cancel button once the text is edited', async () => {
     // Arrange
     const wrapper = mountForm('META_KEY_WORDS', 'shop, demo');
     // Act
     await wrapper.find('textarea').setValue('shop, new');
     // Assert
-    expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeUndefined();
+    expect(wrapper.find('[data-test="form-cancel"]').attributes('disabled')).toBeUndefined();
   });
 
-  it('should disable the save button again when the text goes back to the saved one', async () => {
+  it('should disable the cancel button again when the text goes back to the saved one', async () => {
     // Arrange
     const wrapper = mountForm('META_KEY_WORDS', 'shop, demo');
     await wrapper.find('textarea').setValue('shop, new');
     // Act
     await wrapper.find('textarea').setValue('shop, demo');
     // Assert
-    expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeDefined();
+    expect(wrapper.find('[data-test="form-cancel"]').attributes('disabled')).toBeDefined();
+  });
+
+  it('should restore the saved text with the cancel button', async () => {
+    // Arrange
+    const wrapper = mountForm('META_KEY_WORDS', 'shop, demo');
+    await wrapper.find('textarea').setValue('shop, new');
+    // Act
+    await wrapper.find('[data-test="form-cancel"]').trigger('click');
+    // Assert
+    expect((wrapper.find('textarea').element as HTMLTextAreaElement).value).toBe('shop, demo');
+    expect(wrapper.find('[data-test="form-cancel"]').attributes('disabled')).toBeDefined();
   });
 
   it('should save the edited text', async () => {
@@ -66,6 +78,21 @@ describe('ShopPageContentForm.vue', () => {
     expect(mockFetch.mock.calls[0][0]).toContain('/api/admin/shop-page-contents/meta-key-words');
     expect(JSON.parse(mockFetch.mock.calls[0][1].body)).toEqual({ text: 'shop, new' });
     expect(wrapper.text()).toContain('Saved: the visitors now read this content.');
+  });
+
+  it('should take the saved text as the new one to restore', async () => {
+    // Arrange
+    const edited = { contents: [{ type: 'META_KEY_WORDS', text: 'shop, new' }] };
+    mockFetch.mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve(edited) });
+    const wrapper = mountForm('META_KEY_WORDS', 'shop, demo');
+    await wrapper.find('textarea').setValue('  shop, new  ');
+    await flushPromises();
+    // Act
+    await wrapper.find('form').trigger('submit');
+    await flushPromises();
+    // Assert
+    expect((wrapper.find('textarea').element as HTMLTextAreaElement).value).toBe('shop, new');
+    expect(wrapper.find('[data-test="form-cancel"]').attributes('disabled')).toBeDefined();
   });
 
   it('should clear a content with an empty text', async () => {
