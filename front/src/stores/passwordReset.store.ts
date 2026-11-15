@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { useLoadingStore } from './loading.store';
 import { jsonRequest } from '@/utils/jsonRequest';
 import { logFailure } from '@/utils/logFailure';
+import { apiBaseUrl } from '@/api';
 
 // reset: the customer signs in with the new password; expired: the link is older than 1 hour; unknown: wrong or
 // already used link; tooShort: less than 8 characters
@@ -9,10 +10,9 @@ export type PasswordReset = 'reset' | 'expired' | 'unknown' | 'tooShort' | 'erro
 
 // A customer who forgot their password receives a link (valid for 1 hour) and chooses a new one, signed out
 export const usePasswordResetStore = defineStore('passwordReset', () => {
-  const apiUrl = import.meta.env.VITE_API_URL;
 
   function post(path: string, body: object) {
-    const request = fetch(`${apiUrl}${path}`, jsonRequest('POST', body));
+    const request = fetch(`${apiBaseUrl}${path}`, jsonRequest('POST', body));
     return useLoadingStore().track(request);
   }
 

@@ -5,6 +5,7 @@ import { useAuthStore } from '@/stores/auth.store';
 import { useLoadingStore } from '@/stores/loading.store';
 import { jsonRequest } from '@/utils/jsonRequest';
 import { logFailure } from '@/utils/logFailure';
+import { apiBaseUrl } from '@/api';
 
 // Id of the cart of a visitor, created by the server on the first item
 const CART_ID_KEY = 'flexstore.cartId';
@@ -35,7 +36,6 @@ export const useCartStore = defineStore('cart', () => {
   const cartItems = ref<CartItems | null>(null);
   // Set when the items saved in the account were added to the cart at sign-in
   const accountItemsMerged = ref(false);
-  const apiUrl = import.meta.env.VITE_API_URL;
   const authStore = useAuthStore();
 
   function cartFetch(path: string, init: RequestInit = {}): Promise<Response> {
@@ -47,7 +47,7 @@ export const useCartStore = defineStore('cart', () => {
     if (cartId) {
       headers.set(CART_ID_HEADER, cartId);
     }
-    return useLoadingStore().track(fetch(`${apiUrl}${path}`, { ...init, headers }));
+    return useLoadingStore().track(fetch(`${apiBaseUrl}${path}`, { ...init, headers }));
   }
 
   async function fetchCartItems() {

@@ -3,19 +3,19 @@ import { useAuthStore } from './auth.store';
 import { useLoadingStore } from './loading.store';
 import { jsonRequest } from '@/utils/jsonRequest';
 import { logFailure } from '@/utils/logFailure';
+import { apiBaseUrl } from '@/api';
 
 // verified: the account is active; expired: the link is older than 1 hour; unknown: wrong or already used link
 export type EmailVerification = 'verified' | 'expired' | 'unknown' | 'error';
 
 // The verification of the email of the customer, with the link (valid for 1 hour) they receive by email
 export const useEmailVerificationStore = defineStore('emailVerification', () => {
-  const apiUrl = import.meta.env.VITE_API_URL;
 
   // The link can be opened without being signed in
   async function verifyEmail(token: string): Promise<EmailVerification> {
     try {
       const response = await useLoadingStore().track(
-        fetch(`${apiUrl}/api/accounts/email-verification`, jsonRequest('POST', { token }))
+        fetch(`${apiBaseUrl}/api/accounts/email-verification`, jsonRequest('POST', { token }))
       );
       if (response.ok) {
         useAuthStore().markEmailVerified();

@@ -6,6 +6,7 @@ import { useLoadingStore } from '@/stores/loading.store';
 import { shareWhilePending } from '@/utils/shareWhilePending';
 import { jsonRequest } from '@/utils/jsonRequest';
 import { logFailure } from '@/utils/logFailure';
+import { apiBaseUrl } from '@/api';
 
 export type PasswordChange = 'changed' | 'wrongPassword' | 'error';
 // signedIn: the account is created and the customer is signed in; invalidCompany: the company was refused (400)
@@ -72,7 +73,6 @@ function writeSession(session: LoginResponse | null) {
 }
 
 export const useAuthStore = defineStore('auth', () => {
-  const apiUrl = import.meta.env.VITE_API_URL;
   // Restored from the tab when the page is reloaded, unless the token has expired
   const restoredSession = readSession();
   const currentUser = ref<User | null>(restoredSession?.user ?? null);
@@ -110,7 +110,7 @@ export const useAuthStore = defineStore('auth', () => {
     refusedStatus.value = null;
     pendingChallengeId.value = null;
     try {
-      const response = await loadingStore.track(fetch(`${apiUrl}${path}`, jsonRequest('POST', credentials)));
+      const response = await loadingStore.track(fetch(`${apiBaseUrl}${path}`, jsonRequest('POST', credentials)));
 
       if (response.ok) {
         const loginResponse: JsonLoginResponse = await response.json();
@@ -148,7 +148,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const response = await loadingStore.track(
         fetch(
-          `${apiUrl}/api/users/login/two-factor-authentication`,
+          `${apiBaseUrl}/api/users/login/two-factor-authentication`,
           jsonRequest('POST', { challengeId: pendingChallengeId.value, code })
         )
       );
@@ -171,7 +171,7 @@ export const useAuthStore = defineStore('auth', () => {
   // Creates the account of a customer, then signs them in
   async function register(registration: ExpressAccountRegistration): Promise<Registration> {
     try {
-      const response = await loadingStore.track(fetch(`${apiUrl}/api/accounts`, jsonRequest('POST', registration)));
+      const response = await loadingStore.track(fetch(`${apiBaseUrl}/api/accounts`, jsonRequest('POST', registration)));
       if (response.status === 409) return 'emailUsed';
       if (response.status === 400) return 'invalidCompany';
       if (!response.ok) return 'error';
@@ -188,7 +188,7 @@ export const useAuthStore = defineStore('auth', () => {
     if (token.value) {
       headers.set('Authorization', `Bearer ${token.value}`);
     }
-    return loadingStore.track(fetch(`${apiUrl}${path}`, { ...init, headers }));
+    return loadingStore.track(fetch(`${apiBaseUrl}${path}`, { ...init, headers }));
   }
 
   // Renews the token with the refresh token, which is replaced by a new one. Returns whether it worked
@@ -196,7 +196,7 @@ export const useAuthStore = defineStore('auth', () => {
     if (!refreshToken.value || !currentUser.value) return false;
     try {
       const response = await loadingStore.track(
-        fetch(`${apiUrl}/api/users/refresh`, jsonRequest('POST', { refreshToken: refreshToken.value }))
+        fetch(`${apiBaseUrl}/api/users/refresh`, jsonRequest('POST', { refreshToken: refreshToken.value }))
       );
       if (!response.ok) return false;
       const renewed: RefreshedSession = await response.json();
@@ -317,7 +317,7 @@ export const useAuthStore = defineStore('auth', () => {
   // Tells the back end to end the session; the user is signed out here whatever its answer
   async function endSessionOnServer(endedRefreshToken: string) {
     try {
-      await fetch(`${apiUrl}/api/users/logout`, jsonRequest('POST', { refreshToken: endedRefreshToken }));
+      await fetch(`${apiBaseUrl}/api/users/logout`, jsonRequest('POST', { refreshToken: endedRefreshToken }));
     } catch (error) {
       logFailure('log out', error);
     }
