@@ -1,5 +1,7 @@
 <script setup lang="ts">
   import NumberSettingForm from './NumberSettingForm.vue';
+  import SaveStatus from '@/components/form/SaveStatus.vue';
+  import type { SaveOutcome } from '@/components/form/saveOutcome';
   import { ref } from 'vue';
   import SettingTitle from './SettingTitle.vue';
   import { useI18n } from 'vue-i18n';
@@ -12,7 +14,7 @@
 
   const switching = ref(false);
   // null until the switch is used
-  const switched = ref<boolean | null>(null);
+  const switched = ref<SaveOutcome | null>(null);
 
   const range = (v: number | string) => {
     const value = Number(v);
@@ -25,9 +27,10 @@
   // The switch gives the wished state: it is turned into the matching intent right away
   async function switchReminder(wished: boolean | null) {
     switching.value = true;
-    switched.value = wished
+    const isSaved = wished
       ? await settingsStore.enableAbandonedCartReminder()
       : await settingsStore.disableAbandonedCartReminder();
+    switched.value = isSaved ? 'saved' : 'failed';
     switching.value = false;
   }
 </script>
@@ -45,8 +48,9 @@
         :min="1"
         :max="MAX_ABANDONED_CART_DELAY_HOURS"
       />
-      <p v-if="switched === false" class="text-body-2 text-error">{{ t('settings.saveError') }}</p>
-      <p v-else-if="switched" class="text-body-2 text-success">{{ t('settings.saved') }}</p>
+      <div v-if="switched">
+        <SaveStatus :outcome="switched" :saved="t('settings.saved')" :failed="t('settings.saveError')" />
+      </div>
     </div>
     <v-switch
       :model-value="settings.abandonedCartReminder === 'ENABLED'"

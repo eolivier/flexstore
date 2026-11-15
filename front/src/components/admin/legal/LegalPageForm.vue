@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import FormActions from '@/components/form/FormActions.vue';
+  import SaveStatus from '@/components/form/SaveStatus.vue';
   import { ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useEditedForm } from '@/composables/useEditedForm';
@@ -59,13 +60,12 @@
     />
     <div class="d-flex align-center ga-4 mt-2">
       <router-link :to="`/${kind}`" class="text-body-2">{{ t('legalPages.see') }}</router-link>
-      <span v-if="publication === 'saved'" class="text-body-2 text-success">{{ t('legalPages.saved') }}</span>
-      <span v-else-if="publication === 'invalid'" class="text-body-2 text-error">{{
-        t('legalPages.invalid')
-      }}</span>
-      <span v-else-if="publication === 'failed'" class="text-body-2 text-error">{{
-        t('legalPages.saveError')
-      }}</span>
+      <SaveStatus
+        :outcome="publication"
+        :saved="t('legalPages.saved')"
+        :invalid="t('legalPages.invalid')"
+        :failed="t('legalPages.saveError')"
+      />
       <FormActions
         class="ml-auto"
         :loading="saving"
