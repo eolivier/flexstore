@@ -64,7 +64,7 @@ describe('AccountMenu.vue', () => {
     useGuidedTourStore().presentMenu('account');
     await flushPromises();
     // Assert
-    expect(document.querySelector('.under-guided-tour-spotlight')).not.toBeNull();
+    expect(document.querySelector('.v-overlay.under-guided-tour-spotlight')).not.toBeNull();
   });
 
   it('should offer a visitor to sign in or to create an account', async () => {

@@ -23,7 +23,7 @@
   <v-menu
     :model-value="isOpened || isOpenedByTour"
     :persistent="isOpenedByTour"
-    :content-class="menuClass"
+    :class="menuClass"
     location="bottom end"
     @update:model-value="isOpened = $event"
   >
