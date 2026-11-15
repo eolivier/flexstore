@@ -32,4 +32,15 @@ describe('CatalogSearchField.vue', () => {
     // Assert
     expect((wrapper.find('input').element as HTMLInputElement).value).toBe('lamp');
   });
+
+  it('the cross should empty the field and show the whole catalog again', async () => {
+    // Arrange
+    const { wrapper, router } = await mountField('/products?q=lamp');
+    // Act
+    await wrapper.find('.v-field__clearable .v-icon').trigger('click');
+    await flushPromises();
+    // Assert
+    expect((wrapper.find('input').element as HTMLInputElement).value).toBe('');
+    expect(router.currentRoute.value.fullPath).toBe('/products');
+  });
 });

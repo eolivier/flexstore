@@ -21,6 +21,14 @@
     const q = search.value.trim();
     router.push({ path: '/products', query: q ? { q } : {} });
   }
+
+  // The cross empties the field and, when the catalog is filtered by a search, shows all the products again
+  function clear() {
+    search.value = '';
+    if (route.query.q) {
+      submit();
+    }
+  }
 </script>
 
 <template>
@@ -36,9 +44,10 @@
     hide-details
     single-line
     clearable
+    persistent-clear
     class="catalog-search"
     @keydown.enter="submit"
-    @click:clear="search = ''"
+    @click:clear="clear"
   />
 </template>
 
