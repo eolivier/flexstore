@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import { nextTick, ref, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
+  import FormActions from '@/components/form/FormActions.vue';
   import { useFieldRules } from '@/composables/useFieldRules';
   import { useAuthStore } from '@/stores/auth.store';
   import { useSnackbar } from '@/composables/useSnackbar';
@@ -97,9 +98,9 @@
           hide-details
         />
         <v-spacer />
-        <v-btn type="submit" color="primary" :loading="saving" :disabled="!valid" prepend-icon="mdi-check">
+        <FormActions :cancellable="false" :loading="saving" :disabled="!valid">
           {{ t('profile.changePassword') }}
-        </v-btn>
+        </FormActions>
       </div>
     </v-form>
   </v-card>

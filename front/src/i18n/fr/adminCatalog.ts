@@ -117,8 +117,6 @@ export default {
     enabled: 'Proposé',
     toggle: 'Proposer {label} aux clients',
     create: 'Ajouter le mode',
-    save: 'Enregistrer',
-    cancel: 'Annuler',
     empty: 'Aucun mode de livraison.',
     loadError: 'Les modes de livraison ne peuvent pas être chargés.',
     costRule: '0 ou plus',

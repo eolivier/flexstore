@@ -117,8 +117,6 @@ export default {
     enabled: 'Offered',
     toggle: 'Offer {label} to the customers',
     create: 'Add the method',
-    save: 'Save',
-    cancel: 'Cancel',
     empty: 'No shipping method.',
     loadError: 'The shipping methods could not be loaded.',
     costRule: '0 or more',
