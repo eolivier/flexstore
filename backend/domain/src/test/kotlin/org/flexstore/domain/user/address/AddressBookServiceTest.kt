@@ -2,11 +2,17 @@ package org.flexstore.domain.user.address
 
 import org.assertj.core.api.WithAssertions
 import org.flexstore.domain.user.model.*
-import org.flexstore.domain.user.usecase.*
+import org.flexstore.domain.actor.ActorResolutionService
+import org.flexstore.domain.user.blockedCustomerId
+import org.flexstore.domain.user.customerWithStatus
+import org.flexstore.domain.user.unknownCustomerId
 import org.flexstore.infra.repository.InMemoryUserRepository
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 import org.flexstore.domain.user.address.usecase.AddPostalAddressUseCase
 import org.flexstore.domain.user.address.usecase.ChangePostalAddressUseCase
+import org.flexstore.domain.user.address.usecase.ListPostalAddressesUseCase
 import org.flexstore.domain.user.address.usecase.RemovePostalAddressUseCase
 
 class AddressBookServiceTest : WithAssertions {
@@ -26,14 +32,17 @@ class AddressBookServiceTest : WithAssertions {
     private val userRepository = InMemoryUserRepository().apply {
         save(definedUser.withPostalAddresses(PostalAddresses(home, office)))
     }
+    private val actorResolutionService = ActorResolutionService(userRepository)
+    private val customer = actorResolutionService.actorOf(userId)
     private val addressUseCases = AddressUseCases(
+        ListPostalAddressesUseCase(userRepository),
         AddPostalAddressUseCase(userRepository),
         ChangePostalAddressUseCase(userRepository),
         RemovePostalAddressUseCase(userRepository)
     )
-    private val addressBookService = AddressBookService(ReadAccountUseCase(userRepository), addressUseCases)
+    private val addressBookService = AddressBookService(addressUseCases)
 
-    private val first = UserAddress(userId, AddressPosition(0))
+    private val first = UserAddress(customer, AddressPosition(0))
 
     @Test
     fun `a user should add a new address, at the end of their addresses`() {
@@ -41,7 +50,7 @@ class AddressBookServiceTest : WithAssertions {
         val workshopLocation = Location(StreetAddress(Street("5 rue de l'Atelier")), Locality(homeTown, france))
         val workshop = PostalAddress(janeDoe, workshopLocation)
         // Act
-        val addresses = addressBookService.add(AddressAddition(userId, workshop))
+        val addresses = addressBookService.add(AddressAddition(customer, workshop))
         // Assert
         assertThat(addresses).isEqualTo(PostalAddresses(home, office, workshop))
     }
@@ -52,10 +61,10 @@ class AddressBookServiceTest : WithAssertions {
         val nobody = PrivateIndividual(FullName(FirstName(""), LastName("")))
         val incompleteAddress = PostalAddress(nobody, homeLocation)
         // Act
-        val thrown = catchThrowable { addressBookService.add(AddressAddition(userId, incompleteAddress)) }
+        val thrown = catchThrowable { addressBookService.add(AddressAddition(customer, incompleteAddress)) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(IncompleteAddressException::class.java)
-        assertThat(addressBookService.getAddresses(userId)).isEqualTo(PostalAddresses(home, office))
+        assertThat(addressBookService.getAddresses(customer)).isEqualTo(PostalAddresses(home, office))
     }
 
     @Test
@@ -77,7 +86,7 @@ class AddressBookServiceTest : WithAssertions {
         val thrown = catchThrowable { addressBookService.change(AddressChange(first, incompleteAddress)) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(IncompleteAddressException::class.java)
-        assertThat(addressBookService.getAddresses(userId)).isEqualTo(PostalAddresses(home, office))
+        assertThat(addressBookService.getAddresses(customer)).isEqualTo(PostalAddresses(home, office))
     }
 
     @Test
@@ -91,10 +100,48 @@ class AddressBookServiceTest : WithAssertions {
     @Test
     fun `an address that does not exist should not be found`() {
         // Arrange
-        val third = UserAddress(userId, AddressPosition(2))
+        val third = UserAddress(customer, AddressPosition(2))
         // Act
         val thrown = catchThrowable { addressBookService.remove(third) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(AddressNotFoundException::class.java)
+    }
+
+    @Test
+    fun `an unknown user should not read their addresses`() {
+        // Arrange
+        val unknownUser = actorResolutionService.actorOf(unknownCustomerId)
+        // Act
+        val thrown = catchThrowable { addressBookService.getAddresses(unknownUser) }
+        // Assert
+        assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java)
+    }
+
+    @Test
+    fun `an unknown user should not add an address`() {
+        // Arrange
+        val unknownUser = actorResolutionService.actorOf(unknownCustomerId)
+        // Act
+        val thrown = catchThrowable { addressBookService.add(AddressAddition(unknownUser, home)) }
+        // Assert
+        assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java)
+    }
+
+    @ParameterizedTest
+    @EnumSource(AccountStatus::class, names = ["SUSPENDED", "LOCKED", "DISABLED"])
+    fun `a user whose account is refused should not read nor change their addresses`(status: AccountStatus) {
+        // Arrange
+        userRepository.save(customerWithStatus(status).withPostalAddresses(PostalAddresses(home)))
+        val blockedCustomer = actorResolutionService.actorOf(blockedCustomerId)
+        val blockedAddress = UserAddress(blockedCustomer, AddressPosition(0))
+        // Act
+        val thrownByReading = catchThrowable { addressBookService.getAddresses(blockedCustomer) }
+        val thrownByAdding = catchThrowable { addressBookService.add(AddressAddition(blockedCustomer, office)) }
+        val thrownByChanging = catchThrowable { addressBookService.change(AddressChange(blockedAddress, office)) }
+        val thrownByRemoving = catchThrowable { addressBookService.remove(blockedAddress) }
+        // Assert
+        listOf(thrownByReading, thrownByAdding, thrownByChanging, thrownByRemoving).forEach { thrown ->
+            assertThat(thrown).hasCauseInstanceOf(AccountRefusedException::class.java)
+        }
     }
 }
