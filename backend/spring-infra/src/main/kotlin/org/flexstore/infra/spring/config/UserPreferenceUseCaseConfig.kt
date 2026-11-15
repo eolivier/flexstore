@@ -2,7 +2,6 @@ package org.flexstore.infra.spring.config
 
 import org.flexstore.domain.preference.UserPreferenceRepository
 import org.flexstore.domain.preference.usecase.*
-import org.flexstore.domain.user.repository.*
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -11,16 +10,12 @@ import org.springframework.context.annotation.Configuration
 open class UserPreferenceUseCaseConfig {
 
     @Bean
-    open fun readUserPreferenceUseCase(
-        userPreferenceRepository: UserPreferenceRepository,
-        userRepository: UserRepository
-    ) = ReadUserPreferenceUseCase(userPreferenceRepository, userRepository)
+    open fun readUserPreferenceUseCase(userPreferenceRepository: UserPreferenceRepository) =
+        ReadUserPreferenceUseCase(userPreferenceRepository)
 
     @Bean
-    open fun recordUserPreferenceUseCase(
-        userPreferenceRepository: UserPreferenceRepository,
-        userRepository: UserRepository
-    ) = RecordUserPreferenceUseCase(userPreferenceRepository, userRepository)
+    open fun recordUserPreferenceUseCase(userPreferenceRepository: UserPreferenceRepository) =
+        RecordUserPreferenceUseCase(userPreferenceRepository)
 
     @Bean
     open fun userPreferenceUseCases(
