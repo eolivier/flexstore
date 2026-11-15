@@ -1,20 +1,16 @@
 package org.flexstore.domain.user.usecase
 
-import kotlin.reflect.KClass
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.repository.*
 import org.ucop.domain.ErrorMessage
-import org.ucop.domain.NominalException
 import org.ucop.domain.entity.*
 
 data class LoginRequest(val email: Email, val password: Password)
 
 class LoginUseCase(
     private val userRepository: UserRepository
-) : UseCase<LoginRequest> {
-
-    lateinit var authenticatedUser: User
+) : QueryUseCase<LoginRequest, User> {
 
     override fun getPreConditions(): PreConditions<LoginRequest> {
         // The status is only checked once the password is right: it does not reveal the accounts to a wrong
@@ -27,22 +23,11 @@ class LoginUseCase(
         )
     }
 
-    override fun getNominalScenario(): NominalScenario<LoginRequest> {
-        // Steps
-        val authenticateUserStep = Step<LoginRequest> { request -> 
-            authenticatedUser = userRepository.findByEmail(request.email)
-        }
-        // Nominal scenario
-        return NominalScenario(listOf(authenticateUserStep))
+    override fun getNominalQuery() = NominalQuery<LoginRequest, User> { request ->
+        userRepository.findByEmail(request.email)
     }
 
-    override fun getPostConditions(): PostConditions<LoginRequest> {
-        return PostConditions(userAuthenticatedCondition())
-    }
-
-    override fun getAlternativeScenarii(): Map<KClass<out NominalException>, AlternativeScenario<LoginRequest>> {
-        return emptyMap()
-    }
+    override fun getPostConditions(): PostConditions<User> = PostConditions(userAuthenticatedCondition())
 
     private fun userExistsByEmailCondition() = PreCondition<LoginRequest> { request ->
         val user = userRepository.findByEmail(request.email)
@@ -74,7 +59,7 @@ class LoginUseCase(
         }
     }
 
-    private fun userAuthenticatedCondition() = PostCondition<LoginRequest> { request ->
+    private fun userAuthenticatedCondition() = PostCondition<User> { authenticatedUser ->
         if (authenticatedUser is User.UndefinedUser) {
             throw UserSignInException(ErrorMessage("User authentication failed."))
         }

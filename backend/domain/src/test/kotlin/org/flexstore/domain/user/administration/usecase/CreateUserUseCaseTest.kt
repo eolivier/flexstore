@@ -96,18 +96,18 @@ class CreateUserUseCaseTest {
     }
 
     @Test
-    fun `should create draft user with the id assigned by the repository`() {
+    fun `should create the draft user, found by its email once saved`() {
         // Arrange
         val savedUser = DefinedUser(
             ValidUserId("generated-id"), draftUser.fullName, draftUser.email, PlainPassword("password123")
         )
         every { userRepository.emailIsAlreadyUsed(draftUser.email) } returns false
         every { userRepository.save(draftUser) } returns savedUser
-        every { userRepository.notExists(savedUser.id) } returns false
+        every { userRepository.notExistsBasedOn(draftUser.email) } returns false
         // Act
         createUserUseCase.unfold(CreateUserRequest(testAdministratorActor, draftUser))
         // Assert
-        assertThat(createUserUseCase.createdUser).isEqualTo(savedUser)
+        verify { userRepository.save(draftUser) }
     }
 
     @Test

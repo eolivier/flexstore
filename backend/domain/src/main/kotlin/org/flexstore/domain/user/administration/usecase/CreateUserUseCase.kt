@@ -1,12 +1,10 @@
 package org.flexstore.domain.user.administration.usecase
 
-import kotlin.reflect.KClass
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.repository.*
 import org.flexstore.domain.actor.isNotAdmin
 import org.ucop.domain.ErrorMessage
-import org.ucop.domain.NominalException
 import org.ucop.domain.entity.*
 
 // A user is created by an administrator: the creator is the authenticated user who asks for it
@@ -15,8 +13,6 @@ data class CreateUserRequest(val creator: Actor, val user: User)
 class CreateUserUseCase(
     private val userRepository: UserRepository
 ) : UseCase<CreateUserRequest> {
-
-    lateinit var createdUser: User
 
     override fun getPreConditions(): PreConditions<CreateUserRequest> {
         return PreConditions(
@@ -31,7 +27,7 @@ class CreateUserUseCase(
         // Steps
         val createUserStep = Step<CreateUserRequest> { request ->
             // Repository will handle password hashing
-            createdUser = userRepository.save(request.user)
+            userRepository.save(request.user)
         }
         // Nominal scenario
         return NominalScenario(listOf(createUserStep))
@@ -39,11 +35,6 @@ class CreateUserUseCase(
 
     override fun getPostConditions(): PostConditions<CreateUserRequest> {
         return PostConditions(userExistsCondition())
-    }
-
-    override fun getAlternativeScenarii():
-        Map<KClass<out NominalException>, AlternativeScenario<CreateUserRequest>> {
-        return emptyMap()
     }
 
     // The creator, resolved before the use case runs, must be an Admin
@@ -80,10 +71,15 @@ class CreateUserUseCase(
         }
     }
 
-    // Checked on the saved user, since a draft user only gets its ID from the repository
-    private fun userExistsCondition() = PostCondition<CreateUserRequest> {
-        if (userRepository.notExists(createdUser.id)) {
-            throw UserCreationFailed(ErrorMessage("User with ID ${createdUser.id.value} was not created."))
+    // A draft user only gets its ID from the repository: it is looked for by its email
+    private fun userExistsCondition() = PostCondition<CreateUserRequest> { request ->
+        when (val user = request.user) {
+            is User.DraftUser -> if (userRepository.notExistsBasedOn(user.email)) {
+                throw UserCreationFailed(ErrorMessage("User with email ${user.email.value} was not created."))
+            }
+            else -> if (userRepository.notExists(user.id)) {
+                throw UserCreationFailed(ErrorMessage("User with ID ${user.id.value} was not created."))
+            }
         }
     }
 }
