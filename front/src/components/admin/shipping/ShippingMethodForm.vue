@@ -3,6 +3,7 @@
   import { useI18n } from 'vue-i18n';
   import { useFieldRules } from '@/composables/useFieldRules';
   import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
+  import FormActions from '@/components/form/FormActions.vue';
   import type { JsonShippingMethod } from '@/generated';
   import { useShippingMethodsStore, type ShippingMethodSaving } from '@/stores/shippingMethods.store';
 
@@ -87,13 +88,16 @@
         <v-col cols="6" md="3">
           <v-select v-model="eligibility" :items="eligibilities" :label="t('shippingMethods.freeFromThreshold')" />
         </v-col>
-        <v-col cols="12" md="3" class="d-flex align-start ga-2">
-          <v-btn type="submit" color="primary" size="large" :loading="saving" :disabled="!valid">
-            {{ editing ? t('shippingMethods.save') : t('shippingMethods.create') }}
-          </v-btn>
-          <v-btn v-if="editing" variant="text" size="large" @click="emit('done')">
-            {{ t('shippingMethods.cancel') }}
-          </v-btn>
+        <v-col cols="12" md="3" class="d-flex align-start">
+          <FormActions
+            class="flex-grow-1"
+            :cancellable="editing !== null"
+            :loading="saving"
+            :disabled="!valid"
+            @cancel="emit('done')"
+          >
+            {{ editing ? t('save') : t('shippingMethods.create') }}
+          </FormActions>
         </v-col>
       </v-row>
     </v-form>

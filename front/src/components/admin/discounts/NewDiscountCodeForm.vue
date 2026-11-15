@@ -4,6 +4,7 @@
   import { useFieldRules } from '@/composables/useFieldRules';
   import { useDiscountCodesStore, type DiscountCodeCreation } from '@/stores/discountCodes.store';
   import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
+  import FormActions from '@/components/form/FormActions.vue';
 
   // A new discount code: its code, a percentage or an amount off, until a day, for a number of orders
   const { t } = useI18n();
@@ -93,9 +94,9 @@
           />
         </v-col>
         <v-col cols="12" md="4" class="d-flex align-start">
-          <v-btn type="submit" color="primary" size="large" block :loading="saving" :disabled="!valid">
+          <FormActions class="flex-grow-1" :cancellable="false" :loading="saving" :disabled="!valid">
             {{ t('discountCodes.create') }}
-          </v-btn>
+          </FormActions>
         </v-col>
       </v-row>
     </v-form>
