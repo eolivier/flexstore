@@ -6,7 +6,9 @@ import org.flexstore.domain.actor.verifyCanAct
 import org.ucop.domain.entity.*
 
 // A signed-in customer reads their preferences (their display mode, their language and their guided tour)
-class ReadUserPreferenceUseCase(private val userPreferenceRepository: UserPreferenceRepository) : QueryUseCase<UserPreferencesReading, UserPreferences> {
+class ReadUserPreferenceUseCase(
+    private val userPreferenceRepository: UserPreferenceRepository
+) : QueryUseCase<UserPreferencesReading, UserPreferences> {
 
     override fun getPreConditions(): PreConditions<UserPreferencesReading> =
         PreConditions(customerCanActCondition())

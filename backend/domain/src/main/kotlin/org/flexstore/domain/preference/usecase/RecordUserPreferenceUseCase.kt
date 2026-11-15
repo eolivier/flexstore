@@ -8,7 +8,9 @@ import org.ucop.domain.entity.*
 
 // A signed-in customer chooses a preference (their display mode, their language or their guided tour): it is
 // kept in their account for their next visits
-class RecordUserPreferenceUseCase(private val userPreferenceRepository: UserPreferenceRepository) : UseCase<UserPreferenceChoice> {
+class RecordUserPreferenceUseCase(
+    private val userPreferenceRepository: UserPreferenceRepository
+) : UseCase<UserPreferenceChoice> {
 
     override fun getPreConditions(): PreConditions<UserPreferenceChoice> =
         PreConditions(customerCanActCondition())
