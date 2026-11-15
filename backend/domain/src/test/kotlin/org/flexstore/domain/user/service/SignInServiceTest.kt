@@ -16,6 +16,7 @@ import org.flexstore.infra.repository.InMemoryUserRepository
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
+import org.ucop.domain.ErrorMessage
 import java.time.Instant
 
 class SignInServiceTest : WithAssertions {
@@ -251,5 +252,25 @@ class SignInServiceTest : WithAssertions {
         // Assert
         val jane = userRepository.findByEmail(janeEmail) as User.DefinedUser
         assertThat(outcome).isEqualTo(SignInOutcome.SignedIn(jane))
+    }
+
+    @Test
+    fun `a token that Google does not vouch for should neither sign in nor create an account`() {
+        // Arrange
+        val googleRefusesTheToken = GoogleIdentityVerifier {
+            throw InvalidGoogleIdTokenException(ErrorMessage("The token is not Google's."))
+        }
+        val signInRefusingTheToken = SignInService(
+            userRepository,
+            RecordFailedSignInUseCase(userRepository, failedSignInRepository),
+            ResetFailedSignInsUseCase(failedSignInRepository),
+            twoFactorChallengeRepository,
+            googleRefusesTheToken
+        )
+        // Act
+        val thrown = catchThrowable { signInRefusingTheToken.signInWithGoogle(GoogleIdToken("google-token")) }
+        // Assert
+        assertThat(thrown).hasCauseInstanceOf(InvalidGoogleIdTokenException::class.java)
+        assertThat(userRepository.notExistsBasedOn(janeEmail)).isTrue()
     }
 }

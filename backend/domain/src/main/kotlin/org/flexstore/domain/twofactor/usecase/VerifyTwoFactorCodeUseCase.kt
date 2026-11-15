@@ -17,13 +17,12 @@ import org.ucop.domain.entity.*
 data class TwoFactorCodeVerification(val challengeId: TwoFactorChallengeId, val code: TwoFactorCode)
 
 // Completes a sign-in that is waiting for its second factor: a wrong code is a failed authentication attempt,
-// counted by SignInService exactly like a wrong password (see TwoFactorCodeInvalidException)
+// counted by SignInService exactly like a wrong password (see TwoFactorCodeInvalidException). The challenge is
+// deleted once verified: SignInService reads the user of the challenge before
 class VerifyTwoFactorCodeUseCase(
     private val twoFactorChallengeRepository: TwoFactorChallengeRepository,
     private val userRepository: UserRepository
 ) : UseCase<TwoFactorCodeVerification> {
-
-    lateinit var authenticatedUser: User.DefinedUser
 
     override fun getPreConditions(): PreConditions<TwoFactorCodeVerification> = PreConditions(
         challengeNotExpiredCondition(),
@@ -32,9 +31,7 @@ class VerifyTwoFactorCodeUseCase(
 
     override fun getNominalScenario(): NominalScenario<TwoFactorCodeVerification> =
         NominalScenario(Step { verification ->
-            val challenge = challengeOf(verification.challengeId)
-            authenticatedUser = userRepository.findById(challenge.userId) as User.DefinedUser
-            twoFactorChallengeRepository.delete(challenge.id)
+            twoFactorChallengeRepository.delete(challengeOf(verification.challengeId).id)
         })
 
     override fun getPostConditions(): PostConditions<TwoFactorCodeVerification> = PostConditions.none()

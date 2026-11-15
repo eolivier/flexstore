@@ -6,30 +6,19 @@ import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 import java.util.UUID
 
-// A person signs in with their Google account. The account that has their email is the one they sign in to; a
-// customer who has none gets one. The use case keeps the user it authenticated: one per sign-in
-class SignInWithGoogleUseCase(
-    private val userRepository: UserRepository,
-    private val googleIdentityVerifier: GoogleIdentityVerifier
-) : UseCase<GoogleIdToken> {
+// A person signs in with their Google account, which the sign-in service verified before. The account that has
+// their email is the one they sign in to; a customer who has none gets one
+class SignInWithGoogleUseCase(private val userRepository: UserRepository) : UseCase<GoogleIdentity> {
 
-    lateinit var authenticatedUser: User
-    private lateinit var googleIdentity: GoogleIdentity
+    override fun getPreConditions(): PreConditions<GoogleIdentity> = PreConditions(accountAllowsSignInCondition())
 
-    override fun getPreConditions(): PreConditions<GoogleIdToken> = PreConditions(
-        googleIdentityIsVerifiedCondition(),
-        accountAllowsSignInCondition()
-    )
+    override fun getNominalScenario(): NominalScenario<GoogleIdentity> =
+        NominalScenario(Step { googleIdentity -> createAccountOfNewCustomer(googleIdentity) })
 
-    override fun getNominalScenario(): NominalScenario<GoogleIdToken> = NominalScenario(
-        Step { createAccountOfNewCustomer() },
-        Step { authenticatedUser = userRepository.findByEmail(googleIdentity.email) }
-    )
+    override fun getPostConditions(): PostConditions<GoogleIdentity> =
+        PostConditions(accountExistsCondition())
 
-    override fun getPostConditions(): PostConditions<GoogleIdToken> =
-        PostConditions(userAuthenticatedCondition())
-
-    private fun createAccountOfNewCustomer() {
+    private fun createAccountOfNewCustomer(googleIdentity: GoogleIdentity) {
         if (userRepository.notExistsBasedOn(googleIdentity.email)) {
             // The repository hashes the password
             userRepository.save(googleIdentity.customer(UserId.nextId(), unknownPassword()))
@@ -38,11 +27,7 @@ class SignInWithGoogleUseCase(
 
     private fun unknownPassword() = PlainPassword(UUID.randomUUID().toString() + UUID.randomUUID())
 
-    private fun googleIdentityIsVerifiedCondition() = PreCondition<GoogleIdToken> { idToken ->
-        googleIdentity = googleIdentityVerifier.verify(idToken)
-    }
-
-    private fun accountAllowsSignInCondition() = PreCondition<GoogleIdToken> {
+    private fun accountAllowsSignInCondition() = PreCondition<GoogleIdentity> { googleIdentity ->
         val user = userRepository.findByEmail(googleIdentity.email)
         if (user is User.DefinedUser && user.status.refusesSignIn()) {
             val message = ErrorMessage("The account of ${googleIdentity.email.value} is ${user.status}.")
@@ -50,8 +35,8 @@ class SignInWithGoogleUseCase(
         }
     }
 
-    private fun userAuthenticatedCondition() = PostCondition<GoogleIdToken> {
-        if (authenticatedUser is User.UndefinedUser) {
+    private fun accountExistsCondition() = PostCondition<GoogleIdentity> { googleIdentity ->
+        if (userRepository.notExistsBasedOn(googleIdentity.email)) {
             throw UserGoogleAuthenticationException(ErrorMessage("User authentication failed."))
         }
     }

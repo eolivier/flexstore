@@ -7,6 +7,7 @@ import org.flexstore.domain.twofactor.model.TwoFactorCodeInvalidException
 import org.flexstore.domain.twofactor.model.TwoFactorAuthentication
 import org.flexstore.domain.twofactor.model.TwoFactorChallenge
 import org.flexstore.domain.twofactor.model.TwoFactorChallengeId
+import org.flexstore.domain.twofactor.model.TwoFactorChallengeLookup
 import org.flexstore.domain.twofactor.model.TwoFactorCode
 import org.flexstore.domain.twofactor.model.TwoFactorSecret
 import org.flexstore.domain.user.model.*
@@ -45,14 +46,14 @@ class VerifyTwoFactorCodeUseCaseTest : WithAssertions {
     }
 
     @Test
-    fun `the right code should authenticate the challenged administrator`() {
+    fun `the right code should use up the challenge`() {
         // Arrange
         val challengeId = challengedAt(Instant.now())
         val code = secret.codeAt(Instant.now())
         // Act
         useCase.unfold(TwoFactorCodeVerification(challengeId, code))
         // Assert
-        assertThat(useCase.authenticatedUser.id).isEqualTo(administrator.id)
+        assertThat(twoFactorChallengeRepository.find(challengeId)).isEqualTo(TwoFactorChallengeLookup.NotFound)
     }
 
     @Test

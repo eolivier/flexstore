@@ -32,9 +32,9 @@ class ReadUserUseCaseTest {
         every { userRepository.findById(userId) } returns user
         every { userRepository.notExists(userId) } returns false
         // Act
-        readUserUseCase.unfold(UserReading(testAdministratorActor, userId))
+        val retrievedUser = readUserUseCase.unfold(UserReading(testAdministratorActor, userId))
         // Assert
-        assertThat(readUserUseCase.retrievedUser).isEqualTo(user)
+        assertThat(retrievedUser).isEqualTo(user)
     }
 
     @Test

@@ -31,9 +31,9 @@ class LoginAccountStatusTest : WithAssertions {
         // Arrange
         janeWith(status)
         // Act
-        loginUseCase.unfold(LoginRequest(email, PlainPassword("password123")))
+        val authenticatedUser = loginUseCase.unfold(LoginRequest(email, PlainPassword("password123")))
         // Assert
-        assertThat((loginUseCase.authenticatedUser as User.DefinedUser).status).isEqualTo(status)
+        assertThat((authenticatedUser as User.DefinedUser).status).isEqualTo(status)
     }
 
     @ParameterizedTest(name = "{0}")

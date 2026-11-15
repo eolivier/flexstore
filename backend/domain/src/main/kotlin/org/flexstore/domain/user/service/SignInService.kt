@@ -4,7 +4,6 @@ import org.flexstore.domain.twofactor.TwoFactorChallengeRepository
 import org.flexstore.domain.twofactor.model.TwoFactorCodeInvalidException
 import org.flexstore.domain.twofactor.model.TwoFactorAuthentication
 import org.flexstore.domain.twofactor.model.TwoFactorChallenge
-import org.flexstore.domain.twofactor.model.TwoFactorChallengeId
 import org.flexstore.domain.twofactor.model.TwoFactorChallengeLookup
 import org.flexstore.domain.twofactor.usecase.TwoFactorCodeVerification
 import org.flexstore.domain.twofactor.usecase.VerifyTwoFactorCodeUseCase
@@ -13,11 +12,10 @@ import org.flexstore.domain.user.repository.GoogleIdentityVerifier
 import org.flexstore.domain.user.repository.UserRepository
 import org.flexstore.domain.user.usecase.*
 import org.ucop.domain.NominalException
+import org.ucop.domain.PreConditionException
 
 // Domain service: an account signs in. A wrong password, or a wrong two-factor code, is counted and locks the
-// account at the limit (see RecordFailedSignInUseCase); a successful sign-in starts the count again. The user
-// repository only builds the login and the two-factor verification use cases, which keep the user they
-// authenticated: one per sign-in, as they are not shared between calls.
+// account at the limit (see RecordFailedSignInUseCase); a successful sign-in starts the count again.
 class SignInService(
     private val userRepository: UserRepository,
     private val recordFailedSignInUseCase: RecordFailedSignInUseCase,
@@ -28,24 +26,31 @@ class SignInService(
 
     // A user who enabled two-factor authentication is given a challenge instead of a session
     fun signIn(loginRequest: LoginRequest): SignInOutcome {
-        val loginUseCase = LoginUseCase(userRepository)
-        try {
-            loginUseCase.unfold(loginRequest)
+        val authenticatedUser = try {
+            LoginUseCase(userRepository).unfold(loginRequest)
         } catch (refusal: NominalException) {
             if (refusal.cause is InvalidCredentialsException) {
                 recordFailedSignInUseCase.unfold(loginRequest.email)
             }
             throw refusal
         }
-        return outcomeOf(loginUseCase.authenticatedUser as User.DefinedUser)
+        return outcomeOf(authenticatedUser as User.DefinedUser)
     }
 
     // A person signs in with their Google account: Google replaces the password, not the second factor
     fun signInWithGoogle(idToken: GoogleIdToken): SignInOutcome {
-        val signInWithGoogleUseCase = SignInWithGoogleUseCase(userRepository, googleIdentityVerifier)
-        signInWithGoogleUseCase.unfold(idToken)
-        return outcomeOf(signInWithGoogleUseCase.authenticatedUser as User.DefinedUser)
+        val googleIdentity = verified(idToken)
+        SignInWithGoogleUseCase(userRepository).unfold(googleIdentity)
+        return outcomeOf(userRepository.findByEmail(googleIdentity.email) as User.DefinedUser)
     }
+
+    // A token that cannot be trusted is refused like a precondition of a use case would refuse it
+    private fun verified(idToken: GoogleIdToken): GoogleIdentity =
+        try {
+            googleIdentityVerifier.verify(idToken)
+        } catch (refusal: PreConditionException) {
+            throw NominalException(refusal)
+        }
 
     private fun outcomeOf(user: User.DefinedUser): SignInOutcome {
         return if (user.twoFactorAuthentication is TwoFactorAuthentication.Enabled) {
@@ -60,22 +65,21 @@ class SignInService(
 
     // Completes a challenged sign-in with the code of the authenticator app
     fun verifyTwoFactorCode(verification: TwoFactorCodeVerification): User.DefinedUser {
-        val verifyTwoFactorCodeUseCase = VerifyTwoFactorCodeUseCase(twoFactorChallengeRepository, userRepository)
+        val lookup = twoFactorChallengeRepository.find(verification.challengeId)
         try {
-            verifyTwoFactorCodeUseCase.unfold(verification)
+            VerifyTwoFactorCodeUseCase(twoFactorChallengeRepository, userRepository).unfold(verification)
         } catch (refusal: NominalException) {
             if (refusal.cause is TwoFactorCodeInvalidException) {
-                recordFailedSignInUseCase.unfold(challengedEmail(verification.challengeId))
+                recordFailedSignInUseCase.unfold(challengedUser(lookup).email)
             }
             throw refusal
         }
-        val user = verifyTwoFactorCodeUseCase.authenticatedUser
+        val user = challengedUser(lookup)
         resetFailedSignInsUseCase.unfold(user.id)
         return user
     }
 
-    private fun challengedEmail(challengeId: TwoFactorChallengeId): Email {
-        val lookup = twoFactorChallengeRepository.find(challengeId) as TwoFactorChallengeLookup.Found
-        return (userRepository.findById(lookup.challenge.userId) as User.DefinedUser).email
-    }
+    // The challenge is found, or the verification would have been refused as unknown or expired
+    private fun challengedUser(lookup: TwoFactorChallengeLookup): User.DefinedUser =
+        userRepository.findById((lookup as TwoFactorChallengeLookup.Found).challenge.userId) as User.DefinedUser
 }

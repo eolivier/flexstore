@@ -32,9 +32,9 @@ class LoginUseCaseTest {
         every { userRepository.findByEmail(email) } returns user
         every { userRepository.passwordDoesNotMatch(email, password) } returns false
         // Act
-        loginUseCase.unfold(LoginRequest(email, password))
+        val authenticatedUser = loginUseCase.unfold(LoginRequest(email, password))
         // Assert
-        assertThat(loginUseCase.authenticatedUser).isEqualTo(user)
+        assertThat(authenticatedUser).isEqualTo(user)
         verify { userRepository.passwordDoesNotMatch(email, password) }
     }
 

@@ -22,17 +22,17 @@ class UserService(
     private val userRepository: UserRepository
 ) {
 
+    // A draft user only gets its ID from the repository: the created user is read back by its email
     fun createUser(request: CreateUserRequest): User {
-        val createUserUseCase = CreateUserUseCase(userRepository)
-        createUserUseCase.unfold(request)
-        return createUserUseCase.createdUser
+        CreateUserUseCase(userRepository).unfold(request)
+        return when (val user = request.user) {
+            is User.DraftUser -> userRepository.findByEmail(user.email)
+            else -> userRepository.findById(user.id)
+        }
     }
 
-    fun readUser(reader: Actor, userId: UserId): User {
-        val readUserUseCase = ReadUserUseCase(userRepository)
-        readUserUseCase.unfold(UserReading(reader, userId))
-        return readUserUseCase.retrievedUser
-    }
+    fun readUser(reader: Actor, userId: UserId): User =
+        ReadUserUseCase(userRepository).unfold(UserReading(reader, userId))
 
     fun updateUser(request: UpdateUserRequest) {
         val updateUserUseCase = UpdateUserUseCase(userRepository)
