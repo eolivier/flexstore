@@ -5,8 +5,6 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.environment.EnvironmentReading
 import org.flexstore.domain.environment.ReadEnvironmentUseCase
-import org.flexstore.domain.user.model.UserId
-import org.flexstore.domain.user.model.of
 import org.flexstore.infra.spring.adapter.rest.json.JsonEnvironmentVariable
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
@@ -25,7 +23,7 @@ class AdminEnvironmentController(
     @Operation(summary = "Retrieve the environment variables of the shop, the secrets only as defined or not")
     @GetMapping
     fun getEnvironment(@AuthenticationPrincipal reader: Jwt): List<JsonEnvironmentVariable> {
-        val actor = actorResolutionService.actorOf(UserId.of(reader.subject))
+        val actor = actorResolutionService.actorOf(reader)
         val environmentReading = EnvironmentReading(actor)
         return JsonEnvironmentVariable.listOf(readEnvironmentUseCase.unfold(environmentReading))
     }

@@ -8,8 +8,6 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.infra.spring.adapter.rest.json.JsonSeller
 import org.flexstore.infra.spring.adapter.rest.json.JsonSocialNetworks
 import org.springframework.web.bind.annotation.*
-import org.flexstore.domain.user.model.UserId
-import org.flexstore.domain.user.model.of
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
 
@@ -43,7 +41,7 @@ class SellerController(
     )
     @PutMapping("/setup")
     fun completeSetup(@AuthenticationPrincipal editor: Jwt, @RequestBody seller: JsonSeller): JsonSeller {
-        val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
+        val actor = actorResolutionService.actorOf(editor)
         val completedSeller = sellerSetupService.complete(actor, seller.toSellerDetail())
         return JsonSeller(completedSeller)
     }
@@ -51,14 +49,14 @@ class SellerController(
     @Operation(summary = "Retrieve the seller written on the next invoices")
     @GetMapping
     fun getSeller(@AuthenticationPrincipal reader: Jwt): JsonSeller {
-        val actor = actorResolutionService.actorOf(UserId.of(reader.subject))
+        val actor = actorResolutionService.actorOf(reader)
         return JsonSeller(sellerUseCases.currentSeller(actor))
     }
 
     @Operation(summary = "Change the seller written on the next invoices; the invoices issued keep theirs")
     @PutMapping
     fun updateSeller(@AuthenticationPrincipal editor: Jwt, @RequestBody seller: JsonSeller): JsonSeller {
-        val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
+        val actor = actorResolutionService.actorOf(editor)
         val updatedSeller = sellerUseCases.update(actor, seller.toSellerDetail())
         return JsonSeller(updatedSeller)
     }

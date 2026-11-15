@@ -11,8 +11,6 @@ import org.flexstore.infra.spring.adapter.mapping.ProductMapper
 import org.flexstore.infra.spring.adapter.rest.json.JsonAdminProduct
 import org.flexstore.infra.spring.adapter.rest.json.JsonSkuProposal
 import org.springframework.web.bind.annotation.*
-import org.flexstore.domain.user.model.UserId
-import org.flexstore.domain.user.model.of
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
 
@@ -40,7 +38,7 @@ class AdminProductController(
         @RequestParam(defaultValue = "") name: String
     ): JsonSkuProposal {
         val skuBasis = SkuBasis(Category.valueOf(category), Words.of(name))
-        val actor = actorResolutionService.actorOf(UserId.of(requester.subject))
+        val actor = actorResolutionService.actorOf(requester)
         return JsonSkuProposal(productUseCases.proposeSkuFor(actor, skuBasis).value)
     }
 }

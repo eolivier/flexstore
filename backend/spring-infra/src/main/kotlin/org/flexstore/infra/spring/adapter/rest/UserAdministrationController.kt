@@ -46,7 +46,7 @@ class UserAdministrationController(
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun createUser(@AuthenticationPrincipal creator: Jwt, @RequestBody draftJsonUser: DraftJsonUser): JsonUser {
-        val actor = actorResolutionService.actorOf(UserId.of(creator.subject))
+        val actor = actorResolutionService.actorOf(creator)
         val createUserRequest = CreateUserRequest(actor, draftJsonUser.toUser())
         return userService.createUser(createUserRequest).toJsonUser()
     }
@@ -73,7 +73,7 @@ class UserAdministrationController(
         @RequestParam(defaultValue = "${PageSize.DEFAULT}") size: Int,
         @RequestParam(defaultValue = "") search: String
     ): ResponseEntity<List<JsonUser>> {
-        val actor = actorResolutionService.actorOf(UserId.of(reader.subject))
+        val actor = actorResolutionService.actorOf(reader)
         val usersSearch = UsersSearch(UserSearchText(search), PageRequest.of(page, size))
         val users = userService.readAllUsers(actor, usersSearch)
         return pagedBody(users.content.asList().toJsonUsers(), users.total)
@@ -92,7 +92,7 @@ class UserAdministrationController(
     )
     @GetMapping("/{id}")
     fun getUser(@AuthenticationPrincipal reader: Jwt, @PathVariable id: String): JsonUser {
-        val actor = actorResolutionService.actorOf(UserId.of(reader.subject))
+        val actor = actorResolutionService.actorOf(reader)
         return userService.readUser(actor, ValidUserId(id)).toJsonUser()
     }
 
@@ -111,7 +111,7 @@ class UserAdministrationController(
         @PathVariable id: String,
         @RequestBody editedUser: EditedJsonUser
     ): JsonUser {
-        val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
+        val actor = actorResolutionService.actorOf(editor)
         userService.updateUser(UpdateUserRequest(actor, editedUser.toUser(id)))
         return userService.readUser(actor, UserId.of(id)).toJsonUser()
     }
@@ -126,7 +126,7 @@ class UserAdministrationController(
         @PathVariable id: String,
         @RequestBody status: JsonAccountStatus
     ): JsonUser {
-        val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
+        val actor = actorResolutionService.actorOf(editor)
         val accountStatusChange = AccountStatusChange(actor, UserId.of(id), status.toAccountStatus())
         return userService.changeAccountStatus(accountStatusChange).toJsonUser()
     }
@@ -142,7 +142,7 @@ class UserAdministrationController(
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteUser(@AuthenticationPrincipal editor: Jwt, @PathVariable id: String) {
-        val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
+        val actor = actorResolutionService.actorOf(editor)
         userService.deleteUser(actor, ValidUserId(id))
     }
 }

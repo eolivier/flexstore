@@ -10,8 +10,6 @@ import org.flexstore.domain.sales.usecase.ReadSalesDashboardUseCase
 import org.flexstore.domain.sharedkernel.InstantProvider
 import org.flexstore.infra.spring.adapter.rest.json.JsonSalesDashboard
 import org.springframework.web.bind.annotation.*
-import org.flexstore.domain.user.model.UserId
-import org.flexstore.domain.user.model.of
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
 
@@ -33,7 +31,7 @@ class AdminSalesController(
         @RequestParam(defaultValue = "30") days: Int
     ): JsonSalesDashboard {
         val question = SalesQuestion(DayCount(days), InstantProvider.now())
-        val actor = actorResolutionService.actorOf(UserId.of(reader.subject))
+        val actor = actorResolutionService.actorOf(reader)
         val salesDashboardReading = SalesDashboardReading(actor, question)
         return JsonSalesDashboard(readSalesDashboardUseCase.unfold(salesDashboardReading))
     }

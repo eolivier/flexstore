@@ -3,8 +3,6 @@ package org.flexstore.infra.spring.adapter.rest
 import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.legal.LegalPageKind
 import org.flexstore.domain.legal.usecase.LegalPageUseCases
-import org.flexstore.domain.user.model.UserId
-import org.flexstore.domain.user.model.of
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.infra.spring.adapter.rest.json.JsonLegalPage
@@ -58,7 +56,7 @@ class AdminLegalPageController(
         @RequestBody legalText: JsonLegalText
     ): ResponseEntity<JsonLegalPage> {
         val legalPageKind = legalPageKinds[kind] ?: return ResponseEntity.notFound().build()
-        val actor = actorResolutionService.actorOf(UserId.of(publisher.subject))
+        val actor = actorResolutionService.actorOf(publisher)
         val legalPage = legalPageUseCases.publish(actor, legalPageKind, legalText.toLegalText())
         return ResponseEntity.ok(JsonLegalPage(legalPage))
     }

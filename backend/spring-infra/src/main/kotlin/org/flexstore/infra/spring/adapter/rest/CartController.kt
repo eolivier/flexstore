@@ -40,7 +40,7 @@ class CartController(
         @RequestHeader(CART_ID_HEADER, required = false) cartId: String?
     ): JsonCartItems {
         val owner = customer(jwt) ?: visitor(cartId) ?: return JsonCartItems(emptyList(), BigDecimal.ZERO, "€")
-        return cartUseCases.getCart(actorOf(jwt), owner).items.toJsonCartItems()
+        return cartUseCases.getCart(actorResolutionService.actorOf(jwt), owner).items.toJsonCartItems()
     }
 
     @Operation(summary = "Add an item to the cart, or change the quantity of an item (0 removes it)",
@@ -56,10 +56,10 @@ class CartController(
         val givenItemId = jsonItem.itemId.orEmpty()
         if (ItemId.isValid(givenItemId)) {
             val itemId = ItemId(Identity(givenItemId))
-            cartUseCases.changeQuantity(ChangeCartItemQuantityRequest(actorOf(jwt), owner, itemId, quantity))
+            cartUseCases.changeQuantity(ChangeCartItemQuantityRequest(actorResolutionService.actorOf(jwt), owner, itemId, quantity))
         } else {
             val productId = ProductId(Identity(jsonItem.productId))
-            cartUseCases.addItem(AddItemToCartRequest(actorOf(jwt), owner, productId, quantity))
+            cartUseCases.addItem(AddItemToCartRequest(actorResolutionService.actorOf(jwt), owner, productId, quantity))
         }
         return JsonSaveItemResponse("ok", (owner as? CartOwner.Visitor)?.cartId?.id?.value)
     }
@@ -72,12 +72,8 @@ class CartController(
         @RequestHeader(CART_ID_HEADER, required = false) cartId: String?
     ) {
         val visitor = visitor(cartId) ?: return
-        cartUseCases.mergeCarts(MergeCartsRequest(visitor, actorOf(jwt)))
+        cartUseCases.mergeCarts(MergeCartsRequest(visitor, actorResolutionService.actorOf(jwt)))
     }
-
-    // The customer of the token, or a visitor when there is none
-    private fun actorOf(jwt: Jwt?) =
-        jwt?.let { actorResolutionService.actorOf(UserId.of(it.subject)) } ?: actorResolutionService.visitor()
 
     private fun customer(jwt: Jwt?) = jwt?.let { CartOwner.Customer(UserId.ValidUserId(it.subject)) }
 

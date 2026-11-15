@@ -10,8 +10,6 @@ import org.flexstore.domain.stock.usecase.StockUseCases
 import org.flexstore.infra.spring.adapter.rest.json.JsonStock
 import org.flexstore.infra.spring.adapter.rest.json.JsonStockQuantity
 import org.springframework.web.bind.annotation.*
-import org.flexstore.domain.user.model.UserId
-import org.flexstore.domain.user.model.of
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
 
@@ -43,7 +41,7 @@ class StockController(
         @RequestBody stockQuantity: JsonStockQuantity
     ): JsonStock {
         val stock = Stock(ProductId(Identity(productId)), StockQuantity(stockQuantity.quantity))
-        val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
+        val actor = actorResolutionService.actorOf(editor)
         return JsonStock.of(stockUseCases.change(actor, stock))
     }
 }

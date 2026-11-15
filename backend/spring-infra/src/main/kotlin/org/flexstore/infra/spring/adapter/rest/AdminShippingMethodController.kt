@@ -6,8 +6,6 @@ import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.order.model.ShippingMethodId
 import org.flexstore.domain.order.usecase.ShippingMethodUseCases
 import org.flexstore.domain.sharedkernel.Identity
-import org.flexstore.domain.user.model.UserId
-import org.flexstore.domain.user.model.of
 import org.flexstore.infra.spring.adapter.rest.json.JsonNewShippingMethod
 import org.flexstore.infra.spring.adapter.rest.json.JsonShippingMethod
 import org.flexstore.infra.spring.adapter.rest.json.JsonShippingMethodChange
@@ -29,7 +27,7 @@ class AdminShippingMethodController(
     @Operation(summary = "Retrieve all the shipping methods, the disabled ones included, the cheapest first")
     @GetMapping
     fun getShippingMethods(@AuthenticationPrincipal reader: Jwt): List<JsonShippingMethod> {
-        val actor = actorResolutionService.actorOf(UserId.of(reader.subject))
+        val actor = actorResolutionService.actorOf(reader)
         return shippingMethodUseCases.getAll(actor).asList().map { JsonShippingMethod(it) }
     }
 
@@ -41,7 +39,7 @@ class AdminShippingMethodController(
         @RequestBody newShippingMethod: JsonNewShippingMethod
     ): JsonShippingMethod {
         val shippingMethod = newShippingMethod.toShippingMethod()
-        val actor = actorResolutionService.actorOf(UserId.of(creator.subject))
+        val actor = actorResolutionService.actorOf(creator)
         shippingMethodUseCases.create(actor, shippingMethod)
         return JsonShippingMethod(shippingMethod)
     }
@@ -57,7 +55,7 @@ class AdminShippingMethodController(
         @RequestBody shippingMethodChange: JsonShippingMethodChange
     ): JsonShippingMethod {
         val shippingMethod = shippingMethodChange.toShippingMethod(ShippingMethodId(Identity(id)))
-        val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
+        val actor = actorResolutionService.actorOf(editor)
         shippingMethodUseCases.update(actor, shippingMethod)
         return JsonShippingMethod(shippingMethod)
     }

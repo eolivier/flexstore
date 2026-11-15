@@ -9,8 +9,6 @@ import org.flexstore.infra.spring.adapter.rest.json.JsonDiscountCode
 import org.flexstore.infra.spring.adapter.rest.json.JsonNewDiscountCode
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
-import org.flexstore.domain.user.model.UserId
-import org.flexstore.domain.user.model.of
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
 
@@ -27,7 +25,7 @@ class AdminDiscountCodeController(
     @Operation(summary = "Retrieve the discount codes, newest first")
     @GetMapping
     fun getDiscountCodes(@AuthenticationPrincipal reader: Jwt): List<JsonDiscountCode> {
-        val actor = actorResolutionService.actorOf(UserId.of(reader.subject))
+        val actor = actorResolutionService.actorOf(reader)
         return discountCodeUseCases.getAll(actor).asList().map { JsonDiscountCode(it) }
     }
 
@@ -41,7 +39,7 @@ class AdminDiscountCodeController(
         @RequestBody newDiscountCode: JsonNewDiscountCode
     ): JsonDiscountCode {
         val discountCode = newDiscountCode.toDiscountCode()
-        val actor = actorResolutionService.actorOf(UserId.of(creator.subject))
+        val actor = actorResolutionService.actorOf(creator)
         discountCodeUseCases.create(actor, discountCode)
         return JsonDiscountCode(discountCode)
     }
@@ -50,7 +48,7 @@ class AdminDiscountCodeController(
     @DeleteMapping("/{code}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteDiscountCode(@AuthenticationPrincipal editor: Jwt, @PathVariable code: String) {
-        val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
+        val actor = actorResolutionService.actorOf(editor)
         discountCodeUseCases.delete(actor, PromoCode.from(code))
     }
 }

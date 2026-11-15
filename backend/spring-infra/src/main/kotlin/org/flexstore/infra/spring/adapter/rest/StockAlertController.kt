@@ -6,8 +6,6 @@ import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.stock.*
 import org.flexstore.domain.stock.usecase.StockAlertUseCases
-import org.flexstore.domain.user.model.UserId
-import org.flexstore.domain.user.model.of
 import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.infra.spring.adapter.rest.json.JsonAlertThreshold
 import org.flexstore.infra.spring.adapter.rest.json.JsonLowStock
@@ -28,14 +26,14 @@ class StockAlertController(
     @Operation(summary = "Retrieve the stocks at or under the alert threshold of their product, from the lowest")
     @GetMapping("/api/admin/stocks/low")
     fun getLowStocks(@AuthenticationPrincipal reader: Jwt): List<JsonLowStock> {
-        val actor = actorResolutionService.actorOf(UserId.of(reader.subject))
+        val actor = actorResolutionService.actorOf(reader)
         return stockAlertUseCases.lowStocks(actor).asList().map { JsonLowStock.of(it) }
     }
 
     @Operation(summary = "Retrieve the alert threshold of a product (the default one when it was never given)")
     @GetMapping("/api/admin/stocks/{productId}/alert")
     fun getStockAlert(@AuthenticationPrincipal reader: Jwt, @PathVariable productId: String): JsonStockAlert {
-        val actor = actorResolutionService.actorOf(UserId.of(reader.subject))
+        val actor = actorResolutionService.actorOf(reader)
         return JsonStockAlert.of(stockAlertUseCases.alertOf(actor, ProductId(Identity(productId))))
     }
 
@@ -47,7 +45,7 @@ class StockAlertController(
         @RequestBody alertThreshold: JsonAlertThreshold
     ): JsonStockAlert {
         val stockAlert = StockAlert(ProductId(Identity(productId)), AlertThreshold(alertThreshold.threshold))
-        val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
+        val actor = actorResolutionService.actorOf(editor)
         return JsonStockAlert.of(stockAlertUseCases.change(actor, stockAlert))
     }
 }

@@ -7,8 +7,6 @@ import org.flexstore.domain.image.*
 import org.flexstore.domain.image.usecase.ProductImageUseCases
 import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.sharedkernel.Identity
-import org.flexstore.domain.user.model.UserId
-import org.flexstore.domain.user.model.of
 import org.springframework.http.CacheControl
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -68,7 +66,7 @@ class ProductImageController(
             ?: throw UnreadableImageException(ErrorMessage("The image must be a JPEG, a PNG or a WebP."))
         val content = ImageContent(ImageBytes(image.bytes), imageType)
         val uploadedImage = UploadedImage(ProductId(Identity(productId)), content)
-        val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
+        val actor = actorResolutionService.actorOf(editor)
         productImageUseCases.add(actor, uploadedImage)
     }
 
@@ -76,7 +74,7 @@ class ProductImageController(
     @DeleteMapping("/api/admin/products/{productId}/image")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun removeImage(@AuthenticationPrincipal editor: Jwt, @PathVariable productId: String) {
-        val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
+        val actor = actorResolutionService.actorOf(editor)
         productImageUseCases.remove(actor, ProductId(Identity(productId)))
     }
 }

@@ -8,8 +8,6 @@ import org.flexstore.domain.review.ReviewId
 import org.flexstore.domain.review.usecase.ReviewUseCases
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
-import org.flexstore.domain.user.model.UserId
-import org.flexstore.domain.user.model.of
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
 
@@ -26,7 +24,7 @@ class AdminReviewController(
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteReview(@AuthenticationPrincipal editor: Jwt, @PathVariable id: String) {
-        val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
+        val actor = actorResolutionService.actorOf(editor)
         reviewUseCases.delete(actor, ReviewId(Identity(id)))
     }
 }

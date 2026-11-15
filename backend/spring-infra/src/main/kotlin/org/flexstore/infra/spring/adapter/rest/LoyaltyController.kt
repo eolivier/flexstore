@@ -4,8 +4,6 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.loyalty.usecase.LoyaltyUseCases
-import org.flexstore.domain.user.model.UserId
-import org.flexstore.domain.user.model.of
 import org.flexstore.infra.spring.adapter.rest.json.JsonLoyaltyStatement
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
@@ -25,7 +23,7 @@ class LoyaltyController(
     @Operation(summary = "Retrieve the loyalty points of the signed-in customer")
     @GetMapping
     fun getPoints(@AuthenticationPrincipal jwt: Jwt): JsonLoyaltyStatement {
-        val customer = actorResolutionService.actorOf(UserId.of(jwt.subject))
+        val customer = actorResolutionService.actorOf(jwt)
         return JsonLoyaltyStatement.of(loyaltyUseCases.getStatement(customer))
     }
 }

@@ -22,8 +22,6 @@ import org.flexstore.infra.spring.metrics.ProductMetrics
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
-import org.flexstore.domain.user.model.UserId
-import org.flexstore.domain.user.model.of
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
 
@@ -46,7 +44,7 @@ class ProductController(private val productUseCases: ProductUseCases,
         @RequestBody draftJsonProduct: DraftJsonProduct
     ): JsonProduct {
         val draftProduct = mapper.toDomain(draftJsonProduct)
-        val actor = actorResolutionService.actorOf(UserId.of(creator.subject))
+        val actor = actorResolutionService.actorOf(creator)
         val createProduct = productUseCases.createProduct(actor, draftProduct)
         val toJson = mapper.toJson(createProduct)
         productMetrics.incrementCreated()
@@ -65,7 +63,7 @@ class ProductController(private val productUseCases: ProductUseCases,
         @RequestBody editedJsonProduct: EditedJsonProduct
     ): JsonProduct {
         val editedProduct = mapper.toDomain(ProductId(Identity(id)), editedJsonProduct)
-        val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
+        val actor = actorResolutionService.actorOf(editor)
         return mapper.toJson(productUseCases.updateProduct(actor, editedProduct))
     }
 
