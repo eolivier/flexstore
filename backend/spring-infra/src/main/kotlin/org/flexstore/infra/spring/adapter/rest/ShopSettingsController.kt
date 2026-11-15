@@ -4,8 +4,6 @@ import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.settings.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.flexstore.domain.user.model.UserId
-import org.flexstore.domain.user.model.of
 import org.flexstore.infra.spring.adapter.rest.json.JsonAbandonedCartDelay
 import org.flexstore.infra.spring.adapter.rest.json.JsonFreeShippingThreshold
 import org.flexstore.infra.spring.adapter.rest.json.JsonPaymentDelay
@@ -27,35 +25,35 @@ class ShopSettingsController(
     @Operation(summary = "Retrieve the settings of the shop")
     @GetMapping
     fun getSettings(@AuthenticationPrincipal reader: Jwt): JsonShopSettings {
-        val actor = actorResolutionService.actorOf(UserId.of(reader.subject))
+        val actor = actorResolutionService.actorOf(reader)
         return JsonShopSettings(shopSettingsAdministrationService.getSettings(actor))
     }
 
     @Operation(summary = "Send an email to the customer when an order is placed")
     @PostMapping("/order-confirmation-email/enable")
     fun enableOrderConfirmationEmail(@AuthenticationPrincipal editor: Jwt): JsonShopSettings {
-        val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
+        val actor = actorResolutionService.actorOf(editor)
         return JsonShopSettings(shopSettingsAdministrationService.enableOrderConfirmationEmail(actor))
     }
 
     @Operation(summary = "Stop sending an email to the customer when an order is placed")
     @PostMapping("/order-confirmation-email/disable")
     fun disableOrderConfirmationEmail(@AuthenticationPrincipal editor: Jwt): JsonShopSettings {
-        val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
+        val actor = actorResolutionService.actorOf(editor)
         return JsonShopSettings(shopSettingsAdministrationService.disableOrderConfirmationEmail(actor))
     }
 
     @Operation(summary = "Remind the customers by email of the items left in their cart")
     @PostMapping("/abandoned-cart-reminder/enable")
     fun enableAbandonedCartReminder(@AuthenticationPrincipal editor: Jwt): JsonShopSettings {
-        val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
+        val actor = actorResolutionService.actorOf(editor)
         return JsonShopSettings(shopSettingsAdministrationService.enableAbandonedCartReminder(actor))
     }
 
     @Operation(summary = "Stop reminding the customers by email of the items left in their cart")
     @PostMapping("/abandoned-cart-reminder/disable")
     fun disableAbandonedCartReminder(@AuthenticationPrincipal editor: Jwt): JsonShopSettings {
-        val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
+        val actor = actorResolutionService.actorOf(editor)
         return JsonShopSettings(shopSettingsAdministrationService.disableAbandonedCartReminder(actor))
     }
 
@@ -65,7 +63,7 @@ class ShopSettingsController(
         @AuthenticationPrincipal editor: Jwt,
         @RequestBody abandonedCartDelay: JsonAbandonedCartDelay
     ): JsonShopSettings {
-        val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
+        val actor = actorResolutionService.actorOf(editor)
         val administration = shopSettingsAdministrationService
         val delay = abandonedCartDelay.toAbandonedCartDelay()
         val changedSettings = administration.changeAbandonedCartDelay(actor, delay)
@@ -80,7 +78,7 @@ class ShopSettingsController(
         @AuthenticationPrincipal editor: Jwt,
         @RequestBody paymentDelay: JsonPaymentDelay
     ): JsonShopSettings {
-        val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
+        val actor = actorResolutionService.actorOf(editor)
         val administration = shopSettingsAdministrationService
         val changedSettings = administration.changePaymentDelay(actor, paymentDelay.toPaymentDelay())
         return JsonShopSettings(changedSettings)
@@ -94,7 +92,7 @@ class ShopSettingsController(
         @AuthenticationPrincipal editor: Jwt,
         @RequestBody threshold: JsonFreeShippingThreshold
     ): JsonShopSettings {
-        val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
+        val actor = actorResolutionService.actorOf(editor)
         val freeShippingThreshold = threshold.toFreeShippingThreshold()
         val administration = shopSettingsAdministrationService
         val changedSettings = administration.changeFreeShippingThreshold(actor, freeShippingThreshold)

@@ -6,8 +6,6 @@ import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.restock.usecase.RestockUseCases
 import org.flexstore.domain.sharedkernel.Identity
-import org.flexstore.domain.user.model.UserId
-import org.flexstore.domain.user.model.of
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
@@ -25,7 +23,7 @@ class RestockSubscriptionController(
     @Operation(summary = "Retrieve the ids of the products the signed-in customer waits for")
     @GetMapping
     fun getSubscribedProductIds(@AuthenticationPrincipal jwt: Jwt): List<String> {
-        val restockSubscriptions = restockUseCases.getSubscriptions(customer(jwt))
+        val restockSubscriptions = restockUseCases.getSubscriptions(actorResolutionService.actorOf(jwt))
         return restockSubscriptions.asList().map { it.productId.id.value }
     }
 
@@ -33,15 +31,13 @@ class RestockSubscriptionController(
     @PutMapping("/{productId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun subscribe(@AuthenticationPrincipal jwt: Jwt, @PathVariable productId: String) {
-        restockUseCases.subscribe(customer(jwt), ProductId(Identity(productId)))
+        restockUseCases.subscribe(actorResolutionService.actorOf(jwt), ProductId(Identity(productId)))
     }
 
     @Operation(summary = "Stop waiting for a product, so the signed-in customer is no longer notified of its return")
     @DeleteMapping("/{productId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun unsubscribe(@AuthenticationPrincipal jwt: Jwt, @PathVariable productId: String) {
-        restockUseCases.unsubscribe(customer(jwt), ProductId(Identity(productId)))
+        restockUseCases.unsubscribe(actorResolutionService.actorOf(jwt), ProductId(Identity(productId)))
     }
-
-    private fun customer(jwt: Jwt) = actorResolutionService.actorOf(UserId.of(jwt.subject))
 }

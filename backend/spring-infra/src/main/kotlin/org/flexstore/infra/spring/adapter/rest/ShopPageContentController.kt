@@ -5,8 +5,6 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.pagecontent.ShopPageContentType
 import org.flexstore.domain.pagecontent.usecase.ShopPageContentUseCases
-import org.flexstore.domain.user.model.UserId
-import org.flexstore.domain.user.model.of
 import org.flexstore.infra.spring.adapter.rest.json.JsonShopPageContentText
 import org.flexstore.infra.spring.adapter.rest.json.JsonShopPageContents
 import org.springframework.http.ResponseEntity
@@ -55,7 +53,7 @@ class AdminShopPageContentController(
         @RequestBody contentText: JsonShopPageContentText
     ): ResponseEntity<JsonShopPageContents> {
         val contentType = shopPageContentTypes[type] ?: return ResponseEntity.notFound().build()
-        val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
+        val actor = actorResolutionService.actorOf(editor)
         val contents = shopPageContentUseCases.edit(actor, contentText.toContent(contentType))
         return ResponseEntity.ok(JsonShopPageContents(contents))
     }

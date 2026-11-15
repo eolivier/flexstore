@@ -7,8 +7,6 @@ import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.review.*
 import org.flexstore.domain.review.usecase.ReviewUseCases
 import org.flexstore.domain.sharedkernel.Identity
-import org.flexstore.domain.user.model.UserId
-import org.flexstore.domain.user.model.of
 import org.flexstore.infra.spring.adapter.rest.json.*
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -39,7 +37,7 @@ class ReviewController(
     ): JsonReview {
         val productId = productId(id)
         val stamp = ReviewStamp(ReviewId.nextId(), ReviewedAt.now())
-        val customer = actorResolutionService.actorOf(UserId.of(jwt.subject))
+        val customer = actorResolutionService.actorOf(jwt)
         val productOpinion = ProductOpinion(productId, newReview.toOpinion())
         reviewUseCases.add(ReviewSubmission(stamp, ReviewDraft(customer, productOpinion)))
         return JsonReview(reviewUseCases.getAbout(customer, productId).of(stamp.reviewId))
@@ -51,7 +49,7 @@ class ReviewController(
         @AuthenticationPrincipal jwt: Jwt,
         @PathVariable id: String
     ): JsonReviewEligibility {
-        val customer = actorResolutionService.actorOf(UserId.of(jwt.subject))
+        val customer = actorResolutionService.actorOf(jwt)
         val question = ReviewEligibilityQuestion(customer, productId(id))
         return JsonReviewEligibility(reviewUseCases.eligibilityOf(question).name)
     }

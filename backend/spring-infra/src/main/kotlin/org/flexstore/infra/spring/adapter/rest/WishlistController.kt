@@ -5,8 +5,6 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.sharedkernel.Identity
-import org.flexstore.domain.user.model.UserId
-import org.flexstore.domain.user.model.of
 import org.flexstore.domain.wishlist.usecase.WishlistUseCases
 import org.flexstore.infra.spring.adapter.mapping.languageAcceptedIn
 import org.flexstore.infra.spring.adapter.mapping.toJsonProducts
@@ -32,7 +30,7 @@ class WishlistController(
         @AuthenticationPrincipal jwt: Jwt,
         @RequestHeader(HttpHeaders.ACCEPT_LANGUAGE, defaultValue = "en") acceptLanguage: String
     ): List<JsonProduct> {
-        val wishlist = wishlistUseCases.getWishlist(customer(jwt))
+        val wishlist = wishlistUseCases.getWishlist(actorResolutionService.actorOf(jwt))
         return wishlist.asList().toJsonProducts(languageAcceptedIn(acceptLanguage))
     }
 
@@ -40,15 +38,13 @@ class WishlistController(
     @PutMapping("/{productId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun saveProduct(@AuthenticationPrincipal jwt: Jwt, @PathVariable productId: String) {
-        wishlistUseCases.add(customer(jwt), ProductId(Identity(productId)))
+        wishlistUseCases.add(actorResolutionService.actorOf(jwt), ProductId(Identity(productId)))
     }
 
     @Operation(summary = "Remove a product from the wishlist of the signed-in customer")
     @DeleteMapping("/{productId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun removeProduct(@AuthenticationPrincipal jwt: Jwt, @PathVariable productId: String) {
-        wishlistUseCases.remove(customer(jwt), ProductId(Identity(productId)))
+        wishlistUseCases.remove(actorResolutionService.actorOf(jwt), ProductId(Identity(productId)))
     }
-
-    private fun customer(jwt: Jwt) = actorResolutionService.actorOf(UserId.of(jwt.subject))
 }

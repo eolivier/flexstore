@@ -52,8 +52,8 @@ class OrderController(
         val delivery = addresses.toOrderDelivery(shippingMethod)
         val checkout = Checkout(customer, delivery, addresses.toTermsOfSaleAcceptance())
         val discountCode = addresses.toEnteredDiscountCode()
-        val placedOrder = orderCheckoutService.placeOrder(actorOf(jwt), checkout, discountCode)
-        return JsonOrder(placedOrder, orderUseCases.paymentDelay(actorOf(jwt)))
+        val placedOrder = orderCheckoutService.placeOrder(actorResolutionService.actorOf(jwt), checkout, discountCode)
+        return JsonOrder(placedOrder, orderUseCases.paymentDelay(actorResolutionService.actorOf(jwt)))
     }
 
     @Operation(summary = "Retrieve the shipping methods, with their cost for the cart of the signed-in customer")
@@ -66,7 +66,7 @@ class OrderController(
     @Operation(summary = "Retrieve what a discount code takes off the cart of the signed-in customer")
     @GetMapping("/discount-preview")
     fun previewDiscount(@AuthenticationPrincipal jwt: Jwt, @RequestParam code: String): JsonDiscountPreview {
-        val discountPreview = orderCheckoutService.previewDiscount(actorOf(jwt), PromoCode.from(code))
+        val discountPreview = orderCheckoutService.previewDiscount(actorResolutionService.actorOf(jwt), PromoCode.from(code))
         return JsonDiscountPreview(discountPreview)
     }
 
@@ -81,8 +81,8 @@ class OrderController(
         @RequestParam(defaultValue = "${PageNumber.FIRST}") page: Int,
         @RequestParam(defaultValue = "${PageSize.DEFAULT}") size: Int
     ): ResponseEntity<List<JsonOrder>> {
-        val paymentDelay = orderUseCases.paymentDelay(actorOf(jwt))
-        val orders = orderUseCases.getOrders(actorOf(jwt), PageRequest.of(page, size))
+        val paymentDelay = orderUseCases.paymentDelay(actorResolutionService.actorOf(jwt))
+        val orders = orderUseCases.getOrders(actorResolutionService.actorOf(jwt), PageRequest.of(page, size))
         return pagedBody(orders.content.asList().map { JsonOrder(it, paymentDelay) }, orders.total)
     }
 
@@ -90,10 +90,8 @@ class OrderController(
     @GetMapping("/{id}")
     fun getOrder(@AuthenticationPrincipal jwt: Jwt, @PathVariable id: String): JsonOrder {
         val order = orderUseCases.getOrder(customer(jwt), OrderId(Identity(id)))
-        return JsonOrder(order, orderUseCases.paymentDelay(actorOf(jwt)))
+        return JsonOrder(order, orderUseCases.paymentDelay(actorResolutionService.actorOf(jwt)))
     }
 
     private fun customer(jwt: Jwt) = UserId.ValidUserId(jwt.subject)
-
-    private fun actorOf(jwt: Jwt) = actorResolutionService.actorOf(customer(jwt))
 }

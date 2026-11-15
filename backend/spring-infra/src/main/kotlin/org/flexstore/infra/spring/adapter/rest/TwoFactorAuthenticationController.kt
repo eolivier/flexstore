@@ -89,7 +89,7 @@ class TwoFactorAuthenticationController(
         @AuthenticationPrincipal editor: Jwt,
         @PathVariable id: String
     ): JsonUser {
-        val actor = actorResolutionService.actorOf(UserId.of(editor.subject))
+        val actor = actorResolutionService.actorOf(editor)
         twoFactorAuthenticationService.disableForUser(actor, UserId.of(id))
         return userService.readUser(actor, UserId.of(id)).toJsonUser()
     }
