@@ -8,6 +8,7 @@ import { vuetify, i18n } from '@/test/setup';
 const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 vi.mock('@/api', () => ({
+  apiBaseUrl: 'http://localhost:8080',
   sellerApi: {
     getSocialNetworks: () =>
       Promise.resolve({
