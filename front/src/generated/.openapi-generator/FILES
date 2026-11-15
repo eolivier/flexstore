@@ -11,6 +11,7 @@ docs/CookiesApi.md
 docs/DraftJsonProduct.md
 docs/EditedJsonProduct.md
 docs/InvoicesApi.md
+docs/JsonAbandonedCartDelay.md
 docs/JsonAccount.md
 docs/JsonAccountRegistration.md
 docs/JsonAccountStatus.md
@@ -32,6 +33,7 @@ docs/JsonDiscountCode.md
 docs/JsonDiscountPreview.md
 docs/JsonEmailVerification.md
 docs/JsonEnvironmentVariable.md
+docs/JsonFreeShippingThreshold.md
 docs/JsonGoogleLoginRequest.md
 docs/JsonGuidedTourChoice.md
 docs/JsonGuidedTourPreference.md
@@ -58,6 +60,7 @@ docs/JsonOrderStatusChange.md
 docs/JsonOrderTracking.md
 docs/JsonOrderTrackingCorrection.md
 docs/JsonPasswordResetRequest.md
+docs/JsonPaymentDelay.md
 docs/JsonPaymentSession.md
 docs/JsonPostalAddress.md
 docs/JsonProduct.md
@@ -78,6 +81,7 @@ docs/JsonShippingOptions.md
 docs/JsonShopPageContent.md
 docs/JsonShopPageContentText.md
 docs/JsonShopPageContents.md
+docs/JsonShopSettings.md
 docs/JsonSkuProposal.md
 docs/JsonSocialNetworks.md
 docs/JsonStock.md

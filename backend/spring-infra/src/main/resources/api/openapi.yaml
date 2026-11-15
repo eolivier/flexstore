@@ -1600,6 +1600,166 @@ paths:
                   $ref: "#/components/schemas/JsonEnvironmentVariable"
         "403":
           description: Not an administrator
+  /api/admin/settings:
+    get:
+      tags:
+      - Administration
+      summary: Retrieve the settings of the shop (ADMIN role)
+      operationId: getSettings
+      security:
+      - bearerAuth: []
+      responses:
+        "200":
+          description: The settings of the shop
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonShopSettings"
+        "403":
+          description: Not an administrator
+  /api/admin/settings/order-confirmation-email/enable:
+    post:
+      tags:
+      - Administration
+      summary: Send an email to the customer when an order is placed (ADMIN role)
+      operationId: enableOrderConfirmationEmail
+      security:
+      - bearerAuth: []
+      responses:
+        "200":
+          description: The settings of the shop once changed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonShopSettings"
+        "403":
+          description: Not an administrator
+  /api/admin/settings/order-confirmation-email/disable:
+    post:
+      tags:
+      - Administration
+      summary: Stop sending an email to the customer when an order is placed (ADMIN role)
+      operationId: disableOrderConfirmationEmail
+      security:
+      - bearerAuth: []
+      responses:
+        "200":
+          description: The settings of the shop once changed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonShopSettings"
+        "403":
+          description: Not an administrator
+  /api/admin/settings/abandoned-cart-reminder/enable:
+    post:
+      tags:
+      - Administration
+      summary: Remind the customers by email of the items left in their cart (ADMIN role)
+      operationId: enableAbandonedCartReminder
+      security:
+      - bearerAuth: []
+      responses:
+        "200":
+          description: The settings of the shop once changed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonShopSettings"
+        "403":
+          description: Not an administrator
+  /api/admin/settings/abandoned-cart-reminder/disable:
+    post:
+      tags:
+      - Administration
+      summary: Stop reminding the customers by email of the items left in their cart (ADMIN role)
+      operationId: disableAbandonedCartReminder
+      security:
+      - bearerAuth: []
+      responses:
+        "200":
+          description: The settings of the shop once changed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonShopSettings"
+        "403":
+          description: Not an administrator
+  /api/admin/settings/abandoned-cart-delay:
+    put:
+      tags:
+      - Administration
+      summary: Change the time a cart is left before its customer is reminded (1 to 720 hours) (ADMIN role)
+      operationId: changeAbandonedCartDelay
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonAbandonedCartDelay"
+      responses:
+        "200":
+          description: The settings of the shop once changed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonShopSettings"
+        "400":
+          description: The delay is out of 1 to 720 hours
+        "403":
+          description: Not an administrator
+  /api/admin/settings/payment-delay:
+    put:
+      tags:
+      - Administration
+      summary: Change the time a customer has to pay an order (1 to 1440 minutes); unpaid, it is cancelled (ADMIN role)
+      operationId: changePaymentDelay
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonPaymentDelay"
+      responses:
+        "200":
+          description: The settings of the shop once changed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonShopSettings"
+        "400":
+          description: The delay is out of 1 to 1440 minutes
+        "403":
+          description: Not an administrator
+  /api/admin/settings/free-shipping-threshold:
+    put:
+      tags:
+      - Administration
+      summary: "Change the price of the items from which the standard shipping is free (0: always free) (ADMIN role)"
+      operationId: changeFreeShippingThreshold
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JsonFreeShippingThreshold"
+      responses:
+        "200":
+          description: The settings of the shop once changed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonShopSettings"
+        "400":
+          description: The threshold is negative
+        "403":
+          description: Not an administrator
   /api/admin/sales-dashboard:
     get:
       tags:
@@ -2423,6 +2583,61 @@ components:
       scheme: bearer
       bearerFormat: JWT
   schemas:
+    JsonShopSettings:
+      type: object
+      required:
+        - orderConfirmationEmail
+        - paymentDelayMinutes
+        - freeShippingThreshold
+        - sellerSetup
+        - abandonedCartReminder
+        - abandonedCartDelayHours
+      properties:
+        orderConfirmationEmail:
+          type: string
+          enum: [ENABLED, DISABLED]
+          description: The email sent to the customer when an order is placed
+        paymentDelayMinutes:
+          type: integer
+          description: The time to pay an order once placed, in minutes
+        freeShippingThreshold:
+          type: number
+          description: The price of the items, in euros, from which the standard shipping is free (0 - always free)
+        sellerSetup:
+          type: string
+          enum: [ENABLED, DISABLED]
+          description: ENABLED once the setup assistant of the seller is finished (read only)
+        abandonedCartReminder:
+          type: string
+          enum: [ENABLED, DISABLED]
+          description: The email that reminds a customer of the items left in their cart
+        abandonedCartDelayHours:
+          type: integer
+          description: The time a cart is left before its customer is reminded, in hours
+    JsonAbandonedCartDelay:
+      type: object
+      required:
+        - hours
+      properties:
+        hours:
+          type: integer
+          description: The time a cart is left before its customer is reminded, in hours
+    JsonPaymentDelay:
+      type: object
+      required:
+        - minutes
+      properties:
+        minutes:
+          type: integer
+          description: The time a customer has to pay an order once placed, in minutes
+    JsonFreeShippingThreshold:
+      type: object
+      required:
+        - amount
+      properties:
+        amount:
+          type: number
+          description: The price of the items, in euros, from which the standard shipping is free (0 - always free)
     JsonLegalPage:
       type: object
       required:

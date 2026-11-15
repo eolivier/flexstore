@@ -81,7 +81,7 @@ This repo is meant to be a learning vehicle and a ready-to-fork base for real pr
 **Domain**: pure Kotlin (entities, value objects, use cases, ports, domain errors). No framework.\
 **Infrastructure**: Spring Boot adapters implementing ports (REST controllers as *input adapters*, JPA as *output adapter*).
 
-Users, products and carts are stored in PostgreSQL (JPA adapters in `spring-infra/.../adapter/persistence/jpa`: `entity` and `repository`). A cart item only keeps the product id and the quantity: the product (name, price) is always read from the catalog.
+The whole shop data (users, products, carts, orders, stocks, reviews, settings...) is stored in PostgreSQL (JPA adapters in `spring-infra/.../adapter/persistence/jpa`: `entity` and `repository`). A cart item only keeps the product id and the quantity: the product (name, price) is always read from the catalog.
 
 **Carts**: each cart has an owner.
 - A **visitor** gets a cart id (a UUID) with their first item (`POST /api/cart/save` returns it); the front end keeps it in `localStorage` and sends it in the `X-Cart-Id` header. No server session is needed.
@@ -97,8 +97,8 @@ The cart rules live in the `Cart` aggregate (domain); the use cases (`AddItemToC
 ```
 backend/
   domain/         # Entities, value objects, use cases, ports, errors
-  infra/          # Infrastructure not linked to a framework (in-memory repositories, used by the tests)
-  spring-infra/   # Spring adapters (REST controllers, JPA), OpenAPI spec
+  infra/          # Infrastructure not linked to a framework (in-memory repositories used by the tests, image resizer, invoice PDF renderer)
+  spring-infra/   # Spring adapters (REST controllers, JPA, security, email, payment), OpenAPI spec
   migrations/     # Flyway SQL migrations
   mcp/            # MCP server that exposes the products to AI assistants (calls the use cases of the domain)
 front/            # Vue 3 + Vuetify + Pinia + vue-i18n shop
