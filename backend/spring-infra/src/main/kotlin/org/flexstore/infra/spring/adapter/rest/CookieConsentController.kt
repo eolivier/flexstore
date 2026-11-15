@@ -30,6 +30,8 @@ class CookieConsentController(
     fun recordCookieConsent(
         @AuthenticationPrincipal customer: Jwt,
         @RequestBody cookieChoice: JsonCookieChoice
-    ): JsonCookieConsent =
-        JsonCookieConsent.of(cookieConsentUseCases.record(actorResolutionService.actorOf(customer), cookieChoice.choice))
+    ): JsonCookieConsent {
+        val actor = actorResolutionService.actorOf(customer)
+        return JsonCookieConsent.of(cookieConsentUseCases.record(actor, cookieChoice.choice))
+    }
 }

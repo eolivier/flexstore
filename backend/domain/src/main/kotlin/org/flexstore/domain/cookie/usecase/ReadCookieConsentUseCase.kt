@@ -6,7 +6,9 @@ import org.flexstore.domain.actor.verifyCanAct
 import org.ucop.domain.entity.*
 
 // A signed-in customer reads their cookie consent: undecided once their choice is 6 months old
-class ReadCookieConsentUseCase(private val cookieConsentRepository: CookieConsentRepository) : QueryUseCase<CookieConsentReading, CookieConsent> {
+class ReadCookieConsentUseCase(
+    private val cookieConsentRepository: CookieConsentRepository
+) : QueryUseCase<CookieConsentReading, CookieConsent> {
 
     override fun getPreConditions(): PreConditions<CookieConsentReading> =
         PreConditions(customerCanActCondition())

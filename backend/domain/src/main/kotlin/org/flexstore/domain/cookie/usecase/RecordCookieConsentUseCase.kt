@@ -7,7 +7,9 @@ import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // A signed-in customer accepts or refuses the preference cookies: their choice is kept for 6 months
-class RecordCookieConsentUseCase(private val cookieConsentRepository: CookieConsentRepository) : UseCase<CookieConsentRecording> {
+class RecordCookieConsentUseCase(
+    private val cookieConsentRepository: CookieConsentRepository
+) : UseCase<CookieConsentRecording> {
 
     override fun getPreConditions(): PreConditions<CookieConsentRecording> =
         PreConditions(customerCanActCondition())
