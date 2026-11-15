@@ -124,8 +124,7 @@ open class ServiceConfig {
         RestockNotificationService(actorResolutionService, restockUseCases)
 
     @Bean
-    open fun addressBookService(readAccountUseCase: ReadAccountUseCase, addressUseCases: AddressUseCases) =
-        AddressBookService(readAccountUseCase, addressUseCases)
+    open fun addressBookService(addressUseCases: AddressUseCases) = AddressBookService(addressUseCases)
 
     @Bean
     open fun signInService(userRepository: UserRepository,

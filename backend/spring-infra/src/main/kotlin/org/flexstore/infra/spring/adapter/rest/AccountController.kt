@@ -2,6 +2,7 @@ package org.flexstore.infra.spring.adapter.rest
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.email.model.VerificationToken
 import org.flexstore.domain.user.*
 import org.flexstore.domain.user.model.*
@@ -28,7 +29,8 @@ import org.flexstore.domain.user.address.UserAddress
 @RequestMapping("/api/accounts")
 class AccountController(
     private val customerRegistrationService: CustomerRegistrationService,
-    private val addressBookService: AddressBookService
+    private val addressBookService: AddressBookService,
+    private val actorResolutionService: ActorResolutionService
 ) {
 
     @Operation(summary = "Create the account of a customer and send them a verification link, valid for 1 hour")
@@ -47,7 +49,7 @@ class AccountController(
     @Operation(summary = "Retrieve the postal addresses of the signed-in user, in their order")
     @GetMapping("/me/addresses")
     fun getAddresses(@AuthenticationPrincipal user: Jwt): List<JsonPostalAddress> =
-        addressBookService.getAddresses(UserId.of(user.subject)).toJson()
+        addressBookService.getAddresses(actorResolutionService.actorOf(user)).toJson()
 
     @Operation(summary = "Add a new address to the signed-in user, at the end of their addresses")
     @PostMapping("/me/addresses")
@@ -56,7 +58,7 @@ class AccountController(
         @AuthenticationPrincipal user: Jwt,
         @RequestBody address: JsonPostalAddress
     ): List<JsonPostalAddress> {
-        val addressAddition = AddressAddition(UserId.of(user.subject), address.toPostalAddress())
+        val addressAddition = AddressAddition(actorResolutionService.actorOf(user), address.toPostalAddress())
         return addressBookService.add(addressAddition).toJson()
     }
 
@@ -67,7 +69,7 @@ class AccountController(
         @PathVariable position: Int,
         @RequestBody address: JsonPostalAddress
     ): List<JsonPostalAddress> {
-        val userAddress = UserAddress(UserId.of(user.subject), AddressPosition(position))
+        val userAddress = UserAddress(actorResolutionService.actorOf(user), AddressPosition(position))
         val addressChange = AddressChange(userAddress, address.toPostalAddress())
         return addressBookService.change(addressChange).toJson()
     }
@@ -75,7 +77,7 @@ class AccountController(
     @Operation(summary = "Remove an address of the signed-in user (0 for the first one); the orders keep theirs")
     @DeleteMapping("/me/addresses/{position}")
     fun removeAddress(@AuthenticationPrincipal user: Jwt, @PathVariable position: Int): List<JsonPostalAddress> {
-        val userAddress = UserAddress(UserId.of(user.subject), AddressPosition(position))
+        val userAddress = UserAddress(actorResolutionService.actorOf(user), AddressPosition(position))
         return addressBookService.remove(userAddress).toJson()
     }
 

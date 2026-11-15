@@ -3,6 +3,7 @@ package org.flexstore.infra.spring.config
 import org.flexstore.domain.user.address.AddressUseCases
 import org.flexstore.domain.user.address.usecase.AddPostalAddressUseCase
 import org.flexstore.domain.user.address.usecase.ChangePostalAddressUseCase
+import org.flexstore.domain.user.address.usecase.ListPostalAddressesUseCase
 import org.flexstore.domain.user.address.usecase.RemovePostalAddressUseCase
 import org.flexstore.domain.user.repository.*
 import org.springframework.context.annotation.Bean
@@ -11,6 +12,10 @@ import org.springframework.context.annotation.Configuration
 // The use cases of the address sub-domain, declared step by step: use cases, then their group
 @Configuration
 open class AddressUseCaseConfig {
+
+    @Bean
+    open fun listPostalAddressesUseCase(userRepository: UserRepository) =
+        ListPostalAddressesUseCase(userRepository)
 
     @Bean
     open fun addPostalAddressUseCase(userRepository: UserRepository) =
@@ -25,8 +30,12 @@ open class AddressUseCaseConfig {
         RemovePostalAddressUseCase(userRepository)
 
     @Bean
-    open fun addressUseCases(addPostalAddressUseCase: AddPostalAddressUseCase,
+    open fun addressUseCases(listPostalAddressesUseCase: ListPostalAddressesUseCase,
+                             addPostalAddressUseCase: AddPostalAddressUseCase,
                              changePostalAddressUseCase: ChangePostalAddressUseCase,
                              removePostalAddressUseCase: RemovePostalAddressUseCase) =
-        AddressUseCases(addPostalAddressUseCase, changePostalAddressUseCase, removePostalAddressUseCase)
+        AddressUseCases(
+            listPostalAddressesUseCase, addPostalAddressUseCase, changePostalAddressUseCase,
+            removePostalAddressUseCase
+        )
 }
