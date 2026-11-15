@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import FormActions from '@/components/form/FormActions.vue';
+  import SaveStatus from '@/components/form/SaveStatus.vue';
   import { computed, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import {
@@ -65,13 +66,12 @@
         :loading="saving"
         :disabled="valid === false || !modified"
       />
-      <span v-if="edit === 'saved'" class="text-body-2 text-success">{{ t('shopPageContent.saved') }}</span>
-      <span v-else-if="edit === 'invalid'" class="text-body-2 text-error">{{
-        t('shopPageContent.invalid')
-      }}</span>
-      <span v-else-if="edit === 'failed'" class="text-body-2 text-error">{{
-        t('shopPageContent.saveError')
-      }}</span>
+      <SaveStatus
+        :outcome="edit"
+        :saved="t('shopPageContent.saved')"
+        :invalid="t('shopPageContent.invalid')"
+        :failed="t('shopPageContent.saveError')"
+      />
     </div>
   </v-form>
 </template>

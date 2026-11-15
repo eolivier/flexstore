@@ -1,5 +1,7 @@
 <script setup lang="ts">
   import FormActions from '@/components/form/FormActions.vue';
+  import SaveStatus from '@/components/form/SaveStatus.vue';
+  import type { SaveOutcome } from '@/components/form/saveOutcome';
   import { ref, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useEditedForm } from '@/composables/useEditedForm';
@@ -25,7 +27,7 @@
   const valid = ref(true);
   const saving = ref(false);
   // null until saved
-  const saved = ref<boolean | null>(null);
+  const saved = ref<SaveOutcome | null>(null);
 
   watch(
     () => props.stored,
@@ -38,8 +40,9 @@
   async function submit() {
     if (!valid.value) return;
     saving.value = true;
-    saved.value = await props.save(Number(editedValues.value));
-    if (saved.value) markSaved();
+    const isSaved = await props.save(Number(editedValues.value));
+    saved.value = isSaved ? 'saved' : 'failed';
+    if (isSaved) markSaved();
     saving.value = false;
   }
 
@@ -64,8 +67,9 @@
     />
     <FormActions :loading="saving" :disabled="!valid" :cancel-disabled="!isModified" @cancel="cancel" />
   </v-form>
-  <p v-if="saved === false" class="text-body-2 text-error">{{ t('settings.saveError') }}</p>
-  <p v-else-if="saved" class="text-body-2 text-success">{{ t('settings.saved') }}</p>
+  <div v-if="saved">
+    <SaveStatus :outcome="saved" :saved="t('settings.saved')" :failed="t('settings.saveError')" />
+  </div>
 </template>
 
 <style scoped>

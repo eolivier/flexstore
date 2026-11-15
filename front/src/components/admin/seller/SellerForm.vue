@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import FormActions from '@/components/form/FormActions.vue';
+  import SaveStatus from '@/components/form/SaveStatus.vue';
   import { ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useEditedForm } from '@/composables/useEditedForm';
@@ -108,9 +109,12 @@
     <h2 class="text-subtitle-1 font-weight-bold mt-4 mb-2">{{ t('socialNetworks.title') }}</h2>
     <SellerSocialNetworksFields v-model="editedSeller.socialNetworks" />
     <div class="d-flex align-center justify-end ga-2 mt-2">
-      <span v-if="update === 'saved'" class="text-body-2 text-success">{{ t('seller.saved') }}</span>
-      <span v-else-if="update === 'invalid'" class="text-body-2 text-error">{{ t('seller.invalid') }}</span>
-      <span v-else-if="update === 'failed'" class="text-body-2 text-error">{{ t('seller.saveError') }}</span>
+      <SaveStatus
+        :outcome="update"
+        :saved="t('seller.saved')"
+        :invalid="t('seller.invalid')"
+        :failed="t('seller.saveError')"
+      />
       <FormActions
         :loading="saving"
         :disabled="valid === false"
