@@ -3,9 +3,9 @@ package org.flexstore.domain.cookie
 import java.time.Instant
 import java.time.ZoneOffset
 import org.flexstore.domain.sharedkernel.InstantProvider
-import org.flexstore.domain.user.model.UserId
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.PostConditionException
+import org.ucop.domain.entity.Actor
 
 // The choice of a customer about the preference cookies (the essential ones need no consent)
 enum class CookieChoice { ACCEPTED, REFUSED }
@@ -55,13 +55,13 @@ sealed interface CookieConsent {
 
 // A customer chooses about the cookies
 data class CookieConsentRecording(
-    val customer: UserId,
+    val customer: Actor,
     val choice: CookieChoice,
     val consentMoment: ConsentMoment
 )
 
 // A customer's consent is read, as valid at a moment
-data class CookieConsentReading(val customer: UserId, val consentMoment: ConsentMoment)
+data class CookieConsentReading(val customer: Actor, val consentMoment: ConsentMoment)
 
 data class CookieConsentRecordFailed(override val errorMessage: ErrorMessage) :
     PostConditionException(errorMessage)

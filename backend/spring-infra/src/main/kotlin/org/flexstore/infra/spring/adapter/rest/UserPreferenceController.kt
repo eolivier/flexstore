@@ -5,8 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.domain.preference.UserPreference
 import org.flexstore.domain.preference.UserPreferences
 import org.flexstore.domain.preference.usecase.UserPreferenceUseCases
-import org.flexstore.domain.user.model.UserId
-import org.flexstore.domain.user.model.of
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.infra.spring.adapter.rest.json.JsonColorModeChoice
 import org.flexstore.infra.spring.adapter.rest.json.JsonColorModePreference
 import org.flexstore.infra.spring.adapter.rest.json.JsonGuidedTourChoice
@@ -21,7 +20,10 @@ import org.springframework.web.bind.annotation.*
 // their browser): display mode, guided tour and preferred language
 @Tag(name = "Preferences")
 @RestController
-class UserPreferenceController(private val userPreferenceUseCases: UserPreferenceUseCases) {
+class UserPreferenceController(
+    private val userPreferenceUseCases: UserPreferenceUseCases,
+    private val actorResolutionService: ActorResolutionService
+) {
 
     @Operation(summary = "Retrieve the display mode of the signed-in customer (NONE when they never chose)")
     @GetMapping("/api/color-mode")
@@ -73,8 +75,8 @@ class UserPreferenceController(private val userPreferenceUseCases: UserPreferenc
     }
 
     private fun preferencesOf(customer: Jwt): UserPreferences =
-        userPreferenceUseCases.preferencesOf(UserId.of(customer.subject))
+        userPreferenceUseCases.preferencesOf(actorResolutionService.actorOf(customer))
 
     private fun record(customer: Jwt, userPreference: UserPreference): UserPreferences =
-        userPreferenceUseCases.record(UserId.of(customer.subject), userPreference)
+        userPreferenceUseCases.record(actorResolutionService.actorOf(customer), userPreference)
 }

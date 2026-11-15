@@ -1,9 +1,9 @@
 package org.flexstore.domain.preference
 
 import org.flexstore.domain.product.model.Language
-import org.flexstore.domain.user.model.UserId
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.PostConditionException
+import org.ucop.domain.entity.Actor
 
 // What a signed-in customer chose for the shop so far: their display mode, their language and whether the
 // guided tour is shown to them
@@ -34,10 +34,10 @@ sealed interface UserPreference {
 }
 
 // A customer chooses a preference
-data class UserPreferenceChoice(val customer: UserId, val preference: UserPreference)
+data class UserPreferenceChoice(val customer: Actor, val preference: UserPreference)
 
 // A customer's preferences are read
-data class UserPreferencesReading(val customer: UserId)
+data class UserPreferencesReading(val customer: Actor)
 
 data class UserPreferenceRecordFailed(override val errorMessage: ErrorMessage) :
     PostConditionException(errorMessage)
