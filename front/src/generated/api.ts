@@ -85,6 +85,12 @@ export const EditedJsonProductVatRateEnum = {
 
 export type EditedJsonProductVatRateEnum = typeof EditedJsonProductVatRateEnum[keyof typeof EditedJsonProductVatRateEnum];
 
+export interface JsonAbandonedCartDelay {
+    /**
+     * The time a cart is left before its customer is reminded, in hours
+     */
+    'hours': number;
+}
 export interface JsonAccount {
     'id': string;
     'firstName': string;
@@ -437,6 +443,12 @@ export const JsonEnvironmentVariableStatusEnum = {
 
 export type JsonEnvironmentVariableStatusEnum = typeof JsonEnvironmentVariableStatusEnum[keyof typeof JsonEnvironmentVariableStatusEnum];
 
+export interface JsonFreeShippingThreshold {
+    /**
+     * The price of the items, in euros, from which the standard shipping is free (0 - always free)
+     */
+    'amount': number;
+}
 export interface JsonGoogleLoginRequest {
     /**
      * The ID token (JWT) that Google gave to the browser
@@ -823,6 +835,12 @@ export interface JsonPasswordResetRequest {
      */
     'email': string;
 }
+export interface JsonPaymentDelay {
+    /**
+     * The time a customer has to pay an order once placed, in minutes
+     */
+    'minutes': number;
+}
 export interface JsonPaymentSession {
     /**
      * The page where the customer pays the order
@@ -1129,6 +1147,52 @@ export interface JsonShopPageContentText {
 export interface JsonShopPageContents {
     'contents': Array<JsonShopPageContent>;
 }
+export interface JsonShopSettings {
+    /**
+     * The email sent to the customer when an order is placed
+     */
+    'orderConfirmationEmail': JsonShopSettingsOrderConfirmationEmailEnum;
+    /**
+     * The time to pay an order once placed, in minutes
+     */
+    'paymentDelayMinutes': number;
+    /**
+     * The price of the items, in euros, from which the standard shipping is free (0 - always free)
+     */
+    'freeShippingThreshold': number;
+    /**
+     * ENABLED once the setup assistant of the seller is finished (read only)
+     */
+    'sellerSetup': JsonShopSettingsSellerSetupEnum;
+    /**
+     * The email that reminds a customer of the items left in their cart
+     */
+    'abandonedCartReminder': JsonShopSettingsAbandonedCartReminderEnum;
+    /**
+     * The time a cart is left before its customer is reminded, in hours
+     */
+    'abandonedCartDelayHours': number;
+}
+
+export const JsonShopSettingsOrderConfirmationEmailEnum = {
+    Enabled: 'ENABLED',
+    Disabled: 'DISABLED'
+} as const;
+
+export type JsonShopSettingsOrderConfirmationEmailEnum = typeof JsonShopSettingsOrderConfirmationEmailEnum[keyof typeof JsonShopSettingsOrderConfirmationEmailEnum];
+export const JsonShopSettingsSellerSetupEnum = {
+    Enabled: 'ENABLED',
+    Disabled: 'DISABLED'
+} as const;
+
+export type JsonShopSettingsSellerSetupEnum = typeof JsonShopSettingsSellerSetupEnum[keyof typeof JsonShopSettingsSellerSetupEnum];
+export const JsonShopSettingsAbandonedCartReminderEnum = {
+    Enabled: 'ENABLED',
+    Disabled: 'DISABLED'
+} as const;
+
+export type JsonShopSettingsAbandonedCartReminderEnum = typeof JsonShopSettingsAbandonedCartReminderEnum[keyof typeof JsonShopSettingsAbandonedCartReminderEnum];
+
 export interface JsonSkuProposal {
     'sku': string;
 }
@@ -2050,6 +2114,126 @@ export const AdministrationApiAxiosParamCreator = function (configuration?: Conf
         },
         /**
          * 
+         * @summary Change the time a cart is left before its customer is reminded (1 to 720 hours) (ADMIN role)
+         * @param {JsonAbandonedCartDelay} jsonAbandonedCartDelay 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        changeAbandonedCartDelay: async (jsonAbandonedCartDelay: JsonAbandonedCartDelay, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'jsonAbandonedCartDelay' is not null or undefined
+            assertParamExists('changeAbandonedCartDelay', 'jsonAbandonedCartDelay', jsonAbandonedCartDelay)
+            const localVarPath = `/api/admin/settings/abandoned-cart-delay`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonAbandonedCartDelay, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Change the price of the items from which the standard shipping is free (0: always free) (ADMIN role)
+         * @param {JsonFreeShippingThreshold} jsonFreeShippingThreshold 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        changeFreeShippingThreshold: async (jsonFreeShippingThreshold: JsonFreeShippingThreshold, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'jsonFreeShippingThreshold' is not null or undefined
+            assertParamExists('changeFreeShippingThreshold', 'jsonFreeShippingThreshold', jsonFreeShippingThreshold)
+            const localVarPath = `/api/admin/settings/free-shipping-threshold`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonFreeShippingThreshold, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Change the time a customer has to pay an order (1 to 1440 minutes); unpaid, it is cancelled (ADMIN role)
+         * @param {JsonPaymentDelay} jsonPaymentDelay 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        changePaymentDelay: async (jsonPaymentDelay: JsonPaymentDelay, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'jsonPaymentDelay' is not null or undefined
+            assertParamExists('changePaymentDelay', 'jsonPaymentDelay', jsonPaymentDelay)
+            const localVarPath = `/api/admin/settings/payment-delay`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(jsonPaymentDelay, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Finish the setup assistant of the shop - save the seller, then turn the seller setup of the settings on (ADMIN role)
          * @param {JsonSeller} jsonSeller 
          * @param {*} [options] Override http request option.
@@ -2290,6 +2474,74 @@ export const AdministrationApiAxiosParamCreator = function (configuration?: Conf
         },
         /**
          * 
+         * @summary Stop reminding the customers by email of the items left in their cart (ADMIN role)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        disableAbandonedCartReminder: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/settings/abandoned-cart-reminder/disable`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Stop sending an email to the customer when an order is placed (ADMIN role)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        disableOrderConfirmationEmail: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/settings/order-confirmation-email/disable`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Edit the content of a type of the shop pages, an empty text clears it (ADMIN role)
          * @param {EditShopPageContentTypeEnum} type The key words, the Google Analytics id or the description of the shop
          * @param {JsonShopPageContentText} jsonShopPageContentText 
@@ -2326,6 +2578,74 @@ export const AdministrationApiAxiosParamCreator = function (configuration?: Conf
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(jsonShopPageContentText, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Remind the customers by email of the items left in their cart (ADMIN role)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        enableAbandonedCartReminder: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/settings/abandoned-cart-reminder/enable`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Send an email to the customer when an order is placed (ADMIN role)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        enableOrderConfirmationEmail: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/settings/order-confirmation-email/enable`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -2563,6 +2883,40 @@ export const AdministrationApiAxiosParamCreator = function (configuration?: Conf
          */
         getSeller: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/admin/seller`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Retrieve the settings of the shop (ADMIN role)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getSettings: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/settings`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -2866,6 +3220,45 @@ export const AdministrationApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Change the time a cart is left before its customer is reminded (1 to 720 hours) (ADMIN role)
+         * @param {JsonAbandonedCartDelay} jsonAbandonedCartDelay 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async changeAbandonedCartDelay(jsonAbandonedCartDelay: JsonAbandonedCartDelay, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonShopSettings>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.changeAbandonedCartDelay(jsonAbandonedCartDelay, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdministrationApi.changeAbandonedCartDelay']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Change the price of the items from which the standard shipping is free (0: always free) (ADMIN role)
+         * @param {JsonFreeShippingThreshold} jsonFreeShippingThreshold 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async changeFreeShippingThreshold(jsonFreeShippingThreshold: JsonFreeShippingThreshold, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonShopSettings>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.changeFreeShippingThreshold(jsonFreeShippingThreshold, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdministrationApi.changeFreeShippingThreshold']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Change the time a customer has to pay an order (1 to 1440 minutes); unpaid, it is cancelled (ADMIN role)
+         * @param {JsonPaymentDelay} jsonPaymentDelay 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async changePaymentDelay(jsonPaymentDelay: JsonPaymentDelay, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonShopSettings>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.changePaymentDelay(jsonPaymentDelay, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdministrationApi.changePaymentDelay']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Finish the setup assistant of the shop - save the seller, then turn the seller setup of the settings on (ADMIN role)
          * @param {JsonSeller} jsonSeller 
          * @param {*} [options] Override http request option.
@@ -2945,6 +3338,30 @@ export const AdministrationApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Stop reminding the customers by email of the items left in their cart (ADMIN role)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async disableAbandonedCartReminder(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonShopSettings>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.disableAbandonedCartReminder(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdministrationApi.disableAbandonedCartReminder']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Stop sending an email to the customer when an order is placed (ADMIN role)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async disableOrderConfirmationEmail(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonShopSettings>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.disableOrderConfirmationEmail(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdministrationApi.disableOrderConfirmationEmail']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Edit the content of a type of the shop pages, an empty text clears it (ADMIN role)
          * @param {EditShopPageContentTypeEnum} type The key words, the Google Analytics id or the description of the shop
          * @param {JsonShopPageContentText} jsonShopPageContentText 
@@ -2955,6 +3372,30 @@ export const AdministrationApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.editShopPageContent(type, jsonShopPageContentText, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdministrationApi.editShopPageContent']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Remind the customers by email of the items left in their cart (ADMIN role)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async enableAbandonedCartReminder(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonShopSettings>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.enableAbandonedCartReminder(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdministrationApi.enableAbandonedCartReminder']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Send an email to the customer when an order is placed (ADMIN role)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async enableOrderConfirmationEmail(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonShopSettings>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.enableOrderConfirmationEmail(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdministrationApi.enableOrderConfirmationEmail']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3044,6 +3485,18 @@ export const AdministrationApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getSeller(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdministrationApi.getSeller']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Retrieve the settings of the shop (ADMIN role)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getSettings(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JsonShopSettings>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getSettings(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdministrationApi.getSettings']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3149,6 +3602,36 @@ export const AdministrationApiFactory = function (configuration?: Configuration,
         },
         /**
          * 
+         * @summary Change the time a cart is left before its customer is reminded (1 to 720 hours) (ADMIN role)
+         * @param {JsonAbandonedCartDelay} jsonAbandonedCartDelay 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        changeAbandonedCartDelay(jsonAbandonedCartDelay: JsonAbandonedCartDelay, options?: RawAxiosRequestConfig): AxiosPromise<JsonShopSettings> {
+            return localVarFp.changeAbandonedCartDelay(jsonAbandonedCartDelay, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Change the price of the items from which the standard shipping is free (0: always free) (ADMIN role)
+         * @param {JsonFreeShippingThreshold} jsonFreeShippingThreshold 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        changeFreeShippingThreshold(jsonFreeShippingThreshold: JsonFreeShippingThreshold, options?: RawAxiosRequestConfig): AxiosPromise<JsonShopSettings> {
+            return localVarFp.changeFreeShippingThreshold(jsonFreeShippingThreshold, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Change the time a customer has to pay an order (1 to 1440 minutes); unpaid, it is cancelled (ADMIN role)
+         * @param {JsonPaymentDelay} jsonPaymentDelay 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        changePaymentDelay(jsonPaymentDelay: JsonPaymentDelay, options?: RawAxiosRequestConfig): AxiosPromise<JsonShopSettings> {
+            return localVarFp.changePaymentDelay(jsonPaymentDelay, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Finish the setup assistant of the shop - save the seller, then turn the seller setup of the settings on (ADMIN role)
          * @param {JsonSeller} jsonSeller 
          * @param {*} [options] Override http request option.
@@ -3210,6 +3693,24 @@ export const AdministrationApiFactory = function (configuration?: Configuration,
         },
         /**
          * 
+         * @summary Stop reminding the customers by email of the items left in their cart (ADMIN role)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        disableAbandonedCartReminder(options?: RawAxiosRequestConfig): AxiosPromise<JsonShopSettings> {
+            return localVarFp.disableAbandonedCartReminder(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Stop sending an email to the customer when an order is placed (ADMIN role)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        disableOrderConfirmationEmail(options?: RawAxiosRequestConfig): AxiosPromise<JsonShopSettings> {
+            return localVarFp.disableOrderConfirmationEmail(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Edit the content of a type of the shop pages, an empty text clears it (ADMIN role)
          * @param {EditShopPageContentTypeEnum} type The key words, the Google Analytics id or the description of the shop
          * @param {JsonShopPageContentText} jsonShopPageContentText 
@@ -3218,6 +3719,24 @@ export const AdministrationApiFactory = function (configuration?: Configuration,
          */
         editShopPageContent(type: EditShopPageContentTypeEnum, jsonShopPageContentText: JsonShopPageContentText, options?: RawAxiosRequestConfig): AxiosPromise<JsonShopPageContents> {
             return localVarFp.editShopPageContent(type, jsonShopPageContentText, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Remind the customers by email of the items left in their cart (ADMIN role)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        enableAbandonedCartReminder(options?: RawAxiosRequestConfig): AxiosPromise<JsonShopSettings> {
+            return localVarFp.enableAbandonedCartReminder(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Send an email to the customer when an order is placed (ADMIN role)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        enableOrderConfirmationEmail(options?: RawAxiosRequestConfig): AxiosPromise<JsonShopSettings> {
+            return localVarFp.enableOrderConfirmationEmail(options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -3286,6 +3805,15 @@ export const AdministrationApiFactory = function (configuration?: Configuration,
          */
         getSeller(options?: RawAxiosRequestConfig): AxiosPromise<JsonSeller> {
             return localVarFp.getSeller(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Retrieve the settings of the shop (ADMIN role)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getSettings(options?: RawAxiosRequestConfig): AxiosPromise<JsonShopSettings> {
+            return localVarFp.getSettings(options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -3371,6 +3899,39 @@ export class AdministrationApi extends BaseAPI {
 
     /**
      * 
+     * @summary Change the time a cart is left before its customer is reminded (1 to 720 hours) (ADMIN role)
+     * @param {JsonAbandonedCartDelay} jsonAbandonedCartDelay 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public changeAbandonedCartDelay(jsonAbandonedCartDelay: JsonAbandonedCartDelay, options?: RawAxiosRequestConfig) {
+        return AdministrationApiFp(this.configuration).changeAbandonedCartDelay(jsonAbandonedCartDelay, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Change the price of the items from which the standard shipping is free (0: always free) (ADMIN role)
+     * @param {JsonFreeShippingThreshold} jsonFreeShippingThreshold 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public changeFreeShippingThreshold(jsonFreeShippingThreshold: JsonFreeShippingThreshold, options?: RawAxiosRequestConfig) {
+        return AdministrationApiFp(this.configuration).changeFreeShippingThreshold(jsonFreeShippingThreshold, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Change the time a customer has to pay an order (1 to 1440 minutes); unpaid, it is cancelled (ADMIN role)
+     * @param {JsonPaymentDelay} jsonPaymentDelay 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public changePaymentDelay(jsonPaymentDelay: JsonPaymentDelay, options?: RawAxiosRequestConfig) {
+        return AdministrationApiFp(this.configuration).changePaymentDelay(jsonPaymentDelay, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Finish the setup assistant of the shop - save the seller, then turn the seller setup of the settings on (ADMIN role)
      * @param {JsonSeller} jsonSeller 
      * @param {*} [options] Override http request option.
@@ -3438,6 +3999,26 @@ export class AdministrationApi extends BaseAPI {
 
     /**
      * 
+     * @summary Stop reminding the customers by email of the items left in their cart (ADMIN role)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public disableAbandonedCartReminder(options?: RawAxiosRequestConfig) {
+        return AdministrationApiFp(this.configuration).disableAbandonedCartReminder(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Stop sending an email to the customer when an order is placed (ADMIN role)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public disableOrderConfirmationEmail(options?: RawAxiosRequestConfig) {
+        return AdministrationApiFp(this.configuration).disableOrderConfirmationEmail(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Edit the content of a type of the shop pages, an empty text clears it (ADMIN role)
      * @param {EditShopPageContentTypeEnum} type The key words, the Google Analytics id or the description of the shop
      * @param {JsonShopPageContentText} jsonShopPageContentText 
@@ -3446,6 +4027,26 @@ export class AdministrationApi extends BaseAPI {
      */
     public editShopPageContent(type: EditShopPageContentTypeEnum, jsonShopPageContentText: JsonShopPageContentText, options?: RawAxiosRequestConfig) {
         return AdministrationApiFp(this.configuration).editShopPageContent(type, jsonShopPageContentText, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Remind the customers by email of the items left in their cart (ADMIN role)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public enableAbandonedCartReminder(options?: RawAxiosRequestConfig) {
+        return AdministrationApiFp(this.configuration).enableAbandonedCartReminder(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Send an email to the customer when an order is placed (ADMIN role)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public enableOrderConfirmationEmail(options?: RawAxiosRequestConfig) {
+        return AdministrationApiFp(this.configuration).enableOrderConfirmationEmail(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -3521,6 +4122,16 @@ export class AdministrationApi extends BaseAPI {
      */
     public getSeller(options?: RawAxiosRequestConfig) {
         return AdministrationApiFp(this.configuration).getSeller(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Retrieve the settings of the shop (ADMIN role)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getSettings(options?: RawAxiosRequestConfig) {
+        return AdministrationApiFp(this.configuration).getSettings(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

@@ -5,13 +5,20 @@ All URIs are relative to *http://localhost:8080*
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
 |[**advanceOrderStatus**](#advanceorderstatus) | **POST** /api/admin/orders/{id}/status/advance | Move an order to the next status of its life cycle, PROCESSING then SHIPPED then DELIVERED (ADMIN role)|
+|[**changeAbandonedCartDelay**](#changeabandonedcartdelay) | **PUT** /api/admin/settings/abandoned-cart-delay | Change the time a cart is left before its customer is reminded (1 to 720 hours) (ADMIN role)|
+|[**changeFreeShippingThreshold**](#changefreeshippingthreshold) | **PUT** /api/admin/settings/free-shipping-threshold | Change the price of the items from which the standard shipping is free (0: always free) (ADMIN role)|
+|[**changePaymentDelay**](#changepaymentdelay) | **PUT** /api/admin/settings/payment-delay | Change the time a customer has to pay an order (1 to 1440 minutes); unpaid, it is cancelled (ADMIN role)|
 |[**completeSellerSetup**](#completesellersetup) | **PUT** /api/admin/seller/setup | Finish the setup assistant of the shop - save the seller, then turn the seller setup of the settings on (ADMIN role)|
 |[**correctOrderTracking**](#correctordertracking) | **PUT** /api/admin/orders/{id}/tracking | Correct the carrier and the tracking number of an order that is shipped or delivered (ADMIN role)|
 |[**createDiscountCode**](#creatediscountcode) | **POST** /api/admin/discount-codes | Give a discount code (ADMIN role)|
 |[**createShippingMethod**](#createshippingmethod) | **POST** /api/admin/shipping-methods | Add a shipping method, enabled (ADMIN role)|
 |[**deleteDiscountCode**](#deletediscountcode) | **DELETE** /api/admin/discount-codes/{code} | Delete a discount code; the orders that used it keep their discount (ADMIN role)|
 |[**deleteReview**](#deletereview) | **DELETE** /api/admin/reviews/{id} | Delete a review; the rating of its product no longer counts it (ADMIN role)|
+|[**disableAbandonedCartReminder**](#disableabandonedcartreminder) | **POST** /api/admin/settings/abandoned-cart-reminder/disable | Stop reminding the customers by email of the items left in their cart (ADMIN role)|
+|[**disableOrderConfirmationEmail**](#disableorderconfirmationemail) | **POST** /api/admin/settings/order-confirmation-email/disable | Stop sending an email to the customer when an order is placed (ADMIN role)|
 |[**editShopPageContent**](#editshoppagecontent) | **PUT** /api/admin/shop-page-contents/{type} | Edit the content of a type of the shop pages, an empty text clears it (ADMIN role)|
+|[**enableAbandonedCartReminder**](#enableabandonedcartreminder) | **POST** /api/admin/settings/abandoned-cart-reminder/enable | Remind the customers by email of the items left in their cart (ADMIN role)|
+|[**enableOrderConfirmationEmail**](#enableorderconfirmationemail) | **POST** /api/admin/settings/order-confirmation-email/enable | Send an email to the customer when an order is placed (ADMIN role)|
 |[**getAdminProduct**](#getadminproduct) | **GET** /api/admin/products/{id} | Retrieve a product with its translations in every language, to edit it|
 |[**getAllOrders**](#getallorders) | **GET** /api/admin/orders | Retrieve a page of the orders of all the customers, newest first, with their customer (ADMIN role)|
 |[**getAnyOrder**](#getanyorder) | **GET** /api/admin/orders/{id} | Retrieve any order, with its customer (ADMIN role)|
@@ -19,6 +26,7 @@ All URIs are relative to *http://localhost:8080*
 |[**getEnvironment**](#getenvironment) | **GET** /api/admin/environment | Retrieve the environment variables of the shop, the secrets only as defined or not (ADMIN role)|
 |[**getSalesDashboard**](#getsalesdashboard) | **GET** /api/admin/sales-dashboard | Retrieve the revenue, the orders per day and the best sellers of the last 7, 30 or 90 days (ADMIN role)|
 |[**getSeller**](#getseller) | **GET** /api/admin/seller | Retrieve the seller written on the next invoices (ADMIN role)|
+|[**getSettings**](#getsettings) | **GET** /api/admin/settings | Retrieve the settings of the shop (ADMIN role)|
 |[**getShippingMethods**](#getshippingmethods) | **GET** /api/admin/shipping-methods | Retrieve all the shipping methods, the disabled ones included, the cheapest first (ADMIN role)|
 |[**proposeSku**](#proposesku) | **GET** /api/admin/products/sku-proposal | Propose a SKU free in the catalog, from the category and the name of a product (ADMIN role)|
 |[**publishLegalPage**](#publishlegalpage) | **PUT** /api/admin/legal-pages/{kind} | Publish a new version of a legal page; the versions before are kept (ADMIN role)|
@@ -82,6 +90,165 @@ const { status, data } = await apiInstance.advanceOrderStatus(
 |**403** | The signed-in user is not an administrator |  -  |
 |**404** | No order with this id |  -  |
 |**409** | The order no longer has the given status, or it is delivered (no next status) |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **changeAbandonedCartDelay**
+> JsonShopSettings changeAbandonedCartDelay(jsonAbandonedCartDelay)
+
+
+### Example
+
+```typescript
+import {
+    AdministrationApi,
+    Configuration,
+    JsonAbandonedCartDelay
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdministrationApi(configuration);
+
+let jsonAbandonedCartDelay: JsonAbandonedCartDelay; //
+
+const { status, data } = await apiInstance.changeAbandonedCartDelay(
+    jsonAbandonedCartDelay
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **jsonAbandonedCartDelay** | **JsonAbandonedCartDelay**|  | |
+
+
+### Return type
+
+**JsonShopSettings**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The settings of the shop once changed |  -  |
+|**400** | The delay is out of 1 to 720 hours |  -  |
+|**403** | Not an administrator |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **changeFreeShippingThreshold**
+> JsonShopSettings changeFreeShippingThreshold(jsonFreeShippingThreshold)
+
+
+### Example
+
+```typescript
+import {
+    AdministrationApi,
+    Configuration,
+    JsonFreeShippingThreshold
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdministrationApi(configuration);
+
+let jsonFreeShippingThreshold: JsonFreeShippingThreshold; //
+
+const { status, data } = await apiInstance.changeFreeShippingThreshold(
+    jsonFreeShippingThreshold
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **jsonFreeShippingThreshold** | **JsonFreeShippingThreshold**|  | |
+
+
+### Return type
+
+**JsonShopSettings**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The settings of the shop once changed |  -  |
+|**400** | The threshold is negative |  -  |
+|**403** | Not an administrator |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **changePaymentDelay**
+> JsonShopSettings changePaymentDelay(jsonPaymentDelay)
+
+
+### Example
+
+```typescript
+import {
+    AdministrationApi,
+    Configuration,
+    JsonPaymentDelay
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdministrationApi(configuration);
+
+let jsonPaymentDelay: JsonPaymentDelay; //
+
+const { status, data } = await apiInstance.changePaymentDelay(
+    jsonPaymentDelay
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **jsonPaymentDelay** | **JsonPaymentDelay**|  | |
+
+
+### Return type
+
+**JsonShopSettings**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The settings of the shop once changed |  -  |
+|**400** | The delay is out of 1 to 1440 minutes |  -  |
+|**403** | Not an administrator |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -404,6 +571,94 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **disableAbandonedCartReminder**
+> JsonShopSettings disableAbandonedCartReminder()
+
+
+### Example
+
+```typescript
+import {
+    AdministrationApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdministrationApi(configuration);
+
+const { status, data } = await apiInstance.disableAbandonedCartReminder();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**JsonShopSettings**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The settings of the shop once changed |  -  |
+|**403** | Not an administrator |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **disableOrderConfirmationEmail**
+> JsonShopSettings disableOrderConfirmationEmail()
+
+
+### Example
+
+```typescript
+import {
+    AdministrationApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdministrationApi(configuration);
+
+const { status, data } = await apiInstance.disableOrderConfirmationEmail();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**JsonShopSettings**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The settings of the shop once changed |  -  |
+|**403** | Not an administrator |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **editShopPageContent**
 > JsonShopPageContents editShopPageContent(jsonShopPageContentText)
 
@@ -458,6 +713,94 @@ const { status, data } = await apiInstance.editShopPageContent(
 |**400** | A text of more than 1 000 characters, or a Google Analytics id with other characters than letters, digits and hyphens |  -  |
 |**403** | Not an administrator |  -  |
 |**404** | No such type of content |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **enableAbandonedCartReminder**
+> JsonShopSettings enableAbandonedCartReminder()
+
+
+### Example
+
+```typescript
+import {
+    AdministrationApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdministrationApi(configuration);
+
+const { status, data } = await apiInstance.enableAbandonedCartReminder();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**JsonShopSettings**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The settings of the shop once changed |  -  |
+|**403** | Not an administrator |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **enableOrderConfirmationEmail**
+> JsonShopSettings enableOrderConfirmationEmail()
+
+
+### Example
+
+```typescript
+import {
+    AdministrationApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdministrationApi(configuration);
+
+const { status, data } = await apiInstance.enableOrderConfirmationEmail();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**JsonShopSettings**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The settings of the shop once changed |  -  |
+|**403** | Not an administrator |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -797,6 +1140,50 @@ This endpoint does not have any parameters.
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | The current seller |  -  |
+|**403** | Not an administrator |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getSettings**
+> JsonShopSettings getSettings()
+
+
+### Example
+
+```typescript
+import {
+    AdministrationApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdministrationApi(configuration);
+
+const { status, data } = await apiInstance.getSettings();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**JsonShopSettings**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | The settings of the shop |  -  |
 |**403** | Not an administrator |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
