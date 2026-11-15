@@ -66,7 +66,8 @@ class OrderController(
     @Operation(summary = "Retrieve what a discount code takes off the cart of the signed-in customer")
     @GetMapping("/discount-preview")
     fun previewDiscount(@AuthenticationPrincipal jwt: Jwt, @RequestParam code: String): JsonDiscountPreview {
-        val discountPreview = orderCheckoutService.previewDiscount(actorResolutionService.actorOf(jwt), PromoCode.from(code))
+        val actor = actorResolutionService.actorOf(jwt)
+        val discountPreview = orderCheckoutService.previewDiscount(actor, PromoCode.from(code))
         return JsonDiscountPreview(discountPreview)
     }
 

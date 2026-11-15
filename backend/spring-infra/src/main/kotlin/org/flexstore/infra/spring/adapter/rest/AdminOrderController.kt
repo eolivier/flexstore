@@ -45,14 +45,17 @@ class AdminOrderController(
         @RequestParam(defaultValue = "${PageSize.DEFAULT}") size: Int
     ): ResponseEntity<List<JsonAdminOrder>> {
         val pageRequest = PageRequest.of(page, size)
-        val orders = orderAdministrationService.getAllOrders(actorResolutionService.actorOf(reader), pageRequest)
+        val actor = actorResolutionService.actorOf(reader)
+        val orders = orderAdministrationService.getAllOrders(actor, pageRequest)
         return pagedBody(orders.content.asList().map { JsonAdminOrder(it) }, orders.total)
     }
 
     @Operation(summary = "Retrieve any order, with its customer")
     @GetMapping("/{orderId}")
-    fun getOrder(@AuthenticationPrincipal reader: Jwt, @PathVariable orderId: String): JsonAdminOrder =
-        JsonAdminOrder(orderAdministrationService.getOrder(actorResolutionService.actorOf(reader), OrderId(Identity(orderId))))
+    fun getOrder(@AuthenticationPrincipal reader: Jwt, @PathVariable orderId: String): JsonAdminOrder {
+        val actor = actorResolutionService.actorOf(reader)
+        return JsonAdminOrder(orderAdministrationService.getOrder(actor, OrderId(Identity(orderId))))
+    }
 
     @Operation(
         summary = "Move an order to the next status of its life cycle: PROCESSING, SHIPPED, then DELIVERED; " +
@@ -64,7 +67,8 @@ class AdminOrderController(
         @PathVariable orderId: String,
         @RequestBody statusAdvance: JsonOrderStatusAdvance
     ): JsonAdminOrder {
-        val orderStatusAdvance = statusAdvance.toOrderStatusAdvance(actorResolutionService.actorOf(editor), OrderId(Identity(orderId)))
+        val actor = actorResolutionService.actorOf(editor)
+        val orderStatusAdvance = statusAdvance.toOrderStatusAdvance(actor, OrderId(Identity(orderId)))
         val advancedOrder = orderAdministrationService.advance(orderStatusAdvance)
         return JsonAdminOrder(advancedOrder)
     }
@@ -76,7 +80,8 @@ class AdminOrderController(
         @PathVariable orderId: String,
         @RequestBody trackingCorrection: JsonOrderTrackingCorrection
     ): JsonAdminOrder {
-        val correction = trackingCorrection.toOrderTrackingCorrection(actorResolutionService.actorOf(editor), OrderId(Identity(orderId)))
+        val actor = actorResolutionService.actorOf(editor)
+        val correction = trackingCorrection.toOrderTrackingCorrection(actor, OrderId(Identity(orderId)))
         val correctedOrder = orderAdministrationService.correctTracking(correction)
         return JsonAdminOrder(correctedOrder)
     }
