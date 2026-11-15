@@ -62,7 +62,6 @@ class AuthController(
         ]
     )
     @PostMapping("/login")
-    @ResponseStatus(HttpStatus.OK)
     fun login(@RequestBody jsonLoginRequest: JsonLoginRequest): JsonLoginResponse {
         return when (val outcome = signInService.signIn(jsonLoginRequest.toLoginRequest())) {
             is SignInOutcome.SignedIn -> sessionOf(outcome.user)
@@ -92,7 +91,6 @@ class AuthController(
         ]
     )
     @PostMapping("/login/google")
-    @ResponseStatus(HttpStatus.OK)
     fun loginWithGoogle(@RequestBody jsonGoogleLoginRequest: JsonGoogleLoginRequest): JsonLoginResponse {
         return when (val outcome = signInService.signInWithGoogle(jsonGoogleLoginRequest.toGoogleIdToken())) {
             is SignInOutcome.SignedIn -> sessionOf(outcome.user)
@@ -115,7 +113,6 @@ class AuthController(
         ]
     )
     @PostMapping("/refresh")
-    @ResponseStatus(HttpStatus.OK)
     fun refresh(@RequestBody jsonRefreshRequest: JsonRefreshRequest): JsonRefreshResponse {
         val signedInSession = userSessionService.refresh(jsonRefreshRequest.toRefreshToken())
         val token = jwtTokenService.issue(signedInSession.account)
@@ -145,7 +142,6 @@ class AuthController(
         ]
     )
     @PostMapping("/login/two-factor-authentication")
-    @ResponseStatus(HttpStatus.OK)
     fun verifyTwoFactorCode(@RequestBody verification: JsonTwoFactorChallengeVerification): JsonLoginResponse {
         val user = signInService.verifyTwoFactorCode(verification.toTwoFactorCodeVerification())
         return sessionOf(user)

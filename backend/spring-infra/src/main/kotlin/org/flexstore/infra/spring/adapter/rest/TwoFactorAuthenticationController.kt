@@ -84,7 +84,6 @@ class TwoFactorAuthenticationController(
         ]
     )
     @PutMapping("/{id}/two-factor-authentication")
-    @ResponseStatus(HttpStatus.OK)
     fun adminDisableTwoFactorAuthentication(
         @AuthenticationPrincipal editor: Jwt,
         @PathVariable id: String

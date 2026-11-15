@@ -25,7 +25,6 @@ spring:
 flexstore:
   mail:
     from: ${FLEXSTORE_MAIL_FROM:Flexstore <no-reply@flexstore.com>}
-  # The shop that sells, as written on its invoices
   # Address of the shop, for the links of the emails and the return from the payment
   front-url: ${FLEXSTORE_FRONT_URL:http://localhost:5173}
   payment:
@@ -55,7 +54,7 @@ management:
         enabled: true
       show-details: when_authorized
   health:
-    # The SMTP server does not decide whether the application is up: the host (Render) checks the health and would
+    # The SMTP server does not decide whether the application is up: the host checks the health and would
     # restart it. Without server the emails are written to the logs, and an email that fails does not stop an order
     mail:
       enabled: false
@@ -70,8 +69,5 @@ management:
     key-values:
       service: flexstore
 server:
-  # Behind the Render proxy (TLS ends there): trust X-Forwarded-* so that requests are seen as HTTPS
+  # Behind the reverse proxy (TLS ends there): trust X-Forwarded-* so that requests are seen as HTTPS
   forward-headers-strategy: framework
-# (optionnel) séparer le management path/port
-# port: 8080
-# management.server.port: 8081
