@@ -4,6 +4,8 @@ import org.flexstore.domain.actor.*
 import org.flexstore.domain.email.*
 import org.flexstore.domain.email.model.*
 import org.flexstore.domain.sharedkernel.ShopUrl
+import org.flexstore.domain.twofactor.usecase.VerifyTwoFactorCodeUseCase
+import org.flexstore.domain.user.service.SignInUseCases
 import org.flexstore.domain.user.repository.*
 import org.flexstore.domain.user.usecase.*
 import org.springframework.context.annotation.Bean
@@ -52,6 +54,12 @@ open class UserUseCaseConfig(private val shopUrl: ShopUrl) {
     }
 
     @Bean
+    open fun loginUseCase(userRepository: UserRepository) = LoginUseCase(userRepository)
+
+    @Bean
+    open fun signInWithGoogleUseCase(userRepository: UserRepository) = SignInWithGoogleUseCase(userRepository)
+
+    @Bean
     open fun recordFailedSignInUseCase(userRepository: UserRepository,
                                        failedSignInRepository: FailedSignInRepository) =
         RecordFailedSignInUseCase(userRepository, failedSignInRepository)
@@ -59,4 +67,16 @@ open class UserUseCaseConfig(private val shopUrl: ShopUrl) {
     @Bean
     open fun resetFailedSignInsUseCase(failedSignInRepository: FailedSignInRepository) =
         ResetFailedSignInsUseCase(failedSignInRepository)
+
+    @Bean
+    open fun signInUseCases(
+        loginUseCase: LoginUseCase,
+        signInWithGoogleUseCase: SignInWithGoogleUseCase,
+        verifyTwoFactorCodeUseCase: VerifyTwoFactorCodeUseCase,
+        recordFailedSignInUseCase: RecordFailedSignInUseCase,
+        resetFailedSignInsUseCase: ResetFailedSignInsUseCase
+    ) = SignInUseCases(
+        loginUseCase, signInWithGoogleUseCase, verifyTwoFactorCodeUseCase, recordFailedSignInUseCase,
+        resetFailedSignInsUseCase
+    )
 }

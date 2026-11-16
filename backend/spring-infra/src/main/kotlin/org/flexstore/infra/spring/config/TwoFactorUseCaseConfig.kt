@@ -1,5 +1,6 @@
 package org.flexstore.infra.spring.config
 
+import org.flexstore.domain.twofactor.TwoFactorChallengeRepository
 import org.flexstore.domain.twofactor.usecase.*
 import org.flexstore.domain.user.repository.*
 import org.springframework.context.annotation.Bean
@@ -8,6 +9,12 @@ import org.springframework.context.annotation.Configuration
 // The use cases of the two factor sub-domain, declared step by step: use cases, then their group
 @Configuration
 open class TwoFactorUseCaseConfig {
+
+    @Bean
+    open fun verifyTwoFactorCodeUseCase(
+        twoFactorChallengeRepository: TwoFactorChallengeRepository,
+        userRepository: UserRepository
+    ) = VerifyTwoFactorCodeUseCase(twoFactorChallengeRepository, userRepository)
 
     @Bean
     open fun startTwoFactorEnrollmentUseCase(userRepository: UserRepository) =

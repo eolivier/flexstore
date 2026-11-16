@@ -31,6 +31,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.flexstore.domain.user.address.AddressBookService
 import org.flexstore.domain.user.address.AddressUseCases
+import org.flexstore.domain.user.administration.UserAdministrationUseCases
 import org.flexstore.domain.user.administration.UserService
 
 // The domain services, each one a bean that receives its use cases or groups of use cases
@@ -128,14 +129,10 @@ open class ServiceConfig {
 
     @Bean
     open fun signInService(userRepository: UserRepository,
-                           recordFailedSignInUseCase: RecordFailedSignInUseCase,
-                           resetFailedSignInsUseCase: ResetFailedSignInsUseCase,
                            twoFactorChallengeRepository: TwoFactorChallengeRepository,
-                           googleIdentityVerifier: GoogleIdentityVerifier) =
-        SignInService(
-            userRepository, recordFailedSignInUseCase, resetFailedSignInsUseCase, twoFactorChallengeRepository,
-            googleIdentityVerifier
-        )
+                           googleIdentityVerifier: GoogleIdentityVerifier,
+                           signInUseCases: SignInUseCases) =
+        SignInService(userRepository, twoFactorChallengeRepository, googleIdentityVerifier, signInUseCases)
 
     @Bean
     open fun userSessionService(
@@ -151,8 +148,9 @@ open class ServiceConfig {
     )
 
     @Bean
-    open fun userService(userRepository: UserRepository): UserService {
-        return UserService(userRepository)
+    open fun userService(userRepository: UserRepository,
+                         userAdministrationUseCases: UserAdministrationUseCases): UserService {
+        return UserService(userRepository, userAdministrationUseCases)
     }
 
     @Bean

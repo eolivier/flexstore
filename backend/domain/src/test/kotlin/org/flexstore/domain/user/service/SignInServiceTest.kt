@@ -7,6 +7,7 @@ import org.flexstore.domain.twofactor.model.TwoFactorChallengeId
 import org.flexstore.domain.twofactor.model.TwoFactorCode
 import org.flexstore.domain.twofactor.model.TwoFactorSecret
 import org.flexstore.domain.twofactor.usecase.TwoFactorCodeVerification
+import org.flexstore.domain.twofactor.usecase.VerifyTwoFactorCodeUseCase
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.repository.GoogleIdentityVerifier
 import org.flexstore.domain.user.usecase.*
@@ -24,11 +25,19 @@ class SignInServiceTest : WithAssertions {
     private val userRepository = InMemoryUserRepository()
     private val failedSignInRepository = InMemoryFailedSignInRepository()
     private val twoFactorChallengeRepository = InMemoryTwoFactorChallengeRepository()
-    private val signInService = SignInService(
+    private fun signInServiceWith(googleIdentityVerifier: GoogleIdentityVerifier) = SignInService(
         userRepository,
-        RecordFailedSignInUseCase(userRepository, failedSignInRepository),
-        ResetFailedSignInsUseCase(failedSignInRepository),
         twoFactorChallengeRepository,
+        googleIdentityVerifier,
+        SignInUseCases(
+            LoginUseCase(userRepository),
+            SignInWithGoogleUseCase(userRepository),
+            VerifyTwoFactorCodeUseCase(twoFactorChallengeRepository, userRepository),
+            RecordFailedSignInUseCase(userRepository, failedSignInRepository),
+            ResetFailedSignInsUseCase(failedSignInRepository)
+        )
+    )
+    private val signInService = signInServiceWith(
         GoogleIdentityVerifier { GoogleIdentity(FullName(FirstName("Jane"), LastName("Doe")), janeEmail) }
     )
     private val janeId = UserId.ValidUserId("jane-1")
@@ -260,13 +269,7 @@ class SignInServiceTest : WithAssertions {
         val googleRefusesTheToken = GoogleIdentityVerifier {
             throw InvalidGoogleIdTokenException(ErrorMessage("The token is not Google's."))
         }
-        val signInRefusingTheToken = SignInService(
-            userRepository,
-            RecordFailedSignInUseCase(userRepository, failedSignInRepository),
-            ResetFailedSignInsUseCase(failedSignInRepository),
-            twoFactorChallengeRepository,
-            googleRefusesTheToken
-        )
+        val signInRefusingTheToken = signInServiceWith(googleRefusesTheToken)
         // Act
         val thrown = catchThrowable { signInRefusingTheToken.signInWithGoogle(GoogleIdToken("google-token")) }
         // Assert
