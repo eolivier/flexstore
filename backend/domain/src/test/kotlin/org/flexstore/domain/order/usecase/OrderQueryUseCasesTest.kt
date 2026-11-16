@@ -32,12 +32,15 @@ class OrderQueryUseCasesTest : WithAssertions {
     private val userRepository = customersWithIds("user-1", "user-2")
     private val actorResolutionService = ActorResolutionService(userRepository)
     private val listCustomerOrdersUseCase = ListCustomerOrdersUseCase(orderRepository)
-    private val readCustomerOrderUseCase = ReadCustomerOrderUseCase(orderRepository, userRepository)
+    private val readOrderUseCase = ReadAdministeredOrderUseCase(orderRepository, userRepository)
     private val readAnyOrderUseCase = ReadAnyOrderUseCase(orderRepository)
     private val listAllOrdersUseCase = ListAllOrdersUseCase(orderRepository)
 
     private fun readingOf(userId: UserId, pageRequest: PageRequest) =
         CustomerOrdersReading(actorResolutionService.actorOf(userId), pageRequest)
+
+    private fun orderReadingOf(userId: UserId, orderId: String) =
+        AdministeredOrderReading(actorResolutionService.actorOf(userId), OrderId(Identity(orderId)))
 
     private fun placeOrder(orderId: OrderId, customer: CartOwner.Customer, placedAt: Instant): Order {
         val orderStamp = OrderStamp(orderId, placedAt)
@@ -66,8 +69,7 @@ class OrderQueryUseCasesTest : WithAssertions {
         // Arrange
         val order = placeOrder(OrderId(Identity("order-1")), customer, placedAt)
         // Act
-        val lookup = CustomerOrderLookup(customer.userId, OrderId(Identity("order-1")))
-        val readOrder = readCustomerOrderUseCase.unfold(lookup)
+        val readOrder = readOrderUseCase.unfold(orderReadingOf(customer.userId, "order-1")).order
         // Assert
         assertThat(readOrder).isEqualTo(order)
     }
@@ -78,7 +80,7 @@ class OrderQueryUseCasesTest : WithAssertions {
         placeOrder(OrderId(Identity("other")), otherCustomer, placedAt)
         // Act
         val thrown = catchThrowable {
-            readCustomerOrderUseCase.unfold(CustomerOrderLookup(customer.userId, OrderId(Identity("other"))))
+            readOrderUseCase.unfold(orderReadingOf(customer.userId, "other"))
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(OrderNotFoundException::class.java)
@@ -88,7 +90,7 @@ class OrderQueryUseCasesTest : WithAssertions {
     fun `an unknown order should not be found`() {
         // Act
         val thrown = catchThrowable {
-            readCustomerOrderUseCase.unfold(CustomerOrderLookup(customer.userId, OrderId(Identity("unknown"))))
+            readOrderUseCase.unfold(orderReadingOf(customer.userId, "unknown"))
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(OrderNotFoundException::class.java)
@@ -129,11 +131,24 @@ class OrderQueryUseCasesTest : WithAssertions {
     fun `an unknown customer should not read an order`() {
         // Arrange
         placeOrder(OrderId(Identity("order-1")), customer, placedAt)
-        val lookup = CustomerOrderLookup(unknownCustomerId, OrderId(Identity("order-1")))
+        val reading = orderReadingOf(unknownCustomerId, "order-1")
         // Act
-        val thrown = catchThrowable { readCustomerOrderUseCase.unfold(lookup) }
+        val thrown = catchThrowable { readOrderUseCase.unfold(reading) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java)
+    }
+
+    @ParameterizedTest
+    @EnumSource(AccountStatus::class, names = ["SUSPENDED", "LOCKED", "DISABLED"])
+    fun `a customer whose account is refused should not read an order`(status: AccountStatus) {
+        // Arrange
+        userRepository.save(customerWithStatus(status))
+        placeOrder(OrderId(Identity("order-1")), CartOwner.Customer(blockedCustomerId), placedAt)
+        val reading = orderReadingOf(blockedCustomerId, "order-1")
+        // Act
+        val thrown = catchThrowable { readOrderUseCase.unfold(reading) }
+        // Assert
+        assertThat(thrown).hasCauseInstanceOf(AccountRefusedException::class.java)
     }
 
     @ParameterizedTest

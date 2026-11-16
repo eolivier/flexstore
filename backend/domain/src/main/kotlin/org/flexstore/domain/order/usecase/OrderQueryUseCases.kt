@@ -5,5 +5,5 @@ data class OrderQueryUseCases(
     val listCustomerOrdersUseCase: ListCustomerOrdersUseCase,
     val listAllOrdersUseCase: ListAllOrdersUseCase,
     val readAnyOrderUseCase: ReadAnyOrderUseCase,
-    val readCustomerOrderUseCase: ReadCustomerOrderUseCase
+    val readAdministeredOrderUseCase: ReadAdministeredOrderUseCase
 )

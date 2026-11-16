@@ -73,7 +73,7 @@ class OrderCheckoutServiceTest : WithAssertions {
         val checkoutQueryUseCases = CheckoutQueryUseCases(
             ReadCartUseCase(cartRepository),
             ReadShopSettingsUseCase(shopSettingsRepository),
-            ReadCustomerOrderUseCase(orderRepository, userRepository)
+            ReadAdministeredOrderUseCase(orderRepository, userRepository)
         )
         val checkoutDiscountUseCases = CheckoutDiscountUseCases(
             ReadUsableDiscountCodeUseCase(discountCodeRepository),

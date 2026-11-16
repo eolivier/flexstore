@@ -48,7 +48,7 @@ class PaymentServiceTest : WithAssertions {
         ListCustomerOrdersUseCase(orderRepository),
         ListAllOrdersUseCase(orderRepository),
         ReadAnyOrderUseCase(orderRepository),
-        ReadCustomerOrderUseCase(orderRepository, userRepository)
+        ReadAdministeredOrderUseCase(orderRepository, userRepository)
     )
     private val shopSettingsRepository = InMemoryShopSettingsRepository()
     private val invoiceRepository = InMemoryInvoiceRepository()

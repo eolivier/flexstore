@@ -4,6 +4,7 @@ import org.flexstore.domain.order.*
 import org.flexstore.domain.order.model.*
 import org.flexstore.domain.actor.isNotAdmin
 import org.flexstore.domain.actor.isTheUser
+import org.flexstore.domain.actor.verifyCanAct
 import org.flexstore.domain.user.repository.UserRepository
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
@@ -16,7 +17,7 @@ class ReadAdministeredOrderUseCase(
 ) : QueryUseCase<AdministeredOrderReading, AdministeredOrder> {
 
     override fun getPreConditions(): PreConditions<AdministeredOrderReading> =
-        PreConditions(orderIsReadableByTheReaderCondition())
+        PreConditions(readerCanActCondition(), orderIsReadableByTheReaderCondition())
 
     override fun getNominalQuery() = NominalQuery<AdministeredOrderReading, AdministeredOrder> { (_, orderId) ->
         val order = orderRepository.get(orderId)
@@ -24,6 +25,11 @@ class ReadAdministeredOrderUseCase(
     }
 
     override fun getPostConditions(): PostConditions<AdministeredOrder> = PostConditions.none()
+
+    // The reader, resolved before the use case runs, must be a customer or an admin who can act
+    private fun readerCanActCondition() = PreCondition<AdministeredOrderReading> { reading ->
+        reading.reader.verifyCanAct()
+    }
 
     // Unknown, or, for a reader who is not an Admin (resolved before the use case runs), an order of another
     // customer

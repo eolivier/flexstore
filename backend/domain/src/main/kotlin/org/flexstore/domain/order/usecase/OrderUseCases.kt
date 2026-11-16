@@ -20,8 +20,9 @@ class OrderUseCases(
     fun getOrders(customer: Actor, pageRequest: PageRequest) =
         orderQueryUseCases.listCustomerOrdersUseCase.unfold(CustomerOrdersReading(customer, pageRequest))
 
-    fun getOrder(customer: UserId.ValidUserId, orderId: OrderId) =
-        orderQueryUseCases.readCustomerOrderUseCase.unfold(CustomerOrderLookup(customer, orderId))
+    // An order of the customer: the order of another customer is reported as not found
+    fun getOrder(customer: Actor, orderId: OrderId): Order =
+        orderQueryUseCases.readAdministeredOrderUseCase.unfold(AdministeredOrderReading(customer, orderId)).order
 
     // Any order, whoever its customer (the payment provider confirms it)
     fun getAnyOrder(orderId: OrderId) = orderQueryUseCases.readAnyOrderUseCase.unfold(orderId)
