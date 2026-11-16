@@ -73,7 +73,7 @@ services:
       - "8025:8025"
 
   integrationTests:
-    image: gradle:8.10-jdk21
+    image: gradle:8.14.7-jdk21
     container_name: flexstore-integration-tests
     working_dir: /src/backend
     volumes:
