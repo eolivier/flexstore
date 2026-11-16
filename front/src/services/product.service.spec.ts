@@ -2,9 +2,9 @@ import { AxiosError, AxiosHeaders } from 'axios';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
 import { productsApi } from '@/api';
-import { getProduct } from './product.service';
+import { getCatalogPage, getProduct } from './product.service';
 
-vi.mock('@/api', () => ({ productsApi: { getProduct: vi.fn() } }));
+vi.mock('@/api', () => ({ productsApi: { getProduct: vi.fn(), getCatalogPage: vi.fn() } }));
 
 const httpError = (status: number) =>
   new AxiosError('error', 'ERR', undefined, undefined, {
@@ -65,5 +65,44 @@ describe('getProduct', () => {
     const productLookup = getProduct('3', 'en');
     // Assert
     await expect(productLookup).rejects.toThrow();
+  });
+});
+
+describe('getCatalogPage', () => {
+  const query = { search: 'jeans', category: 'CLOTHING', sort: 'priceAsc' as const, page: 1 };
+
+  beforeEach(() => {
+    setActivePinia(createPinia());
+    vi.mocked(productsApi.getCatalogPage).mockReset();
+  });
+
+  it('should ask the server for the page, in the language, with the search, the category and the sort', async () => {
+    // Arrange
+    vi.mocked(productsApi.getCatalogPage).mockResolvedValue({ data: [jeans], headers: {} } as never);
+    // Act
+    await getCatalogPage('fr', query);
+    // Assert
+    expect(productsApi.getCatalogPage).toHaveBeenCalledWith('fr', 1, 20, 'jeans', 'CLOTHING', 'priceAsc');
+  });
+
+  it('should give the products of the page and the total of the products that match', async () => {
+    // Arrange
+    vi.mocked(productsApi.getCatalogPage).mockResolvedValue({
+      data: [jeans],
+      headers: { 'x-total-count': '41' },
+    } as never);
+    // Act
+    const catalogPage = await getCatalogPage('en', query);
+    // Assert
+    expect(catalogPage).toEqual({ products: [jeans], total: 41 });
+  });
+
+  it('should count the products of the page when the server gives no total', async () => {
+    // Arrange
+    vi.mocked(productsApi.getCatalogPage).mockResolvedValue({ data: [jeans], headers: {} } as never);
+    // Act
+    const catalogPage = await getCatalogPage('en', query);
+    // Assert
+    expect(catalogPage.total).toBe(1);
   });
 });
