@@ -12,7 +12,8 @@ import org.flexstore.domain.order.*
 import org.flexstore.domain.product.*
 import org.flexstore.domain.sharedkernel.*
 import org.flexstore.domain.user.model.*
-import org.flexstore.domain.user.customersWithIds
+import org.flexstore.domain.user.customerOf
+import org.flexstore.domain.user.usersWithSystemAndCustomers
 import org.flexstore.domain.user.unknownCustomerId
 import org.assertj.core.api.WithAssertions
 import org.flexstore.infra.repository.InMemoryOrderRepository
@@ -29,7 +30,10 @@ class OrderQueryUseCasesTest : WithAssertions {
     private val otherCustomer = CartOwner.Customer(UserId.ValidUserId("user-2"))
     private val placedAt = Instant.parse("2026-10-24T10:00:00Z")
     private val orderRepository = InMemoryOrderRepository()
-    private val userRepository = customersWithIds("user-1", "user-2")
+    private val administratorId = UserId.ValidUserId("administrator")
+    private val userRepository = usersWithSystemAndCustomers("user-1", "user-2").apply {
+        save(customerOf("administrator").copy(role = Role.ADMIN))
+    }
     private val actorResolutionService = ActorResolutionService(userRepository)
     private val listCustomerOrdersUseCase = ListCustomerOrdersUseCase(orderRepository)
     private val readOrderUseCase = ReadAdministeredOrderUseCase(orderRepository, userRepository)
@@ -112,9 +116,29 @@ class OrderQueryUseCasesTest : WithAssertions {
         val older = placeOrder(OrderId(Identity("older")), customer, placedAt)
         val newer = placeOrder(OrderId(Identity("newer")), otherCustomer, placedAt.plusSeconds(60))
         // Act
-        val orders = listAllOrdersUseCase.unfold(Unit)
+        val orders = listAllOrdersUseCase.unfold(actorResolutionService.actorOf(administratorId))
         // Assert
         assertThat(orders.asList()).containsExactly(newer, older)
+    }
+
+    @Test
+    fun `the system should list the orders of all the customers`() {
+        // Arrange
+        val order = placeOrder(OrderId(Identity("order-1")), customer, placedAt)
+        // Act
+        val orders = listAllOrdersUseCase.unfold(actorResolutionService.system())
+        // Assert
+        assertThat(orders.asList()).containsExactly(order)
+    }
+
+    @Test
+    fun `a customer should not list the orders of all the customers`() {
+        // Arrange
+        val customerActor = actorResolutionService.actorOf(UserId.ValidUserId("user-1"))
+        // Act
+        val thrown = catchThrowable { listAllOrdersUseCase.unfold(customerActor) }
+        // Assert
+        assertThat(thrown).hasCauseInstanceOf(OrderAdministrationForbiddenException::class.java)
     }
 
     @Test

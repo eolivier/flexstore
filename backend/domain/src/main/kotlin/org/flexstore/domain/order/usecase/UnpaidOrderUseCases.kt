@@ -8,7 +8,7 @@ class UnpaidOrderUseCases(
     private val listAllOrdersUseCase: ListAllOrdersUseCase,
     private val cancelUnpaidOrderUseCase: CancelUnpaidOrderUseCase
 ) {
-    fun allOrders() = listAllOrdersUseCase.unfold(Unit)
+    fun allOrders(reader: Actor) = listAllOrdersUseCase.unfold(reader)
 
     fun cancel(canceller: Actor, order: Order, timeLimit: PaymentTimeLimit) =
         cancelUnpaidOrderUseCase.unfold(UnpaidOrderCancellation(canceller, order.orderId, timeLimit))

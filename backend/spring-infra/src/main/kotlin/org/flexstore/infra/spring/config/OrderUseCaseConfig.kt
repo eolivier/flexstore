@@ -133,10 +133,12 @@ open class OrderUseCaseConfig {
 
     @Bean
     open fun orderQueryUseCases(listCustomerOrdersUseCase: ListCustomerOrdersUseCase,
+                                listAllOrdersUseCase: ListAllOrdersUseCase,
                                 readAnyOrderUseCase: ReadAnyOrderUseCase,
                                 readAdministeredOrderUseCase: ReadAdministeredOrderUseCase) =
         OrderQueryUseCases(
             listCustomerOrdersUseCase,
+            listAllOrdersUseCase,
             readAnyOrderUseCase,
             readAdministeredOrderUseCase
         )
