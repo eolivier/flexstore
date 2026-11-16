@@ -23,6 +23,7 @@ import org.flexstore.domain.product.usecase.CreateProductUseCase
 import org.flexstore.domain.product.usecase.ListProductsUseCase
 import org.flexstore.domain.product.usecase.ProductUseCases
 import org.flexstore.domain.product.usecase.ProposeSkuUseCase
+import org.flexstore.domain.product.usecase.SearchCatalogUseCase
 import org.flexstore.domain.product.usecase.ReadProductUseCase
 import org.flexstore.domain.product.usecase.UpdateProductUseCase
 import org.flexstore.domain.sharedkernel.Amount
@@ -76,6 +77,7 @@ fun productUseCasesOf(vararg products: DefinedProduct): ProductUseCases {
         CreateProductUseCase(productRepository),
         ReadProductUseCase(productRepository),
         ListProductsUseCase(productRepository),
+        SearchCatalogUseCase(productRepository),
         UpdateProductUseCase(productRepository),
         ProposeSkuUseCase(productRepository)
     )

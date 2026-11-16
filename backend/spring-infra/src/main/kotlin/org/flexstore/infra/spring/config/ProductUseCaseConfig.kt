@@ -28,18 +28,23 @@ open class ProductUseCaseConfig {
     open fun listProductsUseCase(productRepository: ProductRepository) = ListProductsUseCase(productRepository)
 
     @Bean
+    open fun searchCatalogUseCase(productRepository: ProductRepository) = SearchCatalogUseCase(productRepository)
+
+    @Bean
     open fun proposeSkuUseCase(productRepository: ProductRepository) = ProposeSkuUseCase(productRepository)
 
     @Bean
     open fun productUseCases(createProductUseCase: CreateProductUseCase,
                              readProductUseCase: ReadProductUseCase,
                              listProductsUseCase: ListProductsUseCase,
+                             searchCatalogUseCase: SearchCatalogUseCase,
                              updateProductUseCase: UpdateProductUseCase,
                              proposeSkuUseCase: ProposeSkuUseCase) =
         ProductUseCases(
             createProductUseCase,
             readProductUseCase,
             listProductsUseCase,
+            searchCatalogUseCase,
             updateProductUseCase,
             proposeSkuUseCase
         )

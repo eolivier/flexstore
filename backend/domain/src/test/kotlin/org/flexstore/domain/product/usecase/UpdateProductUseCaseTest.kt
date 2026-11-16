@@ -31,6 +31,7 @@ class UpdateProductUseCaseTest : WithAssertions {
         createProductUseCase,
         readProductUseCase,
         listProductsUseCase,
+        SearchCatalogUseCase(productRepository),
         useCase,
         proposeSkuUseCase
     )

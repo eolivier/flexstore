@@ -76,6 +76,8 @@ open class SecurityConfig(@Value("\${flexstore.security.jwt-secret:}") private v
                     // Whether the signed-in customer may review a product, before the public reading
                     .requestMatchers(HttpMethod.GET, "/api/products/{id}/review-eligibility").authenticated()
                     .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
+                    // The catalog a page at a time, like GET /api/products
+                    .requestMatchers(HttpMethod.GET, "/api/catalog").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/stocks/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/product-ratings").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/product-images").permitAll()

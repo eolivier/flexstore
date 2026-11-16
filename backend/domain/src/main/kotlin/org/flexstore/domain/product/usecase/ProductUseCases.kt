@@ -8,6 +8,7 @@ import org.ucop.domain.entity.Actor
 class ProductUseCases(private val createProductUseCase: CreateProductUseCase,
                            private val readProductUseCase: ReadProductUseCase,
                            private val listProductsUseCase: ListProductsUseCase,
+                           private val searchCatalogUseCase: SearchCatalogUseCase,
                            private val updateProductUseCase: UpdateProductUseCase,
                            private val proposeSkuUseCase: ProposeSkuUseCase) {
 
@@ -25,6 +26,9 @@ class ProductUseCases(private val createProductUseCase: CreateProductUseCase,
     }
 
     fun getProducts(reader: Actor) = listProductsUseCase.unfold(reader)
+
+    fun searchCatalog(reader: Actor, catalogSearch: CatalogSearch) =
+        searchCatalogUseCase.unfold(CatalogReading(reader, catalogSearch))
 
     fun getProduct(reader: Actor, productId: ProductId) =
         readProductUseCase.unfold(ProductReading(reader, productId))

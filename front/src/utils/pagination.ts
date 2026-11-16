@@ -14,6 +14,12 @@ export function totalCountOf(response: Response, itemsRead: number): number {
   return header === null || header === undefined ? itemsRead : Number(header);
 }
 
+// The same, for the answer of the generated client (axios), whose header names are in lower case
+export function totalCountOfAnswer(headers: Record<string, unknown>, itemsRead: number): number {
+  const header = headers[TOTAL_COUNT_HEADER.toLowerCase()];
+  return header === undefined ? itemsRead : Number(header);
+}
+
 // A list that is empty still has its first page
 export function pageCountOf(total: number, size: number = PAGE_SIZE): number {
   return Math.max(1, Math.ceil(total / size));

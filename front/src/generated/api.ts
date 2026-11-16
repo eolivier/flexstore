@@ -6659,6 +6659,65 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
             };
         },
         /**
+         * The total number of products that match is in the header X-Total-Count; a size above 100 is brought back to 100. The name and the description are read, and searched, in the language of the customer.
+         * @summary Retrieve a page of the catalog, searched, filtered by category and sorted
+         * @param {string} [acceptLanguage] The language of the customer (en, fr); the products not translated into it are in en
+         * @param {number} [page] The number of the page, from 0 (a negative number is brought back to 0)
+         * @param {number} [size] The number of items of a page (a size out of 1 to 100 is brought back to the nearest limit)
+         * @param {string} [search] Words that each must be part of the name, the description or the category of the products, whatever the case
+         * @param {string} [category] Only the products of this category (CLOTHING, ELECTRONICS, ACCESSORIES...); all of them without it, none for a category that does not exist
+         * @param {GetCatalogPageSortEnum} [sort] By name, or by the price to pay now, the lowest (priceAsc) or the highest (priceDesc) first; a sort that does not exist is the sort by name
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getCatalogPage: async (acceptLanguage?: string, page?: number, size?: number, search?: string, category?: string, sort?: GetCatalogPageSortEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/catalog`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
+            }
+
+            if (search !== undefined) {
+                localVarQueryParameter['search'] = search;
+            }
+
+            if (category !== undefined) {
+                localVarQueryParameter['category'] = category;
+            }
+
+            if (sort !== undefined) {
+                localVarQueryParameter['sort'] = sort;
+            }
+
+
+    
+            if (acceptLanguage != null) {
+                localVarHeaderParameter['Accept-Language'] = String(acceptLanguage);
+            }
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 
          * @summary Retrieve a product by ID
          * @param {string} id 
@@ -6797,6 +6856,24 @@ export const ProductsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * The total number of products that match is in the header X-Total-Count; a size above 100 is brought back to 100. The name and the description are read, and searched, in the language of the customer.
+         * @summary Retrieve a page of the catalog, searched, filtered by category and sorted
+         * @param {string} [acceptLanguage] The language of the customer (en, fr); the products not translated into it are in en
+         * @param {number} [page] The number of the page, from 0 (a negative number is brought back to 0)
+         * @param {number} [size] The number of items of a page (a size out of 1 to 100 is brought back to the nearest limit)
+         * @param {string} [search] Words that each must be part of the name, the description or the category of the products, whatever the case
+         * @param {string} [category] Only the products of this category (CLOTHING, ELECTRONICS, ACCESSORIES...); all of them without it, none for a category that does not exist
+         * @param {GetCatalogPageSortEnum} [sort] By name, or by the price to pay now, the lowest (priceAsc) or the highest (priceDesc) first; a sort that does not exist is the sort by name
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getCatalogPage(acceptLanguage?: string, page?: number, size?: number, search?: string, category?: string, sort?: GetCatalogPageSortEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<JsonProduct>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getCatalogPage(acceptLanguage, page, size, search, category, sort, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProductsApi.getCatalogPage']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * 
          * @summary Retrieve a product by ID
          * @param {string} id 
@@ -6857,6 +6934,21 @@ export const ProductsApiFactory = function (configuration?: Configuration, baseP
             return localVarFp.create(draftJsonProduct, options).then((request) => request(axios, basePath));
         },
         /**
+         * The total number of products that match is in the header X-Total-Count; a size above 100 is brought back to 100. The name and the description are read, and searched, in the language of the customer.
+         * @summary Retrieve a page of the catalog, searched, filtered by category and sorted
+         * @param {string} [acceptLanguage] The language of the customer (en, fr); the products not translated into it are in en
+         * @param {number} [page] The number of the page, from 0 (a negative number is brought back to 0)
+         * @param {number} [size] The number of items of a page (a size out of 1 to 100 is brought back to the nearest limit)
+         * @param {string} [search] Words that each must be part of the name, the description or the category of the products, whatever the case
+         * @param {string} [category] Only the products of this category (CLOTHING, ELECTRONICS, ACCESSORIES...); all of them without it, none for a category that does not exist
+         * @param {GetCatalogPageSortEnum} [sort] By name, or by the price to pay now, the lowest (priceAsc) or the highest (priceDesc) first; a sort that does not exist is the sort by name
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getCatalogPage(acceptLanguage?: string, page?: number, size?: number, search?: string, category?: string, sort?: GetCatalogPageSortEnum, options?: RawAxiosRequestConfig): AxiosPromise<Array<JsonProduct>> {
+            return localVarFp.getCatalogPage(acceptLanguage, page, size, search, category, sort, options).then((request) => request(axios, basePath));
+        },
+        /**
          * 
          * @summary Retrieve a product by ID
          * @param {string} id 
@@ -6907,6 +6999,22 @@ export class ProductsApi extends BaseAPI {
     }
 
     /**
+     * The total number of products that match is in the header X-Total-Count; a size above 100 is brought back to 100. The name and the description are read, and searched, in the language of the customer.
+     * @summary Retrieve a page of the catalog, searched, filtered by category and sorted
+     * @param {string} [acceptLanguage] The language of the customer (en, fr); the products not translated into it are in en
+     * @param {number} [page] The number of the page, from 0 (a negative number is brought back to 0)
+     * @param {number} [size] The number of items of a page (a size out of 1 to 100 is brought back to the nearest limit)
+     * @param {string} [search] Words that each must be part of the name, the description or the category of the products, whatever the case
+     * @param {string} [category] Only the products of this category (CLOTHING, ELECTRONICS, ACCESSORIES...); all of them without it, none for a category that does not exist
+     * @param {GetCatalogPageSortEnum} [sort] By name, or by the price to pay now, the lowest (priceAsc) or the highest (priceDesc) first; a sort that does not exist is the sort by name
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getCatalogPage(acceptLanguage?: string, page?: number, size?: number, search?: string, category?: string, sort?: GetCatalogPageSortEnum, options?: RawAxiosRequestConfig) {
+        return ProductsApiFp(this.configuration).getCatalogPage(acceptLanguage, page, size, search, category, sort, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * 
      * @summary Retrieve a product by ID
      * @param {string} id 
@@ -6942,6 +7050,12 @@ export class ProductsApi extends BaseAPI {
     }
 }
 
+export const GetCatalogPageSortEnum = {
+    Name: 'name',
+    PriceAsc: 'priceAsc',
+    PriceDesc: 'priceDesc'
+} as const;
+export type GetCatalogPageSortEnum = typeof GetCatalogPageSortEnum[keyof typeof GetCatalogPageSortEnum];
 
 
 /**

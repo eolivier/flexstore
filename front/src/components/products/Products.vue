@@ -3,18 +3,18 @@
   import LoadError from '@/components/layout/LoadError.vue';
   import { useProductImagesStore } from '@/stores/productImages.store';
   import { useStocksStore } from '@/stores/stocks.store';
-  import { computed, onMounted, onServerPrefetch, ref } from 'vue';
+  import { computed, onMounted, onServerPrefetch, ref, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useRoute, useRouter } from 'vue-router';
-  import { useProductsStore } from '@/stores/products.store.ts';
+  import { useCatalogStore } from '@/stores/catalog.store';
+  import ListPager from '@/components/layout/ListPager.vue';
   import ProductCard from './ProductCard.vue';
   import { useReviewsStore } from '@/stores/reviews.store';
   import { useWishlistStore } from '@/stores/wishlist.store';
   import { useAuthStore } from '@/stores/auth.store';
   import { useAddToCart } from '@/composables/useAddToCart';
-  import { categoryInfo, isKnownCategory } from './categories';
+  import { categoryInfo } from './categories';
   import { shopLinks } from '@/components/menu/navigation';
-  import { matchesCatalogSearch, type CatalogSearch } from '@/utils/productSearch';
   import { usePageHead } from '@/composables/usePageHead';
   import { withoutLanguage } from '@/utils/language';
 
@@ -25,25 +25,18 @@
     return withoutLanguage(route.path).replace(/\/+$/, '') === linkPath;
   }
 
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const route = useRoute();
   const router = useRouter();
 
   // The text searched, kept in the address (?q=...) so that a search can be shared and found back
   const search = computed(() => (typeof route.query.q === 'string' ? route.query.q : ''));
 
-  // The name of a category in the language of the customer; none for a category without a label of its own
-  function categoryName(category: string): string {
-    return isKnownCategory(category) ? t(categoryInfo(category).label) : '';
-  }
-
-  const catalogSearch = computed<CatalogSearch>(() => ({ text: search.value, categoryName }));
-
   function clearSearch() {
     router.replace({ query: { ...route.query, q: undefined } });
   }
 
-  const productsStore = useProductsStore();
+  const catalogStore = useCatalogStore();
   const stocksStore = useStocksStore();
   const reviewsStore = useReviewsStore();
   const wishlistStore = useWishlistStore();
@@ -65,29 +58,36 @@
 
   type SortKey = 'name' | 'priceAsc' | 'priceDesc';
   const sort = ref<SortKey>('name');
+  const page = ref(0);
   const sortOptions = computed(() => [
     { title: t('products.sortName'), value: 'name' },
     { title: t('products.sortPriceAsc'), value: 'priceAsc' },
     { title: t('products.sortPriceDesc'), value: 'priceDesc' },
   ]);
 
-  const products = computed(() => {
-    const filtered = productsStore.products.filter((product) => {
-      const inCategory = !props.category || product.category === props.category;
-      return inCategory && matchesCatalogSearch(product, catalogSearch.value);
+  // The server searches, filters by category, sorts and gives the page
+  function fetchCatalogPage() {
+    return catalogStore.fetchCatalogPage({
+      search: search.value,
+      category: props.category ?? '',
+      sort: sort.value,
+      page: page.value,
     });
-    return filtered.sort((a, b) => {
-      if (sort.value === 'priceAsc') return (a.price ?? 0) - (b.price ?? 0);
-      if (sort.value === 'priceDesc') return (b.price ?? 0) - (a.price ?? 0);
-      return (a.name ?? '').localeCompare(b.name ?? '');
-    });
+  }
+
+  // Another search, category or sort starts again from the first page
+  watch([search, () => props.category, sort], () => {
+    page.value = 0;
+    fetchCatalogPage();
   });
+  watch(page, fetchCatalogPage);
+  watch(locale, fetchCatalogPage);
 
   // Pre-rendering waits for the products: the page is then listed with them
-  onServerPrefetch(() => productsStore.fetchProducts());
+  onServerPrefetch(() => fetchCatalogPage());
 
   onMounted(() => {
-    productsStore.fetchProducts();
+    fetchCatalogPage();
     stocksStore.fetchStocks();
     reviewsStore.fetchRatings();
     useProductImagesStore().fetchProductsWithImage();
@@ -101,8 +101,8 @@
       <div>
         <h1 class="text-h4 font-weight-bold">{{ title }}</h1>
         <p v-if="search" class="text-body-1 mt-1">{{ t('products.resultsFor', { search }) }}</p>
-        <p v-if="!productsStore.loading && !productsStore.error" class="text-body-2 text-medium-emphasis mt-1">
-          {{ t('products.count', products.length) }}
+        <p v-if="!catalogStore.loading && !catalogStore.error" class="text-body-2 text-medium-emphasis mt-1">
+          {{ t('products.count', catalogStore.total) }}
         </p>
       </div>
       <v-spacer />
@@ -129,21 +129,21 @@
       </v-chip>
     </div>
 
-    <v-row v-if="productsStore.loading">
+    <v-row v-if="catalogStore.loading">
       <v-col v-for="n in 8" :key="n" cols="12" sm="6" md="4" lg="3">
         <v-skeleton-loader type="image, article" class="rounded-xl" />
       </v-col>
     </v-row>
 
     <LoadError
-      v-else-if="productsStore.error"
+      v-else-if="catalogStore.error"
       :message="t('products.loadError')"
       retryable
-      @retry="productsStore.fetchProducts()"
+      @retry="fetchCatalogPage()"
     />
 
     <EmptyState
-      v-else-if="products.length === 0"
+      v-else-if="catalogStore.products.length === 0"
       icon="mdi-package-variant"
       :message="search ? t('products.noMatch', { search }) : t('products.empty')"
     >
@@ -153,7 +153,7 @@
     </EmptyState>
 
     <v-row v-else>
-      <v-col v-for="product in products" :key="product.id" cols="12" sm="6" md="4" lg="3">
+      <v-col v-for="product in catalogStore.products" :key="product.id" cols="12" sm="6" md="4" lg="3">
         <ProductCard
           :product="product"
           :stock="stocksStore.quantityOf(product.id)"
@@ -164,6 +164,7 @@
       </v-col>
     </v-row>
 
+    <ListPager v-model="page" :total="catalogStore.total" />
   </v-container>
 </template>
 
