@@ -41,6 +41,7 @@ export default {
   },
   footer: {
     tagline: 'Everyday essentials, delivered fast.',
+    lastMergedPullRequest: 'Last merged pull request',
     rights: 'All rights reserved.',
   },
   cookies: {

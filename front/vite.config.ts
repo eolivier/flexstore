@@ -4,6 +4,7 @@ import vue from '@vitejs/plugin-vue';
 import vuetify from 'vite-plugin-vuetify';
 import { resolve } from 'path';
 import { readFileSync, writeFileSync } from 'fs';
+import { execSync } from 'child_process';
 import { productPath } from './src/utils/productSlug';
 import { robotsTxtWithSitemap, sitemapXml, type SitemapPage } from './src/utils/sitemap';
 import { languageOfPath, localizedPath, type ShopLanguage } from './src/utils/language';
@@ -55,9 +56,23 @@ function writeSitemap() {
   writeFileSync(resolve(outputDirectory, 'robots.txt'), robotsTxtWithSitemap(robotsTxt, shopUrl));
 }
 
+// The number of the last merged pull request: VITE_LAST_MERGED_PR when set, else read from the last merge commit
+function lastMergedPullRequest(): string {
+  if (process.env.VITE_LAST_MERGED_PR) return process.env.VITE_LAST_MERGED_PR.replace(/^#/, '');
+  try {
+    const subject = execSync('git log --merges -1 --format=%s', { encoding: 'utf-8', stdio: ['ignore', 'pipe', 'ignore'] });
+    return /^Merge pull request #(\d+)/.exec(subject)?.[1] ?? '';
+  } catch {
+    return '';
+  }
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [vue(), vuetify()],
+  define: {
+    __LAST_MERGED_PR__: JSON.stringify(lastMergedPullRequest()),
+  },
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),

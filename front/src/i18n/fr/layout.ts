@@ -41,6 +41,7 @@ export default {
   },
   footer: {
     tagline: "L'essentiel du quotidien, livré rapidement.",
+    lastMergedPullRequest: 'Dernière pull request mergée',
     rights: 'Tous droits réservés.',
   },
   cookies: {
