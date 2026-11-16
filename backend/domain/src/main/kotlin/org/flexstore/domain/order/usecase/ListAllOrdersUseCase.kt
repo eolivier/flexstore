@@ -4,7 +4,7 @@ import org.flexstore.domain.order.*
 import org.flexstore.domain.order.model.*
 import org.ucop.domain.entity.*
 
-// The orders of all the customers, newest first
+// The orders of all the customers, newest first: for the internal flows only (no actor), never exposed to a caller
 class ListAllOrdersUseCase(private val orderRepository: OrderRepository) : QueryUseCase<Unit, Orders> {
 
     override fun getPreConditions(): PreConditions<Unit> = PreConditions.none()

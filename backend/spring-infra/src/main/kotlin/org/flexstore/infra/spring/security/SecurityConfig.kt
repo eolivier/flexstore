@@ -68,7 +68,9 @@ open class SecurityConfig(@Value("\${flexstore.security.jwt-secret:}") private v
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests {
                 it
-                    .requestMatchers("/error", "/actuator/**").permitAll()
+                    .requestMatchers("/error").permitAll()
+                    // The probes and the version are public; the metrics are not
+                    .requestMatchers("/actuator/health/**", "/actuator/info").permitAll()
                     // The MCP server only gives the public products, like GET /api/products
                     .requestMatchers("/mcp").permitAll()
                     // Whether the signed-in customer may review a product, before the public reading

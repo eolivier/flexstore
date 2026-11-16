@@ -34,5 +34,7 @@ RUN --mount=type=cache,target=/root/.gradle/caches \
 FROM eclipse-temurin:21-jre
 WORKDIR /app
 COPY --from=build /app/spring-infra/build/libs/*.jar /app/app.jar
+RUN useradd --system --no-create-home flexstore
+USER flexstore
 EXPOSE 8080
 ENTRYPOINT ["java","-jar","/app/app.jar"]
