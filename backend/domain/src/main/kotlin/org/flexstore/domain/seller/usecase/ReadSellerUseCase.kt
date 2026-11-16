@@ -1,6 +1,6 @@
 package org.flexstore.domain.seller.usecase
 
-import org.flexstore.domain.actor.isNotAtLeastVisitor
+import org.flexstore.domain.actor.verifyCanRead
 import org.flexstore.domain.seller.*
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
@@ -32,10 +32,6 @@ class ReadSellerUseCase(
 
     // The reader, resolved before the use case runs, is a visitor or higher, or the system
     private fun readerCanReadCondition() = PreCondition<SellerVersionReading> { reading ->
-        if (reading.reader.isNotAtLeastVisitor()) {
-            val reason = "The reader must be at least a visitor to read the versions of the seller."
-            val message = ErrorMessage(reason)
-            throw SellerReadingForbiddenException(message)
-        }
+        reading.reader.verifyCanRead("the versions of the seller", ::SellerReadingForbiddenException)
     }
 }

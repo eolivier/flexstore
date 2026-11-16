@@ -1,7 +1,6 @@
 package org.flexstore.domain.stock.usecase
 
-import org.flexstore.domain.actor.isNotAtLeastVisitor
-import org.ucop.domain.ErrorMessage
+import org.flexstore.domain.actor.verifyCanRead
 import org.flexstore.domain.stock.*
 import org.ucop.domain.entity.*
 
@@ -16,9 +15,6 @@ class ListStocksUseCase(private val stockRepository: StockRepository) : QueryUse
 
     // The reader, resolved before the use case runs, is a visitor or higher, or the system
     private fun readerCanReadCondition() = PreCondition<Actor> { reader ->
-        if (reader.isNotAtLeastVisitor()) {
-            val message = ErrorMessage("The reader must be at least a visitor to read the stocks.")
-            throw StockReadingForbiddenException(message)
-        }
+        reader.verifyCanRead("the stocks", ::StockReadingForbiddenException)
     }
 }

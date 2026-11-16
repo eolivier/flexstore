@@ -5,6 +5,8 @@ import org.flexstore.domain.sharedkernel.Name
 import org.flexstore.domain.user.model.AccountStatus
 import org.flexstore.domain.user.model.UserId.ValidUserId
 import org.junit.jupiter.api.Test
+import org.ucop.domain.ErrorMessage
+import org.ucop.domain.PreConditionException
 import org.ucop.domain.entity.Actor
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
@@ -120,4 +122,29 @@ class ActorsTest : WithAssertions {
         // Assert
         assertThat(adminAccounts).containsExactly(admin)
     }
+
+    @Test
+    fun `every actor that is a visitor or higher, and the system, should read what is public`() {
+        // Act
+        val refusals = actors.map { actor ->
+            catchThrowable { actor.verifyCanRead("the catalog", ::TestReadingForbiddenException) }
+        }
+        // Assert
+        assertThat(refusals).containsOnlyNulls()
+    }
+
+    @Test
+    fun `an actor that is none of the roles should be refused with the exception of what it reads`() {
+        // Arrange
+        val nobody = Actor(Name("Nobody"))
+        // Act
+        val thrown = catchThrowable { nobody.verifyCanRead("the catalog", ::TestReadingForbiddenException) }
+        // Assert
+        assertThat(thrown).isInstanceOf(TestReadingForbiddenException::class.java)
+        assertThat((thrown as TestReadingForbiddenException).errorMessage.value)
+            .isEqualTo("The reader must be at least a visitor to read the catalog.")
+    }
+
+    private class TestReadingForbiddenException(override val errorMessage: ErrorMessage) :
+        PreConditionException(errorMessage)
 }
