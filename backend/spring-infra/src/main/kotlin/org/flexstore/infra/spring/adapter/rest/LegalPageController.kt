@@ -3,8 +3,6 @@ package org.flexstore.infra.spring.adapter.rest
 import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.legal.LegalPageKind
 import org.flexstore.domain.legal.usecase.LegalPageUseCases
-import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.infra.spring.adapter.rest.json.JsonLegalPage
 import org.flexstore.infra.spring.adapter.rest.json.JsonLegalText
 import org.springframework.http.ResponseEntity
@@ -20,7 +18,6 @@ private val legalPageKinds = mapOf(
 )
 
 // The legal pages of the shop, read by everyone
-@Tag(name = "Legal pages")
 @RestController
 @RequestMapping("/api/legal-pages")
 class LegalPageController(
@@ -28,9 +25,6 @@ class LegalPageController(
     private val actorResolutionService: ActorResolutionService
 ) {
 
-    @Operation(
-        summary = "Retrieve the current version of a legal page: legal-notice, terms-of-sale or privacy-policy"
-    )
     @GetMapping("/{kind}")
     fun getLegalPage(@PathVariable kind: String): ResponseEntity<JsonLegalPage> {
         val legalPageKind = legalPageKinds[kind] ?: return ResponseEntity.notFound().build()
@@ -40,7 +34,6 @@ class LegalPageController(
 }
 
 // The legal pages written by the administrators (ADMIN role, see SecurityConfig)
-@Tag(name = "Administration")
 @RestController
 @RequestMapping("/api/admin/legal-pages")
 class AdminLegalPageController(
@@ -48,7 +41,6 @@ class AdminLegalPageController(
     private val actorResolutionService: ActorResolutionService
 ) {
 
-    @Operation(summary = "Publish a new version of a legal page: legal-notice, terms-of-sale or privacy-policy")
     @PutMapping("/{kind}")
     fun publishLegalPage(
         @AuthenticationPrincipal publisher: Jwt,

@@ -1,7 +1,5 @@
 package org.flexstore.infra.spring.adapter.rest
 
-import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.image.*
 import org.flexstore.domain.image.usecase.ProductImageUseCases
@@ -19,14 +17,12 @@ import org.springframework.web.multipart.MultipartFile
 import org.ucop.domain.ErrorMessage
 
 // The images of the products: read by everyone, given by the administrators (ADMIN role, see SecurityConfig)
-@Tag(name = "Product images")
 @RestController
 class ProductImageController(
     private val productImageUseCases: ProductImageUseCases,
     private val actorResolutionService: ActorResolutionService
 ) {
 
-    @Operation(summary = "Retrieve the ids of the products that have an image")
     @GetMapping("/api/product-images")
     fun getProductsWithImage(): List<String> {
         val productIds = productImageUseCases.getProductsWithImage(actorResolutionService.visitor())
@@ -34,7 +30,6 @@ class ProductImageController(
     }
 
     // The browser keeps the image and asks again with its ETag: an image that did not change is not sent again
-    @Operation(summary = "Retrieve the image of a product, in the small (cards, cart) or large (page) format")
     @GetMapping("/api/products/{productId}/image")
     fun getImage(
         @PathVariable productId: String,
@@ -54,7 +49,6 @@ class ProductImageController(
             .body(content.bytes.value)
     }
 
-    @Operation(summary = "Give the image of a product, 2 MB at most (JPEG, PNG or WebP): it is kept resized")
     @PutMapping("/api/admin/products/{productId}/image", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun addImage(
@@ -70,7 +64,6 @@ class ProductImageController(
         productImageUseCases.add(actor, uploadedImage)
     }
 
-    @Operation(summary = "Remove the image of a product")
     @DeleteMapping("/api/admin/products/{productId}/image")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun removeImage(@AuthenticationPrincipal editor: Jwt, @PathVariable productId: String) {

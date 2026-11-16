@@ -1,7 +1,5 @@
 package org.flexstore.infra.spring.adapter.rest
 
-import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.discount.PromoCode
 import org.flexstore.domain.discount.usecase.DiscountCodeUseCases
@@ -14,7 +12,6 @@ import org.springframework.security.oauth2.jwt.Jwt
 
 // The discount codes, given and deleted by the administrators (ADMIN role, see SecurityConfig, checked again by
 // the use cases)
-@Tag(name = "Administration")
 @RestController
 @RequestMapping("/api/admin/discount-codes")
 class AdminDiscountCodeController(
@@ -22,16 +19,12 @@ class AdminDiscountCodeController(
     private val actorResolutionService: ActorResolutionService
 ) {
 
-    @Operation(summary = "Retrieve the discount codes, newest first")
     @GetMapping
     fun getDiscountCodes(@AuthenticationPrincipal reader: Jwt): List<JsonDiscountCode> {
         val actor = actorResolutionService.actorOf(reader)
         return discountCodeUseCases.getAll(actor).asList().map { JsonDiscountCode(it) }
     }
 
-    @Operation(
-        summary = "Give a discount code: a percentage or an amount off the items, until a date, for some orders"
-    )
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun createDiscountCode(
@@ -44,7 +37,6 @@ class AdminDiscountCodeController(
         return JsonDiscountCode(discountCode)
     }
 
-    @Operation(summary = "Delete a discount code: the orders that used it keep their discount")
     @DeleteMapping("/{code}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteDiscountCode(@AuthenticationPrincipal editor: Jwt, @PathVariable code: String) {

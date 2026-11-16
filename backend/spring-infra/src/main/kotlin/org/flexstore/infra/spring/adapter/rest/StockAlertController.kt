@@ -1,7 +1,5 @@
 package org.flexstore.infra.spring.adapter.rest
 
-import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.sharedkernel.Identity
 import org.flexstore.domain.stock.*
@@ -16,28 +14,24 @@ import org.springframework.web.bind.annotation.*
 
 // The alerts on the stocks, for the administrators (ADMIN role, see SecurityConfig, checked again by the use
 // cases): the threshold of each product, and the stocks that reached it
-@Tag(name = "Stocks")
 @RestController
 class StockAlertController(
     private val stockAlertUseCases: StockAlertUseCases,
     private val actorResolutionService: ActorResolutionService
 ) {
 
-    @Operation(summary = "Retrieve the stocks at or under the alert threshold of their product, from the lowest")
     @GetMapping("/api/admin/stocks/low")
     fun getLowStocks(@AuthenticationPrincipal reader: Jwt): List<JsonLowStock> {
         val actor = actorResolutionService.actorOf(reader)
         return stockAlertUseCases.lowStocks(actor).asList().map { JsonLowStock.of(it) }
     }
 
-    @Operation(summary = "Retrieve the alert threshold of a product (the default one when it was never given)")
     @GetMapping("/api/admin/stocks/{productId}/alert")
     fun getStockAlert(@AuthenticationPrincipal reader: Jwt, @PathVariable productId: String): JsonStockAlert {
         val actor = actorResolutionService.actorOf(reader)
         return JsonStockAlert.of(stockAlertUseCases.alertOf(actor, ProductId(Identity(productId))))
     }
 
-    @Operation(summary = "Give the number of units at or under which the administrators are warned")
     @PutMapping("/api/admin/stocks/{productId}/alert")
     fun changeStockAlert(
         @AuthenticationPrincipal editor: Jwt,

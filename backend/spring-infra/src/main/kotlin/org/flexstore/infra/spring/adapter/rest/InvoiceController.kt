@@ -1,8 +1,6 @@
 package org.flexstore.infra.spring.adapter.rest
 
 import org.flexstore.domain.sharedkernel.Identity
-import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.invoice.model.InvoicePdf
 import org.flexstore.domain.invoice.InvoiceService
@@ -19,21 +17,18 @@ import org.springframework.web.bind.annotation.RestController
 
 // The invoices of the paid orders, and the credit notes of the refunded ones, as PDF documents: for their
 // customer, or for the administrators (ADMIN role, see SecurityConfig)
-@Tag(name = "Invoices")
 @RestController
 class InvoiceController(
     private val invoiceService: InvoiceService,
     private val actorResolutionService: ActorResolutionService
 ) {
 
-    @Operation(summary = "Download the invoice of a paid order of the signed-in customer (PDF)")
     @GetMapping("/api/orders/{id}/invoice", produces = [MediaType.APPLICATION_PDF_VALUE])
     fun getInvoice(@AuthenticationPrincipal jwt: Jwt, @PathVariable id: String): ResponseEntity<ByteArray> {
         val invoicePdf = invoiceService.invoice(actorResolutionService.actorOf(jwt), OrderId(Identity(id)))
         return pdfResponse(invoicePdf, "facture", id)
     }
 
-    @Operation(summary = "Download the invoice of any paid order (PDF)")
     @GetMapping("/api/admin/orders/{id}/invoice", produces = [MediaType.APPLICATION_PDF_VALUE])
     fun getAnyInvoice(
         @AuthenticationPrincipal reader: Jwt,
@@ -43,14 +38,12 @@ class InvoiceController(
         return pdfResponse(invoicePdf, "facture", id)
     }
 
-    @Operation(summary = "Download the credit note of a refunded order of the signed-in customer (PDF)")
     @GetMapping("/api/orders/{id}/credit-note", produces = [MediaType.APPLICATION_PDF_VALUE])
     fun getCreditNote(@AuthenticationPrincipal jwt: Jwt, @PathVariable id: String): ResponseEntity<ByteArray> {
         val creditNotePdf = invoiceService.creditNote(actorResolutionService.actorOf(jwt), OrderId(Identity(id)))
         return pdfResponse(creditNotePdf, "avoir", id)
     }
 
-    @Operation(summary = "Download the credit note of any refunded order (PDF)")
     @GetMapping("/api/admin/orders/{id}/credit-note", produces = [MediaType.APPLICATION_PDF_VALUE])
     fun getAnyCreditNote(
         @AuthenticationPrincipal reader: Jwt,

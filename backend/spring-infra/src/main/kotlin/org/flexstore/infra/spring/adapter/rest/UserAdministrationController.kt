@@ -1,10 +1,5 @@
 package org.flexstore.infra.spring.adapter.rest
 
-import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.media.Content
-import io.swagger.v3.oas.annotations.media.Schema
-import io.swagger.v3.oas.annotations.responses.ApiResponse
-import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.sharedkernel.PageNumber
 import org.flexstore.domain.sharedkernel.PageRequest
@@ -31,7 +26,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.*
 
-@Tag(name = "Users")
 @RestController
 @RequestMapping("/api/users")
 class UserAdministrationController(
@@ -39,10 +33,6 @@ class UserAdministrationController(
     private val actorResolutionService: ActorResolutionService
 ) {
 
-    @Operation(summary = "Create a user")
-    @ApiResponse(responseCode = "201", description = "User created",
-        content = [Content(schema = Schema(implementation = DefinedJsonUser::class))]
-    )
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun createUser(@AuthenticationPrincipal creator: Jwt, @RequestBody draftJsonUser: DraftJsonUser): JsonUser {
@@ -51,21 +41,6 @@ class UserAdministrationController(
         return userService.createUser(createUserRequest).toJsonUser()
     }
 
-    @Operation(
-        summary = "Retrieve all users",
-        description = "Returns the full list of users",
-        responses = [
-            ApiResponse(
-                responseCode = "200",
-                description = "Successfully retrieved the list of users",
-                content = [
-                    Content(
-                        schema = Schema(implementation = DefinedJsonUser::class)
-                    )
-                ]
-            )
-        ]
-    )
     @GetMapping
     fun getAllUsers(
         @AuthenticationPrincipal reader: Jwt,
@@ -79,31 +54,12 @@ class UserAdministrationController(
         return pagedBody(users.content.asList().toJsonUsers(), users.total)
     }
 
-    @Operation(summary = "Retrieve a user by ID",
-        responses = [
-            ApiResponse(
-                responseCode = "200",
-                description = "Successfully retrieved the user",
-                content = [
-                    Content(schema = Schema(implementation = DefinedJsonUser::class))
-                ]
-            )
-        ]
-    )
     @GetMapping("/{id}")
     fun getUser(@AuthenticationPrincipal reader: Jwt, @PathVariable id: String): JsonUser {
         val actor = actorResolutionService.actorOf(reader)
         return userService.readUser(actor, ValidUserId(id)).toJsonUser()
     }
 
-    @Operation(summary = "Update a user by ID",
-        responses = [
-            ApiResponse(
-                responseCode = "200",
-                description = "Successfully updated the user"
-            )
-        ]
-    )
     @PutMapping("/{id}")
     fun updateUser(
         @AuthenticationPrincipal editor: Jwt,
@@ -115,9 +71,6 @@ class UserAdministrationController(
         return userService.readUser(actor, UserId.of(id)).toJsonUser()
     }
 
-    @Operation(
-        summary = "Change the status of an account: ACTIVE, SUSPENDED, LOCKED or DISABLED (administrator only)"
-    )
     @PutMapping("/{id}/status")
     fun changeAccountStatus(
         @AuthenticationPrincipal editor: Jwt,
@@ -129,14 +82,6 @@ class UserAdministrationController(
         return userService.changeAccountStatus(accountStatusChange).toJsonUser()
     }
 
-    @Operation(summary = "Delete a user by ID",
-        responses = [
-            ApiResponse(
-                responseCode = "204",
-                description = "Successfully deleted the user"
-            )
-        ]
-    )
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteUser(@AuthenticationPrincipal editor: Jwt, @PathVariable id: String) {

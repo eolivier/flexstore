@@ -1,7 +1,5 @@
 package org.flexstore.infra.spring.adapter.rest
 
-import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.environment.EnvironmentReading
 import org.flexstore.domain.environment.ReadEnvironmentUseCase
@@ -12,7 +10,6 @@ import org.springframework.web.bind.annotation.*
 
 // The environment variables of the back end, for the administrators (ADMIN role, see SecurityConfig, checked
 // again by the use case): the secrets are never given, only whether they are defined
-@Tag(name = "Administration")
 @RestController
 @RequestMapping("/api/admin/environment")
 class AdminEnvironmentController(
@@ -20,7 +17,6 @@ class AdminEnvironmentController(
     private val actorResolutionService: ActorResolutionService
 ) {
 
-    @Operation(summary = "Retrieve the environment variables of the shop, the secrets only as defined or not")
     @GetMapping
     fun getEnvironment(@AuthenticationPrincipal reader: Jwt): List<JsonEnvironmentVariable> {
         val actor = actorResolutionService.actorOf(reader)

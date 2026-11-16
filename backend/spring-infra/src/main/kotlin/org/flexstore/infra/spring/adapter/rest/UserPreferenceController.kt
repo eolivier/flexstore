@@ -1,7 +1,5 @@
 package org.flexstore.infra.spring.adapter.rest
 
-import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.domain.preference.UserPreference
 import org.flexstore.domain.preference.UserPreferences
 import org.flexstore.domain.preference.usecase.UserPreferenceUseCases
@@ -18,19 +16,16 @@ import org.springframework.web.bind.annotation.*
 
 // The preferences of the signed-in customer, kept in their account (the visitors keep their display mode in
 // their browser): display mode, guided tour and preferred language
-@Tag(name = "Preferences")
 @RestController
 class UserPreferenceController(
     private val userPreferenceUseCases: UserPreferenceUseCases,
     private val actorResolutionService: ActorResolutionService
 ) {
 
-    @Operation(summary = "Retrieve the display mode of the signed-in customer (NONE when they never chose)")
     @GetMapping("/api/color-mode")
     fun getColorModePreference(@AuthenticationPrincipal customer: Jwt): JsonColorModePreference =
         JsonColorModePreference.of(preferencesOf(customer).colorMode)
 
-    @Operation(summary = "Record the display mode chosen by the signed-in customer")
     @PutMapping("/api/color-mode")
     fun recordColorModePreference(
         @AuthenticationPrincipal customer: Jwt,
@@ -40,14 +35,10 @@ class UserPreferenceController(
         return JsonColorModePreference.of(record(customer, displayMode).colorMode)
     }
 
-    @Operation(
-        summary = "Retrieve whether the guided tour is shown to the signed-in customer (NONE if never chosen)"
-    )
     @GetMapping("/api/guided-tour")
     fun getGuidedTourPreference(@AuthenticationPrincipal customer: Jwt): JsonGuidedTourPreference =
         JsonGuidedTourPreference.of(preferencesOf(customer).guidedTour)
 
-    @Operation(summary = "Record whether the guided tour is shown to the signed-in customer")
     @PutMapping("/api/guided-tour")
     fun recordGuidedTourPreference(
         @AuthenticationPrincipal customer: Jwt,
@@ -57,14 +48,10 @@ class UserPreferenceController(
         return JsonGuidedTourPreference.of(record(customer, guidedTour).guidedTour)
     }
 
-    @Operation(
-        summary = "Retrieve the preferred language of the signed-in customer (NONE when they never chose)"
-    )
     @GetMapping("/api/language")
     fun getLanguagePreference(@AuthenticationPrincipal customer: Jwt): JsonLanguagePreference =
         JsonLanguagePreference.of(preferencesOf(customer).language)
 
-    @Operation(summary = "Record the preferred language chosen by the signed-in customer")
     @PutMapping("/api/language")
     fun recordLanguagePreference(
         @AuthenticationPrincipal customer: Jwt,
