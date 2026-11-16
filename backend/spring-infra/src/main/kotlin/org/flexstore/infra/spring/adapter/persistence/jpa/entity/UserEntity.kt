@@ -3,7 +3,7 @@ package org.flexstore.infra.spring.adapter.persistence.jpa.entity
 import jakarta.persistence.*
 
 @Entity
-@Table(name = "\"user\"") // entre guillemets car "user" est mot réservé
+@Table(name = "\"user\"") // quoted because "user" is a reserved word
 data class UserEntity(
     @Id
     val id: String,

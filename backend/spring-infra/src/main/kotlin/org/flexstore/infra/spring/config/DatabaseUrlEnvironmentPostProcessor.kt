@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets
 const val DATABASE_URL_ENV = "FLEXSTORE_DATABASE_URL"
 
 /**
- * Configures the datasource from FLEXSTORE_DATABASE_URL when it is set (e.g. on Render).
+ * Configures the datasource from FLEXSTORE_DATABASE_URL when it is set (e.g. by a hosted database).
  * Accepts a JDBC URL (jdbc:postgresql://...) or a connection string (postgres(ql)://user:password@host:port/db).
  * Without it, the FLEXSTORE_DATASOURCE_* variables of application.yml are used.
  */

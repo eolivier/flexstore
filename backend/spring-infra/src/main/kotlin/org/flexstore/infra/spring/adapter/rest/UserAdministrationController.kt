@@ -105,7 +105,6 @@ class UserAdministrationController(
         ]
     )
     @PutMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
     fun updateUser(
         @AuthenticationPrincipal editor: Jwt,
         @PathVariable id: String,
@@ -120,7 +119,6 @@ class UserAdministrationController(
         summary = "Change the status of an account: ACTIVE, SUSPENDED, LOCKED or DISABLED (administrator only)"
     )
     @PutMapping("/{id}/status")
-    @ResponseStatus(HttpStatus.OK)
     fun changeAccountStatus(
         @AuthenticationPrincipal editor: Jwt,
         @PathVariable id: String,

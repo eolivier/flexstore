@@ -10,7 +10,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
-// The health check of the host (Render): the application is up as long as it can serve the shop. The emails are
+// The health check of the host: the application is up as long as it can serve the shop. The emails are
 // written to the logs without SMTP server (as in the tests), and a server that fails does not stop the orders
 @ActiveProfiles("test")
 @SpringBootTest
