@@ -6,6 +6,7 @@ import org.flexstore.domain.user.model.AccountStatus
 import org.flexstore.domain.user.model.UserId
 import org.flexstore.domain.user.model.UserNotFoundException
 import org.ucop.domain.ErrorMessage
+import org.ucop.domain.PreConditionException
 import org.ucop.domain.entity.Actor
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
@@ -70,6 +71,14 @@ fun Actor.verifyCanAct() {
     if (isAtLeastCustomer() && cannotAct()) {
         val message = ErrorMessage("The account ${userId.value} is $status: it cannot act.")
         throw AccountRefusedException(status, message)
+    }
+}
+
+// What the preconditions of the public reads check first: the reader is a visitor or higher, or the system. The
+// exception is the one of the sub-domain that is read, so that each is answered for what it is
+fun Actor.verifyCanRead(subject: String, refusal: (ErrorMessage) -> PreConditionException) {
+    if (isNotAtLeastVisitor()) {
+        throw refusal(ErrorMessage("The reader must be at least a visitor to read $subject."))
     }
 }
 

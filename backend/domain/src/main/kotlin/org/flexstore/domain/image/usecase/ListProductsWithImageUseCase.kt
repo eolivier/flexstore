@@ -1,7 +1,6 @@
 package org.flexstore.domain.image.usecase
 
-import org.flexstore.domain.actor.isNotAtLeastVisitor
-import org.ucop.domain.ErrorMessage
+import org.flexstore.domain.actor.verifyCanRead
 import org.flexstore.domain.image.*
 import org.flexstore.domain.product.model.ProductIds
 import org.ucop.domain.entity.*
@@ -21,10 +20,6 @@ class ListProductsWithImageUseCase(
 
     // The reader, resolved before the use case runs, is a visitor or higher, or the system
     private fun readerCanReadCondition() = PreCondition<Actor> { reader ->
-        if (reader.isNotAtLeastVisitor()) {
-            val reason = "The reader must be at least a visitor to read the products that have an image."
-            val message = ErrorMessage(reason)
-            throw ProductImageReadingForbiddenException(message)
-        }
+        reader.verifyCanRead("the products that have an image", ::ProductImageReadingForbiddenException)
     }
 }
