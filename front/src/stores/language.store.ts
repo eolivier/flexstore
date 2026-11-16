@@ -16,7 +16,7 @@ export const useLanguageStore = defineStore('language', () => {
   const accountLanguage = ref<AccountLanguage>('none');
 
   async function readFromAccount(): Promise<AccountLanguage> {
-    const response = await authStore.authFetch('/api/language').catch(() => null);
+    const response = await authStore.authFetchOrNull('/api/language');
     if (!response?.ok) return 'none';
     const preference = await response.json();
     const language = String(preference.language).toLowerCase();
@@ -34,9 +34,7 @@ export const useLanguageStore = defineStore('language', () => {
   // The customer chose a language: their account keeps it when they are signed in
   async function choose(language: ShopLanguage): Promise<void> {
     if (!authStore.isAuthenticated) return;
-    await authStore
-      .authFetch('/api/language', jsonRequest('PUT', { language: language.toUpperCase() }))
-      .catch(() => null);
+    await authStore.authFetchOrNull('/api/language', jsonRequest('PUT', { language: language.toUpperCase() }));
   }
 
   return { accountLanguage, choose };

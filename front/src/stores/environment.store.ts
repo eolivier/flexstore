@@ -12,7 +12,7 @@ export const useEnvironmentStore = defineStore('environment', () => {
 
   async function fetchVariables() {
     loadError.value = false;
-    const response = await authStore.authFetch('/api/admin/environment').catch(() => null);
+    const response = await authStore.authFetchOrNull('/api/admin/environment');
     if (response?.ok) {
       variables.value = await response.json();
       loaded.value = true;

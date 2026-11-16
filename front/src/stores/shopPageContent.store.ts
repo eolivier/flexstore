@@ -52,9 +52,10 @@ export const useShopPageContentStore = defineStore('shopPageContent', () => {
   }
 
   async function editContent(type: ShopPageContentType, text: string): Promise<ShopPageContentEdit> {
-    const response = await authStore
-      .authFetch(`/api/admin/shop-page-contents/${pathOf(type)}`, jsonRequest('PUT', { text }))
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull(
+      `/api/admin/shop-page-contents/${pathOf(type)}`,
+      jsonRequest('PUT', { text })
+    );
     if (response?.status === 400) return 'invalid';
     if (!response?.ok) return 'failed';
     keep(await response.json());

@@ -29,9 +29,7 @@ export const useLegalPagesStore = defineStore('legalPages', () => {
   }
 
   async function publishLegalPage(kind: LegalPageKind, text: string): Promise<LegalPagePublication> {
-    const response = await authStore
-      .authFetch(`/api/admin/legal-pages/${kind}`, jsonRequest('PUT', { text }))
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull(`/api/admin/legal-pages/${kind}`, jsonRequest('PUT', { text }));
     if (response?.status === 400) return 'invalid';
     if (!response?.ok) return 'failed';
     legalPages.value[kind] = await response.json();

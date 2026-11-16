@@ -267,6 +267,28 @@ describe('auth.store', () => {
     });
   });
 
+  describe('authFetchOrNull', () => {
+    it('should give the answer of the request, like authFetch', async () => {
+      // Arrange
+      const store = await signedIn();
+      mockFetch.mockResolvedValueOnce({ ok: true, status: 200 });
+      // Act
+      const response = await store.authFetchOrNull('/api/users');
+      // Assert
+      expect(response?.status).toBe(200);
+    });
+
+    it('should give null when the request cannot be sent', async () => {
+      // Arrange
+      const store = await signedIn();
+      mockFetch.mockRejectedValueOnce(new Error('network down'));
+      // Act
+      const response = await store.authFetchOrNull('/api/users');
+      // Assert
+      expect(response).toBeNull();
+    });
+  });
+
   describe('authFetch', () => {
     it('should send the token of the signed-in user', async () => {
       // Arrange

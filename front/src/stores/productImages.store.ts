@@ -37,9 +37,10 @@ export const useProductImagesStore = defineStore('productImages', () => {
     if (file.size > MAX_IMAGE_BYTES) return 'tooLarge';
     const body = new FormData();
     body.append('image', file);
-    const response = await authStore
-      .authFetch(`/api/admin/products/${encodeURIComponent(productId)}/image`, { method: 'PUT', body })
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull(`/api/admin/products/${encodeURIComponent(productId)}/image`, {
+      method: 'PUT',
+      body,
+    });
     if (response?.status === 413) return 'tooLarge';
     if (response?.status === 415) return 'unsupported';
     if (!response?.ok) return 'error';
@@ -50,9 +51,9 @@ export const useProductImagesStore = defineStore('productImages', () => {
 
   // Returns whether the image was removed
   async function removeImage(productId: string): Promise<boolean> {
-    const response = await authStore
-      .authFetch(`/api/admin/products/${encodeURIComponent(productId)}/image`, { method: 'DELETE' })
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull(`/api/admin/products/${encodeURIComponent(productId)}/image`, {
+      method: 'DELETE',
+    });
     if (!response?.ok) return false;
     productIds.value = new Set([...productIds.value].filter((id) => id !== productId));
     version.value++;

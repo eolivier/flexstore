@@ -12,16 +12,14 @@ export const useStockAlertsStore = defineStore('stockAlerts', () => {
 
   // The low stocks are kept as they were when they cannot be read
   async function fetchLowStocks() {
-    const response = await authStore.authFetch('/api/admin/stocks/low').catch(() => null);
+    const response = await authStore.authFetchOrNull('/api/admin/stocks/low');
     if (!response?.ok) return;
     lowStocks.value = await response.json();
   }
 
   // The threshold of a product, or null when it cannot be read
   async function thresholdOf(productId: string): Promise<number | null> {
-    const response = await authStore
-      .authFetch(`/api/admin/stocks/${encodeURIComponent(productId)}/alert`)
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull(`/api/admin/stocks/${encodeURIComponent(productId)}/alert`);
     if (!response?.ok) return null;
     const stockAlert: JsonStockAlert = await response.json();
     return stockAlert.threshold;
@@ -29,9 +27,10 @@ export const useStockAlertsStore = defineStore('stockAlerts', () => {
 
   // Returns whether the threshold was changed
   async function changeThreshold(productId: string, threshold: number): Promise<boolean> {
-    const response = await authStore
-      .authFetch(`/api/admin/stocks/${encodeURIComponent(productId)}/alert`, jsonRequest('PUT', { threshold }))
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull(
+      `/api/admin/stocks/${encodeURIComponent(productId)}/alert`,
+      jsonRequest('PUT', { threshold })
+    );
     return response?.ok ?? false;
   }
 

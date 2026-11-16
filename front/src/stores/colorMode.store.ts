@@ -20,14 +20,15 @@ export const useColorModeStore = defineStore('colorMode', () => {
   const accountColorMode = ref<AccountColorMode>('none');
 
   async function recordInAccount(colorMode: ColorMode): Promise<boolean> {
-    const response = await authStore
-      .authFetch('/api/color-mode', jsonRequest('PUT', { colorMode: accountOfColorMode[colorMode] }))
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull(
+      '/api/color-mode',
+      jsonRequest('PUT', { colorMode: accountOfColorMode[colorMode] })
+    );
     return response?.ok === true;
   }
 
   async function readFromAccount(): Promise<AccountColorMode> {
-    const response = await authStore.authFetch('/api/color-mode').catch(() => null);
+    const response = await authStore.authFetchOrNull('/api/color-mode');
     if (!response?.ok) return 'none';
     const preference = await response.json();
     return colorModeOfAccount[preference.colorMode] ?? 'none';

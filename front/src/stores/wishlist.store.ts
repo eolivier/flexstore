@@ -21,7 +21,7 @@ export const useWishlistStore = defineStore('wishlist', () => {
   async function fetchWishlist() {
     loading.value = true;
     loadError.value = false;
-    const response = await authStore.authFetch('/api/wishlist').catch(() => null);
+    const response = await authStore.authFetchOrNull('/api/wishlist');
     if (response?.ok) {
       const jsonProducts: JsonProduct[] = await response.json();
       products.value = jsonProducts.map(fromApi);
@@ -34,9 +34,9 @@ export const useWishlistStore = defineStore('wishlist', () => {
   // Returns whether the product is saved to the wishlist
   async function save(product: Product): Promise<boolean> {
     if (!product.id) return false;
-    const response = await authStore
-      .authFetch(`/api/wishlist/${encodeURIComponent(product.id)}`, { method: 'PUT' })
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull(`/api/wishlist/${encodeURIComponent(product.id)}`, {
+      method: 'PUT',
+    });
     if (!response?.ok) return false;
     if (!isSaved(product.id)) products.value = [product, ...products.value];
     return true;
@@ -44,9 +44,9 @@ export const useWishlistStore = defineStore('wishlist', () => {
 
   // Returns whether the product was removed
   async function remove(productId: string): Promise<boolean> {
-    const response = await authStore
-      .authFetch(`/api/wishlist/${encodeURIComponent(productId)}`, { method: 'DELETE' })
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull(`/api/wishlist/${encodeURIComponent(productId)}`, {
+      method: 'DELETE',
+    });
     if (!response?.ok) return false;
     products.value = products.value.filter((product) => product.id !== productId);
     return true;

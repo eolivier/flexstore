@@ -35,7 +35,7 @@ export const useSellerStore = defineStore('seller', () => {
 
   async function fetchSeller() {
     loadError.value = false;
-    const response = await authStore.authFetch('/api/admin/seller').catch(() => null);
+    const response = await authStore.authFetchOrNull('/api/admin/seller');
     if (response?.ok) {
       seller.value = await response.json();
     } else {
@@ -49,7 +49,7 @@ export const useSellerStore = defineStore('seller', () => {
   const completeSetup = (givenSeller: Seller) => saveSeller('/api/admin/seller/setup', givenSeller);
 
   async function saveSeller(path: string, editedSeller: Seller): Promise<SellerUpdate> {
-    const response = await authStore.authFetch(path, jsonRequest('PUT', editedSeller)).catch(() => null);
+    const response = await authStore.authFetchOrNull(path, jsonRequest('PUT', editedSeller));
     if (response?.status === 400) return 'invalid';
     if (!response?.ok) return 'failed';
     seller.value = await response.json();

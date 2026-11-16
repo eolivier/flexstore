@@ -117,14 +117,14 @@ export const useOrdersStore = defineStore('orders', () => {
 
   // The shipping methods, with their cost for the cart of the customer; null when they cannot be read
   async function fetchShippingOptions(): Promise<JsonShippingOptions | null> {
-    const response = await authStore.authFetch('/api/orders/shipping-options').catch(() => null);
+    const response = await authStore.authFetchOrNull('/api/orders/shipping-options');
     if (!response?.ok) return null;
     return response.json();
   }
 
   async function checkDiscountCode(code: string): Promise<DiscountCheck> {
     const query = new URLSearchParams({ code });
-    const response = await authStore.authFetch(`/api/orders/discount-preview?${query}`).catch(() => null);
+    const response = await authStore.authFetchOrNull(`/api/orders/discount-preview?${query}`);
     if (response?.status === 404) return { status: 'unknown' };
     if (response?.status === 410) return { status: 'unusable' };
     if (!response?.ok) return { status: 'error' };

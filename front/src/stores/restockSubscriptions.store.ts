@@ -12,7 +12,7 @@ export const useRestockSubscriptionsStore = defineStore('restockSubscriptions', 
   }
 
   async function fetchSubscriptions() {
-    const response = await authStore.authFetch('/api/restock-subscriptions').catch(() => null);
+    const response = await authStore.authFetchOrNull('/api/restock-subscriptions');
     if (response?.ok) {
       const loadedProductIds: string[] = await response.json();
       // A subscription made while the list was loading is kept
@@ -22,9 +22,9 @@ export const useRestockSubscriptionsStore = defineStore('restockSubscriptions', 
 
   // Returns whether the customer will be notified when the product is back in stock
   async function subscribe(productId: string): Promise<boolean> {
-    const response = await authStore
-      .authFetch(`/api/restock-subscriptions/${encodeURIComponent(productId)}`, { method: 'PUT' })
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull(`/api/restock-subscriptions/${encodeURIComponent(productId)}`, {
+      method: 'PUT',
+    });
     if (!response?.ok) return false;
     if (!isSubscribed(productId)) subscribedProductIds.value = [...subscribedProductIds.value, productId];
     return true;
@@ -32,9 +32,9 @@ export const useRestockSubscriptionsStore = defineStore('restockSubscriptions', 
 
   // Returns whether the customer is no longer notified of the return of the product
   async function unsubscribe(productId: string): Promise<boolean> {
-    const response = await authStore
-      .authFetch(`/api/restock-subscriptions/${encodeURIComponent(productId)}`, { method: 'DELETE' })
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull(`/api/restock-subscriptions/${encodeURIComponent(productId)}`, {
+      method: 'DELETE',
+    });
     if (!response?.ok) return false;
     subscribedProductIds.value = subscribedProductIds.value.filter((subscribedId) => subscribedId !== productId);
     return true;
