@@ -47,7 +47,7 @@ class OrderCheckoutService(
         val orderPlacement = OrderPlacement(orderStamp, checkout)
         orderPlacementUseCases.keepOrderAddressesUseCase.unfold(orderPlacement)
         val discountChoice = discountChoiceOf(enteredDiscountCode, orderStamp)
-        val orderToPlace = OrderToPlace(orderPlacement, contentOf(customer, checkout, discountChoice))
+        val orderToPlace = OrderToPlace(customer, orderPlacement, contentOf(customer, checkout, discountChoice))
         orderPlacementUseCases.placeOrderUseCase.unfold(orderToPlace)
         if (discountChoice is WithDiscountCode) {
             checkoutDiscountUseCases.useDiscountCodeUseCase.unfold(discountChoice.discountCode.code)

@@ -19,6 +19,6 @@ class ShippingMethodUseCases(
     fun update(editor: Actor, method: ShippingMethod) =
         updateShippingMethodUseCase.unfold(ShippingMethodUpdate(editor, method))
 
-    fun getEnabled(customer: CartOwner.Customer, shippingMethodId: ShippingMethodId) =
+    fun getEnabled(customer: Actor, shippingMethodId: ShippingMethodId) =
         readEnabledShippingMethodUseCase.unfold(EnabledShippingMethodLookup(customer, shippingMethodId))
 }

@@ -1,17 +1,17 @@
 package org.flexstore.domain.order.usecase
 
+import org.flexstore.domain.actor.verifyCanAct
 import org.flexstore.domain.legal.LegalPageKind
 import org.flexstore.domain.legal.LegalPageRepository
 import org.flexstore.domain.order.*
 import org.flexstore.domain.order.model.*
 import org.flexstore.domain.stock.*
-import org.flexstore.domain.user.repository.UserRepository
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
-// An order to place, and what it is placed from: the cart of the customer and the threshold of free shipping,
-// read before
-data class OrderToPlace(val placement: OrderPlacement, val content: OrderContent) {
+// An order to place by a customer, and what it is placed from: the cart of the customer and the threshold of free
+// shipping, read before
+data class OrderToPlace(val customer: Actor, val placement: OrderPlacement, val content: OrderContent) {
 
     val orderId get() = placement.orderId
 
@@ -24,8 +24,7 @@ data class OrderToPlace(val placement: OrderPlacement, val content: OrderContent
 class PlaceOrderUseCase(
     private val orderRepository: OrderRepository,
     private val stockRepository: StockRepository,
-    private val legalPageRepository: LegalPageRepository,
-    private val userRepository: UserRepository
+    private val legalPageRepository: LegalPageRepository
 ) : UseCase<OrderToPlace> {
 
     override fun getPreConditions(): PreConditions<OrderToPlace> = PreConditions(
@@ -43,10 +42,9 @@ class PlaceOrderUseCase(
 
     override fun getPostConditions(): PostConditions<OrderToPlace> = PostConditions(orderIsStoredCondition())
 
-    // The customer must be an existing user whose account is not suspended, locked or disabled (read
-    // from the users, not from the request)
+    // The customer, resolved before the use case runs, must be a customer or an admin who can act
     private fun customerCanActCondition() = PreCondition<OrderToPlace> { orderToPlace ->
-        userRepository.verifyCustomerCanAct(orderToPlace.placement.customer.userId)
+        orderToPlace.customer.verifyCanAct()
     }
 
     private fun cartHasItemsCondition() = PreCondition<OrderToPlace> { orderToPlace ->

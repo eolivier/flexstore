@@ -1,5 +1,7 @@
 package org.flexstore.domain.payment.usecase
 
+import org.flexstore.domain.actor.customerId
+import org.flexstore.domain.actor.verifyCanAct
 import org.flexstore.domain.order.*
 import org.flexstore.domain.order.model.*
 import org.flexstore.domain.payment.*
@@ -24,7 +26,7 @@ class StartPaymentUseCase(
     override fun getNominalScenario(): NominalScenario<OrderPayment> {
         val startStep = Step<OrderPayment> { orderPayment ->
             val order = orderRepository.get(orderPayment.orderId)
-            val customer = userRepository.findById(orderPayment.customer.userId) as User.DefinedUser
+            val customer = userRepository.findById(orderPayment.customer.customerId()) as User.DefinedUser
             paymentRepository.start(PaymentRequest(order, Payer.of(customer, order)))
         }
         return NominalScenario(startStep)
@@ -32,16 +34,15 @@ class StartPaymentUseCase(
 
     override fun getPostConditions(): PostConditions<OrderPayment> = PostConditions(sessionIsKeptCondition())
 
-    // The customer must be an existing user whose account is not suspended, locked or disabled (read
-    // from the users, not from the request)
+    // The customer, resolved before the use case runs, must be a customer or an admin who can act
     private fun customerCanActCondition() = PreCondition<OrderPayment> { orderPayment ->
-        userRepository.verifyCustomerCanAct(orderPayment.customer.userId)
+        orderPayment.customer.verifyCanAct()
     }
 
     // The order of another customer is reported as not found, so that its existence is not revealed
     private fun orderOfTheCustomerCondition() = PreCondition<OrderPayment> { orderPayment ->
         val orderId = orderPayment.orderId
-        val customerId = orderPayment.customer.userId
+        val customerId = orderPayment.customer.customerId()
         if (orderRepository.orderIsMissing(orderId) || orderRepository.get(orderId).doesNotBelongTo(customerId)) {
             throw OrderNotFoundException(ErrorMessage("Order ${orderPayment.orderId} not found."))
         }

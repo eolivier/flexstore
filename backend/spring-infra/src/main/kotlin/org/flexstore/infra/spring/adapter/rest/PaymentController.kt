@@ -1,11 +1,10 @@
 package org.flexstore.infra.spring.adapter.rest
 
 import org.flexstore.domain.sharedkernel.Identity
-import org.flexstore.domain.cart.CartOwner
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.order.model.OrderId
 import org.flexstore.domain.payment.OrderPayment
 import org.flexstore.domain.payment.PaymentService
-import org.flexstore.domain.user.model.UserId
 import org.flexstore.infra.spring.adapter.payment.InvalidStripeSignatureException
 import org.flexstore.infra.spring.adapter.payment.StripeWebhook
 import org.flexstore.infra.spring.adapter.rest.json.JsonPaymentSession
@@ -19,13 +18,14 @@ import org.springframework.web.bind.annotation.*
 @RestController
 class PaymentController(
     private val paymentService: PaymentService,
-    private val stripeWebhook: ObjectProvider<StripeWebhook>
+    private val stripeWebhook: ObjectProvider<StripeWebhook>,
+    private val actorResolutionService: ActorResolutionService
 ) {
 
     @PostMapping("/api/orders/{orderId}/payment")
     @ResponseStatus(HttpStatus.CREATED)
     fun pay(@AuthenticationPrincipal jwt: Jwt, @PathVariable orderId: String): JsonPaymentSession {
-        val customer = CartOwner.Customer(UserId.ValidUserId(jwt.subject))
+        val customer = actorResolutionService.actorOf(jwt)
         val paymentSession = paymentService.pay(OrderPayment(customer, OrderId(Identity(orderId))))
         return JsonPaymentSession.of(paymentSession)
     }
@@ -35,7 +35,7 @@ class PaymentController(
     @PostMapping("/api/orders/{orderId}/payment/verification")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun verify(@AuthenticationPrincipal jwt: Jwt, @PathVariable orderId: String) {
-        val customer = CartOwner.Customer(UserId.ValidUserId(jwt.subject))
+        val customer = actorResolutionService.actorOf(jwt)
         paymentService.verify(OrderPayment(customer, OrderId(Identity(orderId))))
     }
 

@@ -40,18 +40,18 @@ class OrderController(
     // by default
     @Transactional(rollbackFor = [Exception::class])
     fun placeOrder(@AuthenticationPrincipal jwt: Jwt, @RequestBody addresses: JsonOrderAddresses): JsonOrder {
-        val customer = CartOwner.Customer(customer(jwt))
-        val shippingMethod = shippingMethodUseCases.getEnabled(customer, addresses.toShippingMethodId())
+        val actor = actorResolutionService.actorOf(jwt)
+        val shippingMethod = shippingMethodUseCases.getEnabled(actor, addresses.toShippingMethodId())
         val delivery = addresses.toOrderDelivery(shippingMethod)
-        val checkout = Checkout(customer, delivery, addresses.toTermsOfSaleAcceptance())
+        val checkout = Checkout(CartOwner.Customer(customer(jwt)), delivery, addresses.toTermsOfSaleAcceptance())
         val discountCode = addresses.toEnteredDiscountCode()
-        val placedOrder = orderCheckoutService.placeOrder(actorResolutionService.actorOf(jwt), checkout, discountCode)
-        return JsonOrder(placedOrder, orderUseCases.paymentDelay(actorResolutionService.actorOf(jwt)))
+        val placedOrder = orderCheckoutService.placeOrder(actor, checkout, discountCode)
+        return JsonOrder(placedOrder, orderUseCases.paymentDelay(actor))
     }
 
     @GetMapping("/shipping-options")
     fun getShippingOptions(@AuthenticationPrincipal jwt: Jwt): JsonShippingOptions {
-        val shippingOptions = orderUseCases.shippingOptionsFor(CartOwner.Customer(customer(jwt)))
+        val shippingOptions = orderUseCases.shippingOptionsFor(actorResolutionService.actorOf(jwt))
         return JsonShippingOptions(shippingOptions)
     }
 

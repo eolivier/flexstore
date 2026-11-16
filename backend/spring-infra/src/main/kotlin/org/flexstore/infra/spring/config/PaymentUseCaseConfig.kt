@@ -29,10 +29,8 @@ open class PaymentUseCaseConfig {
     open fun readPaymentUseCase(paymentRepository: PaymentRepository) = ReadPaymentUseCase(paymentRepository)
 
     @Bean
-    open fun verifyPaymentUseCase(orderRepository: OrderRepository,
-                                  paymentRepository: PaymentRepository,
-                                  userRepository: UserRepository) =
-        VerifyPaymentUseCase(orderRepository, paymentRepository, userRepository)
+    open fun verifyPaymentUseCase(orderRepository: OrderRepository, paymentRepository: PaymentRepository) =
+        VerifyPaymentUseCase(orderRepository, paymentRepository)
 
     @Bean
     open fun paymentUseCases(startPaymentUseCase: StartPaymentUseCase,
