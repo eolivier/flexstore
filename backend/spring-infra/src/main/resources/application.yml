@@ -17,6 +17,8 @@ spring:
       # Most providers require authentication and STARTTLS; set both to false for a local server such as Mailpit
       mail.smtp.auth: ${FLEXSTORE_MAIL_SMTP_AUTH:true}
       mail.smtp.starttls.enable: ${FLEXSTORE_MAIL_SMTP_STARTTLS:true}
+  lifecycle:
+    timeout-per-shutdown-phase: 20s
   servlet:
     multipart:
       # The images of the products are 2 MB at most (checked again by the domain)
@@ -69,5 +71,7 @@ management:
     key-values:
       service: flexstore
 server:
+  # A stopping instance finishes its requests (the deployment starts the new instance before it stops this one)
+  shutdown: graceful
   # Behind the reverse proxy (TLS ends there): trust X-Forwarded-* so that requests are seen as HTTPS
   forward-headers-strategy: framework

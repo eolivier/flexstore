@@ -19,6 +19,9 @@ env:
   IMAGE: ghcr.io/${{ github.repository_owner }}/flexstore-back
   SHOP_URL: https://flexstore.tech
   DEPLOY_DIR: /opt/flexstore
+  # docker rollout (https://github.com/wowu/docker-rollout), pinned to a commit and to the checksum of the script
+  ROLLOUT_URL: https://raw.githubusercontent.com/wowu/docker-rollout/6bf11356da13020095fc71e0c8b0233c9e003f00/docker-rollout
+  ROLLOUT_SHA256: d6afe855b40fbc9fdb6ae182fd9fa414d96e0bc0717ff2598eabea1d5fb8d8f8
 
 jobs:
   back:
@@ -163,12 +166,29 @@ jobs:
             for name in $names; do printf "%s='%s'\n" "$name" "${!name}"; done
           } | ssh vps "umask 077 && cat > ${DEPLOY_DIR}/.env"
 
+      # docker rollout starts the new back end container next to the old one, waits for it to be healthy, then stops
+      # the old one: the shop keeps answering. The script is pinned to a commit and its checksum is verified
+      - name: Install docker rollout
+        run: |
+          ssh vps "set -e; plugin=\$HOME/.docker/cli-plugins/docker-rollout; \
+            if [ ! -x \$plugin ]; then \
+              mkdir -p \$HOME/.docker/cli-plugins \
+              && curl -fsSL -o \$plugin ${ROLLOUT_URL} \
+              && echo '${ROLLOUT_SHA256}  '\$plugin | sha256sum -c - \
+              && chmod +x \$plugin; \
+            fi"
+
+      # The database and the web server are updated by compose (--no-deps: compose must not touch the back end, which
+      # depends on nothing here and is replaced by docker rollout without a cut). The new version runs its Flyway
+      # migrations while the old one still serves: a migration must stay compatible with the previous version of the
+      # back end (see docs/deployment-vps.md)
       - name: Update the back end and the web server
         run: |
           ssh vps "cd ${DEPLOY_DIR} \
             && export IMAGE_TAG=${{ needs.back.outputs.sha }} \
             && docker compose -f docker-compose.prod.yml pull app \
-            && docker compose -f docker-compose.prod.yml up -d --remove-orphans \
+            && docker compose -f docker-compose.prod.yml up -d --remove-orphans --no-deps db caddy \
+            && docker rollout -f docker-compose.prod.yml -t 180 app \
             && (docker compose -f docker-compose.prod.yml exec -T caddy \
                 caddy reload --config /etc/caddy/Caddyfile \
               || docker compose -f docker-compose.prod.yml restart caddy) \

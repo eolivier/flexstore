@@ -18,13 +18,37 @@ the database and the back end publish no port.
 1. builds the back end image with the root `Dockerfile` and pushes it to `ghcr.io/eolivier/flexstore-back`
    (tags: the commit and `latest`);
 2. copies `deploy/docker-compose.prod.yml` and `deploy/Caddyfile` to `/opt/flexstore` on the VPS, writes its `.env`
-   from the secrets and the variables of GitHub, pulls the image and restarts what changed (Flyway runs the new migrations when the back end starts);
+   from the secrets and the variables of GitHub, pulls the image, updates the database and the web server, then
+   replaces the back end **without a cut** (next section; Flyway runs the new migrations when the new back end starts);
 3. waits for `https://flexstore.tech/actuator/health`;
 4. builds the front end (`VITE_API_URL` and `VITE_SITE_URL` are the address of the shop) and copies `front/dist`
    to `/opt/flexstore/front`;
 5. checks that the shop and the API answer.
 
 Only one deployment runs at a time.
+
+## Deployment without a cut
+
+The back end is replaced with [docker rollout](https://github.com/wowu/docker-rollout), a Docker Compose plugin that
+the workflow installs once on the VPS (script pinned to a commit and to its checksum):
+
+1. the new back end container starts **next to** the old one (both are named `app` on the internal network);
+2. its health check (`/actuator/health/readiness`, which answers once the migrations are applied) must pass, within 180
+   seconds; otherwise the new container is removed and the old one keeps serving (the deployment fails);
+3. the old container is stopped: Spring finishes its running requests (graceful shutdown, 20 seconds) before it exits.
+
+Caddy resolves `app` again every second (`dynamic a` upstreams), so it sends the requests to the containers running at
+that moment, and tries a request again for 10 seconds when a container has just left.
+
+**Rule for the migrations**: the new back end migrates the database while the old one still serves, so a migration
+must stay compatible with the previous version of the back end: add tables and columns (nullable or with a default),
+never drop nor rename one in the same release as the code that stops using it (drop it in a later release).
+
+The memory of the VPS holds two JVMs for a few seconds (`MaxRAMPercentage=60` each); take a VPS with enough memory or
+lower this value in `docker-compose.prod.yml`.
+
+The container of the previous deployments is named `flexstore-app`: the first deployment after this change may still
+cut the shop once, while this container is replaced. Check the shop afterwards (`docker compose ps`).
 
 ## Set up the VPS (once)
 
@@ -192,7 +216,7 @@ The `.env` is rewritten by every deployment: change the secrets and the variable
 **Roll back**: every deployed commit stays available as an image, so start the image of an earlier commit on the VPS:
 
 ```bash
-IMAGE_TAG=<commit sha> docker compose -f docker-compose.prod.yml up -d app
+IMAGE_TAG=<commit sha> docker rollout -f docker-compose.prod.yml app
 ```
 
 The migrations already applied are not undone: a rollback across a migration needs a restored backup.

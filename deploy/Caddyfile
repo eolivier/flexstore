@@ -14,7 +14,17 @@ flexstore.tech {
 	# The back end: the API, the MCP server and the health check (the other actuator endpoints stay private)
 	@back path /api/* /mcp /actuator/health /actuator/health/*
 	handle @back {
-		reverse_proxy app:8080
+		# The address "app" leads to every running container of the back end: two of them during a deployment. It is
+		# resolved again every second, and a request that finds no answer is tried again for 10 seconds at most
+		reverse_proxy {
+			dynamic a {
+				name app
+				port 8080
+				refresh 1s
+			}
+			lb_try_duration 10s
+			lb_try_interval 250ms
+		}
 	}
 
 	# The front end

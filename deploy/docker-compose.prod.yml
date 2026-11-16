@@ -22,12 +22,21 @@ services:
   app:
     # Built and pushed by the deploy workflow; IMAGE_TAG is the commit deployed (latest when run by hand)
     image: ghcr.io/eolivier/flexstore-back:${IMAGE_TAG:-latest}
-    container_name: flexstore-app
+    # No container_name and no published port: the deployment (docker rollout) runs the new and the old container side
+    # by side, both named "app" on the internal network, then stops the old one once the new one is healthy
     restart: unless-stopped
+    # The old container finishes its requests (graceful shutdown of Spring, 20 s) before it is killed
+    stop_grace_period: 30s
+    healthcheck:
+      # Ready: the migrations are applied and the application takes requests
+      test: ["CMD-SHELL", "curl --fail --silent http://localhost:8080/actuator/health/readiness"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 60s
     depends_on:
       db:
         condition: service_healthy
-    # No published port: Caddy reaches the app on the internal network
     environment:
       # Flyway runs the migrations when the app starts
       FLEXSTORE_DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
