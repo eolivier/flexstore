@@ -8,8 +8,6 @@ import org.flexstore.domain.order.model.*
 import org.flexstore.domain.order.service.*
 import org.flexstore.domain.order.usecase.*
 import org.flexstore.domain.user.model.*
-import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.infra.spring.adapter.rest.json.JsonOrder
 import org.flexstore.domain.discount.PromoCode
 import org.flexstore.infra.spring.adapter.rest.json.JsonDiscountPreview
@@ -26,7 +24,6 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 // The orders of the signed-in customer (the token gives the customer)
-@Tag(name = "Orders")
 @RestController
 @RequestMapping("/api/orders")
 class OrderController(
@@ -36,10 +33,6 @@ class OrderController(
     private val actorResolutionService: ActorResolutionService
 ) {
 
-    @Operation(
-        summary = "Place an order from the cart of the signed-in customer, delivered and billed to the given " +
-            "addresses, under the current terms of sale they accepted, and reserve its units until it is paid"
-    )
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     // The order is stored and its units reserved together, or not at all. The business exceptions (an order
@@ -56,14 +49,12 @@ class OrderController(
         return JsonOrder(placedOrder, orderUseCases.paymentDelay(actorResolutionService.actorOf(jwt)))
     }
 
-    @Operation(summary = "Retrieve the shipping methods, with their cost for the cart of the signed-in customer")
     @GetMapping("/shipping-options")
     fun getShippingOptions(@AuthenticationPrincipal jwt: Jwt): JsonShippingOptions {
         val shippingOptions = orderUseCases.shippingOptionsFor(CartOwner.Customer(customer(jwt)))
         return JsonShippingOptions(shippingOptions)
     }
 
-    @Operation(summary = "Retrieve what a discount code takes off the cart of the signed-in customer")
     @GetMapping("/discount-preview")
     fun previewDiscount(@AuthenticationPrincipal jwt: Jwt, @RequestParam code: String): JsonDiscountPreview {
         val actor = actorResolutionService.actorOf(jwt)
@@ -71,11 +62,6 @@ class OrderController(
         return JsonDiscountPreview(discountPreview)
     }
 
-    @Operation(
-        summary = "Retrieve a page of the orders of the signed-in customer, newest first",
-        description = "The total number of orders is in the header X-Total-Count; a size above 100 is " +
-            "brought back to 100"
-    )
     @GetMapping
     fun getOrders(
         @AuthenticationPrincipal jwt: Jwt,
@@ -87,7 +73,6 @@ class OrderController(
         return pagedBody(orders.content.asList().map { JsonOrder(it, paymentDelay) }, orders.total)
     }
 
-    @Operation(summary = "Retrieve an order of the signed-in customer")
     @GetMapping("/{id}")
     fun getOrder(@AuthenticationPrincipal jwt: Jwt, @PathVariable id: String): JsonOrder {
         val order = orderUseCases.getOrder(actorResolutionService.actorOf(jwt), OrderId(Identity(id)))

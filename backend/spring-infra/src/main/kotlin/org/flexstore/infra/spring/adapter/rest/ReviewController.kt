@@ -1,7 +1,5 @@
 package org.flexstore.infra.spring.adapter.rest
 
-import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.review.*
@@ -14,7 +12,6 @@ import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.*
 
 // The reviews of the products: read by everybody, written by a signed-in customer who bought the product
-@Tag(name = "Reviews")
 @RestController
 @RequestMapping("/api")
 class ReviewController(
@@ -22,12 +19,10 @@ class ReviewController(
     private val actorResolutionService: ActorResolutionService
 ) {
 
-    @Operation(summary = "Retrieve the reviews of a product, newest first")
     @GetMapping("/products/{id}/reviews")
     fun getReviews(@PathVariable id: String): List<JsonReview> =
         reviewUseCases.getAbout(actorResolutionService.visitor(), productId(id)).asList().map { JsonReview(it) }
 
-    @Operation(summary = "Review a product bought by the signed-in customer: a rating from 1 to 5 and a comment")
     @PostMapping("/products/{id}/reviews")
     @ResponseStatus(HttpStatus.CREATED)
     fun addReview(
@@ -43,7 +38,6 @@ class ReviewController(
         return JsonReview(reviewUseCases.getAbout(customer, productId).of(stamp.reviewId))
     }
 
-    @Operation(summary = "Tell whether the signed-in customer may review a product: bought, not reviewed yet")
     @GetMapping("/products/{id}/review-eligibility")
     fun getReviewEligibility(
         @AuthenticationPrincipal jwt: Jwt,
@@ -54,7 +48,6 @@ class ReviewController(
         return JsonReviewEligibility(reviewUseCases.eligibilityOf(question).name)
     }
 
-    @Operation(summary = "Retrieve what the customers think of each product that has reviews")
     @GetMapping("/product-ratings")
     fun getRatings(): List<JsonRatingSummary> =
         reviewUseCases.getSummaries(actorResolutionService.visitor()).asList().map { JsonRatingSummary(it) }

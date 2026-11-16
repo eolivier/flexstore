@@ -1,7 +1,5 @@
 package org.flexstore.infra.spring.adapter.rest
 
-import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.product.model.ProductId
 import org.flexstore.domain.sharedkernel.Identity
@@ -16,7 +14,6 @@ import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.*
 
 // The wishlist of a signed-in customer: the products they saved, to buy them back later
-@Tag(name = "Wishlist")
 @RestController
 @RequestMapping("/api/wishlist")
 class WishlistController(
@@ -24,7 +21,6 @@ class WishlistController(
     private val actorResolutionService: ActorResolutionService
 ) {
 
-    @Operation(summary = "Retrieve the products the signed-in customer saved to their wishlist, newest first")
     @GetMapping
     fun getWishlist(
         @AuthenticationPrincipal jwt: Jwt,
@@ -34,14 +30,12 @@ class WishlistController(
         return wishlist.asList().toJsonProducts(languageAcceptedIn(acceptLanguage))
     }
 
-    @Operation(summary = "Save a product to the wishlist of the signed-in customer, once per product")
     @PutMapping("/{productId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun saveProduct(@AuthenticationPrincipal jwt: Jwt, @PathVariable productId: String) {
         wishlistUseCases.add(actorResolutionService.actorOf(jwt), ProductId(Identity(productId)))
     }
 
-    @Operation(summary = "Remove a product from the wishlist of the signed-in customer")
     @DeleteMapping("/{productId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun removeProduct(@AuthenticationPrincipal jwt: Jwt, @PathVariable productId: String) {

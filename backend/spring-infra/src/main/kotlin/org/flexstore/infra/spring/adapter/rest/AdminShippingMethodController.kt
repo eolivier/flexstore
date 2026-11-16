@@ -1,7 +1,5 @@
 package org.flexstore.infra.spring.adapter.rest
 
-import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.order.model.ShippingMethodId
 import org.flexstore.domain.order.usecase.ShippingMethodUseCases
@@ -16,7 +14,6 @@ import org.springframework.web.bind.annotation.*
 
 // The shipping methods, managed by the administrators (ADMIN role, see the security configuration, checked again by
 // the use cases)
-@Tag(name = "Administration")
 @RestController
 @RequestMapping("/api/admin/shipping-methods")
 class AdminShippingMethodController(
@@ -24,14 +21,12 @@ class AdminShippingMethodController(
     private val actorResolutionService: ActorResolutionService
 ) {
 
-    @Operation(summary = "Retrieve all the shipping methods, the disabled ones included, the cheapest first")
     @GetMapping
     fun getShippingMethods(@AuthenticationPrincipal reader: Jwt): List<JsonShippingMethod> {
         val actor = actorResolutionService.actorOf(reader)
         return shippingMethodUseCases.getAll(actor).asList().map { JsonShippingMethod(it) }
     }
 
-    @Operation(summary = "Add a shipping method: a name, a cost, and whether it is free from the threshold")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun createShippingMethod(
@@ -44,10 +39,6 @@ class AdminShippingMethodController(
         return JsonShippingMethod(shippingMethod)
     }
 
-    @Operation(
-        summary = "Change a shipping method (its name, its cost, whether it is free from the threshold, whether " +
-            "it is enabled): at least one method stays enabled, the orders already placed keep their shipping cost"
-    )
     @PutMapping("/{id}")
     fun updateShippingMethod(
         @AuthenticationPrincipal editor: Jwt,

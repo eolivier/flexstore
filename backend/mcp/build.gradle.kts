@@ -9,11 +9,6 @@ repositories {
     mavenCentral()
 }
 
-// The root build gives springdoc to every module: the MCP adapter needs no Spring
-configurations.all {
-    exclude(group = "org.springdoc")
-}
-
 val mcpSdkVersion: String by project
 
 dependencies {

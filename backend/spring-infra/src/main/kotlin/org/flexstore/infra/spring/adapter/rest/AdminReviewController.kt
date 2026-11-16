@@ -1,8 +1,6 @@
 package org.flexstore.infra.spring.adapter.rest
 
 import org.flexstore.domain.sharedkernel.Identity
-import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.review.ReviewId
 import org.flexstore.domain.review.usecase.ReviewUseCases
@@ -12,7 +10,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
 
 // The moderation of the reviews by the administrators (ADMIN role, see SecurityConfig)
-@Tag(name = "Administration")
 @RestController
 @RequestMapping("/api/admin/reviews")
 class AdminReviewController(
@@ -20,7 +17,6 @@ class AdminReviewController(
     private val actorResolutionService: ActorResolutionService
 ) {
 
-    @Operation(summary = "Delete a review: the rating of its product no longer counts it")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteReview(@AuthenticationPrincipal editor: Jwt, @PathVariable id: String) {

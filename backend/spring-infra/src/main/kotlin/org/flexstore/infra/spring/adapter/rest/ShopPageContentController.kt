@@ -1,7 +1,5 @@
 package org.flexstore.infra.spring.adapter.rest
 
-import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.tags.Tag
 import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.pagecontent.ShopPageContentType
 import org.flexstore.domain.pagecontent.usecase.ShopPageContentUseCases
@@ -20,7 +18,6 @@ private val shopPageContentTypes = mapOf(
 )
 
 // The contents of the shop pages, read by everyone: the head of the pages shows them
-@Tag(name = "Shop page content")
 @RestController
 @RequestMapping("/api/shop-page-contents")
 class ShopPageContentController(
@@ -28,14 +25,12 @@ class ShopPageContentController(
     private val actorResolutionService: ActorResolutionService
 ) {
 
-    @Operation(summary = "Retrieve the content of the shop pages: key words, description, Google Analytics id")
     @GetMapping
     fun getContents() = JsonShopPageContents(shopPageContentUseCases.contents(actorResolutionService.visitor()))
 }
 
 // The contents of the shop pages edited by the administrators (ADMIN role, see SecurityConfig, checked again by
 // the use case)
-@Tag(name = "Administration")
 @RestController
 @RequestMapping("/api/admin/shop-page-contents")
 class AdminShopPageContentController(
@@ -43,9 +38,6 @@ class AdminShopPageContentController(
     private val actorResolutionService: ActorResolutionService
 ) {
 
-    @Operation(
-        summary = "Edit the content of a type: meta-key-words, google-analytics-id or meta-shop-description"
-    )
     @PutMapping("/{type}")
     fun editContent(
         @AuthenticationPrincipal editor: Jwt,
