@@ -5,6 +5,8 @@ import org.flexstore.domain.actor.unknownUserActor
 import org.flexstore.domain.actor.testCustomerActor
 import org.flexstore.domain.actor.testAdministratorActor
 import org.flexstore.domain.actor.ActorResolutionService
+import org.flexstore.domain.actor.actingAsCustomer
+import org.flexstore.domain.actor.customerId
 import org.flexstore.domain.order.*
 import org.flexstore.domain.order.model.*
 import org.flexstore.domain.product.*
@@ -123,6 +125,32 @@ class AdministeredOrdersUseCasesTest : WithAssertions {
         }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(OrderNotFoundException::class.java)
+    }
+
+    @Test
+    fun `an administrator acting as a customer should not read the order of another customer`() {
+        // Arrange
+        placeOrder(OrderId(Identity("order-1")), customer, placedAt)
+        val asCustomer = testAdministratorActor.actingAsCustomer()
+        // Act
+        val thrown = catchThrowable {
+            readUseCase.unfold(AdministeredOrderReading(asCustomer, OrderId(Identity("order-1"))))
+        }
+        // Assert
+        assertThat(thrown).hasCauseInstanceOf(OrderNotFoundException::class.java)
+    }
+
+    @Test
+    fun `an administrator acting as a customer should read their own order`() {
+        // Arrange
+        val ownOrder = placeOrder(
+            OrderId(Identity("order-2")), CartOwner.Customer(testAdministratorActor.customerId()), placedAt
+        )
+        val asCustomer = testAdministratorActor.actingAsCustomer()
+        // Act
+        val administeredOrder = readUseCase.unfold(AdministeredOrderReading(asCustomer, OrderId(Identity("order-2"))))
+        // Assert
+        assertThat(administeredOrder.order).isEqualTo(ownOrder)
     }
 
     @Test

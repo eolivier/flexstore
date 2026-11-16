@@ -145,6 +145,24 @@ class ActorsTest : WithAssertions {
             .isEqualTo("The reader must be at least a visitor to read the catalog.")
     }
 
+    @Test
+    fun `an admin acting as a customer should be a customer who keeps their account`() {
+        // Act
+        val actingAsCustomer = admin.actingAsCustomer()
+        // Assert
+        assertThat(actingAsCustomer.isAdmin()).isFalse()
+        assertThat(actingAsCustomer.isCustomer()).isTrue()
+        assertThat(actingAsCustomer.isTheUser(ValidUserId("admin-1"))).isTrue()
+    }
+
+    @Test
+    fun `an actor that is not a customer should stay as it is when acting as a customer`() {
+        // Act
+        val others = listOf(visitor, systemActor).map { it.actingAsCustomer() }
+        // Assert
+        assertThat(others).containsExactly(visitor, systemActor)
+    }
+
     private class TestReadingForbiddenException(override val errorMessage: ErrorMessage) :
         PreConditionException(errorMessage)
 }

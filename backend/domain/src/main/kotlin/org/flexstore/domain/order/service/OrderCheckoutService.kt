@@ -3,6 +3,7 @@ package org.flexstore.domain.order.service
 import org.flexstore.domain.order.model.*
 import org.flexstore.domain.order.usecase.*
 import org.flexstore.domain.cart.CartOwner
+import org.flexstore.domain.actor.actingAsCustomer
 import org.flexstore.domain.actor.customerId
 import org.flexstore.domain.cart.usecase.CartReading
 import org.flexstore.domain.cart.usecase.ReadCartUseCase
@@ -52,7 +53,7 @@ class OrderCheckoutService(
             checkoutDiscountUseCases.useDiscountCodeUseCase.unfold(discountChoice.discountCode.code)
         }
         orderPlacementUseCases.reserveOrderStockUseCase.unfold(orderStamp.orderId)
-        val orderReading = AdministeredOrderReading(customer, orderStamp.orderId)
+        val orderReading = AdministeredOrderReading(customer.actingAsCustomer(), orderStamp.orderId)
         return checkoutQueryUseCases.readAdministeredOrderUseCase.unfold(orderReading).order
     }
 

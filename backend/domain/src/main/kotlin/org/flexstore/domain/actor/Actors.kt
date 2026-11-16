@@ -82,6 +82,10 @@ fun Actor.verifyCanRead(subject: String, refusal: (ErrorMessage) -> PreCondition
     }
 }
 
+// An administrator who uses the pages of a customer (their own orders, their own cart) acts as a customer there:
+// the customer they are, with the same account. Anyone else is left as they are
+fun Actor.actingAsCustomer(): Actor = if (isAtLeastCustomer()) Customer(userId, name, status) else this
+
 // Whether the actor is the account of this user, to tell a user from the others they act on
 fun Actor.isTheUser(userId: UserId) = this is Customer && this.userId == userId
 

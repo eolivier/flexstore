@@ -1,5 +1,6 @@
 package org.flexstore.domain.order.usecase
 
+import org.flexstore.domain.actor.actingAsCustomer
 import org.ucop.domain.entity.Actor
 import org.flexstore.domain.cart.*
 import org.flexstore.domain.order.*
@@ -20,9 +21,12 @@ class OrderUseCases(
     fun getOrders(customer: Actor, pageRequest: PageRequest) =
         orderQueryUseCases.listCustomerOrdersUseCase.unfold(CustomerOrdersReading(customer, pageRequest))
 
-    // An order of the customer: the order of another customer is reported as not found
-    fun getOrder(customer: Actor, orderId: OrderId): Order =
-        orderQueryUseCases.readAdministeredOrderUseCase.unfold(AdministeredOrderReading(customer, orderId)).order
+    // An order of the customer, even when the customer is an administrator: the order of another customer is
+    // reported as not found
+    fun getOrder(customer: Actor, orderId: OrderId): Order {
+        val reading = AdministeredOrderReading(customer.actingAsCustomer(), orderId)
+        return orderQueryUseCases.readAdministeredOrderUseCase.unfold(reading).order
+    }
 
     // Any order, whoever its customer (the payment provider confirms it)
     fun getAnyOrder(orderId: OrderId) = orderQueryUseCases.readAnyOrderUseCase.unfold(orderId)
