@@ -1,14 +1,14 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { useI18n } from 'vue-i18n';
-  import { useAuthStore } from '@/stores/auth.store';
+  import { useAccountSecurityStore } from '@/stores/accountSecurity.store';
   import FormDialog from '@/components/layout/FormDialog.vue';
   import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
 
   const open = defineModel<boolean>({ required: true });
   const emit = defineEmits<{ disabled: [] }>();
   const { t } = useI18n();
-  const authStore = useAuthStore();
+  const accountSecurityStore = useAccountSecurityStore();
 
   const currentPassword = ref('');
   const loading = ref(false);
@@ -16,7 +16,7 @@
 
   async function confirm() {
     loading.value = true;
-    const outcome = await authStore.disableTwoFactorAuthentication(currentPassword.value);
+    const outcome = await accountSecurityStore.disableTwoFactorAuthentication(currentPassword.value);
     loading.value = false;
     if (outcome === 'disabled') {
       open.value = false;
