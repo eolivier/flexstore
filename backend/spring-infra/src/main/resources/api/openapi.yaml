@@ -962,6 +962,61 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/JsonProduct"
+  /api/catalog:
+    get:
+      tags:
+      - Products
+      summary: Retrieve a page of the catalog, searched, filtered by category and sorted
+      description: "The total number of products that match is in the header X-Total-Count; a size above 100 is
+        brought back to 100. The name and the description are read, and searched, in the language of the
+        customer."
+      operationId: getCatalogPage
+      parameters:
+      - name: Accept-Language
+        in: header
+        required: false
+        description: The language of the customer (en, fr); the products not translated into it are in en
+        schema:
+          type: string
+      - $ref: "#/components/parameters/Page"
+      - $ref: "#/components/parameters/PageSize"
+      - name: search
+        in: query
+        required: false
+        description: Words that each must be part of the name, the description or the category of the products,
+          whatever the case
+        schema:
+          type: string
+          default: ""
+      - name: category
+        in: query
+        required: false
+        description: Only the products of this category (CLOTHING, ELECTRONICS, ACCESSORIES...); all of them
+          without it, none for a category that does not exist
+        schema:
+          type: string
+          default: ""
+      - name: sort
+        in: query
+        required: false
+        description: By name, or by the price to pay now, the lowest (priceAsc) or the highest (priceDesc) first;
+          a sort that does not exist is the sort by name
+        schema:
+          type: string
+          enum: [name, priceAsc, priceDesc]
+          default: name
+      responses:
+        "200":
+          description: A page of the products of the catalog
+          headers:
+            X-Total-Count:
+              $ref: "#/components/headers/TotalCount"
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/JsonProduct"
   /api/products/{id}/reviews:
     get:
       tags:
