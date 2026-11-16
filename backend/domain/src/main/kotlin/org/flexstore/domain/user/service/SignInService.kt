@@ -6,7 +6,6 @@ import org.flexstore.domain.twofactor.model.TwoFactorAuthentication
 import org.flexstore.domain.twofactor.model.TwoFactorChallenge
 import org.flexstore.domain.twofactor.model.TwoFactorChallengeLookup
 import org.flexstore.domain.twofactor.usecase.TwoFactorCodeVerification
-import org.flexstore.domain.twofactor.usecase.VerifyTwoFactorCodeUseCase
 import org.flexstore.domain.user.model.*
 import org.flexstore.domain.user.repository.GoogleIdentityVerifier
 import org.flexstore.domain.user.repository.UserRepository
@@ -18,19 +17,18 @@ import org.ucop.domain.PreConditionException
 // account at the limit (see RecordFailedSignInUseCase); a successful sign-in starts the count again.
 class SignInService(
     private val userRepository: UserRepository,
-    private val recordFailedSignInUseCase: RecordFailedSignInUseCase,
-    private val resetFailedSignInsUseCase: ResetFailedSignInsUseCase,
     private val twoFactorChallengeRepository: TwoFactorChallengeRepository,
-    private val googleIdentityVerifier: GoogleIdentityVerifier
+    private val googleIdentityVerifier: GoogleIdentityVerifier,
+    private val signInUseCases: SignInUseCases
 ) {
 
     // A user who enabled two-factor authentication is given a challenge instead of a session
     fun signIn(loginRequest: LoginRequest): SignInOutcome {
         val authenticatedUser = try {
-            LoginUseCase(userRepository).unfold(loginRequest)
+            signInUseCases.loginUseCase.unfold(loginRequest)
         } catch (refusal: NominalException) {
             if (refusal.cause is InvalidCredentialsException) {
-                recordFailedSignInUseCase.unfold(loginRequest.email)
+                signInUseCases.recordFailedSignInUseCase.unfold(loginRequest.email)
             }
             throw refusal
         }
@@ -40,7 +38,7 @@ class SignInService(
     // A person signs in with their Google account: Google replaces the password, not the second factor
     fun signInWithGoogle(idToken: GoogleIdToken): SignInOutcome {
         val googleIdentity = verified(idToken)
-        SignInWithGoogleUseCase(userRepository).unfold(googleIdentity)
+        signInUseCases.signInWithGoogleUseCase.unfold(googleIdentity)
         return outcomeOf(userRepository.findByEmail(googleIdentity.email) as User.DefinedUser)
     }
 
@@ -58,7 +56,7 @@ class SignInService(
             twoFactorChallengeRepository.save(challenge)
             SignInOutcome.TwoFactorChallengeRequired(challenge.id)
         } else {
-            resetFailedSignInsUseCase.unfold(user.id)
+            signInUseCases.resetFailedSignInsUseCase.unfold(user.id)
             SignInOutcome.SignedIn(user)
         }
     }
@@ -67,15 +65,15 @@ class SignInService(
     fun verifyTwoFactorCode(verification: TwoFactorCodeVerification): User.DefinedUser {
         val lookup = twoFactorChallengeRepository.find(verification.challengeId)
         try {
-            VerifyTwoFactorCodeUseCase(twoFactorChallengeRepository, userRepository).unfold(verification)
+            signInUseCases.verifyTwoFactorCodeUseCase.unfold(verification)
         } catch (refusal: NominalException) {
             if (refusal.cause is TwoFactorCodeInvalidException) {
-                recordFailedSignInUseCase.unfold(challengedUser(lookup).email)
+                signInUseCases.recordFailedSignInUseCase.unfold(challengedUser(lookup).email)
             }
             throw refusal
         }
         val user = challengedUser(lookup)
-        resetFailedSignInsUseCase.unfold(user.id)
+        signInUseCases.resetFailedSignInsUseCase.unfold(user.id)
         return user
     }
 
