@@ -21,7 +21,8 @@ class UnpaidOrderService(
     fun cancelLateOrders(): Orders {
         val paymentDelay = readShopSettingsUseCase.unfold(actorResolutionService.system()).paymentDelay
         val timeLimit = PaymentTimeLimit(paymentDelay, InstantProvider.now())
-        val lateOrders = unpaidOrderUseCases.allOrders().latePaymentsAt(timeLimit).asList()
+        val allOrders = unpaidOrderUseCases.allOrders(actorResolutionService.system())
+        val lateOrders = allOrders.latePaymentsAt(timeLimit).asList()
         val cancelledOrders = lateOrders.filter { order ->
             runCatching { unpaidOrderUseCases.cancel(actorResolutionService.system(), order, timeLimit) }
                 .onFailure { failure -> if (failure.stopsTheRun()) throw failure }
