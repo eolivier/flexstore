@@ -8,6 +8,8 @@
   const { t } = useI18n();
   const year = new Date().getFullYear();
   const authStore = useAuthStore();
+  const lastMergedPullRequest = __LAST_MERGED_PR__;
+  const pullRequestUrl = `https://github.com/eolivier/flexstore/pull/${lastMergedPullRequest}`;
 </script>
 
 <template>
@@ -55,6 +57,10 @@
       </v-row>
       <v-divider class="my-6" />
       <div class="text-caption footer-muted">© {{ year }} Flexstore. {{ t('footer.rights') }}</div>
+      <div v-if="lastMergedPullRequest" class="text-caption footer-muted">
+        {{ t('footer.lastMergedPullRequest') }} :
+        <a :href="pullRequestUrl" target="_blank" rel="noopener" class="footer-link">#{{ lastMergedPullRequest }}</a>
+      </div>
     </v-container>
   </v-footer>
 </template>

@@ -25,6 +25,8 @@ function linkTargets(wrapper: ReturnType<typeof mountFooter>) {
   return wrapper.findAllComponents(RouterLinkStub).map((link) => link.props('to'));
 }
 
+vi.stubGlobal('__LAST_MERGED_PR__', '478');
+
 describe('AppFooter.vue', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
@@ -63,5 +65,12 @@ describe('AppFooter.vue', () => {
     const wrapper = mountFooter();
     // Assert
     expect(linkTargets(wrapper)).toEqual(expect.arrayContaining(['/orders', '/user-profile']));
+  });
+
+  it('everyone should see the reference of the last merged pull request', () => {
+    // Act
+    const wrapper = mountFooter();
+    // Assert
+    expect(wrapper.find('a[href$="/pull/478"]').text()).toBe('#478');
   });
 });
