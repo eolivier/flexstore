@@ -126,7 +126,7 @@ class AdministeredOrdersUseCasesTest : WithAssertions {
     }
 
     @Test
-    fun `an unknown user should not find any order`() {
+    fun `an unknown user should not read any order`() {
         // Arrange
         placeOrder(OrderId(Identity("order-1")), customer, placedAt)
         // Act
@@ -134,7 +134,7 @@ class AdministeredOrdersUseCasesTest : WithAssertions {
             readUseCase.unfold(AdministeredOrderReading(unknownUserActor, OrderId(Identity("order-1"))))
         }
         // Assert
-        assertThat(thrown).hasCauseInstanceOf(OrderNotFoundException::class.java)
+        assertThat(thrown).hasCauseInstanceOf(UserNotFoundException::class.java)
     }
 
     @Test

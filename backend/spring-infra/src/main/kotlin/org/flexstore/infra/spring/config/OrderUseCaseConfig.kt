@@ -53,10 +53,6 @@ open class OrderUseCaseConfig {
     open fun readAnyOrderUseCase(orderRepository: OrderRepository) = ReadAnyOrderUseCase(orderRepository)
 
     @Bean
-    open fun readCustomerOrderUseCase(orderRepository: OrderRepository, userRepository: UserRepository) =
-        ReadCustomerOrderUseCase(orderRepository, userRepository)
-
-    @Bean
     open fun refundOrderUseCase(
         orderRepository: OrderRepository,
         stockRepository: StockRepository,
@@ -135,19 +131,19 @@ open class OrderUseCaseConfig {
     @Bean
     open fun checkoutQueryUseCases(readCartUseCase: ReadCartUseCase,
                                    readShopSettingsUseCase: ReadShopSettingsUseCase,
-                                   readCustomerOrderUseCase: ReadCustomerOrderUseCase) =
-        CheckoutQueryUseCases(readCartUseCase, readShopSettingsUseCase, readCustomerOrderUseCase)
+                                   readAdministeredOrderUseCase: ReadAdministeredOrderUseCase) =
+        CheckoutQueryUseCases(readCartUseCase, readShopSettingsUseCase, readAdministeredOrderUseCase)
 
     @Bean
     open fun orderQueryUseCases(listCustomerOrdersUseCase: ListCustomerOrdersUseCase,
                                 listAllOrdersUseCase: ListAllOrdersUseCase,
                                 readAnyOrderUseCase: ReadAnyOrderUseCase,
-                                readCustomerOrderUseCase: ReadCustomerOrderUseCase) =
+                                readAdministeredOrderUseCase: ReadAdministeredOrderUseCase) =
         OrderQueryUseCases(
             listCustomerOrdersUseCase,
             listAllOrdersUseCase,
             readAnyOrderUseCase,
-            readCustomerOrderUseCase
+            readAdministeredOrderUseCase
         )
 
     @Bean

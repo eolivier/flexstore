@@ -90,7 +90,7 @@ class OrderController(
     @Operation(summary = "Retrieve an order of the signed-in customer")
     @GetMapping("/{id}")
     fun getOrder(@AuthenticationPrincipal jwt: Jwt, @PathVariable id: String): JsonOrder {
-        val order = orderUseCases.getOrder(customer(jwt), OrderId(Identity(id)))
+        val order = orderUseCases.getOrder(actorResolutionService.actorOf(jwt), OrderId(Identity(id)))
         return JsonOrder(order, orderUseCases.paymentDelay(actorResolutionService.actorOf(jwt)))
     }
 

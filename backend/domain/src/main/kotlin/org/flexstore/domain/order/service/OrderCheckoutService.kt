@@ -25,7 +25,7 @@ data class OrderPlacementUseCases(
 data class CheckoutQueryUseCases(
     val readCartUseCase: ReadCartUseCase,
     val readShopSettingsUseCase: ReadShopSettingsUseCase,
-    val readCustomerOrderUseCase: ReadCustomerOrderUseCase
+    val readAdministeredOrderUseCase: ReadAdministeredOrderUseCase
 )
 
 // Domain service: a customer places an order from their cart, maybe with a discount code. Their addresses are
@@ -52,8 +52,8 @@ class OrderCheckoutService(
             checkoutDiscountUseCases.useDiscountCodeUseCase.unfold(discountChoice.discountCode.code)
         }
         orderPlacementUseCases.reserveOrderStockUseCase.unfold(orderStamp.orderId)
-        val customerOrderLookup = CustomerOrderLookup(checkout.customer.userId, orderStamp.orderId)
-        return checkoutQueryUseCases.readCustomerOrderUseCase.unfold(customerOrderLookup)
+        val orderReading = AdministeredOrderReading(customer, orderStamp.orderId)
+        return checkoutQueryUseCases.readAdministeredOrderUseCase.unfold(orderReading).order
     }
 
     // What the discount code entered takes off the cart of the customer, before they order
