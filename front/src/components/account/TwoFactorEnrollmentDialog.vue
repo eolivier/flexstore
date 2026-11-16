@@ -5,6 +5,8 @@
   import { useAccountSecurityStore } from '@/stores/accountSecurity.store';
   import FormDialog from '@/components/layout/FormDialog.vue';
   import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
+  import TwoFactorCodeField from '@/components/account/TwoFactorCodeField.vue';
+  import { isCompleteTwoFactorCode } from '@/utils/twoFactorCode';
 
   const open = defineModel<boolean>({ required: true });
   const emit = defineEmits<{ enabled: [] }>();
@@ -55,13 +57,7 @@
       <p class="text-body-2 text-medium-emphasis mb-1">{{ t('twoFactorAuth.manualSecret') }}</p>
       <p class="text-body-2 font-weight-medium mb-4" style="word-break: break-all">{{ secret }}</p>
       <p class="text-body-2 mb-3">{{ t('twoFactorAuth.confirmText') }}</p>
-      <v-text-field
-        v-model="code"
-        :label="t('twoFactorAuth.codeLabel')"
-        inputmode="numeric"
-        maxlength="6"
-        class="mb-1"
-      />
+      <TwoFactorCodeField v-model="code" :label="t('twoFactorAuth.codeLabel')" class="mb-1" />
       <FeedbackAlert v-if="error" type="error" compact class="mb-4">{{ error }}</FeedbackAlert>
     </template>
     <FeedbackAlert v-else-if="error" type="error" compact>{{ error }}</FeedbackAlert>
@@ -69,7 +65,7 @@
       <v-progress-circular indeterminate color="primary" />
     </div>
     <template v-if="qrCodeDataUrl" #actions>
-      <v-btn type="submit" color="primary" :loading="loading" :disabled="code.length !== 6">
+      <v-btn type="submit" color="primary" :loading="loading" :disabled="!isCompleteTwoFactorCode(code)">
         {{ t('twoFactorAuth.confirm') }}
       </v-btn>
     </template>

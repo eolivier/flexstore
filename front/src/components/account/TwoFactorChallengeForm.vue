@@ -3,6 +3,8 @@
   import { useI18n } from 'vue-i18n';
   import { useAuthStore } from '@/stores/auth.store';
   import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
+  import TwoFactorCodeField from '@/components/account/TwoFactorCodeField.vue';
+  import { isCompleteTwoFactorCode } from '@/utils/twoFactorCode';
 
   const emit = defineEmits<{ verified: []; cancel: [] }>();
   const { t } = useI18n();
@@ -34,16 +36,16 @@
     <h1 class="text-h5 font-weight-bold mb-1">{{ t('login.twoFactor.title') }}</h1>
     <p class="text-body-2 text-medium-emphasis mb-6">{{ t('login.twoFactor.subtitle') }}</p>
     <v-form @submit.prevent="submit">
-      <v-text-field
-        v-model="code"
-        :label="t('login.twoFactor.codeLabel')"
-        inputmode="numeric"
-        maxlength="6"
-        autofocus
-        class="mb-1"
-      />
+      <TwoFactorCodeField v-model="code" :label="t('login.twoFactor.codeLabel')" autofocus class="mb-1" />
       <FeedbackAlert v-if="error" type="error" compact class="mb-4">{{ error }}</FeedbackAlert>
-      <v-btn type="submit" color="primary" size="large" block :loading="loading" :disabled="code.length !== 6">
+      <v-btn
+        type="submit"
+        color="primary"
+        size="large"
+        block
+        :loading="loading"
+        :disabled="!isCompleteTwoFactorCode(code)"
+      >
         {{ t('login.twoFactor.submit') }}
       </v-btn>
       <v-btn variant="text" block class="mt-2" @click="cancel">{{ t('login.twoFactor.back') }}</v-btn>
