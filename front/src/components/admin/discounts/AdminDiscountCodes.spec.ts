@@ -45,6 +45,17 @@ describe('AdminDiscountCodes.vue', () => {
     expect(wrapper.text()).toContain('3 / 100');
   });
 
+  it('should fill the code with a generated value when the administrator generates it', async () => {
+    // Arrange
+    mockFetch.mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve([]) });
+    const wrapper = await mountPage();
+    // Act
+    await wrapper.find('[data-test="generate-code"]').trigger('click');
+    // Assert
+    const typed = (wrapper.find('.code input').element as HTMLInputElement).value;
+    expect(typed).toMatch(/^[A-Z0-9]{8}$/);
+  });
+
   it('should give a new discount code, in upper case', async () => {
     // Arrange
     mockFetch.mockResolvedValue({ ok: true, status: 201, json: () => Promise.resolve([]) });

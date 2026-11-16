@@ -89,6 +89,7 @@ export default {
     expiresOn: 'Usable until',
     usageLimit: 'Number of orders',
     uses: 'Used',
+    generate: 'Generate',
     create: 'Create the code',
     empty: 'No discount code yet.',
     loadError: 'The discount codes could not be loaded.',

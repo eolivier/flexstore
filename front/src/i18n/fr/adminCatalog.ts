@@ -89,6 +89,7 @@ export default {
     expiresOn: "Utilisable jusqu'au",
     usageLimit: 'Nombre de commandes',
     uses: 'Utilisé',
+    generate: 'Générer',
     create: 'Créer le code',
     empty: 'Aucun code promo pour le moment.',
     loadError: "Les codes promo n'ont pas pu être chargés.",

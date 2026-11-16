@@ -3,6 +3,7 @@
   import { useI18n } from 'vue-i18n';
   import { useFieldRules } from '@/composables/useFieldRules';
   import { useDiscountCodesStore, type DiscountCodeCreation } from '@/stores/discountCodes.store';
+  import { generateDiscountCode } from '@/utils/discountCode';
   import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
   import FormActions from '@/components/form/FormActions.vue';
 
@@ -61,7 +62,13 @@
     <v-form ref="formRef" v-model="valid" @submit.prevent="create">
       <v-row dense>
         <v-col cols="12" md="4">
-          <v-text-field v-model="code" :label="t('discountCodes.code')" :rules="[rules.code]" class="code" />
+          <v-text-field v-model="code" :label="t('discountCodes.code')" :rules="[rules.code]" class="code">
+            <template #append-inner>
+              <v-btn variant="text" size="small" data-test="generate-code" @click="code = generateDiscountCode()">
+                {{ t('discountCodes.generate') }}
+              </v-btn>
+            </template>
+          </v-text-field>
         </v-col>
         <v-col cols="6" md="4">
           <v-select v-model="reductionType" :items="reductionTypes" :label="t('discountCodes.reduction')" />
