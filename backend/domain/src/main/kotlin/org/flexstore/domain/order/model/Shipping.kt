@@ -108,7 +108,7 @@ data class ShippingMethodUpdate(val editor: Actor, val method: ShippingMethod)
 data class ShippingMethodsReading(val reader: Actor)
 
 // A customer who chooses a shipping method to check out
-data class EnabledShippingMethodLookup(val customer: CartOwner.Customer, val shippingMethodId: ShippingMethodId)
+data class EnabledShippingMethodLookup(val customer: Actor, val shippingMethodId: ShippingMethodId)
 
 data class ShippingMethodAdministrationForbiddenException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)

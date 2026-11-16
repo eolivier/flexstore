@@ -3,6 +3,7 @@ package org.flexstore.domain.payment
 import org.flexstore.domain.cart.CartOwner
 import org.flexstore.domain.order.model.OrderId
 import org.ucop.domain.ErrorMessage
+import org.ucop.domain.entity.Actor
 import org.ucop.domain.NominalException
 import org.ucop.domain.PostConditionException
 import org.ucop.domain.PreConditionException
@@ -20,7 +21,7 @@ data class PaymentSession(val checkoutPage: CheckoutPage, val outcome: PaymentOu
 }
 
 // A customer pays one of their orders
-data class OrderPayment(val customer: CartOwner.Customer, val orderId: OrderId)
+data class OrderPayment(val customer: Actor, val orderId: OrderId)
 
 data class OrderAlreadyPaidException(override val errorMessage: ErrorMessage) :
     PreConditionException(errorMessage)

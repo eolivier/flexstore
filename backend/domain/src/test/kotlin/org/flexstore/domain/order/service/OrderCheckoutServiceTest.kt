@@ -67,7 +67,7 @@ class OrderCheckoutServiceTest : WithAssertions {
     private fun checkoutServiceWith(stockRepository: StockRepository): OrderCheckoutService {
         val orderPlacementUseCases = OrderPlacementUseCases(
             KeepOrderAddressesUseCase(userRepository),
-            PlaceOrderUseCase(orderRepository, stockRepository, legalPageRepository, userRepository),
+            PlaceOrderUseCase(orderRepository, stockRepository, legalPageRepository),
             ReserveOrderStockUseCase(orderRepository, stockRepository)
         )
         val checkoutQueryUseCases = CheckoutQueryUseCases(

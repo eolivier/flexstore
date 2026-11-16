@@ -34,9 +34,8 @@ open class OrderUseCaseConfig {
     open fun placeOrderUseCase(
         orderRepository: OrderRepository,
         stockRepository: StockRepository,
-        legalPageRepository: LegalPageRepository,
-        userRepository: UserRepository
-    ) = PlaceOrderUseCase(orderRepository, stockRepository, legalPageRepository, userRepository)
+        legalPageRepository: LegalPageRepository
+    ) = PlaceOrderUseCase(orderRepository, stockRepository, legalPageRepository)
 
     @Bean
     open fun reserveOrderStockUseCase(orderRepository: OrderRepository, stockRepository: StockRepository) =
@@ -89,9 +88,8 @@ open class OrderUseCaseConfig {
     open fun proposeShippingOptionsUseCase(
         cartRepository: CartRepository,
         shippingMethodRepository: ShippingMethodRepository,
-        shopSettingsRepository: ShopSettingsRepository,
-        userRepository: UserRepository
-    ) = ProposeShippingOptionsUseCase(cartRepository, shippingMethodRepository, shopSettingsRepository, userRepository)
+        shopSettingsRepository: ShopSettingsRepository
+    ) = ProposeShippingOptionsUseCase(cartRepository, shippingMethodRepository, shopSettingsRepository)
 
     @Bean
     open fun listShippingMethodsUseCase(shippingMethodRepository: ShippingMethodRepository) =
@@ -106,9 +104,8 @@ open class OrderUseCaseConfig {
         UpdateShippingMethodUseCase(shippingMethodRepository)
 
     @Bean
-    open fun readEnabledShippingMethodUseCase(shippingMethodRepository: ShippingMethodRepository,
-                                              userRepository: UserRepository) =
-        ReadEnabledShippingMethodUseCase(shippingMethodRepository, userRepository)
+    open fun readEnabledShippingMethodUseCase(shippingMethodRepository: ShippingMethodRepository) =
+        ReadEnabledShippingMethodUseCase(shippingMethodRepository)
 
     @Bean
     open fun shippingMethodUseCases(listShippingMethodsUseCase: ListShippingMethodsUseCase,

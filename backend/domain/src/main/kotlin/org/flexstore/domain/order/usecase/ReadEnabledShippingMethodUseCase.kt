@@ -1,15 +1,14 @@
 package org.flexstore.domain.order.usecase
 
+import org.flexstore.domain.actor.verifyCanAct
 import org.flexstore.domain.order.ShippingMethodRepository
 import org.flexstore.domain.order.model.*
-import org.flexstore.domain.user.repository.UserRepository
 import org.ucop.domain.ErrorMessage
 import org.ucop.domain.entity.*
 
 // A customer reads the shipping method they choose to check out: it exists and is still enabled
 class ReadEnabledShippingMethodUseCase(
-    private val shippingMethodRepository: ShippingMethodRepository,
-    private val userRepository: UserRepository
+    private val shippingMethodRepository: ShippingMethodRepository
 ) : QueryUseCase<EnabledShippingMethodLookup, ShippingMethod> {
 
     override fun getPreConditions(): PreConditions<EnabledShippingMethodLookup> = PreConditions(
@@ -22,10 +21,9 @@ class ReadEnabledShippingMethodUseCase(
 
     override fun getPostConditions(): PostConditions<ShippingMethod> = PostConditions.none()
 
-    // The customer must be an existing user whose account is not suspended, locked or disabled (read
-    // from the users, not from the request)
+    // The customer, resolved before the use case runs, must be a customer or an admin who can act
     private fun customerCanActCondition() = PreCondition<EnabledShippingMethodLookup> { lookup ->
-        userRepository.verifyCustomerCanAct(lookup.customer.userId)
+        lookup.customer.verifyCanAct()
     }
 
     private fun shippingMethodExistsCondition() = PreCondition<EnabledShippingMethodLookup> { lookup ->

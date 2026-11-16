@@ -35,7 +35,7 @@ class OrderUseCases(
     fun paymentDelay(reader: Actor) = readShopSettingsUseCase.unfold(reader).paymentDelay
 
     // The shipping methods the customer chooses from, at their cost for their cart
-    fun shippingOptionsFor(customer: CartOwner.Customer) = proposeShippingOptionsUseCase.unfold(customer)
+    fun shippingOptionsFor(customer: Actor) = proposeShippingOptionsUseCase.unfold(ShippingOptionsReading(customer))
 
     fun sendConfirmationOf(order: Order) = sendOrderConfirmationEmailUseCase.unfold(order)
 }

@@ -1,5 +1,6 @@
 package org.flexstore.domain.payment
 
+import org.flexstore.domain.actor.ActorResolutionService
 import org.flexstore.domain.order.model.*
 import org.flexstore.domain.product.model.*
 import org.flexstore.domain.user.blockedCustomerId
@@ -43,6 +44,8 @@ class PaymentServiceTest : WithAssertions {
         save(definedUser)
         save(customerOf("user-2"))
     }
+    private val actorResolutionService = ActorResolutionService(userRepository)
+    private val customerActor = actorResolutionService.actorOf(customer.userId)
     private val emailRepository = InMemoryEmailRepository()
     private val orderQueryUseCases = OrderQueryUseCases(
         ListCustomerOrdersUseCase(orderRepository),
@@ -59,7 +62,7 @@ class PaymentServiceTest : WithAssertions {
         val startPaymentUseCase = StartPaymentUseCase(orderRepository, paymentRepository, userRepository)
         val confirmPaymentUseCase = ConfirmPaymentUseCase(orderRepository, cartRepository, stockRepository)
         val readPaymentUseCase = ReadPaymentUseCase(paymentRepository)
-        val verifyPaymentUseCase = VerifyPaymentUseCase(orderRepository, paymentRepository, userRepository)
+        val verifyPaymentUseCase = VerifyPaymentUseCase(orderRepository, paymentRepository)
         val paymentUseCases =
             PaymentUseCases(startPaymentUseCase, confirmPaymentUseCase, readPaymentUseCase, verifyPaymentUseCase)
         val readShopSettingsUseCase = ReadShopSettingsUseCase(shopSettingsRepository)
@@ -69,7 +72,7 @@ class PaymentServiceTest : WithAssertions {
                 sendEmailUseCase,
                 readShopSettingsUseCase,
                 ProposeShippingOptionsUseCase(
-                    cartRepository, InMemoryShippingMethodRepository(), shopSettingsRepository, userRepository
+                    cartRepository, InMemoryShippingMethodRepository(), shopSettingsRepository
                 )
             )
         val sellerRepository = InMemorySellerRepository(testSeller)
@@ -96,7 +99,7 @@ class PaymentServiceTest : WithAssertions {
         // Arrange
         placeOrder()
         // Act
-        val paymentSession = paidLater.pay(OrderPayment(customer, orderId))
+        val paymentSession = paidLater.pay(OrderPayment(customerActor, orderId))
         // Assert
         assertThat(paymentSession.checkoutPage).isEqualTo(CheckoutPage("https://pay.example/order-1"))
         assertThat(storedStatus()).isEqualTo(OrderStatus.AWAITING_PAYMENT)
@@ -108,7 +111,7 @@ class PaymentServiceTest : WithAssertions {
         // Arrange
         placeOrder()
         // Act
-        paidLater.pay(OrderPayment(customer, orderId))
+        paidLater.pay(OrderPayment(customerActor, orderId))
         // Assert
         assertThat(pendingPaymentRepository.payerOf(orderId)).isEqualTo(Payer(email, Cardholder.Named(janeDoe)))
     }
@@ -117,7 +120,7 @@ class PaymentServiceTest : WithAssertions {
     fun `a confirmed payment should pay the order, empty the cart and confirm the order by email`() {
         // Arrange
         placeOrder()
-        paidLater.pay(OrderPayment(customer, orderId))
+        paidLater.pay(OrderPayment(customerActor, orderId))
         // Act
         paidLater.confirm(orderId)
         // Assert
@@ -130,7 +133,7 @@ class PaymentServiceTest : WithAssertions {
     fun `a confirmed payment should invoice the order`() {
         // Arrange
         placeOrder()
-        paidLater.pay(OrderPayment(customer, orderId))
+        paidLater.pay(OrderPayment(customerActor, orderId))
         // Act
         paidLater.confirm(orderId)
         // Assert
@@ -142,7 +145,7 @@ class PaymentServiceTest : WithAssertions {
         // Arrange
         placeOrder()
         // Act
-        paidAtOnce.pay(OrderPayment(customer, orderId))
+        paidAtOnce.pay(OrderPayment(customerActor, orderId))
         // Assert
         assertThat(stockRepository.stockOf(deskLamp.productId).quantity).isEqualTo(StockQuantity(5))
     }
@@ -164,7 +167,7 @@ class PaymentServiceTest : WithAssertions {
         // Arrange
         placeOrder()
         // Act
-        paidAtOnce.pay(OrderPayment(customer, orderId))
+        paidAtOnce.pay(OrderPayment(customerActor, orderId))
         // Assert
         assertThat(storedStatus()).isEqualTo(OrderStatus.PAID)
     }
@@ -173,10 +176,10 @@ class PaymentServiceTest : WithAssertions {
     fun `a payment completed on the provider should pay the order when its notification never came`() {
         // Arrange
         placeOrder()
-        paidLater.pay(OrderPayment(customer, orderId))
+        paidLater.pay(OrderPayment(customerActor, orderId))
         pendingPaymentRepository.completePaymentOf(orderId)
         // Act
-        paidLater.verify(OrderPayment(customer, orderId))
+        paidLater.verify(OrderPayment(customerActor, orderId))
         // Assert
         assertThat(storedStatus()).isEqualTo(OrderStatus.PAID)
         assertThat(cartRepository.load(customer).isEmpty()).isTrue()
@@ -187,9 +190,9 @@ class PaymentServiceTest : WithAssertions {
     fun `a payment not completed on the provider should leave the order awaiting it`() {
         // Arrange
         placeOrder()
-        paidLater.pay(OrderPayment(customer, orderId))
+        paidLater.pay(OrderPayment(customerActor, orderId))
         // Act
-        paidLater.verify(OrderPayment(customer, orderId))
+        paidLater.verify(OrderPayment(customerActor, orderId))
         // Assert
         assertThat(storedStatus()).isEqualTo(OrderStatus.AWAITING_PAYMENT)
     }
@@ -198,11 +201,11 @@ class PaymentServiceTest : WithAssertions {
     fun `a payment verified after its notification should confirm the order once`() {
         // Arrange
         placeOrder()
-        paidLater.pay(OrderPayment(customer, orderId))
+        paidLater.pay(OrderPayment(customerActor, orderId))
         pendingPaymentRepository.completePaymentOf(orderId)
         paidLater.confirm(orderId)
         // Act
-        paidLater.verify(OrderPayment(customer, orderId))
+        paidLater.verify(OrderPayment(customerActor, orderId))
         // Assert
         assertThat(emailRepository.sentEmails()).hasSize(1)
     }
@@ -211,8 +214,8 @@ class PaymentServiceTest : WithAssertions {
     fun `the payment of the order of another customer should not be verified`() {
         // Arrange
         placeOrder()
-        paidLater.pay(OrderPayment(customer, orderId))
-        val otherCustomer = CartOwner.Customer(UserId.ValidUserId("user-2"))
+        paidLater.pay(OrderPayment(customerActor, orderId))
+        val otherCustomer = actorResolutionService.actorOf(UserId.ValidUserId("user-2"))
         // Act
         val thrown = catchThrowable { paidLater.verify(OrderPayment(otherCustomer, orderId)) }
         // Assert
@@ -223,7 +226,7 @@ class PaymentServiceTest : WithAssertions {
     fun `a payment notified twice should confirm the order once`() {
         // Arrange
         placeOrder()
-        paidLater.pay(OrderPayment(customer, orderId))
+        paidLater.pay(OrderPayment(customerActor, orderId))
         paidLater.confirm(orderId)
         // Act
         paidLater.confirm(orderId)
@@ -235,9 +238,9 @@ class PaymentServiceTest : WithAssertions {
     fun `a paid order should not be paid again`() {
         // Arrange
         placeOrder()
-        paidAtOnce.pay(OrderPayment(customer, orderId))
+        paidAtOnce.pay(OrderPayment(customerActor, orderId))
         // Act
-        val thrown = catchThrowable { paidAtOnce.pay(OrderPayment(customer, orderId)) }
+        val thrown = catchThrowable { paidAtOnce.pay(OrderPayment(customerActor, orderId)) }
         // Assert
         assertThat(thrown).hasCauseInstanceOf(OrderAlreadyPaidException::class.java)
     }
@@ -246,7 +249,7 @@ class PaymentServiceTest : WithAssertions {
     fun `the order of another customer should not be paid`() {
         // Arrange
         placeOrder()
-        val otherCustomer = CartOwner.Customer(UserId.ValidUserId("user-2"))
+        val otherCustomer = actorResolutionService.actorOf(UserId.ValidUserId("user-2"))
         // Act
         val thrown = catchThrowable { paidAtOnce.pay(OrderPayment(otherCustomer, orderId)) }
         // Assert
@@ -257,7 +260,7 @@ class PaymentServiceTest : WithAssertions {
     fun `an unknown customer should not pay an order`() {
         // Arrange
         placeOrder()
-        val unknownCustomer = CartOwner.Customer(unknownCustomerId)
+        val unknownCustomer = actorResolutionService.actorOf(unknownCustomerId)
         // Act
         val thrown = catchThrowable { paidAtOnce.pay(OrderPayment(unknownCustomer, orderId)) }
         // Assert
@@ -270,7 +273,7 @@ class PaymentServiceTest : WithAssertions {
         // Arrange
         userRepository.save(customerWithStatus(status))
         placeOrder()
-        val blockedCustomer = CartOwner.Customer(blockedCustomerId)
+        val blockedCustomer = actorResolutionService.actorOf(blockedCustomerId)
         // Act
         val thrown = catchThrowable { paidAtOnce.pay(OrderPayment(blockedCustomer, orderId)) }
         // Assert
