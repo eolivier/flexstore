@@ -104,7 +104,7 @@ describe('TwoFactorAuthSection.vue', () => {
     buttonNamed('Enable')!.click();
     await flushPromises();
     mockFetch.mockResolvedValueOnce({ ok: true, status: 204 });
-    const codeField = [...document.querySelectorAll('input')].find((input) => input.maxLength === 6)!;
+    const codeField = [...document.querySelectorAll('input')].find((input) => input.placeholder === '123 456')!;
     codeField.value = '123456';
     codeField.dispatchEvent(new Event('input'));
     await flushPromises();
