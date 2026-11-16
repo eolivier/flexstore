@@ -8,19 +8,11 @@ import { jsonRequest } from '@/utils/jsonRequest';
 import { logFailure } from '@/utils/logFailure';
 import { apiBaseUrl } from '@/api';
 
-export type PasswordChange = 'changed' | 'wrongPassword' | 'error';
 // signedIn: the account is created and the customer is signed in; invalidCompany: the company was refused (400)
 export type Registration = 'signedIn' | 'emailUsed' | 'invalidCompany' | 'error';
 // twoFactorRequired: the password is right, the code of the authenticator app is still needed
 export type LoginOutcome = 'signedIn' | 'twoFactorRequired' | 'refused' | 'invalidCredentials' | 'error';
 export type TwoFactorVerification = 'signedIn' | 'invalidCode' | 'error';
-export type TwoFactorConfirmation = 'confirmed' | 'invalidCode' | 'error';
-export type TwoFactorDisabling = 'disabled' | 'wrongPassword' | 'error';
-
-export interface TwoFactorEnrollment {
-  secret: string;
-  provisioningUri: string;
-}
 
 // The token expires after a few minutes; the refresh token, valid longer, renews it once (see refreshSession)
 interface RefreshedSession {
@@ -234,75 +226,6 @@ export const useAuthStore = defineStore('auth', () => {
     return authFetch(path, init).catch(() => null);
   }
 
-  // Changes the password of the signed-in user, after checking the current one
-  async function changePassword(currentPassword: string, newPassword: string): Promise<PasswordChange> {
-    if (!currentUser.value) return 'error';
-    try {
-      const response = await authFetch(
-        `/api/users/${currentUser.value.id}/password`,
-        jsonRequest('POST', { currentPassword, newPassword })
-      );
-      if (response.ok) return 'changed';
-      if (response.status === 400) return 'wrongPassword';
-      return 'error';
-    } catch (error) {
-      logFailure('change the password', error);
-      return 'error';
-    }
-  }
-
-  // Starts the enrollment of two-factor authentication: the secret stays pending until confirmed
-  async function startTwoFactorEnrollment(): Promise<TwoFactorEnrollment | null> {
-    if (!currentUser.value) return null;
-    try {
-      const response = await authFetch(`/api/users/${currentUser.value.id}/two-factor-authentication/enrollment`, {
-        method: 'POST',
-      });
-      return response.ok ? await response.json() : null;
-    } catch (error) {
-      logFailure('start the two-factor enrollment', error);
-      return null;
-    }
-  }
-
-  // Confirms the enrollment with the first code of the authenticator app
-  async function confirmTwoFactorEnrollment(code: string): Promise<TwoFactorConfirmation> {
-    if (!currentUser.value) return 'error';
-    try {
-      const response = await authFetch(
-        `/api/users/${currentUser.value.id}/two-factor-authentication/confirmation`,
-        jsonRequest('POST', { code })
-      );
-      if (response.ok) {
-        currentUser.value = { ...currentUser.value, twoFactorEnabled: true };
-        return 'confirmed';
-      }
-      return response.status === 401 ? 'invalidCode' : 'error';
-    } catch (error) {
-      logFailure('confirm the two-factor enrollment', error);
-      return 'error';
-    }
-  }
-
-  // Disables two-factor authentication, confirmed with the current password
-  async function disableTwoFactorAuthentication(currentPassword: string): Promise<TwoFactorDisabling> {
-    if (!currentUser.value) return 'error';
-    try {
-      const response = await authFetch(
-        `/api/users/${currentUser.value.id}/two-factor-authentication`,
-        jsonRequest('DELETE', { currentPassword })
-      );
-      if (response.ok) {
-        currentUser.value = { ...currentUser.value, twoFactorEnabled: false };
-        return 'disabled';
-      }
-      return response.status === 400 ? 'wrongPassword' : 'error';
-    } catch (error) {
-      logFailure('disable the two-factor authentication', error);
-      return 'error';
-    }
-  }
-
   // The email of the signed-in customer is verified: their account is active, in the tab session too
   function markEmailVerified() {
     if (!currentUser.value) return;
@@ -352,9 +275,5 @@ export const useAuthStore = defineStore('auth', () => {
     logout,
     authFetch,
     authFetchOrNull,
-    changePassword,
-    startTwoFactorEnrollment,
-    confirmTwoFactorEnrollment,
-    disableTwoFactorAuthentication,
   };
 });

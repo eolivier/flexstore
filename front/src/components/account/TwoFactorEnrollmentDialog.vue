@@ -2,14 +2,14 @@
   import { ref, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
   import QRCode from 'qrcode';
-  import { useAuthStore } from '@/stores/auth.store';
+  import { useAccountSecurityStore } from '@/stores/accountSecurity.store';
   import FormDialog from '@/components/layout/FormDialog.vue';
   import FeedbackAlert from '@/components/layout/FeedbackAlert.vue';
 
   const open = defineModel<boolean>({ required: true });
   const emit = defineEmits<{ enabled: [] }>();
   const { t } = useI18n();
-  const authStore = useAuthStore();
+  const accountSecurityStore = useAccountSecurityStore();
 
   const secret = ref('');
   const qrCodeDataUrl = ref('');
@@ -23,7 +23,7 @@
     error.value = '';
     code.value = '';
     qrCodeDataUrl.value = '';
-    const enrollment = await authStore.startTwoFactorEnrollment();
+    const enrollment = await accountSecurityStore.startTwoFactorEnrollment();
     if (enrollment) {
       secret.value = enrollment.secret;
       qrCodeDataUrl.value = await QRCode.toDataURL(enrollment.provisioningUri);
@@ -34,7 +34,7 @@
 
   async function confirm() {
     loading.value = true;
-    const outcome = await authStore.confirmTwoFactorEnrollment(code.value);
+    const outcome = await accountSecurityStore.confirmTwoFactorEnrollment(code.value);
     loading.value = false;
     if (outcome === 'confirmed') {
       open.value = false;

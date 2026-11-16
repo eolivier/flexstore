@@ -3,11 +3,11 @@
   import { useI18n } from 'vue-i18n';
   import FormActions from '@/components/form/FormActions.vue';
   import { useFieldRules } from '@/composables/useFieldRules';
-  import { useAuthStore } from '@/stores/auth.store';
+  import { useAccountSecurityStore } from '@/stores/accountSecurity.store';
   import { useSnackbar } from '@/composables/useSnackbar';
 
   const { t } = useI18n();
-  const authStore = useAuthStore();
+  const accountSecurityStore = useAccountSecurityStore();
   const snackbar = useSnackbar();
 
   const currentPassword = ref('');
@@ -33,7 +33,7 @@
   async function submit() {
     if (!valid.value) return;
     saving.value = true;
-    const passwordChange = await authStore.changePassword(currentPassword.value, newPassword.value);
+    const passwordChange = await accountSecurityStore.changePassword(currentPassword.value, newPassword.value);
     saving.value = false;
     const messages = {
       changed: 'profile.passwordChanged',
@@ -91,12 +91,7 @@
         </v-col>
       </v-row>
       <div class="d-flex flex-wrap align-center ga-4 mt-2">
-        <v-checkbox
-          v-model="showPasswords"
-          :label="t('createUser.showPassword')"
-          density="compact"
-          hide-details
-        />
+        <v-checkbox v-model="showPasswords" :label="t('createUser.showPassword')" density="compact" hide-details />
         <v-spacer />
         <FormActions :cancellable="false" :loading="saving" :disabled="!valid">
           {{ t('profile.changePassword') }}
