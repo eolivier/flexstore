@@ -17,7 +17,7 @@ export const useDiscountCodesStore = defineStore('discountCodes', () => {
   async function fetchDiscountCodes() {
     loading.value = true;
     loadError.value = false;
-    const response = await authStore.authFetch('/api/admin/discount-codes').catch(() => null);
+    const response = await authStore.authFetchOrNull('/api/admin/discount-codes');
     if (response?.ok) {
       discountCodes.value = await response.json();
     } else {
@@ -27,9 +27,7 @@ export const useDiscountCodesStore = defineStore('discountCodes', () => {
   }
 
   async function createDiscountCode(newDiscountCode: JsonNewDiscountCode): Promise<DiscountCodeCreation> {
-    const response = await authStore
-      .authFetch('/api/admin/discount-codes', jsonRequest('POST', newDiscountCode))
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull('/api/admin/discount-codes', jsonRequest('POST', newDiscountCode));
     if (response?.status === 409) return 'alreadyExists';
     if (response?.status === 400) return 'invalid';
     if (!response?.ok) return 'error';
@@ -39,9 +37,9 @@ export const useDiscountCodesStore = defineStore('discountCodes', () => {
 
   // Returns whether the code was deleted
   async function deleteDiscountCode(code: string): Promise<boolean> {
-    const response = await authStore
-      .authFetch(`/api/admin/discount-codes/${encodeURIComponent(code)}`, { method: 'DELETE' })
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull(`/api/admin/discount-codes/${encodeURIComponent(code)}`, {
+      method: 'DELETE',
+    });
     if (!response?.ok) return false;
     discountCodes.value = discountCodes.value.filter((discountCode) => discountCode.code !== code);
     return true;

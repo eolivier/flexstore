@@ -17,7 +17,7 @@ export const useShippingMethodsStore = defineStore('shippingMethods', () => {
   async function fetchShippingMethods() {
     loading.value = true;
     loadError.value = false;
-    const response = await authStore.authFetch('/api/admin/shipping-methods').catch(() => null);
+    const response = await authStore.authFetchOrNull('/api/admin/shipping-methods');
     if (response?.ok) {
       shippingMethods.value = await response.json();
     } else {
@@ -35,9 +35,10 @@ export const useShippingMethodsStore = defineStore('shippingMethods', () => {
   }
 
   async function createShippingMethod(newShippingMethod: JsonNewShippingMethod): Promise<ShippingMethodSaving> {
-    const response = await authStore
-      .authFetch('/api/admin/shipping-methods', jsonRequest('POST', newShippingMethod))
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull(
+      '/api/admin/shipping-methods',
+      jsonRequest('POST', newShippingMethod)
+    );
     return savedOutcomeOf(response);
   }
 
@@ -45,9 +46,10 @@ export const useShippingMethodsStore = defineStore('shippingMethods', () => {
     id: string,
     shippingMethodChange: JsonShippingMethodChange
   ): Promise<ShippingMethodSaving> {
-    const response = await authStore
-      .authFetch(`/api/admin/shipping-methods/${encodeURIComponent(id)}`, jsonRequest('PUT', shippingMethodChange))
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull(
+      `/api/admin/shipping-methods/${encodeURIComponent(id)}`,
+      jsonRequest('PUT', shippingMethodChange)
+    );
     return savedOutcomeOf(response);
   }
 

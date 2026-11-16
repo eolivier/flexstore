@@ -19,7 +19,7 @@ export const useSalesDashboardStore = defineStore('salesDashboard', () => {
     days.value = period;
     loading.value = true;
     loadError.value = false;
-    const response = await authStore.authFetch(`/api/admin/sales-dashboard?days=${period}`).catch(() => null);
+    const response = await authStore.authFetchOrNull(`/api/admin/sales-dashboard?days=${period}`);
     if (response?.ok) {
       dashboard.value = await response.json();
     } else {

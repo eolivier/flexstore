@@ -52,9 +52,9 @@ export const useReviewsStore = defineStore('reviews', () => {
   // For a signed-in customer: whether they may review the product
   async function fetchEligibility(productId: string) {
     eligibility.value = null;
-    const response = await authStore
-      .authFetch(`/api/products/${encodeURIComponent(productId)}/review-eligibility`)
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull(
+      `/api/products/${encodeURIComponent(productId)}/review-eligibility`
+    );
     if (!response?.ok) return;
     const jsonEligibility: JsonReviewEligibility = await response.json();
     eligibility.value = jsonEligibility.eligibility;
@@ -62,12 +62,10 @@ export const useReviewsStore = defineStore('reviews', () => {
 
   // For a signed-in customer who bought the product; the reviews and the ratings are read again once added
   async function addReview(productId: string, rating: number, comment: string): Promise<ReviewOutcome> {
-    const response = await authStore
-      .authFetch(
-        `/api/products/${encodeURIComponent(productId)}/reviews`,
-        jsonRequest('POST', { rating, comment })
-      )
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull(
+      `/api/products/${encodeURIComponent(productId)}/reviews`,
+      jsonRequest('POST', { rating, comment })
+    );
     if (!response) return 'error';
     if (!response.ok) return OUTCOME_OF_STATUS[response.status] ?? 'error';
     eligibility.value = 'ALREADY_REVIEWED';
@@ -77,9 +75,9 @@ export const useReviewsStore = defineStore('reviews', () => {
 
   // For the administrators; returns whether the review was deleted. The ratings are read again
   async function deleteReview(reviewId: string): Promise<boolean> {
-    const response = await authStore
-      .authFetch(`/api/admin/reviews/${encodeURIComponent(reviewId)}`, { method: 'DELETE' })
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull(`/api/admin/reviews/${encodeURIComponent(reviewId)}`, {
+      method: 'DELETE',
+    });
     if (!response?.ok) return false;
     reviews.value = reviews.value.filter((review) => review.id !== reviewId);
     await fetchRatings();

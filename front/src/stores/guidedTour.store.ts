@@ -20,16 +20,17 @@ export const useGuidedTourStore = defineStore('guidedTour', () => {
   const isShown = computed(() => accountGuidedTour.value !== 'hidden');
 
   async function readFromAccount(): Promise<AccountGuidedTour> {
-    const response = await authStore.authFetch('/api/guided-tour').catch(() => null);
+    const response = await authStore.authFetchOrNull('/api/guided-tour');
     if (!response?.ok) return 'hidden';
     const preference = await response.json();
     return guidedTourOfAccount[preference.guidedTour] ?? 'hidden';
   }
 
   async function recordInAccount(guidedTour: 'shown' | 'hidden'): Promise<void> {
-    const response = await authStore
-      .authFetch('/api/guided-tour', jsonRequest('PUT', { guidedTour: guidedTour.toUpperCase() }))
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull(
+      '/api/guided-tour',
+      jsonRequest('PUT', { guidedTour: guidedTour.toUpperCase() })
+    );
     if (response?.ok) accountGuidedTour.value = guidedTour;
   }
 

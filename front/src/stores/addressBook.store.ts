@@ -35,7 +35,7 @@ export const useAddressBookStore = defineStore('addressBook', () => {
   async function fetchAddresses() {
     loading.value = true;
     loadError.value = false;
-    const response = await authStore.authFetch('/api/accounts/me/addresses').catch(() => null);
+    const response = await authStore.authFetchOrNull('/api/accounts/me/addresses');
     if (response?.ok) {
       await keep(response);
     } else {
@@ -45,9 +45,7 @@ export const useAddressBookStore = defineStore('addressBook', () => {
   }
 
   async function addAddress(address: PostalAddress): Promise<AddressEdition> {
-    const response = await authStore
-      .authFetch('/api/accounts/me/addresses', jsonRequest('POST', address))
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull('/api/accounts/me/addresses', jsonRequest('POST', address));
     if (response?.status === 400) return 'incomplete';
     if (!response?.ok) return 'error';
     await keep(response);
@@ -55,9 +53,10 @@ export const useAddressBookStore = defineStore('addressBook', () => {
   }
 
   async function changeAddress(position: number, address: PostalAddress): Promise<AddressEdition> {
-    const response = await authStore
-      .authFetch(`/api/accounts/me/addresses/${position}`, jsonRequest('PUT', address))
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull(
+      `/api/accounts/me/addresses/${position}`,
+      jsonRequest('PUT', address)
+    );
     if (response?.status === 400) return 'incomplete';
     if (!response?.ok) return 'error';
     await keep(response);
@@ -66,9 +65,7 @@ export const useAddressBookStore = defineStore('addressBook', () => {
 
   // Returns whether the address was removed
   async function removeAddress(position: number): Promise<boolean> {
-    const response = await authStore
-      .authFetch(`/api/accounts/me/addresses/${position}`, { method: 'DELETE' })
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull(`/api/accounts/me/addresses/${position}`, { method: 'DELETE' });
     if (!response?.ok) return false;
     await keep(response);
     return true;

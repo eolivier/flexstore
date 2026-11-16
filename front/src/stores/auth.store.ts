@@ -228,6 +228,12 @@ export const useAuthStore = defineStore('auth', () => {
     return response;
   }
 
+  // authFetch, where a request that cannot be sent (the network is down) gives null instead of an error: the
+  // callers handle a missing answer like a refused one
+  async function authFetchOrNull(path: string, init: RequestInit = {}): Promise<Response | null> {
+    return authFetch(path, init).catch(() => null);
+  }
+
   // Changes the password of the signed-in user, after checking the current one
   async function changePassword(currentPassword: string, newPassword: string): Promise<PasswordChange> {
     if (!currentUser.value) return 'error';
@@ -345,6 +351,7 @@ export const useAuthStore = defineStore('auth', () => {
     markEmailVerified,
     logout,
     authFetch,
+    authFetchOrNull,
     changePassword,
     startTwoFactorEnrollment,
     confirmTwoFactorEnrollment,

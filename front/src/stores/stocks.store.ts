@@ -27,9 +27,10 @@ export const useStocksStore = defineStore('stocks', () => {
 
   // For the administrators; returns whether the stock was changed
   async function changeStock(productId: string, quantity: number): Promise<boolean> {
-    const response = await authStore
-      .authFetch(`/api/admin/stocks/${encodeURIComponent(productId)}`, jsonRequest('PUT', { quantity }))
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull(
+      `/api/admin/stocks/${encodeURIComponent(productId)}`,
+      jsonRequest('PUT', { quantity })
+    );
     if (!response?.ok) return false;
     const jsonStock: JsonStock = await response.json();
     stocks.value = { ...stocks.value, [jsonStock.productId]: jsonStock.quantity };

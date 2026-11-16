@@ -15,7 +15,7 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
   async function fetchPoints() {
     loading.value = true;
     loadError.value = false;
-    const response = await authStore.authFetch('/api/loyalty').catch(() => null);
+    const response = await authStore.authFetchOrNull('/api/loyalty');
     if (response?.ok) {
       const statement: JsonLoyaltyStatement = await response.json();
       points.value = statement.points;

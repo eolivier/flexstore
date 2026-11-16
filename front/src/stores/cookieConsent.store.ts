@@ -33,14 +33,15 @@ export const useCookieConsentStore = defineStore('cookieConsent', () => {
 
   // Returns whether the account recorded the choice
   async function recordInAccount(newChoice: CookieChoice): Promise<boolean> {
-    const response = await authStore
-      .authFetch('/api/cookie-consent', jsonRequest('PUT', { choice: accountOfChoice[newChoice] }))
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull(
+      '/api/cookie-consent',
+      jsonRequest('PUT', { choice: accountOfChoice[newChoice] })
+    );
     return response?.ok === true;
   }
 
   async function readFromAccount(): Promise<CookieChoice> {
-    const response = await authStore.authFetch('/api/cookie-consent').catch(() => null);
+    const response = await authStore.authFetchOrNull('/api/cookie-consent');
     if (!response?.ok) return storedCookieChoice();
     const consent = await response.json();
     return choiceOfAccount[consent.choice] ?? 'undecided';

@@ -83,14 +83,15 @@ export const useUsersStore = defineStore('users', () => {
 
   // One user, or null when it cannot be read
   async function fetchUser(id: string): Promise<User | null> {
-    const response = await authStore.authFetch(`/api/users/${encodeURIComponent(id)}`).catch(() => null);
+    const response = await authStore.authFetchOrNull(`/api/users/${encodeURIComponent(id)}`);
     return response?.ok ? response.json() : null;
   }
 
   async function updateUser(id: string, editedUser: EditedUser): Promise<UserEdition> {
-    const response = await authStore
-      .authFetch(`/api/users/${encodeURIComponent(id)}`, jsonRequest('PUT', editedUser))
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull(
+      `/api/users/${encodeURIComponent(id)}`,
+      jsonRequest('PUT', editedUser)
+    );
     if (response?.status === 409) return 'emailUsed';
     if (!response?.ok) return 'error';
     await fetchUsers();
@@ -100,9 +101,10 @@ export const useUsersStore = defineStore('users', () => {
   // An administrator activates, suspends, locks or disables the account of another user.
   // Returns whether it changed
   async function changeStatus(id: string, status: AccountStatus): Promise<boolean> {
-    const response = await authStore
-      .authFetch(`/api/users/${encodeURIComponent(id)}/status`, jsonRequest('PUT', { status }))
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull(
+      `/api/users/${encodeURIComponent(id)}/status`,
+      jsonRequest('PUT', { status })
+    );
     if (!response?.ok) return false;
     await fetchUsers();
     return true;
@@ -111,9 +113,9 @@ export const useUsersStore = defineStore('users', () => {
   // An administrator disables the two-factor authentication of another user, without their current password.
   // Returns whether it was disabled
   async function disableTwoFactor(id: string): Promise<boolean> {
-    const response = await authStore
-      .authFetch(`/api/users/${encodeURIComponent(id)}/two-factor-authentication`, { method: 'PUT' })
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull(`/api/users/${encodeURIComponent(id)}/two-factor-authentication`, {
+      method: 'PUT',
+    });
     return !!response?.ok;
   }
 

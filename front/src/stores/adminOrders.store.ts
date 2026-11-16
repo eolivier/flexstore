@@ -33,7 +33,7 @@ export const useAdminOrdersStore = defineStore('adminOrders', () => {
   async function fetchAllOrders(pageNumber: number = page.value) {
     loading.value = true;
     loadError.value = false;
-    const response = await authStore.authFetch(`/api/admin/orders?${pageQuery(pageNumber)}`).catch(() => null);
+    const response = await authStore.authFetchOrNull(`/api/admin/orders?${pageQuery(pageNumber)}`);
     if (response?.ok) {
       const pageOrders: JsonAdminOrder[] = await response.json();
       orders.value = pageOrders;
@@ -46,7 +46,7 @@ export const useAdminOrdersStore = defineStore('adminOrders', () => {
   }
 
   async function fetchOrder(id: string): Promise<AdminOrderLookup> {
-    const response = await authStore.authFetch(`/api/admin/orders/${encodeURIComponent(id)}`).catch(() => null);
+    const response = await authStore.authFetchOrNull(`/api/admin/orders/${encodeURIComponent(id)}`);
     if (response?.status === 404) return { status: 'notFound' };
     if (!response?.ok) return { status: 'error' };
     return { status: 'found', order: await response.json() };
@@ -55,15 +55,13 @@ export const useAdminOrdersStore = defineStore('adminOrders', () => {
   // Moves the order to the next status of its life cycle, from the status shown to the administrator, with the
   // tracking of the parcel when it is shipped; the order at its next status replaces it in the list
   async function advanceStatus(order: JsonOrder, tracking: TrackingInput = NO_TRACKING): Promise<StatusAdvance> {
-    const response = await authStore
-      .authFetch(
-        `/api/admin/orders/${encodeURIComponent(order.id)}/status/advance`,
-        jsonRequest('POST', {
-          currentStatus: order.status,
-          ...(hasTracking(tracking) ? trackingToSend(tracking) : {}),
-        })
-      )
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull(
+      `/api/admin/orders/${encodeURIComponent(order.id)}/status/advance`,
+      jsonRequest('POST', {
+        currentStatus: order.status,
+        ...(hasTracking(tracking) ? trackingToSend(tracking) : {}),
+      })
+    );
     if (response?.status === 409) {
       await fetchAllOrders();
       return 'statusChanged';
@@ -76,12 +74,10 @@ export const useAdminOrdersStore = defineStore('adminOrders', () => {
 
   // Corrects the carrier and the tracking number of an order shipped or delivered
   async function correctTracking(order: JsonOrder, tracking: TrackingInput): Promise<TrackingCorrection> {
-    const response = await authStore
-      .authFetch(
-        `/api/admin/orders/${encodeURIComponent(order.id)}/tracking`,
-        jsonRequest('PUT', trackingToSend(tracking))
-      )
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull(
+      `/api/admin/orders/${encodeURIComponent(order.id)}/tracking`,
+      jsonRequest('PUT', trackingToSend(tracking))
+    );
     if (response?.status === 409) return 'notCorrectable';
     if (response?.status === 400) return 'invalid';
     if (!response?.ok) return 'error';
@@ -90,12 +86,10 @@ export const useAdminOrdersStore = defineStore('adminOrders', () => {
 
   // Cancels and refunds the order, from the status shown to the administrator
   async function refundOrder(order: JsonOrder): Promise<OrderRefundOutcome> {
-    const response = await authStore
-      .authFetch(
-        `/api/admin/orders/${encodeURIComponent(order.id)}/refund`,
-        jsonRequest('POST', { currentStatus: order.status })
-      )
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull(
+      `/api/admin/orders/${encodeURIComponent(order.id)}/refund`,
+      jsonRequest('POST', { currentStatus: order.status })
+    );
     if (response?.status === 409) return 'statusChanged';
     if (response?.status === 502) return 'refundRefused';
     if (!response?.ok) return 'error';

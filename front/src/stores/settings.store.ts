@@ -17,10 +17,7 @@ export interface ShopSettings {
 }
 
 // The settings are being read, were read, or could not be read
-export type SettingsLoad =
-  | { status: 'loading' }
-  | { status: 'loaded'; settings: ShopSettings }
-  | { status: 'failed' };
+export type SettingsLoad = { status: 'loading' } | { status: 'loaded'; settings: ShopSettings } | { status: 'failed' };
 
 // From 1 minute to 1 day
 export const MAX_PAYMENT_DELAY_MINUTES = 24 * 60;
@@ -40,7 +37,7 @@ export const useSettingsStore = defineStore('settings', () => {
 
   async function fetchSettings() {
     if (load.value.status === 'failed') load.value = { status: 'loading' };
-    const response = await authStore.authFetch('/api/admin/settings').catch(() => null);
+    const response = await authStore.authFetchOrNull('/api/admin/settings');
     if (response?.ok) {
       await readSettings(response);
     } else {
@@ -50,9 +47,9 @@ export const useSettingsStore = defineStore('settings', () => {
 
   // Returns whether the change was saved
   async function changeOrderConfirmationEmail(action: 'enable' | 'disable'): Promise<boolean> {
-    const response = await authStore
-      .authFetch(`/api/admin/settings/order-confirmation-email/${action}`, { method: 'POST' })
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull(`/api/admin/settings/order-confirmation-email/${action}`, {
+      method: 'POST',
+    });
     if (!response?.ok) return false;
     await readSettings(response);
     return true;
@@ -64,9 +61,9 @@ export const useSettingsStore = defineStore('settings', () => {
 
   // Returns whether the change was saved
   async function changeAbandonedCartReminder(action: 'enable' | 'disable'): Promise<boolean> {
-    const response = await authStore
-      .authFetch(`/api/admin/settings/abandoned-cart-reminder/${action}`, { method: 'POST' })
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull(`/api/admin/settings/abandoned-cart-reminder/${action}`, {
+      method: 'POST',
+    });
     if (!response?.ok) return false;
     await readSettings(response);
     return true;
@@ -78,9 +75,10 @@ export const useSettingsStore = defineStore('settings', () => {
 
   // Returns whether the change was saved
   async function changeAbandonedCartDelay(hours: number): Promise<boolean> {
-    const response = await authStore
-      .authFetch('/api/admin/settings/abandoned-cart-delay', jsonRequest('PUT', { hours }))
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull(
+      '/api/admin/settings/abandoned-cart-delay',
+      jsonRequest('PUT', { hours })
+    );
     if (!response?.ok) return false;
     await readSettings(response);
     return true;
@@ -88,9 +86,10 @@ export const useSettingsStore = defineStore('settings', () => {
 
   // Returns whether the change was saved
   async function changePaymentDelay(minutes: number): Promise<boolean> {
-    const response = await authStore
-      .authFetch('/api/admin/settings/payment-delay', jsonRequest('PUT', { minutes }))
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull(
+      '/api/admin/settings/payment-delay',
+      jsonRequest('PUT', { minutes })
+    );
     if (!response?.ok) return false;
     await readSettings(response);
     return true;
@@ -98,9 +97,10 @@ export const useSettingsStore = defineStore('settings', () => {
 
   // Returns whether the change was saved
   async function changeFreeShippingThreshold(amount: number): Promise<boolean> {
-    const response = await authStore
-      .authFetch('/api/admin/settings/free-shipping-threshold', jsonRequest('PUT', { amount }))
-      .catch(() => null);
+    const response = await authStore.authFetchOrNull(
+      '/api/admin/settings/free-shipping-threshold',
+      jsonRequest('PUT', { amount })
+    );
     if (!response?.ok) return false;
     await readSettings(response);
     return true;
