@@ -51,7 +51,7 @@ describe('auth.store', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     mockFetch.mockReset();
-    sessionStorage.clear();
+    localStorage.clear();
   });
 
   describe('initial state', () => {
@@ -365,7 +365,7 @@ describe('auth.store', () => {
 
     it('should not restore a session whose refresh token expired', () => {
       // Arrange
-      sessionStorage.setItem(
+      localStorage.setItem(
         'flexstore.session',
         JSON.stringify({
           ...loginResponse(),
@@ -381,7 +381,7 @@ describe('auth.store', () => {
 
     it('should restore a session whose token expired but whose refresh token did not', () => {
       // Arrange
-      sessionStorage.setItem(
+      localStorage.setItem(
         'flexstore.session',
         JSON.stringify({ ...loginResponse(), expiresAt: '2020-01-01T00:00:00Z' })
       );
@@ -389,6 +389,28 @@ describe('auth.store', () => {
       const store = reloadedStore();
       // Assert
       expect(store.isAuthenticated).toBe(true);
+    });
+  });
+
+  describe('session shared between tabs', () => {
+    it('should be signed in in a tab opened after the sign-in', async () => {
+      // Arrange
+      await signedIn();
+      // Act
+      setActivePinia(createPinia());
+      const otherTab = useAuthStore();
+      // Assert
+      expect(otherTab.isAuthenticated).toBe(true);
+    });
+
+    it('should be signed out when another tab signs out', async () => {
+      // Arrange
+      const store = await signedIn();
+      // Act
+      localStorage.removeItem('flexstore.session');
+      window.dispatchEvent(new StorageEvent('storage', { key: 'flexstore.session' }));
+      // Assert
+      expect(store.isAuthenticated).toBe(false);
     });
   });
 
@@ -477,7 +499,7 @@ describe('auth.store', () => {
       // Arrange
       const store = await signedIn();
       store.logout();
-      sessionStorage.setItem(
+      localStorage.setItem(
         'flexstore.session',
         JSON.stringify({ ...loginResponse(), refreshToken: undefined })
       );

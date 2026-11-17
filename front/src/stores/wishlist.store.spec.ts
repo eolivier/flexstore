@@ -38,7 +38,7 @@ describe('wishlist.store', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     mockFetch.mockReset();
-    sessionStorage.clear();
+    localStorage.clear();
   });
 
   it('should load the products saved by the customer', async () => {

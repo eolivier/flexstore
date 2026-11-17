@@ -16,7 +16,7 @@ const button = (label: string) =>
 async function openedTour() {
   const expiresAt = new Date(Date.now() + 3600_000).toISOString();
   const session = { token: 'token', expiresAt, user: { id: 'user-1', email: 'jane@flexstore.fr' } };
-  sessionStorage.setItem('flexstore.session', JSON.stringify(session));
+  localStorage.setItem('flexstore.session', JSON.stringify(session));
   mockFetch.mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve({ guidedTour: 'NONE' }) });
   const store = useGuidedTourStore();
   const wrapper = mount(GuidedTour, { attachTo: document.body });
@@ -34,7 +34,7 @@ async function goToTheLastStep() {
 describe('GuidedTour.vue', () => {
   beforeEach(() => {
     document.body.innerHTML = '';
-    sessionStorage.clear();
+    localStorage.clear();
     mockFetch.mockReset();
     setActivePinia(createPinia());
   });

@@ -16,7 +16,7 @@ describe('restockSubscriptions.store', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     mockFetch.mockReset();
-    sessionStorage.clear();
+    localStorage.clear();
   });
 
   it('should load the products the customer waits for', async () => {

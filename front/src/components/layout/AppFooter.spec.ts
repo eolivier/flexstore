@@ -31,7 +31,7 @@ describe('AppFooter.vue', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     mockFetch.mockReset();
-    sessionStorage.clear();
+    localStorage.clear();
   });
 
   it('a visitor who is not signed in should have no link to the orders or the account', () => {

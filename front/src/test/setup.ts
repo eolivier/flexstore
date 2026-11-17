@@ -39,7 +39,7 @@ if (!('visualViewport' in globalThis)) {
   );
 }
 
-// The session is kept in sessionStorage (it survives a reload): each test starts signed out
+// The session is kept in localStorage (it survives a reload): each test starts signed out
 beforeEach(() => {
-  sessionStorage.clear();
+  localStorage.clear();
 });

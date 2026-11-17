@@ -13,12 +13,12 @@ const answer = (status: number, body?: unknown) =>
 function signedIn() {
   const expiresAt = new Date(Date.now() + 3600_000).toISOString();
   const session = { token: 'token', expiresAt, user: { id: 'user-1', email: 'jane@flexstore.fr' } };
-  sessionStorage.setItem('flexstore.session', JSON.stringify(session));
+  localStorage.setItem('flexstore.session', JSON.stringify(session));
 }
 
 describe('language.store, signed out', () => {
   beforeEach(() => {
-    sessionStorage.clear();
+    localStorage.clear();
     mockFetch.mockReset();
     setActivePinia(createPinia());
   });

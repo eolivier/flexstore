@@ -32,7 +32,7 @@ describe('EditUser.vue', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     mockFetch.mockReset();
-    sessionStorage.clear();
+    localStorage.clear();
     mockFetch.mockImplementation((url: string, init?: RequestInit) =>
       Promise.resolve({
         ok: true,
@@ -110,7 +110,7 @@ describe('EditUser.vue', () => {
 
   it('an administrator should not change the status of their own account', async () => {
     // Arrange
-    sessionStorage.setItem(
+    localStorage.setItem(
       'flexstore.session',
       JSON.stringify({ token: 'jwt-token', expiresAt: '2030-01-01T00:00:00Z', user: { ...jane, role: 'ADMIN' } })
     );
