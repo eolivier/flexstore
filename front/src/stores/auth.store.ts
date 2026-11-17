@@ -204,13 +204,15 @@ export const useAuthStore = defineStore('auth', () => {
 
   // Another tab signed in, renewed or signed out: this tab follows the stored session (a refresh token works once,
   // a stale one would sign this tab out)
-  window.addEventListener('storage', (event) => {
+  function followStoredSession(event: StorageEvent) {
     if (event.key !== SESSION_KEY) return;
     const sharedSession = readSession();
     currentUser.value = sharedSession?.user ?? null;
     token.value = sharedSession?.token ?? null;
     refreshToken.value = sharedSession?.refreshToken ?? null;
-  });
+  }
+  // No window while the pages are pre-rendered at build time
+  if (typeof window !== 'undefined') window.addEventListener('storage', followStoredSession);
 
   // Several requests rejected together renew the session once: the refresh token works once
   const refreshSession = shareWhilePending(renewSession);
