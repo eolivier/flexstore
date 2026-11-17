@@ -23,7 +23,7 @@ describe('VerifyEmail.vue', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     mockFetch.mockReset();
-    sessionStorage.clear();
+    localStorage.clear();
   });
 
   it.each([

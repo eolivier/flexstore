@@ -37,7 +37,7 @@ describe('accountSecurity.store', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     mockFetch.mockReset();
-    sessionStorage.clear();
+    localStorage.clear();
   });
 
   describe('changePassword', () => {

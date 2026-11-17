@@ -36,13 +36,13 @@ interface JsonLoginResponse {
   challengeId?: string;
 }
 
-// The session is kept in the tab (sessionStorage): it survives a reload and ends when the tab is closed
+// The session is kept in the browser (localStorage): it survives a reload and is shared by all the tabs
 const SESSION_KEY = 'flexstore.session';
 
 // Restored while the session can be renewed: an expired token is renewed at the first request that it fails
 function readSession(): LoginResponse | null {
   try {
-    const stored = sessionStorage.getItem(SESSION_KEY);
+    const stored = localStorage.getItem(SESSION_KEY);
     if (!stored) return null;
     const session: LoginResponse = JSON.parse(stored);
     const lastMoment = session.refreshExpiresAt ?? session.expiresAt;
@@ -55,9 +55,9 @@ function readSession(): LoginResponse | null {
 function writeSession(session: LoginResponse | null) {
   try {
     if (session) {
-      sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
+      localStorage.setItem(SESSION_KEY, JSON.stringify(session));
     } else {
-      sessionStorage.removeItem(SESSION_KEY);
+      localStorage.removeItem(SESSION_KEY);
     }
   } catch {
     // Storage unavailable: the session lasts until the page is reloaded
@@ -65,7 +65,7 @@ function writeSession(session: LoginResponse | null) {
 }
 
 export const useAuthStore = defineStore('auth', () => {
-  // Restored from the tab when the page is reloaded, unless the token has expired
+  // Restored from the browser when the page is reloaded or a tab is opened, unless the token has expired
   const restoredSession = readSession();
   const currentUser = ref<User | null>(restoredSession?.user ?? null);
   const token = ref<string | null>(restoredSession?.token ?? null);
@@ -202,6 +202,16 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  // Another tab signed in, renewed or signed out: this tab follows the stored session (a refresh token works once,
+  // a stale one would sign this tab out)
+  window.addEventListener('storage', (event) => {
+    if (event.key !== SESSION_KEY) return;
+    const sharedSession = readSession();
+    currentUser.value = sharedSession?.user ?? null;
+    token.value = sharedSession?.token ?? null;
+    refreshToken.value = sharedSession?.refreshToken ?? null;
+  });
+
   // Several requests rejected together renew the session once: the refresh token works once
   const refreshSession = shareWhilePending(renewSession);
 
@@ -226,7 +236,7 @@ export const useAuthStore = defineStore('auth', () => {
     return authFetch(path, init).catch(() => null);
   }
 
-  // The email of the signed-in customer is verified: their account is active, in the tab session too
+  // The email of the signed-in customer is verified: their account is active, in the stored session too
   function markEmailVerified() {
     if (!currentUser.value) return;
     currentUser.value = { ...currentUser.value, status: 'ACTIVE' };

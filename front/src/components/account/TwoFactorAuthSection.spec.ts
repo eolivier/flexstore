@@ -53,7 +53,7 @@ describe('TwoFactorAuthSection.vue', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     mockFetch.mockReset();
-    sessionStorage.clear();
+    localStorage.clear();
     document.body.innerHTML = '';
   });
 

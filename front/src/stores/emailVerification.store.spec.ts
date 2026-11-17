@@ -30,7 +30,7 @@ describe('emailVerification.store', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     mockFetch.mockReset();
-    sessionStorage.clear();
+    localStorage.clear();
   });
 
   it.each([
@@ -68,7 +68,7 @@ describe('emailVerification.store', () => {
     await useEmailVerificationStore().verifyEmail('the-token');
     // Assert
     expect(authStore.currentUser?.status).toBe('ACTIVE');
-    expect(JSON.parse(sessionStorage.getItem('flexstore.session')!).user.status).toBe('ACTIVE');
+    expect(JSON.parse(localStorage.getItem('flexstore.session')!).user.status).toBe('ACTIVE');
   });
 
   it.each([
